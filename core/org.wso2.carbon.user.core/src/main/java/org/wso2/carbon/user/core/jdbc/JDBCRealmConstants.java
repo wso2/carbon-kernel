@@ -90,6 +90,7 @@ public final class JDBCRealmConstants {
     public static final String ADD_SHARED_ROLE_TO_USER = "AddSharedRoleToUserSQL";
     public static final String ADD_SHARED_ROLE_TO_USER_WITH_ID = "AddSharedRoleToUserWithIDSQL";
     public static final String ADD_ROLE_PERMISSION = "AddRolePermissionSQL";
+    public static final String ADD_ROLE_ATTRIBUTES_SQL = "addRoleAttributes";
     public static final String REMOVE_USER_FROM_ROLE = "RemoveUserFromRoleSQL";
     public static final String REMOVE_USER_FROM_ROLE_WITH_ID = "RemoveUserFromRoleWithIDSQL";
     public static final String REMOVE_USER_FROM_SHARED_ROLE = "RemoveUserFromSharedRoleSQL";

@@ -14804,7 +14804,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // if existing users are added to role, need to update user role cache
-        if ((usersIDs != null) && (usersIDs.size()> 0)) {
+        if ((usersIDs != null) && (usersIDs.size() > 0)) {
             clearUserRolesCacheByTenant(tenantId);
         }
 
@@ -14812,19 +14812,18 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         handlePostAddGroup(groupName, usersIDs, permissions, false);
         // #################### </Listeners> #####################################################
 
-
         return createdGroup;
     }
 
     /**
-     *
      * @param groupName
      * @param userIDs
      * @param claims
      * @return
      * @throws org.wso2.carbon.user.api.UserStoreException
      */
-    protected Group doAddGroup(String groupName, List<String> userIDs, List<org.wso2.carbon.user.core.common.Claim> claims)
+    protected Group doAddGroup(String groupName, List<String> userIDs,
+                               List<org.wso2.carbon.user.core.common.Claim> claims)
             throws org.wso2.carbon.user.api.UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -15107,11 +15106,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
 
     /**
-     * Get the user.
+     * Get the Group using group ID and name.
      *
      * @param groupID   group ID.
      * @param groupName group name.
-     * @return User.
+     * @return Group.
      * @throws UserStoreException User Store Exception.
      */
     public Group getGroup(String groupID, String groupName) throws UserStoreException {
@@ -15142,7 +15141,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * provides the unique user ID of the given user.
      *
      * @param groupName RoleName of the group.
-     * @return Group ID.
+     * @return Group.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     public Group getGroupFromGroupName(String groupName) throws UserStoreException {
@@ -15176,6 +15175,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return group;
     }
 
+    /**
+     * Get Group from group name.
+     *
+     * @param groupName Group name.
+     * @return A group.
+     * @throws UserStoreException If an error occurred when getting a group using group name.
+     */
     protected Group doGetGroupFromGroupName(String groupName) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -15186,14 +15192,22 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     }
 
-    protected List<String> doGetGroupListFromProperties(String property, String value)
+    /**
+     * Retrieve a group using a property and its value.
+     *
+     * @param property Property name.
+     * @param value    Property value.
+     * @return A list of Groups.
+     * @throws UserStoreException If an error occurred when getting a property.
+     */
+    protected List<Group> doGetGroupFromProperties(String property, String value)
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
-            log.debug("doGetGroupListFromPropertie operation is not implemented in: " + this.getClass());
+            log.debug("doGetGroupFromProperties operation is not implemented in: " + this.getClass());
         }
         throw new NotImplementedException(
-                "doGetGroupListFromPropertie operation is not implemented in: " + this.getClass());
+                "doGetGroupFromProperties operation is not implemented in: " + this.getClass());
     }
 
     private List<String> getUsersWithDomain(Map.Entry<String, List<String>> entry) {
@@ -15213,15 +15227,5 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             domainNameProperty = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
         }
         return domainNameProperty;
-    }
-
-    protected List<String> getGroupClaimAttributes() {
-
-        String[] groupClaimList = {
-                UserCoreClaimConstants.GROUP_ID_CLAIM_URI,
-                UserCoreClaimConstants.GROUP_CREATED_CLAIM_URI,
-                UserCoreClaimConstants.GROUP_MODIFIED_CLAIM_URI
-        };
-        return Arrays.asList(groupClaimList);
     }
 }

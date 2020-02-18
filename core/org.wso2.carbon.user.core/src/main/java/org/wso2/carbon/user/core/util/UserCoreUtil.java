@@ -1163,27 +1163,26 @@ public final class UserCoreUtil {
     }
 
     /**
-     * @param groupName  Group Name.
-     * @param tenantId   Tenant ID.
-     * @param claims     List of claims to be stored. Can not be Null.
-     * @param dataSource Datasource.
+     * @param groupName    Group Name.
+     * @param tenantId     Tenant ID.
+     * @param claims       List of claims to be stored. Can not be Null.
+     * @param dbConnection Database Connection.
+     * @param sqlStatement SQL statement for insert claims.
      * @throws UserStoreException Throws when an error occur persisting role attribute details.
      */
     public void persistGroupAttributes(String groupName, int tenantId, List<Claim> claims,
-                                       DataSource dataSource)
+                                       Connection dbConnection, String sqlStatement)
             throws UserStoreException {
 
-        Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         try {
-            dbConnection = DatabaseUtil.getDBConnection(dataSource);
-            prepStmt = dbConnection.prepareStatement(JDBCRealmConstants.ADD_ROLE_ATTRIBUTE_SQL);
+            prepStmt = dbConnection.prepareStatement(sqlStatement);
             for (Claim claim : claims) {
-                    prepStmt.setString(1, claim.getClaimUrl());
-                    prepStmt.setString(2, claim.getClaimValue());
-                    prepStmt.setString(3, groupName);
-                    prepStmt.setInt(4, tenantId);
-                    prepStmt.addBatch();
+                prepStmt.setString(1, claim.getClaimUrl());
+                prepStmt.setString(2, claim.getClaimValue());
+                prepStmt.setString(3, groupName);
+                prepStmt.setInt(4, tenantId);
+                prepStmt.addBatch();
             }
             prepStmt.executeBatch();
             dbConnection.commit();
@@ -1198,18 +1197,6 @@ public final class UserCoreUtil {
             DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
         }
     }
-
-//    public Map<String, String> getMandatoryAttributesOfGroup(ClaimManager claimManager) {
-//
-//        Map<String, String> claims =  new HashMap<>();
-//        String groupID = getUniqueGroupID();
-//        Date createdTime = Calendar.getInstance().getTime();
-//        Date modifiedTime = Calendar.getInstance().getTime();
-//        claims.putIfAbsent(UserCoreConstants.GROUP_ID_ATTRIBUTE, groupID);
-//        claims.putIfAbsent(UserCoreConstants.GROUP_CREATED_TIME_ATTRIBUTE, createdTime.toString());
-//        claims.putIfAbsent(UserCoreConstants.GROUP_MODIFIED_TIME_ATTRIBUTE, modifiedTime.toString());
-//        return claims;
-//    }
 
     /**
      * provides the unique group ID for a group.

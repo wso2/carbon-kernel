@@ -3666,7 +3666,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     protected Group doAddGroup(String groupName, List<String> userIDs, List<Claim> claims)
             throws org.wso2.carbon.user.api.UserStoreException {
 
-        String domainName = this.getRealmConfiguration().getRealmProperty(UserStoreConfigConstants.DOMAIN_NAME);
+        String domainName =
+                this.getRealmConfiguration().getUserStoreProperties().get(UserStoreConfigConstants.DOMAIN_NAME);
         String groupID = userCoreUtil.getGroupID(claims, UserCoreClaimConstants.GROUP_ID_CLAIM_URI);
         Group createdGroup = null;
         if (groupID != null) {
@@ -3674,7 +3675,14 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             if (StringUtils.isNotBlank(domainName) && !groupName.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
                 groupName = UserCoreUtil.addDomainToName(groupName, domainName);
             }
-            userCoreUtil.persistGroupAttributes(groupName, tenantId, claims, dataSource);
+            try {
+                userCoreUtil.persistGroupAttributes(groupName, tenantId, claims, getDBConnection(),
+                        this.getRealmConfiguration().getRealmProperty(JDBCRealmConstants.ADD_ROLE_ATTRIBUTES_SQL));
+            } catch (SQLException e) {
+                throw new org.wso2.carbon.user.api.UserStoreException("Error occurred when getting database " +
+                        "connection" +
+                        ".", e);
+            }
             createdGroup = new Group(groupID, groupName);
             createdGroup.setTenantDomain(getTenantDomain(tenantId));
             createdGroup.setUserStoreDomain(domainName);

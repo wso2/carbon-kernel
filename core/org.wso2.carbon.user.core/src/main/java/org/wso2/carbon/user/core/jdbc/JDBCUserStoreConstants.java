@@ -414,6 +414,8 @@ public class JDBCUserStoreConstants {
 
         setAdvancedProperty(JDBCRealmConstants.IS_DOMAIN_EXISTING, "Is Domain Existing SQL", JDBCRealmConstants.IS_DOMAIN_EXISTING_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.ADD_DOMAIN, "Add Domain SQL", JDBCRealmConstants.ADD_DOMAIN_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.ADD_ROLE_ATTRIBUTES_SQL, "Add Role Attributes SQL",
+                JDBCRealmConstants.ADD_ROLE_ATTRIBUTE_SQL, "");
 
         // mssql
         setAdvancedProperty(JDBCRealmConstants.ADD_USER_TO_ROLE_MSSQL, "Add User To Role SQL (MSSQL)", JDBCRealmConstants.ADD_USER_TO_ROLE_MSSQL_SQL, "");

@@ -130,4 +130,8 @@ public class HybridJDBCConstants {
 
     public static final String COUNT_INTERNAL_ONLY_ROLES_SQL = "SELECT COUNT(UM_ID) AS RESULT FROM UM_HYBRID_ROLE " +
             "WHERE UM_ROLE_NAME NOT LIKE 'Application%' AND UM_ROLE_NAME LIKE ? AND UM_TENANT_ID = ?";
+
+    public static final String ADD_ROLE_ATTRIBUTE_SQL = "INSERT INTO UM_ROLE_ATTRIBUTE (UM_ATTR_NAME, " +
+            "UM_ATTR_VALUE, " +
+            "UM_ROLE_NAME, UM_TENANT_ID) VALUES (?, ?, ?, ?)";
 }

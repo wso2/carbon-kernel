@@ -2199,6 +2199,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         }
     }
 
+    @Override
     public List<Group> doGetGroupFromProperties(String property, String claimValue) throws UserStoreException {
 
         List<Group> groups = new ArrayList<>();
@@ -2208,8 +2209,6 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         }
         String userAttributeSeparator = ",";
         String serviceNameAttribute = "sn";
-        String whenCreatedAttribute = "whenCreated";
-        String whenModifiedAttribute = "whenModified";
         List<String> values = new ArrayList<>();
         String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_LIST_FILTER);
         String groupIDProperty = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_ID_ATTRIBUTE);
@@ -2232,7 +2231,8 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             searchFilter = "(&" + searchFilter + "(" + property + "=" + convertedValue + "))";
         } else {
             searchFilter =
-                    "(&" + searchFilter + "(" + property + "=" + escapeSpecialCharactersForFilterWithStarAsRegex(claimValue)
+                    "(&" + searchFilter + "(" + property + "=" +
+                            escapeSpecialCharactersForFilterWithStarAsRegex(claimValue)
                             + "))";
         }
 

@@ -30,6 +30,7 @@ import org.wso2.carbon.user.core.common.Group;
 import org.wso2.carbon.user.core.common.UserRolesCache;
 import org.wso2.carbon.user.core.constants.UserCoreDBConstants;
 import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
+import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
@@ -164,12 +165,14 @@ public class HybridRoleManager {
     }
 
     /**
-     * @param groupName
-     * @param groupIDClaim
-     * @param claims
-     * @param userList
-     * @return
-     * @throws UserStoreException
+     * Add hybrid Group.
+     *
+     * @param groupName    Group name.
+     * @param groupIDClaim Group ID claim URL.
+     * @param claims       List of Claims.
+     * @param userList     List of User IDs.
+     * @return Group.
+     * @throws UserStoreException If a failure occurred when adding hybrid group.
      */
     public Group addHybridGroup(String groupName, String groupIDClaim,
                                 List<org.wso2.carbon.user.core.common.Claim> claims,
@@ -196,8 +199,13 @@ public class HybridRoleManager {
                 DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.ADD_ROLE_SQL,
                         groupName, tenantId);
                 dbConnection.commit();
-
-                userCoreUtil.persistGroupAttributes(groupName, tenantId, claims, dataSource);
+                try {
+                    dbConnection = DatabaseUtil.getDBConnection(dataSource);
+                    userCoreUtil.persistGroupAttributes(groupName, tenantId, claims, dbConnection,
+                            HybridJDBCConstants.ADD_ROLE_ATTRIBUTE_SQL);
+                } catch (SQLException e) {
+                    throw new org.wso2.carbon.user.api.UserStoreException("Error occured when creating connection");
+                }
                 createdGroup = new Group(groupID, groupName);
             } else {
                 throwRoleAlreadyExistsError(groupName);

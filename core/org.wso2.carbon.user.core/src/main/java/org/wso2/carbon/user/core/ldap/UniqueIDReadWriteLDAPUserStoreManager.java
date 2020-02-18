@@ -38,6 +38,7 @@ import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.user.core.hybrid.HybridRoleManager;
+import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
@@ -62,6 +63,8 @@ import javax.sql.DataSource;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -1278,7 +1281,14 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             groupID = userCoreUtil.getGroupID(claims, UserCoreClaimConstants.GROUP_ID_CLAIM_URI);
             doAddRoleWithID(groupName, userIDs.toArray(new String[0]), true);
             int tenantID = getTenantID();
-            userCoreUtil.persistGroupAttributes(groupName, tenantID, claims, dataSource);
+            Connection dbConnection;
+            try {
+                dbConnection = DatabaseUtil.getDBConnection(dataSource);
+                userCoreUtil.persistGroupAttributes(groupName, tenantID, claims, dbConnection,
+                        JDBCRealmConstants.ADD_ROLE_ATTRIBUTE_SQL);
+            } catch (SQLException e) {
+                throw new org.wso2.carbon.user.api.UserStoreException("Error occured when creating connection");
+            }
             createdGroup = new Group(groupID, groupName, groupName, getTenantDomain(tenantID), domainName, claims);
         } else {
             if(userCoreUtil.isPropertyGeneratedByUserStore(realmConfig, groupIDAttributeProperty)) {
