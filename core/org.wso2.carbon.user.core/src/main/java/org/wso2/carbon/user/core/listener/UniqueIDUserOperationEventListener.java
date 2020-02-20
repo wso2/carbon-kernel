@@ -21,6 +21,7 @@ package org.wso2.carbon.user.core.listener;
 import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.AuthenticationResult;
 import org.wso2.carbon.user.core.common.LoginIdentifier;
 import org.wso2.carbon.user.core.common.User;
@@ -680,4 +681,59 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
     boolean doPostGetRoleListOfUsersWithID(List<String> userIDs, Map<String, List<String>> rolesOfUsersMap,
             UserStoreManager userStoreManager) throws UserStoreException;
 
+    /**
+     * Pre listener for adding an internal group.
+     *
+     * @param groupName                Group Name.
+     * @param userIDs                  List of user IDs.
+     * @param permissions              List of permissions.
+     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occurred when calling pre-listeners for adding internal groups.
+     */
+    boolean doPreAddInternalGroup(String groupName, List<String> userIDs,
+                                  List<org.wso2.carbon.user.core.Permission> permissions,
+                                  AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+
+    /**
+     * Pre Listeners for adding a group.
+     *
+     * @param groupName                Group name.
+     * @param userIDs                  List of user IDs.
+     * @param permissions              List of permissions.
+     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling pre-listeners for adding groups.
+     */
+    boolean doPreAddGroup(String groupName, List<String> userIDs,
+                          List<org.wso2.carbon.user.core.Permission> permissions,
+                          AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+
+    /**
+     * Post listeners for adding an internal group.
+     *
+     * @param groupName                Group name.
+     * @param userIDs                  List of user IDs.
+     * @param permissions              List of permissions.
+     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling post listeners for adding internal groups.
+     */
+    boolean doPostAddInternalGroup(String groupName, List<String> userIDs,
+                                   List<org.wso2.carbon.user.core.Permission> permissions,
+                                   AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+
+    /**
+     * Post listener for adding a group.
+     *
+     * @param groupName Group name.
+     * @param userIDs List of user IDs.
+     * @param permissions List of permissions.
+     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling post listeners for adding groups.
+     */
+    boolean doPostAddGroup(String groupName, List<String> userIDs,
+                           List<org.wso2.carbon.user.core.Permission> permissions,
+                           AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
 }

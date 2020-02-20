@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.caching.impl.CachingConstants;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.api.Properties;
 import org.wso2.carbon.user.api.Property;
@@ -34,20 +35,27 @@ import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AuthenticationResult;
+import org.wso2.carbon.user.core.common.Claim;
 import org.wso2.carbon.user.core.common.FailureReason;
+import org.wso2.carbon.user.core.common.Group;
 import org.wso2.carbon.user.core.common.LoginIdentifier;
 import org.wso2.carbon.user.core.common.PaginatedSearchResult;
 import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.common.UniqueIDPaginatedSearchResult;
 import org.wso2.carbon.user.core.common.User;
+import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.model.Condition;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.JNDIUtil;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.nio.ByteBuffer;
 import java.text.MessageFormat;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -78,7 +86,7 @@ import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.T
 public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager {
 
     public static final String MEMBER_UID = "memberUid";
-    private static final String OBJECT_GUID = "objectGUID";
+    protected static final String OBJECT_GUID = "objectGUID";
     protected static final String MEMBERSHIP_ATTRIBUTE_RANGE = "MembershipAttributeRange";
     protected static final String MEMBERSHIP_ATTRIBUTE_RANGE_DISPLAY_NAME = "Membership Attribute Range";
     private static final String USER_CACHE_NAME_PREFIX = CachingConstants.LOCAL_CACHE_PREFIX + "UserCache-";
@@ -108,7 +116,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     //Authenticating to LDAP via Anonymous Bind
     private static final String USE_ANONYMOUS_BIND = "AnonymousBind";
     protected static final int MEMBERSHIP_ATTRIBUTE_RANGE_VALUE = 0;
-    private static final int MAX_ITEM_LIMIT_UNLIMITED = -1;
+    protected static final int MAX_ITEM_LIMIT_UNLIMITED = -1;
 
     private String cacheExpiryTimeAttribute = ""; //Default: expire with default system wide cache expiry
     private long userDnCacheExpiryTime = 0; //Default: No cache
@@ -1926,6 +1934,21 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DISPLAY_NAME,
                 String.valueOf(UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS),
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DESCRIPTION);
+        setAdvancedProperty(UserStoreConfigConstants.immutableAttributes,
+                UserStoreConfigConstants.immutableAttributesDisplayName, "",
+                UserStoreConfigConstants.immutableAttributesDescription);
+        setAdvancedProperty(UserStoreConfigConstants.timestampAttributes,
+                UserStoreConfigConstants.timestampAttributesDisplayName, "",
+                UserStoreConfigConstants.timestampAttributesDescription);
+        setAdvancedProperty(UserStoreConfigConstants.groupIDAttribute,
+                UserStoreConfigConstants.groupIDAttributeName,
+                UserStoreConfigConstants.groupIDAttributeDescription, "");
+        setAdvancedProperty(UserStoreConfigConstants.groupCreatedDateAttribute,
+                UserStoreConfigConstants.groupCreatedDateAttributeName,
+                UserStoreConfigConstants.groupCreatedDateAttributeDescription, "");
+        setAdvancedProperty(UserStoreConfigConstants.groupModifiedDateAttribute,
+                UserStoreConfigConstants.groupModifiedDateAttributeName,
+                UserStoreConfigConstants.groupModifiedDateAttributeDescription, "");
     }
 
     private static void setAdvancedProperty(String name, String displayName, String value, String description) {
@@ -2163,5 +2186,250 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     public boolean isUniqueUserIdEnabled() {
 
         return true;
+    }
+
+    @Override
+    public Group doGetGroupFromGroupName(String groupName) throws UserStoreException {
+
+        String groupNameProperty = realmConfig.getUserStoreProperty(UserStoreConfigConstants.groupNameAttribute);
+        return getGroupFromProperty(groupNameProperty, groupName);
+    }
+
+    private Group getGroupFromProperty(String property, String claimValue) throws UserStoreException {
+
+        try {
+            List<Group> groups = this.doGetGroupFromProperties(property, claimValue);
+            if (groups.isEmpty()) {
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                            "No GroupID found for the property: " + property + ", value: " + claimValue + ", in domain:"
+                                    + " " + getMyDomainName());
+                }
+                return null;
+            } else if (groups.size() > 1) {
+                throw new UserStoreException(
+                        "Invalid scenario. Multiple users cannot be found for the given value: " + claimValue
+                                + "of the " + "property: " + property);
+            } else {
+                // username can have only one userId. Take the first element.
+                return groups.get(0);
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException(
+                    "Error occurred while retrieving the groupId of domain : " + getMyDomainName() + " and " +
+                            "property" + property + " value: " + claimValue, e);
+        }
+    }
+
+    @Override
+    public List<Group> doGetGroupFromProperties(String property, String claimValue) throws UserStoreException {
+
+        List<Group> groups = new ArrayList<>();
+
+        if (claimValue == null) {
+            throw new UserStoreException("There is no Group for empty property value.");
+        }
+        String groupName = null;
+        String serviceNameAttribute = "sn";
+        List<String> values = new ArrayList<>();
+        String userstore = realmConfig.getUserStoreProperty(UserStoreConfigConstants.DOMAIN_NAME);
+        String tenantDomain = getTenantDomain(realmConfig.getTenantId());
+        String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_LIST_FILTER);
+        String groupIDProperty = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_ID_ATTRIBUTE);
+        String groupCreatedDateProperty =
+                realmConfig.getUserStoreProperty(UserStoreConfigConstants.groupCreatedDateAttribute);
+        String groupNameProperty = realmConfig.getUserStoreProperty(UserStoreConfigConstants.groupNameAttribute);
+        String groupModifiedDateProperty =
+                realmConfig.getUserStoreProperty(UserStoreConfigConstants.groupModifiedDateAttribute);
+
+        if (OBJECT_GUID.equalsIgnoreCase(property)) {
+            String transformObjectGuidToUuidProperty = realmConfig.getUserStoreProperty(TRANSFORM_OBJECTGUID_TO_UUID);
+
+            boolean transformObjectGuidToUuid = StringUtils.isEmpty(transformObjectGuidToUuidProperty) || Boolean
+                    .parseBoolean(transformObjectGuidToUuidProperty);
+
+            String convertedValue;
+            if (StringUtils.equals(claimValue, "*")) {
+                convertedValue = claimValue;
+            } else if (transformObjectGuidToUuid) {
+                convertedValue = transformUUIDToObjectGUID(claimValue);
+            } else {
+                byte[] bytes = Base64.decodeBase64(claimValue.getBytes());
+                convertedValue = convertBytesToHexString(bytes);
+            }
+            searchFilter = "(&" + searchFilter + "(" + property + "=" + convertedValue + "))";
+        } else {
+            searchFilter =
+                    "(&" + searchFilter + "(" + property + "=" +
+                            escapeSpecialCharactersForFilterWithStarAsRegex(claimValue)
+                            + "))";
+        }
+
+        DirContext dirContext = this.connectionSource.getContext();
+        NamingEnumeration<?> answer = null;
+        NamingEnumeration<?> attrs = null;
+
+        if (log.isDebugEnabled()) {
+            log.debug("Listing users with Property: " + property + " SearchFilter: " + searchFilter);
+        }
+        String[] returnedAttributes = new String[]{groupIDProperty, serviceNameAttribute, groupCreatedDateProperty,
+                groupModifiedDateProperty};
+        if (groupNameProperty.equals(property)) {
+            groupName = claimValue;
+        } else {
+            ArrayUtils.add(returnedAttributes, groupNameProperty);
+        }
+        try {
+            SearchControls searchCtls = new SearchControls();
+            searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            if (ArrayUtils.isNotEmpty(returnedAttributes)) {
+                searchCtls.setReturningAttributes(returnedAttributes);
+            }
+            String nameInNamespace = null;
+            try {
+                nameInNamespace = dirContext.getNameInNamespace();
+            } catch (NamingException e) {
+                log.error("Error while getting DN of search base", e);
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: "
+                        + nameInNamespace);
+                if (ArrayUtils.isEmpty(returnedAttributes)) {
+                    log.debug("No attributes requested");
+                } else {
+                    for (String attribute : returnedAttributes) {
+                        log.debug("Requesting attribute :" + attribute);
+                    }
+                }
+            }
+            String searchBases = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE);
+            String[] searchBaseArray = searchBases.split("#");
+
+            for (String searchBase : searchBaseArray) {
+                answer = this.searchForUsers(searchFilter, searchBase, searchBases, MAX_ITEM_LIMIT_UNLIMITED,
+                        returnedAttributes);
+                if (answer.hasMore()) {
+                    break;
+                }
+            }
+
+            while (answer.hasMoreElements()) {
+                SearchResult sr = (SearchResult) answer.next();
+                Attributes attributes = sr.getAttributes();
+                Group group;
+                String groupId = null;
+                String groupCreatedTime = null;
+                String groupModifiedTime = null;
+
+                if (attributes != null) {
+                    Attribute groupIdAttribute = attributes.get(groupIDProperty);
+                    Attribute whenCreatedAttribute = attributes.get(groupCreatedDateProperty);
+                    Attribute whenModifiedAttribute = attributes.get(groupModifiedDateProperty);
+                    Attribute groupNameAttribute = null;
+                    if (groupName == null) {
+                        groupNameAttribute = attributes.get(groupNameProperty);
+                    }
+
+                    if (groupIdAttribute != null) {
+                        Object attObject = groupIdAttribute.get(0);
+                        if (attObject instanceof String) {
+                            groupId = (String) attObject;
+                        } else if (attObject instanceof byte[]) {
+
+//                                 Return canonical representation of UUIDs or base64 encoded string of other binary data.
+//                                 Active Directory attribute: objectGUID
+//                                 RFC 4530 attribute: entryUUID
+
+                            final byte[] bytes = (byte[]) attObject;
+
+                            if (bytes.length == 16 && groupIDProperty.toLowerCase().endsWith(LDAPConstants.UID)) {
+//
+//                                     ObjectGUID byte order is not big-endian.
+//                                     https://msdn.microsoft.com/en-us/library/aa373931%28v=vs.85%29.aspx
+//                                     https://community.oracle.com/thread/1157698
+
+                                if (groupIDProperty.equalsIgnoreCase(OBJECT_GUID)) {
+                                    // check the property for objectGUID transformation
+                                    String transformToObjectGuidProperty =
+                                            realmConfig.getUserStoreProperty(TRANSFORM_OBJECTGUID_TO_UUID);
+
+                                    boolean transformObjectGuidToUuid =
+                                            StringUtils.isEmpty(transformToObjectGuidProperty) ||
+                                                    Boolean.parseBoolean(transformToObjectGuidProperty);
+
+                                    if (transformObjectGuidToUuid) {
+                                        final ByteBuffer bb = ByteBuffer.wrap(swapBytes(bytes));
+                                        groupId = new UUID(bb.getLong(), bb.getLong()).toString();
+                                    } else {
+                                        // Ignore transforming objectGUID to UUID canonical format.
+                                        groupId = new String(Base64.encodeBase64((byte[]) attObject));
+                                    }
+                                }
+                            } else {
+                                groupId = new String(Base64.encodeBase64((byte[]) attObject));
+                            }
+                        } else {
+                            groupId = new String();
+                        }
+
+                    }
+
+                    if (groupNameAttribute != null) {
+                        groupName = (String) groupNameAttribute.get(0);
+                    }
+                    group = new Group(groupId, groupName);
+                    List<Claim> claims = new ArrayList<>();
+                    if (whenCreatedAttribute != null) {
+                        groupCreatedTime = (String) whenCreatedAttribute.get(0);
+                        groupCreatedTime = convertDateFormatFromAD(groupCreatedTime);
+                        claims.add(new Claim(UserCoreClaimConstants.GROUP_CREATED_CLAIM_URI, groupCreatedTime));
+                    }
+                    if (whenModifiedAttribute != null) {
+                        groupModifiedTime = convertDateFormatFromAD((String) whenModifiedAttribute.get(0));
+                        claims.add(new Claim(UserCoreClaimConstants.GROUP_MODIFIED_CLAIM_URI, groupModifiedTime));
+                    }
+                    group.setClaims(claims);
+                    group.setTenantDomain(tenantDomain);
+                    group.setUserStoreDomain(userstore);
+                    groups.add(group);
+                }
+            }
+
+        } catch (NamingException e) {
+            String errorMessage =
+                    "Error occurred while getting user list from property : " + property + " & value : " + claimValue;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            // close the naming enumeration and free up resources
+            JNDIUtil.closeNamingEnumeration(attrs);
+            JNDIUtil.closeNamingEnumeration(answer);
+            // close directory context
+            JNDIUtil.closeContext(dirContext);
+        }
+
+        if (log.isDebugEnabled()) {
+            String[] results = values.toArray(new String[0]);
+            for (String result : results) {
+                log.debug("result: " + result);
+            }
+        }
+        return groups;
+    }
+
+    /**
+     * Convert Active Directory date format (Generalized Time) to WSO2 format.
+     *
+     * @param date Date formatted in Active Directory date format.
+     * @return Date formatted in WSO2 date format.
+     */
+    private String convertDateFormatFromAD(String date) {
+
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("uuuuMMddHHmmss[,S][.S]X");
+        OffsetDateTime offsetDateTime = OffsetDateTime.parse(date, dateTimeFormatter);
+        Instant instant = offsetDateTime.toInstant();
+        return instant.toString();
     }
 }

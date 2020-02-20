@@ -77,6 +77,10 @@ public class ReadOnlyLDAPUserStoreConstants {
                 "(&(objectClass=groupOfNames)(cn=?))", UserStoreConfigConstants.groupNameSearchFilterDescription);
         setProperty(UserStoreConfigConstants.groupNameListFilter, "Group List Filter", "(objectClass=groupOfNames)",
                 UserStoreConfigConstants.groupNameListFilterDescription);
+        setProperty(UserStoreConfigConstants.groupIDAttribute, "Group ID attribute", "",
+                UserStoreConfigConstants.groupIDAttributeDescription);
+        setProperty(UserStoreConfigConstants.groupIDSearchFilter, "Group ID list Filter", "",
+                UserStoreConfigConstants.groupIDSearchFilterDescription);
 
         setProperty(roleDNPattern, "Role DN Pattern", "", roleDNPatternDescription);
 

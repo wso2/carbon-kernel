@@ -26,6 +26,7 @@ public class UserStoreConfigConstants {
     public static final String TENANTS = "tenants";
     public static final String RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME = "user_id_from_user_name_cache";
     public static final String RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME = "user_name_from_user_id_cache";
+    public static final String RESOLVE_GROUP_FROM_GROUP_NAME_CACHE_NAME = "group_from_group_name_cache";
     //Define datasource property for JDBC
     public static final String dataSource = "dataSource";
     public static final String dataSourceDescription = "Connection name to user store";
@@ -117,6 +118,21 @@ public class UserStoreConfigConstants {
     public static final String groupNameAttributeDescription = "Attribute used for uniquely identifying a user entry";
     public static final String groupNameSearchFilter = "GroupNameSearchFilter";
     public static final String groupNameSearchFilterDescription = "Filtering criteria for searching a particular group entry";
+    public static final String groupIDAttribute = "GroupIDAttribute";
+    public static final String groupIDAttributeName = "Group ID Attribute";
+    public static final String groupIDAttributeDescription = "Attribute used for uniquely identifying a group ID entry";
+    public static final String groupIDSearchFilter = "GroupIDSearchFilter";
+    public static final String groupIDSearchFilterAttributeName = "Group ID Search Filter";
+    public static final String groupIDSearchFilterDescription = "Filtering criteria for searching a particular group " +
+            "ID entry";
+    public static final String groupCreatedDateAttribute = "GroupCreatedDateAttribute";
+    public static final String groupCreatedDateAttributeName = "Group Created Date Attribute";
+    public static final String groupCreatedDateAttributeDescription = "Attribute used for identifying a group ID " +
+            "created date and time";
+    public static final String groupModifiedDateAttribute = "GroupModifiedDateAttribute";
+    public static final String groupModifiedDateAttributeName = "Group Modified Date Attribute";
+    public static final String groupModifiedDateAttributeDescription =  "Attribute used for identifying a group ID " +
+            "modified date and time";
     public static final String membershipAttribute = "MembershipAttribute";
     public static final String membershipAttributeDescription = "Attribute used to define members of LDAP groups";
     public static final String memberOfAttribute = LDAPConstants.MEMBEROF_ATTRIBUTE;

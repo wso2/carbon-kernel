@@ -22,10 +22,13 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.core.UserStoreConfigConstants;
+import org.wso2.carbon.user.core.claim.ClaimManager;
+import org.wso2.carbon.user.core.common.Claim;
 import org.wso2.carbon.user.core.common.User;
+import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -36,7 +39,6 @@ import org.wso2.carbon.user.core.dto.RoleDTO;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 import org.wso2.carbon.user.core.service.RealmService;
-import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.xml.StringUtils;
@@ -50,9 +52,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.sql.DataSource;
@@ -644,24 +652,32 @@ public final class UserCoreUtil {
         List<String> nameList = new ArrayList<String>();
         int index;
         if (names != null && names.length != 0) {
-            for (String name : names) {
-                if ((index = name.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)) > 0) {
-                    String domain = name.substring(0, index);
-                    if (!UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
-                        && !APPLICATION_DOMAIN.equalsIgnoreCase(domain) && !WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
-                        // remove domain name if exist
-                        nameList.add(name.substring(index + 1));
-                    } else {
-                        nameList.add(name);
-                    }
-                }
-            }
+            nameList = removeDomains(Arrays.asList(names));
         }
         if (nameList.size() != 0) {
             return nameList.toArray(new String[nameList.size()]);
         } else {
             return names;
         }
+    }
+
+    public static List<String> removeDomains(List<String> names) {
+
+        int index;
+        List<String> nameList = new ArrayList<String>();
+        for (String name : names) {
+            if ((index = name.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)) > 0) {
+                String domain = name.substring(0, index);
+                if (!UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
+                        && !APPLICATION_DOMAIN.equalsIgnoreCase(domain) && !WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
+                    // remove domain name if exist
+                    nameList.add(name.substring(index + 1));
+                } else {
+                    nameList.add(name);
+                }
+            }
+        }
+        return nameList;
     }
 
     /**
@@ -1146,4 +1162,141 @@ public final class UserCoreUtil {
         return usersList;
     }
 
+//    /**
+//     * @param groupName    Group Name.
+//     * @param tenantId     Tenant ID.
+//     * @param claims       List of claims to be stored. Can not be Null.
+//     * @param dbConnection Database Connection.
+//     * @param sqlStatement SQL statement for insert claims.
+//     * @throws UserStoreException Throws when an error occur persisting role attribute details.
+//     */
+//    public void persistGroupAttributes(String groupName, int tenantId, List<Claim> claims,
+//                                       Connection dbConnection, String sqlStatement)
+//            throws UserStoreException {
+//
+//        PreparedStatement prepStmt = null;
+//        try {
+//            prepStmt = dbConnection.prepareStatement(sqlStatement);
+//            for (Claim claim : claims) {
+//                prepStmt.setString(1, claim.getClaimUrl());
+//                prepStmt.setString(2, claim.getClaimValue());
+//                prepStmt.setString(3, groupName);
+//                prepStmt.setInt(4, tenantId);
+//                prepStmt.addBatch();
+//            }
+//            prepStmt.executeBatch();
+//            dbConnection.commit();
+//        } catch (SQLException e) {
+//            String errorMessage =
+//                    "DB error occurred while adding attributes for group: " + groupName;
+//            if (log.isDebugEnabled()) {
+//                log.debug(errorMessage, e);
+//            }
+//            throw new UserStoreException(errorMessage, e);
+//        } finally {
+//            DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
+//        }
+//    }
+
+    /**
+     * provides the unique group ID for a group.
+     *
+     * @return unique group ID.
+     */
+    protected static String getUniqueGroupID() {
+
+        return UUID.randomUUID().toString();
+    }
+
+    public boolean isPropertyGeneratedByUserStore(RealmConfiguration realmConfig, String property) {
+
+        String immutableAttributesProperty = Optional.ofNullable(realmConfig
+                .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse("");
+
+        String[] immutableAttributes = org.apache.commons.lang.StringUtils.split(immutableAttributesProperty, ",");
+        return ArrayUtils.contains(immutableAttributes, property);
+    }
+
+    public Map<String, String> getMandatoryAttributesOfGroup(ClaimManager claimManager,
+                                                             List<String> requiredGroupClaims)
+            throws org.wso2.carbon.user.api.UserStoreException {
+
+        Map<String, String> claims =  new HashMap<>();
+        for(String claim : requiredGroupClaims) {
+            switch(claim) {
+                case UserCoreClaimConstants.GROUP_ID_CLAIM_URI:
+                    String groupID = getUniqueGroupID();
+                    claims.putIfAbsent(claimManager.getAttributeName(UserCoreClaimConstants.GROUP_ID_CLAIM_URI), groupID);
+                    break;
+
+                case  UserCoreClaimConstants.GROUP_CREATED_CLAIM_URI:
+                    Date createdTime = Calendar.getInstance().getTime();
+                    claims.putIfAbsent(claimManager.getAttributeName(UserCoreClaimConstants.GROUP_CREATED_CLAIM_URI),
+                            createdTime.toString());
+                    break;
+
+                case  UserCoreClaimConstants.GROUP_MODIFIED_CLAIM_URI:
+                    Date modifiedTime = Calendar.getInstance().getTime();
+                    claims.putIfAbsent(claimManager.getAttributeName(UserCoreClaimConstants.GROUP_MODIFIED_CLAIM_URI),
+                            modifiedTime.toString());
+                    break;
+
+                default:
+                    break;
+            }
+        }
+        return claims;
+
+    }
+
+    public String getAttributeValue(String property) {
+
+        switch (property) {
+            case UserStoreConfigConstants.groupIDAttribute:
+                return getUniqueGroupID();
+
+            case UserStoreConfigConstants.groupCreatedDateAttribute:
+
+            case UserStoreConfigConstants.groupModifiedDateAttribute:
+                Date createdTime = Calendar.getInstance().getTime();
+                return createdTime.toString();
+            default:
+                return null;
+        }
+    }
+
+    public Map<String, String> getConfiguredAttributesMap(RealmConfiguration realmConfiguration) {
+
+        Map<String, String> attributeMap = new HashMap<>();
+        if (realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.groupIDAttribute) != null) {
+            attributeMap.put(UserStoreConfigConstants.groupIDAttribute,
+                    realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.groupIDAttribute));
+        }
+        if (realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.groupCreatedDateAttribute) != null) {
+            attributeMap.put(UserStoreConfigConstants.groupCreatedDateAttribute,
+                    realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.groupCreatedDateAttribute));
+        }
+        if (realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.groupModifiedDateAttribute) != null) {
+            attributeMap.put(UserStoreConfigConstants.groupModifiedDateAttribute,
+                    realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.groupModifiedDateAttribute));
+        }
+        return attributeMap;
+    }
+
+    public String getMappedAttributeOfGroupClaimURL(String ClaimURL, RealmConfiguration realmConfiguration) {
+
+        switch (ClaimURL) {
+            case UserCoreClaimConstants.GROUP_ID_CLAIM_URI:
+                return realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.groupIDAttribute);
+
+            case UserCoreClaimConstants.GROUP_CREATED_CLAIM_URI:
+                return realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.groupCreatedDateAttribute);
+
+            case UserCoreClaimConstants.GROUP_MODIFIED_CLAIM_URI:
+                return realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.groupModifiedDateAttribute);
+
+            default:
+                return null;
+        }
+    }
 }
