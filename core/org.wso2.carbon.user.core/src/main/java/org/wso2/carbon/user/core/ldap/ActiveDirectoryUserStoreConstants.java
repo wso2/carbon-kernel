@@ -147,7 +147,7 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty(UserStoreConfigConstants.lDAPInitialContextFactory, "LDAP Initial Context Factory",
                 "com.sun.jndi.ldap.LdapCtxFactory", UserStoreConfigConstants.lDAPInitialContextFactoryDescription);
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdAttribute,
-                UserStoreConfigConstants.userIdAttributeName, "",
+                UserStoreConfigConstants.userIdAttributeName, UserStoreConfigConstants.OBJECT_GUID,
                 UserStoreConfigConstants.userIdAttributeDescription, false);
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdSearchFilter,
                 UserStoreConfigConstants.userIdSearchFilterAttributeName, "(&(objectClass=person)(uid=?))",

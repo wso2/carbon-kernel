@@ -869,7 +869,8 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
                 "Number of retries for" + " authentication in case ldap read timed out.");
         setAdvancedProperty("CountRetrieverClass", "Count Implementation", "",
                 "Name of the class that implements the count functionality");
-        setAdvancedProperty(LDAPConstants.LDAP_ATTRIBUTES_BINARY, "LDAP binary attributes", " ",
+        setAdvancedProperty(LDAPConstants.LDAP_ATTRIBUTES_BINARY, "LDAP binary attributes",
+                UserStoreConfigConstants.OBJECT_GUID,
                 LDAPBinaryAttributesDescription);
         setAdvancedProperty(UserStoreConfigConstants.claimOperationsSupported,
                 UserStoreConfigConstants.getClaimOperationsSupportedDisplayName, "true",
@@ -892,7 +893,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
                 String.valueOf(UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS),
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DESCRIPTION);
         setAdvancedProperty(UserStoreConfigConstants.immutableAttributes,
-                UserStoreConfigConstants.immutableAttributesDisplayName, " ",
+                UserStoreConfigConstants.immutableAttributesDisplayName, UserStoreConfigConstants.OBJECT_GUID,
                 UserStoreConfigConstants.immutableAttributesDescription);
         setAdvancedProperty(UserStoreConfigConstants.timestampAttributes,
                 UserStoreConfigConstants.timestampAttributesDisplayName, " ",
