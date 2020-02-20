@@ -46,6 +46,7 @@ import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.Er
 import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_CERTIFICATE_EXISTS;
 import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_DELETE_CERTIFICATE;
 import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_EMPTY_ALIAS;
+import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_INVALID_CERTIFICATE;
 import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_RETRIEVE_CLIENT_TRUSTSTORE;
 import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_RETRIEVE_CLIENT_TRUSTSTORE_CERTIFICATE;
 import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_RETRIEVE_KEYSTORE;
@@ -87,7 +88,7 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
             throws KeyStoreManagementException {
 
         if (StringUtils.isEmpty(alias)) {
-            handleClientException(ERROR_CODE_EMPTY_ALIAS, null);
+            throw handleClientException(ERROR_CODE_EMPTY_ALIAS, null);
         }
 
         KeyStoreData keyStoreInfo = getKeystoreData(tenantDomain, getKeyStoreName(tenantDomain));
@@ -118,14 +119,14 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
     public X509Certificate getClientCertificate(String tenantDomain, String alias) throws KeyStoreManagementException {
 
         if (StringUtils.isEmpty(alias)) {
-            handleClientException(ERROR_CODE_EMPTY_ALIAS, null);
+            throw handleClientException(ERROR_CODE_EMPTY_ALIAS, null);
         }
 
         KeyStore trustStore = null;
         try {
             trustStore = getKeyStoreAdmin(tenantDomain).getTrustStore();
         } catch (SecurityConfigException e) {
-            handleServerException(ERROR_CODE_RETRIEVE_CLIENT_TRUSTSTORE, tenantDomain, e);
+            throw handleServerException(ERROR_CODE_RETRIEVE_CLIENT_TRUSTSTORE, tenantDomain, e);
         }
 
         if (trustStore != null) {
@@ -134,7 +135,7 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
                     return (X509Certificate) trustStore.getCertificate(alias);
                 }
             } catch (KeyStoreException e) {
-                handleServerException(ERROR_CODE_RETRIEVE_CLIENT_TRUSTSTORE_CERTIFICATE, alias, e);
+                throw handleServerException(ERROR_CODE_RETRIEVE_CLIENT_TRUSTSTORE_CERTIFICATE, alias, e);
             }
         }
         return null;
@@ -146,27 +147,32 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
 
         KeyStoreAdmin keyStoreAdmin = getKeyStoreAdmin(tenantDomain);
         String keyStoreName = getKeyStoreName(tenantDomain);
+        X509Certificate cert;
+        try {
+            cert = keyStoreAdmin.extractCertificate(certificate);
+        } catch (SecurityConfigException e) {
+            throw handleClientException(ERROR_CODE_INVALID_CERTIFICATE, alias);
+        }
         KeyStore keyStore;
-        String certAlias = null;
-        boolean isAliasExists = false;
+        String certAlias;
+        boolean isAliasExists;
         try {
             keyStore = keyStoreAdmin.getKeyStore(keyStoreName);
-            X509Certificate cert = keyStoreAdmin.extractCertificate(certificate);
             isAliasExists = keyStore.containsAlias(alias);
             certAlias = keyStore.getCertificateAlias(cert);
         } catch (Exception e) {
-            handleServerException(ERROR_CODE_VALIDATE_CERTIFICATE, null, e);
+            throw handleServerException(ERROR_CODE_VALIDATE_CERTIFICATE, null, e);
         }
         if (isAliasExists) {
-            handleClientException(ERROR_CODE_ALIAS_EXISTS, alias);
+            throw handleClientException(ERROR_CODE_ALIAS_EXISTS, alias);
         }
         if (certAlias != null) {
-            handleClientException(ERROR_CODE_CERTIFICATE_EXISTS, certAlias);
+            throw handleClientException(ERROR_CODE_CERTIFICATE_EXISTS, certAlias);
         }
         try {
             keyStoreAdmin.importCertToStore(alias, certificate, keyStoreName);
         } catch (SecurityConfigException e) {
-            handleServerException(ERROR_CODE_ADD_CERTIFICATE, alias, e);
+            throw handleServerException(ERROR_CODE_ADD_CERTIFICATE, alias, e);
         }
     }
 
@@ -176,7 +182,7 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
         try {
             getKeyStoreAdmin(tenantDomain).removeCertFromStore(alias, getKeyStoreName(tenantDomain));
         } catch (SecurityConfigException e) {
-            handleServerException(ERROR_CODE_DELETE_CERTIFICATE, alias, e);
+            throw handleServerException(ERROR_CODE_DELETE_CERTIFICATE, alias, e);
         }
     }
 
@@ -186,7 +192,7 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
         try {
             keyStoreDataArray = getKeyStoreAdmin(tenantDomain).getKeyStores(isSuperTenant(tenantDomain));
         } catch (SecurityConfigException e) {
-            handleServerException(ERROR_CODE_RETRIEVE_KEYSTORE, tenantDomain, e);
+            throw handleServerException(ERROR_CODE_RETRIEVE_KEYSTORE, tenantDomain, e);
         }
 
         for (KeyStoreData keyStoreData : keyStoreDataArray) {
@@ -205,8 +211,7 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
                 }
             }
         }
-        handleServerException(ERROR_CODE_RETRIEVE_KEYSTORE, tenantDomain);
-        return null;
+        throw handleServerException(ERROR_CODE_RETRIEVE_KEYSTORE, tenantDomain);
     }
 
     private KeyStoreData getKeystoreData(String tenantDomain, String keyStoreName) throws KeyStoreManagementException {
@@ -217,7 +222,7 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
         try {
             keyStoreData = keyStoreAdmin.getKeystoreInfo(keyStoreName);
         } catch (SecurityConfigException e) {
-            handleServerException(ERROR_CODE_RETRIEVE_KEYSTORE_INFORMATION, keyStoreName, e);
+            throw handleServerException(ERROR_CODE_RETRIEVE_KEYSTORE_INFORMATION, keyStoreName, e);
         }
         return keyStoreData;
     }
@@ -262,11 +267,11 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
                         aliases = aliases.stream().filter(alias -> alias.contains(value))
                                 .collect(Collectors.toList());
                     } else {
-                        handleClientException(ERROR_CODE_UNSUPPORTED_FILTER_OPERATION, operation);
+                        throw handleClientException(ERROR_CODE_UNSUPPORTED_FILTER_OPERATION, operation);
                     }
                 }
             } else {
-                handleClientException(ERROR_CODE_BAD_VALUE_FOR_FILTER, filter);
+                throw handleClientException(ERROR_CODE_BAD_VALUE_FOR_FILTER, filter);
             }
         }
         return aliases;
@@ -290,25 +295,26 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
         return Paths.get(filePath).getFileName().toString();
     }
 
-    private void handleServerException(SecurityConstants.KeyStoreMgtConstants.ErrorMessage error, String data)
-            throws KeyStoreManagementException {
+    private KeyStoreManagementServerException handleServerException(
+            SecurityConstants.KeyStoreMgtConstants.ErrorMessage error, String data) {
 
         String message = includeData(error, data);
-        throw new KeyStoreManagementServerException(error.getCode(), message);
+        return new KeyStoreManagementServerException(error.getCode(), message);
     }
 
-    private void handleServerException(SecurityConstants.KeyStoreMgtConstants.ErrorMessage error, String data,
-                                       Throwable e) throws KeyStoreManagementException {
+    private KeyStoreManagementServerException handleServerException(
+            SecurityConstants.KeyStoreMgtConstants.ErrorMessage error, String data,
+            Throwable e) {
 
         String message = includeData(error, data);
-        throw new KeyStoreManagementServerException(error.getCode(), message, e);
+        return new KeyStoreManagementServerException(error.getCode(), message, e);
     }
 
-    private void handleClientException(SecurityConstants.KeyStoreMgtConstants.ErrorMessage error, String data)
-            throws KeyStoreManagementException {
+    private KeyStoreManagementClientException handleClientException(
+            SecurityConstants.KeyStoreMgtConstants.ErrorMessage error, String data) {
 
         String message = includeData(error, data);
-        throw new KeyStoreManagementClientException(error.getCode(), message);
+        return new KeyStoreManagementClientException(error.getCode(), message);
     }
 
     private static String includeData(SecurityConstants.KeyStoreMgtConstants.ErrorMessage error, String data) {

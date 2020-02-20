@@ -149,7 +149,7 @@ public class SecurityConstants {
             ERROR_CODE_RETRIEVE_CLIENT_TRUSTSTORE_ALIASES("KSS-65004",
                     "Unable to retrieve the client truststore aliases for tenant: %s."),
             ERROR_CODE_RETRIEVE_CLIENT_TRUSTSTORE_CERTIFICATE("KSS-65005",
-                    "Unable to retrive the client truststore certificate for alias: %s."),
+                    "Unable to retrieve the client truststore certificate for alias: %s."),
             ERROR_CODE_ADD_CERTIFICATE("KSS-65006",
                     "Unable to add certificate with alias: %s"),
             ERROR_CODE_DELETE_CERTIFICATE("KSS-65007",
@@ -167,7 +167,8 @@ public class SecurityConstants {
                     "Unsupported filter: %s."),
             ERROR_CODE_UNSUPPORTED_FILTER_OPERATION("KSS-60004",
                     "Unsupported filter operation %s."),
-            ERROR_CODE_EMPTY_ALIAS("KSS-60005", "Alias value can not be null.");
+            ERROR_CODE_EMPTY_ALIAS("KSS-60005", "Alias value can not be null."),
+            ERROR_CODE_INVALID_CERTIFICATE("KSS-60006", "Provided certificate is invalid.");
 
             private final String code;
             private final String message;
