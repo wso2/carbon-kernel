@@ -38,6 +38,10 @@ public class UserStoreException extends org.wso2.carbon.user.api.UserStoreExcept
         super(message, cause);
         this.errorCode = errorCode;
     }
+    public UserStoreException(String message, String errorCode){
+        super(message);
+        this.errorCode=errorCode;
+    }
 
     public UserStoreException(String message, boolean convertMessage) {
         super(message);
