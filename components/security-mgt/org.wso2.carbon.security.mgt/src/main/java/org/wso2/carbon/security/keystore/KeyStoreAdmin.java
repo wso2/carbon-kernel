@@ -908,7 +908,9 @@ public class KeyStoreAdmin {
             cert = (X509Certificate) factory
                     .generateCertificate(new ByteArrayInputStream(bytes));
         } catch (CertificateException e) {
-            log.error(e.getMessage(), e);
+            if (log.isDebugEnabled()) {
+                log.debug(e.getMessage(), e);
+            }
             throw new SecurityConfigException("Invalid format of the provided certificate file");
         }
         return cert;
