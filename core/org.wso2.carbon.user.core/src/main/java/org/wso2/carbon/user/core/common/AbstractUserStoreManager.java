@@ -10791,7 +10791,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
             String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
             handleGetUserFailureWithID(errorCode, errorMessage, userID, requestedClaims, profileName);
-            throw new UserStoreException(errorCode + " - " + errorMessage,errorCode);
+            throw new UserStoreException(errorCode + " - " + errorMessage, errorCode);
         }
         // check for null claim list
         if (requestedClaims == null) {
