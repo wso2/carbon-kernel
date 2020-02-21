@@ -197,6 +197,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         } catch (PrivilegedActionException e) {
             if (e.getCause() != null && e.getCause().getCause() != null && e.getCause().getCause() instanceof
                     UserStoreException) {
+                if (((UserStoreException) e.getCause().getCause()).getErrorCode() != null) {
+                    throw new UserStoreException(e.getCause().getCause().getMessage(),
+                            ((UserStoreException) e.getCause().getCause()).getErrorCode(), e);
+                }
                 // Actual UserStoreException get wrapped with two exceptions
                 throw new UserStoreException(e.getCause().getCause().getMessage(), e);
 
@@ -10791,7 +10795,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
             String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
             handleGetUserFailureWithID(errorCode, errorMessage, userID, requestedClaims, profileName);
-            throw new UserStoreException(errorCode + " - " + errorMessage);
+            throw new UserStoreException(errorCode + " - " + errorMessage, errorCode);
         }
         // check for null claim list
         if (requestedClaims == null) {
