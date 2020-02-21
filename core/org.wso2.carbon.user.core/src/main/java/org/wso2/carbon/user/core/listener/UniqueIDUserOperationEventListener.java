@@ -736,4 +736,16 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
     boolean doPostAddGroup(String groupName, List<String> userIDs,
                            List<org.wso2.carbon.user.core.Permission> permissions,
                            AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+
+    /**
+     * Post listener for getting group.
+     *
+     * @param groupID                  Group ID.
+     * @param requiredAttributes       Requested Attributes.
+     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling post listeners for getting group.
+     */
+    boolean doPostGetGroup(String groupID, List<String> requiredAttributes,
+                           AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
 }

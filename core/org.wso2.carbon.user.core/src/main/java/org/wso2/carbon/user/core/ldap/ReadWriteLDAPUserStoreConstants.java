@@ -113,10 +113,10 @@ public class ReadWriteLDAPUserStoreConstants {
         setProperty("UniqueID", "", "", "");
         setProperty(UserStoreConfigConstants.lDAPInitialContextFactory, "LDAP Initial Context Factory",
                 "com.sun.jndi.ldap.LdapCtxFactory", UserStoreConfigConstants.lDAPInitialContextFactoryDescription);
-        setProperty(UserStoreConfigConstants.groupIDAttribute, "Group ID attribute", "",
-                UserStoreConfigConstants.groupIDAttributeDescription);
-        setProperty(UserStoreConfigConstants.groupIDSearchFilter, "Group ID list Filter", "",
-                UserStoreConfigConstants.groupIDSearchFilterDescription);
+        setProperty(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE, "Group ID attribute", "",
+                UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_DESCRIPTION);
+        setProperty(UserStoreConfigConstants.GROUP_ID_SEARCH_FILTER, "Group ID list Filter", "",
+                UserStoreConfigConstants.GROUP_ID_SEARCH_FILTER_DESCRIPTION);
     }
 
     private static void setMandatoryProperty(String name, String displayName, String value,

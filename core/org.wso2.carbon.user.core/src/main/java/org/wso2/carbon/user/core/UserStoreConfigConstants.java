@@ -118,20 +118,20 @@ public class UserStoreConfigConstants {
     public static final String groupNameAttributeDescription = "Attribute used for uniquely identifying a user entry";
     public static final String groupNameSearchFilter = "GroupNameSearchFilter";
     public static final String groupNameSearchFilterDescription = "Filtering criteria for searching a particular group entry";
-    public static final String groupIDAttribute = "GroupIDAttribute";
-    public static final String groupIDAttributeName = "Group ID Attribute";
-    public static final String groupIDAttributeDescription = "Attribute used for uniquely identifying a group ID entry";
-    public static final String groupIDSearchFilter = "GroupIDSearchFilter";
-    public static final String groupIDSearchFilterAttributeName = "Group ID Search Filter";
-    public static final String groupIDSearchFilterDescription = "Filtering criteria for searching a particular group " +
+    public static final String GROUP_ID_ATTRIBUTE = "GroupIDAttribute";
+    public static final String GROUP_ID_ATTRIBUTE_NAME = "Group ID Attribute";
+    public static final String GROUP_ID_ATTRIBUTE_DESCRIPTION = "Attribute used for uniquely identifying a group ID entry";
+    public static final String GROUP_ID_SEARCH_FILTER = "GroupIDSearchFilter";
+    public static final String GROUP_ID_SEARCH_FILTER_ATTRIBUTE_NAME = "Group ID Search Filter";
+    public static final String GROUP_ID_SEARCH_FILTER_DESCRIPTION = "Filtering criteria for searching a particular group " +
             "ID entry";
-    public static final String groupCreatedDateAttribute = "GroupCreatedDateAttribute";
-    public static final String groupCreatedDateAttributeName = "Group Created Date Attribute";
-    public static final String groupCreatedDateAttributeDescription = "Attribute used for identifying a group ID " +
+    public static final String GROUP_CREATED_DATE_ATTRIBUTE = "GroupCreatedDateAttribute";
+    public static final String GROUP_CREATED_DATE_ATTRIBUTE_NAME = "Group Created Date Attribute";
+    public static final String GROUP_CREATED_DATE_ATTRIBUTE_DESCRIPTION = "Attribute used for identifying a group ID " +
             "created date and time";
-    public static final String groupModifiedDateAttribute = "GroupModifiedDateAttribute";
-    public static final String groupModifiedDateAttributeName = "Group Modified Date Attribute";
-    public static final String groupModifiedDateAttributeDescription =  "Attribute used for identifying a group ID " +
+    public static final String GROUP_MODIFIED_DATE_ATTRIBUTE = "GroupModifiedDateAttribute";
+    public static final String GROUP_MODIFIED_DATE_ATTRIBUTE_NAME = "Group Modified Date Attribute";
+    public static final String GROUP_MODIFIED_DATE_ATTRIBUTE_DESCRIPTION =  "Attribute used for identifying a group ID " +
             "modified date and time";
     public static final String membershipAttribute = "MembershipAttribute";
     public static final String membershipAttributeDescription = "Attribute used to define members of LDAP groups";

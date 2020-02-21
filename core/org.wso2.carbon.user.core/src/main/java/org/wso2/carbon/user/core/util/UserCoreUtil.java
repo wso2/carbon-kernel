@@ -26,7 +26,6 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.claim.ClaimManager;
-import org.wso2.carbon.user.core.common.Claim;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.utils.Secret;
@@ -1162,42 +1161,6 @@ public final class UserCoreUtil {
         return usersList;
     }
 
-//    /**
-//     * @param groupName    Group Name.
-//     * @param tenantId     Tenant ID.
-//     * @param claims       List of claims to be stored. Can not be Null.
-//     * @param dbConnection Database Connection.
-//     * @param sqlStatement SQL statement for insert claims.
-//     * @throws UserStoreException Throws when an error occur persisting role attribute details.
-//     */
-//    public void persistGroupAttributes(String groupName, int tenantId, List<Claim> claims,
-//                                       Connection dbConnection, String sqlStatement)
-//            throws UserStoreException {
-//
-//        PreparedStatement prepStmt = null;
-//        try {
-//            prepStmt = dbConnection.prepareStatement(sqlStatement);
-//            for (Claim claim : claims) {
-//                prepStmt.setString(1, claim.getClaimUrl());
-//                prepStmt.setString(2, claim.getClaimValue());
-//                prepStmt.setString(3, groupName);
-//                prepStmt.setInt(4, tenantId);
-//                prepStmt.addBatch();
-//            }
-//            prepStmt.executeBatch();
-//            dbConnection.commit();
-//        } catch (SQLException e) {
-//            String errorMessage =
-//                    "DB error occurred while adding attributes for group: " + groupName;
-//            if (log.isDebugEnabled()) {
-//                log.debug(errorMessage, e);
-//            }
-//            throw new UserStoreException(errorMessage, e);
-//        } finally {
-//            DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
-//        }
-//    }
-
     /**
      * provides the unique group ID for a group.
      *
@@ -1208,6 +1171,13 @@ public final class UserCoreUtil {
         return UUID.randomUUID().toString();
     }
 
+    /**
+     * Check whether property is generated from the userstore.
+     *
+     * @param realmConfig RealmConfiguration.
+     * @param property    Userstore property.
+     * @return true, if the property is immutable.
+     */
     public boolean isPropertyGeneratedByUserStore(RealmConfiguration realmConfig, String property) {
 
         String immutableAttributesProperty = Optional.ofNullable(realmConfig
@@ -1217,47 +1187,21 @@ public final class UserCoreUtil {
         return ArrayUtils.contains(immutableAttributes, property);
     }
 
-    public Map<String, String> getMandatoryAttributesOfGroup(ClaimManager claimManager,
-                                                             List<String> requiredGroupClaims)
-            throws org.wso2.carbon.user.api.UserStoreException {
-
-        Map<String, String> claims =  new HashMap<>();
-        for(String claim : requiredGroupClaims) {
-            switch(claim) {
-                case UserCoreClaimConstants.GROUP_ID_CLAIM_URI:
-                    String groupID = getUniqueGroupID();
-                    claims.putIfAbsent(claimManager.getAttributeName(UserCoreClaimConstants.GROUP_ID_CLAIM_URI), groupID);
-                    break;
-
-                case  UserCoreClaimConstants.GROUP_CREATED_CLAIM_URI:
-                    Date createdTime = Calendar.getInstance().getTime();
-                    claims.putIfAbsent(claimManager.getAttributeName(UserCoreClaimConstants.GROUP_CREATED_CLAIM_URI),
-                            createdTime.toString());
-                    break;
-
-                case  UserCoreClaimConstants.GROUP_MODIFIED_CLAIM_URI:
-                    Date modifiedTime = Calendar.getInstance().getTime();
-                    claims.putIfAbsent(claimManager.getAttributeName(UserCoreClaimConstants.GROUP_MODIFIED_CLAIM_URI),
-                            modifiedTime.toString());
-                    break;
-
-                default:
-                    break;
-            }
-        }
-        return claims;
-
-    }
-
+    /**
+     * Generate attribute value giving the property.
+     *
+     * @param property Userstore property.
+     * @return Value of the property.
+     */
     public String getAttributeValue(String property) {
 
         switch (property) {
-            case UserStoreConfigConstants.groupIDAttribute:
+            case UserStoreConfigConstants.GROUP_ID_ATTRIBUTE:
                 return getUniqueGroupID();
 
-            case UserStoreConfigConstants.groupCreatedDateAttribute:
+            case UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE:
 
-            case UserStoreConfigConstants.groupModifiedDateAttribute:
+            case UserStoreConfigConstants.GROUP_MODIFIED_DATE_ATTRIBUTE:
                 Date createdTime = Calendar.getInstance().getTime();
                 return createdTime.toString();
             default:
@@ -1265,35 +1209,48 @@ public final class UserCoreUtil {
         }
     }
 
+    /**
+     * Get configured attributes of Group.
+     *
+     * @param realmConfiguration RealmConfiguration.
+     * @return Map of property and attribute value.
+     */
     public Map<String, String> getConfiguredAttributesMap(RealmConfiguration realmConfiguration) {
 
         Map<String, String> attributeMap = new HashMap<>();
-        if (realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.groupIDAttribute) != null) {
-            attributeMap.put(UserStoreConfigConstants.groupIDAttribute,
-                    realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.groupIDAttribute));
+        if (realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE) != null) {
+            attributeMap.put(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE,
+                    realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE));
         }
-        if (realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.groupCreatedDateAttribute) != null) {
-            attributeMap.put(UserStoreConfigConstants.groupCreatedDateAttribute,
-                    realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.groupCreatedDateAttribute));
+        if (realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE) != null) {
+            attributeMap.put(UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE,
+                    realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE));
         }
-        if (realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.groupModifiedDateAttribute) != null) {
-            attributeMap.put(UserStoreConfigConstants.groupModifiedDateAttribute,
-                    realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.groupModifiedDateAttribute));
+        if (realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.GROUP_MODIFIED_DATE_ATTRIBUTE) != null) {
+            attributeMap.put(UserStoreConfigConstants.GROUP_MODIFIED_DATE_ATTRIBUTE,
+                    realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.GROUP_MODIFIED_DATE_ATTRIBUTE));
         }
         return attributeMap;
     }
 
+    /**
+     * Get attribute mapped to the group claim.
+     *
+     * @param ClaimURL           Claim URL.
+     * @param realmConfiguration RealmConfiguration.
+     * @return Attribute value.
+     */
     public String getMappedAttributeOfGroupClaimURL(String ClaimURL, RealmConfiguration realmConfiguration) {
 
         switch (ClaimURL) {
             case UserCoreClaimConstants.GROUP_ID_CLAIM_URI:
-                return realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.groupIDAttribute);
+                return realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE);
 
             case UserCoreClaimConstants.GROUP_CREATED_CLAIM_URI:
-                return realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.groupCreatedDateAttribute);
+                return realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE);
 
             case UserCoreClaimConstants.GROUP_MODIFIED_CLAIM_URI:
-                return realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.groupModifiedDateAttribute);
+                return realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.GROUP_MODIFIED_DATE_ATTRIBUTE);
 
             default:
                 return null;

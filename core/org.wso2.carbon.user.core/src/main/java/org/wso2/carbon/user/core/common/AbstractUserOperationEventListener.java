@@ -707,4 +707,12 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
 
         return true;
     }
+
+    @Override
+    public boolean doPostGetGroup(String groupID, List<String> requiredAttributes,
+                                  AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
+
+        return true;
+    }
+    
 }

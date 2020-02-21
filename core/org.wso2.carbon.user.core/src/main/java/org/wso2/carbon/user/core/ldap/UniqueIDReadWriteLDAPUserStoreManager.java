@@ -37,7 +37,6 @@ import org.wso2.carbon.user.core.common.Group;
 import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.common.UserUniqueIDDomainResolver;
-import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.user.core.hybrid.HybridRoleManager;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.tenant.Tenant;
@@ -1273,7 +1272,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         Map<String, String> configuredGroupAttributes =
                 userCoreUtil.getConfiguredAttributesMap(this.getRealmConfiguration());
         if (configuredGroupAttributes.isEmpty() ||
-                configuredGroupAttributes.get(UserStoreConfigConstants.groupIDAttribute) == null) {
+                configuredGroupAttributes.get(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE) == null) {
             // No groupID support.
             throw new org.wso2.carbon.user.api.UserStoreException("No Group ID attribute is configured, Hence this " +
                     "operation is not supported.");
@@ -1286,7 +1285,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
         if (isAllGroupAttributesGeneratedByUserStore(realmConfig, configuredGroupAttributes)) {
             doAddRoleWithID(groupName, userIDs.toArray(new String[0]), true);
-            createdGroup = getGroup(null, groupName);
+            createdGroup = getGroupByNameOrID(null, groupName);
         } else {
             Map<String, String> groupAttributesNeedToGenerate = filterAttributesNotGeneratedByUserStore(realmConfig,
                     configuredGroupAttributes, claims);
@@ -1344,7 +1343,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             throws org.wso2.carbon.user.api.UserStoreException {
 
          persistGroup(groupName, userIDList, attributes);
-         return getGroup(null, groupName);
+         return getGroupByNameOrID(null, groupName);
 
     }
 
@@ -1395,8 +1394,8 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
     }
 
-    /***
-     * Returns a BasicAttributes object with basic required attributes
+    /**
+     * Returns a BasicAttributes object with basic required attributes.
      *
      * @param groupName Group Name
      * @param attributes Attributes that need to be updated.
@@ -1454,118 +1453,6 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             basicAttributes.put(attr);
         }
         return basicAttributes;
-    }
-
-    private void addLDAPGroup(RoleContext context) throws UserStoreException {
-
-        String roleName = context.getRoleName();// TODO: 2020-02-17 this should implement to store id
-        String roleID = context.getRoleID();
-        String[] userList = context.getMembers();
-        String groupEntryObjectClass = ((LDAPRoleContext) context).getGroupEntryObjectClass();
-        String groupNameAttribute = ((LDAPRoleContext) context).getRoleNameProperty();
-        String searchBase = ((LDAPRoleContext) context).getSearchBase();
-
-        if ((ArrayUtils.isEmpty(userList)) && !emptyRolesAllowed) {
-            String errorMessage = "Can not create empty role. There should be at least " + "one user for the role.";
-            throw new UserStoreException(errorMessage);
-        } else if (userList == null && emptyRolesAllowed
-                || userList != null && userList.length > 0 && !emptyRolesAllowed || emptyRolesAllowed) {
-
-            // if (userList.length > 0) {
-            DirContext mainDirContext = this.connectionSource.getContext();
-            DirContext groupContext = null;
-            NamingEnumeration<SearchResult> results = null;
-
-            try {
-                // create the attribute set for group entry
-                Attributes groupAttributes = new BasicAttributes(true);
-
-                // create group entry's object class attribute
-                Attribute objectClassAttribute = new BasicAttribute(LDAPConstants.OBJECT_CLASS_NAME);
-                objectClassAttribute.add(groupEntryObjectClass);
-                groupAttributes.put(objectClassAttribute);
-
-                // create cn attribute
-                Attribute cnAttribute = new BasicAttribute(groupNameAttribute);
-                cnAttribute.add(roleName);
-                groupAttributes.put(cnAttribute);
-
-                //Create groupID attribute
-//                Attribute
-                // following check is for if emptyRolesAllowed made this
-                // code executed.
-                if (userList != null && userList.length > 0) {
-
-                    String memberAttributeName = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
-                    Attribute memberAttribute = new BasicAttribute(memberAttributeName);
-                    for (String userName : userList) {
-
-                        if (userName == null || userName.trim().length() == 0) {
-                            continue;
-                        }
-                        // search the user in user search base
-                        String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-                        searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
-                        results = searchInUserBase(searchFilter, new String[] {}, SearchControls.SUBTREE_SCOPE,
-                                mainDirContext);
-                        // we assume only one user with the given user
-                        // name under user search base.
-                        SearchResult userResult = null;
-                        if (results.hasMore()) {
-                            userResult = results.next();
-                        } else {
-                            String errorMsg =
-                                    "There is no user with the user name: " + userName + " to be added to this role.";
-                            logger.error(errorMsg);
-                            throw new UserStoreException(errorMsg);
-                        }
-                        // get his DN
-                        String userEntryDN = userResult.getNameInNamespace();
-                        // put it as member-attribute value
-                        memberAttribute.add(userEntryDN);
-                    }
-                    groupAttributes.put(memberAttribute);
-                }
-
-                groupContext = (DirContext) mainDirContext.lookup(escapeDNForSearch(searchBase));
-                NameParser ldapParser = groupContext.getNameParser("");
-                /*
-                 * Name compoundGroupName = ldapParser.parse(groupNameAttributeName + "=" +
-                 * roleName);
-                 */
-                Name compoundGroupName = ldapParser.parse("cn=" + roleName);
-                groupContext.bind(compoundGroupName, null, groupAttributes);
-
-            } catch (NamingException e) {
-                String errorMsg = "Role: " + roleName + " could not be added.";
-                if (log.isDebugEnabled()) {
-                    log.debug(errorMsg, e);
-                }
-                throw new UserStoreException(errorMsg, e);
-            } catch (Exception e) {
-                String errorMsg = "Role: " + roleName + " could not be added.";
-                if (log.isDebugEnabled()) {
-                    log.debug(errorMsg, e);
-                }
-                throw new UserStoreException(errorMsg, e);
-            } finally {
-                JNDIUtil.closeNamingEnumeration(results);
-                JNDIUtil.closeContext(groupContext);
-                JNDIUtil.closeContext(mainDirContext);
-            }
-
-        }
-
-
-    }
-
-    private int getTenantID() {
-        CarbonContext cc = CarbonContext.getThreadLocalCarbonContext();
-        if (cc != null) {
-            return cc.getTenantId();
-        } else {
-            return UserCoreConstants.SUPER_TENANT_ID;
-        }
     }
 
     @Override
@@ -2419,15 +2306,15 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         setAdvancedProperty(UserStoreConfigConstants.timestampAttributes,
                 UserStoreConfigConstants.timestampAttributesDisplayName, "",
                 UserStoreConfigConstants.timestampAttributesDescription);
-        setAdvancedProperty(UserStoreConfigConstants.groupIDAttribute,
-                UserStoreConfigConstants.groupIDAttributeName,
-                UserStoreConfigConstants.groupIDAttributeDescription, "");
-        setAdvancedProperty(UserStoreConfigConstants.groupCreatedDateAttribute,
-                UserStoreConfigConstants.groupCreatedDateAttributeName,
-                UserStoreConfigConstants.groupCreatedDateAttributeDescription, "");
-        setAdvancedProperty(UserStoreConfigConstants.groupModifiedDateAttribute,
-                UserStoreConfigConstants.groupModifiedDateAttributeName,
-                UserStoreConfigConstants.groupModifiedDateAttributeDescription, "");
+        setAdvancedProperty(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_NAME,
+                UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_DESCRIPTION, "");
+        setAdvancedProperty(UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE_NAME,
+                UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE_DESCRIPTION, "");
+        setAdvancedProperty(UserStoreConfigConstants.GROUP_MODIFIED_DATE_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_MODIFIED_DATE_ATTRIBUTE_NAME,
+                UserStoreConfigConstants.GROUP_MODIFIED_DATE_ATTRIBUTE_DESCRIPTION, "");
     }
 
     @Override

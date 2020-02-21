@@ -7214,14 +7214,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
+     * This will handle when an error occurred when adding duplicate groups.
      *
-     * @param groupName
-     * @param userIDList
-     * @param permissions
-     * @throws UserStoreException
+     * @param groupName   Group name.
+     * @param userIDList  List of user IDs.
+     * @param permissions List of Permissions
+     * @throws UserStoreException If an error occurred when group already exists.
      */
     private void handleGroupAlreadyExistException(String groupName, List<String> userIDList,
-                                                       List<org.wso2.carbon.user.core.Permission> permissions)
+                                                  List<org.wso2.carbon.user.core.Permission> permissions)
             throws UserStoreException {
 
         String errorCode = ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS.getCode();
@@ -14821,11 +14822,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
-     * @param groupName
-     * @param userIDs
-     * @param claims
-     * @return
-     * @throws org.wso2.carbon.user.api.UserStoreException
+     * Add a group to the userstore.
+     *
+     * @param groupName Group name.
+     * @param userIDs   List of user IDs.
+     * @param claims    List of claims.
+     * @return Group.
+     * @throws org.wso2.carbon.user.api.UserStoreException If an error occurred when adding group to the userstore,
      */
     protected Group doAddGroup(String groupName, List<String> userIDs,
                                List<org.wso2.carbon.user.core.common.Claim> claims)
@@ -14985,11 +14988,20 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public boolean isGroupExist(String groupID) throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("isGroupExist operation is not implemented in: " + this.getClass());
+        if (!isSecureCall.get()) {
+            Class[] argTypes = new Class[] { String.class};
+            Object object = callSecure("isGroupExist", new Object[] { groupID },
+                    argTypes);
+            return (boolean) object;
         }
-        throw new NotImplementedException(
-                "isGroupExist operation is not implemented in: " + this.getClass());
+
+        UserStore userStore = getUserStoreWithID(groupID);
+        if (userStore.isRecurssive()) {
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager())
+                    .isGroupExist(groupID);
+        }
+        Group group = getGroupByNameOrID(groupID, null);
+        return group != null;
     }
 
     @Override
@@ -15026,11 +15038,116 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public Group getGroup(String groupID, List<String> requiredAttributes) throws UserStoreException {
 
+        if (!isSecureCall.get()) {
+            Class[] argTypes = new Class[] { String.class, List.class};
+            Object object = callSecure("getGroup", new Object[] { groupID, requiredAttributes },
+                    argTypes);
+            return (Group) object;
+        }
+
+        UserStore userStore = getUserStoreWithID(groupID);
+        if (userStore.isRecurssive()) {
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager())
+                    .getGroup(userStore.getDomainFreeUserId(), requiredAttributes);
+        }
+        boolean isUniqueIdEnabled = isUniqueGroupIDEnabledInUserStore();
+        Group group;
+        boolean isGroupExists;
+
+        if (isUniqueIdEnabled) {
+            isGroupExists = isGroupExist(groupID);
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("getGroup operation is not supported in: " + this.getClass());
+            }
+            throw new UserStoreException(" getGroup operation is not supported by the underline userstore");
+        }
+
+        // #################### Domain Name Free Zone Starts Here ################################
+        if (!isGroupExists) {
+            String errorMessage = String.format(ERROR_CODE_ROLE_ALREADY_EXISTS.getMessage(), groupID,
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
+            String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
+            handleGetGroupFailure(errorCode, errorMessage, groupID, requiredAttributes);
+            throw new UserStoreException(errorCode + " - " + errorMessage);
+        }
+        // check for null claim list
+        if (requiredAttributes == null || requiredAttributes.isEmpty()) {
+            group = getGroupByNameOrID(groupID, null);
+        } else {
+
+            group = doGetGroup(groupID, requiredAttributes);
+        }
+
+        // #################### <Listeners> #####################################################
+        try {
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (listener instanceof AbstractUserOperationEventListener) {
+                    AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
+                    if (!newListener.doPostGetGroup(groupID, requiredAttributes, this)) {
+                        handleGetGroupFailure(ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getCode(),
+                                String.format(ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getMessage(),
+                                        UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), groupID, requiredAttributes);
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleGetGroupFailure(ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getMessage(),
+                            ex.getMessage()), groupID, requiredAttributes);
+            throw ex;
+        }
+        // #################### </Listeners> #####################################################
+
+        return group;
+    }
+
+    /**
+     * Get group using groupID and requiredAttributes.
+     *
+     * @param groupID            group ID.
+     * @param requiredAttributes Required Attributes.
+     * @return Group.
+     * @throws UserStoreException If an error occurred when retrieving group.
+     */
+    protected Group doGetGroup(String groupID, List<String> requiredAttributes) throws UserStoreException {
+
         if (log.isDebugEnabled()) {
-            log.debug("getGroup operation is not implemented in: " + this.getClass());
+            log.debug("getGroupListOfUser operation is not implemented in: " + this.getClass());
         }
         throw new NotImplementedException(
-                "getGroup operation is not implemented in: " + this.getClass());
+                "getGroupListOfUser operation is not implemented in: " + this.getClass());
+    }
+
+    /**
+     * This method is responsible for calling the relevant methods when there is a failure while trying to get the
+     * group.
+     *
+     * @param errorCode          Error Code.
+     * @param errorMessage       Error Message.
+     * @param requiredAttributes Required attributes.
+     * @throws UserStoreException Exception that will be thrown by relevant listner methods.
+     */
+    private void handleGetGroupFailure(String errorCode, String errorMessage, String groupID,
+                                       List<String> requiredAttributes)
+            throws UserStoreException {
+
+        for (UserManagementErrorEventListener listener : UMListenerServiceComponent
+                .getUserManagementErrorEventListeners()) {
+            if (listener.isEnable() && !((UniqueIDUserManagementErrorEventListener) listener)
+                    .onGetGroupFailure(errorCode, errorMessage, groupID, requiredAttributes, this)) {
+                return;
+            }
+        }
+    }
+
+    private boolean isUniqueGroupIDEnabledInUserStore() {
+
+        if (realmConfig.getUserStoreProperty(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE) != null) {
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -15068,12 +15185,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * Get the Group using group ID and name.
      *
-     * @param groupID   group ID.
-     * @param groupName group name.
+     * @param groupID   Group ID.
+     * @param groupName Group name.
      * @return Group.
      * @throws UserStoreException User Store Exception.
      */
-    public Group getGroup(String groupID, String groupName) throws UserStoreException {
+    public Group getGroupByNameOrID(String groupID, String groupName) throws UserStoreException {
 
         if (groupID == null && groupName == null) {
             throw new UserStoreException("Both userID and UserName cannot be null.");
@@ -15189,5 +15306,4 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .addToCache(UserCoreUtil.addDomainToName(groupName, userStore.getDomainName()), group,
                         RESOLVE_GROUP_FROM_GROUP_NAME_CACHE_NAME, tenantId);
     }
-
 }

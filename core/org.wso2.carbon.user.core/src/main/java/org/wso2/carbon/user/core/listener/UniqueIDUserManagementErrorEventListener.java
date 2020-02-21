@@ -421,4 +421,18 @@ public interface UniqueIDUserManagementErrorEventListener extends UserManagement
     boolean onAddGroupFailure(String errorCode, String errorMessage, String groupName, List<String> userIDList,
                               List<org.wso2.carbon.user.core.Permission> permissions,
                               UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Defines any additional actions that need to be done if there is a failure while trying to get a group.
+     *
+     * @param errorCode          Error code.
+     * @param errorMessage       Error message.
+     * @param groupID            Group Id.
+     * @param requiredAttributes Requested attributes.
+     * @param userStoreManager   User Store Manager
+     * @return true if the handing succeeded.
+     * @throws UserStoreException Exception that will be thrown during the execution of this method.
+     */
+    boolean onGetGroupFailure(String errorCode, String errorMessage, String groupID, List<String> requiredAttributes,
+                              UserStoreManager userStoreManager) throws UserStoreException;
 }

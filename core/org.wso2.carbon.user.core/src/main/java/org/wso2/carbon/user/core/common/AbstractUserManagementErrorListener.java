@@ -341,4 +341,11 @@ public class AbstractUserManagementErrorListener implements UniqueIDUserManageme
         return true;
     }
 
+    @Override
+    public boolean onGetGroupFailure(String errorCode, String errorMessage, String groupID,
+                                     List<String> requiredAttributes, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
 }

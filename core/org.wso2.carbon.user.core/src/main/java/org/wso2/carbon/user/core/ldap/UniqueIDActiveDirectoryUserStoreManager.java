@@ -17,7 +17,6 @@
  */
 package org.wso2.carbon.user.core.ldap;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -30,7 +29,6 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
-import org.wso2.carbon.user.core.common.Group;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.util.JNDIUtil;
@@ -53,7 +51,6 @@ import javax.naming.directory.NoSuchAttributeException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -65,12 +62,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringTokenizer;
-import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID;
 
 /**
  * This class is responsible for manipulating Microsoft Active Directory(AD)and Active Directory
@@ -905,15 +899,15 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
         setAdvancedProperty(UserStoreConfigConstants.timestampAttributes,
                 UserStoreConfigConstants.timestampAttributesDisplayName, "whenCreated, whenChanged",
                 UserStoreConfigConstants.timestampAttributesDescription);
-        setAdvancedProperty(UserStoreConfigConstants.groupIDAttribute,
-                UserStoreConfigConstants.groupIDAttributeName,
-                UserStoreConfigConstants.groupIDAttributeDescription, "objectGuid");
-        setAdvancedProperty(UserStoreConfigConstants.groupCreatedDateAttribute,
-                UserStoreConfigConstants.groupCreatedDateAttributeName,
-                UserStoreConfigConstants.groupCreatedDateAttributeDescription, "whenCreated");
-        setAdvancedProperty(UserStoreConfigConstants.groupModifiedDateAttribute,
-                UserStoreConfigConstants.groupModifiedDateAttributeName,
-                UserStoreConfigConstants.groupModifiedDateAttributeDescription, "whenChanged");
+        setAdvancedProperty(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_NAME,
+                UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_DESCRIPTION, "objectGuid");
+        setAdvancedProperty(UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE_NAME,
+                UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE_DESCRIPTION, "whenCreated");
+        setAdvancedProperty(UserStoreConfigConstants.GROUP_MODIFIED_DATE_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_MODIFIED_DATE_ATTRIBUTE_NAME,
+                UserStoreConfigConstants.GROUP_MODIFIED_DATE_ATTRIBUTE_DESCRIPTION, "whenChanged");
     }
 
     private static void setAdvancedProperty(String name, String displayName, String value, String description) {

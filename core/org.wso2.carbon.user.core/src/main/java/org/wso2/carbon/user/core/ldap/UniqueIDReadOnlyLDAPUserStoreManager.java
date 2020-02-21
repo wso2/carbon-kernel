@@ -24,7 +24,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.caching.impl.CachingConstants;
-import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.api.Properties;
 import org.wso2.carbon.user.api.Property;
@@ -49,7 +48,6 @@ import org.wso2.carbon.user.core.model.Condition;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.JNDIUtil;
-import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.nio.ByteBuffer;
 import java.text.MessageFormat;
@@ -1940,15 +1938,15 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         setAdvancedProperty(UserStoreConfigConstants.timestampAttributes,
                 UserStoreConfigConstants.timestampAttributesDisplayName, "",
                 UserStoreConfigConstants.timestampAttributesDescription);
-        setAdvancedProperty(UserStoreConfigConstants.groupIDAttribute,
-                UserStoreConfigConstants.groupIDAttributeName,
-                UserStoreConfigConstants.groupIDAttributeDescription, "");
-        setAdvancedProperty(UserStoreConfigConstants.groupCreatedDateAttribute,
-                UserStoreConfigConstants.groupCreatedDateAttributeName,
-                UserStoreConfigConstants.groupCreatedDateAttributeDescription, "");
-        setAdvancedProperty(UserStoreConfigConstants.groupModifiedDateAttribute,
-                UserStoreConfigConstants.groupModifiedDateAttributeName,
-                UserStoreConfigConstants.groupModifiedDateAttributeDescription, "");
+        setAdvancedProperty(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_NAME,
+                UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_DESCRIPTION, "");
+        setAdvancedProperty(UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE_NAME,
+                UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE_DESCRIPTION, "");
+        setAdvancedProperty(UserStoreConfigConstants.GROUP_MODIFIED_DATE_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_MODIFIED_DATE_ATTRIBUTE_NAME,
+                UserStoreConfigConstants.GROUP_MODIFIED_DATE_ATTRIBUTE_DESCRIPTION, "");
     }
 
     private static void setAdvancedProperty(String name, String displayName, String value, String description) {
@@ -2189,6 +2187,15 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     }
 
     @Override
+    protected Group doGetGroup(String groupID, List<String> requiredAttributes) throws UserStoreException {
+
+        // For the moment there will be only 3 mandatory claims for Groups. requiredAttributes should be handled
+        //  when the claim management for group is resolved in the future.
+        String groupIDProperty = realmConfig.getUserStoreProperty(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE);
+        return getGroupFromProperty(groupIDProperty, groupID);
+    }
+
+    @Override
     public Group doGetGroupFromGroupName(String groupName) throws UserStoreException {
 
         String groupNameProperty = realmConfig.getUserStoreProperty(UserStoreConfigConstants.groupNameAttribute);
@@ -2237,10 +2244,10 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_LIST_FILTER);
         String groupIDProperty = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_ID_ATTRIBUTE);
         String groupCreatedDateProperty =
-                realmConfig.getUserStoreProperty(UserStoreConfigConstants.groupCreatedDateAttribute);
+                realmConfig.getUserStoreProperty(UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE);
         String groupNameProperty = realmConfig.getUserStoreProperty(UserStoreConfigConstants.groupNameAttribute);
         String groupModifiedDateProperty =
-                realmConfig.getUserStoreProperty(UserStoreConfigConstants.groupModifiedDateAttribute);
+                realmConfig.getUserStoreProperty(UserStoreConfigConstants.GROUP_MODIFIED_DATE_ATTRIBUTE);
 
         if (OBJECT_GUID.equalsIgnoreCase(property)) {
             String transformObjectGuidToUuidProperty = realmConfig.getUserStoreProperty(TRANSFORM_OBJECTGUID_TO_UUID);
