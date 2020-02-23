@@ -1,6 +1,7 @@
 
 *.class
 .classpath
+.factorypath
 .settings
 .project
 *.iml
