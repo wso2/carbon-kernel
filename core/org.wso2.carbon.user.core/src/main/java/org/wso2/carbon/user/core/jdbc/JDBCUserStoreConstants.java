@@ -56,7 +56,7 @@ public class JDBCUserStoreConstants {
         setProperty("ReadOnly", "Read-only", "false", "Indicates whether the user store of this realm operates in the user read only mode or not");
         setProperty(UserStoreConfigConstants.readGroups, "Read Groups", "true", UserStoreConfigConstants.readLDAPGroupsDescription);
         setProperty(UserStoreConfigConstants.writeGroups, "Write Groups", "true", UserStoreConfigConstants.writeGroupsDescription);
-        setProperty("UsernameJavaRegEx", "Username RegEx (Java)", "^[\\S]{5,30}$", "A regular expression to validate user names");
+        setProperty("UsernameJavaRegEx", "Username RegEx (Java)", "[a-zA-Z0-9._\\-|//]{3,30}$", "A regular expression to validate user names");
         setProperty("UsernameJavaScriptRegEx", "Username RegEx (Javascript)", "^[\\S]{5,30}$", "The regular expression " +
                 "used by the font-end components for username validation");
         setProperty(usernameJavaRegExViolationErrorMsg, "Username RegEx Violation Error Message",
@@ -67,7 +67,7 @@ public class JDBCUserStoreConstants {
                 "used by the font-end components for password validation");
         setProperty(passwordJavaRegExViolationErrorMsg, "Password RegEx Violation Error Message",
                 "Password pattern policy violated.", passwordJavaRegExViolationErrorMsgDescription);
-        setProperty("RolenameJavaRegEx", "Role Name RegEx (Java)", "^[\\S]{5,30}$", "A regular expression to validate role names");
+        setProperty("RolenameJavaRegEx", "Role Name RegEx (Java)", "[a-zA-Z0-9._\\-|//]{3,30}$", "A regular expression to validate role names");
         setProperty("RolenameJavaScriptRegEx", "Role Name RegEx (Javascript)", "^[\\S]{5,30}$", "The regular expression used by the font-end components for role name validation");
         setProperty(JDBCCaseInsensitiveConstants.CASE_SENSITIVE_USERNAME, "Case Insensitive Username", "false",
                 JDBCCaseInsensitiveConstants.CASE_SENSITIVE_USERNAME_DESCRIPTION);

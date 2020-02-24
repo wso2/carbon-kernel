@@ -442,6 +442,12 @@
         </TrustStore>
 
         <!--
+           To encrypt secondary keystore password using internal keystore. If not it will use the
+           primary keystore.
+        -->
+        <UserStorePasswordEncryption>InternalKeyStore</UserStorePasswordEncryption>
+
+        <!--
             The Authenticator configuration to be used at the JVM level. We extend the
             java.net.Authenticator to make it possible to authenticate to given servers and 
             proxies.
