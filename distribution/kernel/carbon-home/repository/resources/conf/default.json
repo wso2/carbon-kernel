@@ -6,20 +6,12 @@
   "server.file_upload.file_size_limit": "100",
   "user_store.type": "database",
   "super_admin.admin_role": "admin",
-  "authorization_manager": {
-    "class": "org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager",
-    "properties": {
-      "AdminRoleManagementPermissions": "/permission",
-      "AuthorizationCacheEnabled": "true",
-      "GetAllRolesOfUserEnabled": "false"
-    }
-  },
-  "realm_manager": {
-    "data_source": "SHARED_DB",
-    "properties": {
-      "isCascadeDeleteEnabled": true
-    }
-  },
+  "authorization_manager.class": "org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager",
+  "authorization_manager.properties.AdminRoleManagementPermissions": "/permission",
+  "authorization_manager.properties.AuthorizationCacheEnabled": "true",
+  "authorization_manager.properties.GetAllRolesOfUserEnabled": "false",
+  "realm_manager.data_source": "SHARED_DB",
+  "realm_manager.properties.isCascadeDeleteEnabled": true,
   "user_store.properties.ReadGroups": true,
   "user_store.properties.UsernameJavaScriptRegEx": "^[\\S]{3,30}$",
   "user_store.properties.UsernameJavaRegExViolationErrorMsg": "Username pattern policy violated",
