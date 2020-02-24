@@ -15030,7 +15030,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             callSecure("deleteGroup", new Object[]{groupID}, argTypes);
             return;
         }
-
         Group group = getGroup(groupID, null);
 
         if (UserCoreUtil.isPrimaryAdminGroup(group, realmConfig)) {
@@ -15049,7 +15048,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             ((UniqueIDUserStoreManager)userStore.getUserStoreManager()).deleteGroup(groupID);
             return;
         }
-
 
         // #################### Domain Name Free Zone Starts Here ################################
 
@@ -15081,6 +15079,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
         doDeleteGroup(group);
         String roleWithDomain = group.getGroupName() + UserCoreConstants.DOMAIN_SEPARATOR + group.getUserStoreDomain();
+        removeFromGroupIDCache(groupID);
+        removeFromGroupIDCache(group.getGroupName());
 
         // clear role authorization
         userRealm.getAuthorizationManager().clearRoleAuthorization(roleWithDomain);
@@ -15530,5 +15530,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         RESOLVE_GROUP_FROM_GROUP_NAME_CACHE_NAME, tenantId);
 
 
+    }
+
+    private void removeFromGroupIDCache(String key) {
+
+        GroupIdResolverCache.getInstance().clearCacheEntry(key, RESOLVE_GROUP_FROM_GROUP_NAME_CACHE_NAME, tenantId);
     }
 }

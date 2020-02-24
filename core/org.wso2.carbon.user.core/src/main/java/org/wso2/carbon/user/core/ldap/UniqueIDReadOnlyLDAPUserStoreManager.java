@@ -2286,13 +2286,8 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         if (log.isDebugEnabled()) {
             log.debug("Listing users with Property: " + property + " SearchFilter: " + searchFilter);
         }
-        String[] returnedAttributes = new String[]{groupIDProperty, serviceNameAttribute, groupCreatedDateProperty,
-                groupModifiedDateProperty};
-        if (groupNameProperty.equals(property)) {
-            groupName = claimValue;
-        } else {
-            ArrayUtils.add(returnedAttributes, groupNameProperty);
-        }
+        String[] returnedAttributes = new String[]{groupIDProperty, groupNameProperty, serviceNameAttribute,
+                groupCreatedDateProperty, groupModifiedDateProperty};
         try {
             SearchControls searchCtls = new SearchControls();
             searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -2332,8 +2327,8 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 Attributes attributes = sr.getAttributes();
                 Group group;
                 String groupId = null;
-                String groupCreatedTime = null;
-                String groupModifiedTime = null;
+                String groupCreatedTime;
+                String groupModifiedTime;
 
                 if (attributes != null) {
                     Attribute groupIdAttribute = attributes.get(groupIDProperty);
