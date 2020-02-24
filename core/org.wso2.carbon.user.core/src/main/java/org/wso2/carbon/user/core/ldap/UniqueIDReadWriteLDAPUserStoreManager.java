@@ -2496,4 +2496,9 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         UNIQUE_ID_RW_LDAP_UM_ADVANCED_PROPERTIES.add(property);
     }
 
+    @Override
+    protected void doDeleteGroup(Group group) throws UserStoreException {
+
+        doDeleteRole(group.getGroupName());
+    }
 }

@@ -2202,6 +2202,13 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         return getGroupFromProperty(groupNameProperty, groupName);
     }
 
+    @Override
+    protected Group doGetGroupFromGroupID(String groupID) throws UserStoreException {
+
+        String groupIDProperty = realmConfig.getUserStoreProperty(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE);
+        return getGroupFromProperty(groupIDProperty, groupID);
+    }
+
     private Group getGroupFromProperty(String property, String claimValue) throws UserStoreException {
 
         try {

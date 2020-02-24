@@ -22,6 +22,8 @@ package org.wso2.carbon.user.core.listener;
 import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
+import org.wso2.carbon.user.core.common.Group;
 import org.wso2.carbon.user.core.model.Condition;
 import org.wso2.carbon.user.core.model.UserClaimSearchEntry;
 
@@ -803,4 +805,45 @@ public interface UserOperationEventListener {
         return true;
     }
 
+    /**
+     * Pre listener for delete internal groups.
+     *
+     * @param groupID                  Group ID.
+     * @param abstractUserStoreManager AbstractUserStoreManager
+     * @return false in case of error.
+     * @throws UserStoreException UserStoreException
+     */
+    default boolean doPreDeleteInternalGroup(String groupID, AbstractUserStoreManager abstractUserStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    /**
+     * Pre listener for deleting group.
+     *
+     * @param groupID                  Group ID
+     * @param abstractUserStoreManager AbstractUserStoreManager
+     * @return false in case of error.
+     * @throws UserStoreException UserStoreException
+     */
+    default boolean doPreDeleteGroup(String groupID, AbstractUserStoreManager abstractUserStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    /**
+     * Post listeners for deleting a group
+     *
+     * @param groupID                  Group ID.
+     * @param abstractUserStoreManager AbstractUserStoreManager
+     * @return false in case of error.
+     * @throws UserStoreException UserStoreException
+     */
+    default boolean doPostDeleteGroup(String groupID, AbstractUserStoreManager abstractUserStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
 }

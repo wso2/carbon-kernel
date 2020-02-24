@@ -26,6 +26,7 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.claim.ClaimManager;
+import org.wso2.carbon.user.core.common.Group;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.utils.Secret;
@@ -755,6 +756,24 @@ public final class UserCoreUtil {
             }
         }
 
+        return false;
+    }
+
+
+    public static boolean isPrimaryAdminGroup(Group group, RealmConfiguration realmConfig) {
+
+        String myDomain = getDomainName(realmConfig);
+
+        if (myDomain != null) {
+            myDomain += CarbonConstants.DOMAIN_SEPARATOR;
+        }
+
+        if (realmConfig.isPrimary()) {
+            if (realmConfig.getAdminRoleName().equalsIgnoreCase(group.getGroupName())
+                    || realmConfig.getAdminRoleName().equalsIgnoreCase(myDomain + group.getGroupName())) {
+                return true;
+            }
+        }
         return false;
     }
 

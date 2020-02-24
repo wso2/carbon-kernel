@@ -9623,6 +9623,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .startsWith(WORKFLOW_DOMAIN.toLowerCase());
     }
 
+    private boolean isAnInternalGroup(String domainName) {
+
+        return APPLICATION_DOMAIN.toLowerCase().equals(domainName.toLowerCase()) ||
+                UserCoreConstants.INTERNAL_DOMAIN.toLowerCase().equals(domainName.toLowerCase()) ||
+                WORKFLOW_DOMAIN.toLowerCase().equals(domainName.toLowerCase());
+    }
+
     private List<String> getUserStorePreferenceOrder() throws UserStoreException {
 
         UserMgtContext userMgtContext = UserCoreUtil.getUserMgtContextFromThreadLocal();
@@ -14667,6 +14674,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                           List<org.wso2.carbon.user.core.common.Claim> claims)
             throws org.wso2.carbon.user.api.UserStoreException {
 
+        if (!isSecureCall.get()) {
+            Class[] argTypes = new Class[]{String.class, List.class, List.class, List.class};
+            Object object = callSecure("addGroup", new Object[]{groupName, usersIDs, permissions, claims},
+                    argTypes);
+            return (Group) object;
+        }
+
         if (groupName.isEmpty()) {
             handleAddGroupFailure(ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.getCode(),
                     ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.getMessage(), groupName,
@@ -15007,11 +15021,181 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public void deleteGroup(String groupID) throws UserStoreException {
 
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class};
+            callSecure("deleteGroup", new Object[]{groupID}, argTypes);
+            return;
+        }
+
+        Group group = getGroup(groupID, null);
+
+        if (UserCoreUtil.isPrimaryAdminGroup(group, realmConfig)) {
+            handleDeleteGroupFailure(ErrorMessages.ERROR_CODE_CANNOT_DELETE_ADMIN_ROLE.getCode(),
+                    ErrorMessages.ERROR_CODE_CANNOT_DELETE_ADMIN_ROLE.getMessage(), groupID);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_DELETE_ADMIN_ROLE.toString());
+        }
+        if (UserCoreUtil.isEveryoneRole(group.getGroupName(), realmConfig)) {
+            handleDeleteGroupFailure(ErrorMessages.ERROR_CODE_CANNOT_DELETE_EVERYONE_ROLE.getCode(),
+                    ErrorMessages.ERROR_CODE_CANNOT_DELETE_EVERYONE_ROLE.getMessage(), groupID);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_DELETE_EVERYONE_ROLE.toString());
+        }
+
+        UserStore userStore = getUserStoreWithID(groupID);
+        if (userStore.isRecurssive()) {
+            ((UniqueIDUserStoreManager)userStore.getUserStoreManager()).deleteGroup(groupID);
+            return;
+        }
+
+
+        // #################### Domain Name Free Zone Starts Here ################################
+
+        if (userStore.isHybridRole()) {
+            throw new UserStoreException("This is not yet implemented.");
+        }
+
+        if (!isGroupExist(groupID)) {
+            handleDeleteGroupFailure(ErrorMessages.ERROR_CODE_CANNOT_DELETE_NON_EXISTING_ROLE.getCode(),
+                    ErrorMessages.ERROR_CODE_CANNOT_DELETE_NON_EXISTING_ROLE.getMessage(), groupID);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_DELETE_NON_EXISTING_ROLE.toString());
+        }
+
+        // #################### <Listeners> #####################################################
+        if (!handleDoPreDeleteGroup(group, false)) {
+            return;
+        }
+        // #################### </Listeners> #####################################################
+        if (isReadOnly()) {
+            handleDeleteGroupFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), groupID);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+        }
+
+        if (!writeGroupsEnabled) {
+            handleDeleteGroupFailure(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getCode(),
+                    ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getMessage(), groupID);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.toString());
+        }
+        doDeleteGroup(group);
+        String roleWithDomain = group.getGroupName() + UserCoreConstants.DOMAIN_SEPARATOR + group.getUserStoreDomain();
+
+        // clear role authorization
+        userRealm.getAuthorizationManager().clearRoleAuthorization(roleWithDomain);
+
+        // clear cache
+        clearUserRolesCacheByTenant(tenantId);
+
+        // Call relevant listeners after deleting the role.
+        handleDoPostDeleteGroup(group, false);
+    }
+
+    /**
+     * This method is responsible for calling post delete methods of relevant listeners.
+     *
+     * @param group          Group
+     * @param isAuditLogOnly To indicate whether to call only the audit logger.
+     * @throws UserStoreException Exception that will be thrown by relevant listener methods.
+     */
+    private void handleDoPostDeleteGroup(Group  group, boolean isAuditLogOnly) throws UserStoreException {
+
+        try {
+            boolean internalRole = isAnInternalGroup(group.getUserStoreDomain());
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (isAuditLogOnly && !listener.getClass().getName()
+                        .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+
+                boolean success = false;
+                if (internalRole && listener instanceof AbstractUserOperationEventListener) {
+                    log.error("Hybrid groups are not yet supported.");
+                    success = false;
+                } else if (internalRole && !(listener instanceof AbstractUserOperationEventListener)) {
+                    success = true;
+                } else if (!internalRole) {
+                    success = listener.doPostDeleteGroup(group.getGroupID(), this);
+                }
+
+                if (!success) {
+                    handleDeleteGroupFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getCode(),
+                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getMessage(),
+                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), group.getGroupID());
+                    return;
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleDeleteGroupFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getMessage(), ex.getMessage()),
+                    group.getGroupID());
+            throw ex;
+        }
+    }
+
+    /**
+     * Delete a group.
+     * 
+     * @param group Group.
+     */
+    protected  void doDeleteGroup(Group group) throws UserStoreException {
+
         if (log.isDebugEnabled()) {
-            log.debug("deleteGroup operation is not implemented in: " + this.getClass());
+            log.debug("doDeleteGroup operation is not implemented in: " + this.getClass());
         }
         throw new NotImplementedException(
-                "deleteGroup operation is not implemented in: " + this.getClass());
+                "doDeleteGroup operation is not implemented in: " + this.getClass());
+    }
+
+    private boolean handleDoPreDeleteGroup(Group group, boolean isAuditLogOnly) throws UserStoreException {
+
+        try {
+            boolean internalRole = isAnInternalGroup(group.getUserStoreDomain());
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (isAuditLogOnly && !listener.getClass().getName()
+                        .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+
+                boolean success = false;
+                if (internalRole && listener instanceof AbstractUserOperationEventListener) {
+                    success = ((AbstractUserOperationEventListener) listener).doPreDeleteInternalGroup(group.getGroupID(), this);
+                } else if (internalRole && !(listener instanceof AbstractUserOperationEventListener)) {
+                    success = true;
+                } else if (!internalRole) {
+                    success = listener.doPreDeleteGroup(group.getGroupID(), this);
+                }
+
+                if (!success) {
+                    handleDeleteGroupFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getCode(),
+                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getMessage(),
+                                    UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), group.getGroupID());
+                    return false;
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleDeleteGroupFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getMessage(), ex.getMessage()),
+                    group.getGroupID());
+            throw ex;
+        }
+        return true;
+
+    }
+
+    /**
+     * This method calls the relevant methods when there is a failure while trying to delete the group
+     *
+     * @param code    Error code.
+     * @param message Error message.
+     * @param groupID Group ID
+     */
+    private void handleDeleteGroupFailure(String code, String message, String groupID) {
+
+        for (UserManagementErrorEventListener listener : UMListenerServiceComponent
+                .getUserManagementErrorEventListeners()) {
+            if (listener.isEnable() && !listener.onDeleteGroupFailure(code, message, groupID, this)) {
+                return;
+            }
+        }
+
     }
 
     @Override
@@ -15075,7 +15259,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (requiredAttributes == null || requiredAttributes.isEmpty()) {
             group = getGroupByNameOrID(groupID, null);
         } else {
-
             group = doGetGroup(groupID, requiredAttributes);
         }
 
@@ -15202,7 +15385,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (groupName == null) {
-            groupName = getUserNameFromUserID(groupID);
+            return getGroupFromGroupID(groupID);
         }
         if (groupName.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
             domain = UserCoreUtil.extractDomainFromName(groupName);
@@ -15211,6 +15394,24 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         Group group = new Group(groupID, groupName);
         group.setTenantDomain(getTenantDomain(tenantId));
         group.setUserStoreDomain(domain);
+        return group;
+    }
+
+    public Group getGroupFromGroupID(String groupID) throws UserStoreException {
+
+        UserStore userStore = getUserStoreWithID(groupID);
+        if (userStore.isRecurssive()) {
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager())
+                    .getGroupFromGroupID(userStore.getDomainFreeUserId());
+        }
+        Group group = getGroupFromGroupIDCache(groupID, userStore);
+        if (group == null) {
+            if (isUniqueUserIdEnabledInUserStore(userStore)) {
+                group = doGetGroupFromGroupID(groupID);
+                addToGroupIDCache(groupID, group, userStore);
+                addToGroupIDCache(group.getGroupName(), group, userStore);
+            }
+        }
         return group;
     }
 
@@ -15234,6 +15435,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (isUniqueUserIdEnabledInUserStore(userStore)) {
                 group = doGetGroupFromGroupName(groupName);
                 addToGroupIDCache(groupName, group, userStore);
+                addToGroupIDCache(group.getGroupName(), group, userStore);
             }
         }
         return group;
@@ -15253,6 +15455,23 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
         throw new NotImplementedException(
                 "doGetGroupFromGroupName operation is not implemented in: " + this.getClass());
+
+    }
+
+    /**
+     * Get Group from group ID.
+     *
+     * @param ID group ID
+     * @return A group.
+     * @throws UserStoreException If an error occurred when getting a group using group name.
+     */
+    protected Group doGetGroupFromGroupID(String ID) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doGetGroupFromGroupID operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "doGetGroupFromGroupID operation is not implemented in: " + this.getClass());
 
     }
 
@@ -15293,17 +15512,19 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return domainNameProperty;
     }
 
-    private Group getGroupFromGroupIDCache(String groupName, UserStore userStore) {
+    private Group getGroupFromGroupIDCache(String key, UserStore userStore) {
 
         return GroupIdResolverCache.getInstance()
-                .getValueFromCache(UserCoreUtil.addDomainToName(groupName, userStore.getDomainName()),
+                .getValueFromCache(UserCoreUtil.addDomainToName(key, userStore.getDomainName()),
                         RESOLVE_GROUP_FROM_GROUP_NAME_CACHE_NAME, tenantId);
     }
 
-    private void addToGroupIDCache(String groupName, Group group, UserStore userStore) {
+    private void addToGroupIDCache(String key, Group group, UserStore userStore) {
 
         GroupIdResolverCache.getInstance()
-                .addToCache(UserCoreUtil.addDomainToName(groupName, userStore.getDomainName()), group,
+                .addToCache(UserCoreUtil.addDomainToName(key, userStore.getDomainName()), group,
                         RESOLVE_GROUP_FROM_GROUP_NAME_CACHE_NAME, tenantId);
+
+
     }
 }
