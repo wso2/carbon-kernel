@@ -2472,8 +2472,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             rs = prepStmt.executeQuery();
             String domainName = getMyDomainName();
             while (rs.next()) {
-                String userID = UserCoreUtil.addDomainToName(rs.getString(1), domainName);
-                String roleName = UserCoreUtil.addDomainToName(rs.getString(2), domainName);
+                String userID = rs.getString(1);
+                String roleName = rs.getString(2);
                 if (rolesListOfUsersMap.get(userID) != null) {
                     rolesListOfUsersMap.get(userID).add(roleName);
                 } else {
