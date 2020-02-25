@@ -197,7 +197,7 @@
       "user_store.properties.GroupSearchBase": "ou=Groups,$ref{user_store.base_dn}",
       "user_store.properties.AnonymousBind": false,
       "user_store.properties.UserEntryObjectClass": "identityPerson",
-      "user_store.properties.UserNameAttribute": "uid",
+      "user_store.properties.UserNameAttribute": "cn",
       "user_store.properties.UserNameSearchFilter": "(&amp;(objectClass=person)(uid=?))",
       "user_store.properties.UserNameListFilter": "(objectClass=person)",
       "user_store.properties.DisplayNameAttribute": "",
@@ -227,7 +227,9 @@
       "user_store.properties.SCIMEnabled": false,
       "user_store.properties.UserRolesCacheEnabled": true,
       "user_store.properties.ConnectionRetryDelay": "2m",
-      "user_store.properties.UserIDAttribute": "scimId",
+      "user_store.properties.UserIDAttribute": "objectGuid",
+      "user_store.properties.'java.naming.ldap.attributes.binary'": "objectGuid",
+      "user_store.properties.ImmutableAttributes": "objectGuid",
       "user_store.properties.UserIdSearchFilter": "(&amp;(objectClass=person)(uid=?))"
     }
   },
