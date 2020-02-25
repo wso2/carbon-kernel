@@ -8905,7 +8905,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     roles.addAll(internalRoles.get(userName));
                 }
                 if (externalRoles.get(userName) != null) {
-                    roles.addAll(externalRoles.get(userName));
+                    List<String> domainQualifiedRoleNames = getNamesWithDomain(externalRoles.get(userName), domainName);
+                    roles.addAll(domainQualifiedRoleNames);
                 }
                 if (!roles.isEmpty()) {
                     combinedRoles.put(userName, roles);
@@ -8969,7 +8970,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         for (Map.Entry<String, List<String>> entry : domainFreeUsers.entrySet()) {
             UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(entry.getKey());
             if (secondaryUserStoreManager instanceof AbstractUserStoreManager) {
-                List<String> usersWithDomain = getUsersWithDomain(entry);
+                List<String> usersWithDomain = getNamesWithDomain(entry.getValue(), entry.getKey());
                 if (((AbstractUserStoreManager) secondaryUserStoreManager).isUniqueUserIdEnabled()) {
                     List<UniqueIDUserClaimSearchEntry> uniqueIDUserClaimSearchEntries = ((AbstractUserStoreManager)
                             secondaryUserStoreManager).doGetUsersClaimValuesWithID(getUserIDsFromUserNames(
@@ -14587,7 +14588,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     roles.addAll(internalRoles.get(userID));
                 }
                 if (externalRoles.get(userID) != null) {
-                    roles.addAll(externalRoles.get(userID));
+                    List<String> domainQualifiedRoleNames = getNamesWithDomain(externalRoles.get(userID), domainName);
+                    roles.addAll(domainQualifiedRoleNames);
                 }
                 if (!roles.isEmpty()) {
                     combinedRoles.put(userID, roles);
@@ -14791,11 +14793,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 "getGroupListOfUser operation is not implemented in: " + this.getClass());
     }
 
-    private List<String> getUsersWithDomain(Map.Entry<String, List<String>> entry) {
+    private List<String> getNamesWithDomain(List<String> identifiers, String domain) {
 
         List<String> usersWithDomain = new ArrayList<>();
-        for (String user : entry.getValue()) {
-            usersWithDomain.add(UserCoreUtil.addDomainToName(user, entry.getKey()));
+        for (String identifier : identifiers) {
+            usersWithDomain.add(UserCoreUtil.addDomainToName(identifier, domain));
         }
         return usersWithDomain;
     }
