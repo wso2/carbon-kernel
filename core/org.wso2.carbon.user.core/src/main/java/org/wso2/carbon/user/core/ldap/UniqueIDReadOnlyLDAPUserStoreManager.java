@@ -1096,7 +1096,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                         if (StringUtils.isNotEmpty(userIDAttribute)) {
                             Attribute userID = userAttributes.get(userIDAttribute);
                             if (userID != null) {
-                                id = (String) userID.get();
+                                id = resolveLdapAttributeValue(userID.get());
                             }
                             if (log.isDebugEnabled()) {
                                 log.debug("UserID: " + id);
