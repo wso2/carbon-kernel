@@ -4386,6 +4386,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throw new UserStoreException(errorCode + " - " + message);
         }
 
+        // If the username claims presents, the value should be equal to the username attribute.
+        if (claims != null && claims.containsKey(USERNAME_CLAIM_URI) &&
+                !claims.get(USERNAME_CLAIM_URI).equals(userName)) {
+            // If not we cannot continue.
+            throw new UserStoreException("Username and the username claim value should be same.");
+        }
+
         // Get the user store that this user should be added from the domain name that is appended to the username.
         UserStore userStore = getUserStore(userName);
         boolean isUniqueUserIdEnabled = isUniqueUserIdEnabledInUserStore(userStore);
@@ -13231,6 +13238,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             String errorCode = ErrorMessages.ERROR_CODE_USERNAME_CANNOT_BE_EMPTY.getCode();
             handleAddUserFailureWithID(errorCode, message, null, credential, roleList, claims, profileName);
             throw new UserStoreException(errorCode + " - " + message);
+        }
+
+        // If the username claims presents, the value should be equal to the username attribute.
+        if (claims != null && claims.containsKey(USERNAME_CLAIM_URI) &&
+                !claims.get(USERNAME_CLAIM_URI).equals(userName)) {
+            // If not we cannot continue.
+            throw new UserStoreException("Username and the username claim value should be same.");
         }
 
         UserStore userStore = getUserStore(userName);
