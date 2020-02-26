@@ -189,11 +189,6 @@ public class OSGiLibDeployerToolTest {
         Assert.assertTrue(compareBundleInfo(expected, actual));
     }
 
-    @Test
-    public void createDirectory() throws IOException {
-
-    }
-
     private static void createDirectories(Path directory) throws IOException {
         if (!Files.exists(directory)) {
             Files.createDirectories(directory);
