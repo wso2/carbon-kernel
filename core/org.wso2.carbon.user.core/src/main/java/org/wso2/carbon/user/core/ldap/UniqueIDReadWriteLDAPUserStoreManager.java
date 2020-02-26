@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.user.core.ldap;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -73,6 +74,8 @@ import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID;
+
 /**
  * This class is capable of get connected to an external or internal LDAP based user store in
  * read/write mode. Create, Update, Delete users and groups are supported.
@@ -107,7 +110,6 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     private UserUniqueIDDomainResolver userUniqueIDDomainResolver = new UserUniqueIDDomainResolver(dataSource);
 
     protected Random random = new Random();
-    protected UserCoreUtil userCoreUtil = new UserCoreUtil();
 
     protected boolean kdcEnabled = false;
 
@@ -1270,7 +1272,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         String groupID;
         Group createdGroup;
         Map<String, String> configuredGroupAttributes =
-                userCoreUtil.getConfiguredAttributesMap(this.getRealmConfiguration());
+                UserCoreUtil.getConfiguredAttributesMap(this.getRealmConfiguration());
         if (configuredGroupAttributes.isEmpty() ||
                 configuredGroupAttributes.get(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE) == null) {
             // No groupID support.
@@ -1287,24 +1289,10 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             doAddRoleWithID(groupName, userIDs.toArray(new String[0]), true);
             createdGroup = getGroupByNameOrID(null, groupName);
         } else {
+            // This will filter out immutable attributes and get the attributes that should generate.
             Map<String, String> groupAttributesNeedToGenerate = filterAttributesNotGeneratedByUserStore(realmConfig,
                     configuredGroupAttributes, claims);
-            Map<String, String> storedAttributesWithValues = new HashMap<>();
-            for (Claim claim : claims) {
-                if (groupAttributesNeedToGenerate
-                        .get(userCoreUtil.getMappedAttributeOfGroupClaimURL(claim.getClaimUrl(), realmConfig)) !=
-                        null) {
-                    storedAttributesWithValues.put(groupAttributesNeedToGenerate
-                                    .get(userCoreUtil.getMappedAttributeOfGroupClaimURL(claim.getClaimUrl(), realmConfig)),
-                            claim.getClaimValue());
-                }
-            }
-            for (Map.Entry generatedAttribute : groupAttributesNeedToGenerate.entrySet()) {
-                if (storedAttributesWithValues.containsKey(generatedAttribute.getValue().toString())) {
-                    storedAttributesWithValues.put(generatedAttribute.getValue().toString(),
-                            userCoreUtil.getAttributeValue(generatedAttribute.getKey().toString()));
-                }
-            }
+            Map<String, String> storedAttributesWithValues = generateAttributesToStore(groupAttributesNeedToGenerate);
 
             createdGroup = doAddGroupWithValues(groupName, userIDs.toArray(new String[0]), storedAttributesWithValues);
         }
@@ -1316,12 +1304,23 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         return createdGroup;
     }
 
+    private Map<String, String> generateAttributesToStore(Map<String, String> groupAttributesNeedToGenerate) {
+
+        Map<String, String> storedAttributesWithValues = new HashMap<>();
+        for (Map.Entry generatedAttribute : groupAttributesNeedToGenerate.entrySet()) {
+
+                storedAttributesWithValues.put(generatedAttribute.getValue().toString(),
+                        UserCoreUtil.getAttributeValue(generatedAttribute.getKey().toString()));
+        }
+        return storedAttributesWithValues;
+    }
+
     private Map<String, String> filterAttributesNotGeneratedByUserStore(RealmConfiguration realmConfig, Map<String,
             String> configuredGroupAttributes, List<Claim> claims) {
 
         Map<String, String> filteredAttributes = new HashMap<>();
         for (Map.Entry attribute : configuredGroupAttributes.entrySet()) {
-            if(!userCoreUtil.isPropertyGeneratedByUserStore(realmConfig, attribute.getValue().toString())) {
+            if(!UserCoreUtil.isPropertyGeneratedByUserStore(realmConfig, attribute.getValue().toString())) {
                 filteredAttributes.put(attribute.getKey().toString(), attribute.getValue().toString());
             }
         }
@@ -1333,7 +1332,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
         boolean isGeneratedByUserStore = true;
         for (Map.Entry attribute : configuredGroupAttributes.entrySet()) {
-            isGeneratedByUserStore = isGeneratedByUserStore && userCoreUtil.isPropertyGeneratedByUserStore(realmConfig,
+            isGeneratedByUserStore = isGeneratedByUserStore && UserCoreUtil.isPropertyGeneratedByUserStore(realmConfig,
                     attribute.getValue().toString());
         }
         return isGeneratedByUserStore;
@@ -1447,11 +1446,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             versionNumberAttribute.add("0");
             basicAttributes.put(versionNumberAttribute);
         }
-        for (Map.Entry updateAttribute : attributes.entrySet()) {
-            BasicAttribute attr = new BasicAttribute(updateAttribute.getKey().toString());
-            attr.add(updateAttribute.getValue().toString());
-            basicAttributes.put(attr);
-        }
+        addBasicAttributesFromMap(attributes, basicAttributes);
         return basicAttributes;
     }
 
@@ -2499,6 +2494,74 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     @Override
     protected void doDeleteGroup(Group group) throws UserStoreException {
 
+        log.info("deleting group:" + group.getGroupName() + " group id: " + group.getGroupID());
         doDeleteRole(group.getGroupName());
+    }
+
+    @Override
+    protected Group doUpdateGroup(String groupID, List<Claim> claims)
+            throws UserStoreException {
+
+        // No claim manager is introduced for groups hence only modified date claim will be updated.
+        Map<String, String> updatedAttributes = new HashMap<>();
+        updatedAttributes.put(realmConfig.getUserStoreProperty(UserStoreConfigConstants.GROUP_MODIFIED_DATE_ATTRIBUTE),
+                UserCoreUtil.getAttributeValue(UserStoreConfigConstants.GROUP_MODIFIED_DATE_ATTRIBUTE));
+        modifyGroup(groupID, updatedAttributes);
+        return getGroupByNameOrID(groupID, null);
+    }
+
+    private void modifyGroup(String groupID, Map<String, String> updatedAttributesMap) throws UserStoreException {
+
+        DirContext dirContext = getSearchBaseDirectoryContext(LDAPConstants.GROUP_SEARCH_BASE);
+        DirContext subDirContext = null;
+
+        String groupIDProperty = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_ID_ATTRIBUTE);
+        String searchFilter = realmConfig.getUserStoreProperty(UserStoreConfigConstants.GROUP_ID_SEARCH_FILTER);
+        searchFilter = getSearchFilterForProperty(groupIDProperty, groupID, searchFilter);
+
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        searchControls.setReturningAttributes(null);
+
+        NamingEnumeration<SearchResult> returnedResultList = null;
+        String returnedUserEntry = null;
+
+        try {
+            returnedResultList = dirContext.search(escapeDNForSearch(groupSearchBase), searchFilter, searchControls);
+            // Assume only one group is returned from the search.
+            returnedUserEntry = returnedResultList.next().getName();
+
+        } catch (NamingException e) {
+            String errorMessage = "Results could not be retrieved from the directory context for group : " + groupID;
+
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            JNDIUtil.closeNamingEnumeration(returnedResultList);
+        }
+        try {
+            BasicAttributes updateAttributes = new BasicAttributes(true);
+            addBasicAttributesFromMap(updatedAttributesMap, updateAttributes);
+            // Update the attributes in the relevant entry of the directory store.
+            subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(groupSearchBase));
+            subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE,
+                    updateAttributes);
+        } catch (Exception e) {
+            handleException(e, groupID);
+        } finally {
+            JNDIUtil.closeContext(subDirContext);
+            JNDIUtil.closeContext(dirContext);
+        }
+    }
+
+    private void addBasicAttributesFromMap(Map<String, String> updatedAttributes, BasicAttributes basicAttributes) {
+
+        for (Map.Entry attribute : updatedAttributes.entrySet()) {
+            BasicAttribute updateAttribute = new BasicAttribute(attribute.getKey().toString());
+            updateAttribute.add(attribute.getValue().toString());
+            basicAttributes.put(updateAttribute);
+        }
     }
 }

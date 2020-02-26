@@ -195,6 +195,7 @@ public class UserCoreErrorConstants {
         ERROR_CODE_ERROR_DURING_POST_ADD_ROLE("31703", "Un-expected error during post-step of adding role, "
                 + "%s"),
         ERROR_CODE_CANNOT_ADD_EMPTY_ROLE("31704", "Cannot add role with empty role name"),
+        ERROR_CODE_CANNOT_ADD_EMPTY_GROUP("31704", "Cannot add role with empty group name"),
         ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_ROLE("31705", "Constrain violation while adding a system role."),
         ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE("31706", "Constrain violation while adding a hybrid role."),
         ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE("31707", "Constrain violation while adding a role."),
@@ -220,7 +221,13 @@ public class UserCoreErrorConstants {
         // Error code related with updating permissions of role.
         ERROR_CODE_ERROR_WHILE_UPDATING_PERMISSIONS_OF_ROLE("32101", "Un-expected error while updating permissions of  "
                 + "updating role,  %s"),
-        ERROR_CODE_USERNAME_CANNOT_BE_EMPTY("32102", "Username %s is not valid. User name cannot be empty.");
+        ERROR_CODE_USERNAME_CANNOT_BE_EMPTY("32102", "Username %s is not valid. User name cannot be empty."),
+        // Error code related with updating group
+        ERROR_CODE_ERROR_DURING_PRE_UPDATE_GROUP("32201", "Un-expected error during pre-step of updating group "),
+        ERROR_CODE_ERROR_WHILE_UPDATING_GROUP("32203", "Un-expected error while updating group"),
+        ERROR_CODE_ERROR_DURING_POST_UPDATE_GROUP("32204", "Un-expected error during post-step of updating group");
+
+
 
         private final String code;
         private final String message;

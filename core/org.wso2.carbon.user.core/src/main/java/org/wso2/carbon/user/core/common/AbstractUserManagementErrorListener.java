@@ -355,4 +355,12 @@ public class AbstractUserManagementErrorListener implements UniqueIDUserManageme
 
         return true;
     }
+
+    @Override
+    public boolean onUpdateGroupFailure(String errorCode, String errorMessage, String groupID, List<Claim> claims,
+                                        List<org.wso2.carbon.user.core.Permission> permissions,
+                                        AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
+
+        return true;
+    }
 }

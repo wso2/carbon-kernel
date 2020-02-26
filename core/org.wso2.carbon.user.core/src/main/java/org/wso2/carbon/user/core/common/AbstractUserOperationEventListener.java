@@ -714,5 +714,37 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
 
         return true;
     }
-    
+
+    @Override
+    public boolean doPreUpdateHybridGroup(String groupID, List<Claim> claims,
+                                          List<org.wso2.carbon.user.core.Permission> permissions,
+                                          AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreUpdateGroup(String groupID, List<Claim> claims,
+                                    List<org.wso2.carbon.user.core.Permission> permissions,
+                                    AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostUpdateInternalGroup(String groupID, List<Claim> claims,
+                                             List<org.wso2.carbon.user.core.Permission> permissions,
+                                             AbstractUserStoreManager abstractUserStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostUpdateGroup(String groupID, List<Claim> claims,
+                                     List<org.wso2.carbon.user.core.Permission> permissions,
+                                     AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
+
+        return true;
+    }
 }

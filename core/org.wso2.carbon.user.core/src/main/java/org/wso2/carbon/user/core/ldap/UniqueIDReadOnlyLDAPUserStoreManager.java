@@ -1301,27 +1301,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
         String userIDProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
 
-        if (OBJECT_GUID.equalsIgnoreCase(property)) {
-            String transformObjectGuidToUuidProperty = realmConfig.getUserStoreProperty(TRANSFORM_OBJECTGUID_TO_UUID);
-
-            boolean transformObjectGuidToUuid = StringUtils.isEmpty(transformObjectGuidToUuidProperty) || Boolean
-                    .parseBoolean(transformObjectGuidToUuidProperty);
-
-            String convertedValue;
-            if (StringUtils.equals(value, "*")) {
-                convertedValue = value;
-            } else if (transformObjectGuidToUuid) {
-                convertedValue = transformUUIDToObjectGUID(value);
-            } else {
-                byte[] bytes = Base64.decodeBase64(value.getBytes());
-                convertedValue = convertBytesToHexString(bytes);
-            }
-            searchFilter = "(&" + searchFilter + "(" + property + "=" + convertedValue + "))";
-        } else {
-            searchFilter =
-                    "(&" + searchFilter + "(" + property + "=" + escapeSpecialCharactersForFilterWithStarAsRegex(value)
-                            + "))";
-        }
+        searchFilter = getSearchFilterForProperty(property, value, searchFilter);
 
         DirContext dirContext = this.connectionSource.getContext();
         NamingEnumeration<?> answer = null;
@@ -1685,7 +1665,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
      * @param dnPartial
      * @return
      */
-    private String escapeSpecialCharactersForFilterWithStarAsRegex(String dnPartial) {
+    protected String escapeSpecialCharactersForFilterWithStarAsRegex(String dnPartial) {
 
         boolean replaceEscapeCharacters = true;
         String replaceEscapeCharactersAtUserLoginString = realmConfig
@@ -2256,28 +2236,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         String groupModifiedDateProperty =
                 realmConfig.getUserStoreProperty(UserStoreConfigConstants.GROUP_MODIFIED_DATE_ATTRIBUTE);
 
-        if (OBJECT_GUID.equalsIgnoreCase(property)) {
-            String transformObjectGuidToUuidProperty = realmConfig.getUserStoreProperty(TRANSFORM_OBJECTGUID_TO_UUID);
-
-            boolean transformObjectGuidToUuid = StringUtils.isEmpty(transformObjectGuidToUuidProperty) || Boolean
-                    .parseBoolean(transformObjectGuidToUuidProperty);
-
-            String convertedValue;
-            if (StringUtils.equals(claimValue, "*")) {
-                convertedValue = claimValue;
-            } else if (transformObjectGuidToUuid) {
-                convertedValue = transformUUIDToObjectGUID(claimValue);
-            } else {
-                byte[] bytes = Base64.decodeBase64(claimValue.getBytes());
-                convertedValue = convertBytesToHexString(bytes);
-            }
-            searchFilter = "(&" + searchFilter + "(" + property + "=" + convertedValue + "))";
-        } else {
-            searchFilter =
-                    "(&" + searchFilter + "(" + property + "=" +
-                            escapeSpecialCharactersForFilterWithStarAsRegex(claimValue)
-                            + "))";
-        }
+        searchFilter = getSearchFilterForProperty(property, claimValue, searchFilter);
 
         DirContext dirContext = this.connectionSource.getContext();
         NamingEnumeration<?> answer = null;
@@ -2426,6 +2385,33 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             }
         }
         return groups;
+    }
+
+    public String getSearchFilterForProperty(String property, String claimValue, String searchFilter) {
+
+        if (OBJECT_GUID.equalsIgnoreCase(property)) {
+            String transformObjectGuidToUuidProperty = realmConfig.getUserStoreProperty(TRANSFORM_OBJECTGUID_TO_UUID);
+
+            boolean transformObjectGuidToUuid = StringUtils.isEmpty(transformObjectGuidToUuidProperty) || Boolean
+                    .parseBoolean(transformObjectGuidToUuidProperty);
+
+            String convertedValue;
+            if (StringUtils.equals(claimValue, "*")) {
+                convertedValue = claimValue;
+            } else if (transformObjectGuidToUuid) {
+                convertedValue = transformUUIDToObjectGUID(claimValue);
+            } else {
+                byte[] bytes = Base64.decodeBase64(claimValue.getBytes());
+                convertedValue = convertBytesToHexString(bytes);
+            }
+            searchFilter = "(&" + searchFilter + "(" + property + "=" + convertedValue + "))";
+        } else {
+            searchFilter =
+                    "(&" + searchFilter + "(" + property + "=" +
+                            escapeSpecialCharactersForFilterWithStarAsRegex(claimValue)
+                            + "))";
+        }
+        return searchFilter;
     }
 
     /**

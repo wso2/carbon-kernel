@@ -23,6 +23,7 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.AuthenticationResult;
+import org.wso2.carbon.user.core.common.Claim;
 import org.wso2.carbon.user.core.common.LoginIdentifier;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.model.Condition;
@@ -748,4 +749,60 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
      */
     boolean doPostGetGroup(String groupID, List<String> requiredAttributes,
                            AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+
+    /**
+     * Pre listener for updating hybrid group.
+     *
+     * @param groupID                  Group ID.
+     * @param claims                   Claims to update.
+     * @param permissions              Permissions to update.
+     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling pre listeners for updating hybrid group.
+     */
+    boolean doPreUpdateHybridGroup(String groupID, List<Claim> claims,
+                                   List<org.wso2.carbon.user.core.Permission> permissions,
+                                   AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+
+    /**
+     * Pre listener for updating a group.
+     *
+     * @param groupID                  Group ID.
+     * @param claims                   Claims to update.
+     * @param permissions              Permissions to update.
+     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling pre listeners for updating a group.
+     */
+    boolean doPreUpdateGroup(String groupID, List<Claim> claims,
+                             List<org.wso2.carbon.user.core.Permission> permissions,
+                             AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+
+    /**
+     * Post listener for updating an internal group.
+     *
+     * @param groupID                  Group ID.
+     * @param claims                   Claims to update.
+     * @param permissions              Permissions to update.
+     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling post listeners for updating an internal group.
+     */
+    boolean doPostUpdateInternalGroup(String groupID, List<Claim> claims,
+                                      List<org.wso2.carbon.user.core.Permission> permissions,
+                                      AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+
+    /**
+     * Post listener for updating a group.
+     *
+     * @param groupID                  Group ID.
+     * @param claims                   Claims to update.
+     * @param permissions              Permissions to update.
+     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling post listeners for updating a group.
+     */
+    boolean doPostUpdateGroup(String groupID, List<Claim> claims,
+                              List<org.wso2.carbon.user.core.Permission> permissions,
+                              AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
 }

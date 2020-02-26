@@ -1197,7 +1197,7 @@ public final class UserCoreUtil {
      * @param property    Userstore property.
      * @return true, if the property is immutable.
      */
-    public boolean isPropertyGeneratedByUserStore(RealmConfiguration realmConfig, String property) {
+    public static boolean isPropertyGeneratedByUserStore(RealmConfiguration realmConfig, String property) {
 
         String immutableAttributesProperty = Optional.ofNullable(realmConfig
                 .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse("");
@@ -1212,7 +1212,7 @@ public final class UserCoreUtil {
      * @param property Userstore property.
      * @return Value of the property.
      */
-    public String getAttributeValue(String property) {
+    public static String getAttributeValue(String property) {
 
         switch (property) {
             case UserStoreConfigConstants.GROUP_ID_ATTRIBUTE:
@@ -1234,7 +1234,7 @@ public final class UserCoreUtil {
      * @param realmConfiguration RealmConfiguration.
      * @return Map of property and attribute value.
      */
-    public Map<String, String> getConfiguredAttributesMap(RealmConfiguration realmConfiguration) {
+    public static Map<String, String> getConfiguredAttributesMap(RealmConfiguration realmConfiguration) {
 
         Map<String, String> attributeMap = new HashMap<>();
         if (realmConfiguration.getUserStoreProperty(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE) != null) {
@@ -1259,7 +1259,7 @@ public final class UserCoreUtil {
      * @param realmConfiguration RealmConfiguration.
      * @return Attribute value.
      */
-    public String getMappedAttributeOfGroupClaimURL(String ClaimURL, RealmConfiguration realmConfiguration) {
+    public static String getMappedAttributeOfGroupClaimURL(String ClaimURL, RealmConfiguration realmConfiguration) {
 
         switch (ClaimURL) {
             case UserCoreClaimConstants.GROUP_ID_CLAIM_URI:

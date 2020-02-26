@@ -21,6 +21,8 @@ package org.wso2.carbon.user.core.listener;
 import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
+import org.wso2.carbon.user.core.common.Claim;
 import org.wso2.carbon.user.core.common.LoginIdentifier;
 import org.wso2.carbon.user.core.model.Condition;
 
@@ -435,4 +437,20 @@ public interface UniqueIDUserManagementErrorEventListener extends UserManagement
      */
     boolean onGetGroupFailure(String errorCode, String errorMessage, String groupID, List<String> requiredAttributes,
                               UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Defines any additional actions that need to be done if there is a failure while trying to update a group.
+     *
+     * @param errorCode                Error code.
+     * @param errorMessage             Error message.
+     * @param groupID                  Group Id.
+     * @param claims                   List of group claims.
+     * @param permissions              Permission of the role.
+     * @param abstractUserStoreManager User Store Manager
+     * @return true if the handing succeeded.
+     * @throws UserStoreException Exception that will be thrown during the execution of this method.
+     */
+    boolean onUpdateGroupFailure(String errorCode, String errorMessage, String groupID, List<Claim> claims,
+                                 List<org.wso2.carbon.user.core.Permission> permissions,
+                                 AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
 }

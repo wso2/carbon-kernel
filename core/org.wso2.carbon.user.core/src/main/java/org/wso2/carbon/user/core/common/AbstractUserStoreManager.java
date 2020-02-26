@@ -102,7 +102,10 @@ import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMe
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_GROUP;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE;
 
 public abstract class AbstractUserStoreManager implements PaginatedUserStoreManager,
         UniqueIDUserStoreManager {
@@ -155,7 +158,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     };
 
     private UserUniqueIDManger userUniqueIDManger = new UserUniqueIDManger();
-    private UserCoreUtil userCoreUtil = new UserCoreUtil();
     private UserUniqueIDDomainResolver userUniqueIDDomainResolver;
 
     private void setClaimManager(ClaimManager claimManager) throws IllegalAccessException {
@@ -1465,7 +1467,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (!listener.doPostAuthenticate(userName, authenticated, abstractUserStoreManager)) {
                     handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getMessage(),
-                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userName, credential);
+                                    POST_LISTENER_TASKS_FAILED_MESSAGE), userName, credential);
                     return false;
                 }
             }
@@ -1615,7 +1617,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                 ErrorMessages.ERROR_CODE_ERROR_DURING_POST_GET_USER_CLAIM_VALUE.getCode(),
                                 String.format(
                                         ErrorMessages.ERROR_CODE_ERROR_DURING_POST_GET_USER_CLAIM_VALUE.getMessage(),
-                                        UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userName, claim,
+                                        POST_LISTENER_TASKS_FAILED_MESSAGE), userName, claim,
                                 profileName);
                         break;
                     }
@@ -1816,7 +1818,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         handleGetUserClaimValuesFailure(
                                 ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getCode(),
                                 String.format(ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getMessage(),
-                                        UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userName, claims,
+                                        POST_LISTENER_TASKS_FAILED_MESSAGE), userName, claims,
                                 profileName);
                         break;
                     }
@@ -3520,7 +3522,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         handleUpdateCredentialByAdminFailure(
                                 ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL_BY_ADMIN.getCode(),
                                 String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL_BY_ADMIN
-                                        .getMessage(), UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE),
+                                        .getMessage(), POST_LISTENER_TASKS_FAILED_MESSAGE),
                                 userName, newCredential);
                         return;
                     }
@@ -3750,7 +3752,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (!listener.doPostDeleteUser(userName, this)) {
                     handleDeleteUserFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_USER.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_USER.getMessage(),
-                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userName);
+                                    POST_LISTENER_TASKS_FAILED_MESSAGE), userName);
                     return;
                 }
             }
@@ -3897,7 +3899,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     handleSetUserClaimValueFailure(
                             ErrorMessages.ERROR_CODE_ERROR_DURING_POST_SET_USER_CLAIM_VALUE.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_SET_USER_CLAIM_VALUE.getMessage(),
-                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userName, claimURI,
+                                    POST_LISTENER_TASKS_FAILED_MESSAGE), userName, claimURI,
                             claimValue, profileName);
                     return;
                 }
@@ -4047,7 +4049,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     handleSetUserClaimValuesFailure(
                             ErrorMessages.ERROR_CODE_ERROR_DURING_POST_SET_USER_CLAIM_VALUES.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_SET_USER_CLAIM_VALUES.getMessage(),
-                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userName, claims,
+                                    POST_LISTENER_TASKS_FAILED_MESSAGE), userName, claims,
                             profileName);
                     return;
                 }
@@ -4192,7 +4194,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     handleDeleteUserClaimValueFailure(
                             ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_USER_CLAIM_VALUE.getCode(), String.format(
                                     ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_USER_CLAIM_VALUE.getMessage(),
-                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userName, claimURI,
+                                    POST_LISTENER_TASKS_FAILED_MESSAGE), userName, claimURI,
                             profileName);
                     return;
                 }
@@ -4339,7 +4341,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_USER_CLAIM_VALUES.getCode(),
                             String.format(
                                     ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_USER_CLAIM_VALUES.getMessage(),
-                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userName, claims,
+                                    POST_LISTENER_TASKS_FAILED_MESSAGE), userName, claims,
                             profileName);
                     return;
                 }
@@ -4671,7 +4673,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     if (!listener.doPostAddUser(userName, credentialArgument, roleList, claims, profileName, this)) {
                         handleAddUserFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_USER.getCode(),
                                 String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_USER.getMessage(),
-                                        UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userName,
+                                        POST_LISTENER_TASKS_FAILED_MESSAGE), userName,
                                 credential, roleList, claims, profileName);
                         return;
                     }
@@ -5228,7 +5230,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     handleUpdateRoleListOfUserFailure(
                             ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_ROLE_OF_USER.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_ROLE_OF_USER.getMessage(),
-                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userName, deletedRoles,
+                                    POST_LISTENER_TASKS_FAILED_MESSAGE), userName, deletedRoles,
                             newRoles);
                     return;
                 }
@@ -5295,7 +5297,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (!success) {
                     handleUpdateRoleNameFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_ROLE_NAME.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_ROLE_NAME.getMessage(),
-                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), roleName, newRoleName);
+                                    POST_LISTENER_TASKS_FAILED_MESSAGE), roleName, newRoleName);
                     return;
                 }
             }
@@ -6391,7 +6393,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (!success) {
                     handleAddRoleFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_ROLE.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_ROLE.getMessage(),
-                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), roleName, userList,
+                                    POST_LISTENER_TASKS_FAILED_MESSAGE), roleName, userList,
                             permissions);
                     return;
                 }
@@ -6425,16 +6427,16 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
 
                 if (!success) {
-                    handleAddRoleFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getCode(),
-                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getMessage(),
+                    handleAddRoleFailure(ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getCode(),
+                            String.format(ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getMessage(),
                                     UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), roleName, userList,
                             permissions);
                     return false;
                 }
             }
         } catch (UserStoreException ex) {
-            handleAddRoleFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getCode(),
-                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getMessage(), ex.getMessage()),
+            handleAddRoleFailure(ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getCode(),
+                    String.format(ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getMessage(), ex.getMessage()),
                     roleName, userList, permissions);
             throw ex;
         }
@@ -6660,7 +6662,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (!success) {
                     handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getMessage(),
-                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), roleName);
+                                    POST_LISTENER_TASKS_FAILED_MESSAGE), roleName);
                     return;
                 }
             }
@@ -9627,7 +9629,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .startsWith(WORKFLOW_DOMAIN.toLowerCase());
     }
 
-    private boolean isAnInternalGroup(String domainName) {
+    private boolean isHybridGroup(String domainName) {
 
         return APPLICATION_DOMAIN.toLowerCase().equals(domainName.toLowerCase()) ||
                 UserCoreConstants.INTERNAL_DOMAIN.toLowerCase().equals(domainName.toLowerCase()) ||
@@ -10018,7 +10020,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     handleOnAuthenticateFailureWithID(
                             ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getMessage(),
-                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), loginIdentifiers,
+                                    POST_LISTENER_TASKS_FAILED_MESSAGE), loginIdentifiers,
                             credential);
 
                     authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
@@ -10458,7 +10460,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     handleOnAuthenticateFailureWithID(
                             ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getMessage(),
-                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), preferredUserNameClaim,
+                                    POST_LISTENER_TASKS_FAILED_MESSAGE), preferredUserNameClaim,
                             preferredUserNameValue, credential);
                     authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
                     authenticationResult.setFailureReason(
@@ -10673,7 +10675,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     handleOnAuthenticateFailureWithID(
                             ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getMessage(),
-                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userID, credential);
+                                    POST_LISTENER_TASKS_FAILED_MESSAGE), userID, credential);
 
                     authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
                     authenticationResult.setFailureReason(
@@ -10866,7 +10868,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     if (!newListener.doPostGetUserWithID(userID, requestedClaims, profileName, user, this)) {
                         handleGetUserFailureWithID(ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getCode(),
                                 String.format(ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getMessage(),
-                                        UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userID,
+                                        POST_LISTENER_TASKS_FAILED_MESSAGE), userID,
                                 requestedClaims, profileName);
                         break;
                     }
@@ -11161,7 +11163,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                 ErrorMessages.ERROR_CODE_ERROR_DURING_POST_GET_USER_CLAIM_VALUE.getCode(),
                                 String.format(
                                         ErrorMessages.ERROR_CODE_ERROR_DURING_POST_GET_USER_CLAIM_VALUE.getMessage(),
-                                        UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userID, claim,
+                                        POST_LISTENER_TASKS_FAILED_MESSAGE), userID, claim,
                                 profileName);
                         break;
                     }
@@ -11249,7 +11251,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         handleGetUserClaimValuesFailureWithID(
                                 ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getCode(),
                                 String.format(ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getMessage(),
-                                        UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userID, claims,
+                                        POST_LISTENER_TASKS_FAILED_MESSAGE), userID, claims,
                                 profileName);
                         break;
                     }
@@ -12235,7 +12237,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (!((AbstractUserOperationEventListener) listener).doPostDeleteUserWithID(userID, this)) {
                     handleDeleteUserFailureWithID(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_USER.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_USER.getMessage(),
-                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userID);
+                                    POST_LISTENER_TASKS_FAILED_MESSAGE), userID);
                     return;
                 }
             }
@@ -12332,7 +12334,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     handleSetUserClaimValueFailureWithID(
                             ErrorMessages.ERROR_CODE_ERROR_DURING_POST_SET_USER_CLAIM_VALUE.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_SET_USER_CLAIM_VALUE.getMessage(),
-                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userID, claimURI,
+                                    POST_LISTENER_TASKS_FAILED_MESSAGE), userID, claimURI,
                             claimValue, profileName);
                     return;
                 }
@@ -12438,7 +12440,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     handleSetUserClaimValuesFailureWithID(
                             ErrorMessages.ERROR_CODE_ERROR_DURING_POST_SET_USER_CLAIM_VALUES.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_SET_USER_CLAIM_VALUES.getMessage(),
-                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userID, claims,
+                                    POST_LISTENER_TASKS_FAILED_MESSAGE), userID, claims,
                             profileName);
                     return;
                 }
@@ -12638,7 +12640,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         handleUpdateCredentialByAdminFailureWithID(
                                 ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL_BY_ADMIN.getCode(),
                                 String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL_BY_ADMIN
-                                        .getMessage(), UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE),
+                                        .getMessage(), POST_LISTENER_TASKS_FAILED_MESSAGE),
                                 userID, newCredential);
                         return;
                     }
@@ -12742,7 +12744,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     handleDeleteUserClaimValueFailureWithID(
                             ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_USER_CLAIM_VALUE.getCode(), String.format(
                                     ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_USER_CLAIM_VALUE.getMessage(),
-                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userID, claimURI,
+                                    POST_LISTENER_TASKS_FAILED_MESSAGE), userID, claimURI,
                             profileName);
                     return;
                 }
@@ -12844,7 +12846,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_USER_CLAIM_VALUES.getCode(),
                             String.format(
                                     ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_USER_CLAIM_VALUES.getMessage(),
-                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userID, claims,
+                                    POST_LISTENER_TASKS_FAILED_MESSAGE), userID, claims,
                             profileName);
                     return;
                 }
@@ -13065,7 +13067,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     handleUpdateRoleListOfUserFailureWithID(
                             ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_ROLE_OF_USER.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_ROLE_OF_USER.getMessage(),
-                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userID, deletedRoles,
+                                    POST_LISTENER_TASKS_FAILED_MESSAGE), userID, deletedRoles,
                             newRoles);
                     return;
                 }
@@ -13578,7 +13580,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             .doPostAddUserWithID(user, credentialArgument, roleList, claims, profileName, this)) {
                         handleAddUserFailureWithID(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_USER.getCode(),
                                 String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_USER.getMessage(),
-                                        UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userName,
+                                        POST_LISTENER_TASKS_FAILED_MESSAGE), userName,
                                 credential, roleList, claims, profileName);
                         return null;
                     }
@@ -13774,7 +13776,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (!success) {
                     handleAddRoleFailureWithID(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_ROLE.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_ROLE.getMessage(),
-                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), roleName, userList,
+                                    POST_LISTENER_TASKS_FAILED_MESSAGE), roleName, userList,
                             permissions);
                     return;
                 }
@@ -13813,16 +13815,16 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
 
                 if (!success) {
-                    handleAddRoleFailureWithID(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getCode(),
-                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getMessage(),
+                    handleAddRoleFailureWithID(ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getCode(),
+                            String.format(ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getMessage(),
                                     UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), roleName, userList,
                             permissions);
                     return false;
                 }
             }
         } catch (UserStoreException ex) {
-            handleAddRoleFailureWithID(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getCode(),
-                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getMessage(), ex.getMessage()),
+            handleAddRoleFailureWithID(ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getCode(),
+                    String.format(ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getMessage(), ex.getMessage()),
                     roleName, userList, permissions);
             throw ex;
         }
@@ -14686,27 +14688,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (groupName.isEmpty()) {
-            handleAddGroupFailure(ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.getCode(),
+            handleAddGroupFailure(ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.getCode(), //Group
                     ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.getMessage(), groupName,
                     usersIDs, permissions);
             throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.toString());
         }
 
-        // Only three claims are supported for a group - id, created time and modified time.
-
-        if (claims != null && !claims.isEmpty()) {
-            for (org.wso2.carbon.user.core.common.Claim claim : claims) {
-                if (UserCoreClaimConstants.GROUP_ID_CLAIM_URI.equals(claim.getClaimUrl()) ||
-                        UserCoreClaimConstants.GROUP_MODIFIED_CLAIM_URI.equals(claim.getClaimUrl()) ||
-                        UserCoreClaimConstants.GROUP_CREATED_CLAIM_URI.equals(claim.getClaimUrl())) {
-                    continue;
-                } else {
-                    // Other claims are not supported.
-                    claims.remove(claim);
-                }
-            }
-
-        }
+        // Only three claims are supported for a group - id, created time and modified time. Hence claims are niglected.
+        //TODO: Introduce a group claim manager
 
         Group createdGroup = null;
         UserStore userStore = getUserStoreOfRoles(groupName);
@@ -14726,10 +14715,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         if (userStore.isHybridRole()) {
             if (!handlePreAddGroup(groupName, usersIDs, permissions, false)) {
-                handleAddGroupFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getCode(),
-                        ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getMessage(), groupName,
+                handleAddGroupFailure(ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getCode(),
+                        ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getMessage(), groupName,
                         usersIDs, permissions);
-                throw new UserStoreException(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.toString());
+                throw new UserStoreException(ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.toString());
             }
 
             if (isUniqueUserIdEnabledInUserStore(userStore)) {
@@ -14743,6 +14732,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             // Calling only the audit logger, to maintain the back-ward compatibility.
             handlePostAddGroup(groupName, usersIDs, permissions, false);
+            addToGroupIDCache(createdGroup.getGroupID(), createdGroup, userStore);
+            addToGroupIDCache(createdGroup.getGroupName(), createdGroup, userStore);
             return createdGroup;
 
         }
@@ -14750,28 +14741,26 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (userStore.isRecurssive()) {
             return ((UniqueIDUserStoreManager) userStore.getUserStoreManager())
                     .addGroup(userStore.getDomainFreeName(), usersIDs, permissions, claims);
-
         }
-
-        // This happens only once during first startup - adding administrator user/role.
-        if (groupName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
-            groupName = userStore.getDomainFreeName();
-            usersIDs = UserCoreUtil.removeDomains(usersIDs);
-        }
-
-        // #################### <Listeners> #####################################################
-
-        if (!handlePreAddGroup(groupName, usersIDs, permissions, false)) {
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.toString());
-        }
-        // #################### </Listeners> #####################################################
-
         // Check for validations
         if (isReadOnly()) {
             handleAddGroupFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
                     ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), groupName, usersIDs, permissions);
             throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
         }
+
+        // This happens only once during first startup - adding administrator user/role.
+        if (groupName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
+            groupName = userStore.getDomainFreeName();
+        }
+        // TODO: 2020-02-25 default Listener implementation should go to framework as
+        // #################### <Listeners> #####################################################
+
+        if (!handlePreAddGroup(groupName, usersIDs, permissions, false)) {
+            throw new UserStoreException(ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.toString());
+        }
+        // #################### </Listeners> #####################################################
+
 
         if (!isRoleNameValid(groupName)) {
             String regEx = realmConfig
@@ -14836,6 +14825,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         handlePostAddGroup(groupName, usersIDs, permissions, false);
         // #################### </Listeners> #####################################################
 
+        addToGroupIDCache(createdGroup.getGroupID(), createdGroup, userStore);
+        addToGroupIDCache(createdGroup.getGroupName(), createdGroup, userStore);
         return createdGroup;
     }
 
@@ -14874,9 +14865,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (internalRole && listener instanceof AbstractUserOperationEventListener) {
                     success = ((AbstractUserOperationEventListener) listener)
                             .doPostAddInternalGroup(groupName, userIDs, permissions, this);
-                } else if (internalRole && !(listener instanceof AbstractUserOperationEventListener)) {
+                } else if (internalRole) {
                     success = true;
-                } else if (!internalRole) {
+                } else {
                     success = ((UniqueIDUserOperationEventListener) listener)
                             .doPostAddGroup(groupName, userIDs, permissions, this);
                 }
@@ -14884,7 +14875,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (!success) {
                     handleAddGroupFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_ROLE.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_ROLE.getMessage(),
-                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), groupName, userIDs,
+                                    POST_LISTENER_TASKS_FAILED_MESSAGE), groupName, userIDs,
                             permissions);
                     throw new UserStoreException(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_ROLE.getMessage());
                 }
@@ -14915,24 +14906,24 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (internalRole && listener instanceof AbstractUserOperationEventListener) {
                     success = ((AbstractUserOperationEventListener) listener)
                             .doPreAddInternalGroup(groupName, userIDs, permissions, this);
-                } else if (internalRole && !(listener instanceof AbstractUserOperationEventListener)) {
+                } else if (internalRole) {
                     success = true;
-                } else if (!internalRole) {
+                } else {
                     success = ((UniqueIDUserOperationEventListener) listener)
                             .doPreAddGroup(groupName, userIDs, permissions, this);
                 }
 
                 if (!success) {
-                    handleAddGroupFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getCode(),
-                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getMessage(),
+                    handleAddGroupFailure(ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getCode(),
+                            String.format(ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getMessage(),
                                     UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), groupName, userIDs,
                             permissions);
                     return false;
                 }
             }
         } catch (UserStoreException ex) {
-            handleAddGroupFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getCode(),
-                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getMessage(), ex.getMessage()),
+            handleAddGroupFailure(ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getCode(),
+                    String.format(ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.getMessage(), ex.getMessage()),
                     groupName, userIDs, permissions);
             throw ex;
         }
@@ -15102,7 +15093,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private void handleDoPostDeleteGroup(Group  group, boolean isAuditLogOnly) throws UserStoreException {
 
         try {
-            boolean internalRole = isAnInternalGroup(group.getUserStoreDomain());
+            boolean internalRole = isHybridGroup(group.getUserStoreDomain());
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
                 if (isAuditLogOnly && !listener.getClass().getName()
                         .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
@@ -15122,7 +15113,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (!success) {
                     handleDeleteGroupFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getMessage(),
-                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), group.getGroupID());
+                                    POST_LISTENER_TASKS_FAILED_MESSAGE), group.getGroupID());
                     return;
                 }
             }
@@ -15151,7 +15142,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private boolean handleDoPreDeleteGroup(Group group, boolean isAuditLogOnly) throws UserStoreException {
 
         try {
-            boolean internalRole = isAnInternalGroup(group.getUserStoreDomain());
+            boolean internalRole = isHybridGroup(group.getUserStoreDomain());
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
                 if (isAuditLogOnly && !listener.getClass().getName()
                         .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
@@ -15274,7 +15265,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     if (!newListener.doPostGetGroup(groupID, requiredAttributes, this)) {
                         handleGetGroupFailure(ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getCode(),
                                 String.format(ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getMessage(),
-                                        UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), groupID, requiredAttributes);
+                                        POST_LISTENER_TASKS_FAILED_MESSAGE), groupID, requiredAttributes);
                         break;
                     }
                 }
@@ -15341,11 +15332,205 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public Group updateGroup(String groupID, List<org.wso2.carbon.user.core.common.Claim> claims,
                              List<Permission> permissions) throws UserStoreException {
 
+        if (!isSecureCall.get()) {
+            Class[] argTypes = new Class[] { String.class, List.class, List.class};
+            Object object = callSecure("updateGroup", new Object[] {groupID, claims, permissions},
+                    argTypes);
+            return (Group) object;
+        }
+
+        UserStore userStore = getUserStoreWithID(groupID);
+        if (userStore.isRecurssive()) {
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager())
+                    .updateGroup(groupID, claims, permissions);
+        }
+        boolean isUniqueIdEnabled = isUniqueGroupIDEnabledInUserStore();
+        Group updatedGroup = null;
+        boolean isGroupExists;
+
+        if (isUniqueIdEnabled) {
+            isGroupExists = isGroupExist(groupID);
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("getGroup operation is not supported in: " + this.getClass());
+            }
+            throw new UserStoreException(" UpdateGroup operation is not supported by the underline userstore");
+        }
+
+        if (!isGroupExists) {
+            throw new UserStoreException("There is no such group exists in the userstore with the group id :" + groupID);
+        }
+
+        // Only three claims are supported for a group - id, created time and modified time. Hence claims can not be
+        // updated at this implementation level. Therefore, claims will be not considered.
+
+        if (permissions == null) {
+            permissions = new ArrayList<>();
+        }
+
+        // ---- Pre listeners --------
+
+        if (!handlePreUpdateGroup(groupID, userStore.getDomainName(), claims, permissions, false)) {
+            handleUpdateGroupFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_GROUP.getCode(),
+                    ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_GROUP.getMessage(), groupID,
+                    claims, permissions);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_GROUP.toString());
+        }
+
+        // ------ End of pre listeners ----
+
+        // Remove existing group from cache before updating the group.
+        removeFromGroupIDCache(groupID);
+        if (isUniqueUserIdEnabledInUserStore(userStore)) {
+            if (userStore.isHybridRole()) {
+                throw new UserStoreException("HybridRole updateGroup is not yet implemented.");
+            } else {
+                updatedGroup = doUpdateGroup(groupID, claims);
+            }
+        } else {
+            throw new UserStoreException("UpdateGroup operation is not supported for this userstore.");
+        }
+
+        String domainAwareGroupName =
+                updatedGroup.getUserStoreDomain() + UserCoreConstants.DOMAIN_SEPARATOR + updatedGroup.getGroupName();
+
+        // Delete existing permissions from the store.
+        userRealm.getAuthorizationManager().clearRoleAuthorization(domainAwareGroupName);
+
+        // Add new permissions to the the permission store.
+        for (org.wso2.carbon.user.api.Permission permission : permissions) {
+            String resourceId = permission.getResourceId();
+            String action = permission.getAction();
+            if (resourceId == null || resourceId.trim().length() == 0) {
+                continue;
+            }
+
+            if (action == null || action.trim().length() == 0) {
+                // default action value
+                action = "read";
+            }
+            // This is a special case. We need to pass domain aware name.
+            userRealm.getAuthorizationManager().authorizeRole(domainAwareGroupName, resourceId, action);
+        }
+
+        // --------Post Listeners ----------
+
+        // Calling only the audit logger, to maintain the back-ward compatibility.
+        handlePostUpdateGroup(groupID, userStore.getDomainName(), claims, permissions, false);
+
+        // ----End of Post listeners -------
+
+        //Remove old cache entry with group name.
+        removeFromGroupIDCache(updatedGroup.getGroupName());
+        // Add updated group to the cache.
+        addToGroupIDCache(groupID, updatedGroup, userStore);
+        addToGroupIDCache(updatedGroup.getGroupName(), updatedGroup, userStore);
+        return updatedGroup;
+    }
+
+    protected Group doUpdateGroup(String groupID, List<org.wso2.carbon.user.core.common.Claim> claims)
+            throws UserStoreException {
+
         if (log.isDebugEnabled()) {
-            log.debug("updateGroup operation is not implemented in: " + this.getClass());
+            log.debug("doUpdateGroup operation is not implemented in: " + this.getClass());
         }
         throw new NotImplementedException(
-                "updateGroup operation is not implemented in: " + this.getClass());
+                "doUpdateGroup operation is not implemented in: " + this.getClass());
+
+    }
+
+    private void handlePostUpdateGroup(String groupID, String domainName,
+                                       List<org.wso2.carbon.user.core.common.Claim> claims,
+                                       List<Permission> permissions, boolean isAuditLogOnly) throws UserStoreException{
+
+        try {
+            boolean internalRole = isHybridGroup(domainName);
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (isAuditLogOnly && !listener.getClass().getName()
+                        .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+
+                boolean success = false;
+                if (internalRole && listener instanceof AbstractUserOperationEventListener) {
+                    success = ((AbstractUserOperationEventListener) listener)
+                            .doPostUpdateInternalGroup(groupID, claims, permissions, this);
+                } else if (internalRole) {
+                    success = true;
+                } else {
+                    success = ((UniqueIDUserOperationEventListener) listener)
+                            .doPostUpdateGroup(groupID, claims, permissions, this);
+                }
+
+                if (!success) {
+                    handleUpdateGroupFailure(ERROR_CODE_ERROR_DURING_POST_UPDATE_GROUP.getCode(),
+                            String.format(ERROR_CODE_ERROR_DURING_POST_UPDATE_GROUP.getMessage(),
+                                    POST_LISTENER_TASKS_FAILED_MESSAGE), groupID, claims,
+                            permissions);
+                    throw new UserStoreException(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_ROLE.getMessage());
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleUpdateGroupFailure(ERROR_CODE_ERROR_DURING_POST_UPDATE_GROUP.getCode(),
+                    String.format(ERROR_CODE_ERROR_DURING_POST_UPDATE_GROUP.getMessage(), ex.getMessage()),
+                    groupID, claims, permissions);
+            throw ex;
+        }
+
+    }
+
+    private boolean handlePreUpdateGroup(String groupID,
+                                         String domainName, List<org.wso2.carbon.user.core.common.Claim> claims,
+                                         List<Permission> permissions, boolean isAuditLogOnly)
+            throws UserStoreException {
+
+        try {
+            boolean hybridGroup = isHybridGroup(domainName);
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (isAuditLogOnly && !listener.getClass().getName()
+                        .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+
+                boolean success = false;
+                if (hybridGroup && listener instanceof AbstractUserOperationEventListener) {
+                    success = ((AbstractUserOperationEventListener) listener)
+                            .doPreUpdateHybridGroup(groupID, claims, permissions, this);
+                } else if (hybridGroup && !(listener instanceof AbstractUserOperationEventListener)) {
+                    success = true;
+                } else if (!hybridGroup) {
+                    success = ((UniqueIDUserOperationEventListener) listener)
+                            .doPreUpdateGroup(groupID, claims, permissions, this);
+                }
+
+                if (!success) {
+                    handleUpdateGroupFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_GROUP.getCode(),
+                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_GROUP.getMessage(),
+                                    UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), groupID, claims,
+                            permissions);
+                    return false;
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleUpdateGroupFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_GROUP.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_GROUP.getMessage(), ex.getMessage()),
+                    groupID, claims, permissions);
+            throw ex;
+        }
+        return true;
+    }
+
+    protected void handleUpdateGroupFailure(String errorCode, String errorMessage, String groupID,
+                                            List<org.wso2.carbon.user.core.common.Claim> claims,
+                                            List<Permission> permissions) throws UserStoreException {
+
+        for (UserManagementErrorEventListener listener : UMListenerServiceComponent
+                .getUserManagementErrorEventListeners()) {
+            if (listener.isEnable() && !((UniqueIDUserManagementErrorEventListener) listener)
+                    .onUpdateGroupFailure(errorCode, errorMessage, groupID, claims, permissions, this)) {
+                return;
+            }
+        }
     }
 
     @Override
@@ -15370,7 +15555,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
 
     /**
-     * Get the Group using group ID and name.
+     * Get the Group using group ID or name or both. If group ID is only available there group will be filter from
+     * groupID property. If group Name is only available, this will retrieve the group using group name property.
+     * When group ID is immutable we can use this method to get group by sending null group ID.
      *
      * @param groupID   Group ID.
      * @param groupName Group name.
@@ -15532,7 +15719,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     }
 
-    private void removeFromGroupIDCache(String key) {
+    protected void removeFromGroupIDCache(String key) {
 
         GroupIdResolverCache.getInstance().clearCacheEntry(key, RESOLVE_GROUP_FROM_GROUP_NAME_CACHE_NAME, tenantId);
     }
