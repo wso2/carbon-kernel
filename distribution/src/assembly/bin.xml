@@ -45,6 +45,8 @@
             <includes>
                 <include>**/*.sh</include>
                 <include>**/native/*</include>
+                <!--<include>**/*</include>-->
+                <include>**/.bundles/*</include>
             </includes>
             <fileMode>755</fileMode>
         </fileSet>
@@ -55,6 +57,9 @@
             <includes>
                 <include>**/*.html</include>
                 <include>**/*.txt</include>
+                <!--<include>**/*</include>-->
+                <!--<include>**/.*</include>-->
+                <include>**/.bundles</include>
             </includes>
             <fileMode>644</fileMode>
             <filtered>true</filtered>
