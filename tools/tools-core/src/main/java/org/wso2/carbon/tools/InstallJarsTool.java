@@ -57,8 +57,8 @@ public class InstallJarsTool implements CarbonTool {
     private static final String BUNDLE_BACKUP_DIR_NAME = "_lib";
     private static final String META_DATA_DIR_NAME = ".meta";
     private static final String LIB_DIR_NAME = "lib";
-    private static final String JARS_DIR_NAME = "jars";
-    private static final String BUNDLE_DIR_NAME = "bundles";
+    private static final String JARS_DIR_NAME = ".jars";
+    private static final String BUNDLE_DIR_NAME = ".bundles";
     private static final String JARS_META_FILE = "jarsMeta";
     private static final String BUNDLE_META_FILE = "bundleMeta";
     private static final Pattern EXTRACT_JAR_NAME_PATTERN = Pattern.compile("(.*)-\\d+\\.\\d+\\.\\d+(\\.jar)$");
