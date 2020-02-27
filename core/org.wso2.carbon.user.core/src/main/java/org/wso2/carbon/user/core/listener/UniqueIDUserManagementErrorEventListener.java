@@ -453,4 +453,18 @@ public interface UniqueIDUserManagementErrorEventListener extends UserManagement
     boolean onUpdateGroupFailure(String errorCode, String errorMessage, String groupID, List<Claim> claims,
                                  List<org.wso2.carbon.user.core.Permission> permissions,
                                  AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+
+    /**
+     * Defines any additional actions that need to be done if there is a failure while trying to rename a group.
+     *
+     * @param errorCode                Error code.
+     * @param errorMessage             Error message.
+     * @param groupID                  Group Id.
+     * @param newGroupName             New Group name.
+     * @param abstractUserStoreManager User Store Manager
+     * @return true if the handing succeeded.
+     * @throws UserStoreException Exception that will be thrown during the execution of this method.
+     */
+    boolean onRenameGroupFailure(String errorCode, String errorMessage, String groupID, String newGroupName,
+                                 AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
 }

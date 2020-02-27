@@ -102,9 +102,16 @@ import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMe
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_DURING_POST_RENAME_GROUP;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_GROUP;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_RENAME_GROUP;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_NON_EXISTING_GROUP;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_READONLY_USER_STORE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE;
 
 public abstract class AbstractUserStoreManager implements PaginatedUserStoreManager,
@@ -3119,9 +3126,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // #################### Domain Name Free Zone Starts Here ################################
 
         if (isReadOnly()) {
-            handleUpdateCredentialFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), userName, newCredential, oldCredential);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+            handleUpdateCredentialFailure(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ERROR_CODE_READONLY_USER_STORE.getMessage(), userName, newCredential, oldCredential);
+            throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
         }
 
         Secret newCredentialObj;
@@ -3358,9 +3365,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // #################### Domain Name Free Zone Starts Here ################################
 
         if (isReadOnly()) {
-            handleUpdateCredentialByAdminFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), userName, newCredential);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+            handleUpdateCredentialByAdminFailure(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ERROR_CODE_READONLY_USER_STORE.getMessage(), userName, newCredential);
+            throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
         }
 
         Secret newCredentialObj;
@@ -3674,9 +3681,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (isReadOnly()) {
-            handleDeleteUserFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), userName);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+            handleDeleteUserFailure(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ERROR_CODE_READONLY_USER_STORE.getMessage(), userName);
+            throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
         }
 
         // #################### <Listeners> #####################################################
@@ -3873,10 +3880,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // Check userstore is readonly or not.
         if (isReadOnly()) {
-            handleSetUserClaimValueFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), userName, claimURI, claimValue,
+            handleSetUserClaimValueFailure(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ERROR_CODE_READONLY_USER_STORE.getMessage(), userName, claimURI, claimValue,
                     profileName);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+            throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
         }
 
         try {
@@ -4020,9 +4027,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         //If user store is readonly this method should not get invoked with non empty claim set.
 
         if (isReadOnly() && !claims.isEmpty()) {
-            handleSetUserClaimValuesFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), userName, claims, profileName);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+            handleSetUserClaimValuesFailure(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ERROR_CODE_READONLY_USER_STORE.getMessage(), userName, claims, profileName);
+            throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
         }
 
         // set claim values if user store is not read only.
@@ -4129,9 +4136,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (isReadOnly()) {
-            handleDeleteUserClaimValueFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), userName, claimURI, profileName);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+            handleDeleteUserClaimValueFailure(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ERROR_CODE_READONLY_USER_STORE.getMessage(), userName, claimURI, profileName);
+            throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
         }
 
         // Property to check whether this user store supports new APIs with unique user id.
@@ -4272,9 +4279,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (isReadOnly()) {
-            handleDeleteUserClaimValuesFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), userName, claims, profileName);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+            handleDeleteUserClaimValuesFailure(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ERROR_CODE_READONLY_USER_STORE.getMessage(), userName, claims, profileName);
+            throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
         }
 
         // Property to check whether this user store supports new APIs with unique user id.
@@ -4428,10 +4435,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             // First check whether this user store is a readonly one. If so we cannot continue.
             if (isReadOnly()) {
-                handleAddUserFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                        ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), userName, credential, roleList,
+                handleAddUserFailure(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                        ERROR_CODE_READONLY_USER_STORE.getMessage(), userName, credential, roleList,
                         claims, profileName);
-                throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+                throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
             }
 
             // This happens only once during first startup - adding administrator user/role.
@@ -4930,9 +4937,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     throw ex;
                 }
             } else {
-                handleUpdateUserListOfRoleFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                        ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), roleName, deletedUsers, newUsers);
-                throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+                handleUpdateUserListOfRoleFailure(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                        ERROR_CODE_READONLY_USER_STORE.getMessage(), roleName, deletedUsers, newUsers);
+                throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
             }
         }
 
@@ -5215,9 +5222,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     throw ex;
                 }
             } else {
-                handleUpdateRoleListOfUserFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                        ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), userName, deletedRoles, newRoles);
-                throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+                handleUpdateRoleListOfUserFailure(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                        ERROR_CODE_READONLY_USER_STORE.getMessage(), userName, deletedRoles, newRoles);
+                throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
             }
         }
 
@@ -5451,9 +5458,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                 ex.getMessage()), roleName, newRoleName);
             }
         } else {
-            handleUpdateRoleNameFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), roleName, newRoleName);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+            handleUpdateRoleNameFailure(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ERROR_CODE_READONLY_USER_STORE.getMessage(), roleName, newRoleName);
+            throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
         }
 
         // This is a special case. We need to pass domain aware name.
@@ -6510,9 +6517,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // Check for validations
         if (isReadOnly()) {
-            handleAddRoleFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), roleName, userList, permissions);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+            handleAddRoleFailure(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ERROR_CODE_READONLY_USER_STORE.getMessage(), roleName, userList, permissions);
+            throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
         }
 
         if (!isRoleNameValid(roleName)) {
@@ -6547,9 +6554,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 throw ex;
             }
         } else {
-            handleAddRoleFailure(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getCode(),
-                    ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getMessage(), roleName, userList, permissions);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.toString());
+            handleAddRoleFailure(ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getCode(),
+                    ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getMessage(), roleName, userList, permissions);
+            throw new UserStoreException(ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.toString());
         }
 
         // add permission in to the the permission store
@@ -6653,22 +6660,22 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 boolean success = false;
                 if (internalRole && listener instanceof AbstractUserOperationEventListener) {
                     success = ((AbstractUserOperationEventListener) listener).doPostDeleteInternalRole(roleName, this);
-                } else if (internalRole && !(listener instanceof AbstractUserOperationEventListener)) {
+                } else if (internalRole) {
                     success = true;
-                } else if (!internalRole) {
+                } else {
                     success = listener.doPostDeleteRole(roleName, this);
                 }
 
                 if (!success) {
-                    handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getCode(),
-                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getMessage(),
+                    handleDeleteRoleFailure(ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getCode(),
+                            String.format(ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getMessage(),
                                     POST_LISTENER_TASKS_FAILED_MESSAGE), roleName);
                     return;
                 }
             }
         } catch (UserStoreException ex) {
-            handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getCode(),
-                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getMessage(), ex.getMessage()),
+            handleDeleteRoleFailure(ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getCode(),
+                    String.format(ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getMessage(), ex.getMessage()),
                     roleName);
             throw ex;
         }
@@ -6701,15 +6708,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
 
                 if (!success) {
-                    handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getCode(),
-                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getMessage(),
+                    handleDeleteRoleFailure(ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getCode(),
+                            String.format(ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getMessage(),
                                     UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), roleName);
                     return false;
                 }
             }
         } catch (UserStoreException ex) {
-            handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getCode(),
-                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getMessage(), ex.getMessage()),
+            handleDeleteRoleFailure(ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getCode(),
+                    String.format(ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getMessage(), ex.getMessage()),
                     roleName);
             throw ex;
         }
@@ -6785,15 +6792,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
         // #################### </Listeners> #####################################################
         if (isReadOnly()) {
-            handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), roleName);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+            handleDeleteRoleFailure(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ERROR_CODE_READONLY_USER_STORE.getMessage(), roleName);
+            throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
         }
 
         if (!writeGroupsEnabled) {
-            handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getCode(),
-                    ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getMessage(), roleName);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.toString());
+            handleDeleteRoleFailure(ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getCode(),
+                    ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getMessage(), roleName);
+            throw new UserStoreException(ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.toString());
         }
         try {
             doDeleteRole(roleName);
@@ -11532,9 +11539,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // #################### Domain Name Free Zone Starts Here ################################
 
         if (isReadOnly()) {
-            handleUpdateCredentialFailureWithID(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), userID, newCredential, oldCredential);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+            handleUpdateCredentialFailureWithID(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ERROR_CODE_READONLY_USER_STORE.getMessage(), userID, newCredential, oldCredential);
+            throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
         }
 
         Secret newCredentialObj;
@@ -12158,9 +12165,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (isReadOnly()) {
-            handleDeleteUserFailureWithID(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), userID);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+            handleDeleteUserFailureWithID(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ERROR_CODE_READONLY_USER_STORE.getMessage(), userID);
+            throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
         }
 
         // #################### <Listeners> #####################################################
@@ -12306,10 +12313,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         //Check userstore is readonly or not
 
         if (isReadOnly()) {
-            handleSetUserClaimValueFailureWithID(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), userID, claimURI, claimValue,
+            handleSetUserClaimValueFailureWithID(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ERROR_CODE_READONLY_USER_STORE.getMessage(), userID, claimURI, claimValue,
                     profileName);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+            throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
         }
 
         try {
@@ -12407,9 +12414,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         //If user store is readonly this method should not get invoked with non empty claim set.
 
         if (isReadOnly() && !claims.isEmpty()) {
-            handleSetUserClaimValuesFailureWithID(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), userID, claims, profileName);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+            handleSetUserClaimValuesFailureWithID(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ERROR_CODE_READONLY_USER_STORE.getMessage(), userID, claims, profileName);
+            throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
         }
 
         // set claim values if user store is not read only.
@@ -12475,9 +12482,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // #################### Domain Name Free Zone Starts Here ################################
 
         if (isReadOnly()) {
-            handleUpdateCredentialByAdminFailureWithID(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), userID, newCredential);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+            handleUpdateCredentialByAdminFailureWithID(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ERROR_CODE_READONLY_USER_STORE.getMessage(), userID, newCredential);
+            throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
         }
 
         Secret newCredentialObj;
@@ -12677,9 +12684,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (isReadOnly()) {
-            handleDeleteUserClaimValueFailureWithID(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), userID, claimURI, profileName);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+            handleDeleteUserClaimValueFailureWithID(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ERROR_CODE_READONLY_USER_STORE.getMessage(), userID, claimURI, profileName);
+            throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
         }
 
         User user = null;
@@ -12777,9 +12784,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (isReadOnly()) {
-            handleDeleteUserClaimValuesFailureWithID(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), userID, claims, profileName);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+            handleDeleteUserClaimValuesFailureWithID(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ERROR_CODE_READONLY_USER_STORE.getMessage(), userID, claims, profileName);
+            throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
         }
 
         User user = null;
@@ -13047,9 +13054,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     throw ex;
                 }
             } else {
-                handleUpdateRoleListOfUserFailureWithID(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                        ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), userID, deletedRoles, newRoles);
-                throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+                handleUpdateRoleListOfUserFailureWithID(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                        ERROR_CODE_READONLY_USER_STORE.getMessage(), userID, deletedRoles, newRoles);
+                throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
             }
         }
 
@@ -13270,10 +13277,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     throw ex;
                 }
             } else {
-                handleUpdateRoleListOfUserFailureWithID(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                        ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), roleName, deletedUserIDs,
+                handleUpdateRoleListOfUserFailureWithID(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                        ERROR_CODE_READONLY_USER_STORE.getMessage(), roleName, deletedUserIDs,
                         newUserIDs);
-                throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+                throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
             }
         }
 
@@ -13333,10 +13340,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // #################### Domain Name Free Zone Starts Here ################################
 
             if (isReadOnly()) {
-                handleAddUserFailureWithID(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                        ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), userName, credential, roleList,
+                handleAddUserFailureWithID(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                        ERROR_CODE_READONLY_USER_STORE.getMessage(), userName, credential, roleList,
                         claims, profileName);
-                throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+                throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
             }
 
             // This happens only once during first startup - adding administrator user/role.
@@ -13673,9 +13680,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // Check for validations
         if (isReadOnly()) {
-            handleAddRoleFailureWithID(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), roleName, userIDList, permissions);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+            handleAddRoleFailureWithID(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ERROR_CODE_READONLY_USER_STORE.getMessage(), roleName, userIDList, permissions);
+            throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
         }
 
         if (!isRoleNameValid(roleName)) {
@@ -13710,10 +13717,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 throw ex;
             }
         } else {
-            handleAddRoleFailureWithID(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getCode(),
-                    ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getMessage(), roleName, userIDList,
+            handleAddRoleFailureWithID(ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getCode(),
+                    ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getMessage(), roleName, userIDList,
                     permissions);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.toString());
+            throw new UserStoreException(ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.toString());
         }
 
         // add permission in to the the permission store
@@ -14744,9 +14751,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
         // Check for validations
         if (isReadOnly()) {
-            handleAddGroupFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), groupName, usersIDs, permissions);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+            handleAddGroupFailure(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ERROR_CODE_READONLY_USER_STORE.getMessage(), groupName, usersIDs, permissions);
+            throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
         }
 
         // This happens only once during first startup - adding administrator user/role.
@@ -14795,10 +14802,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 throw ex;
             }
         } else {
-            handleAddGroupFailure(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getCode(),
-                    ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getMessage(), groupName, usersIDs,
+            handleAddGroupFailure(ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getCode(),
+                    ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getMessage(), groupName, usersIDs,
                     permissions);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.toString());
+            throw new UserStoreException(ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.toString());
         }
         // add permission in to the the permission store
         for (org.wso2.carbon.user.api.Permission permission : permissions) {
@@ -15058,15 +15065,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
         // #################### </Listeners> #####################################################
         if (isReadOnly()) {
-            handleDeleteGroupFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), groupID);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+            handleDeleteGroupFailure(ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ERROR_CODE_READONLY_USER_STORE.getMessage(), groupID);
+            throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
         }
 
         if (!writeGroupsEnabled) {
-            handleDeleteGroupFailure(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getCode(),
-                    ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getMessage(), groupID);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.toString());
+            handleDeleteGroupFailure(ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getCode(),
+                    ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getMessage(), groupID);
+            throw new UserStoreException(ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.toString());
         }
         doDeleteGroup(group);
         String roleWithDomain = group.getGroupName() + UserCoreConstants.DOMAIN_SEPARATOR + group.getUserStoreDomain();
@@ -15111,15 +15118,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
 
                 if (!success) {
-                    handleDeleteGroupFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getCode(),
-                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getMessage(),
+                    handleDeleteGroupFailure(ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getCode(),
+                            String.format(ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getMessage(),
                                     POST_LISTENER_TASKS_FAILED_MESSAGE), group.getGroupID());
                     return;
                 }
             }
         } catch (UserStoreException ex) {
-            handleDeleteGroupFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getCode(),
-                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getMessage(), ex.getMessage()),
+            handleDeleteGroupFailure(ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getCode(),
+                    String.format(ERROR_CODE_ERROR_DURING_POST_DELETE_ROLE.getMessage(), ex.getMessage()),
                     group.getGroupID());
             throw ex;
         }
@@ -15151,23 +15158,24 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
                 boolean success = false;
                 if (internalRole && listener instanceof AbstractUserOperationEventListener) {
-                    success = ((AbstractUserOperationEventListener) listener).doPreDeleteInternalGroup(group.getGroupID(), this);
-                } else if (internalRole && !(listener instanceof AbstractUserOperationEventListener)) {
+                    success = ((AbstractUserOperationEventListener) listener)
+                            .doPreDeleteInternalGroup(group.getGroupID(), this);
+                } else if (internalRole) {
                     success = true;
-                } else if (!internalRole) {
+                } else {
                     success = listener.doPreDeleteGroup(group.getGroupID(), this);
                 }
 
                 if (!success) {
-                    handleDeleteGroupFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getCode(),
-                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getMessage(),
+                    handleDeleteGroupFailure(ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getCode(),
+                            String.format(ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getMessage(),
                                     UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), group.getGroupID());
                     return false;
                 }
             }
         } catch (UserStoreException ex) {
-            handleDeleteGroupFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getCode(),
-                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getMessage(), ex.getMessage()),
+            handleDeleteGroupFailure(ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getCode(),
+                    String.format(ERROR_CODE_ERROR_DURING_PRE_DELETE_ROLE.getMessage(), ex.getMessage()),
                     group.getGroupID());
             throw ex;
         }
@@ -15196,11 +15204,182 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public Group renameGroup(String groupID, String newGroupName) throws UserStoreException {
 
+        if (!isSecureCall.get()) {
+            Class[] argTypes = new Class[]{String.class, String.class};
+            Object object = callSecure("renameGroup", new Object[]{groupID, newGroupName},
+                    argTypes);
+            return (Group) object;
+        }
+
+        UserStore userStore = getUserStoreWithID(groupID);
+        if (userStore.isRecurssive()) {
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager())
+                    .renameGroup(groupID, newGroupName);
+        }
+        boolean isUniqueIdEnabled = isUniqueUserIdEnabledInUserStore(userStore);
+        Group group = null;
+        Group updatedGroup = null;
+        boolean isGroupExists = false;
+
+        if (isUniqueIdEnabled) {
+            group = getGroupByNameOrID(groupID, null);
+            if (group != null) {
+                isGroupExists = true;
+            }
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("renameGroup operation is not supported in: " + this.getClass());
+            }
+
+        }
+        if (!isGroupExists) {
+            String errorMessage = String.format(String.valueOf(ERROR_CODE_NON_EXISTING_GROUP), groupID,
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
+            String errorCode = ERROR_CODE_NON_EXISTING_GROUP.getCode();
+            handleRenameGroupFailure(errorCode, errorMessage, groupID, newGroupName);
+            throw new UserStoreException(errorCode + " - " + errorMessage);
+        }
+
+        // #################### <Listeners> #####################################################
+        if (!handleDoPreRenameGroup(groupID, newGroupName, false, userStore.getDomainName())) {
+            handleRenameGroupFailure(ERROR_CODE_ERROR_DURING_PRE_RENAME_GROUP.getCode(),
+                    String.format(ERROR_CODE_ERROR_DURING_PRE_RENAME_GROUP.getMessage(),
+                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), groupID, newGroupName);
+            throw new UserStoreException(ERROR_CODE_ERROR_DURING_PRE_RENAME_GROUP.getMessage());
+        }
+        // #################### </Listeners> #####################################################
+
+        if (isReadOnly()) {
+            handleDeleteGroupFailure(ERROR_CODE_READONLY_USER_STORE.getCode(), ERROR_CODE_READONLY_USER_STORE.getMessage(), groupID);
+            throw new UserStoreException(ERROR_CODE_READONLY_USER_STORE.toString());
+        }
+
+        if (!writeGroupsEnabled) {
+            handleDeleteGroupFailure(ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getCode(),
+                    ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getMessage(), groupID);
+            throw new UserStoreException(ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.toString());
+        }
+        removeFromGroupIDCache(groupID);
+        removeFromGroupIDCache(group.getGroupName());
+        if (userStore.isHybridRole()) {
+            throw new UserStoreException("Hybrid groups can not be renamed.");
+        } else {
+            updatedGroup = doRenameGroup(group, newGroupName);
+        }
+        String newRoleWithDomain;
+        if (!newGroupName.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+             newRoleWithDomain  = group.getGroupName() + UserCoreConstants.DOMAIN_SEPARATOR + group.getUserStoreDomain();
+        } else {
+            newRoleWithDomain = newGroupName;
+        }
+        // clear role authorization
+        userRealm.getAuthorizationManager().resetPermissionOnUpdateRole(group.getGroupName() + UserCoreConstants.DOMAIN_SEPARATOR + group.getUserStoreDomain(), newRoleWithDomain);
+        // clear cache
+        clearUserRolesCacheByTenant(tenantId);
+
+        // Call relevant listeners after deleting the role.
+        handleDoPostRenameGroup(group, newGroupName, false);
+        addToGroupIDCache(updatedGroup.getGroupID(), updatedGroup, userStore);
+        addToGroupIDCache(updatedGroup.getGroupName(), updatedGroup, userStore);
+        return updatedGroup;
+    }
+
+    protected Group doRenameGroup(Group oldGroup, String newGroupName) throws UserStoreException {
+
         if (log.isDebugEnabled()) {
-            log.debug("renameGroup operation is not implemented in: " + this.getClass());
+            log.debug("doRenameGroup operation is not implemented in: " + this.getClass());
         }
         throw new NotImplementedException(
-                "renameGroup operation is not implemented in: " + this.getClass());
+                "doRenameGroup operation is not implemented in: " + this.getClass());
+    }
+
+    private void handleDoPostRenameGroup(Group group, String newGroupName, boolean isAuditLogOnly)
+            throws UserStoreException {
+
+        try {
+            boolean internalRole = isHybridGroup(group.getUserStoreDomain());
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (isAuditLogOnly && !listener.getClass().getName()
+                        .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+
+                boolean success = false;
+                if (internalRole && listener instanceof AbstractUserOperationEventListener) {
+                    success = ((AbstractUserOperationEventListener) listener)
+                            .doPostRenameInternalGroup(group.getGroupID(), newGroupName, this);
+                } else if (internalRole) {
+                    success = true;
+                } else {
+                    success = ((UniqueIDUserOperationEventListener) listener)
+                            .doPostRenameGroup(group.getGroupID(), newGroupName, this);
+                }
+
+                if (!success) {
+                    handleRenameGroupFailure(ERROR_CODE_ERROR_DURING_POST_RENAME_GROUP.getCode(),
+                            String.format(ERROR_CODE_ERROR_DURING_POST_RENAME_GROUP.getMessage(),
+                                    POST_LISTENER_TASKS_FAILED_MESSAGE), group.getGroupID(), newGroupName);
+                    throw new UserStoreException(ERROR_CODE_ERROR_DURING_POST_RENAME_GROUP.getMessage());
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleRenameGroupFailure(ERROR_CODE_ERROR_DURING_POST_UPDATE_GROUP.getCode(),
+                    String.format(ERROR_CODE_ERROR_DURING_POST_UPDATE_GROUP.getMessage(), ex.getMessage()),
+                    group.getGroupID(), newGroupName);
+            throw ex;
+        }
+
+    }
+
+    protected boolean handleDoPreRenameGroup(String groupID, String newGroupName, boolean isAuditLogOnly,
+                                             String domainName) throws UserStoreException {
+
+        try {
+            boolean internalRole = isHybridGroup(domainName);
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (isAuditLogOnly && !listener.getClass().getName()
+                        .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+
+                boolean success = false;
+                if (internalRole && listener instanceof AbstractUserOperationEventListener) {
+                    success =
+                            ((AbstractUserOperationEventListener) listener)
+                                    .doPreRenameInternalGroup(groupID, newGroupName
+                                            , this);
+                } else if (internalRole) {
+                    success = true;
+                } else {
+                    success = listener.doPreRenameGroup(groupID, newGroupName, this);
+                }
+
+                if (!success) {
+                    handleRenameGroupFailure(ERROR_CODE_ERROR_DURING_PRE_RENAME_GROUP.getCode(),
+                            String.format(ERROR_CODE_ERROR_DURING_PRE_RENAME_GROUP.getMessage(),
+                                    UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), groupID, newGroupName);
+                    return false;
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleRenameGroupFailure(ERROR_CODE_ERROR_DURING_PRE_RENAME_GROUP.getCode(),
+                    String.format(ERROR_CODE_ERROR_DURING_PRE_RENAME_GROUP.getMessage(), ex.getMessage()),
+                    groupID, newGroupName);
+            throw ex;
+        }
+        return true;
+    }
+
+    protected void handleRenameGroupFailure(String errorCode, String errorMessage, String groupID,
+                                            String newGroupName) throws UserStoreException {
+
+        for (UserManagementErrorEventListener listener : UMListenerServiceComponent
+                .getUserManagementErrorEventListeners()) {
+            if (listener.isEnable() && !((UniqueIDUserManagementErrorEventListener) listener)
+                    .onRenameGroupFailure(errorCode, errorMessage, groupID, newGroupName, this)) {
+                return;
+            }
+        }
     }
 
     @Override

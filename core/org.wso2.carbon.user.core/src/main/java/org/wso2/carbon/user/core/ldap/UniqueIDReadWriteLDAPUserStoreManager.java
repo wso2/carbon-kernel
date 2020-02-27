@@ -45,6 +45,7 @@ import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.JNDIUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
+import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
@@ -2010,6 +2011,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         String groupSearchFilter = ((LDAPRoleContext) context).getSearchFilter();
         String roleNameAttributeName = ((LDAPRoleContext) context).getRoleNameProperty();
         String searchBase = ((LDAPRoleContext) context).getSearchBase();
+        String groupModifiedTimeProperty = ((LDAPRoleContext) context).getGroupModifiedTimeProperty();
 
         DirContext mainContext = this.connectionSource.getContext();
         DirContext groupContext = null;
@@ -2017,7 +2019,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
         try {
             groupSearchFilter = groupSearchFilter.replace("?", escapeSpecialCharactersForFilter(roleName));
-            String[] returningAttributes = { roleNameAttributeName };
+            String[] returningAttributes = { roleNameAttributeName, groupModifiedTimeProperty };
             groupSearchResults = searchInGroupBase(groupSearchFilter, returningAttributes, SearchControls.SUBTREE_SCOPE,
                     mainContext, searchBase);
             SearchResult resultedGroup = null;
@@ -2034,7 +2036,14 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
             groupContext = (DirContext) mainContext.lookup(escapeDNForSearch(groupSearchBase));
             groupContext.rename(groupNameRDN, newGroupNameRDN);
-
+            if (!UserCoreUtil.isPropertyGeneratedByUserStore(realmConfig,
+                    ((LDAPRoleContext) context).getGroupModifiedTimeProperty())) {
+                Attributes modifyingAttributes = new BasicAttributes(true);
+                Attribute modifyTimeAttribute = new BasicAttribute(groupModifiedTimeProperty,
+                        UserCoreUtil.getAttributeValue(groupModifiedTimeProperty));
+                modifyingAttributes.put(modifyTimeAttribute);
+                groupContext.modifyAttributes(groupModifiedTimeProperty, DirContext.REPLACE_ATTRIBUTE, modifyingAttributes);
+            }
             String roleNameWithDomain = UserCoreUtil.addDomainToName(roleName, getMyDomainName());
             String newRoleNameWithDomain = UserCoreUtil.addDomainToName(newRoleName, getMyDomainName());
             this.userRealm.getAuthorizationManager()
@@ -2563,5 +2572,12 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             updateAttribute.add(attribute.getValue().toString());
             basicAttributes.put(updateAttribute);
         }
+    }
+
+    @Override
+    protected Group doRenameGroup(Group oldGroup, String newGroupName) throws UserStoreException {
+
+        doUpdateRoleName(oldGroup.getGroupName(), newGroupName);
+        return getGroupByNameOrID(null, newGroupName);
     }
 }

@@ -53,6 +53,7 @@ public class UserCoreErrorConstants {
                 + "user store"),
         ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE("30015", "Constrain violation while writing to database."),
         ERROR_CODE_DOMAIN_VALUE_WITH_FILTER_EMPTY("34012", "Filter value is not provided"),
+        ERROR_CODE_NON_EXISTING_GROUP("30016", "Group %s does not exist in the %s"),
         ERROR_CODE_NULL_CLAIM_URI("30018", "Claim URI is not provided"),
         // Error code related with authentication
         ERROR_CODE_ERROR_WHILE_AUTHENTICATION("31001", "Un-expected error while authenticating"),
@@ -223,9 +224,13 @@ public class UserCoreErrorConstants {
                 + "updating role,  %s"),
         ERROR_CODE_USERNAME_CANNOT_BE_EMPTY("32102", "Username %s is not valid. User name cannot be empty."),
         // Error code related with updating group
-        ERROR_CODE_ERROR_DURING_PRE_UPDATE_GROUP("32201", "Un-expected error during pre-step of updating group "),
-        ERROR_CODE_ERROR_WHILE_UPDATING_GROUP("32203", "Un-expected error while updating group"),
-        ERROR_CODE_ERROR_DURING_POST_UPDATE_GROUP("32204", "Un-expected error during post-step of updating group");
+        ERROR_CODE_ERROR_DURING_PRE_UPDATE_GROUP("32201", "Un-expected error during pre-step of updating group %s"),
+        ERROR_CODE_ERROR_WHILE_UPDATING_GROUP("32203", "Un-expected error while updating group %s"),
+        ERROR_CODE_ERROR_DURING_POST_UPDATE_GROUP("32204", "Un-expected error during post-step of updating group %s"),
+        // Error code related with renaming group.
+        ERROR_CODE_ERROR_DURING_PRE_RENAME_GROUP("32301", "Un-expected error during pre-step of renaming group %s"),
+        ERROR_CODE_ERROR_WHILE_RENAME_GROUP("32302", "Un-expected error while renaming group %s"),
+        ERROR_CODE_ERROR_DURING_POST_RENAME_GROUP("32303", "Un-expected error during post-step of renaming group %s");
 
 
 

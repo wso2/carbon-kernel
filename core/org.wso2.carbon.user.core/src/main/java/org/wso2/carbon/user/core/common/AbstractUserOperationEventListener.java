@@ -25,7 +25,6 @@ import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.listener.UniqueIDUserOperationEventListener;
 import org.wso2.carbon.user.core.model.Condition;
 import org.wso2.carbon.user.core.model.UniqueIDUserClaimSearchEntry;
-import org.wso2.carbon.user.core.model.UserClaimSearchEntry;
 
 import java.util.List;
 import java.util.Map;
@@ -743,6 +742,37 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
     @Override
     public boolean doPostUpdateGroup(String groupID, List<Claim> claims,
                                      List<org.wso2.carbon.user.core.Permission> permissions,
+                                     AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreRenameInternalGroup(String groupID, String newGroupName,
+                                            AbstractUserStoreManager abstractUserStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreRenameGroup(String groupID, String newGroupName,
+                                    AbstractUserStoreManager abstractUserStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostRenameInternalGroup(String groupID, String newGroupName,
+                                             AbstractUserStoreManager abstractUserStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostRenameGroup(String groupID, String newGroupName,
                                      AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
 
         return true;

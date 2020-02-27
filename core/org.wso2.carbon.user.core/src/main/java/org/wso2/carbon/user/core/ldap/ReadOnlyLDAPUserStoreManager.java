@@ -4001,6 +4001,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             roleContext.setRoleNameProperty(realmConfig.getUserStoreProperty(LDAPConstants.SHARED_GROUP_NAME_ATTRIBUTE));
             roleContext.setListFilter(realmConfig.getUserStoreProperty(LDAPConstants.SHARED_GROUP_NAME_LIST_FILTER));
             roleContext.setGroupEntryObjectClass(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_ENTRY_OBJECT_CLASS));
+            roleContext.setGroupIdProperty(realmConfig.getUserStoreProperty(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE));
+            roleContext.setGroupCreatedTimeProperty(realmConfig.getRealmProperty(UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE));
+            roleContext.setGroupModifiedTimeProperty(realmConfig.getRealmProperty(UserStoreConfigConstants.GROUP_MODIFIED_DATE_ATTRIBUTE));
         } else {
             roleContext.setSearchFilter(realmConfig.getUserStoreProperty(LDAPConstants.ROLE_NAME_FILTER));
             roleContext.setRoleNameProperty(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE));
@@ -4017,6 +4020,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     roleContext.addRoleDNPatterns(roleDNPattern);
                 }
             }
+            roleContext.setGroupIdProperty(realmConfig.getUserStoreProperty(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE));
+            roleContext.setGroupCreatedTimeProperty(realmConfig.getRealmProperty(UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE));
+            roleContext.setGroupModifiedTimeProperty(realmConfig.getRealmProperty(UserStoreConfigConstants.GROUP_MODIFIED_DATE_ATTRIBUTE));
         }
         roleContext.setRoleName(rolePortions[0]);
         roleContext.setShared(shared);

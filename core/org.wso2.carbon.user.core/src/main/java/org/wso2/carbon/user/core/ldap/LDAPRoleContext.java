@@ -35,6 +35,12 @@ public class LDAPRoleContext extends RoleContext {
 
     private String roleNameProperty;
 
+    private String groupCreatedTimeProperty;
+
+    private String groupModifiedTimeProperty;
+
+    private String groupIdProperty;
+
     private String groupEntryObjectClass;
 
     // used for shared roles
@@ -94,5 +100,40 @@ public class LDAPRoleContext extends RoleContext {
 
     public void addRoleDNPatterns(String roleDNPattern) {
         this.roleDNPatterns.add(roleDNPattern);
+    }
+
+    public void setRoleDNPatterns(List<String> roleDNPatterns) {
+
+        this.roleDNPatterns = roleDNPatterns;
+    }
+
+    public String getGroupCreatedTimeProperty() {
+
+        return groupCreatedTimeProperty;
+    }
+
+    public void setGroupCreatedTimeProperty(String groupCreatedTimeProperty) {
+
+        this.groupCreatedTimeProperty = groupCreatedTimeProperty;
+    }
+
+    public String getGroupModifiedTimeProperty() {
+
+        return groupModifiedTimeProperty;
+    }
+
+    public void setGroupModifiedTimeProperty(String groupModifiedTimeProperty) {
+
+        this.groupModifiedTimeProperty = groupModifiedTimeProperty;
+    }
+
+    public String getGroupIdProperty() {
+
+        return groupIdProperty;
+    }
+
+    public void setGroupIdProperty(String groupIdProperty) {
+
+        this.groupIdProperty = groupIdProperty;
     }
 }

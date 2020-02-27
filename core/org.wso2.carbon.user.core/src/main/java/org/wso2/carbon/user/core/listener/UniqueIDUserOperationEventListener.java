@@ -805,4 +805,52 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
     boolean doPostUpdateGroup(String groupID, List<Claim> claims,
                               List<org.wso2.carbon.user.core.Permission> permissions,
                               AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+
+    /**
+     * Pre-Listener for renaming internal group.
+     *
+     * @param groupID                  Group ID.
+     * @param newGroupName             New group name.
+     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling pre listeners for renaming an internal group.
+     */
+    boolean doPreRenameInternalGroup(String groupID, String newGroupName,
+                                     AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+
+    /**
+     * Pre-Listener for renaming group.
+     *
+     * @param groupID                  Group ID.
+     * @param newGroupName             New group name.
+     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling pre listeners for renaming a group.
+     */
+    boolean doPreRenameGroup(String groupID, String newGroupName,
+                             AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+
+    /**
+     * Post-Listener for renaming internal group.
+     *
+     * @param groupID                  Group ID.
+     * @param newGroupName             New group name.
+     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling post listeners for renaming a internal group.
+     */
+    boolean doPostRenameInternalGroup(String groupID, String newGroupName,
+                                      AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+
+    /**
+     * Post-Listener for renaming group.
+     *
+     * @param groupID                  Group ID.
+     * @param newGroupName             New group name.
+     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling post listeners for renaming a group.
+     */
+    boolean doPostRenameGroup(String groupID, String newGroupName,
+                                      AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
 }

@@ -363,4 +363,12 @@ public class AbstractUserManagementErrorListener implements UniqueIDUserManageme
 
         return true;
     }
+
+    @Override
+    public boolean onRenameGroupFailure(String errorCode, String errorMessage, String groupID,
+                                        String newGroupName,
+                                        AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
+
+        return true;
+    }
 }

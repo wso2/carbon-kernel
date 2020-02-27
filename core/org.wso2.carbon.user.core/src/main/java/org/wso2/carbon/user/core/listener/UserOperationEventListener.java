@@ -846,4 +846,7 @@ public interface UserOperationEventListener {
 
         return true;
     }
+
+    boolean doPreRenameGroup(String groupID, String newGroupName, AbstractUserStoreManager abstractUserStoreManager)
+            throws UserStoreException;
 }
