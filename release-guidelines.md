@@ -38,7 +38,7 @@ Uncheck 'Close and Release Nexus Staging Repository'
 6. Once the jenkins builder pass, we have to need to Close the Nexus Staging Repository and get the repository link.
 7. Once release is done, call for the release vote (send an email to dev@wso2.com) and wait for 72h.
 8. If there are no negative votes with in 72 hours, close the vote (reply to the same email)
-Note: If there are negative votes, add the changes and do the next RC version.(Go to step 8)
+Note: If there are negative votes, add the changes and do the next RC version.(Go to step 5)
 9. If the vote passes, add the release Nexus Staging Repository and Tag from the RC tag that was passed, to the git repo (Ex: v4.6.20)
 10. In GitHub, draft a new release with the tag, give a proper title and release.
     
