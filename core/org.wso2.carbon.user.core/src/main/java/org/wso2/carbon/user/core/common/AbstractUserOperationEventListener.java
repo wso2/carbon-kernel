@@ -777,4 +777,18 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
 
         return true;
     }
+
+    @Override
+    public boolean doPreListGroup(Condition condition, AbstractUserStoreManager abstractUserStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostListGroups(Condition condition, String domain,
+                                    AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
+
+        return true;
+    }
 }

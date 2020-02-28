@@ -853,4 +853,26 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
      */
     boolean doPostRenameGroup(String groupID, String newGroupName,
                                       AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+
+    /**
+     * Pre-Listeners for list group.
+     *
+     * @param condition                Condition.
+     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling pre listeners for listing groups.
+     */
+    boolean doPreListGroup(Condition condition, AbstractUserStoreManager abstractUserStoreManager)
+            throws UserStoreException;
+
+    /**
+     * Post-Listeners for list group.
+     *
+     * @param condition                Condition.
+     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling post listeners for listing groups.
+     */
+    boolean doPostListGroups(Condition condition, String domain, AbstractUserStoreManager abstractUserStoreManager)
+            throws UserStoreException;
 }

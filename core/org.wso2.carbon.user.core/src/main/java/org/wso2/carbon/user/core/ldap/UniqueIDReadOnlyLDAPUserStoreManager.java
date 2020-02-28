@@ -1453,12 +1453,13 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     }
 
     @Override
-    protected UniqueIDPaginatedSearchResult doGetUserListWithID(Condition condition, String profileName, int limit,
+    protected UniqueIDPaginatedSearchResult<User> doGetUserListWithID(Condition condition, String profileName,
+                                                                      int limit,
             int offset, String sortBy, String sortOrder) throws UserStoreException {
 
         // TODO: Need to improve this method to get the userID as well.
         PaginatedSearchResult userNames = super.doGetUserList(condition, profileName, limit, offset, sortBy, sortOrder);
-        UniqueIDPaginatedSearchResult userList = new UniqueIDPaginatedSearchResult();
+        UniqueIDPaginatedSearchResult<User> userList = new UniqueIDPaginatedSearchResult();
         userList.setPaginatedSearchResult(userNames);
         userList.setSkippedUserCount(userNames.getSkippedUserCount());
         List<User> users = new ArrayList<>();
@@ -1466,7 +1467,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             User user = getUser(null, userName);
             users.add(user);
         }
-        userList.setUsers(users);
+        userList.setEntities(users);
         return userList;
     }
 
@@ -2426,5 +2427,12 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         OffsetDateTime offsetDateTime = OffsetDateTime.parse(date, dateTimeFormatter);
         Instant instant = offsetDateTime.toInstant();
         return instant.toString();
+    }
+
+    @Override
+    protected UniqueIDPaginatedSearchResult<Group> doListGroups(Condition condition, String domain)
+            throws UserStoreException {
+
+        return super.doListGroups(condition, domain);
     }
 }

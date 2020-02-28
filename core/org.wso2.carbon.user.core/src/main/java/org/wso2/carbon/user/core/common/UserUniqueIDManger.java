@@ -19,7 +19,6 @@
 package org.wso2.carbon.user.core.common;
 
 import org.apache.commons.lang.StringUtils;
-import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
@@ -137,11 +136,11 @@ public class UserUniqueIDManger {
      * @param userStoreManager User store manger instance.
      * @return @see UniqueIDPaginatedSearchResult
      */
-    public UniqueIDPaginatedSearchResult listUsers(PaginatedSearchResult paginatedSearchResult,
-                                                   AbstractUserStoreManager userStoreManager)
+    public UniqueIDPaginatedSearchResult<User> listUsers(PaginatedSearchResult paginatedSearchResult,
+                                                         AbstractUserStoreManager userStoreManager)
             throws UserStoreException {
 
-        UniqueIDPaginatedSearchResult uniqueIDPaginatedSearchResult = new UniqueIDPaginatedSearchResult();
+        UniqueIDPaginatedSearchResult<User> uniqueIDPaginatedSearchResult = new UniqueIDPaginatedSearchResult();
         List<User> users = new ArrayList<>();
         for (String username : paginatedSearchResult.getUsers()) {
             User user = new User();
@@ -154,7 +153,7 @@ public class UserUniqueIDManger {
             user.setUsername(username);
             users.add(user);
         }
-        uniqueIDPaginatedSearchResult.setUsers(users);
+        uniqueIDPaginatedSearchResult.setEntities(users);
         uniqueIDPaginatedSearchResult.setSkippedUserCount(paginatedSearchResult.getSkippedUserCount());
         return uniqueIDPaginatedSearchResult;
     }

@@ -417,4 +417,19 @@ public interface UserManagementErrorEventListener {
      */
     boolean onDeleteGroupFailure(String errorCode, String errorMessage, String groupID,
                                  AbstractUserStoreManager abstractUserStoreManager);
+
+    /**
+     * Defines any additional actions that need to be done if there is a failure while trying to list group.
+     *
+     * @param errorCode                Error code.
+     * @param errorMessage             Error message.
+     * @param condition                Condition
+     * @param domain                   Userstore domain.
+     * @param abstractUserStoreManager User Store Manager
+     * @return true if the handing succeeded.
+     * @throws UserStoreException Exception that will be thrown during the execution of this method.
+     */
+    boolean onListGroupFailure(String errorCode, String errorMessage, Condition condition,
+                               String domain, AbstractUserStoreManager abstractUserStoreManager)
+            throws UserStoreException;
 }

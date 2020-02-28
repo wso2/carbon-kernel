@@ -20,26 +20,26 @@ package org.wso2.carbon.user.core.common;
 import java.util.Collections;
 import java.util.List;
 
-public class UniqueIDPaginatedSearchResult {
+public class UniqueIDPaginatedSearchResult <T extends Entity> {
 
-    private List<User> users;
+    private List<T> entities;
     private PaginatedSearchResult paginatedSearchResult;
 
     // This variable is set only when users.length = 0. When filtered user count is zero for a given user store, it is
     // required to know how many users skipped in that user store to identify the start index of next user store.
     private int skippedUserCount;
 
-    public List<User> getUsers() {
+    public List<T> getEntities() {
 
-        if (users == null) {
+        if (entities == null) {
             return Collections.emptyList();
         }
-        return users;
+        return entities;
     }
 
-    public void setUsers(List<User> users) {
+    public void setEntities(List<T> entities) {
 
-        this.users = users;
+        this.entities = entities;
     }
 
     public int getSkippedUserCount() {

@@ -2782,7 +2782,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    protected UniqueIDPaginatedSearchResult doListUsersWithID(String filter, int limit, int offset)
+    protected UniqueIDPaginatedSearchResult<User> doListUsersWithID(String filter, int limit, int offset)
             throws UserStoreException {
 
         List<User> users = new ArrayList<>();
@@ -2794,7 +2794,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         int searchTime;
         String profileName = UserCoreConstants.DEFAULT_PROFILE;
 
-        UniqueIDPaginatedSearchResult result = new UniqueIDPaginatedSearchResult();
+        UniqueIDPaginatedSearchResult<User> result = new UniqueIDPaginatedSearchResult();
 
         if (limit == 0) {
             return result;
@@ -2928,7 +2928,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
-        result.setUsers(users);
+        result.setEntities(users);
 
         if (users.size() == 0) {
             result.setSkippedUserCount(doGetListUsersCountWithID(filter));
@@ -2997,10 +2997,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    public UniqueIDPaginatedSearchResult doGetUserListFromPropertiesWithID(String property, String value,
-            String profileName, int limit, int offset) throws UserStoreException {
+    public UniqueIDPaginatedSearchResult<User> doGetUserListFromPropertiesWithID(String property, String value,
+                                                                                 String profileName, int limit, int offset) throws UserStoreException {
 
-        UniqueIDPaginatedSearchResult result = new UniqueIDPaginatedSearchResult();
+        UniqueIDPaginatedSearchResult<User> result = new UniqueIDPaginatedSearchResult();
 
         if (profileName == null) {
             profileName = UserCoreConstants.DEFAULT_PROFILE;
@@ -3079,7 +3079,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             if (list.size() > 0) {
                 users = list;
             }
-            result.setUsers(users);
+            result.setEntities(users);
         } catch (Exception e) {
             String msg = "Database error occurred while paginating users for a property : " + property + " & value : "
                     + value + "& profile name : " + profileName;
@@ -3159,7 +3159,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    protected UniqueIDPaginatedSearchResult doGetUserListWithID(Condition condition, String profileName, int limit,
+    protected UniqueIDPaginatedSearchResult<User> doGetUserListWithID(Condition condition, String profileName,
+                                                                      int limit,
             int offset, String sortBy, String sortOrder) throws UserStoreException {
 
         boolean isGroupFiltering = false;
@@ -3169,7 +3170,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         int totalMultiGroupFilters = 0;
         int totalMultiClaimFilters = 0;
 
-        UniqueIDPaginatedSearchResult result = new UniqueIDPaginatedSearchResult();
+        UniqueIDPaginatedSearchResult <User> result = new UniqueIDPaginatedSearchResult();
 
         if (limit == 0) {
             return result;
@@ -3265,7 +3266,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             if (list.size() > 0) {
                 users = list;
             }
-            result.setUsers(users);
+            result.setEntities(users);
 
         } catch (Exception e) {
             String msg = "Error occur while doGetUserList for multi attribute searching";
