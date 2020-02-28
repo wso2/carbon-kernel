@@ -6464,12 +6464,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 return;
             }
 
-            if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-                doAddInternalRole(roleName, userList, permissions);
-            } else {
-                doAddInternalRoleWithID(roleName,
-                        getUserIDsFromUserNames(Arrays.asList(userList)).toArray(new String[0]), permissions);
-            }
+            doAddInternalRole(roleName, userList, permissions);
 
             // Calling only the audit logger, to maintain the back-ward compatibility
             handlePostAddRole(roleName, userList, permissions, false);
