@@ -4406,6 +4406,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throw new UserStoreException(errorCode + " - " + message);
         }
 
+        // If the username claims presents, the value should be equal to the username attribute.
+        if (claims != null && claims.containsKey(USERNAME_CLAIM_URI) &&
+                !claims.get(USERNAME_CLAIM_URI).equals(userName)) {
+            // If not we cannot continue.
+            throw new UserStoreException("Username and the username claim value should be same.");
+        }
+
         // Get the user store that this user should be added from the domain name that is appended to the username.
         UserStore userStore = getUserStore(userName);
         boolean isUniqueUserIdEnabled = isUniqueUserIdEnabledInUserStore(userStore);
@@ -6484,12 +6491,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 return;
             }
 
-            if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-                doAddInternalRole(roleName, userList, permissions);
-            } else {
-                doAddInternalRoleWithID(roleName,
-                        getUserIDsFromUserNames(Arrays.asList(userList)).toArray(new String[0]), permissions);
-            }
+            doAddInternalRole(roleName, userList, permissions);
 
             // Calling only the audit logger, to maintain the back-ward compatibility
             handlePostAddRole(roleName, userList, permissions, false);
@@ -9029,7 +9031,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     roles.addAll(internalRoles.get(userName));
                 }
                 if (externalRoles.get(userName) != null) {
-                    roles.addAll(externalRoles.get(userName));
+                    List<String> domainQualifiedRoleNames = getNamesWithDomain(externalRoles.get(userName), domainName);
+                    roles.addAll(domainQualifiedRoleNames);
                 }
                 if (!roles.isEmpty()) {
                     combinedRoles.put(userName, roles);
@@ -9093,7 +9096,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         for (Map.Entry<String, List<String>> entry : domainFreeUsers.entrySet()) {
             UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(entry.getKey());
             if (secondaryUserStoreManager instanceof AbstractUserStoreManager) {
-                List<String> usersWithDomain = getUsersWithDomain(entry);
+                List<String> usersWithDomain = getNamesWithDomain(entry.getValue(), entry.getKey());
                 if (((AbstractUserStoreManager) secondaryUserStoreManager).isUniqueUserIdEnabled()) {
                     List<UniqueIDUserClaimSearchEntry> uniqueIDUserClaimSearchEntries = ((AbstractUserStoreManager)
                             secondaryUserStoreManager).doGetUsersClaimValuesWithID(getUserIDsFromUserNames(
@@ -13400,6 +13403,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throw new UserStoreException(errorCode + " - " + message);
         }
 
+        // If the username claims presents, the value should be equal to the username attribute.
+        if (claims != null && claims.containsKey(USERNAME_CLAIM_URI) &&
+                !claims.get(USERNAME_CLAIM_URI).equals(userName)) {
+            // If not we cannot continue.
+            throw new UserStoreException("Username and the username claim value should be same.");
+        }
+
         UserStore userStore = getUserStore(userName);
         if (userStore.isRecurssive()) {
             return ((AbstractUserStoreManager) userStore.getUserStoreManager())
@@ -14723,7 +14733,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     roles.addAll(internalRoles.get(userID));
                 }
                 if (externalRoles.get(userID) != null) {
-                    roles.addAll(externalRoles.get(userID));
+                    List<String> domainQualifiedRoleNames = getNamesWithDomain(externalRoles.get(userID), domainName);
+                    roles.addAll(domainQualifiedRoleNames);
                 }
                 if (!roles.isEmpty()) {
                     combinedRoles.put(userID, roles);
@@ -16183,11 +16194,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 "doGetGroupFromProperties operation is not implemented in: " + this.getClass());
     }
 
-    private List<String> getUsersWithDomain(Map.Entry<String, List<String>> entry) {
+    private List<String> getNamesWithDomain(List<String> identifiers, String domain) {
 
         List<String> usersWithDomain = new ArrayList<>();
-        for (String user : entry.getValue()) {
-            usersWithDomain.add(UserCoreUtil.addDomainToName(user, entry.getKey()));
+        for (String identifier : identifiers) {
+            usersWithDomain.add(UserCoreUtil.addDomainToName(identifier, domain));
         }
         return usersWithDomain;
     }

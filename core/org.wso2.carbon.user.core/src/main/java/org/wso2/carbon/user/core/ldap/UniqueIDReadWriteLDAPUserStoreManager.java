@@ -73,6 +73,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID;
@@ -1461,6 +1462,16 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     public void doAddRoleWithID(String roleName, String[] userIDList, boolean shared) throws UserStoreException {
 
         List<String> userList = getUserNamesFromUserIDs(Arrays.asList(userIDList));
+        String userStoreDomain = getMyDomainName();
+        boolean containsInvalidUsernames = userList.stream()
+                .anyMatch(username -> !UserCoreUtil.extractDomainFromName(username).equalsIgnoreCase(userStoreDomain));
+
+        if (containsInvalidUsernames) {
+            throw new UserStoreException("One or more users in the users list: " + userList + " do not belong to the" +
+                    " user store: " + userStoreDomain);
+        }
+
+        userList = userList.stream().map(UserCoreUtil::removeDomainFromName).collect(Collectors.toList());
         RoleContext roleContext;
         roleContext = createRoleContext(roleName);
         roleContext.setMembers(userList.toArray(new String[0]));

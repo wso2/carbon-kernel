@@ -50,7 +50,6 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.NoSuchAttributeException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -92,7 +91,6 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
     private static final String LDAPBinaryAttributesDescription =
             "Configure this to define the LDAP binary attributes " + "seperated by a space. Ex:mpegVideo mySpecialKey";
     private static final String ACTIVE_DIRECTORY_DATE_TIME_FORMAT = "uuuuMMddHHmmss[,S][.S]X";
-
 
     // For AD's this value is 1500 by default, hence overriding the default value.
     protected static final int MEMBERSHIP_ATTRIBUTE_RANGE_VALUE = 1500;
@@ -871,7 +869,8 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
                 "Number of retries for" + " authentication in case ldap read timed out.");
         setAdvancedProperty("CountRetrieverClass", "Count Implementation", "",
                 "Name of the class that implements the count functionality");
-        setAdvancedProperty(LDAPConstants.LDAP_ATTRIBUTES_BINARY, "LDAP binary attributes", " ",
+        setAdvancedProperty(LDAPConstants.LDAP_ATTRIBUTES_BINARY, "LDAP binary attributes",
+                UserStoreConfigConstants.OBJECT_GUID,
                 LDAPBinaryAttributesDescription);
         setAdvancedProperty(UserStoreConfigConstants.claimOperationsSupported,
                 UserStoreConfigConstants.getClaimOperationsSupportedDisplayName, "true",
@@ -987,4 +986,5 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
         Instant instant = offsetDateTime.toInstant();
         return instant.toString();
     }
+
 }
