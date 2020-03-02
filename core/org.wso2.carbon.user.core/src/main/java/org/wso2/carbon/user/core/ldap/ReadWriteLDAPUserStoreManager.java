@@ -181,6 +181,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 		 * Initialize user roles cache as implemented in AbstractUserStoreManager
 		 */
         initUserRolesCache();
+        initUserGroupCache();
 
         initUserCache();
 

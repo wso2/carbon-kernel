@@ -45,10 +45,12 @@ import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.model.Condition;
+import org.wso2.carbon.user.core.model.ExpressionCondition;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.JNDIUtil;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.time.Instant;
@@ -77,7 +79,11 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.Control;
+import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.LdapName;
+import javax.naming.ldap.PagedResultsControl;
+import javax.naming.ldap.SortControl;
 
 import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID;
 
@@ -1461,7 +1467,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         PaginatedSearchResult userNames = super.doGetUserList(condition, profileName, limit, offset, sortBy, sortOrder);
         UniqueIDPaginatedSearchResult<User> userList = new UniqueIDPaginatedSearchResult();
         userList.setPaginatedSearchResult(userNames);
-        userList.setSkippedUserCount(userNames.getSkippedUserCount());
+        userList.setSkippedEntityCount(userNames.getSkippedUserCount());
         List<User> users = new ArrayList<>();
         for (String userName : userNames.getUsers()) {
             User user = getUser(null, userName);
@@ -2430,9 +2436,50 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     }
 
     @Override
-    protected UniqueIDPaginatedSearchResult<Group> doListGroups(Condition condition, String domain)
+    protected UniqueIDPaginatedSearchResult<Group> doListGroups(Condition condition, String domain, int limit,
+                                                                int offset, String sortBy, String sortOrder)
             throws UserStoreException {
 
-        return super.doListGroups(condition, domain);
+        UniqueIDPaginatedSearchResult<Group> result = new UniqueIDPaginatedSearchResult<>();
+        // Since we support only AND operation get expressions as a list.
+        List<ExpressionCondition> expressionConditions = getExpressionConditions(condition);
+        LDAPSearchSpecification ldapSearchSpecification = new LDAPSearchSpecification(realmConfig,
+                expressionConditions);
+        boolean isMemberShipPropertyFound = ldapSearchSpecification.isMemberShipPropertyFound();
+        limit = getLimit(limit, isMemberShipPropertyFound);
+        offset = getOffset(offset);
+
+        if (limit == 0) {
+            return result;
+        }
+        int pageSize = limit;
+        DirContext dirContext = this.connectionSource.getContext();
+        LdapContext ldapContext = (LdapContext) dirContext;
+        List<String> groupNames;
+        List<Group> groups = new ArrayList<>();
+        if (StringUtils.isBlank(sortBy)) {
+            sortBy = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
+        }
+        try {
+            ldapContext.setRequestControls(new Control[]{new PagedResultsControl(pageSize, Control.CRITICAL),
+                    new SortControl(sortBy, Control.NONCRITICAL)});
+            groupNames = performLDAPSearch(ldapContext, ldapSearchSpecification, pageSize, offset, expressionConditions);
+            for (String ldapGroupName : groupNames) {
+                groups.add(doGetGroupFromGroupName(ldapGroupName));
+            }
+            result.setEntities(groups);
+            return result;
+        } catch (NamingException e) {
+            log.error(String.format("Error occurred while performing paginated search, %s", e.getMessage()));
+            throw new UserStoreException(e.getMessage(), e);
+        } catch (IOException e) {
+            log.error(String.format("Error occurred while setting paged results controls for paginated search, %s",
+                    e.getMessage()));
+            throw new UserStoreException(e.getMessage(), e);
+        } finally {
+            JNDIUtil.closeContext(dirContext);
+            JNDIUtil.closeContext(ldapContext);
+        }
+
     }
 }

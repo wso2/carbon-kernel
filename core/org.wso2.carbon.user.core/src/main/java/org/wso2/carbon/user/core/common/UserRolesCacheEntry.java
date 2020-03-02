@@ -20,18 +20,28 @@ package org.wso2.carbon.user.core.common;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.List;
 
 public class UserRolesCacheEntry implements Serializable {
     private static final long serialVersionUID = 8978564215468907563L;
 
     private String[] userRolesList;
+    private List<Group> userGroupList;
 
     public UserRolesCacheEntry(String[] userRolesList) {
         this.userRolesList = Arrays.copyOf(userRolesList, userRolesList.length);
+    }
+
+    public UserRolesCacheEntry(List<Group> userGroupList) {
+        this.userGroupList = userGroupList;
     }
 
     public String[] getUserRolesList() {
         return Arrays.copyOf(userRolesList, userRolesList.length);
     }
 
+    public List<Group> getUserGroupList() {
+
+        return userGroupList;
+    }
 }

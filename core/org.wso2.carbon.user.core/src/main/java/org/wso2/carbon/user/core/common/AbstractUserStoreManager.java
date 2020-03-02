@@ -148,6 +148,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected HybridRoleManager hybridRoleManager = null;
     // User roles cache
     protected UserRolesCache userRolesCache = null;
+    protected UserGroupCache userGroupCache = null;
     protected SystemUserRoleManager systemUserRoleManager = null;
     protected boolean readGroupsEnabled = false;
     protected boolean writeGroupsEnabled = false;
@@ -7892,6 +7893,85 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     }
 
+    protected List<Group> getGroupListOfUserFromCache(int tenantID, String userName) {
+
+        if (userGroupCache != null) {
+            String usernameWithDomain = UserCoreUtil.addDomainToName(userName, getMyDomainName());
+            return userGroupCache.getGroupListOfUser(cacheIdentifier, tenantID, usernameWithDomain);
+        }
+        return null;
+    }
+
+    protected void clearUserGroupCacheByTenant(int tenantID) {
+        if (userGroupCache != null) {
+            userGroupCache.clearCacheByTenant(tenantID);
+        }
+        AuthorizationCache authorizationCache = AuthorizationCache.getInstance();
+        authorizationCache.clearCacheByTenant(tenantID);
+    }
+
+    protected void addToUserGroupCache(int tenantID, String userName, List<Group> groupList) {
+
+        if (userGroupCache != null) {
+            String usernameWithDomain = UserCoreUtil.addDomainToName(userName, getMyDomainName());
+            userGroupCache.addToCache(cacheIdentifier, tenantID, usernameWithDomain, groupList);
+            AuthorizationCache authorizationCache = AuthorizationCache.getInstance();
+            authorizationCache.clearCacheByTenant(tenantID);
+        }
+    }
+
+    protected void clearUserGroupCache(String userIdentifier) {
+
+        String usernameWithDomain = UserCoreUtil.addDomainToName(userIdentifier, getMyDomainName());
+        if (userGroupCache != null) {
+            userGroupCache.clearCacheEntry(cacheIdentifier, tenantId, usernameWithDomain);
+        }
+        AuthorizationCache authorizationCache = AuthorizationCache.getInstance();
+        authorizationCache.clearCacheByUser(tenantId, usernameWithDomain);
+    }
+
+    /**
+     * Initializing Group cache.
+     */
+    protected void initUserGroupCache() {
+
+        String userRolesCacheEnabledString = (realmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_ROLES_CACHE_ENABLED));
+
+        String userCoreCacheIdentifier = realmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_CORE_CACHE_IDENTIFIER);
+
+        if (userCoreCacheIdentifier != null && userCoreCacheIdentifier.trim().length() > 0) {
+            cacheIdentifier = userCoreCacheIdentifier;
+        } else {
+            cacheIdentifier = UserCoreConstants.DEFAULT_CACHE_IDENTIFIER;
+        }
+
+        if (userRolesCacheEnabledString != null && !userRolesCacheEnabledString.equals("")) {
+            userRolesCacheEnabled = Boolean.parseBoolean(userRolesCacheEnabledString);
+            if (log.isDebugEnabled()) {
+                log.debug("User Roles Cache is configured to:" + userRolesCacheEnabledString);
+            }
+        } else {
+            if (log.isDebugEnabled()) {
+                log.info("User Roles Cache is not configured. Default value: "
+                        + userRolesCacheEnabled + " is taken.");
+            }
+        }
+
+        if (userRolesCacheEnabled) {
+            int timeOut = UserCoreConstants.USER_ROLE_CACHE_DEFAULT_TIME_OUT;
+            String timeOutString = realmConfig.
+                    getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_ROLE_CACHE_TIME_OUT);
+            if (timeOutString != null) {
+                timeOut = Integer.parseInt(timeOutString);
+            }
+            userGroupCache = userGroupCache.getInstance();
+            userGroupCache.setTimeOut(timeOut);
+        }
+
+    }
+
     /**
      * @param regularExpression
      * @param attribute
@@ -14101,7 +14181,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         String primaryDomain = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
 
-        int nonPaginatedUserCount = userList.getSkippedUserCount();
+        int nonPaginatedUserCount = userList.getSkippedEntityCount();
         if (this.getSecondaryUserStoreManager() != null) {
             for (Map.Entry<String, UserStoreManager> entry : userStoreManagerHolder.entrySet()) {
                 if (limit <= 0) {
@@ -14123,7 +14203,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         UniqueIDPaginatedSearchResult<User> secondUserList;
                         if (((AbstractUserStoreManager) storeManager).isUniqueUserIdEnabled()) {
                             secondUserList = ((AbstractUserStoreManager) storeManager).doListUsersWithID(filter, limit, offset);
-                            nonPaginatedUserCount = secondUserList.getSkippedUserCount();
+                            nonPaginatedUserCount = secondUserList.getSkippedEntityCount();
                         } else {
                             PaginatedSearchResult paginatedSearchResult =
                                     ((AbstractUserStoreManager) storeManager).doListUsers(filter.substring(1), limit, offset);
@@ -14414,7 +14494,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 log.debug("Secondary user list for domain: " + domainName + " : " + userList);
             }
             limit = limit - userList.getEntities().size();
-            nonPaginatedUserCount = userList.getSkippedUserCount();
+            nonPaginatedUserCount = userList.getSkippedEntityCount();
 
             if (userList.getEntities().size() > 0) {
                 offset = 1;
@@ -14662,21 +14742,51 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public List<Group> listGroups(Condition condition, int limit, int offset, String sortBy,
                                   String sortOrder) throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("listGroups operation is not implemented in: " + this.getClass());
+        validateCondition(condition);
+        String domain = getDomainFromCondition(condition);
+
+        handlePreListGroup(condition, domain);
+        List<Group> filteredGroups = new ArrayList<>();
+
+        UserStoreManager secManager = getSecondaryUserStoreManager(domain);
+        if (secManager != null) {
+            if (secManager instanceof AbstractUserStoreManager) {
+                if (isUniqueUserIdEnabled(secManager)) {
+                    UniqueIDPaginatedSearchResult <Group> groups = ((AbstractUserStoreManager) secManager)
+                            .doListGroups(condition, domain, offset, limit, sortBy, sortOrder);
+                    filteredGroups = groups.getEntities();
+                } else {
+                    throw new UserStoreException(" listGroups is not supported.");
+                }
+            }
         }
-        throw new NotImplementedException(
-                "listGroups operation is not implemented in: " + this.getClass());
+        handlePostListGroups(condition, domain, false);
+        return filteredGroups;
     }
 
     @Override
     public List<Group> listGroups(Condition condition, int limit, int offset) throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("listGroups operation is not implemented in: " + this.getClass());
+        validateCondition(condition);
+        String domain = getDomainFromCondition(condition);
+
+        handlePreListGroup(condition, domain);
+        List<Group> filteredGroups = new ArrayList<>();
+
+        UserStoreManager secManager = getSecondaryUserStoreManager(domain);
+        if (secManager != null) {
+            if (secManager instanceof AbstractUserStoreManager) {
+                if (isUniqueUserIdEnabled(secManager)) {
+                    UniqueIDPaginatedSearchResult <Group> groups = ((AbstractUserStoreManager) secManager)
+                            .doListGroups(condition, domain, offset, limit, null, null);
+                    filteredGroups = groups.getEntities();
+                } else {
+                    throw new UserStoreException(" listGroups is not supported.");
+                }
+            }
         }
-        throw new NotImplementedException(
-                "listGroups operation is not implemented in: " + this.getClass());
+        handlePostListGroups(condition, domain, false);
+        return filteredGroups;
     }
 
     @Override
@@ -14693,7 +14803,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (secManager instanceof AbstractUserStoreManager) {
                 if (isUniqueUserIdEnabled(secManager)) {
                     UniqueIDPaginatedSearchResult <Group> groups = ((AbstractUserStoreManager) secManager)
-                            .doListGroups(condition, domain);
+                            .doListGroups(condition, domain, MAX_ITEM_LIMIT_UNLIMITED, 0, null, null);
                     filteredGroups = groups.getEntities();
                 } else {
                     throw new UserStoreException(" listGroups is not supported.");
@@ -14704,7 +14814,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return filteredGroups;
     }
 
-    protected UniqueIDPaginatedSearchResult<Group> doListGroups(Condition condition, String domain) throws UserStoreException {
+    protected UniqueIDPaginatedSearchResult<Group> doListGroups(Condition condition, String domain, int limit,
+                                                                int offset, String sortBy, String sortOrder) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("doListGroups operation is not implemented in: " + this.getClass());
@@ -15031,22 +15142,64 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public List<Group> getGroupListOfUser(String userId, int limit, int offset, String sortBy, String sortOrder)
             throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("getGroupListOfUser operation is not implemented in: " + this.getClass());
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, int.class, int.class, String.class, String.class};
+            Object object = callSecure("getGroupListOfUser", new Object[]{userId, limit, offset, sortBy, sortBy},
+                    argTypes);
+            return (List<Group>) object;
         }
-        throw new NotImplementedException(
-                "getGroupListOfUser operation is not implemented in: " + this.getClass());
+
+        List<String> roleNames;
+        List<Group> groups;
+
+        UserStore userStore = getUserStoreWithID(userId);
+        if (userStore.isRecurssive()) {
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager())
+                    .getGroupListOfUser(userStore.getDomainFreeUserId(), limit, offset, sortBy, sortOrder);
+        }
+
+        if (isUniqueGroupIDEnabledInUserStore()) {
+            groups = getGroupListOfUserFromCache(tenantId, getUserNameFromUserID(userId));
+            if (groups == null) {
+                roleNames = doGetRoleListOfUserWithID(userId, "*");
+                for (String role : roleNames) {
+                    Group group = getGroupByNameOrID(null, role);
+                    groups.add(group);
+                }
+                addToUserGroupCache(this.tenantId, getUserNameFromUserID(userId), groups);
+            }
+            return groups;
+        } else {
+            throw new UserStoreException("getGroupListOfUser is not supported in : " + this.getClass());
+        }
     }
 
     @Override
     public List<User> getUserListOfGroup(String groupID, int limit, int offset, String sortBy, String sortOrder)
             throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("getUserListOfGroup operation is not implemented in: " + this.getClass());
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, int.class, int.class, String.class, String.class};
+            Object object = callSecure("getUserListOfGroup", new Object[]{groupID, limit, offset, sortBy, sortOrder},
+                    argTypes);
+            return (List<User>) object;
         }
-        throw new NotImplementedException(
-                "getUserListOfGroup operation is not implemented in: " + this.getClass());
+
+        UserStore userStore = getUserStoreWithID(groupID);
+
+        if (userStore.isRecurssive() && (userStore.getUserStoreManager() instanceof AbstractUserStoreManager)) {
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager())
+                    .getUserListOfGroup(groupID, limit, offset, sortBy, sortOrder);
+        }
+        List<User> users;
+        if (isUniqueGroupIDEnabledInUserStore()) {
+            String roleName = getGroupByNameOrID(groupID, null).getGroupName();
+            users = getUserListOfRoleWithID(roleName, QUERY_FILTER_STRING_ANY, limit);
+        } else {
+            throw new UserStoreException("getUserListOfGroup is not implemented in: " + this.getClass());
+        }
+        // TODO SortBy Sort order
+        return users;
     }
 
     @Override
@@ -15074,11 +15227,24 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public boolean isUserInGroup(String userID, String groupID) throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("isUserInGroup operation is not implemented in: " + this.getClass());
+        if (!isSecureCall.get()) {
+            Class[] argTypes = new Class[]{String.class, String.class};
+            Object object = callSecure("isUserInGroup", new Object[] { userID, groupID }, argTypes);
+            return (Boolean) object;
         }
-        throw new NotImplementedException(
-                "isUserInGroup operation is not implemented in: " + this.getClass());
+
+        UserStore userStore = getUserStoreWithID(userID);
+
+        if (userStore.isRecurssive() && (userStore.getUserStoreManager() instanceof AbstractUserStoreManager)) {
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager())
+                    .isUserInGroup(userStore.getDomainFreeUserId(), groupID);
+        }
+        if (isUniqueGroupIDEnabledInUserStore()) {
+            String roleName = getGroupByNameOrID(groupID, null).getGroupName();
+            return isUserInRoleWithID(userID, roleName);
+        } else {
+            throw new UserStoreException("isUserInGroup is not implemented in: " + this.getClass());
+        }
     }
 
     @Override
@@ -15805,21 +15971,85 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public List<User> getUserListOfGroup(String groupID, String sortBy, String sortOrder) throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("getUserListOfGroup operation is not implemented in: " + this.getClass());
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, String.class, String.class};
+            Object object = callSecure("getUserListOfGroup", new Object[]{groupID, sortBy, sortOrder},
+                    argTypes);
+            return (List<User>) object;
         }
-        throw new NotImplementedException(
-                "getUserListOfGroup operation is not implemented in: " + this.getClass());
+
+        UserStore userStore = getUserStoreWithID(groupID);
+
+        if (userStore.isRecurssive() && (userStore.getUserStoreManager() instanceof AbstractUserStoreManager)) {
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager())
+                    .getUserListOfGroup(groupID, sortBy, sortOrder);
+        }
+        List<User> users;
+        if (isUniqueGroupIDEnabledInUserStore()) {
+            String roleName = getGroupByNameOrID(groupID, null).getGroupName();
+            users = getUserListOfRoleWithID(roleName, QUERY_FILTER_STRING_ANY, QUERY_MAX_ITEM_LIMIT_ANY);
+        } else {
+            throw new UserStoreException("getUserListOfGroup is not implemented in: " + this.getClass());
+        }
+        // todo sort
+        return users;
     }
 
     @Override
-    public List<Group> getGroupListOfUser(String userId, String sortBy, String sortOrder) throws UserStoreException {
+    public List<Group> getGroupListOfUser(String userId) throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("getGroupListOfUser operation is not implemented in: " + this.getClass());
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class};
+            Object object = callSecure("getGroupListOfUser", new Object[]{userId}, argTypes);
+            return (List<Group>) object;
         }
-        throw new NotImplementedException(
-                "getGroupListOfUser operation is not implemented in: " + this.getClass());
+
+        List<String> roleNames;
+
+        // anonymous user is only assigned to  anonymous role
+        if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equalsIgnoreCase(userId)) {
+            //TODO return anonymous role
+            throw new UserStoreException("This operation is not yet supported.");
+        }
+
+        UserStore userStore = getUserStoreWithID(userId);
+        if (userStore.isRecurssive()) {
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager()).getGroupListOfUser(userId);
+        }
+
+        // Check whether roles exist in cache
+        User user = userUniqueIDManger.getUser(userId, this);
+        if (user == null) {
+            throw new UserStoreException("There is no such user in the system with user ID: " + userId);
+        }
+
+        if (user != null) {
+            List<Group> groupsFromCache = getGroupListOfUserFromCache(this.tenantId, user.getUsername());
+            if (groupsFromCache != null) {
+                if (groupsFromCache.size() > 0) {
+                    return groupsFromCache;
+                }
+            }
+        }
+
+        if (userStore.isSystemStore()) {
+            throw new UserStoreException("This operation is not yet supported.");
+        }
+        // #################### Domain Name Free Zone Starts Here ################################
+
+        List<Group> groupList = new ArrayList<>();
+        // If unique id feature is not enabled, we have to call the legacy methods.
+        if (!isUniqueUserIdEnabledInUserStore(userStore)) {
+            throw new UserStoreException("This operation is not yet supported.");
+        } else {
+            List<String> roles = doGetRoleListOfUserWithID(userId, "*");
+            for (String role : roles) {
+                Group group = getGroupByNameOrID(null, role);
+                groupList.add(group);
+            }
+            addToUserGroupCache(this.tenantId, user.getUsername(), groupList);
+            return groupList;
+        }
     }
 
 

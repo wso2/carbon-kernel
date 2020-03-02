@@ -27,7 +27,7 @@ public class UniqueIDPaginatedSearchResult <T extends Entity> {
 
     // This variable is set only when users.length = 0. When filtered user count is zero for a given user store, it is
     // required to know how many users skipped in that user store to identify the start index of next user store.
-    private int skippedUserCount;
+    private int skippedEntityCount;
 
     public List<T> getEntities() {
 
@@ -42,14 +42,14 @@ public class UniqueIDPaginatedSearchResult <T extends Entity> {
         this.entities = entities;
     }
 
-    public int getSkippedUserCount() {
+    public int getSkippedEntityCount() {
 
-        return skippedUserCount;
+        return skippedEntityCount;
     }
 
-    public void setSkippedUserCount(int skippedUserCount) {
+    public void setSkippedEntityCount(int skippedEntityCount) {
 
-        this.skippedUserCount = skippedUserCount;
+        this.skippedEntityCount = skippedEntityCount;
     }
 
     public PaginatedSearchResult getPaginatedSearchResult() {

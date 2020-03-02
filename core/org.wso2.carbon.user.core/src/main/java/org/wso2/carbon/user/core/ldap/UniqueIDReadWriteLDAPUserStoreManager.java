@@ -187,7 +187,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
          * Initialize user roles cache as implemented in AbstractUserStoreManager
          */
         initUserRolesCache();
-
+        initUserGroupCache();
         initUserCache();
 
         if (log.isDebugEnabled()) {

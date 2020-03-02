@@ -154,7 +154,7 @@ public class UserUniqueIDManger {
             users.add(user);
         }
         uniqueIDPaginatedSearchResult.setEntities(users);
-        uniqueIDPaginatedSearchResult.setSkippedUserCount(paginatedSearchResult.getSkippedUserCount());
+        uniqueIDPaginatedSearchResult.setSkippedEntityCount(paginatedSearchResult.getSkippedUserCount());
         return uniqueIDPaginatedSearchResult;
     }
 

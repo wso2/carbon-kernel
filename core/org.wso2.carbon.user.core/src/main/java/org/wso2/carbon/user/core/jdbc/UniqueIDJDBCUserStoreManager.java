@@ -2931,7 +2931,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         result.setEntities(users);
 
         if (users.size() == 0) {
-            result.setSkippedUserCount(doGetListUsersCountWithID(filter));
+            result.setSkippedEntityCount(doGetListUsersCountWithID(filter));
         }
         return result;
     }
@@ -3092,7 +3092,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
 
         if (users.size() == 0) {
-            result.setSkippedUserCount(getUserListFromPropertiesCountWithID(property, value, profileName));
+            result.setSkippedEntityCount(getUserListFromPropertiesCountWithID(property, value, profileName));
         }
         return result;
     }
