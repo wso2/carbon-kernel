@@ -15218,11 +15218,27 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public void updateUserListOfGroup(String groupID, List<String> deletedUserIds, List<String> newUserIds)
             throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("updateUserListOfGroup operation is not implemented in: " + this.getClass());
+        try {
+            AccessController.doPrivileged((PrivilegedExceptionAction<String>) () -> {
+                // If unique id feature is not enabled, we have to call the legacy methods.
+                UserStore userStore = getUserStoreWithID(groupID);
+                if (!isUniqueUserIdEnabledInUserStore(userStore) && !isUniqueGroupIDEnabledInUserStore()) {
+                    throw new UserStoreException("updateUserListOfGroup is not supported by: " + this.getClass());
+                }
+                Group group = getGroupFromGroupID(groupID);
+                updateUserListOfRoleInternalWithID(group.getGroupName(), deletedUserIds.toArray(new String[0]),
+                        newUserIds.toArray(new String[0]));
+                return null;
+            });
+        } catch (PrivilegedActionException e) {
+            if (!(e.getException() instanceof UserStoreException)) {
+                handleUpdateGroupListOfUserFailure(
+                        ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_ROLE_OF_USER.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_ROLE_OF_USER.getMessage(),
+                                e.getMessage()), groupID, deletedUserIds, newUserIds);
+            }
+            throw (UserStoreException) e.getException();
         }
-        throw new NotImplementedException(
-                "updateUserListOfGroup operation is not implemented in: " + this.getClass());
     }
 
     @Override
