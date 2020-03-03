@@ -107,6 +107,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private static final String MSSQL = "mssql";
     private static final String ORACLE = "oracle";
     private static final String MYSQL = "mysql";
+    private static final String POSTGRESQL = "postgresql";
 
     private static final int MAX_ITEM_LIMIT_UNLIMITED = -1;
 
@@ -4182,6 +4183,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                         "(SELECT  UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID " +
                         "INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = " +
                         "UA.UM_USER_ID");
+            } else if (POSTGRESQL.equals(dbType)) {
+                sqlStatement = new StringBuilder("SELECT DISTINCT UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR" +
+                        " ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U ON UR.UM_USER_ID = U.UM_ID INNER JOIN " +
+                        "UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
             } else {
                 sqlStatement = new StringBuilder("SELECT DISTINCT UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR" +
                         " INNER JOIN UM_USER U INNER JOIN UM_USER_ATTRIBUTE UA ON R.UM_ID = UR.UM_ROLE_ID AND UR.UM_USER_ID =" +
@@ -4207,6 +4212,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 sqlStatement = new StringBuilder("SELECT UM_USER_NAME FROM (SELECT UM_USER_NAME, rownum AS rnum FROM " +
                         "(SELECT  UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID " +
                         "INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID");
+            } else if (POSTGRESQL.equals(dbType)) {
+                sqlStatement = new StringBuilder("SELECT DISTINCT UM_USER_NAME FROM UM_ROLE R INNER JOIN " +
+                        "UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID");
             } else {
                 sqlStatement = new StringBuilder("SELECT DISTINCT UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR" +
                         " INNER JOIN UM_USER U ON R.UM_ID = UR.UM_ROLE_ID AND UR.UM_USER_ID =U.UM_ID");
