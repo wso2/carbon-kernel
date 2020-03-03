@@ -24,6 +24,7 @@ import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.AuthenticationResult;
 import org.wso2.carbon.user.core.common.Claim;
+import org.wso2.carbon.user.core.common.Group;
 import org.wso2.carbon.user.core.common.LoginIdentifier;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.model.Condition;
@@ -888,5 +889,52 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
     boolean doPostListGroups(Condition condition, String domain, AbstractUserStoreManager abstractUserStoreManager)
             throws UserStoreException;
 
+    /**
+     * Pre-Listeners for getting group list of users.
+     *
+     * @param userIDs                  List of user IDs.
+     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling pre listeners for get group list of users.
+     */
+    boolean doPreGetGroupListOfUsers(List<String> userIDs, AbstractUserStoreManager abstractUserStoreManager)
+            throws UserStoreException;
 
+    /**
+     * Post-Listeners for getting group list of users.
+     *
+     * @param userIDs                  List of user IDs.
+     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling post listeners for get group list of users.
+     */
+    boolean doPostGetGroupListOfUsers(List<String> userIDs, Map<String, List<Group>> allGroups,
+                                      AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+
+    /**
+     * Pre-Listeners for update  group list of users.
+     *
+     * @param userID                   User ID.
+     * @param deletedGroupIds          List of deleted group IDs.
+     * @param newGroupIds              List of new group IDs.
+     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling pre listeners for update  group list of users.
+     */
+    boolean doPreUpdateGroupListOfUser(String userID, List<String> deletedGroupIds, List<String> newGroupIds,
+                                       AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+
+    /**
+     * Post-Listeners for update  group list of users.
+     *
+     * @param userID                   User ID.
+     * @param deletedGroupIds          List of deleted group IDs.
+     * @param newGroupIds              List of new group IDs.
+     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling post listeners for update  group list of users.
+     */
+    boolean doPostUpdateGroupListOfUser(String userID, List<String> deletedGroupIds, List<String> newGroupIds,
+                                       AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
 }
+

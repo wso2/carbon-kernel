@@ -798,4 +798,35 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
 
         return true;
     }
+
+    @Override
+    public boolean doPreGetGroupListOfUsers(List<String> userIDs, AbstractUserStoreManager abstractUserStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostGetGroupListOfUsers(List<String> userIDs, Map<String, List<Group>> allGroups,
+                                             AbstractUserStoreManager abstractUserStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreUpdateGroupListOfUser(String userID, List<String> deletedGroupIds, List<String> newGroupIds,
+                                              AbstractUserStoreManager abstractUserStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostUpdateGroupListOfUser(String userID, List<String> deletedGroupIds, List<String> newGroupIds,
+                                               AbstractUserStoreManager abstractUserStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
 }
