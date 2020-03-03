@@ -568,11 +568,13 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
     /**
      * Retrieves list of groups of a given user ID only.
      *
-     * @param userId    User ID.
+     * @param userId    User ID
+     * @param sortBy    Sorted by.
+     * @param sortOrder Sorted order.
      * @return List of Group objects.
      * @throws UserStoreException If an error occurs while getting group list of a user.
      */
-    List<Group> getGroupListOfUser(String userId) throws UserStoreException;
+    List<Group> getGroupListOfUser(String userId, String sortBy, String sortOrder) throws UserStoreException;
 
     /**
      * Retrieves list of groups of a given user ID.

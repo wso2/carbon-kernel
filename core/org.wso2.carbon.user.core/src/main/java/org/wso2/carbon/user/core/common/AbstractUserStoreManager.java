@@ -16069,7 +16069,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public List<Group> getGroupListOfUser(String userId) throws UserStoreException {
+    public List<Group> getGroupListOfUser(String userId, String sortBy, String sortOrder) throws UserStoreException {
 
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class};
@@ -16087,7 +16087,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         UserStore userStore = getUserStoreWithID(userId);
         if (userStore.isRecurssive()) {
-            return ((AbstractUserStoreManager) userStore.getUserStoreManager()).getGroupListOfUser(userId);
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager())
+                    .getGroupListOfUser(userId, sortBy, sortOrder);
         }
 
         // Check whether roles exist in cache
@@ -16120,6 +16121,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 Group group = getGroupByNameOrID(null, role);
                 groupList.add(group);
             }
+            //TODO: Sort By and Sort order should be handled based on group atributes.
             addToUserGroupCache(this.tenantId, user.getUsername(), groupList);
             return groupList;
         }
