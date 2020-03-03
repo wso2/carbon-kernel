@@ -2532,6 +2532,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
     private void modifyGroup(String groupID, Map<String, String> updatedAttributesMap) throws UserStoreException {
 
+        //todo add debug logs
         DirContext dirContext = getSearchBaseDirectoryContext(LDAPConstants.GROUP_SEARCH_BASE);
         DirContext subDirContext = null;
 

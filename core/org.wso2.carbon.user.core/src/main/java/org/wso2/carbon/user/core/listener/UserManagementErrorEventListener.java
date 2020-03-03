@@ -25,6 +25,7 @@ import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.model.Condition;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -432,4 +433,22 @@ public interface UserManagementErrorEventListener {
     boolean onListGroupFailure(String errorCode, String errorMessage, Condition condition,
                                String domain, AbstractUserStoreManager abstractUserStoreManager)
             throws UserStoreException;
+
+    /**
+     * Defines any additional actions that need to be done if there is a failure while trying to update group list of
+     * user.
+     *
+     * @param errorCode                Error code.
+     * @param errorMessage             Error message.
+     * @param userID                   User ID.
+     * @param deletedGroupIds          List of deleted group IDs.
+     * @param newGroupIds              List of new group IDs.
+     * @param abstractUserStoreManager User Store Manager
+     * @return true if the handing succeeded.
+     * @throws UserStoreException Exception that will be thrown during the execution of this method.
+     */
+    boolean onUpdateGroupListOfUserFailure(String errorCode, String errorMessage, String userID,
+                                           List<String> deletedGroupIds,
+                                           List<String> newGroupIds,
+                                           AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
 }

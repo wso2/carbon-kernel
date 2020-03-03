@@ -378,4 +378,13 @@ public class AbstractUserManagementErrorListener implements UniqueIDUserManageme
 
         return true;
     }
+
+    @Override
+    public boolean onUpdateGroupListOfUserFailure(String errorCode, String errorMessage, String userID,
+                                                  List<String> deletedGroupIds, List<String> newGroupIds,
+                                                  AbstractUserStoreManager abstractUserStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
 }

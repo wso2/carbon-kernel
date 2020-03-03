@@ -708,6 +708,13 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
     }
 
     @Override
+    public boolean doPreGetGroup(String groupID, List<String> requiredAttributes,
+                                 AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
     public boolean doPostGetGroup(String groupID, List<String> requiredAttributes,
                                   AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
 

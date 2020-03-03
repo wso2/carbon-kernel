@@ -231,8 +231,14 @@ public class UserCoreErrorConstants {
         ERROR_CODE_ERROR_DURING_PRE_RENAME_GROUP("32301", "Un-expected error during pre-step of renaming group %s"),
         ERROR_CODE_ERROR_WHILE_RENAME_GROUP("32302", "Un-expected error while renaming group %s"),
         ERROR_CODE_ERROR_DURING_POST_RENAME_GROUP("32303", "Un-expected error during post-step of renaming group %s"),
-        ERROR_CODE_ERROR_DURING_POST_LIST_GROUP("32401", "Un-expected error during post list group %s"),
-        ERROR_CODE_ERROR_DURING_PRE_LIST_GROUP("32402", "Un-expected error during pre list group %s");
+        // Error code related with list group.
+        ERROR_CODE_ERROR_DURING_PRE_LIST_GROUP("32401", "Un-expected error during pre list group %s"),
+        ERROR_CODE_ERROR_DURING_POST_LIST_GROUP("32402", "Un-expected error during post list group %s"),
+
+        // Error code related with get group
+        ERROR_CODE_ERROR_DURING_PRE_GET_GROUP("32501", "Un-expected error during pre get group %s"),
+        ERROR_CODE_ERROR_DURING_POST_GET_GROUP("32502", "Un-expected error during post get group %s");
+
 
 
 

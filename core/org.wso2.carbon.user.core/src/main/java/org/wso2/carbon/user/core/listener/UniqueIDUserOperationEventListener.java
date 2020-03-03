@@ -739,6 +739,18 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
                            AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
 
     /**
+     * Pre listeners for getting group.
+     *
+     * @param groupID                  Group ID.
+     * @param requiredAttributes       List of required attributes.
+     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling pre listeners for getting a group.
+     */
+    boolean doPreGetGroup(String groupID, List<String> requiredAttributes,
+                          AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+
+    /**
      * Post listener for getting group.
      *
      * @param groupID                  Group ID.
@@ -875,4 +887,6 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
      */
     boolean doPostListGroups(Condition condition, String domain, AbstractUserStoreManager abstractUserStoreManager)
             throws UserStoreException;
+
+
 }
