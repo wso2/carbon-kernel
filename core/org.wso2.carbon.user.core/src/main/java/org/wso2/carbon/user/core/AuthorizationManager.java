@@ -17,9 +17,6 @@
 */
 package org.wso2.carbon.user.core;
 
-import java.util.List;
-import java.util.Map;
-
 public interface AuthorizationManager extends org.wso2.carbon.user.api.AuthorizationManager {
 
     /**

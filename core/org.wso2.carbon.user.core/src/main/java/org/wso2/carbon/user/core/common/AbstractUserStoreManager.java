@@ -6668,9 +6668,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 boolean success = false;
                 if (internalRole && listener instanceof AbstractUserOperationEventListener) {
                     success = ((AbstractUserOperationEventListener) listener).doPostDeleteInternalRole(roleName, this);
-                } else if (internalRole) {
+                } else if (internalRole && !(listener instanceof AbstractUserOperationEventListener)) {
                     success = true;
-                } else {
+                } else if (!internalRole) {
                     success = listener.doPostDeleteRole(roleName, this);
                 }
 
@@ -7246,8 +7246,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                                   List<org.wso2.carbon.user.core.Permission> permissions)
             throws UserStoreException {
 
-        String errorCode = ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS.getCode();
-        String errorMessage = String.format(ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS.getMessage(), groupName);
+        String errorCode = ERROR_CODE_ROLE_ALREADY_EXISTS.getCode();
+        String errorMessage = String.format(ERROR_CODE_ROLE_ALREADY_EXISTS.getMessage(), groupName);
         handleAddGroupFailure(errorCode, errorMessage, groupName, userIDList, permissions);
         throw new UserStoreException(errorCode + " - " + errorMessage);
     }
@@ -7898,6 +7898,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     }
 
+    /**
+     * Get the Group list from user cache.
+     *
+     * @param tenantID Tenant ID.
+     * @param userName Username.
+     * @return List of groups.
+     */
     protected List<Group> getGroupListOfUserFromCache(int tenantID, String userName) {
 
         if (userGroupCache != null) {
@@ -7907,6 +7914,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return null;
     }
 
+    /**
+     * Clear UserGroupCache.
+     *
+     * @param tenantID Tenant ID.
+     */
     protected void clearUserGroupCacheByTenant(int tenantID) {
         if (userGroupCache != null) {
             userGroupCache.clearCacheByTenant(tenantID);
@@ -7915,6 +7927,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         authorizationCache.clearCacheByTenant(tenantID);
     }
 
+    /**
+     * Add to  UserGroupCache.
+     *
+     * @param tenantID  Tenant ID.
+     * @param userName  Username.
+     * @param groupList Group list.
+     */
     protected void addToUserGroupCache(int tenantID, String userName, List<Group> groupList) {
 
         if (userGroupCache != null) {
@@ -7925,6 +7944,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
+    /**
+     * Clear UserGroupCache.
+     *
+     * @param userIdentifier User Identifier.
+     */
     protected void clearUserGroupCache(String userIdentifier) {
 
         String usernameWithDomain = UserCoreUtil.addDomainToName(userIdentifier, getMyDomainName());
@@ -7946,13 +7970,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         String userCoreCacheIdentifier = realmConfig
                 .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_CORE_CACHE_IDENTIFIER);
 
-        if (userCoreCacheIdentifier != null && userCoreCacheIdentifier.trim().length() > 0) {
+        if (StringUtils.isNotBlank(userCoreCacheIdentifier)) {
             cacheIdentifier = userCoreCacheIdentifier;
         } else {
             cacheIdentifier = UserCoreConstants.DEFAULT_CACHE_IDENTIFIER;
         }
 
-        if (userRolesCacheEnabledString != null && !userRolesCacheEnabledString.equals("")) {
+        if (StringUtils.isNotBlank(userRolesCacheEnabledString)) {
             userRolesCacheEnabled = Boolean.parseBoolean(userRolesCacheEnabledString);
             if (log.isDebugEnabled()) {
                 log.debug("User Roles Cache is configured to:" + userRolesCacheEnabledString);
@@ -14770,7 +14794,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             .doListGroups(condition, domain, offset, limit, sortBy, sortOrder);
                     filteredGroups = groups.getEntities();
                 } else {
-                    throw new UserStoreException(" listGroups is not supported.");
+                    throw new UserStoreException("listGroups is not supported in this: " + this.getClass());
                 }
             }
         }
@@ -14781,51 +14805,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public List<Group> listGroups(Condition condition, int limit, int offset) throws UserStoreException {
 
-        validateCondition(condition);
-        String domain = getDomainFromCondition(condition);
-
-        handlePreListGroup(condition, domain);
-        List<Group> filteredGroups = new ArrayList<>();
-
-        UserStoreManager secManager = getSecondaryUserStoreManager(domain);
-        if (secManager != null) {
-            if (secManager instanceof AbstractUserStoreManager) {
-                if (isUniqueUserIdEnabled(secManager)) {
-                    UniqueIDPaginatedSearchResult <Group> groups = ((AbstractUserStoreManager) secManager)
-                            .doListGroups(condition, domain, offset, limit, null, null);
-                    filteredGroups = groups.getEntities();
-                } else {
-                    throw new UserStoreException(" listGroups is not supported.");
-                }
-            }
-        }
-        handlePostListGroups(condition, domain, false);
-        return filteredGroups;
+        return listGroups(condition, offset, limit, null, null);
     }
 
     @Override
     public List<Group> listGroups(Condition condition) throws UserStoreException {
 
-        validateCondition(condition);
-        String domain = getDomainFromCondition(condition);
-
-        handlePreListGroup(condition, domain);
-        List<Group> filteredGroups = new ArrayList<>();
-
-        UserStoreManager secManager = getSecondaryUserStoreManager(domain);
-        if (secManager != null) {
-            if (secManager instanceof AbstractUserStoreManager) {
-                if (isUniqueUserIdEnabled(secManager)) {
-                    UniqueIDPaginatedSearchResult <Group> groups = ((AbstractUserStoreManager) secManager)
-                            .doListGroups(condition, domain, MAX_ITEM_LIMIT_UNLIMITED, 0, null, null);
-                    filteredGroups = groups.getEntities();
-                } else {
-                    throw new UserStoreException(" listGroups is not supported.");
-                }
-            }
-        }
-        handlePostListGroups(condition, domain, false);
-        return filteredGroups;
+        return listGroups(condition, MAX_ITEM_LIMIT_UNLIMITED, 0, null, null);
     }
 
     protected UniqueIDPaginatedSearchResult<Group> doListGroups(Condition condition, String domain, int limit,
@@ -14900,7 +14886,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public Group addGroup(String groupName, List<String> usersIDs, List<Permission> permissions,
                           List<org.wso2.carbon.user.core.common.Claim> claims)
-            throws org.wso2.carbon.user.api.UserStoreException {
+            throws UserStoreException {
 
         if (!isSecureCall.get()) {
             Class[] argTypes = new Class[]{String.class, List.class, List.class, List.class};
@@ -14975,13 +14961,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             groupName = userStore.getDomainFreeName();
         }
         // TODO: 2020-02-25 default Listener implementation should go to framework as
-        // #################### <Listeners> #####################################################
 
         if (!handlePreAddGroup(groupName, usersIDs, permissions, false)) {
             throw new UserStoreException(ERROR_CODE_ERROR_DURING_PRE_ADD_ROLE.toString());
         }
-        // #################### </Listeners> #####################################################
-
 
         if (!isRoleNameValid(groupName)) {
             String regEx = realmConfig
@@ -15025,11 +15008,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         for (org.wso2.carbon.user.api.Permission permission : permissions) {
             String resourceId = permission.getResourceId();
             String action = permission.getAction();
-            if (resourceId == null || resourceId.trim().length() == 0) {
+            if (StringUtils.isBlank(resourceId)) {
                 continue;
             }
 
-            if (action == null || action.trim().length() == 0) {
+            if (StringUtils.isBlank(action)) {
                 // default action value
                 action = "read";
             }
@@ -15042,9 +15025,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             clearUserRolesCacheByTenant(tenantId);
         }
 
-        // #################### <Listeners> #####################################################
         handlePostAddGroup(groupName, usersIDs, permissions, false);
-        // #################### </Listeners> #####################################################
 
         addToGroupIDCache(createdGroup.getGroupID(), createdGroup, userStore);
         return createdGroup;
@@ -15061,13 +15042,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     protected Group doAddGroup(String groupName, List<String> userIDs,
                                List<org.wso2.carbon.user.core.common.Claim> claims)
-            throws org.wso2.carbon.user.api.UserStoreException {
+            throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("doAddGroup operation is not implemented in: " + this.getClass());
         }
         throw new NotImplementedException("doAddGroup operation is not implemented in: " + this.getClass());
-
     }
 
     private void handlePostAddGroup(String groupName, List<String> userIDs, List<Permission> permissions, boolean isAuditLogOnly)
@@ -16542,6 +16522,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         GroupIdResolverCache.getInstance().clearCacheEntry(key, RESOLVE_GROUP_FROM_GROUP_NAME_CACHE_NAME, tenantId);
     }
 
+    /**
+     * Get the userstore domain of a group from the condition object.
+     *
+     * @param condition Condition.
+     * @return Domain name of the userstore.
+     */
     private String getDomainFromCondition(Condition condition) {
 
         if (condition instanceof ExpressionCondition) {

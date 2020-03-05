@@ -487,7 +487,7 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      */
     Group addGroup(String groupName, List<String> usersIDs, List<Permission> permissions,
                    List<org.wso2.carbon.user.core.common.Claim> claims)
-            throws org.wso2.carbon.user.api.UserStoreException;
+            throws UserStoreException;
 
     /**
      * Update group claim values.
@@ -568,7 +568,7 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
     /**
      * Retrieves list of groups of a given user ID only.
      *
-     * @param userId    User ID
+     * @param userId    User ID.
      * @param sortBy    Sorted by.
      * @param sortOrder Sorted order.
      * @return List of Group objects.

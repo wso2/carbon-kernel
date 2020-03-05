@@ -1269,7 +1269,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
     @Override
     protected Group doAddGroup(String groupName, List<String> userIDs, List<Claim> claims)
-            throws org.wso2.carbon.user.api.UserStoreException {
+            throws UserStoreException {
 
         String groupID;
         Group createdGroup;
@@ -1278,7 +1278,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         if (configuredGroupAttributes.isEmpty() ||
                 configuredGroupAttributes.get(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE) == null) {
             // No groupID support.
-            throw new org.wso2.carbon.user.api.UserStoreException("No Group ID attribute is configured, Hence this " +
+            throw new UserStoreException("No Group ID attribute is configured, Hence this " +
                     "operation is not supported.");
         }
         String domainName = this.getRealmConfiguration().getRealmProperty(UserStoreConfigConstants.DOMAIN_NAME);
@@ -1341,7 +1341,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     }
 
     private Group doAddGroupWithValues(String groupName, String[] userIDList, Map<String, String> attributes)
-            throws org.wso2.carbon.user.api.UserStoreException {
+            throws UserStoreException {
 
          persistGroup(groupName, userIDList, attributes);
          return getGroupByNameOrID(null, groupName);

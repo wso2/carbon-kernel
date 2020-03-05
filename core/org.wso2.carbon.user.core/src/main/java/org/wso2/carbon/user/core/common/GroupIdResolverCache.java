@@ -32,7 +32,7 @@ import javax.cache.Caching;
  */
 public class GroupIdResolverCache {
 
-    private static Log log = LogFactory.getLog(GroupIdResolverCache.class);
+    private static final Log log = LogFactory.getLog(GroupIdResolverCache.class);
     private static GroupIdResolverCache groupIdResolverCache = new GroupIdResolverCache();
     private static final String GROUP_ID_RESOLVER_CACHE_MANAGER = "GROUP_ID_RESOLVER_CACHE_MANAGER";
 
@@ -59,14 +59,15 @@ public class GroupIdResolverCache {
 
     /**
      * Add a cache entry.
-     *  @param key       Key which cache entry is indexed.
+     *
+     * @param key       Key which cache entry is indexed.
      * @param entry     Actual object where cache entry is placed.
      * @param cacheName Name of the cache.
      * @param tenantId  Tenant ID.
      */
     public void addToCache(String key, Group entry, String cacheName, int tenantId) {
 
-        if (validateAddToCacheRequest(key, entry, cacheName)) return;
+        if (!isValidAddToCacheRequest(key, entry, cacheName)) return;
         try {
             startTenantFlow(tenantId);
             Cache<String, Group> cache = GroupIdResolverCache(cacheName);
@@ -92,7 +93,7 @@ public class GroupIdResolverCache {
      */
     public Group getValueFromCache(String key, String cacheName, int tenantId) {
 
-        if (validateGetValueFromCacheRequest(key, cacheName)) return null;
+        if (!isValidCacheRequest(key, cacheName)) return null;
         try {
             startTenantFlow(tenantId);
             Cache<String, Group> cache = GroupIdResolverCache(cacheName);
@@ -130,7 +131,7 @@ public class GroupIdResolverCache {
      */
     public void clearCacheEntry(String key, String cacheName, int tenantId) {
 
-        if (validateClearCacheEntryRequest(key, cacheName)) return;
+        if (!isValidClearCacheEntryRequest(key, cacheName)) return;
         try {
             startTenantFlow(tenantId);
             Cache<String, Group> cache = GroupIdResolverCache(cacheName);
@@ -159,7 +160,7 @@ public class GroupIdResolverCache {
      */
     public void clear(String cacheName, int tenantId) {
 
-        if (validateClearCacheRequest(cacheName)) return;
+        if (!isValidClearCacheRequest(cacheName)) return;
         try {
             startTenantFlow(tenantId);
             Cache<String, Group> cache = GroupIdResolverCache(cacheName);
@@ -187,51 +188,51 @@ public class GroupIdResolverCache {
         carbonContext.setTenantId(tenantId, true);
     }
 
-    private boolean validateAddToCacheRequest(String key, Group entry, String cacheName) {
+    private boolean isValidAddToCacheRequest(String key, Group entry, String cacheName) {
 
         if (StringUtils.isEmpty(key) || entry == null || StringUtils.isEmpty(cacheName)) {
             if (log.isDebugEnabled()) {
                 log.debug("Invalid input parameters in add to cache request. Cache key: " + key + " ,Cache entry: " +
                         entry + " ,Cache: " + cacheName);
             }
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
-    private boolean validateGetValueFromCacheRequest(String key, String cacheName) {
+    private boolean isValidCacheRequest(String key, String cacheName) {
 
         if (StringUtils.isEmpty(key) || StringUtils.isEmpty(cacheName)) {
             if (log.isDebugEnabled()) {
                 log.debug("Invalid input parameters in get value from cache request. Cache key: " + key +
                         " ,Cache: " + cacheName);
             }
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
-    private boolean validateClearCacheEntryRequest(String key, String cacheName) {
+    private boolean isValidClearCacheEntryRequest(String key, String cacheName) {
 
         if (StringUtils.isEmpty(key) || StringUtils.isEmpty(cacheName)) {
             if (log.isDebugEnabled()) {
                 log.debug("Invalid input parameters in clear from cache request. Cache key: " + key +
                         " ,Cache: " + cacheName);
             }
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
-    private boolean validateClearCacheRequest(String cacheName) {
+    private boolean isValidClearCacheRequest(String cacheName) {
 
         if (StringUtils.isEmpty(cacheName)) {
             if (log.isDebugEnabled()) {
                 log.debug("Invalid input parameters in clear all cache request. Cache: " + cacheName);
             }
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
 }
