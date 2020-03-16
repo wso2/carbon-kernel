@@ -451,10 +451,8 @@ public class CryptoUtil {
     private String getDefaultEncryptionAlgorithm(boolean isSymmetricKeyEncryptionEnabled) {
 
         if (isSymmetricKeyEncryptionEnabled) {
-
             return DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM;
         } else {
-
             // Set the default crypto algorithm.
             return DEFAULT_CRYPTO_ALGORITHM;
         }
