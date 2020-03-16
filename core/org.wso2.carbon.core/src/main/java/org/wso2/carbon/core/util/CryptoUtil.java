@@ -52,6 +52,10 @@ public class CryptoUtil {
     private static final String DEFAULT_CRYPTO_ALGORITHM = "RSA";
 
     private static final String CRYPTO_API_PROVIDER_BC = "BC";
+    private static final String INTERNAL_CRYPTO_PROVIDER = "CryptoService.InternalCryptoProviderClassName";
+    private static final String SYMMETRIC_INTERNAL_CRYPTO_PROVIDER_CLASS_NAME =
+            "org.wso2.carbon.crypto.provider" + ".SymmetricKeyInternalCryptoProvider";
+    private static final String DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM = "AES";
 
     /**
      * This method returns CryptoUtil object, where this should only be used at runtime,
@@ -134,8 +138,8 @@ public class CryptoUtil {
                 throw new CryptoException("A crypto service implementation has not been registered.");
             }
 
-            // Set the default crypto algorithm.
-            String algorithm = DEFAULT_CRYPTO_ALGORITHM;
+            boolean isSymmetricKeyEncryptionEnabled = isSymmetricKeyEncryptionEnabled();
+            String algorithm = getDefaultEncryptionAlgorithm(isSymmetricKeyEncryptionEnabled);
 
             if (!StringUtils.isBlank(cipherTransformation)) {
                 algorithm = cipherTransformation;
@@ -149,14 +153,16 @@ public class CryptoUtil {
                     log.debug("Plaintext is empty. An empty array will be used as the ciphertext bytes.");
                 }
                 encryptedKey = StringUtils.EMPTY.getBytes();
-            }else{
+            } else {
                 encryptedKey = cryptoService.encrypt(plainTextBytes, algorithm, CRYPTO_API_PROVIDER_BC);
             }
 
-            if (StringUtils.isNotBlank(cipherTransformation) && returnSelfContainedCipherText) {
+            if (StringUtils.isNotBlank(cipherTransformation) && returnSelfContainedCipherText
+                    && !isSymmetricKeyEncryptionEnabled) {
 
-                Certificate certificate = cryptoService.getCertificate(CryptoContext.buildEmptyContext(
-                        MultitenantConstants.SUPER_TENANT_ID, MultitenantConstants.SUPER_TENANT_DOMAIN_NAME));
+                Certificate certificate = cryptoService.getCertificate(CryptoContext
+                        .buildEmptyContext(MultitenantConstants.SUPER_TENANT_ID,
+                                MultitenantConstants.SUPER_TENANT_DOMAIN_NAME));
 
                 encryptedKey = createSelfContainedCiphertext(encryptedKey, algorithm, certificate);
             }
@@ -231,8 +237,8 @@ public class CryptoUtil {
                 throw new CryptoException("A crypto service implementation has not been registered.");
             }
 
-            // Set the default crypto algorithm to be used when a cipher transformation is not found.
-            String algorithm = DEFAULT_CRYPTO_ALGORITHM;
+
+            String algorithm = getDefaultEncryptionAlgorithm(isSymmetricKeyEncryptionEnabled());
 
             String cipherTransformation = System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
 
@@ -294,8 +300,8 @@ public class CryptoUtil {
                 throw new CryptoException("A crypto service implementation has not been registered.");
             }
 
-            // Set the default crypto algorithm to be used when a cipher transformation is not found.
-            String algorithm = DEFAULT_CRYPTO_ALGORITHM;
+
+            String algorithm = getDefaultEncryptionAlgorithm(isSymmetricKeyEncryptionEnabled());
 
             if (cipherTransformation != null) {
                 algorithm = cipherTransformation;
@@ -440,6 +446,24 @@ public class CryptoUtil {
         }
 
         return strBuffer.toString();
+    }
+
+    private String getDefaultEncryptionAlgorithm(boolean isSymmetricKeyEncryptionEnabled) {
+
+        if (isSymmetricKeyEncryptionEnabled) {
+
+            return DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM;
+        } else {
+
+            // Set the default crypto algorithm.
+            return DEFAULT_CRYPTO_ALGORITHM;
+        }
+    }
+
+    private boolean isSymmetricKeyEncryptionEnabled() {
+
+        return SYMMETRIC_INTERNAL_CRYPTO_PROVIDER_CLASS_NAME
+                .equals(serverConfigService.getFirstProperty(INTERNAL_CRYPTO_PROVIDER));
     }
 }
 
