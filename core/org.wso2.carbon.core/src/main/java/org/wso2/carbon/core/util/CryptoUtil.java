@@ -237,7 +237,6 @@ public class CryptoUtil {
                 throw new CryptoException("A crypto service implementation has not been registered.");
             }
 
-
             String algorithm = getDefaultEncryptionAlgorithm(isSymmetricKeyEncryptionEnabled());
 
             String cipherTransformation = System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
@@ -299,7 +298,6 @@ public class CryptoUtil {
             if(cryptoService == null){
                 throw new CryptoException("A crypto service implementation has not been registered.");
             }
-
 
             String algorithm = getDefaultEncryptionAlgorithm(isSymmetricKeyEncryptionEnabled());
 
