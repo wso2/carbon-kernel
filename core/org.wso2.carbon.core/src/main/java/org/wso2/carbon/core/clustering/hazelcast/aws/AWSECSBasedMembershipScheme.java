@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Hazelcast membership scheme AWS Elastic Container Service (ECS).
+ * Hazelcast membership scheme for AWS Elastic Container Service (ECS).
  */
 public class AWSECSBasedMembershipScheme extends AWSBasedMembershipScheme {
 
