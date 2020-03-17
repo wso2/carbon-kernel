@@ -54,7 +54,7 @@ public class CryptoUtil {
     private static final String CRYPTO_API_PROVIDER_BC = "BC";
     private static final String INTERNAL_CRYPTO_PROVIDER = "CryptoService.InternalCryptoProviderClassName";
     private static final String SYMMETRIC_INTERNAL_CRYPTO_PROVIDER_CLASS_NAME =
-            "org.wso2.carbon.crypto.provider" + ".SymmetricKeyInternalCryptoProvider";
+            "org.wso2.carbon.crypto.provider.SymmetricKeyInternalCryptoProvider";
     private static final String DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM = "AES";
 
     /**
@@ -160,9 +160,8 @@ public class CryptoUtil {
             if (StringUtils.isNotBlank(cipherTransformation) && returnSelfContainedCipherText
                     && !isSymmetricKeyEncryptionEnabled) {
 
-                Certificate certificate = cryptoService.getCertificate(CryptoContext
-                        .buildEmptyContext(MultitenantConstants.SUPER_TENANT_ID,
-                                MultitenantConstants.SUPER_TENANT_DOMAIN_NAME));
+                Certificate certificate = cryptoService.getCertificate(CryptoContext.buildEmptyContext(
+                        MultitenantConstants.SUPER_TENANT_ID, MultitenantConstants.SUPER_TENANT_DOMAIN_NAME));
 
                 encryptedKey = createSelfContainedCiphertext(encryptedKey, algorithm, certificate);
             }
