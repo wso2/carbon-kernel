@@ -17,26 +17,26 @@
  -->
 
 <module name="POXSecurityModule" class="org.wso2.carbon.security.pox.POXSecurityModule">
-    <InFlow>
-        <handler name="POXSecurityHandler"
-                 class="org.wso2.carbon.security.pox.POXSecurityHandler">
-            <order phase="Transport" after="SOAPActionBasedDispatcher"/>
-        </handler>
-    </InFlow> 
-    
-     <InFaultFlow>
-        <handler name="POXSecurityHandler"
-                 class="org.wso2.carbon.security.pox.POXSecurityHandler">
-            <order phase="Transport" after="SOAPActionBasedDispatcher"/>
-        </handler>
-    </InFaultFlow>
+    <!--<InFlow>-->
+        <!--<handler name="POXSecurityHandler"-->
+                 <!--class="org.wso2.carbon.security.pox.POXSecurityHandler">-->
+            <!--<order phase="Transport" after="SOAPActionBasedDispatcher"/>-->
+        <!--</handler>-->
+    <!--</InFlow> -->
+    <!---->
+     <!--<InFaultFlow>-->
+        <!--<handler name="POXSecurityHandler"-->
+                 <!--class="org.wso2.carbon.security.pox.POXSecurityHandler">-->
+            <!--<order phase="Transport" after="SOAPActionBasedDispatcher"/>-->
+        <!--</handler>-->
+    <!--</InFaultFlow>-->
 
-    <OutFaultFlow>
-        <handler name="POXSecurityHandler"
-                 class="org.wso2.carbon.security.pox.POXSecurityHandler">
-            <order phase="Transport" after="SOAPActionBasedDispatcher"/>
-        </handler>
-    </OutFaultFlow>
+    <!--<OutFaultFlow>-->
+        <!--<handler name="POXSecurityHandler"-->
+                 <!--class="org.wso2.carbon.security.pox.POXSecurityHandler">-->
+            <!--<order phase="Transport" after="SOAPActionBasedDispatcher"/>-->
+        <!--</handler>-->
+    <!--</OutFaultFlow>-->
     <parameter name="adminModule" locked="true">true</parameter>
     <local-policy-assertions>
         <sec:CarbonSecConfig xmlns:sec="http://www.wso2.org/products/carbon/security"/>

@@ -21,7 +21,7 @@ package org.wso2.carbon.security.util;
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.rampart.policy.model.KerberosConfig;
+//import org.apache.rampart.policy.model.KerberosConfig;
 import org.wso2.carbon.security.SecurityConfigParams;
 import org.wso2.carbon.security.SecurityConstants;
 
@@ -143,14 +143,14 @@ public class SecurityConfigParamBuilder {
                                 log.debug("Kerberos Config property name : " + name +
                                           " value : " + value);
                             }
-                            if (KerberosConfig.SERVICE_PRINCIPLE_PASSWORD.equals(name)) {
-                                securityConfigParams.setServerPrincipalPassword(value);
-                                if (kerberosProperty.getAttribute(encryptedQName) != null) {
-                                    securityConfigParams.setServerPrincipalPasswordEncrypted(
-                                            Boolean.parseBoolean(
-                                                    kerberosProperty.getAttributeValue(encryptedQName)));
-                                }
-                            }
+//                            if (KerberosConfig.SERVICE_PRINCIPLE_PASSWORD.equals(name)) {
+//                                securityConfigParams.setServerPrincipalPassword(value);
+//                                if (kerberosProperty.getAttribute(encryptedQName) != null) {
+//                                    securityConfigParams.setServerPrincipalPasswordEncrypted(
+//                                            Boolean.parseBoolean(
+//                                                    kerberosProperty.getAttributeValue(encryptedQName)));
+//                                }
+//                            }
                         }
                     }
                 }

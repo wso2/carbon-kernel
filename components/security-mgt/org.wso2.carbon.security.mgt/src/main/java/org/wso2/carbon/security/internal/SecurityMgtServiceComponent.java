@@ -38,8 +38,8 @@ import org.wso2.carbon.security.SecurityServiceHolder;
 import org.wso2.carbon.security.config.SecurityConfigAdmin;
 import org.wso2.carbon.security.keystore.KeyStoreManagementService;
 import org.wso2.carbon.security.keystore.KeyStoreManagementServiceImpl;
-import org.wso2.carbon.security.sts.service.STSAdminServiceImpl;
-import org.wso2.carbon.security.sts.service.STSAdminServiceInterface;
+//import org.wso2.carbon.security.sts.service.STSAdminServiceImpl;
+//import org.wso2.carbon.security.sts.service.STSAdminServiceInterface;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
 import org.wso2.carbon.utils.ConfigurationContextService;
@@ -62,22 +62,22 @@ public class SecurityMgtServiceComponent {
     @Activate
     protected void activate(ComponentContext ctxt) {
         try {
-            ConfigurationContext mainConfigCtx = configContextService.getServerConfigContext();
-            AxisConfiguration mainAxisConfig = mainConfigCtx.getAxisConfiguration();
+//            ConfigurationContext mainConfigCtx = configContextService.getServerConfigContext();
+//            AxisConfiguration mainAxisConfig = mainConfigCtx.getAxisConfiguration();
             BundleContext bundleCtx = ctxt.getBundleContext();
-            String enablePoxSecurity = ServerConfiguration.getInstance()
-                    .getFirstProperty("EnablePoxSecurity");
-            if (enablePoxSecurity == null || "true".equals(enablePoxSecurity)) {
-                mainAxisConfig.engageModule(POX_SECURITY_MODULE);
-            } else {
-                log.info("POX Security Disabled");
-            }
+//            String enablePoxSecurity = ServerConfiguration.getInstance()
+//                    .getFirstProperty("EnablePoxSecurity");
+//            if (enablePoxSecurity == null || "true".equals(enablePoxSecurity)) {
+//                mainAxisConfig.engageModule(POX_SECURITY_MODULE);
+//            } else {
+//                log.info("POX Security Disabled");
+//            }
 
-            bundleCtx.registerService(SecurityConfigAdmin.class.getName(),
-                    new SecurityConfigAdmin(mainAxisConfig, registryService.getConfigSystemRegistry(), null), null);
-            bundleCtx.registerService(Axis2ConfigurationContextObserver.class.getName(),
-                    new SecurityAxis2ConfigurationContextObserver(), null);
-            bundleCtx.registerService(STSAdminServiceInterface.class, new STSAdminServiceImpl(), null);
+//            bundleCtx.registerService(SecurityConfigAdmin.class.getName(),
+//                    new SecurityConfigAdmin(mainAxisConfig, registryService.getConfigSystemRegistry(), null), null);
+//            bundleCtx.registerService(Axis2ConfigurationContextObserver.class.getName(),
+//                    new SecurityAxis2ConfigurationContextObserver(), null);
+//            bundleCtx.registerService(STSAdminServiceInterface.class, new STSAdminServiceImpl(), null);
             bundleCtx.registerService(KeyStoreManagementService.class.getName(), new KeyStoreManagementServiceImpl(),
                     null);
             log.debug("Security Mgt bundle is activated");

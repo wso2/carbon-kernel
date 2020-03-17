@@ -40,7 +40,7 @@ import org.apache.neethi.PolicyComponent;
 import org.apache.neethi.PolicyEngine;
 import org.apache.neethi.PolicyReference;
 import org.apache.neethi.builders.xml.XmlPrimtiveAssertion;
-import org.apache.ws.security.handler.WSHandlerConstants;
+//import org.apache.ws.security.handler.WSHandlerConstants;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -430,10 +430,10 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
                     cryptoProps.setProperty(ServerCrypto.PROP_ID_TRUST_STORES,
                                             configParams.getTrustStores());
                 }
-                service.addParameter(RahasUtil.getSCTIssuerConfigParameter(
-                        ServerCrypto.class.getName(), cryptoProps, -1, null, true, true));
-
-                service.addParameter(RahasUtil.getTokenCancelerConfigParameter());
+//                service.addParameter(RahasUtil.getSCTIssuerConfigParameter(
+//                        ServerCrypto.class.getName(), cryptoProps, -1, null, true, true));
+//
+//                service.addParameter(RahasUtil.getTokenCancelerConfigParameter());
 
             }
 
@@ -474,7 +474,7 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
                                                        govRegistry, userRealm);
 
             Parameter param = new Parameter();
-            param.setName(WSHandlerConstants.PW_CALLBACK_REF);
+//            param.setName(WSHandlerConstants.PW_CALLBACK_REF);
             param.setValue(handler);
             service.addParameter(param);
 

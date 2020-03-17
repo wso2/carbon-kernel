@@ -22,7 +22,7 @@
 <suite name="security-mgt-test-suite">
     <test name="security-mgt-test-suite">
         <classes>
-            <class name="org.wso2.carbon.security.keystore.KeyStoreAdminTest"/>
+            <!--<class name="org.wso2.carbon.security.keystore.KeyStoreAdminTest"/>-->
         </classes>
     </test>
 </suite>

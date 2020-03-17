@@ -38,21 +38,21 @@ public class SecurityConfigAdminService extends AbstractAdmin {
 
     public void activateUsernameTokenAuthentication(String serviceName, String[] userGroups)
             throws SecurityConfigException {
-        SecurityConfigAdmin admin = new SecurityConfigAdmin(getUserRealm(), getConfigSystemRegistry(), getAxisConfig());
-        admin.activateUsernameTokenAuthentication(serviceName, userGroups);
+//        SecurityConfigAdmin admin = new SecurityConfigAdmin(getUserRealm(), getConfigSystemRegistry(), getAxisConfig());
+//        admin.activateUsernameTokenAuthentication(serviceName, userGroups);
 
     }
 
     public void disableSecurityOnService(String serviceName) throws SecurityConfigException {
 
-        SecurityConfigAdmin admin = new SecurityConfigAdmin(getUserRealm(), getConfigSystemRegistry(), getAxisConfig());
-        admin.disableSecurityOnService(serviceName);
+//        SecurityConfigAdmin admin = new SecurityConfigAdmin(getUserRealm(), getConfigSystemRegistry(), getAxisConfig());
+//        admin.disableSecurityOnService(serviceName);
     }
 
     public void applySecurity(String serviceName, String policyId, String policyPath, String[] trustedStores,
                               String privateStore, String[] userGroupNames) throws SecurityConfigException {
-        SecurityConfigAdmin admin = new SecurityConfigAdmin(getUserRealm(), getConfigSystemRegistry(), getAxisConfig());
-        admin.applySecurity(serviceName, policyId, policyPath, trustedStores, privateStore, userGroupNames);
+//        SecurityConfigAdmin admin = new SecurityConfigAdmin(getUserRealm(), getConfigSystemRegistry(), getAxisConfig());
+//        admin.applySecurity(serviceName, policyId, policyPath, trustedStores, privateStore, userGroupNames);
     }
 
     /**
@@ -84,7 +84,7 @@ public class SecurityConfigAdminService extends AbstractAdmin {
         kerberosConfigurations.setServicePrincipleName(servicePrincipalName);
         kerberosConfigurations.setServicePrinciplePassword(servicePrincipalPassword);
 
-        admin.applySecurity(serviceName, policyId, kerberosConfigurations);
+//        admin.applySecurity(serviceName, policyId, kerberosConfigurations);
 
     }
 
@@ -107,25 +107,25 @@ public class SecurityConfigAdminService extends AbstractAdmin {
         }
         SecurityScenarioDataWrapper scenarioDataWrapper = new SecurityScenarioDataWrapper();
         scenarioDataWrapper.setScenarios(scenarioData);
-        scenarioDataWrapper.setCurrentScenario(getCurrentScenario(serviceName));
+//        scenarioDataWrapper.setCurrentScenario(getCurrentScenario(serviceName));
         return scenarioDataWrapper;
     }
 
-    private SecurityScenarioData getCurrentScenario(String serviceName)
-            throws SecurityConfigException {
-        SecurityConfigAdmin admin = new SecurityConfigAdmin(getUserRealm(), getConfigSystemRegistry(), getAxisConfig());
-        admin.forceActualServiceDeployment(serviceName);
-        return admin.getCurrentScenario(serviceName);
-    }
+//    private SecurityScenarioData getCurrentScenario(String serviceName)
+//            throws SecurityConfigException {
+//        SecurityConfigAdmin admin = new SecurityConfigAdmin(getUserRealm(), getConfigSystemRegistry(), getAxisConfig());
+//        admin.forceActualServiceDeployment(serviceName);
+//        return admin.getCurrentScenario(serviceName);
+//    }
 
     public SecurityScenarioData getSecurityScenario(String sceneId) throws SecurityConfigException {
         SecurityConfigAdmin admin = new SecurityConfigAdmin(getUserRealm(), getConfigSystemRegistry(), getAxisConfig());
         return admin.getSecurityScenario(sceneId);
     }
 
-    public SecurityConfigData getSecurityConfigData(String serviceName, String scenarioId, String policyPath)
-            throws SecurityConfigException {
-        SecurityConfigAdmin admin = new SecurityConfigAdmin(getUserRealm(), getConfigSystemRegistry(), getAxisConfig());
-        return admin.getSecurityConfigData(serviceName, scenarioId, policyPath);
-    }
+//    public SecurityConfigData getSecurityConfigData(String serviceName, String scenarioId, String policyPath)
+//            throws SecurityConfigException {
+//        SecurityConfigAdmin admin = new SecurityConfigAdmin(getUserRealm(), getConfigSystemRegistry(), getAxisConfig());
+//        return admin.getSecurityConfigData(serviceName, scenarioId, policyPath);
+//    }
 }

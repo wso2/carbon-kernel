@@ -21,7 +21,7 @@ package org.wso2.carbon.security.util;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.ws.security.WSPasswordCallback;
+//import org.apache.ws.security.WSPasswordCallback;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
@@ -77,139 +77,139 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
 
     @Override
     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-        try {
-            for (int i = 0; i < callbacks.length; i++) {
-                if (callbacks[i] instanceof WSPasswordCallback) {
-                    WSPasswordCallback passwordCallback = (WSPasswordCallback) callbacks[i];
-
-                    String username = passwordCallback.getIdentifer();
-                    String receivedPasswd = null;
-                    switch (passwordCallback.getUsage()) {
-
-                        case WSPasswordCallback.SIGNATURE:
-                        case WSPasswordCallback.DECRYPT:
-                            String password = getPrivateKeyPassword(username);
-                            if (password == null) {
-                                throw new UnsupportedCallbackException(callbacks[i],
-                                        "User not available " + "in a trusted store");
-                            }
-
-                            passwordCallback.setPassword(password);
-
-                            break;
-                        case WSPasswordCallback.KERBEROS_TOKEN:
-                            passwordCallback.setPassword(getServicePrincipalPassword());
-                            break;
-                        case WSPasswordCallback.USERNAME_TOKEN_UNKNOWN:
-
-                            receivedPasswd = passwordCallback.getPassword();
-                            try {
-                                if (receivedPasswd != null
-                                        && this.authenticateUser(username, receivedPasswd)) {
-
-                                    String domainName = UserCoreUtil.getDomainFromThreadLocal();
-                                    String usernameWithDomain = IdentityUtil.addDomainToName(username, domainName);
-                                    if (log.isDebugEnabled()) {
-                                        log.debug("Updating username with userstore domain. Updated username is :" +
-                                                usernameWithDomain);
-                                    }
-                                    passwordCallback.setIdentifier(usernameWithDomain);
-                                } else {
-                                    throw new UnsupportedCallbackException(callbacks[i], "check failed");
-                                }
-                            } catch (Exception e) {
-                                if (log.isDebugEnabled()) {
-                                    log.debug("Error when authenticating user : " + username + ", password provided : "
-                                            + StringUtils.isNotEmpty(receivedPasswd), e);
-                                }
-                                throw new UnsupportedCallbackException(callbacks[i],
-                                        "Check failed : System error");
-                            }
-
-                            break;
-
-                        case WSPasswordCallback.USERNAME_TOKEN:
-                            // In username token scenario, if user sends the digested password, callback handler needs to provide plain text password.
-                            // We get plain text password through UserCredentialRetriever interface, which is implemented by custom user store managers.
-                            // we expect username with domain name if user resides in a secondary user store, eg, WSO2.Test/fooUser.
-                            // Additionally, secondary user stores needs to implement UserCredentialRetriever interface too
-                            UserCredentialRetriever userCredentialRetriever;
-                            String storedPassword = null;
-                            String domainName = IdentityUtil.extractDomainFromName(username);
-                            if (UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(domainName)) {
-                                if (realm.getUserStoreManager() instanceof UserCredentialRetriever) {
-                                    userCredentialRetriever = (UserCredentialRetriever) realm.getUserStoreManager();
-                                    storedPassword = userCredentialRetriever.getPassword(username);
-                                } else {
-                                    if (log.isDebugEnabled()) {
-                                        log.debug("Can not set user password in callback because primary userstore class" +
-                                                " has not implemented UserCredentialRetriever interface.");
-                                    }
-                                }
-                            } else {
-                                if (realm.getUserStoreManager().getSecondaryUserStoreManager(domainName) instanceof UserCredentialRetriever) {
-                                    userCredentialRetriever = (UserCredentialRetriever) realm.getUserStoreManager().getSecondaryUserStoreManager(domainName);
-                                    storedPassword = userCredentialRetriever.getPassword(UserCoreUtil.removeDomainFromName(username));
-                                } else {
-                                    if (log.isDebugEnabled()) {
-                                        log.debug("Can not set user password in callback because secondary userstore " +
-                                                "for domain:" + domainName + " has not implemented UserCredentialRetriever interface.");
-                                    }
-                                }
-                            }
-                            if (storedPassword != null) {
-                                try {
-                                    if (this.authenticateUser(username, storedPassword)) {
-                                        // do nothing things are fine
-                                    } else {
-                                        if (log.isDebugEnabled()) {
-                                            log.debug("User is not authorized!");
-                                        }
-                                        throw new UnsupportedCallbackException(callbacks[i], "check failed");
-                                    }
-                                } catch (Exception e) {
-                                    if (log.isDebugEnabled()) {
-                                        log.debug("Error when authenticating user : " + username + ", password provided : "
-                                                + StringUtils.isNotEmpty(receivedPasswd), e);
-                                    }
-                                    throw new UnsupportedCallbackException(callbacks[i], "Check failed : System error");
-                                }
-                                passwordCallback.setPassword(storedPassword);
-                                break;
-                            }
-                        default:
-
-                        /*
-                         * When the password is null WS4J reports an error
-                         * saying no password available for the user. But its
-                         * better if we simply report authentication failure
-                         * Therefore setting the password to be the empty string
-                         * in this situation.
-                         */
-
-                            passwordCallback.setPassword(receivedPasswd);
-                            break;
-
-                    }
-
-                } else {
-                    throw new UnsupportedCallbackException(callbacks[i], "Unrecognized Callback");
-                }
-            }
-        } catch (UnsupportedCallbackException | IOException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Error in handling ServicePasswordCallbackHandler", e); //logging invlaid passwords and attempts
-                throw e;
-            }
-            throw e;
-        } catch (UserStoreException | SecurityConfigException e) {
-            log.error("Error in handling ServicePasswordCallbackHandler", e);
-            throw new UnsupportedCallbackException(null, e.getMessage());
-        } catch (Exception e) {
-            log.error("Error in handling ServicePasswordCallbackHandler", e);
-            //can't build an unsupported exception.
-            throw new UnsupportedCallbackException(null, e.getMessage());
-        }
+//        try {
+//            for (int i = 0; i < callbacks.length; i++) {
+//                if (callbacks[i] instanceof WSPasswordCallback) {
+//                    WSPasswordCallback passwordCallback = (WSPasswordCallback) callbacks[i];
+//
+//                    String username = passwordCallback.getIdentifer();
+//                    String receivedPasswd = null;
+//                    switch (passwordCallback.getUsage()) {
+//
+//                        case WSPasswordCallback.SIGNATURE:
+//                        case WSPasswordCallback.DECRYPT:
+//                            String password = getPrivateKeyPassword(username);
+//                            if (password == null) {
+//                                throw new UnsupportedCallbackException(callbacks[i],
+//                                        "User not available " + "in a trusted store");
+//                            }
+//
+//                            passwordCallback.setPassword(password);
+//
+//                            break;
+//                        case WSPasswordCallback.KERBEROS_TOKEN:
+//                            passwordCallback.setPassword(getServicePrincipalPassword());
+//                            break;
+//                        case WSPasswordCallback.USERNAME_TOKEN_UNKNOWN:
+//
+//                            receivedPasswd = passwordCallback.getPassword();
+//                            try {
+//                                if (receivedPasswd != null
+//                                        && this.authenticateUser(username, receivedPasswd)) {
+//
+//                                    String domainName = UserCoreUtil.getDomainFromThreadLocal();
+//                                    String usernameWithDomain = IdentityUtil.addDomainToName(username, domainName);
+//                                    if (log.isDebugEnabled()) {
+//                                        log.debug("Updating username with userstore domain. Updated username is :" +
+//                                                usernameWithDomain);
+//                                    }
+//                                    passwordCallback.setIdentifier(usernameWithDomain);
+//                                } else {
+//                                    throw new UnsupportedCallbackException(callbacks[i], "check failed");
+//                                }
+//                            } catch (Exception e) {
+//                                if (log.isDebugEnabled()) {
+//                                    log.debug("Error when authenticating user : " + username + ", password provided : "
+//                                            + StringUtils.isNotEmpty(receivedPasswd), e);
+//                                }
+//                                throw new UnsupportedCallbackException(callbacks[i],
+//                                        "Check failed : System error");
+//                            }
+//
+//                            break;
+//
+//                        case WSPasswordCallback.USERNAME_TOKEN:
+//                            // In username token scenario, if user sends the digested password, callback handler needs to provide plain text password.
+//                            // We get plain text password through UserCredentialRetriever interface, which is implemented by custom user store managers.
+//                            // we expect username with domain name if user resides in a secondary user store, eg, WSO2.Test/fooUser.
+//                            // Additionally, secondary user stores needs to implement UserCredentialRetriever interface too
+//                            UserCredentialRetriever userCredentialRetriever;
+//                            String storedPassword = null;
+//                            String domainName = IdentityUtil.extractDomainFromName(username);
+//                            if (UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(domainName)) {
+//                                if (realm.getUserStoreManager() instanceof UserCredentialRetriever) {
+//                                    userCredentialRetriever = (UserCredentialRetriever) realm.getUserStoreManager();
+//                                    storedPassword = userCredentialRetriever.getPassword(username);
+//                                } else {
+//                                    if (log.isDebugEnabled()) {
+//                                        log.debug("Can not set user password in callback because primary userstore class" +
+//                                                " has not implemented UserCredentialRetriever interface.");
+//                                    }
+//                                }
+//                            } else {
+//                                if (realm.getUserStoreManager().getSecondaryUserStoreManager(domainName) instanceof UserCredentialRetriever) {
+//                                    userCredentialRetriever = (UserCredentialRetriever) realm.getUserStoreManager().getSecondaryUserStoreManager(domainName);
+//                                    storedPassword = userCredentialRetriever.getPassword(UserCoreUtil.removeDomainFromName(username));
+//                                } else {
+//                                    if (log.isDebugEnabled()) {
+//                                        log.debug("Can not set user password in callback because secondary userstore " +
+//                                                "for domain:" + domainName + " has not implemented UserCredentialRetriever interface.");
+//                                    }
+//                                }
+//                            }
+//                            if (storedPassword != null) {
+//                                try {
+//                                    if (this.authenticateUser(username, storedPassword)) {
+//                                        // do nothing things are fine
+//                                    } else {
+//                                        if (log.isDebugEnabled()) {
+//                                            log.debug("User is not authorized!");
+//                                        }
+//                                        throw new UnsupportedCallbackException(callbacks[i], "check failed");
+//                                    }
+//                                } catch (Exception e) {
+//                                    if (log.isDebugEnabled()) {
+//                                        log.debug("Error when authenticating user : " + username + ", password provided : "
+//                                                + StringUtils.isNotEmpty(receivedPasswd), e);
+//                                    }
+//                                    throw new UnsupportedCallbackException(callbacks[i], "Check failed : System error");
+//                                }
+//                                passwordCallback.setPassword(storedPassword);
+//                                break;
+//                            }
+//                        default:
+//
+//                        /*
+//                         * When the password is null WS4J reports an error
+//                         * saying no password available for the user. But its
+//                         * better if we simply report authentication failure
+//                         * Therefore setting the password to be the empty string
+//                         * in this situation.
+//                         */
+//
+//                            passwordCallback.setPassword(receivedPasswd);
+//                            break;
+//
+//                    }
+//
+//                } else {
+//                    throw new UnsupportedCallbackException(callbacks[i], "Unrecognized Callback");
+//                }
+//            }
+//        } catch (UnsupportedCallbackException | IOException e) {
+//            if (log.isDebugEnabled()) {
+//                log.debug("Error in handling ServicePasswordCallbackHandler", e); //logging invlaid passwords and attempts
+//                throw e;
+//            }
+//            throw e;
+//        } catch (UserStoreException | SecurityConfigException e) {
+//            log.error("Error in handling ServicePasswordCallbackHandler", e);
+//            throw new UnsupportedCallbackException(null, e.getMessage());
+//        } catch (Exception e) {
+//            log.error("Error in handling ServicePasswordCallbackHandler", e);
+//            //can't build an unsupported exception.
+//            throw new UnsupportedCallbackException(null, e.getMessage());
+//        }
     }
 
     private String getServicePrincipalPassword()
