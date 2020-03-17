@@ -21,10 +21,9 @@ import org.apache.axiom.om.util.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
-import org.wso2.carbon.crypto.api.CryptoContext;
+import org.wso2.carbon.crypto.api.CipherMetaDataHolder;
 import org.wso2.carbon.crypto.api.CryptoService;
 import org.wso2.carbon.registry.core.service.RegistryService;
 
@@ -52,10 +51,6 @@ public class CryptoUtil {
     private static final String DEFAULT_CRYPTO_ALGORITHM = "RSA";
 
     private static final String CRYPTO_API_PROVIDER_BC = "BC";
-    private static final String INTERNAL_CRYPTO_PROVIDER = "CryptoService.InternalCryptoProviderClassName";
-    private static final String SYMMETRIC_INTERNAL_CRYPTO_PROVIDER_CLASS_NAME =
-            "org.wso2.carbon.crypto.provider.SymmetricKeyInternalCryptoProvider";
-    private static final String DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM = "AES";
 
     /**
      * This method returns CryptoUtil object, where this should only be used at runtime,
@@ -138,9 +133,7 @@ public class CryptoUtil {
                 throw new CryptoException("A crypto service implementation has not been registered.");
             }
 
-            boolean isSymmetricKeyEncryptionEnabled = isSymmetricKeyEncryptionEnabled();
-            String algorithm = getDefaultEncryptionAlgorithm(isSymmetricKeyEncryptionEnabled);
-
+            String algorithm = null;
             if (!StringUtils.isBlank(cipherTransformation)) {
                 algorithm = cipherTransformation;
                 if (log.isDebugEnabled()) {
@@ -154,17 +147,10 @@ public class CryptoUtil {
                 }
                 encryptedKey = StringUtils.EMPTY.getBytes();
             } else {
-                encryptedKey = cryptoService.encrypt(plainTextBytes, algorithm, CRYPTO_API_PROVIDER_BC);
+                encryptedKey = cryptoService
+                        .encrypt(plainTextBytes, algorithm, CRYPTO_API_PROVIDER_BC, returnSelfContainedCipherText);
             }
 
-            if (StringUtils.isNotBlank(cipherTransformation) && returnSelfContainedCipherText
-                    && !isSymmetricKeyEncryptionEnabled) {
-
-                Certificate certificate = cryptoService.getCertificate(CryptoContext.buildEmptyContext(
-                        MultitenantConstants.SUPER_TENANT_ID, MultitenantConstants.SUPER_TENANT_DOMAIN_NAME));
-
-                encryptedKey = createSelfContainedCiphertext(encryptedKey, algorithm, certificate);
-            }
 
         } catch (Exception e) {
             throw new CryptoException("An error occurred while encrypting data.", e);
@@ -236,19 +222,20 @@ public class CryptoUtil {
                 throw new CryptoException("A crypto service implementation has not been registered.");
             }
 
-            String algorithm = getDefaultEncryptionAlgorithm(isSymmetricKeyEncryptionEnabled());
+            String algorithm = null;
 
             String cipherTransformation = System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
 
             if (cipherTransformation != null) {
-                CipherHolder cipherHolder = cipherTextToCipherHolder(cipherTextBytes);
-                if (cipherHolder != null) {
+                CipherMetaDataHolder
+                        cipherMetaDataHolder = cipherTextToCipherMetaDataHolder(cipherTextBytes);
+                if (cipherMetaDataHolder != null) {
                     //cipher with meta data
                     if (log.isDebugEnabled()) {
-                        log.debug("Cipher transformation for decryption : " + cipherHolder.getTransformation());
+                        log.debug("Cipher transformation for decryption : " + cipherMetaDataHolder.getTransformation());
                     }
-                    algorithm = cipherHolder.getTransformation();
-                    cipherTextBytes = cipherHolder.getCipherBase64Decoded();
+                    algorithm = cipherMetaDataHolder.getTransformation();
+                    cipherTextBytes = cipherMetaDataHolder.getCipherBase64Decoded();
                 } else {
                     algorithm = cipherTransformation;
                 }
@@ -298,7 +285,7 @@ public class CryptoUtil {
                 throw new CryptoException("A crypto service implementation has not been registered.");
             }
 
-            String algorithm = getDefaultEncryptionAlgorithm(isSymmetricKeyEncryptionEnabled());
+            String algorithm = null;
 
             if (cipherTransformation != null) {
                 algorithm = cipherTransformation;
@@ -393,6 +380,7 @@ public class CryptoUtil {
      * @throws CertificateEncodingException
      * @throws NoSuchAlgorithmException
      */
+    @Deprecated
     public byte[] createSelfContainedCiphertext(byte[] originalCipher, String transformation, Certificate certificate)
             throws CertificateEncodingException, NoSuchAlgorithmException {
 
@@ -409,15 +397,36 @@ public class CryptoUtil {
 
     /**
      * Function to convert cipher byte array to {@link CipherHolder}
+     * @deprecated  use {@link #cipherTextToCipherMetaDataHolder(byte[])} instead.
      *
      * @param cipherText cipher text as a byte array
      * @return if cipher text is not a cipher with meta data
      */
+    @Deprecated
     public CipherHolder cipherTextToCipherHolder(byte[] cipherText) {
 
         String cipherStr = new String(cipherText, Charset.defaultCharset());
         try {
             return gson.fromJson(cipherStr, CipherHolder.class);
+        } catch (JsonSyntaxException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Deserialization failed since cipher string is not representing cipher with metadata");
+            }
+            return null;
+        }
+    }
+
+    /**
+     * Function to convert cipher byte array to {@link CipherMetaDataHolder}
+     *
+     * @param cipherText cipher text as a byte array
+     * @return if cipher text is not a cipher with meta data
+     */
+    private CipherMetaDataHolder cipherTextToCipherMetaDataHolder(byte[] cipherText) {
+
+        String cipherStr = new String(cipherText, Charset.defaultCharset());
+        try {
+            return gson.fromJson(cipherStr, CipherMetaDataHolder.class);
         } catch (JsonSyntaxException e) {
             if (log.isDebugEnabled()) {
                 log.debug("Deserialization failed since cipher string is not representing cipher with metadata");
@@ -443,22 +452,6 @@ public class CryptoUtil {
         }
 
         return strBuffer.toString();
-    }
-
-    private String getDefaultEncryptionAlgorithm(boolean isSymmetricKeyEncryptionEnabled) {
-
-        if (isSymmetricKeyEncryptionEnabled) {
-            return DEFAULT_SYMMETRIC_CRYPTO_ALGORITHM;
-        } else {
-            // Set the default crypto algorithm.
-            return DEFAULT_CRYPTO_ALGORITHM;
-        }
-    }
-
-    private boolean isSymmetricKeyEncryptionEnabled() {
-
-        return SYMMETRIC_INTERNAL_CRYPTO_PROVIDER_CLASS_NAME
-                .equals(serverConfigService.getFirstProperty(INTERNAL_CRYPTO_PROVIDER));
     }
 }
 
