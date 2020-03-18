@@ -373,6 +373,7 @@ public class CryptoUtil {
     /**
      * This function will create self-contained ciphertext with metadata
      *
+     * @deprecated since 4.6.1.
      * @param originalCipher ciphertext need to wrap with metadata
      * @param transformation transformation used to encrypt ciphertext
      * @param certificate certificate that holds relevant keys used to encrypt
