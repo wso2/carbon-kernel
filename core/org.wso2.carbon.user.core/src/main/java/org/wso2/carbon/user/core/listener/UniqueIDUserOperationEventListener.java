@@ -684,257 +684,210 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
             UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
-     * Pre listener for adding an internal group.
-     *
-     * @param groupName                Group Name.
-     * @param userIDs                  List of user IDs.
-     * @param permissions              List of permissions.
-     * @param abstractUserStoreManager The underlying UserStoreManager.
-     * @return false in case of error.
-     * @throws UserStoreException If an error occurred when calling pre-listeners for adding internal groups.
-     */
-    boolean doPreAddInternalGroup(String groupName, List<String> userIDs,
-                                  List<org.wso2.carbon.user.core.Permission> permissions,
-                                  AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
-
-    /**
      * Pre Listeners for adding a group.
      *
-     * @param groupName                Group name.
-     * @param userIDs                  List of user IDs.
-     * @param permissions              List of permissions.
-     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @param groupName        Group name.
+     * @param userIDs          List of user IDs.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return false in case of error.
      * @throws UserStoreException If an error occur when calling pre-listeners for adding groups.
      */
-    boolean doPreAddGroup(String groupName, List<String> userIDs,
-                          List<org.wso2.carbon.user.core.Permission> permissions,
-                          AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
-
-    /**
-     * Post listeners for adding an internal group.
-     *
-     * @param groupName                Group name.
-     * @param userIDs                  List of user IDs.
-     * @param permissions              List of permissions.
-     * @param abstractUserStoreManager The underlying UserStoreManager.
-     * @return false in case of error.
-     * @throws UserStoreException If an error occur when calling post listeners for adding internal groups.
-     */
-    boolean doPostAddInternalGroup(String groupName, List<String> userIDs,
-                                   List<org.wso2.carbon.user.core.Permission> permissions,
-                                   AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+    boolean doPreAddGroup(String groupName, List<String> userIDs, UserStoreManager userStoreManager)
+            throws UserStoreException;
 
     /**
      * Post listener for adding a group.
      *
-     * @param groupName Group name.
-     * @param userIDs List of user IDs.
-     * @param permissions List of permissions.
-     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @param groupName        Group name.
+     * @param userIDs          List of user IDs.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return false in case of error.
      * @throws UserStoreException If an error occur when calling post listeners for adding groups.
      */
-    boolean doPostAddGroup(String groupName, List<String> userIDs,
-                           List<org.wso2.carbon.user.core.Permission> permissions,
-                           AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+    boolean doPostAddGroup(String groupName, List<String> userIDs, UserStoreManager userStoreManager)
+            throws UserStoreException;
 
     /**
      * Pre listeners for getting group.
      *
-     * @param groupID                  Group ID.
-     * @param requiredAttributes       List of required attributes.
-     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @param groupID          Group ID.
+     * @param requestedClaims  List of required attributes.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return false in case of error.
      * @throws UserStoreException If an error occur when calling pre listeners for getting a group.
      */
-    boolean doPreGetGroup(String groupID, List<String> requiredAttributes,
-                          AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+    boolean doPreGetGroup(String groupID, List<String> requestedClaims, UserStoreManager userStoreManager)
+            throws UserStoreException;
 
     /**
      * Post listener for getting group.
      *
-     * @param groupID                  Group ID.
-     * @param requiredAttributes       Requested Attributes.
-     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @param groupID          Group ID.
+     * @param requestedClaims  Requested Attributes.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return false in case of error.
      * @throws UserStoreException If an error occur when calling post listeners for getting group.
      */
-    boolean doPostGetGroup(String groupID, List<String> requiredAttributes,
-                           AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
-
-    /**
-     * Pre listener for updating hybrid group.
-     *
-     * @param groupID                  Group ID.
-     * @param claims                   Claims to update.
-     * @param permissions              Permissions to update.
-     * @param abstractUserStoreManager The underlying UserStoreManager.
-     * @return false in case of error.
-     * @throws UserStoreException If an error occur when calling pre listeners for updating hybrid group.
-     */
-    boolean doPreUpdateHybridGroup(String groupID, List<Claim> claims,
-                                   List<org.wso2.carbon.user.core.Permission> permissions,
-                                   AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+    boolean doPostGetGroup(String groupID, List<String> requestedClaims, UserStoreManager userStoreManager)
+            throws UserStoreException;
 
     /**
      * Pre listener for updating a group.
      *
-     * @param groupID                  Group ID.
-     * @param claims                   Claims to update.
-     * @param permissions              Permissions to update.
-     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @param groupID          Group ID.
+     * @param claims           Claims to update.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return false in case of error.
      * @throws UserStoreException If an error occur when calling pre listeners for updating a group.
      */
-    boolean doPreUpdateGroup(String groupID, List<Claim> claims,
-                             List<org.wso2.carbon.user.core.Permission> permissions,
-                             AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
-
-    /**
-     * Post listener for updating an internal group.
-     *
-     * @param groupID                  Group ID.
-     * @param claims                   Claims to update.
-     * @param permissions              Permissions to update.
-     * @param abstractUserStoreManager The underlying UserStoreManager.
-     * @return false in case of error.
-     * @throws UserStoreException If an error occur when calling post listeners for updating an internal group.
-     */
-    boolean doPostUpdateInternalGroup(String groupID, List<Claim> claims,
-                                      List<org.wso2.carbon.user.core.Permission> permissions,
-                                      AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+    boolean doPreUpdateGroup(String groupID, List<Claim> claims, UserStoreManager userStoreManager)
+            throws UserStoreException;
 
     /**
      * Post listener for updating a group.
      *
-     * @param groupID                  Group ID.
-     * @param claims                   Claims to update.
-     * @param permissions              Permissions to update.
-     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @param groupID          Group ID.
+     * @param claims           Claims to update.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return false in case of error.
      * @throws UserStoreException If an error occur when calling post listeners for updating a group.
      */
-    boolean doPostUpdateGroup(String groupID, List<Claim> claims,
-                              List<org.wso2.carbon.user.core.Permission> permissions,
-                              AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
-
-    /**
-     * Pre-Listener for renaming internal group.
-     *
-     * @param groupID                  Group ID.
-     * @param newGroupName             New group name.
-     * @param abstractUserStoreManager The underlying UserStoreManager.
-     * @return false in case of error.
-     * @throws UserStoreException If an error occur when calling pre listeners for renaming an internal group.
-     */
-    boolean doPreRenameInternalGroup(String groupID, String newGroupName,
-                                     AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+    boolean doPostUpdateGroup(String groupID, List<Claim> claims, UserStoreManager userStoreManager)
+            throws UserStoreException;
 
     /**
      * Pre-Listener for renaming group.
      *
-     * @param groupID                  Group ID.
-     * @param newGroupName             New group name.
-     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @param groupID          Group ID.
+     * @param newGroupName     New group name.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return false in case of error.
      * @throws UserStoreException If an error occur when calling pre listeners for renaming a group.
      */
-    boolean doPreRenameGroup(String groupID, String newGroupName,
-                             AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
-
-    /**
-     * Post-Listener for renaming internal group.
-     *
-     * @param groupID                  Group ID.
-     * @param newGroupName             New group name.
-     * @param abstractUserStoreManager The underlying UserStoreManager.
-     * @return false in case of error.
-     * @throws UserStoreException If an error occur when calling post listeners for renaming a internal group.
-     */
-    boolean doPostRenameInternalGroup(String groupID, String newGroupName,
-                                      AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+    boolean doPreRenameGroup(String groupID, String newGroupName, UserStoreManager userStoreManager)
+            throws UserStoreException;
 
     /**
      * Post-Listener for renaming group.
      *
-     * @param groupID                  Group ID.
-     * @param newGroupName             New group name.
-     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @param groupID          Group ID.
+     * @param newGroupName     New group name.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return false in case of error.
      * @throws UserStoreException If an error occur when calling post listeners for renaming a group.
      */
-    boolean doPostRenameGroup(String groupID, String newGroupName,
-                                      AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+    boolean doPostRenameGroup(String groupID, String newGroupName, UserStoreManager userStoreManager)
+            throws UserStoreException;
 
     /**
      * Pre-Listeners for list group.
      *
-     * @param condition                Condition.
-     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @param condition        Condition.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return false in case of error.
      * @throws UserStoreException If an error occur when calling pre listeners for listing groups.
      */
-    boolean doPreListGroup(Condition condition, AbstractUserStoreManager abstractUserStoreManager)
-            throws UserStoreException;
+    boolean doPreListGroup(Condition condition, UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
      * Post-Listeners for list group.
      *
-     * @param condition                Condition.
-     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @param condition        Condition.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return false in case of error.
      * @throws UserStoreException If an error occur when calling post listeners for listing groups.
      */
-    boolean doPostListGroups(Condition condition, String domain, AbstractUserStoreManager abstractUserStoreManager)
+    boolean doPostListGroups(Condition condition, String domain, UserStoreManager userStoreManager)
             throws UserStoreException;
 
     /**
      * Pre-Listeners for getting group list of users.
      *
-     * @param userIDs                  List of user IDs.
-     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @param userIDs          List of user IDs.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return false in case of error.
      * @throws UserStoreException If an error occur when calling pre listeners for get group list of users.
      */
-    boolean doPreGetGroupListOfUsers(List<String> userIDs, AbstractUserStoreManager abstractUserStoreManager)
-            throws UserStoreException;
+    boolean doPreGetGroupListOfUsers(List<String> userIDs, UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
      * Post-Listeners for getting group list of users.
      *
-     * @param userIDs                  List of user IDs.
-     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @param userIDs          List of user IDs.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return false in case of error.
      * @throws UserStoreException If an error occur when calling post listeners for get group list of users.
      */
     boolean doPostGetGroupListOfUsers(List<String> userIDs, Map<String, List<Group>> allGroups,
-                                      AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+            UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
      * Pre-Listeners for update  group list of users.
      *
-     * @param userID                   User ID.
-     * @param deletedGroupIds          List of deleted group IDs.
-     * @param newGroupIds              List of new group IDs.
-     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @param userID           User ID.
+     * @param deletedGroupIds  List of deleted group IDs.
+     * @param newGroupIds      List of new group IDs.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return false in case of error.
      * @throws UserStoreException If an error occur when calling pre listeners for update  group list of users.
      */
     boolean doPreUpdateGroupListOfUser(String userID, List<String> deletedGroupIds, List<String> newGroupIds,
-                                       AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+            UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
      * Post-Listeners for update  group list of users.
      *
-     * @param userID                   User ID.
-     * @param deletedGroupIds          List of deleted group IDs.
-     * @param newGroupIds              List of new group IDs.
-     * @param abstractUserStoreManager The underlying UserStoreManager.
+     * @param userID           User ID.
+     * @param deletedGroupIds  List of deleted group IDs.
+     * @param newGroupIds      List of new group IDs.
+     * @param userStoreManager The underlying UserStoreManager.
      * @return false in case of error.
      * @throws UserStoreException If an error occur when calling post listeners for update  group list of users.
      */
     boolean doPostUpdateGroupListOfUser(String userID, List<String> deletedGroupIds, List<String> newGroupIds,
-                                       AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException;
+            UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Pre listener for deleting group.
+     *
+     * @param groupID          Group ID
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException UserStoreException
+     */
+    boolean doPreDeleteGroup(String groupID, UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Post listeners for deleting a group
+     *
+     * @param groupID          Group ID.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException UserStoreException
+     */
+    boolean doPostDeleteGroup(String groupID, UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Pre-Listeners for getting users list of group.
+     *
+     * @param groupID          Group ID.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException UserStoreException
+     */
+    boolean doPreGetUserListOfGroup(String groupID, UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Post-Listeners for getting users list of group.
+     *
+     * @param groupID          Group ID.
+     * @param userList         Users list.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException UserStoreException
+     */
+    boolean doPostGetUserListOfGroup(String groupID, List<User> userList, UserStoreManager userStoreManager)
+            throws UserStoreException;
+
 }
 

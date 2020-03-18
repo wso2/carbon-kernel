@@ -196,7 +196,6 @@ public class UserCoreErrorConstants {
         ERROR_CODE_ERROR_DURING_POST_ADD_ROLE("31703", "Un-expected error during post-step of adding role, "
                 + "%s"),
         ERROR_CODE_CANNOT_ADD_EMPTY_ROLE("31704", "Cannot add role with empty role name"),
-        ERROR_CODE_CANNOT_ADD_EMPTY_GROUP("31704", "Cannot add role with empty group name"),
         ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_ROLE("31705", "Constrain violation while adding a system role."),
         ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE("31706", "Constrain violation while adding a hybrid role."),
         ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE("31707", "Constrain violation while adding a role."),
@@ -223,23 +222,70 @@ public class UserCoreErrorConstants {
         ERROR_CODE_ERROR_WHILE_UPDATING_PERMISSIONS_OF_ROLE("32101", "Un-expected error while updating permissions of  "
                 + "updating role,  %s"),
         ERROR_CODE_USERNAME_CANNOT_BE_EMPTY("32102", "Username %s is not valid. User name cannot be empty."),
-        // Error code related with updating group
-        ERROR_CODE_ERROR_DURING_PRE_UPDATE_GROUP("32201", "Un-expected error during pre-step of updating group %s"),
-        ERROR_CODE_ERROR_WHILE_UPDATING_GROUP("32203", "Un-expected error while updating group %s"),
-        ERROR_CODE_ERROR_DURING_POST_UPDATE_GROUP("32204", "Un-expected error during post-step of updating group %s"),
-        // Error code related with renaming group.
-        ERROR_CODE_ERROR_DURING_PRE_RENAME_GROUP("32301", "Un-expected error during pre-step of renaming group %s"),
-        ERROR_CODE_ERROR_WHILE_RENAME_GROUP("32302", "Un-expected error while renaming group %s"),
-        ERROR_CODE_ERROR_DURING_POST_RENAME_GROUP("32303", "Un-expected error during post-step of renaming group %s"),
-        // Error code related with list group.
-        ERROR_CODE_ERROR_DURING_PRE_LIST_GROUP("32401", "Un-expected error during pre list group %s"),
-        ERROR_CODE_ERROR_DURING_POST_LIST_GROUP("32402", "Un-expected error during post list group %s"),
 
         // Error code related with get group
-        ERROR_CODE_ERROR_DURING_PRE_GET_GROUP("32501", "Un-expected error during pre get group %s"),
-        ERROR_CODE_ERROR_DURING_POST_GET_GROUP("32502", "Un-expected error during post get group %s");
+        ERROR_CODE_ERROR_DURING_PRE_GET_GROUP("33101", "Un-expected error during pre get group %s"),
+        ERROR_CODE_ERROR_DURING_POST_GET_GROUP("33102", "Un-expected error during post get group %s"),
 
+        // Error code related with get group
+        ERROR_CODE_INVALID_GROUP_NAME("33103", INVALID_GROUP + " Group name %s is not valid. Group name must be a "
+                + "non null string with following format, %s"),
+        ERROR_CODE_GROUP_ALREADY_EXISTS("33104",
+                EXISTING_GROUP + "Group name: %s exists in the system. Please pick another group name."),
+        ERROR_CODE_CANNOT_REMOVE_ADMIN_GROUP_FROM_ADMIN("33105",
+                REMOVE_ADMIN_USER + " Cannot remove Admin user from Admin group"),
+        ERROR_CODE_CANNOT_UPDATE_ADMIN_GROUP("33106", "Cannot update admin group"),
 
+        // Error code related with updating group list of user
+        ERROR_CODE_ERROR_DURING_PRE_UPDATE_GROUP_OF_USER("33107",
+                "Un-expected error during pre-step of updating group of user, %s"),
+        ERROR_CODE_ERROR_WHILE_UPDATING_GROUP_OF_USER("33108", "Un-expected error while update group of user, %s"), ERROR_CODE_ERROR_DURING_POST_UPDATE_GROUP_OF_USER(
+                "33109", "Un-expected error during post-step of updating group of user, %s"),
+
+        // Error code related with updating group name
+        ERROR_CODE_CANNOT_RENAME_GROUP("33110", "The group cannot be renamed"),
+        ERROR_CODE_ERROR_DURING_PRE_UPDATE_GROUP_NAME("33111", "Un-expected error during pre-step of updating group "
+                + "name, %s"),
+        ERROR_CODE_ERROR_WHILE_UPDATING_GROUP_NAME("33112", "Un-expected error while updating group name, %s"),
+        ERROR_CODE_ERROR_DURING_POST_UPDATE_GROUP_NAME("33113", "Un-expected error during post-step of updating group "
+                + "name, %s"),
+
+        // Error code while adding group
+        ERROR_CODE_ERROR_DURING_PRE_ADD_GROUP("33114", "Un-expected error during pre-step of add group, %s"),
+        ERROR_CODE_ERROR_WHILE_ADDING_GROUP("33115", "Un-expected error while adding group, %s"),
+        ERROR_CODE_ERROR_DURING_POST_ADD_GROUP("33116", "Un-expected error during post-step of adding group, "
+                + "%s"),
+        ERROR_CODE_CANNOT_ADD_EMPTY_GROUP("33117", "Cannot add group with empty group name"),
+        ERROR_CODE_DUPLICATE_WHILE_ADDING_GROUP("33118", "Constrain violation while adding a group."),
+
+        // Error code while deleting group
+        ERROR_CODE_ERROR_DURING_PRE_DELETE_GROUP("33119", "Un-expected error during pre-step of delete "
+                + "group, %s"),
+        ERROR_CODE_ERROR_WHILE_DELETE_GROUP("33120", "Un-expected error while deleting group, %s"),
+        ERROR_CODE_ERROR_DURING_POST_DELETE_GROUP("33121", "Un-expected error during post-step of delete group"
+                + ", %s"),
+        ERROR_CODE_CANNOT_DELETE_ADMIN_GROUP("33122", "Cannot delete admin group"),
+        ERROR_CODE_CANNOT_DELETE_NON_EXISTING_GROUP("33123", "Cannot delete non-existing group"),
+
+        // Error code while updating user list of group
+        ERROR_CODE_ERROR_DURING_UPDATE_USERS_OF_GROUP("33124", "Un-expected error while updating user list of "
+                + "group, %s"),
+        ERROR_CODE_ERROR_WHILE_PRE_UPDATE_USERS_OF_GROUP("33125", "Un-expected error during pre-step of "
+                + "updating user list of group, %s"),
+        ERROR_CODE_ERROR_WHILE_POST_UPDATE_USERS_OF_GROUP("33126", "Un-expected error during post-step of "
+                + "updating user list of group, %s"),
+
+        // Error code related with updating group
+        ERROR_CODE_ERROR_DURING_PRE_UPDATE_GROUP("33127", "Un-expected error during pre-step of updating group %s"),
+        ERROR_CODE_ERROR_WHILE_UPDATING_GROUP("33128", "Un-expected error while updating group %s"),
+        ERROR_CODE_ERROR_DURING_POST_UPDATE_GROUP("33129", "Un-expected error during post-step of updating group %s"),
+        // Error code related with renaming group.
+        ERROR_CODE_ERROR_DURING_PRE_RENAME_GROUP("33130", "Un-expected error during pre-step of renaming group %s"),
+        ERROR_CODE_ERROR_WHILE_RENAME_GROUP("33131", "Un-expected error while renaming group %s"),
+        ERROR_CODE_ERROR_DURING_POST_RENAME_GROUP("33132", "Un-expected error during post-step of renaming group %s"),
+        // Error code related with list group.
+        ERROR_CODE_ERROR_DURING_PRE_LIST_GROUP("33133", "Un-expected error during pre list group %s"),
+        ERROR_CODE_ERROR_DURING_POST_LIST_GROUP("33134", "Un-expected error during post list group %s");
 
 
         private final String code;
@@ -274,8 +320,10 @@ public class UserCoreErrorConstants {
     private static final String USER_NOT_FOUND = "UserNotFound";
     private static final String REMOVE_ADMIN_USER = "RemoveAdminUser";
     private static final String INVALID_ROLE = "InvalidRole";
+    private static final String INVALID_GROUP = "InvalidGroup";
     private static final String SHARED_USER_ROLES = "SharedUserRoles";
     private static final String EXISTING_ROLE = "RoleExisting";
+    private static final String EXISTING_GROUP = "GroupExisting";
     private static final String NO_READ_WRITE_PERMISSIONS = "NoReadWritePermission";
     public static final String AUDIT_LOGGER_CLASS_NAME = "AuditLogger";
     public static final String PRE_LISTENER_TASKS_FAILED_MESSAGE = "Pre-listener tasks failed";

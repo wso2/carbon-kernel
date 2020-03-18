@@ -407,11 +407,11 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * Get group details using group ID.
      *
      * @param groupID            Group ID.
-     * @param requiredAttributes Claims required.
+     * @param requestedClaims Claims required as claim URIs.
      * @return Group Object with details.
      * @throws UserStoreException If an error occurs while retrieving a group.
      */
-    Group getGroup(String groupID, List<String> requiredAttributes) throws UserStoreException;
+    Group getGroup(String groupID, List<String> requestedClaims) throws UserStoreException;
 
     /**
      * Retrieves list of groups evaluating the condition.
@@ -478,15 +478,13 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
     /**
      * Add a group to the system.
      *
-     * @param groupName   Group's display name.
-     * @param usersIDs    List of User IDs belongs to the group.
-     * @param permissions List of permissions of the group.
-     * @param claims      List of Claims.
+     * @param groupName Group's display name.
+     * @param usersIDs  List of User IDs belongs to the group.
+     * @param claims    List of Claims.
      * @return created Group object.
      * @throws UserStoreException If an error occurs while adding a group.
      */
-    Group addGroup(String groupName, List<String> usersIDs, List<Permission> permissions,
-                   List<org.wso2.carbon.user.core.common.Claim> claims)
+    Group addGroup(String groupName, List<String> usersIDs, List<org.wso2.carbon.user.core.common.Claim> claims)
             throws UserStoreException;
 
     /**
@@ -494,12 +492,10 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      *
      * @param groupID     Group ID.
      * @param claims      List of claims. These values will be replaced.
-     * @param permissions List of permissions.
      * @return Updated group.
      * @throws UserStoreException If an error occurs while updating group.
      */
-    Group updateGroup(String groupID, List<org.wso2.carbon.user.core.common.Claim> claims,
-                      List<Permission> permissions) throws UserStoreException;
+    Group updateGroup(String groupID, List<org.wso2.carbon.user.core.common.Claim> claims) throws UserStoreException;
 
     /**
      * Update users that belongs to a group.

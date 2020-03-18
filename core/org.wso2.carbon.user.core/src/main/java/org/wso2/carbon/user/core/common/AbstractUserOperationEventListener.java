@@ -676,131 +676,76 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
     }
 
     @Override
-    public boolean doPreAddInternalGroup(String groupName, List<String> userIDs,
-                                         List<org.wso2.carbon.user.core.Permission> permissions,
-                                         AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
-
-        return true;
-    }
-
-    @Override
-    public boolean doPreAddGroup(String groupName, List<String> userIDs,
-                                 List<org.wso2.carbon.user.core.Permission> permissions,
-                                 AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
-
-        return true;
-    }
-
-    @Override
-    public boolean doPostAddInternalGroup(String groupName, List<String> userIDs,
-                                          List<org.wso2.carbon.user.core.Permission> permissions,
-                                          AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
-
-        return true;
-    }
-
-    @Override
-    public boolean doPostAddGroup(String groupName, List<String> userIDs,
-                                  List<org.wso2.carbon.user.core.Permission> permissions,
-                                  AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
-
-        return true;
-    }
-
-    @Override
-    public boolean doPreGetGroup(String groupID, List<String> requiredAttributes,
-                                 AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
-
-        return true;
-    }
-
-    @Override
-    public boolean doPostGetGroup(String groupID, List<String> requiredAttributes,
-                                  AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
-
-        return true;
-    }
-
-    @Override
-    public boolean doPreUpdateHybridGroup(String groupID, List<Claim> claims,
-                                          List<org.wso2.carbon.user.core.Permission> permissions,
-                                          AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
-
-        return true;
-    }
-
-    @Override
-    public boolean doPreUpdateGroup(String groupID, List<Claim> claims,
-                                    List<org.wso2.carbon.user.core.Permission> permissions,
-                                    AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
-
-        return true;
-    }
-
-    @Override
-    public boolean doPostUpdateInternalGroup(String groupID, List<Claim> claims,
-                                             List<org.wso2.carbon.user.core.Permission> permissions,
-                                             AbstractUserStoreManager abstractUserStoreManager)
+    public boolean doPreAddGroup(String groupName, List<String> userIDs, UserStoreManager userStoreManager)
             throws UserStoreException {
 
         return true;
     }
 
     @Override
-    public boolean doPostUpdateGroup(String groupID, List<Claim> claims,
-                                     List<org.wso2.carbon.user.core.Permission> permissions,
-                                     AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
-
-        return true;
-    }
-
-    @Override
-    public boolean doPreRenameInternalGroup(String groupID, String newGroupName,
-                                            AbstractUserStoreManager abstractUserStoreManager)
+    public boolean doPostAddGroup(String groupName, List<String> userIDs, UserStoreManager userStoreManager)
             throws UserStoreException {
 
         return true;
     }
 
     @Override
-    public boolean doPreRenameGroup(String groupID, String newGroupName,
-                                    AbstractUserStoreManager abstractUserStoreManager)
+    public boolean doPreGetGroup(String groupID, List<String> requestedClaims, UserStoreManager userStoreManager)
             throws UserStoreException {
 
         return true;
     }
 
     @Override
-    public boolean doPostRenameInternalGroup(String groupID, String newGroupName,
-                                             AbstractUserStoreManager abstractUserStoreManager)
+    public boolean doPostGetGroup(String groupID, List<String> requestedClaims, UserStoreManager userStoreManager)
             throws UserStoreException {
 
         return true;
     }
 
     @Override
-    public boolean doPostRenameGroup(String groupID, String newGroupName,
-                                     AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
-
-        return true;
-    }
-
-    @Override
-    public boolean doPreListGroup(Condition condition, AbstractUserStoreManager abstractUserStoreManager)
+    public boolean doPreUpdateGroup(String groupID, List<Claim> claims, UserStoreManager userStoreManager)
             throws UserStoreException {
 
         return true;
     }
 
     @Override
-    public boolean doPostListGroups(Condition condition, String domain,
-                                    AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
+    public boolean doPostUpdateGroup(String groupID, List<Claim> claims, UserStoreManager userStoreManager)
+            throws UserStoreException {
 
         return true;
     }
 
     @Override
-    public boolean doPreGetGroupListOfUsers(List<String> userIDs, AbstractUserStoreManager abstractUserStoreManager)
+    public boolean doPreRenameGroup(String groupID, String newGroupName, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostRenameGroup(String groupID, String newGroupName, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreListGroup(Condition condition, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostListGroups(Condition condition, String domain, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreGetGroupListOfUsers(List<String> userIDs, UserStoreManager userStoreManager)
             throws UserStoreException {
 
         return true;
@@ -808,23 +753,46 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
 
     @Override
     public boolean doPostGetGroupListOfUsers(List<String> userIDs, Map<String, List<Group>> allGroups,
-                                             AbstractUserStoreManager abstractUserStoreManager)
-            throws UserStoreException {
+            UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
     }
 
     @Override
     public boolean doPreUpdateGroupListOfUser(String userID, List<String> deletedGroupIds, List<String> newGroupIds,
-                                              AbstractUserStoreManager abstractUserStoreManager)
-            throws UserStoreException {
+            UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
     }
 
     @Override
     public boolean doPostUpdateGroupListOfUser(String userID, List<String> deletedGroupIds, List<String> newGroupIds,
-                                               AbstractUserStoreManager abstractUserStoreManager)
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreDeleteGroup(String groupID, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostDeleteGroup(String groupID, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreGetUserListOfGroup(String groupID, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostGetUserListOfGroup(String groupID, List<User> userList, UserStoreManager userStoreManager)
             throws UserStoreException {
 
         return true;

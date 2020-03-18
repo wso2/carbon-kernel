@@ -2174,7 +2174,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     }
 
     @Override
-    protected Group doGetGroup(String groupID, List<String> requiredAttributes) throws UserStoreException {
+    protected Group doGetGroup(String groupID, List<String> requestedClaims) throws UserStoreException {
 
         // For the moment there will be only 3 mandatory claims for Groups. requiredAttributes should be handled
         //  when the claim management for group is resolved in the future.

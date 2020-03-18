@@ -805,48 +805,4 @@ public interface UserOperationEventListener {
         return true;
     }
 
-    /**
-     * Pre listener for delete internal groups.
-     *
-     * @param groupID                  Group ID.
-     * @param abstractUserStoreManager AbstractUserStoreManager
-     * @return false in case of error.
-     * @throws UserStoreException UserStoreException
-     */
-    default boolean doPreDeleteInternalGroup(String groupID, AbstractUserStoreManager abstractUserStoreManager)
-            throws UserStoreException {
-
-        return true;
-    }
-
-    /**
-     * Pre listener for deleting group.
-     *
-     * @param groupID                  Group ID
-     * @param abstractUserStoreManager AbstractUserStoreManager
-     * @return false in case of error.
-     * @throws UserStoreException UserStoreException
-     */
-    default boolean doPreDeleteGroup(String groupID, AbstractUserStoreManager abstractUserStoreManager)
-            throws UserStoreException {
-
-        return true;
-    }
-
-    /**
-     * Post listeners for deleting a group
-     *
-     * @param groupID                  Group ID.
-     * @param abstractUserStoreManager AbstractUserStoreManager
-     * @return false in case of error.
-     * @throws UserStoreException UserStoreException
-     */
-    default boolean doPostDeleteGroup(String groupID, AbstractUserStoreManager abstractUserStoreManager)
-            throws UserStoreException {
-
-        return true;
-    }
-
-    boolean doPreRenameGroup(String groupID, String newGroupName, AbstractUserStoreManager abstractUserStoreManager)
-            throws UserStoreException;
 }

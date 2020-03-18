@@ -18,18 +18,14 @@
 
 package org.wso2.carbon.user.core.common;
 
-import org.wso2.carbon.user.core.Permission;
-
 import java.util.List;
 
-
 /**
- * Represents a Group.
+ * Group class which can be used to represent a set of users.
  */
 public class Group extends Entity {
 
     private static final long serialVersionUID = -6157030956831929121L;
-    private List<Permission> permissions;
 
     public Group(String groupID) {
 
@@ -42,16 +38,9 @@ public class Group extends Entity {
     }
 
     public Group(String groupID, String groupName, String displayName, String tenantDomain, String userStoreDomain,
-                 List<Claim> claims) {
+            List<Claim> claims) {
 
         super(groupID, groupName, displayName, tenantDomain, userStoreDomain, claims);
-    }
-
-    public Group(String groupID, String groupName, String displayName, String tenantDomain, String userStoreDomain,
-                 List<Claim> claims, List<Permission> permissions) {
-
-        super(groupID, groupName, displayName, tenantDomain, userStoreDomain, claims);
-        this.permissions = permissions;
     }
 
     public String getGroupID() {
@@ -72,15 +61,5 @@ public class Group extends Entity {
     public void setGroupName(String groupName) {
 
         super.setName(groupName);
-    }
-
-    public List<Permission> getPermissions() {
-
-        return permissions;
-    }
-
-    public void setPermissions(List<Permission> permissions) {
-
-        this.permissions = permissions;
     }
 }

@@ -334,55 +334,49 @@ public class AbstractUserManagementErrorListener implements UniqueIDUserManageme
 
     @Override
     public boolean onAddGroupFailure(String errorCode, String errorMessage, String groupName, List<String> userIDList,
-                                     List<org.wso2.carbon.user.core.Permission> permissions,
-                                     UserStoreManager userStoreManager)
-            throws UserStoreException {
+            UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
     }
 
     @Override
     public boolean onGetGroupFailure(String errorCode, String errorMessage, String groupID,
-                                     List<String> requiredAttributes, UserStoreManager userStoreManager)
-            throws UserStoreException {
+            List<String> requiredAttributes, UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
     }
 
     @Override
     public boolean onDeleteGroupFailure(String errorCode, String errorMessage, String groupID,
-                                        AbstractUserStoreManager abstractUserStoreManager) {
+            UserStoreManager userStoreManager) {
 
         return true;
     }
 
     @Override
     public boolean onUpdateGroupFailure(String errorCode, String errorMessage, String groupID, List<Claim> claims,
-                                        List<org.wso2.carbon.user.core.Permission> permissions,
-                                        AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
+            UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
     }
 
     @Override
-    public boolean onRenameGroupFailure(String errorCode, String errorMessage, String groupID,
-                                        String newGroupName,
-                                        AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
+    public boolean onRenameGroupFailure(String errorCode, String errorMessage, String groupID, String newGroupName,
+            UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
     }
 
     @Override
-    public boolean onListGroupFailure(String errorCode, String errorMessage, Condition condition,
-                                      String domain, AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
+    public boolean onListGroupFailure(String errorCode, String errorMessage, Condition condition, String domain,
+            UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
     }
 
     @Override
     public boolean onUpdateGroupListOfUserFailure(String errorCode, String errorMessage, String userID,
-                                                  List<String> deletedGroupIds, List<String> newGroupIds,
-                                                  AbstractUserStoreManager abstractUserStoreManager)
+            List<String> deletedGroupIds, List<String> newGroupIds, UserStoreManager userStoreManager)
             throws UserStoreException {
 
         return true;
