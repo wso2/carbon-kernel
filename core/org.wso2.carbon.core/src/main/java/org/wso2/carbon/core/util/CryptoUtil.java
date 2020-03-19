@@ -423,7 +423,7 @@ public class CryptoUtil {
      * @param cipherText cipher text as a byte array
      * @return if cipher text is not a cipher with meta data
      */
-    private CipherMetaDataHolder cipherTextToCipherMetaDataHolder(byte[] cipherText) {
+    public CipherMetaDataHolder cipherTextToCipherMetaDataHolder(byte[] cipherText) {
 
         String cipherStr = new String(cipherText, Charset.defaultCharset());
         try {
