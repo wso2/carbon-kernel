@@ -24,9 +24,14 @@ import org.apache.axiom.om.util.Base64;
 /**
  * Holds ciphertext with related metadata.
  *
+ * @deprecated This is deprecated since version 4.6.1.
+ * This is replaced with org.wso2.carbon.crypto.api.CipherMetaDataHolder.
+ * This is deprecated due to moving self contained cipher text creation logic to crypto-service project.
+ *
  * IMPORTANT: this is replicated at org.wso2.carbon.user.core.config.UserStoreConfigXMLProcessor.CipherHolder,
- *              what ever changes applied here need to update on above. This is done to avoid cyclic dependency.
+ * what ever changes applied here need to update on above. This is done to avoid cyclic dependency.
  */
+@Deprecated
 public class CipherHolder {
 
     // Base64 encoded ciphertext.
@@ -41,63 +46,76 @@ public class CipherHolder {
     // Digest used to generate certificate thumbprint.
     private String tpd;
 
-
     public String getTransformation() {
+
         return t;
     }
 
     public void setTransformation(String transformation) {
+
         this.t = transformation;
     }
 
     public String getCipherText() {
+
         return c;
     }
 
     public byte[] getCipherBase64Decoded() {
+
         return Base64.decode(c);
     }
 
     public void setCipherText(String cipher) {
+
         this.c = cipher;
     }
 
     public String getThumbPrint() {
+
         return tp;
     }
 
     public void setThumbPrint(String tp) {
+
         this.tp = tp;
     }
 
     public String getThumbprintDigest() {
+
         return tpd;
     }
 
     public void setThumbprintDigest(String digest) {
+
         this.tpd = digest;
     }
 
     /**
      * Function to base64 encode ciphertext and set ciphertext
+     *
      * @param cipher
      */
     public void setCipherBase64Encoded(byte[] cipher) {
+
         this.c = Base64.encode(cipher);
     }
 
     /**
      * Function to set thumbprint
-     * @param tp thumb print
+     *
+     * @param tp     thumb print
      * @param digest digest (hash algorithm) used for to create thumb print
      */
     public void setThumbPrint(String tp, String digest) {
+
         this.tp = tp;
         this.tpd = digest;
     }
 
     @Override
     public String toString() {
+
         Gson gson = new Gson();
         return gson.toJson(this);
     }
