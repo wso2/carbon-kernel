@@ -32,11 +32,14 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.base.api.ServerConfigurationService;
+import org.wso2.carbon.crypto.api.CryptoException;
+import org.wso2.carbon.crypto.api.CryptoService;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
+import org.wso2.carbon.user.core.internal.UserStoreMgtDataHolder;
 import org.wso2.carbon.user.core.tracker.UserStoreManagerRegistry;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -77,6 +80,7 @@ public class UserStoreConfigXMLProcessor {
     private SecretResolver secretResolver;
     private String filePath = null;
     private Gson gson = new Gson();
+    private static final String CRYPTO_API_PROVIDER_BC = "BC";
 
     public UserStoreConfigXMLProcessor(String path) {
         this.filePath = path;
@@ -336,7 +340,7 @@ public class UserStoreConfigXMLProcessor {
                 }
                 try {
                     propValue = decryptProperty(propValue);
-                } catch (GeneralSecurityException e) {
+                } catch (CryptoException e) {
                     String errMsg = "encryption of Property=" + propElem.getAttributeValue(
                             new QName(UserCoreConstants.RealmConfig.ATTR_NAME_PROP_NAME))
                             + " failed";
@@ -430,56 +434,53 @@ public class UserStoreConfigXMLProcessor {
      * @throws BadPaddingException
      * @throws IllegalBlockSizeException
      */
-    private String decryptProperty(String propValue)
-            throws NoSuchPaddingException, NoSuchAlgorithmException, NoSuchProviderException,
-            org.wso2.carbon.user.api.UserStoreException, InvalidKeyException, BadPaddingException,
-            IllegalBlockSizeException {
+    private String decryptProperty(String propValue) throws CryptoException {
 
-        Cipher keyStoreCipher;
         String cipherTransformation = System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
         byte[] cipherTextBytes = Base64.decode(propValue.trim());
+        String algorithm = null;
+        byte[] decryptedValue;
 
-        privateKey = (privateKey == null) ? getPrivateKey() : privateKey;
-        if (privateKey == null) {
-            throw new org.wso2.carbon.user.api.UserStoreException(
-                    "Private key initialization failed. Cannot decrypt the userstore password.");
-        }
+        CryptoService cryptoService = UserStoreMgtDataHolder.getInstance().getCryptoService();
 
-        if(cipherTransformation != null) {
+        if (cipherTransformation != null) {
             // extract the original cipher if custom transformation is used configured in carbon.properties.
-            CipherHolder cipherHolder = cipherTextToCipherHolder(cipherTextBytes);
+            CipherMetaDataHolder cipherHolder = cipherTextToCipherHolder(cipherTextBytes);
             if (cipherHolder != null) {
                 // cipher with meta data.
                 if (log.isDebugEnabled()) {
                     log.debug("Cipher transformation for decryption : " + cipherHolder.getTransformation());
                 }
-                keyStoreCipher = Cipher.getInstance(cipherHolder.getTransformation(), "BC");
+                algorithm = cipherHolder.getTransformation();
                 cipherTextBytes = cipherHolder.getCipherBase64Decoded();
             } else {
                 // If the ciphertext is not a self-contained, directly decrypt using transformation configured in
                 // carbon.properties file
-                keyStoreCipher = Cipher.getInstance(cipherTransformation, "BC");
+                algorithm = cipherTransformation;
+            }
+        }
+        if (cipherTextBytes.length == 0) {
+            decryptedValue = StringUtils.EMPTY.getBytes();
+            if (log.isDebugEnabled()) {
+                log.debug("Ciphertext is empty. An empty array will be used as the plaintext bytes.");
             }
         } else {
-            // If reach here, user have removed org.wso2.CipherTransformation property or carbon.properties file
-            // hence RSA is considered as default transformation
-            keyStoreCipher = Cipher.getInstance("RSA", "BC");
+            decryptedValue = cryptoService.decrypt(cipherTextBytes, algorithm, CRYPTO_API_PROVIDER_BC);
         }
-        keyStoreCipher.init(Cipher.DECRYPT_MODE, privateKey);
-        return new String(keyStoreCipher.doFinal(cipherTextBytes), Charset.defaultCharset());
+        return new String(decryptedValue);
     }
 
     /**
-     * Function to convert cipher byte array to {@link CipherHolder}.
+     * Function to convert cipher byte array to {@link CipherMetaDataHolder}.
      *
      * @param cipherText cipher text as a byte array
      * @return if cipher text is not a cipher with meta data
      */
-    private CipherHolder cipherTextToCipherHolder(byte[] cipherText) {
+    private CipherMetaDataHolder cipherTextToCipherHolder(byte[] cipherText) {
 
         String cipherStr = new String(cipherText, Charset.defaultCharset());
         try {
-            return gson.fromJson(cipherStr, CipherHolder.class);
+            return gson.fromJson(cipherStr, CipherMetaDataHolder.class);
         } catch (JsonSyntaxException e) {
             if (log.isDebugEnabled()) {
                 log.debug("Deserialization failed since cipher string is not representing cipher with metadata");
@@ -494,7 +495,7 @@ public class UserStoreConfigXMLProcessor {
      * IMPORTANT: this is copy of org.wso2.carbon.core.util.CipherHolder, what ever changes applied here need to update
      *              on above
      */
-    private class CipherHolder {
+    private class CipherMetaDataHolder {
 
         // Base64 encoded ciphertext.
         private String c;

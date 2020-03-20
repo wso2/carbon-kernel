@@ -29,6 +29,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.crypto.api.CryptoService;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
@@ -55,6 +56,7 @@ public class UserStoreMgtDSComponent {
     private static RealmService realmService;
     private static ServerConfigurationService serverConfigurationService = null;
     private static ClaimManagerFactory claimManagerFactory = null;
+    private UserStoreMgtDataHolder userStoreMgtDataHolder = UserStoreMgtDataHolder.getInstance();
 
     public static RealmService getRealmService() {
         return realmService;
@@ -170,6 +172,18 @@ public class UserStoreMgtDSComponent {
         }
 
     }
+
+    @Reference(name = "carbonCryptoService", cardinality = ReferenceCardinality.OPTIONAL,
+            policy = ReferencePolicy.DYNAMIC, unbind = "unsetCarbonCryptoService")
+    protected void setCarbonCryptoService(CryptoService cryptoService){
+        userStoreMgtDataHolder.setCryptoService(cryptoService);
+    }
+
+    protected void unsetCarbonCryptoService(CryptoService cryptoService){
+        userStoreMgtDataHolder.setCryptoService(null);
+    }
+
+
 
     protected void unsetClaimManagerFactory(ClaimManagerFactory claimManagerFactory) {
         UserStoreMgtDSComponent.claimManagerFactory = null;
