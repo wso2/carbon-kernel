@@ -21,10 +21,9 @@ import org.apache.axiom.om.util.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
-import org.wso2.carbon.crypto.api.CryptoContext;
+import org.wso2.carbon.crypto.api.CipherMetaDataHolder;
 import org.wso2.carbon.crypto.api.CryptoService;
 import org.wso2.carbon.registry.core.service.RegistryService;
 
@@ -134,9 +133,7 @@ public class CryptoUtil {
                 throw new CryptoException("A crypto service implementation has not been registered.");
             }
 
-            // Set the default crypto algorithm.
-            String algorithm = DEFAULT_CRYPTO_ALGORITHM;
-
+            String algorithm = null;
             if (!StringUtils.isBlank(cipherTransformation)) {
                 algorithm = cipherTransformation;
                 if (log.isDebugEnabled()) {
@@ -149,17 +146,11 @@ public class CryptoUtil {
                     log.debug("Plaintext is empty. An empty array will be used as the ciphertext bytes.");
                 }
                 encryptedKey = StringUtils.EMPTY.getBytes();
-            }else{
-                encryptedKey = cryptoService.encrypt(plainTextBytes, algorithm, CRYPTO_API_PROVIDER_BC);
+            } else {
+                encryptedKey = cryptoService
+                        .encrypt(plainTextBytes, algorithm, CRYPTO_API_PROVIDER_BC, returnSelfContainedCipherText);
             }
 
-            if (StringUtils.isNotBlank(cipherTransformation) && returnSelfContainedCipherText) {
-
-                Certificate certificate = cryptoService.getCertificate(CryptoContext.buildEmptyContext(
-                        MultitenantConstants.SUPER_TENANT_ID, MultitenantConstants.SUPER_TENANT_DOMAIN_NAME));
-
-                encryptedKey = createSelfContainedCiphertext(encryptedKey, algorithm, certificate);
-            }
 
         } catch (Exception e) {
             throw new CryptoException("An error occurred while encrypting data.", e);
@@ -231,20 +222,20 @@ public class CryptoUtil {
                 throw new CryptoException("A crypto service implementation has not been registered.");
             }
 
-            // Set the default crypto algorithm to be used when a cipher transformation is not found.
-            String algorithm = DEFAULT_CRYPTO_ALGORITHM;
+            String algorithm = null;
 
             String cipherTransformation = System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
 
             if (cipherTransformation != null) {
-                CipherHolder cipherHolder = cipherTextToCipherHolder(cipherTextBytes);
-                if (cipherHolder != null) {
+                CipherMetaDataHolder
+                        cipherMetaDataHolder = cipherTextToCipherMetaDataHolder(cipherTextBytes);
+                if (cipherMetaDataHolder != null) {
                     //cipher with meta data
                     if (log.isDebugEnabled()) {
-                        log.debug("Cipher transformation for decryption : " + cipherHolder.getTransformation());
+                        log.debug("Cipher transformation for decryption : " + cipherMetaDataHolder.getTransformation());
                     }
-                    algorithm = cipherHolder.getTransformation();
-                    cipherTextBytes = cipherHolder.getCipherBase64Decoded();
+                    algorithm = cipherMetaDataHolder.getTransformation();
+                    cipherTextBytes = cipherMetaDataHolder.getCipherBase64Decoded();
                 } else {
                     algorithm = cipherTransformation;
                 }
@@ -294,8 +285,7 @@ public class CryptoUtil {
                 throw new CryptoException("A crypto service implementation has not been registered.");
             }
 
-            // Set the default crypto algorithm to be used when a cipher transformation is not found.
-            String algorithm = DEFAULT_CRYPTO_ALGORITHM;
+            String algorithm = null;
 
             if (cipherTransformation != null) {
                 algorithm = cipherTransformation;
@@ -383,6 +373,7 @@ public class CryptoUtil {
     /**
      * This function will create self-contained ciphertext with metadata
      *
+     * @deprecated since 4.6.1.
      * @param originalCipher ciphertext need to wrap with metadata
      * @param transformation transformation used to encrypt ciphertext
      * @param certificate certificate that holds relevant keys used to encrypt
@@ -390,6 +381,7 @@ public class CryptoUtil {
      * @throws CertificateEncodingException
      * @throws NoSuchAlgorithmException
      */
+    @Deprecated
     public byte[] createSelfContainedCiphertext(byte[] originalCipher, String transformation, Certificate certificate)
             throws CertificateEncodingException, NoSuchAlgorithmException {
 
@@ -406,15 +398,36 @@ public class CryptoUtil {
 
     /**
      * Function to convert cipher byte array to {@link CipherHolder}
+     * @deprecated  use {@link #cipherTextToCipherMetaDataHolder(byte[])} instead.
      *
      * @param cipherText cipher text as a byte array
      * @return if cipher text is not a cipher with meta data
      */
+    @Deprecated
     public CipherHolder cipherTextToCipherHolder(byte[] cipherText) {
 
         String cipherStr = new String(cipherText, Charset.defaultCharset());
         try {
             return gson.fromJson(cipherStr, CipherHolder.class);
+        } catch (JsonSyntaxException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Deserialization failed since cipher string is not representing cipher with metadata");
+            }
+            return null;
+        }
+    }
+
+    /**
+     * Function to convert cipher byte array to {@link CipherMetaDataHolder}
+     *
+     * @param cipherText cipher text as a byte array
+     * @return if cipher text is not a cipher with meta data
+     */
+    public CipherMetaDataHolder cipherTextToCipherMetaDataHolder(byte[] cipherText) {
+
+        String cipherStr = new String(cipherText, Charset.defaultCharset());
+        try {
+            return gson.fromJson(cipherStr, CipherMetaDataHolder.class);
         } catch (JsonSyntaxException e) {
             if (log.isDebugEnabled()) {
                 log.debug("Deserialization failed since cipher string is not representing cipher with metadata");
