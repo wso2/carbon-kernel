@@ -32,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.base.api.ServerConfigurationService;
+import org.wso2.carbon.crypto.api.CipherMetaDataHolder;
 import org.wso2.carbon.crypto.api.CryptoException;
 import org.wso2.carbon.crypto.api.CryptoService;
 import org.wso2.carbon.user.api.RealmConfiguration;
@@ -489,85 +490,4 @@ public class UserStoreConfigXMLProcessor {
         }
     }
 
-    /**
-     * Holds encrypted cipher with related metadata.
-     *
-     * IMPORTANT: this is copy of org.wso2.carbon.core.util.CipherHolder, what ever changes applied here need to update
-     *              on above
-     */
-    private class CipherMetaDataHolder {
-
-        // Base64 encoded ciphertext.
-        private String c;
-
-        // Transformation used for encryption, default is "RSA".
-        private String t = "RSA";
-
-        // Thumbprint of the certificate.
-        private String tp;
-
-        // Digest used to generate certificate thumbprint.
-        private String tpd;
-
-
-        public String getTransformation() {
-            return t;
-        }
-
-        public void setTransformation(String transformation) {
-            this.t = transformation;
-        }
-
-        public String getCipherText() {
-            return c;
-        }
-
-        public byte[] getCipherBase64Decoded() {
-            return Base64.decode(c);
-        }
-
-        public void setCipherText(String cipher) {
-            this.c = cipher;
-        }
-
-        public String getThumbPrint() {
-            return tp;
-        }
-
-        public void setThumbPrint(String tp) {
-            this.tp = tp;
-        }
-
-        public String getThumbprintDigest() {
-            return tpd;
-        }
-
-        public void setThumbprintDigest(String digest) {
-            this.tpd = digest;
-        }
-
-        /**
-         * Function to base64 encode ciphertext and set ciphertext
-         * @param cipher
-         */
-        public void setCipherBase64Encoded(byte[] cipher) {
-            this.c = Base64.encode(cipher);
-        }
-
-        /**
-         * Function to set thumbprint
-         * @param tp thumb print
-         * @param digest digest (hash algorithm) used for to create thumb print
-         */
-        public void setThumbPrint(String tp, String digest) {
-            this.tp = tp;
-            this.tpd = digest;
-        }
-
-        @Override
-        public String toString() {
-            Gson gson = new Gson();
-            return gson.toJson(this);
-        }
-    }
 }
