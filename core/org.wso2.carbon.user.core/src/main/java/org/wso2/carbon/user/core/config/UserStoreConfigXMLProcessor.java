@@ -347,7 +347,7 @@ public class UserStoreConfigXMLProcessor {
                 try {
                     propValue = decryptProperty(propValue);
                 } catch (CryptoException e) {
-                    String errMsg = "encryption of Property=" + propElem.getAttributeValue(
+                    String errMsg = "decryption of Property=" + propElem.getAttributeValue(
                             new QName(UserCoreConstants.RealmConfig.ATTR_NAME_PROP_NAME))
                             + " failed";
                     log.error(errMsg, e);
@@ -484,13 +484,8 @@ public class UserStoreConfigXMLProcessor {
             return new String(decryptedValue);
 
         } else {
-           // try {
-                return decryptWithPrimaryKeyStore(propValue);
-            /*} catch (GeneralSecurityException e) {
-                e.printStackTrace();
-            } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                e.printStackTrace();
-            }*/
+            return decryptWithPrimaryKeyStore(propValue);
+
         }
 
     }
