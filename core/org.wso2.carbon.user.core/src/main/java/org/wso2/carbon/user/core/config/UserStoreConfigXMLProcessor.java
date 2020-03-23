@@ -82,6 +82,11 @@ public class UserStoreConfigXMLProcessor {
     private String filePath = null;
     private Gson gson = new Gson();
     private static final String CRYPTO_API_PROVIDER_BC = "BC";
+    private static final String ENCRYPTION_KEYSTORE = "Security.UserStorePasswordEncryption";
+    private static final String INTERNAL_KEYSTORE = "InternalKeystore";
+    private static final String CRYPTO_PROVIDER = "CryptoService.InternalCryptoProviderClassName";
+    private static final String SYMMETRIC_KEY_CRYPTO_PROVIDER = "org.wso2.carbon.crypto.provider" +
+            ".SymmetricKeyInternalCryptoProvider";
 
     public UserStoreConfigXMLProcessor(String path) {
         this.filePath = path;
@@ -368,25 +373,12 @@ public class UserStoreConfigXMLProcessor {
 
         InputStream in = null;
 
-        // Get the encryption keystore.
-        String encryptionKeyStore = serverConfigurationService.getFirstProperty(
-                "Security.UserStorePasswordEncryption");
-
         String passwordXPath = "Security.KeyStore.Password";
         String keypassXPath = "Security.KeyStore.KeyPassword";
         String keyAliasXPath = "Security.KeyStore.KeyAlias";
         String locationXPath = "Security.KeyStore.Location";
         String typeXPath = "Security.KeyStore.Type";
 
-        // If the encryption keystore is selected to be internal then select that keystore XPath.
-        if ("InternalKeystore".equalsIgnoreCase(encryptionKeyStore)) {
-            passwordXPath = "Security.InternalKeyStore.Password";
-            keypassXPath = "Security.InternalKeyStore.KeyPassword";
-            keyAliasXPath = "Security.InternalKeyStore.KeyAlias";
-            locationXPath = "Security.InternalKeyStore.Location";
-            typeXPath = "Security.InternalKeyStore.Type";
-
-        }
         String password = serverConfigurationService.getFirstProperty(passwordXPath);
         String keyPass = serverConfigurationService.getFirstProperty(keypassXPath);
         String keyAlias = serverConfigurationService.getFirstProperty(keyAliasXPath);
@@ -437,39 +429,124 @@ public class UserStoreConfigXMLProcessor {
      */
     private String decryptProperty(String propValue) throws CryptoException {
 
+        CryptoService cryptoService = UserStoreMgtDataHolder.getInstance().getCryptoService();
         String cipherTransformation = System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
         byte[] cipherTextBytes = Base64.decode(propValue.trim());
         String algorithm = null;
         byte[] decryptedValue;
+        boolean isInternalKeyStoreEncryptionEnabled = false;
+        boolean isSymmetricKeyEncryptionEnabled = false;
+        ServerConfigurationService config =
+                UserStoreMgtDSComponent.getServerConfigurationService();
+        if (config != null) {
+            String encryptionKeyStore = config.getFirstProperty(ENCRYPTION_KEYSTORE);
 
-        CryptoService cryptoService = UserStoreMgtDataHolder.getInstance().getCryptoService();
+            if (INTERNAL_KEYSTORE.equalsIgnoreCase(encryptionKeyStore)) {
+                isInternalKeyStoreEncryptionEnabled = true;
+            }
+            String cryptoProvider = config.getFirstProperty(CRYPTO_PROVIDER);
+            if (SYMMETRIC_KEY_CRYPTO_PROVIDER.equalsIgnoreCase(cryptoProvider)) {
+                isSymmetricKeyEncryptionEnabled = true;
+            }
+        }
 
-        if (cipherTransformation != null) {
-            // extract the original cipher if custom transformation is used configured in carbon.properties.
-            CipherMetaDataHolder cipherHolder = cipherTextToCipherHolder(cipherTextBytes);
-            if (cipherHolder != null) {
-                // cipher with meta data.
-                if (log.isDebugEnabled()) {
-                    log.debug("Cipher transformation for decryption : " + cipherHolder.getTransformation());
+        if (isInternalKeyStoreEncryptionEnabled && isSymmetricKeyEncryptionEnabled) {
+
+            throw new CryptoException(String.format("Userstore encryption can not be supported due to " +
+                    "conflicting configurations: '%s' and '%s'. When using internal keystore, assymetric crypto " +
+                    "provider should be used.", INTERNAL_KEYSTORE, SYMMETRIC_KEY_CRYPTO_PROVIDER));
+        } else if (isInternalKeyStoreEncryptionEnabled || isSymmetricKeyEncryptionEnabled) {
+
+            if (cipherTransformation != null) {
+                // extract the original cipher if custom transformation is used configured in carbon.properties.
+                CipherMetaDataHolder cipherHolder = cipherTextToCipherHolder(cipherTextBytes);
+                if (cipherHolder != null) {
+                    // cipher with meta data.
+                    if (log.isDebugEnabled()) {
+                        log.debug("Cipher transformation for decryption : " + cipherHolder.getTransformation());
+                    }
+                    algorithm = cipherHolder.getTransformation();
+                    cipherTextBytes = cipherHolder.getCipherBase64Decoded();
+                } else {
+                    // If the ciphertext is not a self-contained, directly decrypt using transformation configured in
+                    // carbon.properties file
+                    algorithm = cipherTransformation;
                 }
-                algorithm = cipherHolder.getTransformation();
-                cipherTextBytes = cipherHolder.getCipherBase64Decoded();
+            }
+            if (cipherTextBytes.length == 0) {
+                decryptedValue = StringUtils.EMPTY.getBytes();
+                if (log.isDebugEnabled()) {
+                    log.debug("Ciphertext is empty. An empty array will be used as the plaintext bytes.");
+                }
             } else {
-                // If the ciphertext is not a self-contained, directly decrypt using transformation configured in
-                // carbon.properties file
-                algorithm = cipherTransformation;
+                decryptedValue = cryptoService.decrypt(cipherTextBytes, algorithm, CRYPTO_API_PROVIDER_BC);
             }
-        }
-        if (cipherTextBytes.length == 0) {
-            decryptedValue = StringUtils.EMPTY.getBytes();
-            if (log.isDebugEnabled()) {
-                log.debug("Ciphertext is empty. An empty array will be used as the plaintext bytes.");
-            }
+            return new String(decryptedValue);
+
         } else {
-            decryptedValue = cryptoService.decrypt(cipherTextBytes, algorithm, CRYPTO_API_PROVIDER_BC);
+           // try {
+                return decryptWithPrimaryKeyStore(propValue);
+            /*} catch (GeneralSecurityException e) {
+                e.printStackTrace();
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                e.printStackTrace();
+            }*/
         }
-        return new String(decryptedValue);
+
     }
+
+    private String decryptWithPrimaryKeyStore(String propValue) throws CryptoException {
+
+        Cipher keyStoreCipher = null;
+        String cipherTransformation = System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
+        byte[] cipherTextBytes = Base64.decode(propValue.trim());
+        byte[] plainTextBytes = new byte[0];
+
+        privateKey = (privateKey == null) ? getPrivateKey() : privateKey;
+        if (privateKey == null) {
+            throw new CryptoException(
+                    "Private key initialization failed. Cannot decrypt the userstore password.");
+        }
+
+        try {
+            if (cipherTransformation != null) {
+                // extract the original cipher if custom transformation is used configured in carbon.properties.
+                CipherMetaDataHolder cipherHolder = cipherTextToCipherHolder(cipherTextBytes);
+                if (cipherHolder != null) {
+                    // cipher with meta data.
+                    if (log.isDebugEnabled()) {
+                        log.debug("Cipher transformation for decryption : " + cipherHolder.getTransformation());
+                    }
+
+                    keyStoreCipher = Cipher.getInstance(cipherHolder.getTransformation(), "BC");
+
+                    cipherTextBytes = cipherHolder.getCipherBase64Decoded();
+                } else {
+                    // If the ciphertext is not a self-contained, directly decrypt using transformation configured in
+                    // carbon.properties file
+
+                    keyStoreCipher = Cipher.getInstance(cipherTransformation, "BC");
+
+                }
+            } else {
+                // If reach here, user have removed org.wso2.CipherTransformation property or carbon.properties file
+                // hence RSA is considered as default transformation
+
+                keyStoreCipher = Cipher.getInstance("RSA", "BC");
+
+            }
+
+            keyStoreCipher.init(Cipher.DECRYPT_MODE, privateKey);
+            plainTextBytes = keyStoreCipher.doFinal(cipherTextBytes);
+
+        } catch (GeneralSecurityException e) {
+            String errMsg = "decryption of secondary userstore property failed.";
+            throw new CryptoException(errMsg);
+        }
+        return new String(plainTextBytes, Charset.defaultCharset());
+
+    }
+
 
     /**
      * Function to convert cipher byte array to {@link CipherMetaDataHolder}.
