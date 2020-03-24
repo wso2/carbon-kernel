@@ -183,8 +183,6 @@ public class UserStoreMgtDSComponent {
         userStoreMgtDataHolder.setCryptoService(null);
     }
 
-
-
     protected void unsetClaimManagerFactory(ClaimManagerFactory claimManagerFactory) {
         UserStoreMgtDSComponent.claimManagerFactory = null;
     }

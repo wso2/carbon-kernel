@@ -526,7 +526,10 @@ public class UserStoreConfigXMLProcessor {
             } else {
                 // If reach here, user have removed org.wso2.CipherTransformation property or carbon.properties file
                 // hence RSA is considered as default transformation
-
+                if (log.isDebugEnabled()) {
+                    log.debug("Cipher transformation property is not available.Hence RSA is considered as default " +
+                            "cipher transformation.");
+                }
                 keyStoreCipher = Cipher.getInstance("RSA", "BC");
 
             }
