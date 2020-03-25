@@ -18,69 +18,89 @@
 
 package org.wso2.carbon.user.core.common;
 
-import org.wso2.carbon.user.core.Permission;
-
 import java.util.List;
 
-
 /**
- * Represents a Group.
+ * Group class which can be used to represent a set of users.
  */
 public class Group extends Entity {
 
     private static final long serialVersionUID = -6157030956831929121L;
-    private List<Permission> permissions;
 
+    /**
+     * Represents the constructor.
+     *
+     * @param groupID group ID.
+     */
     public Group(String groupID) {
 
         super(groupID);
     }
 
+    /**
+     * Represents the constructor.
+     *
+     * @param groupID   group ID.
+     * @param groupName group name.
+     */
     public Group(String groupID, String groupName) {
 
         super(groupID, groupName);
     }
 
+    /**
+     * Represents the constructor.
+     *
+     * @param groupID         group ID.
+     * @param groupName       group name.
+     * @param displayName     display name.
+     * @param tenantDomain    tenant domain.
+     * @param userStoreDomain user store domain.
+     * @param claims          claims.
+     */
     public Group(String groupID, String groupName, String displayName, String tenantDomain, String userStoreDomain,
-                 List<Claim> claims) {
+            List<Claim> claims) {
 
         super(groupID, groupName, displayName, tenantDomain, userStoreDomain, claims);
     }
 
-    public Group(String groupID, String groupName, String displayName, String tenantDomain, String userStoreDomain,
-                 List<Claim> claims, List<Permission> permissions) {
-
-        super(groupID, groupName, displayName, tenantDomain, userStoreDomain, claims);
-        this.permissions = permissions;
-    }
-
+    /**
+     * Get group ID.
+     *
+     * @return group ID.
+     */
     public String getGroupID() {
 
         return super.getId();
     }
 
+    /**
+     * Set group ID.
+     *
+     * @param groupID group ID.
+     */
     public void setGroupID(String groupID) {
 
         super.setId(groupID);
     }
 
+    /**
+     * Get group name.
+     *
+     * @return group name.
+     */
     public String getGroupName() {
 
         return super.getName();
     }
 
+    /**
+     * Set group name.
+     *
+     * @param groupName group name.
+     */
     public void setGroupName(String groupName) {
 
         super.setName(groupName);
-    }
-
-    public List<Permission> getPermissions() {
-
-        return permissions;
-    }
-
-    public void setPermissions(List<Permission> permissions) {
-
-        this.permissions = permissions;
     }
 }
