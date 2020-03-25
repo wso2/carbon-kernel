@@ -25,7 +25,6 @@ import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.listener.UniqueIDUserOperationEventListener;
 import org.wso2.carbon.user.core.model.Condition;
 import org.wso2.carbon.user.core.model.UniqueIDUserClaimSearchEntry;
-import org.wso2.carbon.user.core.model.UserClaimSearchEntry;
 
 import java.util.List;
 import java.util.Map;
@@ -676,4 +675,126 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
         return true;
     }
 
+    @Override
+    public boolean doPreAddGroup(String groupName, List<String> userIDs, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostAddGroup(String groupName, List<String> userIDs, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreGetGroup(String groupID, List<String> requestedClaims, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostGetGroup(String groupID, List<String> requestedClaims, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreUpdateGroup(String groupID, List<Claim> claims, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostUpdateGroup(String groupID, List<Claim> claims, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreRenameGroup(String groupID, String newGroupName, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostRenameGroup(String groupID, String newGroupName, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreListGroup(Condition condition, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostListGroups(Condition condition, String domain, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreGetGroupListOfUsers(List<String> userIDs, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostGetGroupListOfUsers(List<String> userIDs, Map<String, List<Group>> allGroups,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreUpdateGroupListOfUser(String userID, List<String> deletedGroupIds, List<String> newGroupIds,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostUpdateGroupListOfUser(String userID, List<String> deletedGroupIds, List<String> newGroupIds,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreDeleteGroup(String groupID, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostDeleteGroup(String groupID, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPreGetUserListOfGroup(String groupID, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean doPostGetUserListOfGroup(String groupID, List<User> userList, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
 }

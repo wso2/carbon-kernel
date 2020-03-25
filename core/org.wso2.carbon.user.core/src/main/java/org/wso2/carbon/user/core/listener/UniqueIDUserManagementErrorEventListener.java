@@ -21,6 +21,8 @@ package org.wso2.carbon.user.core.listener;
 import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
+import org.wso2.carbon.user.core.common.Claim;
 import org.wso2.carbon.user.core.common.LoginIdentifier;
 import org.wso2.carbon.user.core.model.Condition;
 
@@ -231,8 +233,8 @@ public interface UniqueIDUserManagementErrorEventListener extends UserManagement
      * @throws UserStoreException Exception that will be thrown during the execution of this method.
      */
     boolean onAddRoleFailureWithID(String errorCode, String errorMessage, String roleName, String[] userList,
-                                   org.wso2.carbon.user.api.Permission[] permissions,
-                                   UserStoreManager userStoreManager) throws UserStoreException;
+            org.wso2.carbon.user.api.Permission[] permissions, UserStoreManager userStoreManager)
+            throws UserStoreException;
 
     /**
      * Defines any additional actions that need to be done if there is failure while trying to update user list of a
@@ -406,4 +408,103 @@ public interface UniqueIDUserManagementErrorEventListener extends UserManagement
     boolean onListUsersFailureWithID(String errorCode, String errorMessage, String filter, int limit, int offset,
             UserStoreManager userStoreManager) throws UserStoreException;
 
+    /**
+     * Defines any additional actions that need to be done if there is a failure while trying to add a group.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param groupName        Name of the role..
+     * @param userIDList       List of the users who are intended to assigned to the user.
+     * @param userStoreManager User Store Manager
+     * @return true if the handing succeeded.
+     * @throws UserStoreException Exception that will be thrown during the execution of this method.
+     */
+    boolean onAddGroupFailure(String errorCode, String errorMessage, String groupName, List<String> userIDList,
+            UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Defines any additional actions that need to be done if there is a failure while trying to get a group.
+     *
+     * @param errorCode          Error code.
+     * @param errorMessage       Error message.
+     * @param groupID            Group Id.
+     * @param requestedClaims Requested attributes.
+     * @param userStoreManager   User Store Manager
+     * @return true if the handing succeeded.
+     * @throws UserStoreException Exception that will be thrown during the execution of this method.
+     */
+    boolean onGetGroupFailure(String errorCode, String errorMessage, String groupID, List<String> requestedClaims,
+            UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Defines any additional actions that need to be done if there is a failure while trying to update a group.
+     *
+     * @param errorCode                Error code.
+     * @param errorMessage             Error message.
+     * @param groupID                  Group Id.
+     * @param claims                   List of group claims.
+     * @param userStoreManager User Store Manager.
+     * @return true if the handing succeeded.
+     * @throws UserStoreException Exception that will be thrown during the execution of this method.
+     */
+    boolean onUpdateGroupFailure(String errorCode, String errorMessage, String groupID, List<Claim> claims,
+            UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Defines any additional actions that need to be done if there is a failure while trying to rename a group.
+     *
+     * @param errorCode                Error code.
+     * @param errorMessage             Error message.
+     * @param groupID                  Group Id.
+     * @param newGroupName             New Group name.
+     * @param userStoreManager User Store Manager.
+     * @return true if the handing succeeded.
+     * @throws UserStoreException Exception that will be thrown during the execution of this method.
+     */
+    boolean onRenameGroupFailure(String errorCode, String errorMessage, String groupID, String newGroupName,
+            UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Defines any additional actions that need to be done if there is a failure while trying to delete group.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param groupID          Name of the role.
+     * @param userStoreManager User Store Manager.
+     * @return true if the handing succeeded.
+     * @throws UserStoreException Exception that will be thrown during the execution of this method.
+     */
+    boolean onDeleteGroupFailure(String errorCode, String errorMessage, String groupID,
+            UserStoreManager userStoreManager);
+
+    /**
+     * Defines any additional actions that need to be done if there is a failure while trying to list group.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param condition        Condition
+     * @param domain           Userstore domain.
+     * @param userStoreManager User Store Manager.
+     * @return true if the handing succeeded.
+     * @throws UserStoreException Exception that will be thrown during the execution of this method.
+     */
+    boolean onListGroupFailure(String errorCode, String errorMessage, Condition condition, String domain,
+            UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Defines any additional actions that need to be done if there is a failure while trying to update group list of
+     * user.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param userID           User ID.
+     * @param deletedGroupIds  List of deleted group IDs.
+     * @param newGroupIds      List of new group IDs.
+     * @param userStoreManager User Store Manager.
+     * @return true if the handing succeeded.
+     * @throws UserStoreException Exception that will be thrown during the execution of this method.
+     */
+    boolean onUpdateGroupListOfUserFailure(String errorCode, String errorMessage, String userID,
+            List<String> deletedGroupIds, List<String> newGroupIds, UserStoreManager userStoreManager)
+            throws UserStoreException;
 }
