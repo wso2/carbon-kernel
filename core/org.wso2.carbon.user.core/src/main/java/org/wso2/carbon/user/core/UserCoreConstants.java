@@ -45,6 +45,7 @@ public class UserCoreConstants {
     public static final short ALLOW = 1;
 
     public static final String UM_TENANT_COLUMN = "UM_TENANT_ID";
+
     public static final String SQL_ESCAPE_KEYWORD = "ESCAPE";
 
     public static final String SYSTEM_RESOURCE = "System";
@@ -90,7 +91,6 @@ public class UserCoreConstants {
     public static final String SHARED_ROLE_TENANT_COMBINER = "~";
 
     public static final int USER_ROLE_CACHE_DEFAULT_TIME_OUT = 5;
-    public static final int REALM_CACHE_DEFAULT_TIME_OUT = 5;
     public static final String INVOKE_SERVICE_PERMISSION = "invoke-service";
     public static final String AUTHZ_CACHE = "AuthzCache";
     public static final String ROLE_CACHE = "RoleCache";

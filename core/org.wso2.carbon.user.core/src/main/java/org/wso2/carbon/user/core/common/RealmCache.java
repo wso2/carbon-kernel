@@ -23,8 +23,6 @@ import org.wso2.carbon.caching.impl.CachingConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
-import org.wso2.carbon.user.api.RealmConfiguration;
-import org.wso2.carbon.user.core.common.DefaultRealm;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
@@ -38,7 +36,6 @@ public class RealmCache {
     public static final String CUSTOM_TENANT_CACHE =
             CachingConstants.LOCAL_CACHE_PREFIX + "CUSTOM_TENANT_CACHE";
     private static final RealmCache instance = new RealmCache();
-    private RealmConfiguration realmConfig=null;
     private static Log log = LogFactory.getLog(RealmCache.class);
 
     /**
@@ -56,27 +53,27 @@ public class RealmCache {
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
-            Cache<RealmCacheKey, RealmCacheEntry> realmCache=null;
+            Cache<RealmCacheKey, RealmCacheEntry> realmCache = null;
             CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(CUSTOM_TENANT_CACHE_MANAGER);
 
             for (Cache cache : cacheManager.getCaches()) {
                 if (StringUtils.equals(cache.getName(), CUSTOM_TENANT_CACHE) ||
-                    StringUtils.equals(cache.getName(), CUSTOM_TENANT_CACHE)) {
-                realmCache = cache;
+                        StringUtils.equals(cache.getName(), CUSTOM_TENANT_CACHE)) {
+                    realmCache = cache;
                 }
             }
             if (realmCache == null) {
                 if (log.isDebugEnabled()) {
-                log.debug("realm cache null");
+                    log.debug("Realm cache is null");
+                }
+                cacheManager.createCacheBuilder(CUSTOM_TENANT_CACHE).setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
+                        new CacheConfiguration.Duration(TimeUnit.MINUTES, DefaultRealm.timeOut)).build();
             }
-            cacheManager.createCacheBuilder(CUSTOM_TENANT_CACHE).setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
-                    new CacheConfiguration.Duration(TimeUnit.MINUTES,DefaultRealm.timeOut)).build();
-        }
-            
-        if (log.isDebugEnabled()) {
-            log.debug("created authorization cache : " + realmCache);
-        }
-        return cacheManager.getCache(CUSTOM_TENANT_CACHE);
+
+            if (log.isDebugEnabled()) {
+                log.debug("Authorization cache is created, cache: " + realmCache);
+            }
+            return cacheManager.getCache(CUSTOM_TENANT_CACHE);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }

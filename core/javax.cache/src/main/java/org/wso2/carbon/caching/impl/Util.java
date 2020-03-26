@@ -90,6 +90,22 @@ public final class Util {
         return CachingConstants.DEFAULT_CACHE_EXPIRY_MINS;
     }
 
+    /**
+     * Return the default realm cache timeout value (Mins) specified in Carbon.xml
+     *
+     * @return long
+     */
+    public static long getDefaultRealmCacheTimeout() {
+
+        ServerConfigurationService serverConfigService = DataHolder.getInstance().getServerConfigurationService();
+        if (serverConfigService != null) {
+            String defaultCacheTimeoutValue = serverConfigService.getFirstProperty("Cache.DefaultRealmCacheTimeout");
+            return defaultCacheTimeoutValue == null ? CachingConstants.DEFAULT_REALM_CACHE_EXPIRY_MINS :
+                    Long.parseLong(defaultCacheTimeoutValue);
+        }
+        return CachingConstants.DEFAULT_REALM_CACHE_EXPIRY_MINS;
+    }
+
     private Util() {
     }
 }

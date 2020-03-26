@@ -277,6 +277,7 @@
     <Cache>
         <!-- Default cache timeout in minutes -->
         <DefaultCacheTimeout>15</DefaultCacheTimeout>
+        <DefaultRealmCacheTimeout>30</DefaultRealmCacheTimeout>
         <!-- Force all caches to act as local -->
         <ForceLocalCache>true</ForceLocalCache>
         <DiscardEmptyCaches>false</DiscardEmptyCaches>
