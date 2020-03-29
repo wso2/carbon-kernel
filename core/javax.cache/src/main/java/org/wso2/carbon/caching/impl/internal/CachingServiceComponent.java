@@ -19,6 +19,7 @@ package org.wso2.carbon.caching.impl.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -26,13 +27,16 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.framework.BundleContext;
 import org.wso2.carbon.base.api.ServerConfigurationService;
+import org.wso2.carbon.caching.impl.CachingAxisConfigurationObserver;
 import org.wso2.carbon.caching.impl.DataHolder;
 import org.wso2.carbon.caching.impl.DistributedMapProvider;
-import org.wso2.carbon.caching.impl.CachingAxisConfigurationObserver;
+import org.wso2.carbon.caching.impl.clustering.ClusterCacheInvalidationRequestSender;
 import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
 import org.wso2.carbon.utils.ConfigurationContextService;
+
+import javax.cache.CacheInvalidationRequestSender;
+import javax.cache.event.CacheEntryListener;
 
 @Component(name = "org.wso2.carbon.caching.impl.internal.CachingServiceComponent", immediate = true)
 public class CachingServiceComponent {
@@ -50,6 +54,11 @@ public class CachingServiceComponent {
                 new CachingAxisConfigurationObserver();
         bundleContext.registerService(Axis2ConfigurationContextObserver.class.getName(),
                 cachingAxisConfigurationObserver, null);
+        ClusterCacheInvalidationRequestSender clusterCacheInvalidationRequestSender =
+                new ClusterCacheInvalidationRequestSender();
+        bundleContext.registerService(CacheEntryListener.class.getName(),clusterCacheInvalidationRequestSender,null);
+        bundleContext.registerService(CacheInvalidationRequestSender.class.getName(),
+                clusterCacheInvalidationRequestSender,null);
     }
 
     @Deactivate
@@ -85,5 +94,28 @@ public class CachingServiceComponent {
 
     protected void unsetClusteringAgent(ConfigurationContextService configurationContextService) {
         dataHolder.setClusteringAgent(null);
+    }
+
+    @Reference(name = "cache.entry.listener.service", cardinality = ReferenceCardinality.MULTIPLE, policy =
+            ReferencePolicy.DYNAMIC, unbind = "unsetCacheEntryListener")
+    protected void setCacheEntryListener(CacheEntryListener cacheEntryListener) {
+        dataHolder.getCacheEntryListeners().add(cacheEntryListener);
+    }
+
+    protected void unsetCacheEntryListener(CacheEntryListener cacheEntryListener) {
+        dataHolder.getCacheEntryListeners().remove(cacheEntryListener);
+    }
+
+    @Reference(name = "cache.invalidation.request.sender.service", cardinality = ReferenceCardinality.MULTIPLE, policy =
+            ReferencePolicy.DYNAMIC, unbind = "unsetCacheInvalidationRequestSender")
+    protected void setCacheInvalidationRequestSender(CacheInvalidationRequestSender cacheInvalidationRequestSender) {
+
+        dataHolder.getCacheInvalidationRequestSenders()
+                .put(cacheInvalidationRequestSender.getClass().getName(), cacheInvalidationRequestSender);
+    }
+
+    protected void unsetCacheInvalidationRequestSender(CacheInvalidationRequestSender cacheInvalidationRequestSender) {
+
+        dataHolder.getCacheInvalidationRequestSenders().remove(cacheInvalidationRequestSender.getClass().getName());
     }
 }
