@@ -22,6 +22,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.cache.CacheInvalidationRequestSender;
+import javax.cache.event.CacheEntryListener;
 import javax.cache.spi.AnnotationProvider;
 
 /**
@@ -36,7 +45,8 @@ public class DataHolder {
     private ClusteringAgent clusteringAgent;
     private CachingProviderImpl cachingProvider = new CachingProviderImpl();
     private AnnotationProvider annotationProvider = new AnnotationProviderImpl();
-
+    private List<CacheEntryListener> cacheEntryListeners = new ArrayList<>();
+    private Map<String,CacheInvalidationRequestSender> cacheInvalidationRequestSenders = new HashMap<>();
     public static DataHolder getInstance() {
         return instance;
     }
@@ -86,5 +96,26 @@ public class DataHolder {
 
     public ClusteringAgent getClusteringAgent() {
         return clusteringAgent;
+    }
+
+    public List<CacheEntryListener> getCacheEntryListeners() {
+
+        return cacheEntryListeners;
+    }
+
+    public void setCacheEntryListeners(List<CacheEntryListener> cacheEntryListeners) {
+
+        this.cacheEntryListeners = cacheEntryListeners;
+    }
+
+    public Map<String,CacheInvalidationRequestSender> getCacheInvalidationRequestSenders() {
+
+        return cacheInvalidationRequestSenders;
+    }
+
+    public void setCacheInvalidationRequestSenders(
+            Map<String,CacheInvalidationRequestSender> cacheInvalidationRequestSenderMap) {
+
+        this.cacheInvalidationRequestSenders = cacheInvalidationRequestSenderMap;
     }
 }
