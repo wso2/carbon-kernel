@@ -92,9 +92,9 @@ public final class Util {
     }
 
     /**
-     * Return the default realm cache timeout value (Mins) specified in Carbon.xml
+     * Return the default realm cache timeout value (Mins) specified in Carbon.xml.
      *
-     * @return long
+     * @return default realm cache timeout in mins.
      */
     public static long getDefaultRealmCacheTimeout() {
 

@@ -64,7 +64,7 @@ public class RealmCache {
             }
             if (realmCache == null) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Realm cache is null");
+                    log.debug("Realm cache is null.");
                 }
                 cacheManager.createCacheBuilder(CUSTOM_TENANT_CACHE).setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
                         new CacheConfiguration.Duration(TimeUnit.MINUTES, DefaultRealm.timeOut)).build();
