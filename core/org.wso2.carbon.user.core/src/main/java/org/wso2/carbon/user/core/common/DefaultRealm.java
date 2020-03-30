@@ -116,6 +116,10 @@ public class DefaultRealm implements UserRealm {
         properties = propertiesMap;
         dataSource = (DataSource) properties.get(UserCoreConstants.DATA_SOURCE);
         this.timeOut = Util.getDefaultRealmCacheTimeout();
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("Default realm cache timeout set to: %s minutes.", this.timeOut));
+        }
+
         Map<String, ClaimMapping> claimMappings = new HashMap<String, ClaimMapping>();
         Map<String, ProfileConfiguration> profileConfigs = new HashMap<String, ProfileConfiguration>();
 
