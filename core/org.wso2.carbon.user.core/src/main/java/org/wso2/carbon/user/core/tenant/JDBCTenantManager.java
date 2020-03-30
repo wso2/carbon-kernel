@@ -83,7 +83,7 @@ public class JDBCTenantManager implements TenantManager {
     }
 
     public int addTenant(org.wso2.carbon.user.api.Tenant tenant) throws UserStoreException {
-        // if tenant id present in tenant bean, we create the tenant with that tenant id.
+        // If tenant id present in tenant bean, we create the tenant with that tenant id.
         if (tenant.getId() > 0) {
             return addTenantWithGivenId(tenant);
         }
@@ -114,6 +114,8 @@ public class JDBCTenantManager implements TenantManager {
             InputStream is = new ByteArrayInputStream(realmConfigString.getBytes());
             prepStmt.setBinaryStream(4, is, is.available());
 
+            prepStmt.setString(5, tenant.getResourceId());
+            prepStmt.setString(6, tenant.getRegion());
             prepStmt.executeUpdate();
 
             result = prepStmt.getGeneratedKeys();
