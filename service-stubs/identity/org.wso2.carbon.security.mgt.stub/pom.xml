@@ -42,6 +42,10 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
+                            org.wso2.carbon.identity.base.xsd.* ;
+                            version="${carbon.identity.package.export.version}",
+                            org.wso2.carbon.identity.sts.common.config.service.xsd.* ;
+                            version="${carbon.identity.package.export.version}",
                             org.wso2.carbon.security.mgt.stub.*;
                             version="${carbon.identity.package.export.version}"
                         </Export-Package>

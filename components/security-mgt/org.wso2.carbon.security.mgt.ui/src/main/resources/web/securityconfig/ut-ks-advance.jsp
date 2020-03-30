@@ -20,9 +20,9 @@
 <%@ taglib uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" prefix="csrf" %>
 <%@page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@page import="org.wso2.carbon.CarbonConstants" %>
-<%@page import="org.wso2.carbon.security.mgt.stub.config.xsd.KerberosConfigData" %>
-<%@page import="org.wso2.carbon.security.mgt.stub.config.xsd.SecurityConfigData" %>
-<%@page import="org.wso2.carbon.security.mgt.stub.config.xsd.SecurityScenarioData" %>
+<%@page import="org.wso2.carbon.identity.sts.common.config.service.xsd.KerberosConfigData" %>
+<%@page import="org.wso2.carbon.identity.sts.common.config.service.xsd.SecurityConfigData" %>
+<%@page import="org.wso2.carbon.identity.sts.common.config.service.xsd.SecurityScenarioData" %>
 <%@page import="org.wso2.carbon.security.mgt.stub.keystore.xsd.KeyStoreData" %>
 <%@page import="org.wso2.carbon.security.ui.SecurityUIConstants" %>
 <%@page import="org.wso2.carbon.security.ui.Util" %>

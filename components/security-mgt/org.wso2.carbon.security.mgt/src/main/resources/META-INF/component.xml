@@ -39,51 +39,5 @@
             <DisplayName>Delete</DisplayName>
             <ResourceId>/permission/admin/manage/identity/keystoremgt/delete</ResourceId>
         </ManagementPermission>
-
-        <!--Security Management Permissions-->
-        <ManagementPermission>
-            <DisplayName>Security Management</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/securitymgt</ResourceId>
-        </ManagementPermission>
-
-        <ManagementPermission>
-            <DisplayName>Create</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/securitymgt/create</ResourceId>
-        </ManagementPermission>
-        <ManagementPermission>
-            <DisplayName>View</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/securitymgt/view</ResourceId>
-        </ManagementPermission>
-        <ManagementPermission>
-            <DisplayName>Update</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/securitymgt/update</ResourceId>
-        </ManagementPermission>
-        <ManagementPermission>
-            <DisplayName>Delete</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/securitymgt/delete</ResourceId>
-        </ManagementPermission>
-
-        <!--STS Management Permissions-->
-        <ManagementPermission>
-            <DisplayName>STS Management</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/stsmgt</ResourceId>
-        </ManagementPermission>
-
-        <ManagementPermission>
-            <DisplayName>Create</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/stsmgt/create</ResourceId>
-        </ManagementPermission>
-        <ManagementPermission>
-            <DisplayName>View</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/stsmgt/view</ResourceId>
-        </ManagementPermission>
-        <ManagementPermission>
-            <DisplayName>Update</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/stsmgt/update</ResourceId>
-        </ManagementPermission>
-        <ManagementPermission>
-            <DisplayName>Delete</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/stsmgt/delete</ResourceId>
-        </ManagementPermission>
     </ManagementPermissions>
 </component>
