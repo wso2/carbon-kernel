@@ -114,8 +114,7 @@ public class JDBCTenantManager implements TenantManager {
             InputStream is = new ByteArrayInputStream(realmConfigString.getBytes());
             prepStmt.setBinaryStream(4, is, is.available());
 
-            prepStmt.setString(5, tenant.getResourceId());
-            prepStmt.setString(6, tenant.getRegion());
+            prepStmt.setString(5, tenant.getUUID());
             prepStmt.executeUpdate();
 
             result = prepStmt.getGeneratedKeys();

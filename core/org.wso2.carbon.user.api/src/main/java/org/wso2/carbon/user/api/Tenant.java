@@ -86,17 +86,12 @@ public class Tenant {
     /**
      * Unique id of the tenant.
      */
-    private String resourceId;
+    private String uuid;
 
     /**
      * The admin user name of the tenant
      */
     private String adminUserId;
-
-    /**
-     * region of the tenant admin.
-     */
-    private String region;
 
     /**
      * Claim value pair of tenant owner.
@@ -200,14 +195,14 @@ public class Tenant {
         this.realmConfig = realmConfig;
     }
 
-    public String getResourceId() {
+    public String getUUID() {
 
-        return resourceId;
+        return uuid;
     }
 
-    public void setResourceId(String resourceId) {
+    public void setUUID(String uuid) {
 
-        this.resourceId = resourceId;
+        this.uuid = uuid;
     }
 
     public String getAdminUserId() {
@@ -218,16 +213,6 @@ public class Tenant {
     public void setAdminUserId(String adminUserId) {
 
         this.adminUserId = adminUserId;
-    }
-
-    public String getRegion() {
-
-        return region;
-    }
-
-    public void setRegion(String region) {
-
-        this.region = region;
     }
 
     public Map<String, String> getClaimsMap() {

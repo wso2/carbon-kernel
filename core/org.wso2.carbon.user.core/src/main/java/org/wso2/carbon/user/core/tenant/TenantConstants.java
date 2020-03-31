@@ -22,7 +22,7 @@ public class TenantConstants {
     public static final String ADD_TENANT_WITH_ID_SQL = "INSERT INTO UM_TENANT (UM_ID,UM_DOMAIN_NAME," +
             "UM_EMAIL, UM_CREATED_DATE, UM_USER_CONFIG) VALUES(?,?,?,?,?)";
     public static final String ADD_TENANT_SQL = "INSERT INTO UM_TENANT (UM_DOMAIN_NAME," +
-            "UM_EMAIL, UM_CREATED_DATE, UM_USER_CONFIG, UUID, REGION) VALUES(?,?,?,?,?,?)";
+            "UM_EMAIL, UM_CREATED_DATE, UM_USER_CONFIG, UUID) VALUES(?,?,?,?,?)";
     public static final String UPDATE_TENANT_CONFIG_SQL = "UPDATE UM_TENANT SET UM_USER_CONFIG=? WHERE UM_ID=?";
     public static final String UPDATE_TENANT_SQL = "UPDATE UM_TENANT SET UM_DOMAIN_NAME=?, UM_EMAIL=?," +
             " UM_CREATED_DATE=? WHERE UM_ID=?";
