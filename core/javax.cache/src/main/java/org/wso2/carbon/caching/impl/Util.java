@@ -17,6 +17,7 @@
 */
 package org.wso2.carbon.caching.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -88,6 +89,22 @@ public final class Util {
                     Long.parseLong(defaultCacheTimeoutValue);
         }
         return CachingConstants.DEFAULT_CACHE_EXPIRY_MINS;
+    }
+
+    /**
+     * Return the default realm cache timeout value (Mins) specified in Carbon.xml.
+     *
+     * @return default realm cache timeout in mins.
+     */
+    public static long getDefaultRealmCacheTimeout() {
+
+        ServerConfigurationService serverConfigService = DataHolder.getInstance().getServerConfigurationService();
+        if (serverConfigService != null) {
+            String defaultCacheTimeoutValue = serverConfigService.getFirstProperty("Cache.DefaultRealmCacheTimeout");
+            return StringUtils.isEmpty(defaultCacheTimeoutValue) ? CachingConstants.DEFAULT_REALM_CACHE_EXPIRY_MINS :
+                    Long.parseLong(defaultCacheTimeoutValue);
+        }
+        return CachingConstants.DEFAULT_REALM_CACHE_EXPIRY_MINS;
     }
 
     private Util() {

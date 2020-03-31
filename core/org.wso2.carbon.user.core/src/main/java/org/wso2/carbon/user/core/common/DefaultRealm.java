@@ -19,6 +19,8 @@ package org.wso2.carbon.user.core.common;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.caching.impl.CachingConstants;
+import org.wso2.carbon.caching.impl.Util;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.AuthorizationManager;
 import org.wso2.carbon.user.core.UserCoreConstants;
@@ -61,6 +63,7 @@ public class DefaultRealm implements UserRealm {
     private UserStoreManager userStoreManager = null;
     private AuthorizationManager authzManager = null;
     private Map<String, Object> properties = null;
+    public static long timeOut = CachingConstants.DEFAULT_REALM_CACHE_EXPIRY_MINS;
 
     /**
      * Usage of this method is found on tests.
@@ -112,6 +115,10 @@ public class DefaultRealm implements UserRealm {
         this.tenantId = tenantId;
         properties = propertiesMap;
         dataSource = (DataSource) properties.get(UserCoreConstants.DATA_SOURCE);
+        this.timeOut = Util.getDefaultRealmCacheTimeout();
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("Default realm cache timeout set to: %s minutes.", this.timeOut));
+        }
 
         Map<String, ClaimMapping> claimMappings = new HashMap<String, ClaimMapping>();
         Map<String, ProfileConfiguration> profileConfigs = new HashMap<String, ProfileConfiguration>();
