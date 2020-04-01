@@ -97,25 +97,25 @@ public class CachingServiceComponent {
     }
 
     @Reference(name = "cache.entry.listener.service", cardinality = ReferenceCardinality.MULTIPLE, policy =
-            ReferencePolicy.DYNAMIC, unbind = "unsetCacheEntryListener")
-    protected void setCacheEntryListener(CacheEntryListener cacheEntryListener) {
+            ReferencePolicy.DYNAMIC, unbind = "removeCacheEntryListener")
+    protected void addCacheEntryListener(CacheEntryListener cacheEntryListener) {
         dataHolder.getCacheEntryListeners().add(cacheEntryListener);
     }
 
-    protected void unsetCacheEntryListener(CacheEntryListener cacheEntryListener) {
+    protected void removeCacheEntryListener(CacheEntryListener cacheEntryListener) {
         dataHolder.getCacheEntryListeners().remove(cacheEntryListener);
     }
 
     @Reference(name = "cache.invalidation.request.sender.service", cardinality = ReferenceCardinality.MULTIPLE, policy =
-            ReferencePolicy.DYNAMIC, unbind = "unsetCacheInvalidationRequestSender")
-    protected void setCacheInvalidationRequestSender(CacheInvalidationRequestSender cacheInvalidationRequestSender) {
+            ReferencePolicy.DYNAMIC, unbind = "removeCacheInvalidationRequestSender")
+    protected void addCacheInvalidationRequestSender(CacheInvalidationRequestSender cacheInvalidationRequestSender) {
 
-        dataHolder.getCacheInvalidationRequestSenders()
-                .put(cacheInvalidationRequestSender.getClass().getName(), cacheInvalidationRequestSender);
+        dataHolder.addCacheInvalidationRequestSender(cacheInvalidationRequestSender.getClass().getName(),
+                cacheInvalidationRequestSender);
     }
 
-    protected void unsetCacheInvalidationRequestSender(CacheInvalidationRequestSender cacheInvalidationRequestSender) {
+    protected void removeCacheInvalidationRequestSender(CacheInvalidationRequestSender cacheInvalidationRequestSender) {
 
-        dataHolder.getCacheInvalidationRequestSenders().remove(cacheInvalidationRequestSender.getClass().getName());
+        dataHolder.removeCacheInvalidationRequestSender(cacheInvalidationRequestSender.getClass().getName());
     }
 }

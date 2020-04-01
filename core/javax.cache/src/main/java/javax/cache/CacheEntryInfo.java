@@ -23,7 +23,7 @@ import java.util.UUID;
 /**
  * Cache Information to Send to invalidate Cache
  */
-public class CacheInfo implements Serializable {
+public class CacheEntryInfo implements Serializable {
 
     private static final long serialVersionUID = 90L;
     private final String uuid = UUID.randomUUID().toString();
@@ -34,7 +34,7 @@ public class CacheInfo implements Serializable {
     private String tenantDomain;
     private int tenantId;
 
-    public CacheInfo(String cacheManagerName, String cacheName, Object cacheKey, String tenantDomain, int tenantId) {
+    public CacheEntryInfo(String cacheManagerName, String cacheName, Object cacheKey, String tenantDomain, int tenantId) {
 
         this.cacheManagerName = cacheManagerName;
         this.cacheName = cacheName;

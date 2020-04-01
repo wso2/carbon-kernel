@@ -46,7 +46,7 @@ public final class CachingConstants {
     public static final String DISCARD_EMPTY_CACHES = "Cache.DiscardEmptyCaches";
 
     public static final String ILLEGAL_STATE_EXCEPTION_MESSAGE = "The cache status is not STARTED";
-    public static final String CACHE_INVALIDATION = "Cache.CacheInvalidation";
+    public static final String CACHE_INVALIDATION_IMPL = "Cache.CacheInvalidationImpl";
     public static final String DEFAULT_CACHE_INVALIDATION_CLASS = "org.wso2.carbon.caching.impl.clustering" +
             ".ClusterCacheInvalidationRequestSender";
 
