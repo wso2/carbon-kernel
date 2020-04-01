@@ -45,7 +45,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.cache.Cache;
 import javax.cache.CacheConfiguration;
-import javax.cache.CacheInfo;
+import javax.cache.CacheEntryInfo;
 import javax.cache.CacheInvalidationRequestSender;
 import javax.cache.CacheLoader;
 import javax.cache.CacheManager;
@@ -521,8 +521,8 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         boolean removed = removeLocal(key);
         if (cacheName.startsWith(CachingConstants.LOCAL_CACHE_PREFIX) && forceLocalCache) {
             CacheEntryEvent cacheEntryEvent = createCacheEntryEvent((K) key, null);
-            CacheInfo cacheInfo = Util.createCacheInfo(cacheEntryEvent);
-            Util.getCacheInvalidationRequestSender().send(cacheInfo);
+            CacheEntryInfo cacheInfo = Util.createCacheInfo(cacheEntryEvent);
+            DataHolder.getInstance().getConfiguredCacheInvalidationSender().send(cacheInfo);
         }
 
         return removed;
@@ -650,8 +650,8 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         removeAllLocal();
         if (cacheName.startsWith(CachingConstants.LOCAL_CACHE_PREFIX) && forceLocalCache) {
             CacheEntryEvent cacheEntryEvent = createCacheEntryEvent((K) CLEAR_ALL_PREFIX, null);
-            CacheInfo cacheInfo = Util.createCacheInfo(cacheEntryEvent);
-                Util.getCacheInvalidationRequestSender().send(cacheInfo);
+            CacheEntryInfo cacheInfo = Util.createCacheInfo(cacheEntryEvent);
+            DataHolder.getInstance().getConfiguredCacheInvalidationSender().send(cacheInfo);
             }
     }
 

@@ -24,7 +24,7 @@ public interface CacheInvalidationRequestSender {
 
     /**
      * Called when CacheInvalidationMessage to Send into other nodes.
-     * @param cacheInfo {@link CacheInfo} object
+     * @param  cacheEntryInfo {@link CacheEntryInfo} object
      */
-    public void send(CacheInfo cacheInfo);
+    public void send(CacheEntryInfo cacheEntryInfo);
 }

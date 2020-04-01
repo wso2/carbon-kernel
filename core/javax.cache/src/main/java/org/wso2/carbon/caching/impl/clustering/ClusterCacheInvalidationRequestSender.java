@@ -27,7 +27,7 @@ import org.wso2.carbon.caching.impl.DataHolder;
 import org.wso2.carbon.caching.impl.Util;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import javax.cache.CacheInfo;
+import javax.cache.CacheEntryInfo;
 import javax.cache.CacheInvalidationRequestSender;
 import javax.cache.event.CacheEntryCreatedListener;
 import javax.cache.event.CacheEntryEvent;
@@ -42,7 +42,8 @@ import javax.cache.event.CacheEntryUpdatedListener;
  * This is feature intended only when separate local caches are maintained by each node
  * in the cluster.
  */
-public class ClusterCacheInvalidationRequestSender implements CacheEntryRemovedListener, CacheEntryUpdatedListener,
+public class
+ClusterCacheInvalidationRequestSender implements CacheEntryRemovedListener, CacheEntryUpdatedListener,
         CacheEntryCreatedListener, CacheInvalidationRequestSender {
 
     private static final Log log = LogFactory.getLog(ClusterCacheInvalidationRequestSender.class);
@@ -71,10 +72,10 @@ public class ClusterCacheInvalidationRequestSender implements CacheEntryRemovedL
     }
 
     @Override
-    public void send(CacheInfo cacheInfo) {
+    public void send(CacheEntryInfo cacheEntryInfo) {
 
-        String tenantDomain = cacheInfo.getTenantDomain();
-        int tenantId = cacheInfo.getTenantId();
+        String tenantDomain = cacheEntryInfo.getTenantDomain();
+        int tenantId = cacheEntryInfo.getTenantId();
 
         if (MultitenantConstants.INVALID_TENANT_ID == tenantId) {
             if (log.isDebugEnabled()) {
@@ -84,24 +85,24 @@ public class ClusterCacheInvalidationRequestSender implements CacheEntryRemovedL
             return;
         }
 
-        if (!cacheInfo.getCacheName().startsWith(CachingConstants.LOCAL_CACHE_PREFIX) ||
+        if (!cacheEntryInfo.getCacheName().startsWith(CachingConstants.LOCAL_CACHE_PREFIX) ||
                 getClusteringAgent() == null) {
             return;
         }
         int numberOfRetries = 0;
         if (log.isDebugEnabled()) {
-            log.debug("Sending cache invalidation message to other cluster nodes for '" + cacheInfo.getCacheKey() +
-                    "' of the cache '" + cacheInfo.getCacheName() + "' of the cache manager " +
-                    cacheInfo.getCacheManagerName() + "'");
+            log.debug("Sending cache invalidation message to other cluster nodes for '" + cacheEntryInfo.getCacheKey() +
+                    "' of the cache '" + cacheEntryInfo.getCacheName() + "' of the cache manager '" +
+                    cacheEntryInfo.getCacheManagerName() + "'");
         }
 
         //Send the cluster message
-        ClusterCacheInvalidationRequest.CacheInfo info =
-                new ClusterCacheInvalidationRequest.CacheInfo(cacheInfo.getCacheManagerName(), cacheInfo.getCacheName(),
-                        cacheInfo.getCacheKey());
+        ClusterCacheInvalidationRequest.CacheInfo cacheInfo =
+                new ClusterCacheInvalidationRequest.CacheInfo(cacheEntryInfo.getCacheManagerName(), cacheEntryInfo.getCacheName(),
+                        cacheEntryInfo.getCacheKey());
 
         ClusterCacheInvalidationRequest clusterCacheInvalidationRequest = new ClusterCacheInvalidationRequest(
-                info, tenantDomain, tenantId);
+                cacheInfo, tenantDomain, tenantId);
 
         while (numberOfRetries < 60) {
             try {

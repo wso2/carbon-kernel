@@ -26,7 +26,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.Map;
 
-import javax.cache.CacheInfo;
+import javax.cache.CacheEntryInfo;
 import javax.cache.CacheInvalidationRequestSender;
 import javax.cache.event.CacheEntryEvent;
 
@@ -120,11 +120,11 @@ public final class Util {
      * @param cacheEntryEvent CacheEntryEvent
      * @return CacheInfo
      */
-    public static CacheInfo createCacheInfo(CacheEntryEvent cacheEntryEvent) {
+    public static CacheEntryInfo createCacheInfo(CacheEntryEvent cacheEntryEvent) {
 
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain(true);
         int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId(true);
-        return new CacheInfo(cacheEntryEvent.getSource().getCacheManager().getName(),
+        return new CacheEntryInfo(cacheEntryEvent.getSource().getCacheManager().getName(),
                 cacheEntryEvent.getSource().getName(), cacheEntryEvent.getKey(), tenantDomain, tenantId);
     }
 
@@ -138,13 +138,18 @@ public final class Util {
         Map<String, CacheInvalidationRequestSender> cacheInvalidationRequestSenders =
                 DataHolder.getInstance().getCacheInvalidationRequestSenders();
         if (serverConfigService != null) {
-            String cacheInvalidation = serverConfigService.getFirstProperty(CachingConstants.CACHE_INVALIDATION);
+            String cacheInvalidation = serverConfigService.getFirstProperty(CachingConstants.CACHE_INVALIDATION_IMPL);
             if (StringUtils.isNotEmpty(cacheInvalidation) &&
                     cacheInvalidationRequestSenders.containsKey(cacheInvalidation)) {
                 return DataHolder.getInstance().getCacheInvalidationRequestSenders().get(cacheInvalidation);
             }
         }
-        return cacheInvalidationRequestSenders.get(CachingConstants.DEFAULT_CACHE_INVALIDATION_CLASS);
+        CacheInvalidationRequestSender cacheInvalidationRequestSender =
+                cacheInvalidationRequestSenders.get(CachingConstants.DEFAULT_CACHE_INVALIDATION_CLASS);
+        if (cacheInvalidationRequestSender != null) {
+            return cacheInvalidationRequestSender;
+        }
+        return new ClusterCacheInvalidationRequestSender();
     }
     private Util() {
     }

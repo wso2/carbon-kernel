@@ -26,9 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.api.IdempotentMessage;
 import org.wso2.carbon.caching.impl.CacheImpl;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-
 import java.io.Serializable;
-
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
