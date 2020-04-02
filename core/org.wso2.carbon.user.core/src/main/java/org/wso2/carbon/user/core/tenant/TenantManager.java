@@ -18,6 +18,7 @@
 package org.wso2.carbon.user.core.tenant;
 
 import org.osgi.framework.BundleContext;
+import org.wso2.carbon.user.core.NotImplementedException;
 import org.wso2.carbon.user.core.UserStoreException;
 
 public interface TenantManager extends org.wso2.carbon.user.api.TenantManager {
@@ -33,5 +34,22 @@ public interface TenantManager extends org.wso2.carbon.user.api.TenantManager {
      */
     void initializeExistingPartitions();
 
+    /**
+     * List tenant information of tenants.
+     *
+     * @param limit     limit per page.
+     * @param offset    offset value.
+     * @param filter    filter value.
+     * @param sortOrder order of IdP ASC/DESC.
+     * @param sortBy    the attribute need to sort.
+     * @return Tenant's basic information list.
+     * @throws UserStoreException Error when getting list of tenants.
+     */
+    default TenantSearchResult listTenants(Integer limit, Integer offset, String filter, String sortOrder,
+                                           String sortBy) throws UserStoreException {
+
+        throw new NotImplementedException(
+                "listTenants operation is not implemented in: " + this.getClass());
+    }
 
 }

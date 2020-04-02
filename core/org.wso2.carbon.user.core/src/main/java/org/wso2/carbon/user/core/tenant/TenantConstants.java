@@ -22,6 +22,8 @@ public class TenantConstants {
     public static final String ADD_TENANT_WITH_ID_SQL = "INSERT INTO UM_TENANT (UM_ID,UM_DOMAIN_NAME," +
             "UM_EMAIL, UM_CREATED_DATE, UM_USER_CONFIG) VALUES(?,?,?,?,?)";
     public static final String ADD_TENANT_SQL = "INSERT INTO UM_TENANT (UM_DOMAIN_NAME," +
+            "UM_EMAIL, UM_CREATED_DATE, UM_USER_CONFIG) VALUES(?,?,?,?)";
+    public static final String ADD_TENANT_SQL_With_UUID = "INSERT INTO UM_TENANT (UM_DOMAIN_NAME," +
             "UM_EMAIL, UM_CREATED_DATE, UM_USER_CONFIG, UUID) VALUES(?,?,?,?,?)";
     public static final String UPDATE_TENANT_CONFIG_SQL = "UPDATE UM_TENANT SET UM_USER_CONFIG=? WHERE UM_ID=?";
     public static final String UPDATE_TENANT_SQL = "UPDATE UM_TENANT SET UM_DOMAIN_NAME=?, UM_EMAIL=?," +
@@ -30,6 +32,20 @@ public class TenantConstants {
             "UM_CREATED_DATE, UM_ACTIVE, UM_CREATED_DATE, UM_USER_CONFIG FROM UM_TENANT WHERE UM_ID=?";
     public static final String GET_ALL_TENANTS_SQL = "SELECT UM_ID, UM_DOMAIN_NAME, UM_EMAIL, " +
             "UM_CREATED_DATE, UM_ACTIVE FROM UM_TENANT ORDER BY UM_ID";
+    public static final String LIST_TENANTS_COUNT_SQL = "SELECT COUNT(*) FROM UM_TENANT";
+    public static final String LIST_TENANTS_PAGINATED_SQL = "SELECT UM_ID, UM_DOMAIN_NAME, UM_EMAIL, " +
+            "UM_CREATED_DATE, UM_ACTIVE FROM UM_TENANT ";
+    public static final String LIST_TENANTS_PAGINATED_ORACLE = "SELECT UM_ID, UM_DOMAIN_NAME, UM_EMAIL, " +
+            "UM_CREATED_DATE, UM_ACTIVE FROM (SELECT UM_ID, UM_DOMAIN_NAME, UM_EMAIL, UM_CREATED_DATE, UM_ACTIVE, " +
+            "rownum AS rnum FROM (SELECT UM_ID, UM_DOMAIN_NAME, UM_EMAIL, UM_CREATED_DATE, UM_ACTIVE FROM UM_TENANT ";
+    public static final String LIST_TENANTS_PAGINATED_DB2 = "SELECT UM_ID, UM_DOMAIN_NAME, UM_EMAIL, " +
+            "UM_CREATED_DATE, UM_ACTIVE FROM (SELECT ROW_NUMBER() OVER";
+    public static final String LIST_TENANTS_MYSQL_TAIL = "ORDER BY %s LIMIT ?, ?";
+    public static final String LIST_TENANTS_POSTGRESQL_TAIL = "ORDER BY %s LIMIT ? OFFSET ?";
+    public static final String LIST_TENANTS_DB2_TAIL = "(ORDER BY %s) AS rn,UM_TENANT.* FROM UM_TENANT)" +
+            "WHERE rn BETWEEN ? AND ?";
+    public static final String LIST_TENANTS_MSSQL_TAIL = "ORDER BY %s OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+    public static final String LIST_TENANTS_ORACLE_TAIL = "ORDER BY %s) rownum <= ?) WHERE rnum > ?";
     public static final String GET_DOMAIN_SQL = "SELECT UM_DOMAIN_NAME FROM UM_TENANT WHERE UM_ID=?";
     public static final String GET_TENANT_ID_SQL = "SELECT UM_ID FROM UM_TENANT WHERE UM_DOMAIN_NAME=?";
     public static final String ACTIVATE_SQL = "UPDATE UM_TENANT SET UM_ACTIVE='1' WHERE UM_ID=?";

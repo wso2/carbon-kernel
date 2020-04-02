@@ -56,6 +56,8 @@ public class JDBCTenantManager implements TenantManager {
     protected BundleContext bundleContext;
     protected TenantCache tenantCacheManager = TenantCache.getInstance();
     DataSource dataSource;
+    private static final String DB2 = "db2";
+    private static final String ORACLE = "oracle";
     /**
      * Map which maps tenant domains to tenant IDs
      * <p/>
@@ -95,6 +97,9 @@ public class JDBCTenantManager implements TenantManager {
         try {
             dbConnection = getDBConnection();
             String sqlStmt = TenantConstants.ADD_TENANT_SQL;
+            if (tenant.getUUID() != null) {
+                sqlStmt = TenantConstants.ADD_TENANT_SQL_With_UUID;
+            }
 
             String dbProductName = dbConnection.getMetaData().getDatabaseProductName();
             prepStmt = dbConnection.prepareStatement(sqlStmt, new String[]{DBUtils
@@ -114,7 +119,9 @@ public class JDBCTenantManager implements TenantManager {
             InputStream is = new ByteArrayInputStream(realmConfigString.getBytes());
             prepStmt.setBinaryStream(4, is, is.available());
 
-            prepStmt.setString(5, tenant.getUUID());
+            if (tenant.getUUID() != null) {
+                prepStmt.setString(5, tenant.getUUID());
+            }
             prepStmt.executeUpdate();
 
             result = prepStmt.getGeneratedKeys();
@@ -420,6 +427,22 @@ public class JDBCTenantManager implements TenantManager {
             DatabaseUtil.closeAllConnections(dbConnection, result, prepStmt);
         }
         return tenantList.toArray(new Tenant[tenantList.size()]);
+    }
+
+    public TenantSearchResult listTenants(Integer limit, Integer offset, String filter, String sortOrder, String sortBy)
+            throws UserStoreException {
+
+        TenantSearchResult tenantSearchResult = new TenantSearchResult();
+        String sortedOrder = sortBy + " " + sortOrder;
+        try (Connection dbConnection = getDBConnection();
+             ResultSet resultSet = getTenantQueryResultSet(dbConnection, sortedOrder, offset, limit)) {
+            List<Tenant> tenantList = populateTenantList(resultSet);
+            tenantSearchResult.setTenantList(tenantList);
+            tenantSearchResult.setTotalTenantCount(getCountOfTenants());
+            return tenantSearchResult;
+        } catch (SQLException e) {
+            throw new UserStoreException("Error occurred while listing the tenants.", e);
+        }
     }
 
     public String getDomain(int tenantId) throws UserStoreException {
@@ -825,5 +848,109 @@ public class JDBCTenantManager implements TenantManager {
                     + ":" + s.getLineNumber() + ") \n");
         }
         return currentStackTraceBuilder;
+    }
+
+    /**
+     * Get total number of tenant existing in the system.
+     *
+     * @return number of tenant count.
+     * @throws UserStoreException Error when getting count of tenants.
+     */
+    private int getCountOfTenants() throws UserStoreException {
+
+        String sqlStmt = TenantConstants.LIST_TENANTS_COUNT_SQL;
+        int tenantCount = 0;
+        try (Connection dbConnection = getDBConnection();
+             PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
+            try (ResultSet rs = prepStmt.executeQuery()) {
+                if (rs.next()) {
+                    tenantCount = Integer.parseInt(rs.getString(1));
+                }
+            }
+        } catch (SQLException e) {
+            throw new UserStoreException("Error occurred while retrieving tenant count");
+        }
+        return tenantCount;
+    }
+
+    private ResultSet getTenantQueryResultSet(Connection dbConnection, String sortedOrder, Integer offset,
+                                              Integer limit) throws SQLException, UserStoreException {
+
+        String dbType = dbConnection.getMetaData().getDatabaseProductName();
+        if (DB2.equalsIgnoreCase(dbType)) {
+            int initialOffset = offset;
+            offset = offset + limit;
+            limit = initialOffset + 1;
+        } else if (ORACLE.equalsIgnoreCase(dbType)) {
+            limit = offset + limit;
+        }
+
+        PreparedStatement prepStmt;
+
+        String sqlQuery;
+        String sqlTail;
+        sqlQuery = TenantConstants.LIST_TENANTS_PAGINATED_SQL;
+        if (dbType.contains("MySQL") || dbType.contains("H2")) {
+            sqlTail = String.format(TenantConstants.LIST_TENANTS_MYSQL_TAIL, sortedOrder);
+            sqlQuery = sqlQuery + sqlTail;
+            prepStmt = dbConnection.prepareStatement(sqlQuery);
+            prepStmt.setInt(1, offset);
+            prepStmt.setInt(2, limit);
+        } else if (dbType.contains(ORACLE)) {
+            sqlQuery = TenantConstants.LIST_TENANTS_PAGINATED_ORACLE;
+            sqlTail = String.format(TenantConstants.LIST_TENANTS_ORACLE_TAIL, sortedOrder);
+            sqlQuery = sqlQuery + sqlTail;
+            prepStmt = dbConnection.prepareStatement(sqlQuery);
+            prepStmt.setInt(1, offset + limit);
+            prepStmt.setInt(2, offset);
+        } else if (dbType.contains("Microsoft")) {
+            sqlTail = String.format(TenantConstants.LIST_TENANTS_MSSQL_TAIL, sortedOrder);
+            sqlQuery = sqlQuery + sqlTail;
+            prepStmt = dbConnection.prepareStatement(sqlQuery);
+            prepStmt.setInt(1, offset);
+            prepStmt.setInt(2, limit);
+        } else if (dbType.contains(DB2)) {
+            sqlQuery = TenantConstants.LIST_TENANTS_PAGINATED_DB2;
+            sqlTail = String.format(TenantConstants.LIST_TENANTS_DB2_TAIL, sortedOrder);
+            sqlQuery = sqlQuery + sqlTail;
+            prepStmt = dbConnection.prepareStatement(sqlQuery);
+            prepStmt.setInt(1, offset + 1);
+            prepStmt.setInt(2, offset + limit);
+        } else if (dbType.contains("PostgreSQL")) {
+            sqlTail = String.format(TenantConstants.LIST_TENANTS_POSTGRESQL_TAIL, sortedOrder);
+            sqlQuery = sqlQuery + sqlTail;
+            prepStmt = dbConnection.prepareStatement(sqlQuery);
+            prepStmt.setInt(1, offset);
+            prepStmt.setInt(2, limit);
+        } else {
+            String message = "Error while loading tenant from DB: Database driver could not be identified" +
+                    " or not supported.";
+            log.error(message);
+            throw new UserStoreException(message);
+        }
+        return prepStmt.executeQuery();
+
+    }
+
+    private List<Tenant> populateTenantList(ResultSet resultSet) throws SQLException {
+
+        List<Tenant> tenantList = new ArrayList<Tenant>();
+        while (resultSet.next()) {
+            int id = resultSet.getInt("UM_ID");
+            String domain = resultSet.getString("UM_DOMAIN_NAME");
+            String email = resultSet.getString("UM_EMAIL");
+            boolean active = resultSet.getBoolean("UM_ACTIVE");
+            Date createdDate = new Date(resultSet.getTimestamp(
+                    "UM_CREATED_DATE").getTime());
+
+            Tenant tenant = new Tenant();
+            tenant.setId(id);
+            tenant.setDomain(domain);
+            tenant.setEmail(email);
+            tenant.setActive(active);
+            tenant.setCreatedDate(createdDate);
+            tenantList.add(tenant);
+        }
+        return tenantList;
     }
 }
