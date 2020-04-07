@@ -2,6 +2,7 @@
   "server.default_cache_timeout": "15m",
   "server.default_realm_cache_timeout": "30m",
   "server.force_local_cache": true,
+  "server.cache.invalidation_impl": "org.wso2.carbon.caching.impl.clustering.ClusterCacheInvalidationRequestSender",
   "server.discard_empty_caches": false,
   "server.enableMTOM": "optional",
   "server.file_upload.file_size_limit": "100",
