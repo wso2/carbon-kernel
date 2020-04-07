@@ -278,6 +278,11 @@
         <!-- Force all caches to act as local -->
         <ForceLocalCache>{{server.force_local_cache}}</ForceLocalCache>
         <DiscardEmptyCaches>{{server.discard_empty_caches}}</DiscardEmptyCaches>
+        {% if server.cache.invalidation_impl is defined %}
+        <CacheInvalidationImpl>{{server.cache.invalidation_impl}}</CacheInvalidationImpl>
+        {% else %}
+         <CacheInvalidationImpl>org.wso2.carbon.caching.impl.clustering.ClusterCacheInvalidationRequestSender</CacheInvalidationImpl>
+        {% endif %}
     </Cache>
 
     <!--
