@@ -42,8 +42,8 @@ public interface TenantManager extends org.wso2.carbon.user.api.TenantManager {
      * @param filter    filter value.
      * @param sortOrder order of IdP ASC/DESC.
      * @param sortBy    the attribute need to sort.
-     * @return Tenant's basic information list.
-     * @throws UserStoreException Error when getting list of tenants.
+     * @return TenantSearchResult tenant's basic information list.
+     * @throws UserStoreException if there is an error when listing the tenants.
      */
     default TenantSearchResult listTenants(Integer limit, Integer offset, String filter, String sortOrder,
                                            String sortBy) throws UserStoreException {
@@ -52,4 +52,40 @@ public interface TenantManager extends org.wso2.carbon.user.api.TenantManager {
                 "listTenants operation is not implemented in: " + this.getClass());
     }
 
+    /**
+     * Gets a Tenant object.
+     *
+     * @param tenantUniqueID tenant unique identifier.
+     * @return Tenant.
+     * @throws UserStoreException if there is an error in tenant retrieval.
+     */
+    default Tenant getTenant(String tenantUniqueID) throws UserStoreException {
+
+        throw new NotImplementedException(
+                "getTenant operation is not implemented in: " + this.getClass());
+    }
+
+    /**
+     * Activates a tenant.
+     *
+     * @param tenantUniqueID tenant unique identifier.
+     * @throws UserStoreException if there is an error in tenant activation.
+     */
+    default void activateTenant(String tenantUniqueID) throws UserStoreException {
+
+        throw new NotImplementedException(
+                "activateTenant operation is not implemented in: " + this.getClass());
+    }
+
+    /**
+     * Deactivates a tenant.
+     *
+     * @param tenantUniqueID tenant unique identifier.
+     * @throws UserStoreException if there is an error in tenant de activation.
+     */
+    default void deactivateTenant(String tenantUniqueID) throws UserStoreException {
+
+        throw new NotImplementedException(
+                "deactivateTenant operation is not implemented in: " + this.getClass());
+    }
 }

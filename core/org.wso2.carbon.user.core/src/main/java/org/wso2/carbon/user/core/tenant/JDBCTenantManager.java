@@ -64,6 +64,14 @@ public class JDBCTenantManager implements TenantManager {
      * Key - tenant domain, value - tenantId
      */
     private TenantIdCache tenantIdCache = TenantIdCache.getInstance();
+
+    /**
+     * Map which maps tenant uniqueIds to tenants
+     * <p/>
+     * Key - tenant uuid, value - tenant.
+     */
+    private TenantUniqueIdCache tenantUniqueIdCache = TenantUniqueIdCache.getInstance();
+
     /**
      * This is the reverse of the tenantDomainIdMap. Key - tenantId, value - tenant domain
      */
@@ -77,6 +85,7 @@ public class JDBCTenantManager implements TenantManager {
         this.tenantCacheManager.clear();
         this.tenantIdCache.clear();
         this.tenantDomainCache.clear();
+        this.tenantUniqueIdCache.clear();
     }
 
     //TODO : Remove the unused variable
@@ -97,8 +106,8 @@ public class JDBCTenantManager implements TenantManager {
         try {
             dbConnection = getDBConnection();
             String sqlStmt = TenantConstants.ADD_TENANT_SQL;
-            if (tenant.getUUID() != null) {
-                sqlStmt = TenantConstants.ADD_TENANT_SQL_With_UUID;
+            if (tenant.getTenantUniqueID() != null) {
+                sqlStmt = TenantConstants.ADD_TENANT_SQL_WITH_UUID;
             }
 
             String dbProductName = dbConnection.getMetaData().getDatabaseProductName();
@@ -119,8 +128,8 @@ public class JDBCTenantManager implements TenantManager {
             InputStream is = new ByteArrayInputStream(realmConfigString.getBytes());
             prepStmt.setBinaryStream(4, is, is.available());
 
-            if (tenant.getUUID() != null) {
-                prepStmt.setString(5, tenant.getUUID());
+            if (tenant.getTenantUniqueID() != null) {
+                prepStmt.setString(5, tenant.getTenantUniqueID());
             }
             prepStmt.executeUpdate();
 
@@ -439,6 +448,11 @@ public class JDBCTenantManager implements TenantManager {
             List<Tenant> tenantList = populateTenantList(resultSet);
             tenantSearchResult.setTenantList(tenantList);
             tenantSearchResult.setTotalTenantCount(getCountOfTenants());
+            tenantSearchResult.setLimit(limit);
+            tenantSearchResult.setOffSet(offset);
+            tenantSearchResult.setSortBy(sortBy);
+            tenantSearchResult.setSortOrder(sortOrder);
+            tenantSearchResult.setFilter(filter);
             return tenantSearchResult;
         } catch (SQLException e) {
             throw new UserStoreException("Error occurred while listing the tenants.", e);
@@ -623,6 +637,75 @@ public class JDBCTenantManager implements TenantManager {
         return tenantId;
     }
 
+    public Tenant getTenant(String tenantUniqueID) throws UserStoreException {
+
+        TenantCacheEntry<Tenant> entry = tenantUniqueIdCache.getValueFromCache(new TenantUniqueIDKey(tenantUniqueID));
+
+        if ((entry != null) && (entry.getTenant() != null)) {
+            return entry.getTenant();
+        }
+        Connection dbConnection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet result = null;
+        Tenant tenant = null;
+        int id;
+        try {
+            dbConnection = getDBConnection();
+            String sqlStmt = TenantConstants.GET_TENANT_BY_UUID_SQL;
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, tenantUniqueID);
+
+            result = prepStmt.executeQuery();
+
+            if (result.next()) {
+                id = result.getInt("UM_ID");
+                String domain = result.getString("UM_DOMAIN_NAME");
+                String email = result.getString("UM_EMAIL");
+                boolean active = result.getBoolean("UM_ACTIVE");
+                Date createdDate = new Date(result.getTimestamp(
+                        "UM_CREATED_DATE").getTime());
+                InputStream is = result.getBinaryStream("UM_USER_CONFIG");
+
+                RealmConfigXMLProcessor processor = new RealmConfigXMLProcessor();
+                RealmConfiguration realmConfig = processor.buildTenantRealmConfiguration(is);
+                realmConfig.setTenantId(id);
+                String uniqueId = result.getString("UM_TENANT_UUID");
+
+                tenant = new Tenant();
+                tenant.setTenantUniqueID(uniqueId);
+                tenant.setId(id);
+                tenant.setDomain(domain);
+                tenant.setEmail(email);
+                tenant.setCreatedDate(createdDate);
+                tenant.setActive(active);
+                tenant.setRealmConfig(realmConfig);
+                setSecondaryUserStoreConfig(realmConfig, id);
+                tenant.setAdminName(realmConfig.getAdminUserName());
+
+                if (log.isDebugEnabled()) {
+                    log.debug("Obtained tenant from database for the given UUID: " + uniqueId
+                            + ", hence adding tenant to cache where tenantDomain: {" + domain + "}");
+                }
+                tenantDomainNameValidation(domain);
+                tenantUniqueIdCache.addToCache(new TenantUniqueIDKey(uniqueId), new TenantCacheEntry<Tenant>(tenant));
+                tenantCacheManager.addToCache(new TenantIdKey(id), new TenantCacheEntry<Tenant>(tenant));
+                tenantDomainCache.addToCache(new TenantIdKey(id), new TenantDomainEntry(domain));
+                tenantIdCache.addToCache(new TenantDomainKey(domain), new TenantIdEntry(id));
+            }
+            dbConnection.commit();
+        } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
+            String msg = "Error in getting the tenant with " + "tenant UUID: " + tenantUniqueID + ".";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, result, prepStmt);
+        }
+        return tenant;
+    }
+
     public void activateTenant(int tenantId) throws UserStoreException {
 
         clearTenantCache(tenantId);
@@ -668,6 +751,60 @@ public class JDBCTenantManager implements TenantManager {
 
             String msg = "Error in deactivating the tenant with " + "tenant id: "
                     + tenantId + ".";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
+        }
+    }
+
+    public void activateTenant(String tenantUniqueID) throws UserStoreException {
+
+        // Remove tenant information from the cache.
+        clearTenantUniqueIDCache(tenantUniqueID);
+        Connection dbConnection = null;
+        PreparedStatement prepStmt = null;
+        try {
+            dbConnection = getDBConnection();
+            String sqlStmt = TenantConstants.ACTIVATE_BY_UUID_SQL;
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, tenantUniqueID);
+            prepStmt.executeUpdate();
+            dbConnection.commit();
+        } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
+            String msg = "Error in activating the tenant with " + "tenant UniqueID: " + tenantUniqueID + ".";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
+        }
+    }
+
+    public void deactivateTenant(String tenantUniqueID) throws UserStoreException {
+
+        // Remove tenant information from the cache.
+        clearTenantUniqueIDCache(tenantUniqueID);
+
+        Connection dbConnection = null;
+        PreparedStatement prepStmt = null;
+        try {
+            dbConnection = getDBConnection();
+            String sqlStmt = TenantConstants.DEACTIVATE_BY_UUID_SQL;
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, tenantUniqueID);
+            prepStmt.executeUpdate();
+            dbConnection.commit();
+        } catch (SQLException e) {
+
+            DatabaseUtil.rollBack(dbConnection);
+
+            String msg = "Error in deactivating the tenant with " + "tenant UniqueID: "
+                    + tenantUniqueID + ".";
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
             }
@@ -743,6 +880,16 @@ public class JDBCTenantManager implements TenantManager {
         String domain = getDomain(tenantId);
         tenantDomainCache.clearCacheEntry(new TenantIdKey(tenantId));
         tenantIdCache.clearCacheEntry(new TenantDomainKey(domain));
+        tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
+    }
+
+    private void clearTenantUniqueIDCache(String tenantUniqueID) throws UserStoreException {
+
+        tenantUniqueIdCache.clearCacheEntry(new TenantUniqueIDKey(tenantUniqueID));
+        Tenant tenant = this.getTenant(tenantUniqueID);
+        int tenantId = tenant.getId();
+        tenantDomainCache.clearCacheEntry(new TenantIdKey(tenantId));
+        tenantIdCache.clearCacheEntry(new TenantDomainKey(tenant.getDomain()));
         tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
     }
 
@@ -932,7 +1079,7 @@ public class JDBCTenantManager implements TenantManager {
 
     }
 
-    private List<Tenant> populateTenantList(ResultSet resultSet) throws SQLException {
+    private List<Tenant> populateTenantList(ResultSet resultSet) throws SQLException, UserStoreException {
 
         List<Tenant> tenantList = new ArrayList<Tenant>();
         while (resultSet.next()) {
@@ -942,13 +1089,21 @@ public class JDBCTenantManager implements TenantManager {
             boolean active = resultSet.getBoolean("UM_ACTIVE");
             Date createdDate = new Date(resultSet.getTimestamp(
                     "UM_CREATED_DATE").getTime());
+            String tenantUniqueId = resultSet.getString("UM_TENANT_UUID");
+
+            InputStream is = resultSet.getBinaryStream("UM_USER_CONFIG");
+
+            RealmConfigXMLProcessor processor = new RealmConfigXMLProcessor();
+            RealmConfiguration realmConfig = processor.buildTenantRealmConfiguration(is);
 
             Tenant tenant = new Tenant();
             tenant.setId(id);
             tenant.setDomain(domain);
             tenant.setEmail(email);
             tenant.setActive(active);
+            tenant.setTenantUniqueID(tenantUniqueId);
             tenant.setCreatedDate(createdDate);
+            tenant.setAdminName(realmConfig.getAdminUserName());
             tenantList.add(tenant);
         }
         return tenantList;

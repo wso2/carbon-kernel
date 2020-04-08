@@ -86,7 +86,7 @@ public class Tenant {
     /**
      * Unique id of the tenant.
      */
-    private String uuid;
+    private String tenantUniqueID;
 
     /**
      * The admin user name of the tenant
@@ -195,14 +195,14 @@ public class Tenant {
         this.realmConfig = realmConfig;
     }
 
-    public String getUUID() {
+    public String getTenantUniqueID() {
 
-        return uuid;
+        return tenantUniqueID;
     }
 
-    public void setUUID(String uuid) {
+    public void setTenantUniqueID(String tenantUniqueID) {
 
-        this.uuid = uuid;
+        this.tenantUniqueID = tenantUniqueID;
     }
 
     public String getAdminUserId() {
