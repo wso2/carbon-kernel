@@ -40,13 +40,13 @@ public interface TenantManager extends org.wso2.carbon.user.api.TenantManager {
      * @param limit     limit per page.
      * @param offset    offset value.
      * @param filter    filter value.
-     * @param sortOrder order of IdP ASC/DESC.
+     * @param sortOrder order of tenant ASC/DESC.
      * @param sortBy    the attribute need to sort.
      * @return TenantSearchResult tenant's basic information list.
      * @throws UserStoreException if there is an error when listing the tenants.
      */
-    default TenantSearchResult listTenants(Integer limit, Integer offset, String filter, String sortOrder,
-                                           String sortBy) throws UserStoreException {
+    default TenantSearchResult listTenants(Integer limit, Integer offset, String sortOrder, String sortBy,
+                                           String filter) throws UserStoreException {
 
         throw new NotImplementedException(
                 "listTenants operation is not implemented in: " + this.getClass());

@@ -438,7 +438,7 @@ public class JDBCTenantManager implements TenantManager {
         return tenantList.toArray(new Tenant[tenantList.size()]);
     }
 
-    public TenantSearchResult listTenants(Integer limit, Integer offset, String filter, String sortOrder, String sortBy)
+    public TenantSearchResult listTenants(Integer limit, Integer offset, String sortOrder, String sortBy, String filter)
             throws UserStoreException {
 
         TenantSearchResult tenantSearchResult = new TenantSearchResult();
