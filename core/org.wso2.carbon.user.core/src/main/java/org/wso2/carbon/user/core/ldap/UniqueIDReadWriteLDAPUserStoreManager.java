@@ -982,6 +982,10 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
         processedClaimAttributes.entrySet().forEach(claimEntry -> {
             Attribute currentUpdatedAttribute = new BasicAttribute(claimEntry.getKey());
+            // skipping profile configuration attribute
+            if (claimEntry.getKey().equals(UserCoreConstants.PROFILE_CONFIGURATION)) {
+                return;
+            }
             // If updated attribute value is null, remove its values.
             if (EMPTY_ATTRIBUTE_STRING.equals(claimEntry.getValue())) {
                 currentUpdatedAttribute.clear();
