@@ -24,11 +24,16 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.caching.impl.CacheManagerFactoryImpl;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.RealmCache;
 import org.wso2.carbon.user.core.common.UserStoreDeploymentManager;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
+import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
+import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
+import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.DBUtils;
@@ -66,8 +71,7 @@ public class JDBCTenantManager implements TenantManager {
     private TenantIdCache tenantIdCache = TenantIdCache.getInstance();
 
     /**
-     * Map which maps tenant uniqueIds to tenants
-     * <p/>
+     * Map which maps tenant uniqueIds to tenants.
      * Key - tenant uuid, value - tenant.
      */
     private TenantUniqueIdCache tenantUniqueIdCache = TenantUniqueIdCache.getInstance();
@@ -681,6 +685,7 @@ public class JDBCTenantManager implements TenantManager {
                 tenant.setRealmConfig(realmConfig);
                 setSecondaryUserStoreConfig(realmConfig, id);
                 tenant.setAdminName(realmConfig.getAdminUserName());
+                tenant.setAdminUserId(getUserId(realmConfig.getAdminUserName(), id));
 
                 if (log.isDebugEnabled()) {
                     log.debug("Obtained tenant from database for the given UUID: " + uniqueId
@@ -763,7 +768,7 @@ public class JDBCTenantManager implements TenantManager {
     public void activateTenant(String tenantUniqueID) throws UserStoreException {
 
         // Remove tenant information from the cache.
-        clearTenantUniqueIDCache(tenantUniqueID);
+        clearTenantCaches(tenantUniqueID);
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         try {
@@ -788,7 +793,7 @@ public class JDBCTenantManager implements TenantManager {
     public void deactivateTenant(String tenantUniqueID) throws UserStoreException {
 
         // Remove tenant information from the cache.
-        clearTenantUniqueIDCache(tenantUniqueID);
+        clearTenantCaches(tenantUniqueID);
 
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
@@ -883,7 +888,7 @@ public class JDBCTenantManager implements TenantManager {
         tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
     }
 
-    private void clearTenantUniqueIDCache(String tenantUniqueID) throws UserStoreException {
+    private void clearTenantCaches(String tenantUniqueID) throws UserStoreException {
 
         tenantUniqueIdCache.clearCacheEntry(new TenantUniqueIDKey(tenantUniqueID));
         Tenant tenant = this.getTenant(tenantUniqueID);
@@ -1015,7 +1020,7 @@ public class JDBCTenantManager implements TenantManager {
                 }
             }
         } catch (SQLException e) {
-            throw new UserStoreException("Error occurred while retrieving tenant count");
+            throw new UserStoreException("Error occurred while retrieving tenant count", e);
         }
         return tenantCount;
     }
@@ -1024,13 +1029,6 @@ public class JDBCTenantManager implements TenantManager {
                                               Integer limit) throws SQLException, UserStoreException {
 
         String dbType = dbConnection.getMetaData().getDatabaseProductName();
-        if (DB2.equalsIgnoreCase(dbType)) {
-            int initialOffset = offset;
-            offset = offset + limit;
-            limit = initialOffset + 1;
-        } else if (ORACLE.equalsIgnoreCase(dbType)) {
-            limit = offset + limit;
-        }
 
         PreparedStatement prepStmt;
 
@@ -1056,7 +1054,7 @@ public class JDBCTenantManager implements TenantManager {
             prepStmt = dbConnection.prepareStatement(sqlQuery);
             prepStmt.setInt(1, offset);
             prepStmt.setInt(2, limit);
-        } else if (dbType.contains(DB2)) {
+        } else if (dbType.contains("db2") || dbType.contains("DB2")) {
             sqlQuery = TenantConstants.LIST_TENANTS_PAGINATED_DB2;
             sqlTail = String.format(TenantConstants.LIST_TENANTS_DB2_TAIL, sortedOrder);
             sqlQuery = sqlQuery + sqlTail;
@@ -1067,8 +1065,8 @@ public class JDBCTenantManager implements TenantManager {
             sqlTail = String.format(TenantConstants.LIST_TENANTS_POSTGRESQL_TAIL, sortedOrder);
             sqlQuery = sqlQuery + sqlTail;
             prepStmt = dbConnection.prepareStatement(sqlQuery);
-            prepStmt.setInt(1, offset);
-            prepStmt.setInt(2, limit);
+            prepStmt.setInt(1, limit);
+            prepStmt.setInt(2, offset);
         } else {
             String message = "Error while loading tenant from DB: Database driver could not be identified" +
                     " or not supported.";
@@ -1079,7 +1077,8 @@ public class JDBCTenantManager implements TenantManager {
 
     }
 
-    private List<Tenant> populateTenantList(ResultSet resultSet) throws SQLException, UserStoreException {
+    private List<Tenant> populateTenantList(ResultSet resultSet)
+            throws SQLException, UserStoreException {
 
         List<Tenant> tenantList = new ArrayList<Tenant>();
         while (resultSet.next()) {
@@ -1103,9 +1102,31 @@ public class JDBCTenantManager implements TenantManager {
             tenant.setActive(active);
             tenant.setTenantUniqueID(tenantUniqueId);
             tenant.setCreatedDate(createdDate);
-            tenant.setAdminName(realmConfig.getAdminUserName());
+            String adminUserName = realmConfig.getAdminUserName();
+            tenant.setAdminName(adminUserName);
+            tenant.setAdminUserId(getUserId(adminUserName, id));
             tenantList.add(tenant);
         }
         return tenantList;
+    }
+
+    private String getUserId(String userName, int tenantId) throws UserStoreException {
+
+        String claimValue = null;
+        RealmService realmService = UserStoreMgtDSComponent.getRealmService();
+        try {
+            UserRealm tenantUserRealm = realmService.getTenantUserRealm(tenantId);
+            if (tenantUserRealm != null) {
+                UserStoreManager userStoreManager = (UserStoreManager) tenantUserRealm.getUserStoreManager();
+                if (userStoreManager != null) {
+                    claimValue = userStoreManager.getUserClaimValue(userName, UserCoreClaimConstants.USER_ID_CLAIM_URI,
+                            UserCoreConstants.DEFAULT_PROFILE);
+                }
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException("Error while getting claim value for the claim: " +
+                    UserCoreClaimConstants.USER_ID_CLAIM_URI, e);
+        }
+        return claimValue;
     }
 }
