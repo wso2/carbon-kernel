@@ -32,11 +32,15 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.base.api.ServerConfigurationService;
+import org.wso2.carbon.crypto.api.CipherMetaDataHolder;
+import org.wso2.carbon.crypto.api.CryptoException;
+import org.wso2.carbon.crypto.api.CryptoService;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
+import org.wso2.carbon.user.core.internal.UserStoreMgtDataHolder;
 import org.wso2.carbon.user.core.tracker.UserStoreManagerRegistry;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -77,6 +81,12 @@ public class UserStoreConfigXMLProcessor {
     private SecretResolver secretResolver;
     private String filePath = null;
     private Gson gson = new Gson();
+    private static final String CRYPTO_API_PROVIDER_BC = "BC";
+    private static final String ENCRYPTION_KEYSTORE = "Security.UserStorePasswordEncryption";
+    private static final String INTERNAL_KEYSTORE = "InternalKeystore";
+    private static final String CRYPTO_PROVIDER = "CryptoService.InternalCryptoProviderClassName";
+    private static final String SYMMETRIC_KEY_CRYPTO_PROVIDER = "org.wso2.carbon.crypto.provider" +
+            ".SymmetricKeyInternalCryptoProvider";
 
     public UserStoreConfigXMLProcessor(String path) {
         this.filePath = path;
@@ -336,8 +346,8 @@ public class UserStoreConfigXMLProcessor {
                 }
                 try {
                     propValue = decryptProperty(propValue);
-                } catch (GeneralSecurityException e) {
-                    String errMsg = "encryption of Property=" + propElem.getAttributeValue(
+                } catch (CryptoException e) {
+                    String errMsg = "decryption of Property=" + propElem.getAttributeValue(
                             new QName(UserCoreConstants.RealmConfig.ATTR_NAME_PROP_NAME))
                             + " failed";
                     log.error(errMsg, e);
@@ -363,25 +373,12 @@ public class UserStoreConfigXMLProcessor {
 
         InputStream in = null;
 
-        // Get the encryption keystore.
-        String encryptionKeyStore = serverConfigurationService.getFirstProperty(
-                "Security.UserStorePasswordEncryption");
-
         String passwordXPath = "Security.KeyStore.Password";
         String keypassXPath = "Security.KeyStore.KeyPassword";
         String keyAliasXPath = "Security.KeyStore.KeyAlias";
         String locationXPath = "Security.KeyStore.Location";
         String typeXPath = "Security.KeyStore.Type";
 
-        // If the encryption keystore is selected to be internal then select that keystore XPath.
-        if ("InternalKeystore".equalsIgnoreCase(encryptionKeyStore)) {
-            passwordXPath = "Security.InternalKeyStore.Password";
-            keypassXPath = "Security.InternalKeyStore.KeyPassword";
-            keyAliasXPath = "Security.InternalKeyStore.KeyAlias";
-            locationXPath = "Security.InternalKeyStore.Location";
-            typeXPath = "Security.InternalKeyStore.Type";
-
-        }
         String password = serverConfigurationService.getFirstProperty(passwordXPath);
         String keyPass = serverConfigurationService.getFirstProperty(keypassXPath);
         String keyAlias = serverConfigurationService.getFirstProperty(keyAliasXPath);
@@ -430,56 +427,136 @@ public class UserStoreConfigXMLProcessor {
      * @throws BadPaddingException
      * @throws IllegalBlockSizeException
      */
-    private String decryptProperty(String propValue)
-            throws NoSuchPaddingException, NoSuchAlgorithmException, NoSuchProviderException,
-            org.wso2.carbon.user.api.UserStoreException, InvalidKeyException, BadPaddingException,
-            IllegalBlockSizeException {
+    private String decryptProperty(String propValue) throws CryptoException {
 
-        Cipher keyStoreCipher;
+        CryptoService cryptoService = UserStoreMgtDataHolder.getInstance().getCryptoService();
         String cipherTransformation = System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
         byte[] cipherTextBytes = Base64.decode(propValue.trim());
+        String algorithm = null;
+        byte[] decryptedValue;
+        boolean isInternalKeyStoreEncryptionEnabled = false;
+        boolean isSymmetricKeyEncryptionEnabled = false;
+        ServerConfigurationService config =
+                UserStoreMgtDSComponent.getServerConfigurationService();
+        if (config != null) {
+            String encryptionKeyStore = config.getFirstProperty(ENCRYPTION_KEYSTORE);
+
+            if (INTERNAL_KEYSTORE.equalsIgnoreCase(encryptionKeyStore)) {
+                isInternalKeyStoreEncryptionEnabled = true;
+            }
+            String cryptoProvider = config.getFirstProperty(CRYPTO_PROVIDER);
+            if (SYMMETRIC_KEY_CRYPTO_PROVIDER.equalsIgnoreCase(cryptoProvider)) {
+                isSymmetricKeyEncryptionEnabled = true;
+            }
+        }
+
+        if (isInternalKeyStoreEncryptionEnabled && isSymmetricKeyEncryptionEnabled) {
+
+            throw new CryptoException(String.format("Userstore encryption can not be supported due to " +
+                    "conflicting configurations: '%s' and '%s'. When using internal keystore, assymetric crypto " +
+                    "provider should be used.", INTERNAL_KEYSTORE, SYMMETRIC_KEY_CRYPTO_PROVIDER));
+        } else if (isInternalKeyStoreEncryptionEnabled || isSymmetricKeyEncryptionEnabled) {
+
+            if (cipherTransformation != null) {
+                // extract the original cipher if custom transformation is used configured in carbon.properties.
+                CipherMetaDataHolder cipherHolder = cipherTextToCipherHolder(cipherTextBytes);
+                if (cipherHolder != null) {
+                    // cipher with meta data.
+                    if (log.isDebugEnabled()) {
+                        log.debug("Cipher transformation for decryption : " + cipherHolder.getTransformation());
+                    }
+                    algorithm = cipherHolder.getTransformation();
+                    cipherTextBytes = cipherHolder.getCipherBase64Decoded();
+                } else {
+                    // If the ciphertext is not a self-contained, directly decrypt using transformation configured in
+                    // carbon.properties file
+                    algorithm = cipherTransformation;
+                }
+            }
+            if (cipherTextBytes.length == 0) {
+                decryptedValue = StringUtils.EMPTY.getBytes();
+                if (log.isDebugEnabled()) {
+                    log.debug("Ciphertext is empty. An empty array will be used as the plaintext bytes.");
+                }
+            } else {
+                decryptedValue = cryptoService.decrypt(cipherTextBytes, algorithm, CRYPTO_API_PROVIDER_BC);
+            }
+            return new String(decryptedValue);
+
+        } else {
+            return decryptWithPrimaryKeyStore(propValue);
+
+        }
+
+    }
+
+    private String decryptWithPrimaryKeyStore(String propValue) throws CryptoException {
+
+        Cipher keyStoreCipher = null;
+        String cipherTransformation = System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
+        byte[] cipherTextBytes = Base64.decode(propValue.trim());
+        byte[] plainTextBytes = new byte[0];
 
         privateKey = (privateKey == null) ? getPrivateKey() : privateKey;
         if (privateKey == null) {
-            throw new org.wso2.carbon.user.api.UserStoreException(
+            throw new CryptoException(
                     "Private key initialization failed. Cannot decrypt the userstore password.");
         }
 
-        if(cipherTransformation != null) {
-            // extract the original cipher if custom transformation is used configured in carbon.properties.
-            CipherHolder cipherHolder = cipherTextToCipherHolder(cipherTextBytes);
-            if (cipherHolder != null) {
-                // cipher with meta data.
-                if (log.isDebugEnabled()) {
-                    log.debug("Cipher transformation for decryption : " + cipherHolder.getTransformation());
+        try {
+            if (cipherTransformation != null) {
+                // extract the original cipher if custom transformation is used configured in carbon.properties.
+                CipherMetaDataHolder cipherHolder = cipherTextToCipherHolder(cipherTextBytes);
+                if (cipherHolder != null) {
+                    // cipher with meta data.
+                    if (log.isDebugEnabled()) {
+                        log.debug("Cipher transformation for decryption : " + cipherHolder.getTransformation());
+                    }
+
+                    keyStoreCipher = Cipher.getInstance(cipherHolder.getTransformation(), "BC");
+
+                    cipherTextBytes = cipherHolder.getCipherBase64Decoded();
+                } else {
+                    // If the ciphertext is not a self-contained, directly decrypt using transformation configured in
+                    // carbon.properties file
+
+                    keyStoreCipher = Cipher.getInstance(cipherTransformation, "BC");
+
                 }
-                keyStoreCipher = Cipher.getInstance(cipherHolder.getTransformation(), "BC");
-                cipherTextBytes = cipherHolder.getCipherBase64Decoded();
             } else {
-                // If the ciphertext is not a self-contained, directly decrypt using transformation configured in
-                // carbon.properties file
-                keyStoreCipher = Cipher.getInstance(cipherTransformation, "BC");
+                // If reach here, user have removed org.wso2.CipherTransformation property or carbon.properties file
+                // hence RSA is considered as default transformation
+                if (log.isDebugEnabled()) {
+                    log.debug("Cipher transformation property is not available.Hence RSA is considered as default " +
+                            "cipher transformation.");
+                }
+                keyStoreCipher = Cipher.getInstance("RSA", "BC");
+
             }
-        } else {
-            // If reach here, user have removed org.wso2.CipherTransformation property or carbon.properties file
-            // hence RSA is considered as default transformation
-            keyStoreCipher = Cipher.getInstance("RSA", "BC");
+
+            keyStoreCipher.init(Cipher.DECRYPT_MODE, privateKey);
+            plainTextBytes = keyStoreCipher.doFinal(cipherTextBytes);
+
+        } catch (GeneralSecurityException e) {
+            String errMsg = "decryption of secondary userstore property failed.";
+            throw new CryptoException(errMsg);
         }
-        keyStoreCipher.init(Cipher.DECRYPT_MODE, privateKey);
-        return new String(keyStoreCipher.doFinal(cipherTextBytes), Charset.defaultCharset());
+        return new String(plainTextBytes, Charset.defaultCharset());
+
     }
 
+
     /**
-     * Function to convert cipher byte array to {@link CipherHolder}.
+     * Function to convert cipher byte array to {@link CipherMetaDataHolder}.
      *
      * @param cipherText cipher text as a byte array
      * @return if cipher text is not a cipher with meta data
      */
-    private CipherHolder cipherTextToCipherHolder(byte[] cipherText) {
+    private CipherMetaDataHolder cipherTextToCipherHolder(byte[] cipherText) {
 
         String cipherStr = new String(cipherText, Charset.defaultCharset());
         try {
-            return gson.fromJson(cipherStr, CipherHolder.class);
+            return gson.fromJson(cipherStr, CipherMetaDataHolder.class);
         } catch (JsonSyntaxException e) {
             if (log.isDebugEnabled()) {
                 log.debug("Deserialization failed since cipher string is not representing cipher with metadata");
@@ -488,85 +565,4 @@ public class UserStoreConfigXMLProcessor {
         }
     }
 
-    /**
-     * Holds encrypted cipher with related metadata.
-     *
-     * IMPORTANT: this is copy of org.wso2.carbon.core.util.CipherHolder, what ever changes applied here need to update
-     *              on above
-     */
-    private class CipherHolder {
-
-        // Base64 encoded ciphertext.
-        private String c;
-
-        // Transformation used for encryption, default is "RSA".
-        private String t = "RSA";
-
-        // Thumbprint of the certificate.
-        private String tp;
-
-        // Digest used to generate certificate thumbprint.
-        private String tpd;
-
-
-        public String getTransformation() {
-            return t;
-        }
-
-        public void setTransformation(String transformation) {
-            this.t = transformation;
-        }
-
-        public String getCipherText() {
-            return c;
-        }
-
-        public byte[] getCipherBase64Decoded() {
-            return Base64.decode(c);
-        }
-
-        public void setCipherText(String cipher) {
-            this.c = cipher;
-        }
-
-        public String getThumbPrint() {
-            return tp;
-        }
-
-        public void setThumbPrint(String tp) {
-            this.tp = tp;
-        }
-
-        public String getThumbprintDigest() {
-            return tpd;
-        }
-
-        public void setThumbprintDigest(String digest) {
-            this.tpd = digest;
-        }
-
-        /**
-         * Function to base64 encode ciphertext and set ciphertext
-         * @param cipher
-         */
-        public void setCipherBase64Encoded(byte[] cipher) {
-            this.c = Base64.encode(cipher);
-        }
-
-        /**
-         * Function to set thumbprint
-         * @param tp thumb print
-         * @param digest digest (hash algorithm) used for to create thumb print
-         */
-        public void setThumbPrint(String tp, String digest) {
-            this.tp = tp;
-            this.tpd = digest;
-        }
-
-        @Override
-        public String toString() {
-            Gson gson = new Gson();
-            return gson.toJson(this);
-        }
-    }
 }

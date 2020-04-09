@@ -14645,15 +14645,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public Group addGroup(String groupName, List<String> usersIDs, List<Permission> permissions,
-                          List<org.wso2.carbon.user.core.common.Claim> claims)
+    public Group addGroup(String groupName, List<String> usersIDs, List<org.wso2.carbon.user.core.common.Claim> claims)
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("addGroup operation is not implemented in: " + this.getClass());
         }
-        throw new NotImplementedException(
-                "addGroup operation is not implemented in: " + this.getClass());
+        throw new NotImplementedException("addGroup operation is not implemented in: " + this.getClass());
     }
 
     @Override
@@ -14772,14 +14770,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public Group updateGroup(String groupID, List<org.wso2.carbon.user.core.common.Claim> claims,
-                             List<Permission> permissions) throws UserStoreException {
+    public Group updateGroup(String groupID, List<org.wso2.carbon.user.core.common.Claim> claims)
+            throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("updateGroup operation is not implemented in: " + this.getClass());
         }
-        throw new NotImplementedException(
-                "updateGroup operation is not implemented in: " + this.getClass());
+        throw new NotImplementedException("updateGroup operation is not implemented in: " + this.getClass());
     }
 
     @Override

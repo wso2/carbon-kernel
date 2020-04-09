@@ -3,6 +3,7 @@
     "tomcat.global.session_timeout": "m",
     "tomcat.management_console.session_timeout": "m",
     "server.default_cache_timeout": "m",
+    "server.default_realm_cache_timeout": "m",
     "user_store.properties.ConnectionRetryDelay": "ms"
   }
 }

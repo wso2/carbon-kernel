@@ -21,7 +21,10 @@ package org.wso2.carbon.user.core.listener;
 import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.AuthenticationResult;
+import org.wso2.carbon.user.core.common.Claim;
+import org.wso2.carbon.user.core.common.Group;
 import org.wso2.carbon.user.core.common.LoginIdentifier;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.model.Condition;
@@ -680,4 +683,211 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
     boolean doPostGetRoleListOfUsersWithID(List<String> userIDs, Map<String, List<String>> rolesOfUsersMap,
             UserStoreManager userStoreManager) throws UserStoreException;
 
+    /**
+     * Pre Listeners for adding a group.
+     *
+     * @param groupName        Group name.
+     * @param userIDs          List of user IDs.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling pre-listeners for adding groups.
+     */
+    boolean doPreAddGroup(String groupName, List<String> userIDs, UserStoreManager userStoreManager)
+            throws UserStoreException;
+
+    /**
+     * Post listener for adding a group.
+     *
+     * @param groupName        Group name.
+     * @param userIDs          List of user IDs.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling post listeners for adding groups.
+     */
+    boolean doPostAddGroup(String groupName, List<String> userIDs, UserStoreManager userStoreManager)
+            throws UserStoreException;
+
+    /**
+     * Pre listeners for getting group.
+     *
+     * @param groupID          Group ID.
+     * @param requestedClaims  List of required attributes.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling pre listeners for getting a group.
+     */
+    boolean doPreGetGroup(String groupID, List<String> requestedClaims, UserStoreManager userStoreManager)
+            throws UserStoreException;
+
+    /**
+     * Post listener for getting group.
+     *
+     * @param groupID          Group ID.
+     * @param requestedClaims  Requested Attributes.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling post listeners for getting group.
+     */
+    boolean doPostGetGroup(String groupID, List<String> requestedClaims, UserStoreManager userStoreManager)
+            throws UserStoreException;
+
+    /**
+     * Pre listener for updating a group.
+     *
+     * @param groupID          Group ID.
+     * @param claims           Claims to update.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling pre listeners for updating a group.
+     */
+    boolean doPreUpdateGroup(String groupID, List<Claim> claims, UserStoreManager userStoreManager)
+            throws UserStoreException;
+
+    /**
+     * Post listener for updating a group.
+     *
+     * @param groupID          Group ID.
+     * @param claims           Claims to update.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling post listeners for updating a group.
+     */
+    boolean doPostUpdateGroup(String groupID, List<Claim> claims, UserStoreManager userStoreManager)
+            throws UserStoreException;
+
+    /**
+     * Pre-Listener for renaming group.
+     *
+     * @param groupID          Group ID.
+     * @param newGroupName     New group name.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling pre listeners for renaming a group.
+     */
+    boolean doPreRenameGroup(String groupID, String newGroupName, UserStoreManager userStoreManager)
+            throws UserStoreException;
+
+    /**
+     * Post-Listener for renaming group.
+     *
+     * @param groupID          Group ID.
+     * @param newGroupName     New group name.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling post listeners for renaming a group.
+     */
+    boolean doPostRenameGroup(String groupID, String newGroupName, UserStoreManager userStoreManager)
+            throws UserStoreException;
+
+    /**
+     * Pre-Listeners for list group.
+     *
+     * @param condition        Condition.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling pre listeners for listing groups.
+     */
+    boolean doPreListGroup(Condition condition, UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Post-Listeners for list group.
+     *
+     * @param condition        Condition.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling post listeners for listing groups.
+     */
+    boolean doPostListGroups(Condition condition, String domain, UserStoreManager userStoreManager)
+            throws UserStoreException;
+
+    /**
+     * Pre-Listeners for getting group list of users.
+     *
+     * @param userIDs          List of user IDs.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling pre listeners for get group list of users.
+     */
+    boolean doPreGetGroupListOfUsers(List<String> userIDs, UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Post-Listeners for getting group list of users.
+     *
+     * @param userIDs          List of user IDs.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling post listeners for get group list of users.
+     */
+    boolean doPostGetGroupListOfUsers(List<String> userIDs, Map<String, List<Group>> allGroups,
+            UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Pre-Listeners for update  group list of users.
+     *
+     * @param userID           User ID.
+     * @param deletedGroupIds  List of deleted group IDs.
+     * @param newGroupIds      List of new group IDs.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling pre listeners for update  group list of users.
+     */
+    boolean doPreUpdateGroupListOfUser(String userID, List<String> deletedGroupIds, List<String> newGroupIds,
+            UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Post-Listeners for update  group list of users.
+     *
+     * @param userID           User ID.
+     * @param deletedGroupIds  List of deleted group IDs.
+     * @param newGroupIds      List of new group IDs.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException If an error occur when calling post listeners for update  group list of users.
+     */
+    boolean doPostUpdateGroupListOfUser(String userID, List<String> deletedGroupIds, List<String> newGroupIds,
+            UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Pre listener for deleting group.
+     *
+     * @param groupID          Group ID
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException UserStoreException
+     */
+    boolean doPreDeleteGroup(String groupID, UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Post listeners for deleting a group
+     *
+     * @param groupID          Group ID.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException UserStoreException
+     */
+    boolean doPostDeleteGroup(String groupID, UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Pre-Listeners for getting users list of group.
+     *
+     * @param groupID          Group ID.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException UserStoreException
+     */
+    boolean doPreGetUserListOfGroup(String groupID, UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Post-Listeners for getting users list of group.
+     *
+     * @param groupID          Group ID.
+     * @param userList         Users list.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return false in case of error.
+     * @throws UserStoreException UserStoreException
+     */
+    boolean doPostGetUserListOfGroup(String groupID, List<User> userList, UserStoreManager userStoreManager)
+            throws UserStoreException;
+
 }
+

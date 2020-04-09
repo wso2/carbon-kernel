@@ -332,4 +332,53 @@ public class AbstractUserManagementErrorListener implements UniqueIDUserManageme
         return true;
     }
 
+    @Override
+    public boolean onAddGroupFailure(String errorCode, String errorMessage, String groupName, List<String> userIDList,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean onGetGroupFailure(String errorCode, String errorMessage, String groupID,
+            List<String> requestedClaims, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean onDeleteGroupFailure(String errorCode, String errorMessage, String groupID,
+            UserStoreManager userStoreManager) {
+
+        return true;
+    }
+
+    @Override
+    public boolean onUpdateGroupFailure(String errorCode, String errorMessage, String groupID, List<Claim> claims,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean onRenameGroupFailure(String errorCode, String errorMessage, String groupID, String newGroupName,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean onListGroupFailure(String errorCode, String errorMessage, Condition condition, String domain,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean onUpdateGroupListOfUserFailure(String errorCode, String errorMessage, String userID,
+            List<String> deletedGroupIds, List<String> newGroupIds, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
 }
