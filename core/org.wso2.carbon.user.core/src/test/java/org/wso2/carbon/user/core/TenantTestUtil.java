@@ -29,6 +29,7 @@ public class TenantTestUtil {
         t1.setDomain("domain1");
         t1.setEmail("tenant1@domain1.com");
         t1.setRealmConfig(realmConfig);
+        t1.setTenantUniqueID("386583");
         arr[0] = t1;
 
         Tenant t2 = new Tenant();
@@ -36,6 +37,7 @@ public class TenantTestUtil {
         t2.setDomain("domain2");
         t2.setEmail("tenant2@domain2.com");
         t2.setRealmConfig(realmConfig);
+        t2.setTenantUniqueID("8746583");
         arr[1] = t2;
 
         Tenant t3 = new Tenant();
@@ -43,6 +45,7 @@ public class TenantTestUtil {
         t3.setDomain("domain3");
         t3.setEmail("tenant3@domain3.com");
         t3.setRealmConfig(realmConfig);
+        t3.setTenantUniqueID("45683658");
         arr[2] = t3;
 
         return arr;

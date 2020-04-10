@@ -113,7 +113,10 @@
     Number of items to be displayed on a management console page. This is used at the
     backend server for pagination of various items.
     -->
-    <ItemsPerPage>15</ItemsPerPage>
+    <!--This is used as the default items per page-->
+    <ItemsPerPage>{{server.default_items_per_page}}</ItemsPerPage>
+
+    <MaximumItemsPerPage>{{server.max_items_per_page}}</MaximumItemsPerPage>
 
     <!-- The endpoint URL of the cloud instance management Web service -->
     <!--<InstanceMgtWSEndpoint>https://ec2.amazonaws.com/</InstanceMgtWSEndpoint>-->

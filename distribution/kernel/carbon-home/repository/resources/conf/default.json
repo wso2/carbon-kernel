@@ -5,6 +5,8 @@
   "server.discard_empty_caches": false,
   "server.enableMTOM": "optional",
   "server.file_upload.file_size_limit": "100",
+  "server.default_items_per_page": "15",
+  "server.max_items_per_page": "100",
   "user_store.type": "database",
   "super_admin.admin_role": "admin",
   "authorization_manager.class": "org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager",

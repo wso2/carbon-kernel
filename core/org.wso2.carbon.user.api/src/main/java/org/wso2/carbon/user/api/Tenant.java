@@ -19,6 +19,7 @@
 package org.wso2.carbon.user.api;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Represents a Tenant
@@ -81,6 +82,21 @@ public class Tenant {
      * Used only when using as DTO strictly on Tenant additions
      */
     private String adminPassword;
+
+    /**
+     * Unique id of the tenant.
+     */
+    private String tenantUniqueID;
+
+    /**
+     * The admin user name of the tenant
+     */
+    private String adminUserId;
+
+    /**
+     * Claim value pair of tenant owner.
+     */
+    private Map<String, String> claimsMap;
 
     public String getAdminFullName() {
         return adminFullName;
@@ -179,5 +195,33 @@ public class Tenant {
         this.realmConfig = realmConfig;
     }
 
+    public String getTenantUniqueID() {
 
+        return tenantUniqueID;
+    }
+
+    public void setTenantUniqueID(String tenantUniqueID) {
+
+        this.tenantUniqueID = tenantUniqueID;
+    }
+
+    public String getAdminUserId() {
+
+        return adminUserId;
+    }
+
+    public void setAdminUserId(String adminUserId) {
+
+        this.adminUserId = adminUserId;
+    }
+
+    public Map<String, String> getClaimsMap() {
+
+        return claimsMap;
+    }
+
+    public void setClaimsMap(Map<String, String> claimsMap) {
+
+        this.claimsMap = claimsMap;
+    }
 }
