@@ -370,6 +370,7 @@ public class MultiTenantTest extends BaseTestCase {
         Tenant tenant = new Tenant();
         tenant.setDomain("WSO2.org");
         tenant.setRealmConfig(realmConfig);
+        tenant.setTenantUniqueID("28736428");
         int tenantId = tenantManager.addTenant(tenant);
         Tenant tenant2 = (Tenant) tenantManager.getTenant(tenantId);
 
@@ -379,6 +380,7 @@ public class MultiTenantTest extends BaseTestCase {
         Tenant tenant3 = new Tenant();
         tenant3.setDomain("abc.org");
         tenant3.setRealmConfig(realmConfig);
+        tenant3.setTenantUniqueID("28758151");
         tenantManager.addTenant(tenant3);
 
 
