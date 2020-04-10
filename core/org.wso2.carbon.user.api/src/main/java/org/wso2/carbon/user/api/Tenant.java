@@ -224,5 +224,4 @@ public class Tenant {
 
         this.claimsMap = claimsMap;
     }
-
 }

@@ -99,5 +99,4 @@ public class TenantSearchResult {
 
         return sortOrder;
     }
-
 }
