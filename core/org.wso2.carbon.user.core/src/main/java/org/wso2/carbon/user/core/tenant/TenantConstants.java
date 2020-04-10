@@ -21,6 +21,8 @@ package org.wso2.carbon.user.core.tenant;
 public class TenantConstants {
     public static final String ADD_TENANT_WITH_ID_SQL = "INSERT INTO UM_TENANT (UM_ID,UM_DOMAIN_NAME," +
             "UM_EMAIL, UM_CREATED_DATE, UM_USER_CONFIG) VALUES(?,?,?,?,?)";
+    public static final String ADD_TENANT_WITH_ID_AND_UUID_SQL = "INSERT INTO UM_TENANT (UM_ID,UM_DOMAIN_NAME," +
+            "UM_EMAIL, UM_CREATED_DATE, UM_USER_CONFIG, UM_TENANT_UUID) VALUES(?,?,?,?,?,?)";
     public static final String ADD_TENANT_SQL = "INSERT INTO UM_TENANT (UM_DOMAIN_NAME," +
             "UM_EMAIL, UM_CREATED_DATE, UM_USER_CONFIG) VALUES(?,?,?,?)";
     public static final String ADD_TENANT_SQL_WITH_UUID = "INSERT INTO UM_TENANT (UM_DOMAIN_NAME," +
@@ -60,4 +62,14 @@ public class TenantConstants {
     public static final String DELETE_TENANT_SQL = "DELETE FROM UM_TENANT WHERE UM_ID=?";
     public static final String GET_MATCHING_TENANT_IDS_SQL = "SELECT UM_ID, UM_DOMAIN_NAME, UM_EMAIL," +
             " UM_CREATED_DATE, UM_ACTIVE FROM UM_TENANT WHERE UM_DOMAIN_NAME like ?";
+
+    public static final String IS_TENANT_UUID_COLUMN_EXISTS_MYSQL = "SELECT UM_TENANT_UUID FROM UM_TENANT LIMIT 1";
+    public static final String IS_TENANT_UUID_COLUMN_EXISTS_DB2 = "SELECT UM_TENANT_UUID FROM UM_TENANT FETCH" +
+            " FIRST 1 ROWS ONLY";
+    public static final String IS_TENANT_UUID_COLUMN_EXISTS_MSSQL = "SELECT TOP 1 UM_TENANT_UUID FROM " +
+            "UM_TENANT";
+    public static final String IS_TENANT_UUID_COLUMN_EXISTS_INFORMIX = "SELECT FIRST 1 UM_TENANT_UUID FROM " +
+            "UM_TENANT";
+    public static final String IS_TENANT_UUID_COLUMN_EXISTS_ORACLE = "SELECT UM_TENANT_UUID FROM UM_TENANT " +
+            "WHERE ROWNUM < 2";
 }
