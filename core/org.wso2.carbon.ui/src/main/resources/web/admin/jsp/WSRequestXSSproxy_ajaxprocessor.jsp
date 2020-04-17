@@ -228,7 +228,7 @@
     ConfigurationContext configContext = (ConfigurationContext) config.getServletContext()
             .getAttribute(CarbonConstants.CLIENT_CONFIGURATION_CONTEXT);
     String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
-    opts.setManageSession(true);
+    opts.setManageSession(false);
     opts.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, request.getHeader("Cookie"));
     ServiceClient sc = new ServiceClient(configContext, null);
     sc.setOptions(opts);
