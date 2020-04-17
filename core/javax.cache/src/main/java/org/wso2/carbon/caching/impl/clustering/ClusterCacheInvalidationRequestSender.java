@@ -63,7 +63,7 @@ ClusterCacheInvalidationRequestSender implements CacheEntryRemovedListener, Cach
     @Override
     public void entryCreated(CacheEntryEvent event) throws CacheEntryListenerException {
 
-        send(Util.createCacheInfo(event));
+        // We don't need this as only a delete or an update should invalidate the caches.
     }
 
     private ClusteringAgent getClusteringAgent() {
