@@ -57,6 +57,8 @@ public class RequestCorrelationIdValve extends ValveBase {
 
     private static final Log correlationLog = LogFactory.getLog("correlation");
     private static final String CORRELATION_ID_MDC = "Correlation-ID";
+    /* package private */ static final String CORRELATION_ID_MDC_REQUEST_ATTRIBUTE_NAME =
+            "org.wso2.request.correlation.MDC";
     private Map<String, String> headerToIdMapping;
     private Map<String, String> queryToIdMapping;
     private static List<String> toRemoveFromThread = new ArrayList<>();
@@ -104,11 +106,16 @@ public class RequestCorrelationIdValve extends ValveBase {
             }
 
             if (associateToThreadMap.size() == 0) {
-                associateToThread(UUID.randomUUID().toString());
-            } else {
-                associateToThread(associateToThreadMap);
+                // Put the default generated correlation ID.
+                associateToThreadMap.put(correlationIdMdc, UUID.randomUUID().toString());
             }
 
+            associateToThread(associateToThreadMap);
+
+
+            // Associates the generated Correlation ID Mapping to the request so that,
+            // it will be available for any other asynchronous flows or threads spawned for this request
+            request.setAttribute(CORRELATION_ID_MDC_REQUEST_ATTRIBUTE_NAME, associateToThreadMap);
             if (isEnableCorrelationLogs) {
                 long currentTime = System.currentTimeMillis();
                 long timeTaken = currentTime - requestStartTime;
