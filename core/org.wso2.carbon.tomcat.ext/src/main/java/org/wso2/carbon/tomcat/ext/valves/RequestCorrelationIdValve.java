@@ -188,15 +188,6 @@ public class RequestCorrelationIdValve extends ValveBase {
     }
 
     /**
-     * Associate a random correlation id value to thread
-     *
-     * @param generatedValue Randomly generated UUID
-     */
-    private void associateToThread(String generatedValue) {
-        MDC.put(correlationIdMdc, generatedValue);
-    }
-
-    /**
      * Remove all headers values associated with the thread.
      */
     private void disAssociateFromThread() {
