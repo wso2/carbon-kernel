@@ -78,7 +78,7 @@ import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.T
 public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager {
 
     public static final String MEMBER_UID = "memberUid";
-    private static final String OBJECT_GUID = "objectGUID";
+    protected static final String OBJECT_GUID = "objectGUID";
     protected static final String MEMBERSHIP_ATTRIBUTE_RANGE = "MembershipAttributeRange";
     protected static final String MEMBERSHIP_ATTRIBUTE_RANGE_DISPLAY_NAME = "Membership Attribute Range";
     private static final String USER_CACHE_NAME_PREFIX = CachingConstants.LOCAL_CACHE_PREFIX + "UserCache-";
