@@ -128,7 +128,7 @@
     try {
         // Encode for html to avoid html content in uri being executed
         uri = Encode.forHtml(decode(request.getParameter("uri")));
-		pattern = decode(request.getParameter("pattern"));
+        pattern = decode(request.getParameter("pattern"));
         username = decode(request.getParameter("username"));
         password = decode(request.getParameter("password"));
         payload = decode(request.getParameter("payload"));
