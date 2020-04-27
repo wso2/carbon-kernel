@@ -203,15 +203,18 @@ public final class ApplicationManager implements ApplicationManagerService {
                     return;
                 } else {
                     // we are going to do an update for the application
-                    log.warn("Carbon Application : " + fileName + " has been updated. Removing" +
-                            " the existing application and redeploying...");
+                    log.warn("Carbon Application : " + fileName + " with MD5 hash : " + hashValue
+                            + " has been updated. "
+                            + "Removing the existing application with MD5 hash : " + hashValueFromRegistry
+                            + " and redeploying...");
                     // undeploy the existing one before proceeding
                     undeployCarbonApp(existingApp, axisConfig);
                 }
             }
         }
 
-        log.info("Deploying Carbon Application : " + fileName + "...");
+        log.info("Deploying Carbon Application : " + fileName + "... with MD5 hash : "
+                + getMD5HashValue(archPathToProcess));
 
         CarbonApplication currentApp = new CarbonApplication();
         try {
@@ -225,7 +228,8 @@ public final class ApplicationManager implements ApplicationManagerService {
             // If we don't have features (artifacts) for this server, ignore
             if (appConfig.getApplicationArtifact().getDependencies().size() == 0) {
                 log.warn("No artifacts found to be deployed in this server. " +
-                         "Ignoring Carbon Application : " + fileName);
+                        "Ignoring Carbon Application : " + fileName + " with MD5 hash : " +
+                        getMD5HashValue(currentApp.getAppFilePath()));
                 return;
             }
 
@@ -234,8 +238,9 @@ public final class ApplicationManager implements ApplicationManagerService {
 
             String appName = appConfig.getAppName();
             if (appName == null) {
-                log.warn("No application name found in Carbon Application : " + fileName + ". Using " +
-                         "the file name as the application name");
+                log.warn("No application name found in Carbon Application : " + fileName + " with MD5 hash : "
+                        + getMD5HashValue(currentApp.getAppFilePath())
+                        + ". Using the file name as the application name");
                 appName = fileName.substring(0, fileName.lastIndexOf('.'));
             }
             // to support multiple capp versions, we check app name with version
@@ -282,9 +287,9 @@ public final class ApplicationManager implements ApplicationManagerService {
 
             currentApp.setDeploymentCompleted(true);
             this.addCarbonApp(tenantId, currentApp);
-            log.info("Successfully Deployed Carbon Application : " + currentApp.getAppNameWithVersion() +
-                     AppDeployerUtils.getTenantIdLogString(AppDeployerUtils.
-                             getTenantId()));
+            log.info("Successfully Deployed Carbon Application : " + currentApp.getAppNameWithVersion() + " with MD5 "
+                    + "hash : " + getMD5HashValue(currentApp.getAppFilePath()) + " "
+                    + AppDeployerUtils.getTenantIdLogString(AppDeployerUtils.getTenantId()));
         } catch (DeploymentException e) {
             log.error("Error occurred while deploying Carbon Application", e);
             revertDeployedArtifacts(currentApp, axisConfig);
@@ -309,6 +314,22 @@ public final class ApplicationManager implements ApplicationManagerService {
                 axisConfiguration.getFaultyServices().remove(faultService);
             }
         }
+    }
+
+    /**
+     * Get the MD5 Hash value of a given Carbon Application
+     * @param cabonAppFilePath - carbon app file path
+     * @return - MD5 Hash value of a given Carbon Application
+     */
+    private String getMD5HashValue(String cabonAppFilePath) {
+        File cabonAppFile = new File(cabonAppFilePath);
+        String hashValue;
+        try {
+            hashValue = CarbonUtils.getMD5(CarbonUtils.getBytesFromFile(cabonAppFile));
+        } catch (CarbonException ex) {
+            hashValue = null;
+        }
+        return hashValue;
     }
 
     /**
@@ -431,7 +452,9 @@ public final class ApplicationManager implements ApplicationManagerService {
      */
     public void undeployCarbonApp(CarbonApplication carbonApp,
                                                AxisConfiguration axisConfig) {
-        log.info("Undeploying Carbon Application : " + carbonApp.getAppNameWithVersion() + "...");
+        String hasValue = getMD5HashValue(carbonApp.getAppFilePath());
+        log.info("Undeploying Carbon Application : " + carbonApp.getAppNameWithVersion() + "... with MD5 hash : "
+                + hasValue);
         // Call the undeployer handler chain
         try {
             for (AppDeploymentHandler handler : appDeploymentHandlers) {
@@ -447,9 +470,11 @@ public final class ApplicationManager implements ApplicationManagerService {
             // removing the extracted CApp form tmp/carbonapps/
             FileManipulator.deleteDir(carbonApp.getExtractedPath());
             log.info("Successfully Undeployed Carbon Application : " + carbonApp.getAppNameWithVersion()
-                            + AppDeployerUtils.getTenantIdLogString(AppDeployerUtils.getTenantId()));
+                    + " with MD5 hash : " + hasValue + " " +
+                    AppDeployerUtils.getTenantIdLogString(AppDeployerUtils.getTenantId()));
         } catch (Exception e) {
-            log.error("Error occured while trying unDeply  : " + carbonApp.getAppNameWithVersion());
+            log.error("Error occurred while trying unDeploy  : " + carbonApp.getAppNameWithVersion() + " witha MD5 " +
+                    "hash : " + hasValue);
         }
 
     }
