@@ -161,10 +161,6 @@ public class JDBCTenantManager implements TenantManager {
             tenantDomainNameValidation(tenantDomain);
             tenantDomainCache.addToCache(new TenantIdKey(id), new TenantDomainEntry(tenantDomain));
             tenantIdCache.addToCache(new TenantDomainKey(tenantDomain), new TenantIdEntry(id));
-            if (isTenantUniqueIdColumnAvailable()) {
-                tenantUniqueIdCache.addToCache(new TenantUniqueIDKey(tenantUniqueID), new
-                        TenantCacheEntry<org.wso2.carbon.user.api.Tenant>(tenant));
-            }
         } catch (Exception e) {
             DatabaseUtil.rollBack(dbConnection);
             String msg = "Error in adding tenant with " + "tenant domain: " + tenantDomain + ".";
