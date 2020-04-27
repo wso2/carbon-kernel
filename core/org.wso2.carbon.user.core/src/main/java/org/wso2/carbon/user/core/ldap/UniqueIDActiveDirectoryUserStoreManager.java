@@ -589,12 +589,14 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
         String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_SEARCH_FILTER);
         String userIDAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
 
-        if (isBinaryUserAttribute(userIDAttribute)) {
-            value = transformUUIDToObjectGUID(value);
-        }
-
         userSearchFilter = userSearchFilter.replace(LDAPConstants.UID, userIDAttribute);
-        userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userID));
+
+        if (OBJECT_GUID.equalsIgnoreCase(userIDAttribute) && isBinaryUserAttribute(userIDAttribute)) {
+            userID = transformUUIDToObjectGUID(userID);
+            userSearchFilter = userSearchFilter.replace("?", userID);
+        } else {
+            userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userID));
+        }
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);

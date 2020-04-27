@@ -40,11 +40,14 @@ public class JDBCUserStoreConstants {
     public static final ArrayList<Property> JDBC_UM_OPTIONAL_PROPERTIES = new ArrayList<>();
     public static final ArrayList<Property> JDBC_UM_ADVANCED_PROPERTIES = new ArrayList<>();
     private static final String usernameJavaRegExViolationErrorMsg = "UsernameJavaRegExViolationErrorMsg";
-    private static final String usernameJavaRegExViolationErrorMsgDescription = "Error message when the Username is not matched with UsernameJavaRegEx";
+    private static final String usernameJavaRegExViolationErrorMsgDescription = "Error message when the Username is "
+            + "not matched with UsernameJavaRegEx";
     private static final String passwordJavaRegExViolationErrorMsg = "PasswordJavaRegExViolationErrorMsg";
-    private static final String passwordJavaRegExViolationErrorMsgDescription = "Error message when the Password is not matched with passwordJavaRegEx";
+    private static final String passwordJavaRegExViolationErrorMsgDescription = "Error message when the Password is "
+            + "not matched with passwordJavaRegEx";
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
-    private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim values";
+    private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim "
+            + "values";
     private static final String VALIDATION_INTERVAL = "validationInterval";
 
     static {

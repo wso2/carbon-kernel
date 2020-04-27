@@ -45,15 +45,15 @@ public class ReadWriteLDAPUserStoreConstants {
     private static final String DisplayNameAttribute = "DisplayNameAttribute";
     private static final String usernameJavaRegExViolationErrorMsg = "UsernameJavaRegExViolationErrorMsg";
     private static final String usernameJavaRegExViolationErrorMsgDescription =
-            "Error message when the Username is " + "not matched with UsernameJavaRegEx";
+            "Error message when the Username is not matched with UsernameJavaRegEx";
     private static final String passwordJavaRegEx = "PasswordJavaRegEx";
     private static final String passwordJavaRegExViolationErrorMsg = "PasswordJavaRegExViolationErrorMsg";
     private static final String passwordJavaRegExViolationErrorMsgDescription =
-            "Error message when the Password is " + "not matched with passwordJavaRegEx";
+            "Error message when the Password is not matched with passwordJavaRegEx";
     private static final String passwordJavaRegExDescription = "Policy that defines the password format in backend";
     private static final String roleDNPattern = "RoleDNPattern";
     private static final String roleDNPatternDescription =
-            "The patten for role's DN. It can be defined to improve " + "the LDAP search";
+            "The patten for role's DN. It can be defined to improve the LDAP search";
 
     static {
 
