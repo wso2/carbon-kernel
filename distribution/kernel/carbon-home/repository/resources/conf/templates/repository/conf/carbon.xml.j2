@@ -269,6 +269,23 @@
             </EagerLoading>
             {% endif %}
         </LoadingPolicy>
+
+        <!-- Flag to enable or disable tenant deletion -->
+        {% if tenant_mgt.tenant_deletion is defined %}
+        <TenantDelete>{{tenant_mgt.tenant_deletion}}</TenantDelete>
+        {% else %}
+        <TenantDelete>false</TenantDelete>
+        {% endif %}
+
+        <!-- Configurations related to listener invocation by tenant admin service -->
+        <ListenerInvocationPolicy>
+            <!-- Flag to enable or disable listener invocation on tenant delete -->
+            {% if tenant_mgt.invoke_on_delete is defined %}
+            <InvokeOnDelete>{{tenant_mgt.invoke_on_delete}}</InvokeOnDelete>
+            {% else %}
+            <InvokeOnDelete>false</InvokeOnDelete>
+            {% endif %}
+        </ListenerInvocationPolicy>
     </Tenant>
 
     <!--
