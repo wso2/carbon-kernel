@@ -214,9 +214,10 @@ public class CryptoUtil {
                 encryptedKey = cryptoService
                         .encrypt(plainTextBytes, algorithm, CRYPTO_API_PROVIDER_BC, returnSelfContainedCipherText,
                                 internalCryptoProviderType);
+
             }
 
-        } catch (Exception e) {
+        } catch (org.wso2.carbon.crypto.api.CryptoException e) {
             throw new CryptoException("An error occurred while encrypting data.", e);
         }
         return encryptedKey;
@@ -421,7 +422,7 @@ public class CryptoUtil {
                         internalCryptoProviderType);
             }
             return decryptedValue;
-        } catch (Exception e) {
+        } catch (org.wso2.carbon.crypto.api.CryptoException e) {
             throw new CryptoException("An error occurred while decrypting data.", e);
         }
 
