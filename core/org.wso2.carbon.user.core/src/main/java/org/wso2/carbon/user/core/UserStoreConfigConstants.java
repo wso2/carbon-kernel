@@ -31,11 +31,12 @@ public class UserStoreConfigConstants {
     public static final String dataSourceDescription = "Connection name to user store";
     //Common Properties
     public static final String maxRoleNameListLength = "MaxRoleNameListLength";
-    public static final String maxRoleNameListLengthDescription = "Maximum number of roles retrieved at once";
+    public static final String maxRoleNameListLengthDescription = "Maximum number of groups retrieved at once";
     public static final String maxUserNameListLength = "MaxUserNameListLength";
     public static final String maxUserNameListLengthDescription = "Maximum number of users retrieved at once";
     public static final String userRolesCacheEnabled = "UserRolesCacheEnabled";
-    public static final String userRolesCacheEnabledDescription = "This is to indicate whether to cache the role list of a user";
+    public static final String userRolesCacheEnabledDescription = "This is to indicate whether to cache the group "
+            + "list of a user";
     public static final String SCIMEnabledDescription = "Whether SCIM is enabled for the user store";
     public static final String claimOperationsSupported = "ClaimOperationsSupported";
     public static final String claimOperationsSupportedDescription = "Whether the userstore supports claim read and write";
@@ -99,7 +100,7 @@ public class UserStoreConfigConstants {
     public static final String usernameSearchFilter = "UserNameSearchFilter";
     public static final String usernameSearchFilterDescription = "Filtering criteria for searching a particular user entry";
     public static final String userIdSearchFilter = "UserIdSearchFilter";
-    public static final String userIdSearchFilterAttributeName = "UserID Search Filter";
+    public static final String userIdSearchFilterAttributeName = "User ID Search Filter";
     public static final String userIdSearchFilterDescription = "Filtering criteria for searching a particular user " +
             "entry";
     public static final String userNameAttribute = "UserNameAttribute";
