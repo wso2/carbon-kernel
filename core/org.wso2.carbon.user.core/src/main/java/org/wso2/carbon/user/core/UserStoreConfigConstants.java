@@ -100,7 +100,7 @@ public class UserStoreConfigConstants {
     public static final String usernameSearchFilter = "UserNameSearchFilter";
     public static final String usernameSearchFilterDescription = "Filtering criteria for searching a particular user entry";
     public static final String userIdSearchFilter = "UserIdSearchFilter";
-    public static final String userIdSearchFilterAttributeName = "UserID Search Filter";
+    public static final String userIdSearchFilterAttributeName = "User ID Search Filter";
     public static final String userIdSearchFilterDescription = "Filtering criteria for searching a particular user " +
             "entry";
     public static final String userNameAttribute = "UserNameAttribute";
