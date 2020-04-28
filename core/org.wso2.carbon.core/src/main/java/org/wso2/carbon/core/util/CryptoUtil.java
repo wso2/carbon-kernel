@@ -390,7 +390,7 @@ public class CryptoUtil {
     public byte[] decrypt(byte[] cipherTextBytes, String algorithm, String internalCryptoProviderType)
             throws CryptoException {
 
-        failIfEncryptDecryptInputsAreInvalid(cipherTextBytes,algorithm,internalCryptoProviderType);
+        failIfEncryptDecryptInputsAreInvalid(cipherTextBytes, algorithm, internalCryptoProviderType);
 
         byte[] decryptedValue;
 
