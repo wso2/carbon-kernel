@@ -183,6 +183,6 @@
   "versioning_configuration.enable_versioning_tags": false,
   "versioning_configuration.enable_versioning_ratings": false,
   "versioning_configuration.enable_version_resources_on_change" : false,
-  "sts.callback_handler" : "org.wso2.carbon.identity.provider.AttributeCallbackHandler"
+  "sts.callback_handler" : "org.wso2.carbon.identity.sts.common.identity.provider.AttributeCallbackHandler"
 
 }
