@@ -98,6 +98,11 @@ public class Tenant {
      */
     private Map<String, String> claimsMap;
 
+    /**
+     * Provisioning method for tenant owner's password.
+     */
+    private String provisioningMethod;
+
     public String getAdminFullName() {
         return adminFullName;
     }
@@ -223,5 +228,15 @@ public class Tenant {
     public void setClaimsMap(Map<String, String> claimsMap) {
 
         this.claimsMap = claimsMap;
+    }
+
+    public String getProvisioningMethod() {
+
+        return provisioningMethod;
+    }
+
+    public void setProvisioningMethod(String provisioningMethod) {
+
+        this.provisioningMethod = provisioningMethod;
     }
 }
