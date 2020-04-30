@@ -51,7 +51,7 @@ public class ActiveDirectoryUserStoreConstants {
     private static final String passwordJavaRegExDescription = "Policy that defines the password format in backend";
     private static final String roleDNPattern = "RoleDNPattern";
     private static final String roleDNPatternDescription =
-            "The patten for role's DN. It can be defined to improve " + "the LDAP search";
+            "The patten for group's DN. It can be defined to improve the LDAP search";
 
     static {
         //Set mandatory properties

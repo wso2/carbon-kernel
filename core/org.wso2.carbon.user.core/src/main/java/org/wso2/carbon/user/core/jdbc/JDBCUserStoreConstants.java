@@ -92,12 +92,12 @@ public class JDBCUserStoreConstants {
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setProperty(passwordJavaRegExViolationErrorMsg, "Password RegEx Violation Error Message",
                 "Password pattern policy violated", passwordJavaRegExViolationErrorMsgDescription,
-                new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        setProperty("RolenameJavaRegEx", "Role Name RegEx (Java)", "[a-zA-Z0-9._\\-|//]{3,30}$",
-                "A regular expression to validate role names",
+                new Property[] { USER.getProperty(), STRING.getProperty(), FALSE.getProperty() });
+        setProperty("RolenameJavaRegEx", "Group Name RegEx (Java)", "[a-zA-Z0-9._\\-|//]{3,30}$",
+                "A regular expression to validate group names",
                 new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        setProperty("RolenameJavaScriptRegEx", "Role Name RegEx (Javascript)", "^[\\S]{5,30}$",
-                "The regular expression used by the font-end components for role name validation",
+        setProperty("RolenameJavaScriptRegEx", "Group Name RegEx (Javascript)", "^[\\S]{5,30}$",
+                "The regular expression used by the font-end components for group name validation",
                 new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setProperty(JDBCCaseInsensitiveConstants.CASE_SENSITIVE_USERNAME, "Case Insensitive Username", "false",
                 JDBCCaseInsensitiveConstants.CASE_SENSITIVE_USERNAME_DESCRIPTION,

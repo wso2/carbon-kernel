@@ -53,7 +53,7 @@ public class ReadWriteLDAPUserStoreConstants {
     private static final String passwordJavaRegExDescription = "Policy that defines the password format in backend";
     private static final String roleDNPattern = "RoleDNPattern";
     private static final String roleDNPatternDescription =
-            "The patten for role's DN. It can be defined to improve the LDAP search";
+            "The patten for group's DN. It can be defined to improve the LDAP search";
 
     static {
 
@@ -120,7 +120,7 @@ public class ReadWriteLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.groupNameListFilter, "Group List Filter", "(objectClass=groupOfNames)",
                 UserStoreConfigConstants.groupNameListFilterDescription,
                 new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        setProperty(roleDNPattern, "Role DN Pattern", "", roleDNPatternDescription,
+        setProperty(roleDNPattern, "Group DN Pattern", "", roleDNPatternDescription,
                 new Property[] { GROUP.getProperty(), STRING.getProperty(), FALSE.getProperty() });
 
         setProperty(UserStoreConfigConstants.membershipAttribute, "Membership Attribute", "member",
