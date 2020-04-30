@@ -63,7 +63,7 @@ public class UserStoreConfigConstants {
     public static final String connectionName = "ConnectionName";
     public static final String connectionNameDescription = "This should be a DN (Distinguish Name) of a user with " +
                                                            "sufficient permissions to perform operations on users " +
-                                                           "and roles in LDAP";
+                                                           "and groups in LDAP";
     public static final String connectionPassword = "ConnectionPassword";
     public static final String connectionPasswordDescription = "Password of the admin user";
     public static final String userSearchBase = "UserSearchBase";
@@ -84,13 +84,15 @@ public class UserStoreConfigConstants {
     public static final String usernameJavaRegEx = "UserNameJavaRegEx";
     public static final String usernameJavaRegExDescription = "A regular expression to validate user names";
     public static final String roleNameJavaScriptRegEx = "RoleNameJavaScriptRegEx";
-    public static final String roleNameJavaScriptRegExDescription = "The regular expression used by the front-end components for role name validation";
+    public static final String roleNameJavaScriptRegExDescription = "The regular expression used by the front-end "
+            + "components for group name validation";
     public static final String roleNameJavaRegEx = "RoleNameJavaRegEx";
-    public static final String roleNameJavaRegExDescription = "A regular expression to validate role names";
+    public static final String roleNameJavaRegExDescription = "A regular expression to validate group names";
     public static final String groupEntryObjectClass = "GroupEntryObjectClass";
     public static final String groupEntryObjectClassDescription = "Object Class used to construct group entries";
     public static final String emptyRolesAllowed = "EmptyRolesAllowed";
-    public static final String emptyRolesAllowedDescription = "Specifies whether the underlying user store allows empty roles to be added";
+    public static final String emptyRolesAllowedDescription = "Specifies whether the underlying user store allows "
+            + "empty groups to be added";
 
     //LDAP Specific Properties
     public static final String passwordHashMethod = "PasswordHashMethod";
