@@ -73,7 +73,6 @@
                 <Valve className="org.apache.catalina.valves.AccessLogValve" directory="${carbon.home}/repository/logs"
                     prefix="http_access_" suffix=".log" pattern="{{http_access_log.pattern}}"/>
                 {% endif %}
-                       prefix="http_access_" suffix=".log" pattern="%h %l %u %t %r %s %b %{Referer}i %{User-Agent}i %T"/>
                 <Valve className="org.wso2.carbon.tomcat.ext.valves.CarbonStuckThreadDetectionValve" threshold="600"/>
                 <Valve className="org.wso2.carbon.tomcat.ext.valves.CompositeValve"/>
 
