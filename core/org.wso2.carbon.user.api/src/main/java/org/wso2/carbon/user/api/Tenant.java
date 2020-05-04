@@ -19,6 +19,7 @@
 package org.wso2.carbon.user.api;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -96,7 +97,7 @@ public class Tenant {
     /**
      * Claim value pair of tenant owner.
      */
-    private Map<String, String> claimsMap;
+    private Map<String, String> claimsMap = new HashMap<>();
 
     /**
      * Provisioning method for tenant owner's password.
