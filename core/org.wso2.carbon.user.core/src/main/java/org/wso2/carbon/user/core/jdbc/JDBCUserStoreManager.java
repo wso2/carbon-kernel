@@ -4325,10 +4325,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         if (MYSQL.equals(dbType)) {
             sqlBuilder.updateSql(" GROUP BY U.UM_USER_NAME ");
-            if (groupFilterCount > 0) {
+            if (groupFilterCount > 0 && claimFilterCount > 0) {
+                sqlBuilder.updateSql(" HAVING (COUNT(DISTINCT R.UM_ROLE_NAME) = " + groupFilterCount +
+                        " AND COUNT(DISTINCT UA.UM_ATTR_VALUE) = " + claimFilterCount + ")");
+            } else if (groupFilterCount > 0) {
                 sqlBuilder.updateSql(" HAVING COUNT(DISTINCT R.UM_ROLE_NAME) = " + groupFilterCount);
-            }
-            if (claimFilterCount > 0) {
+            } else if (claimFilterCount > 0) {
                 sqlBuilder.updateSql(" HAVING COUNT(DISTINCT UA.UM_ATTR_VALUE) = " + claimFilterCount);
             }
         }
