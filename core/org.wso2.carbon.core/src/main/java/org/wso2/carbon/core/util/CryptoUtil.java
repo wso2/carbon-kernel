@@ -410,6 +410,7 @@ public class CryptoUtil {
                                     "the self contained cipher text."));
                 }
                 cipherTextBytes = cipherMetaDataHolder.getCipherBase64Decoded();
+                algorithm = cipherMetaDataHolder.getTransformation();
             }
 
             if (cipherTextBytes.length == 0) {
