@@ -16,7 +16,8 @@
   ~  specific language governing permissions and limitations
   ~  under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon.identity.framework</groupId>
@@ -44,7 +45,7 @@
                         <Export-Package>
                             org.wso2.carbon.identity.base.xsd.* ;
                             version="${carbon.identity.package.export.version}",
-                            org.wso2.carbon.identity.sts.common.config.service.xsd.* ;
+                            org.wso2.carbon.identity.sts.common.stub.config.* ;
                             version="${carbon.identity.package.export.version}",
                             org.wso2.carbon.security.mgt.stub.*;
                             version="${carbon.identity.package.export.version}"
@@ -76,7 +77,7 @@
                                     <classpath refid="wsdl2java.classpath" />
                                 </java>
                                 <java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true">
-                                    <arg line="-uri src/main/resources/SecurityConfigAdmin.wsdl -u -g -o target/generated-code -ns2p http://service.config.security.carbon.wso2.org=org.wso2.carbon.security.mgt.stub.config,http://service.config.security.carbon.wso2.org/xsd=org.wso2.carbon.security.mgt.stub.config.xsd" />
+                                    <arg line="-uri src/main/resources/SecurityConfigAdmin.wsdl -u -g -o target/generated-code -ns2p http://service.config.security.carbon.wso2.org=org.wso2.carbon.security.mgt.stub.config,http://service.config.security.carbon.wso2.org/xsd=org.wso2.carbon.security.mgt.stub.config.xsd,http://service.config.common.sts.identity.carbon.wso2.org=org.wso2.carbon.identity.sts.common.stub.config,http://service.config.common.sts.identity.carbon.wso2.org/xsd=org.wso2.carbon.identity.sts.common.stub.config.xsd" />
                                     <classpath refid="wsdl2java.classpath" />
                                 </java>
                             </tasks>

@@ -89,7 +89,7 @@
                             org.wso2.carbon.registry.core.*; version="${carbon.kernel.registry.imp.pkg.version}",
                             org.wso2.carbon.security.mgt.stub.*;
                             version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.identity.sts.common.config.service.xsd.*;
+                            org.wso2.carbon.identity.sts.common.stub.config.*;
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.user.mgt.stub.types.carbon; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.core.*;
