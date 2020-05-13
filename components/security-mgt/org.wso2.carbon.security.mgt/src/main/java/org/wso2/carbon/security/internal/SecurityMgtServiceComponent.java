@@ -69,7 +69,7 @@ public class SecurityMgtServiceComponent {
             try {
                 addKeystores();
             } catch (Exception e) {
-                String msg = "Cannot add keystores";
+                String msg = "Error while adding key stores.";
                 log.error(msg, e);
                 throw new RuntimeException(msg, e);
             }
