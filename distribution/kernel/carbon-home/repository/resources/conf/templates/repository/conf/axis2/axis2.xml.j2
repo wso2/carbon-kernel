@@ -25,6 +25,10 @@
     <module ref="addressing"/>
     {% endif %}
 
+    {% for module in server.globally_engaged_modules %}
+    <module ref="{{module}}"/>
+    {% endfor %}
+
     <!-- ================================================= -->
     <!-- Parameters -->
     <!-- ================================================= -->
