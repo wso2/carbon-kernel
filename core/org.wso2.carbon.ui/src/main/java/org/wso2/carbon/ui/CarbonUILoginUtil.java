@@ -556,13 +556,16 @@ public final class CarbonUILoginUtil {
     protected static int handleLoginPageRequest(String requestedURI, HttpServletRequest request,
             HttpServletResponse response, boolean authenticated, String context, String indexPageURL)
             throws IOException {
+        boolean isTryIt = requestedURI.indexOf("admin/jsp/WSRequestXSSproxy_ajaxprocessor.jsp") > -1;
+        boolean isFileDownload = requestedURI.endsWith("/filedownload");
         if (requestedURI.indexOf("login.jsp") > -1
                 || requestedURI.indexOf("login_ajaxprocessor.jsp") > -1
                 || requestedURI.indexOf("admin/layout/template.jsp") > -1
-                || requestedURI.endsWith("/filedownload") || requestedURI.endsWith("/fileupload")
+                || isFileDownload
+                || requestedURI.endsWith("/fileupload")
                 || requestedURI.indexOf("/fileupload/") > -1
                 || requestedURI.indexOf("login_action.jsp") > -1
-                || requestedURI.indexOf("admin/jsp/WSRequestXSSproxy_ajaxprocessor.jsp") > -1
+                || isTryIt
                 || requestedURI.indexOf("tryit/JAXRSRequestXSSproxy_ajaxprocessor.jsp") > -1) {
 
             if ((requestedURI.indexOf("login.jsp") > -1
@@ -583,6 +586,11 @@ public final class CarbonUILoginUtil {
                 }
                 // redirect relative to the servlet container root
                 response.sendRedirect(context + "/carbon/admin/index.jsp");
+                return RETURN_FALSE;
+            } else if ((isTryIt || isFileDownload) && !authenticated) {
+                if (isFileDownload) {
+                    response.sendRedirect(context + "/carbon/admin/index.jsp");
+                }
                 return RETURN_FALSE;
             } else if (requestedURI.indexOf("login_action.jsp") > -1 && !authenticated) {
                 // User is not yet authenticated and now trying to get authenticated
