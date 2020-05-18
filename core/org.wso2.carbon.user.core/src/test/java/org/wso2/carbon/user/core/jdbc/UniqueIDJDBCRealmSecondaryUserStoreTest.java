@@ -73,6 +73,10 @@ public class UniqueIDJDBCRealmSecondaryUserStoreTest extends BaseTestCase {
     public static final String JDBC_TEST_USERMGT_XML = "user-mgt-test-uniqueId.xml";
 
     private static String TEST_URL = "jdbc:h2:./target/UniqueIDJDBCRealmSecondaryUserStoreTest/CARBON_TEST";
+    private static final String SEC_DB1_URL =
+            "jdbc:h2:./target/BasicUniqueIDJDBCDatabaseTestSecondary/CARBON_TEST";
+    private static final String SEC_DB2_URL =
+            "jdbc:h2:./target/BasicUniqueIDJDBCDatabaseTestSecondary/CARBON_TEST2";
     private AbstractUserStoreManager admin = null;
     private static String userId1;
     private static String userId2;
@@ -108,7 +112,8 @@ public class UniqueIDJDBCRealmSecondaryUserStoreTest extends BaseTestCase {
         realm.init(realmConfig, ClaimTestUtil.getClaimTestData(), ClaimTestUtil
                 .getProfileTestData(), MultitenantConstants.SUPER_TENANT_ID);
         admin = (AbstractUserStoreManager) realm.getUserStoreManager();
-        addSecondaryUserStoreManager(realmConfig, admin, realm);
+        addSecondaryUserStoreManager(realmConfig, admin, realm, SEC_DB1_URL, "src/test/resources/SECONDARY.xml", "SECONDARY.xml");
+        addSecondaryUserStoreManager(realmConfig, admin, realm, SEC_DB2_URL, "src/test/resources/SECONDARY2.xml", "SECONDARY2.xml");
         ds.close();
     }
 
@@ -691,17 +696,17 @@ public class UniqueIDJDBCRealmSecondaryUserStoreTest extends BaseTestCase {
     }
 
     private void addSecondaryUserStoreManager(RealmConfiguration primaryRealm,
-                                              AbstractUserStoreManager userStoreManager,
-                                              UserRealm userRealm) throws Exception {
+                                              AbstractUserStoreManager userStoreManager, UserRealm userRealm,
+                                              String dbUrl, String configFilePath,
+                                              String configFileName) throws Exception {
 
-        String dbUrl = "jdbc:h2:./target/BasicUniqueIDJDBCDatabaseTestSecondary/CARBON_TEST";
         BasicDataSource ds = new BasicDataSource();
         ds.setDriverClassName(UserCoreTestConstants.DB_DRIVER);
         ds.setUrl(dbUrl);
         DatabaseCreator creator = new DatabaseCreator(ds);
         creator.createRegistryDatabase();
-        InputStream inStream = this.getClass().getClassLoader().getResource("SECONDARY.xml").openStream();
-        RealmConfiguration realmConfig = getRealmConfiguration(primaryRealm,"src/test/resources/SECONDARY.xml", inStream);
+        InputStream inStream = this.getClass().getClassLoader().getResource(configFileName).openStream();
+        RealmConfiguration realmConfig = getRealmConfiguration(primaryRealm, configFilePath, inStream);
         userStoreManager.addSecondaryUserStoreManager(realmConfig, userRealm);
         ds.close();
     }
