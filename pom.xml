@@ -45,6 +45,7 @@
         <module>components/identity-core</module>
         <module>components/application-mgt</module>
         <module>components/user-mgt</module>
+        <module>components/role-mgt</module>
         <module>components/identity-mgt</module>
         <module>components/identity-event</module>
         <module>components/notification-mgt</module>
@@ -76,6 +77,7 @@
         <module>features/idp-mgt</module>
         <module>features/directory-server-manager</module>
         <module>features/user-mgt</module>
+        <module>features/role-mgt</module>
         <module>features/workflow-mgt</module>
         <module>features/categories</module>
         <module>features/carbon-authenticators</module>
@@ -358,6 +360,19 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.user.mgt.ui.feature</artifactId>
+                <version>${project.version}</version>
+                <type>zip</type>
+            </dependency>
+
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.role.mgt.core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.role.mgt.core.server.feature</artifactId>
                 <version>${project.version}</version>
                 <type>zip</type>
             </dependency>
@@ -1719,7 +1734,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon kernel version -->
-        <carbon.kernel.version>4.6.1-m4</carbon.kernel.version>
+        <carbon.kernel.version>4.6.1-m6</carbon.kernel.version>
         <carbon.kernel.feature.version>4.6.0</carbon.kernel.feature.version>
         <carbon.kernel.package.import.version.range>[4.5.0, 5.0.0)</carbon.kernel.package.import.version.range>
         <carbon.kernel.registry.imp.pkg.version>[1.0.1, 2.0.0)</carbon.kernel.registry.imp.pkg.version>
@@ -1736,7 +1751,7 @@
         <carbon.commons.version>4.7.18</carbon.commons.version>
         <carbon.commons.imp.pkg.version>[4.7.2, 5.0.0)</carbon.commons.imp.pkg.version>
 
-        <org.wso2.carbon.database.utils.version>2.0.7</org.wso2.carbon.database.utils.version>
+        <org.wso2.carbon.database.utils.version>2.0.12</org.wso2.carbon.database.utils.version>
         <org.wso2.carbon.database.utils.version.range>[2.0.0,2.1.0)</org.wso2.carbon.database.utils.version.range>
 
         <!--Carbon identity version-->
