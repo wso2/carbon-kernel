@@ -171,6 +171,59 @@ public class CryptoUtil {
     }
 
     /**
+     * Encrypt a given plain text with the provided algorithm and internal crypto provider type.
+     *
+     * @param plainTextBytes                plain text bytes that need to be encrypted.
+     * @param algorithm                     The encryption algorithm.
+     * @param returnSelfContainedCipherText Create self-contained cipher text if true, return simple encrypted ciphertext otherwise.
+     * @param internalCryptoProviderType    The {@link org.wso2.carbon.crypto.api.InternalCryptoProvider} type.
+     * @return The cipher text bytes.
+     * @throws CryptoException
+     */
+    public byte[] encrypt(byte[] plainTextBytes, String algorithm, boolean returnSelfContainedCipherText,
+                          String internalCryptoProviderType)
+            throws CryptoException {
+
+        failIfEncryptDecryptInputsAreInvalid(plainTextBytes, algorithm, internalCryptoProviderType);
+
+        byte[] encryptedKey;
+        try {
+
+            CryptoService cryptoService = CarbonCoreDataHolder.getInstance().getCryptoService();
+
+            if (cryptoService == null) {
+                throw new CryptoException("A crypto service implementation has not been registered.");
+            }
+            if (plainTextBytes.length == 0) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Plaintext is empty. An empty array will be used as the ciphertext bytes.");
+                }
+                encryptedKey = StringUtils.EMPTY.getBytes();
+            } else {
+                if (log.isDebugEnabled()) {
+                    if (returnSelfContainedCipherText) {
+                        log.debug(String.format(
+                                "Encrypting data in self contained format, with algorithm: '%s' and internal crypto " +
+                                        "provider: '%s'", algorithm, internalCryptoProviderType));
+                    } else {
+                        log.debug(String.format(
+                                "Encrypting data with algorithm: '%s' and internal crypto " +
+                                        "provider: '%s'", algorithm, internalCryptoProviderType));
+                    }
+                }
+                encryptedKey = cryptoService
+                        .encrypt(plainTextBytes, algorithm, CRYPTO_API_PROVIDER_BC, returnSelfContainedCipherText,
+                                internalCryptoProviderType);
+
+            }
+
+        } catch (org.wso2.carbon.crypto.api.CryptoException e) {
+            throw new CryptoException("An error occurred while encrypting data.", e);
+        }
+        return encryptedKey;
+    }
+
+    /**
      * Encrypt the given plain text with given transformation and base64 encode the encrypted content.
      *
      * @param plainText The plaintext value to be encrypted and base64
@@ -197,6 +250,24 @@ public class CryptoUtil {
     public String encryptAndBase64Encode(byte[] plainText) throws
             CryptoException {
         return Base64.encode(encrypt(plainText));
+    }
+
+    /**
+     * Encrypt the given plain text and base64 encode the encrypted content.
+     *
+     * @param plainText                     Plain text bytes that need to be encrypted.
+     * @param algorithm                     The encryption algorithm.
+     * @param returnSelfContainedCipherText Create self-contained cipher text if true, return simple encrypted
+     *                                      ciphertext otherwise.
+     * @param internalCryptoProviderType    The {@link org.wso2.carbon.crypto.api.InternalCryptoProvider} type.
+     * @return The cipher text bytes.
+     * @throws CryptoException
+     */
+    public String encryptAndBase64Encode(byte[] plainText, String algorithm,
+                                         boolean returnSelfContainedCipherText, String internalCryptoProviderType)
+            throws CryptoException {
+
+        return Base64.encode(encrypt(plainText, algorithm, returnSelfContainedCipherText, internalCryptoProviderType));
     }
 
     /**
@@ -308,6 +379,57 @@ public class CryptoUtil {
     }
 
     /**
+     * Decrypt the cipher text using the given algorithm and internal crypto provider type.
+     *
+     * @param cipherTextBytes            The cipher text to be decrypted.
+     * @param algorithm                  The algorithm used for decryption.
+     * @param internalCryptoProviderType The {@link org.wso2.carbon.crypto.api.InternalCryptoProvider} type.
+     * @return Decrypted bytes.
+     * @throws CryptoException
+     */
+    public byte[] decrypt(byte[] cipherTextBytes, String algorithm, String internalCryptoProviderType)
+            throws CryptoException {
+
+        failIfEncryptDecryptInputsAreInvalid(cipherTextBytes, algorithm, internalCryptoProviderType);
+
+        byte[] decryptedValue;
+
+        try {
+            CryptoService cryptoService = CarbonCoreDataHolder.getInstance().getCryptoService();
+
+            if (cryptoService == null) {
+                throw new CryptoException("A crypto service implementation has not been registered.");
+            }
+
+            CipherMetaDataHolder
+                    cipherMetaDataHolder = cipherTextToCipherMetaDataHolder(cipherTextBytes);
+            if (cipherMetaDataHolder != null) {
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                            String.format("Cipher text is in self contained format. Retrieve the actual cipher from " +
+                                    "the self contained cipher text."));
+                }
+                cipherTextBytes = cipherMetaDataHolder.getCipherBase64Decoded();
+                algorithm = cipherMetaDataHolder.getTransformation();
+            }
+
+            if (cipherTextBytes.length == 0) {
+                decryptedValue = StringUtils.EMPTY.getBytes();
+                if (log.isDebugEnabled()) {
+                    log.debug("Ciphertext is empty. An empty array will be used as the plaintext bytes.");
+                }
+            } else {
+                decryptedValue = cryptoService.decrypt(cipherTextBytes, algorithm, CRYPTO_API_PROVIDER_BC,
+                        internalCryptoProviderType);
+            }
+            return decryptedValue;
+        } catch (org.wso2.carbon.crypto.api.CryptoException e) {
+            throw new CryptoException("An error occurred while decrypting data.", e);
+        }
+
+    }
+
+    /**
      * Base64 decode the given value and decrypt using the WSO2 WSAS key
      *
      * @param base64CipherText Base64 encoded cipher text
@@ -333,6 +455,22 @@ public class CryptoUtil {
     public byte[] base64DecodeAndDecrypt(String base64CipherText, String transformation) throws
             CryptoException {
         return decrypt(Base64.decode(base64CipherText), transformation);
+    }
+
+    /**
+     * Base64 decode the given value and decrypt using given algorithm and internal crypto provider type.
+     *
+     * @param base64CipherText           Base64 encoded cipher text
+     * @param transformation             The algorithm that need to be used for decryption.
+     * @param internalCryptoProviderType The {@link org.wso2.carbon.crypto.api.InternalCryptoProvider} type.
+     * @return Base64 decoded, decrypted bytes
+     * @throws CryptoException
+     */
+    public byte[] base64DecodeAndDecrypt(String base64CipherText, String transformation,
+                                         String internalCryptoProviderType) throws
+            CryptoException {
+
+        return decrypt(Base64.decode(base64CipherText), transformation, internalCryptoProviderType);
     }
 
     /**
@@ -453,6 +591,23 @@ public class CryptoUtil {
         }
 
         return strBuffer.toString();
+    }
+
+    private void failIfEncryptDecryptInputsAreInvalid(byte[] data, String algorithm,
+                                                      String internalCryptoProviderType)
+            throws CryptoException {
+
+        if (data == null) {
+            throw new CryptoException("Plaintext can't be null.");
+        }
+
+        if (StringUtils.isBlank(algorithm)) {
+            throw new CryptoException("Encryption algorithm can't be null.");
+        }
+
+        if (StringUtils.isBlank(internalCryptoProviderType)) {
+            throw new CryptoException("Internal crypto provider can't be null.");
+        }
     }
 }
 
