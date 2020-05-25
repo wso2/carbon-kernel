@@ -38,6 +38,8 @@ public class TenantEagerLoader {
     private CarbonCoreDataHolder carbonCoreDataHolder = CarbonCoreDataHolder.getInstance();
     private TenantLoadingConfig tenantLoadingConfig = new TenantLoadingConfig();
 
+    private static final Log log = LogFactory.getLog(TenantEagerLoader.class);
+
     public TenantEagerLoader() {
         tenantLoadingConfig.init();
     }
@@ -88,8 +90,15 @@ public class TenantEagerLoader {
                 PrivilegedCarbonContext.startTenantFlow();
                 PrivilegedCarbonContext ctx = PrivilegedCarbonContext.getThreadLocalCarbonContext();
                 ctx.setTenantDomain(tenantDomain, true);
-                TenantAxisUtils
-                        .getTenantConfigurationContext(tenantDomain, carbonCoreDataHolder.getMainServerConfigContext());
+                final String tDomain = tenantDomain;
+                Thread loaderThread = new Thread("TenantEagerLoader") {
+                    public void run() {
+                        log.info("Loading Tenant : " + tDomain + " eagerly at startup.");
+                        TenantAxisUtils.getTenantConfigurationContext(tDomain,
+                                carbonCoreDataHolder.getMainServerConfigContext());
+                    }
+                };
+                loaderThread.start();
             } catch (OutOfMemoryError e) {
                 // If OutOfMemoryError during tenant loading we will throw a RuntimeException to notify server admin
                 String msg = "OutOfMemoryError while Eager loading tenant : " + tenantDomain;
