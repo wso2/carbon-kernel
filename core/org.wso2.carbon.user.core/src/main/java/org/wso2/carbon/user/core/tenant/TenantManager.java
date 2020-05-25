@@ -88,4 +88,14 @@ public interface TenantManager extends org.wso2.carbon.user.api.TenantManager {
         throw new NotImplementedException(
                 "deactivateTenant operation is not implemented in: " + this.getClass());
     }
+
+    /**
+     * Delete all tenant information related to tenant stored in UM tables.
+     *
+     * @param tenantId Id of the tenant
+     * @throws UserStoreException
+     */
+    default void deleteTenantUMData(int tenantId) throws UserStoreException {
+
+    };
 }

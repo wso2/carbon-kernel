@@ -277,6 +277,13 @@
         <TenantDelete>false</TenantDelete>
         {% endif %}
 
+        <!-- Flag to enable or disable primary users deletion -->
+        {% if tenant_mgt.deletion.primary_users is defined %}
+        <DeletePrimaryUsersOnTenantDeletion>{{tenant_mgt.deletion.primary_users}}</DeletePrimaryUsersOnTenantDeletion>
+        {% else %}
+        <DeletePrimaryUsersOnTenantDeletion>false</DeletePrimaryUsersOnTenantDeletion>
+        {% endif %}
+
         <!-- Configurations related to listener invocation by tenant admin service -->
         <ListenerInvocationPolicy>
             <!-- Flag to enable or disable listener invocation on tenant delete -->
