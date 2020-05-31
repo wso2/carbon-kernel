@@ -1307,14 +1307,22 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private boolean authenticateInternal(String userName, Object credential, boolean domainProvided)
             throws UserStoreException {
 
+        boolean iterative = false;
         AbstractUserStoreManager abstractUserStoreManager = this;
         if (this instanceof IterativeUserStoreManager) {
+            iterative = true;
             abstractUserStoreManager = ((IterativeUserStoreManager) this).getAbstractUserStoreManager();
         }
 
         boolean authenticated = false;
 
         UserStore userStore = abstractUserStoreManager.getUserStore(userName);
+
+        if (domainProvided && iterative) {
+            userName = userStore.getDomainFreeName();
+            userStore.setRecurssive(false);
+        }
+
         if (userStore.isRecurssive() && userStore.getUserStoreManager() instanceof AbstractUserStoreManager) {
             return ((AbstractUserStoreManager) userStore.getUserStoreManager()).authenticate(userStore.getDomainFreeName(),
                     credential, domainProvided);
@@ -1403,7 +1411,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             try {
                 // Let's authenticate with the primary UserStoreManager.
                 if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
-                    String userNameProperty = getUsernameProperty();
+                    String userNameProperty = abstractUserStoreManager.getUsernameProperty();
                     AuthenticationResult authenticationResult = abstractUserStoreManager
                             .doAuthenticateWithID(userNameProperty, userName, credential, null);
                     if (authenticationResult.getAuthenticationStatus()
@@ -9633,6 +9641,32 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private boolean generateUserStoreChain(String userName, Object credential, boolean domainProvided,
                                            List<String> userStorePreferenceOrder) throws UserStoreException {
 
+        // If domain name is provided, directly authenticate using the corresponding user store.
+        if (domainProvided) {
+            String providedDomainName = this.getUserStore(userName).getDomainName();
+            // Check whether provided domain is in the preference list.
+            if (!userStorePreferenceOrder.contains(providedDomainName)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Authentication failure. Wrong username or password is provided.");
+                }
+                handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(),
+                                "Authentication failed"), userName, credential);
+                throw new UserStoreException("Authentication failed. Invalid username or password.");
+            }
+            UserStoreManager userStoreManager = this.getSecondaryUserStoreManager(providedDomainName);
+            if (!(userStoreManager instanceof AbstractUserStoreManager)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("UserStoreManager is not an instance of AbstractUserStoreManager hence authenticate " +
+                            "the user through all the available user store list.");
+                }
+                return authenticateInternal(userName, credential, true);
+            }
+            IterativeUserStoreManager iterativeUserStoreManager = new IterativeUserStoreManager(
+                    (AbstractUserStoreManager) userStoreManager);
+            return iterativeUserStoreManager.authenticate(userName, credential);
+        }
+        // If domain is not provided, generate a user store chain.
         IterativeUserStoreManager initialUserStoreManager = null;
         IterativeUserStoreManager prevUserStoreManager = null;
         for (String domainName : userStorePreferenceOrder) {
@@ -10180,6 +10214,34 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             String preferredUserNameValue, Object credential, String profileName, boolean domainProvided,
             List<String> userStorePreferenceOrder) throws UserStoreException {
 
+        // If domain name is provided, directly authenticate using the corresponding user store.
+        if (domainProvided) {
+            String providedDomainName = this.getUserStore(preferredUserNameValue).getDomainName();
+            // Check whether provided domain is in the preference list.
+            if (!userStorePreferenceOrder.contains(providedDomainName)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Authentication failure. Wrong username or password is provided.");
+                }
+                handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(),
+                                "Authentication failed"), preferredUserNameValue, credential);
+                throw new UserStoreException("Authentication failed. Invalid username or password.");
+            }
+            UserStoreManager userStoreManager = this.getSecondaryUserStoreManager(providedDomainName);
+            if (!(userStoreManager instanceof AbstractUserStoreManager)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("UserStoreManager is not an instance of AbstractUserStoreManager hence authenticate " +
+                            "the user through all the available user store list.");
+                }
+                return authenticateInternalWithID(preferredUserNameClaim, preferredUserNameValue, credential,
+                        profileName, domainProvided);
+            }
+            IterativeUserStoreManager iterativeUserStoreManager = new IterativeUserStoreManager(
+                    (AbstractUserStoreManager) userStoreManager);
+            return iterativeUserStoreManager.
+                    authenticateWithID(preferredUserNameClaim, preferredUserNameValue, credential, profileName);
+        }
+        // If domain is not provided, generate a user store chain.
         IterativeUserStoreManager initialUserStoreManager = null;
         IterativeUserStoreManager prevUserStoreManager = null;
         for (String domainName : userStorePreferenceOrder) {
@@ -10223,7 +10285,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         AuthenticationResult authenticationResult = new AuthenticationResult(
                 AuthenticationResult.AuthenticationStatus.FAIL);
 
-        UserStore userStore = getUserStore(preferredUserNameValue);
+        UserStore userStore = abstractUserStoreManager.getUserStore(preferredUserNameValue);
         if (userStore.isRecurssive() && userStore.getUserStoreManager() instanceof AbstractUserStoreManager) {
             return ((AbstractUserStoreManager) userStore.getUserStoreManager())
                     .authenticateWithID(preferredUserNameClaim, userStore.getDomainFreeName(), credential, profileName);
