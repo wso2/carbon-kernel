@@ -9647,7 +9647,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // Check whether provided domain is in the preference list.
             if (!userStorePreferenceOrder.contains(providedDomainName)) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Authentication failure. Wrong username or password is provided.");
+                    log.debug("Authentication failure. Invalid username or password is provided.");
                 }
                 handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
                         String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(),
@@ -9657,8 +9657,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             UserStoreManager userStoreManager = this.getSecondaryUserStoreManager(providedDomainName);
             if (!(userStoreManager instanceof AbstractUserStoreManager)) {
                 if (log.isDebugEnabled()) {
-                    log.debug("UserStoreManager is not an instance of AbstractUserStoreManager hence authenticate " +
-                            "the user through all the available user store list.");
+                    log.debug("UserStoreManager is not an instance of AbstractUserStoreManager. Hence " +
+                            "authenticate the user through all the available user store list.");
                 }
                 return authenticateInternal(userName, credential, true);
             }
@@ -10220,7 +10220,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // Check whether provided domain is in the preference list.
             if (!userStorePreferenceOrder.contains(providedDomainName)) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Authentication failure. Wrong username or password is provided.");
+                    log.debug("Authentication failure. Invalid username or password is provided.");
                 }
                 handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
                         String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(),
@@ -10230,8 +10230,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             UserStoreManager userStoreManager = this.getSecondaryUserStoreManager(providedDomainName);
             if (!(userStoreManager instanceof AbstractUserStoreManager)) {
                 if (log.isDebugEnabled()) {
-                    log.debug("UserStoreManager is not an instance of AbstractUserStoreManager hence authenticate " +
-                            "the user through all the available user store list.");
+                    log.debug("UserStoreManager is not an instance of AbstractUserStoreManager. Hence " +
+                            "authenticate the user through all the available user store list.");
                 }
                 return authenticateInternalWithID(preferredUserNameClaim, preferredUserNameValue, credential,
                         profileName, domainProvided);
