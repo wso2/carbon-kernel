@@ -148,6 +148,7 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
                 Constants.Configuration.CONTENT_TYPE, contentTypeProperty);
 
         superTenantOutMessageContext.setDoingMTOM(msgContext.isDoingMTOM());
+        superTenantOutMessageContext.setAttachmentMap(msgContext.getAttachmentMap());
 
         superTenantOutMessageContext.setProperty(org.apache.axis2.Constants.Configuration.CHARACTER_SET_ENCODING,
                 msgContext.getProperty(org.apache.axis2.Constants.Configuration.CHARACTER_SET_ENCODING));
