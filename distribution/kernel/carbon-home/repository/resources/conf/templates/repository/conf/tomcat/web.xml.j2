@@ -93,6 +93,20 @@
     <!--                                                                      -->
     <!--
                                                                       -->
+    {% for filter in tomcat.filter %}
+    <filter>
+        <filter-name>{{filter.name}}</filter-name>
+        <filter-class>{{filter.class}}</filter-class>
+    </filter>
+    {% endfor %}
+
+    {% for filter_mapping in tomcat.filter_mapping %}
+    <filter-mapping>
+        <filter-name>{{filter_mapping.name}}</filter-name>
+        <url-pattern>{{filter_mapping.url_pattern}}</url-pattern>
+    </filter-mapping>
+    {% endfor %}
+
     <servlet>
         <servlet-name>default</servlet-name>
         <servlet-class>org.apache.catalina.servlets.DefaultServlet</servlet-class>
