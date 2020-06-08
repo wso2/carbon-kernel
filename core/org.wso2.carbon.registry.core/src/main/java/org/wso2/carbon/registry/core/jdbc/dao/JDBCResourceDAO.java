@@ -28,6 +28,8 @@ import org.wso2.carbon.registry.core.dataaccess.DataAccessManager;
 import org.wso2.carbon.registry.core.exceptions.*;
 import org.wso2.carbon.registry.core.exceptions.ConcurrentModificationException;
 import org.wso2.carbon.registry.core.jdbc.DatabaseConstants;
+import org.wso2.carbon.registry.core.jdbc.dataaccess.AbstractConnection;
+import org.wso2.carbon.registry.core.jdbc.dataaccess.ConnectionWrapper;
 import org.wso2.carbon.registry.core.jdbc.dataaccess.JDBCDataAccessManager;
 import org.wso2.carbon.registry.core.jdbc.dataaccess.JDBCDatabaseTransaction;
 import org.wso2.carbon.registry.core.jdbc.dataobjects.ResourceDO;
@@ -43,6 +45,8 @@ import java.io.InputStream;
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
+
+import javax.sql.DataSource;
 
 /**
  * An implementation of the {@link ResourceDAO} to store resources on a JDBC-based database.
@@ -598,7 +602,7 @@ public class JDBCResourceDAO implements ResourceDAO {
         if (Transaction.isStarted()) {
             childCount = getChildCount(collection, JDBCDatabaseTransaction.getConnection());
         } else {
-            Connection conn = null;
+            AbstractConnection conn = null;
             boolean transactionSucceeded = false;
             try {
                 if (!(dataAccessManager instanceof JDBCDataAccessManager)) {
@@ -606,8 +610,8 @@ public class JDBCResourceDAO implements ResourceDAO {
                     log.error(msg);
                     throw new RegistryException(msg);
                 }
-                conn = ((JDBCDataAccessManager)
-                        dataAccessManager).getDataSource().getConnection();
+                DataSource dataSource = ((JDBCDataAccessManager) dataAccessManager).getDataSource();
+                conn = new ConnectionWrapper(dataSource.getConnection(), RegistryUtils.getConnectionId(dataSource));
 
                 // If a managed connection already exists, use that instead of a new
                 // connection.
@@ -762,7 +766,7 @@ public class JDBCResourceDAO implements ResourceDAO {
         if (Transaction.isStarted()) {
             fillChildren(collection, 0, -1, JDBCDatabaseTransaction.getConnection());
         } else {
-            Connection conn = null;
+            AbstractConnection conn = null;
             boolean transactionSucceeded = false;
             try {
                 if (!(dataAccessManager instanceof JDBCDataAccessManager)) {
@@ -770,8 +774,8 @@ public class JDBCResourceDAO implements ResourceDAO {
                     log.error(msg);
                     throw new RegistryException(msg);
                 }
-                conn = ((JDBCDataAccessManager)
-                        dataAccessManager).getDataSource().getConnection();
+                DataSource dataSource = ((JDBCDataAccessManager) dataAccessManager).getDataSource();
+                conn = new ConnectionWrapper(dataSource.getConnection(), RegistryUtils.getConnectionId(dataSource));
 
                 // If a managed connection already exists, use that instead of a new
                 // connection.
@@ -853,7 +857,7 @@ public class JDBCResourceDAO implements ResourceDAO {
             childPaths = getChildren(collection, start, pageLen,
                     JDBCDatabaseTransaction.getConnection());
         } else {
-            Connection conn = null;
+            AbstractConnection conn = null;
             boolean transactionSucceeded = false;
             try {
                 if (!(dataAccessManager instanceof JDBCDataAccessManager)) {
@@ -861,8 +865,8 @@ public class JDBCResourceDAO implements ResourceDAO {
                     log.error(msg);
                     throw new RegistryException(msg);
                 }
-                conn = ((JDBCDataAccessManager)
-                        dataAccessManager).getDataSource().getConnection();
+                DataSource dataSource = ((JDBCDataAccessManager) dataAccessManager).getDataSource();
+                conn = new ConnectionWrapper(dataSource.getConnection(), RegistryUtils.getConnectionId(dataSource));
 
                 // If a managed connection already exists, use that instead of a new
                 // connection.
