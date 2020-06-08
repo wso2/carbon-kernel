@@ -28,6 +28,8 @@ import org.wso2.carbon.registry.core.config.RegistryContext;
 import org.wso2.carbon.registry.core.dataaccess.DataAccessManager;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.jdbc.DatabaseConstants;
+import org.wso2.carbon.registry.core.jdbc.dataaccess.AbstractConnection;
+import org.wso2.carbon.registry.core.jdbc.dataaccess.ConnectionWrapper;
 import org.wso2.carbon.registry.core.jdbc.dataaccess.JDBCDataAccessManager;
 import org.wso2.carbon.registry.core.session.CurrentSession;
 import org.wso2.carbon.registry.core.utils.RegistryUtils;
@@ -83,7 +85,8 @@ public class JDBCPathCache extends PathCache {
             throw new RegistryException(msg);
         }
         DataSource dataSource = ((JDBCDataAccessManager)dataAccessManager).getDataSource();
-        Connection conn = dataSource.getConnection();
+        AbstractConnection conn = new ConnectionWrapper(dataSource.getConnection(),
+                RegistryUtils.getConnectionId(dataSource));
         if (conn != null) {
             if (conn.getTransactionIsolation() != Connection.TRANSACTION_READ_COMMITTED) {
                 conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
@@ -152,8 +155,8 @@ public class JDBCPathCache extends PathCache {
                     conn.commit();
                     RegistryCacheEntry e = new RegistryCacheEntry(pathId);
                     String connectionId = null;
-                    if (conn.getMetaData() != null) {
-                        connectionId = RegistryUtils.getConnectionId(conn);
+                    if (conn.getConnectionId() != null) {
+                        connectionId = conn.getConnectionId();
                     }
                     RegistryCacheKey key =
                             RegistryUtils.buildRegistryCacheKey(connectionId,
@@ -236,10 +239,10 @@ public class JDBCPathCache extends PathCache {
      * @return the path corresponding to the given path id.
      * @throws SQLException if an error occurs while obtaining the path id.
      */
-    public String getPath(Connection conn, int id) throws SQLException {
+    public String getPath(AbstractConnection conn, int id) throws SQLException {
         String connectionId;
-        if (conn != null && conn.getMetaData() != null) {
-            connectionId = RegistryUtils.getConnectionId(conn);
+        if (conn != null && conn.getConnectionId() != null) {
+            connectionId = conn.getConnectionId();
         } else {
             throw new SQLException("Connection is null");
         }
@@ -297,10 +300,10 @@ public class JDBCPathCache extends PathCache {
      * @return the path id corresponding to the given path.
      * @throws SQLException if an error occurs while obtaining the path id.
      */
-    public int getPathID(Connection conn, String path) throws SQLException {
+    public int getPathID(AbstractConnection conn, String path) throws SQLException {
         String connectionId = null;
-        if (conn != null && conn.getMetaData() != null) {
-            connectionId = RegistryUtils.getConnectionId(conn);
+        if (conn != null && conn.getConnectionId() != null) {
+            connectionId = conn.getConnectionId();
         } else {
             throw new SQLException("Connection is null");
         }

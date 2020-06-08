@@ -29,6 +29,8 @@ import org.wso2.carbon.registry.core.dataaccess.DataAccessManager;
 import org.wso2.carbon.registry.core.exceptions.ConcurrentModificationException;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.jdbc.DatabaseConstants;
+import org.wso2.carbon.registry.core.jdbc.dataaccess.AbstractConnection;
+import org.wso2.carbon.registry.core.jdbc.dataaccess.ConnectionWrapper;
 import org.wso2.carbon.registry.core.jdbc.dataaccess.JDBCDataAccessManager;
 import org.wso2.carbon.registry.core.jdbc.dataaccess.JDBCDatabaseTransaction;
 import org.wso2.carbon.registry.core.jdbc.dataobjects.ResourceDO;
@@ -48,6 +50,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import javax.sql.DataSource;
 
 /**
  * An implementation of the {@link ResourceVersionDAO} to store resources on a JDBC-based database
@@ -498,11 +502,11 @@ public class JDBCResourceVersionDAO implements ResourceVersionDAO {
 
         } else {
 
-            Connection conn = null;
+            AbstractConnection conn = null;
             boolean transactionSucceeded = false;
             try {
-                conn = ((JDBCDataAccessManager)
-                        dataAccessManager).getDataSource().getConnection();
+                DataSource dataSource = ((JDBCDataAccessManager) dataAccessManager).getDataSource();
+                conn = new ConnectionWrapper(dataSource.getConnection(), RegistryUtils.getConnectionId(dataSource));
 
                 // If a managed connection already exists, use that instead of a new connection.
                 JDBCDatabaseTransaction.ManagedRegistryConnection temp =

@@ -61,6 +61,7 @@ import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 import javax.xml.namespace.QName;
 import java.io.*;
 import java.net.MalformedURLException;
@@ -200,6 +201,28 @@ public final class RegistryUtils {
             }
         } catch (SQLException e) {
             log.error("Failed to construct the connectionId.", e);
+        }
+        return connectionId;
+    }
+
+    /**
+     * Method to obtain a unique identifier for the database connection.
+     *
+     * @param datasource the datasource for the database connection.
+     * @return the unique identifier.
+     */
+    public static String getConnectionId(DataSource datasource) {
+        String connectionId = null;
+        if (datasource instanceof org.apache.tomcat.jdbc.pool.DataSource) {
+            org.apache.tomcat.jdbc.pool.DataSource ds = (org.apache.tomcat.jdbc.pool.DataSource) datasource;
+            connectionId = ds.getPoolProperties().getUsername() + "@" + ds.getPoolProperties().getUrl();
+        }
+        if (datasource instanceof org.apache.commons.dbcp.BasicDataSource) {
+            org.apache.commons.dbcp.BasicDataSource ds = (org.apache.commons.dbcp.BasicDataSource) datasource;
+            connectionId = ds.getUsername() + "@" + ds.getUrl();
+        }
+        if(log.isDebugEnabled()) {
+            log.debug("Connection Id : " + connectionId);
         }
         return connectionId;
     }
