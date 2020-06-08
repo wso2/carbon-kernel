@@ -126,6 +126,8 @@ public class ReadOnlyLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.lDAPInitialContextFactory, "LDAP Initial Context Factory",
                 "com.sun.jndi.ldap.LdapCtxFactory", UserStoreConfigConstants.lDAPInitialContextFactoryDescription,
                 new Property[] { CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty() });
+        setProperty(UserStoreConfigConstants.dateAndTimePattern, "", UserStoreConfigConstants
+                .dateAndTimePatternDisplayName, UserStoreConfigConstants.dateAndTimePatternDescription, new Property[]{CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty()});
     }
 
     private static void setMandatoryProperty(String name, String displayName, String value, String description,
