@@ -55,6 +55,10 @@ public class UserStoreConfigConstants {
     public static final String timestampAttributes = "TimestampAttributes";
     public static final String timestampAttributesDescription = "Comma-separated list of user store attributes " +
             "having the data type of Timestamp and may require a conversion when reading from/writing to user store";
+    public static final String dateAndTimePattern = "DateAndTimePattern";
+    public static final String dateAndTimePatternDescription = "Pattern of Date and Time values are stored, if not " +
+            "specified default timestamp representation is used.";
+    public static final String dateAndTimePatternDisplayName = "Date And Time Pattern";
     public static final String timestampAttributesDisplayName = "Timestamp Attributes";
 
     //Mandatory to LDAP user stores

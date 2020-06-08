@@ -202,6 +202,8 @@ public class ActiveDirectoryUserStoreConstants {
                 UserStoreConfigConstants.userIdSearchFilterAttributeName, "(&(objectClass=person)(uid=?))",
                 UserStoreConfigConstants.userIdSearchFilterDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
+        setProperty(UserStoreConfigConstants.dateAndTimePattern, "", UserStoreConfigConstants
+                .dateAndTimePatternDisplayName, UserStoreConfigConstants.dateAndTimePatternDescription, new Property[]{CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty()});
     }
 
     private static void setMandatoryProperty(String name, String displayName, String value, String description,
