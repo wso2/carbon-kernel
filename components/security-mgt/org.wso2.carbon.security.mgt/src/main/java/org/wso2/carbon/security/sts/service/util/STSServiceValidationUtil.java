@@ -16,7 +16,6 @@
 package org.wso2.carbon.security.sts.service.util;
 
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.security.sts.service.PassiveSTSServiceInterface;
 import org.wso2.carbon.security.sts.service.STSAdminServiceInterface;
 
 /**
@@ -37,23 +36,6 @@ public class STSServiceValidationUtil {
                     (STSAdminServiceInterface) PrivilegedCarbonContext.getThreadLocalCarbonContext()
                             .getOSGiService(STSAdminServiceInterface.class, null);
             return stsAdminService != null;
-        } catch (NullPointerException exception) {
-            return false;
-        }
-    }
-
-    /**
-     * Check if the WS-Federation service is deployed.
-     *
-     * @return True if the service is deployed false if else.
-     */
-    public static boolean isWSFederationAvailable() {
-
-        try {
-            PassiveSTSServiceInterface passiveSTSService =
-                    (PassiveSTSServiceInterface) PrivilegedCarbonContext.getThreadLocalCarbonContext()
-                            .getOSGiService(PassiveSTSServiceInterface.class, null);
-            return passiveSTSService != null;
         } catch (NullPointerException exception) {
             return false;
         }
