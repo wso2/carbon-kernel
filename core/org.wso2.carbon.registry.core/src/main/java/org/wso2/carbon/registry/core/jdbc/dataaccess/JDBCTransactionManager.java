@@ -24,6 +24,7 @@ import org.wso2.carbon.registry.core.dataaccess.DataAccessManager;
 import org.wso2.carbon.registry.core.dataaccess.TransactionManager;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.jdbc.utils.Transaction;
+import org.wso2.carbon.registry.core.utils.RegistryUtils;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -69,7 +70,8 @@ public class JDBCTransactionManager implements TransactionManager {
             }
         }
 
-        Connection conn = null;
+        AbstractConnection conn = null;
+        String connectionId = null;
         try {
             if (!(dataAccessManager instanceof JDBCDataAccessManager)) {
                 String msg = "Failed to begin transaction. Invalid data access manager.";
@@ -77,7 +79,8 @@ public class JDBCTransactionManager implements TransactionManager {
                 throw new RegistryException(msg);
             }
             DataSource dataSource = ((JDBCDataAccessManager)dataAccessManager).getDataSource();
-            conn = dataSource.getConnection();
+            connectionId = RegistryUtils.getConnectionId(dataSource);
+            conn = new ConnectionWrapper(dataSource.getConnection(), connectionId);
 
             // If a managed connection already exists, use that instead of a new connection.
             JDBCDatabaseTransaction.ManagedRegistryConnection temp =
