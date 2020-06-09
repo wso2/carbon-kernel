@@ -157,7 +157,7 @@ public class JDBCDatabaseTransaction implements DatabaseTransaction {
      *
      * @param connection the connection.
      */
-    public static void setConnection(Connection connection) {
+    public static void setConnection(AbstractConnection connection) {
         if (tCurrent.get() != null) {
             if (connection != null) {
                 tCurrent.get().setStarted(true);
@@ -245,7 +245,7 @@ public class JDBCDatabaseTransaction implements DatabaseTransaction {
      *
      * @return managed connection.
      */
-    public static ManagedRegistryConnection getManagedRegistryConnection(Connection conn) {
+    public static ManagedRegistryConnection getManagedRegistryConnection(AbstractConnection conn) {
         // Please be careful with the places in which this method is used. There are around 5 places
         // which creates a connection, then tries to check whether such a connection exists, and if
         // it does it would use the managed connection instead of the newly created one. Making the
@@ -963,7 +963,7 @@ public class JDBCDatabaseTransaction implements DatabaseTransaction {
      * multiple databases.
      */
     @SuppressWarnings("unused")
-    public static final class ManagedRegistryConnection implements Connection {
+    public static final class ManagedRegistryConnection extends AbstractConnection {
 
         private static final int DEFAULT_CONNECTION_CREATION_WAIT_TIME = 100;
         // This holds the un-managed connection.
@@ -1088,7 +1088,8 @@ public class JDBCDatabaseTransaction implements DatabaseTransaction {
                     }
                 };
 
-        public ManagedRegistryConnection(Connection connection) {
+        public ManagedRegistryConnection(AbstractConnection connection) {
+            this.connectionId = connection.getConnectionId();
             // If the connection is already managed, obtain the original connection.
             if (connection instanceof ManagedRegistryConnection) {
                 this.connection = ((ManagedRegistryConnection) connection).getConnection();
@@ -1129,8 +1130,8 @@ public class JDBCDatabaseTransaction implements DatabaseTransaction {
             }
         }
 
-        private String getConnectionId() {
-            return RegistryUtils.getConnectionId(this.connection);
+        public String getConnectionId() {
+            return connectionId;
         }
 
         /**
@@ -1141,28 +1142,28 @@ public class JDBCDatabaseTransaction implements DatabaseTransaction {
          *
          * @return the managed connection or null
          */
-        public static ManagedRegistryConnection getManagedRegistryConnection(Connection connection,
+        public static ManagedRegistryConnection getManagedRegistryConnection(AbstractConnection connection,
                                                               boolean reinstate) {
             if (tManagedConnectionMap != null && tManagedConnectionMap.get() != null) {
                 ManagedRegistryConnection mrc = tManagedConnectionMap.get().get(
-                        RegistryUtils.getConnectionId(connection));
+                        connection.getConnectionId());
                 if (mrc != null) {
-                    if (RegistryUtils.getConnectionId(mrc) == null) {
+                    if (mrc.getConnectionId() == null) {
                         //if a connection's ID returns null
                         //then that connection is not suitable for reusing
                         return null;
                     }
                     if (reinstate) {
                         if (tClosedConnectionMap != null && tClosedConnectionMap.get() != null &&
-                                tClosedConnectionMap.get().get(RegistryUtils.getConnectionId(connection)) != null) {
-                            tClosedConnectionMap.get().put(RegistryUtils.getConnectionId(connection), null);
+                                tClosedConnectionMap.get().get(connection.getConnectionId()) != null) {
+                            tClosedConnectionMap.get().put(connection.getConnectionId(), null);
                         }
                         if (tCommittedAndRollbackedConnectionMap != null &&
                                 tCommittedAndRollbackedConnectionMap.get() != null &&
                                 tCommittedAndRollbackedConnectionMap.get().
-                                        get(RegistryUtils.getConnectionId(connection)) != null) {
+                                        get(connection.getConnectionId()) != null) {
                             tCommittedAndRollbackedConnectionMap.get().
-                                    put(RegistryUtils.getConnectionId(connection), null);
+                                    put(connection.getConnectionId(), null);
                         }
                     }
                 }
