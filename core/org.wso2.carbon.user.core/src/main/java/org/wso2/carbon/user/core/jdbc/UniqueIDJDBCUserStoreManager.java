@@ -26,6 +26,7 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.core.NotImplementedException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -1809,11 +1810,29 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
+    public void doSetUserClaimValues(String userName, Map<String, List<String>> multiValuedClaimsToAdd,
+                                     Map<String, List<String>> multiValuedClaimsToDelete,
+                                     Map<String, List<String>> claimsExcludingMultiValuedClaims,
+                                     String profileName) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+    @Override
     public void doSetUserClaimValuesWithID(String userID, Map<String, String> claims, String profileName)
             throws UserStoreException {
 
         claims.putIfAbsent(UserCoreConstants.PROFILE_CONFIGURATION, UserCoreConstants.DEFAULT_PROFILE_CONFIGURATION);
         super.doSetUserClaimValuesWithID(userID, claims, profileName);
+    }
+
+    @Override
+    public void doSetUserClaimValuesWithID(String userID, Map<String, List<String>> multiValuedClaimsToAdd,
+                                           Map<String, List<String>> multiValuedClaimsToDelete,
+                                           Map<String, List<String>> claimsExcludingMultiValuedClaims,
+                                           String profileName) throws NotImplementedException {
+
+        throw new NotImplementedException("This functionality is not yet implemented for JDBC userstores.");
     }
 
     @Override
@@ -1847,6 +1866,15 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
+    protected void doSetUserAttributesWithID(String userID, Map<String, List<String>> claimAttributesToAdd,
+                              Map<String, List<String>> claimAttributesToDelete,
+                              Map<String, List<String>> claimAttributesToReplace, String profileName)
+            throws NotImplementedException {
+
+        throw new NotImplementedException("This functionality is not yet implemented for JDBC userstores.");
+    }
+
+    @Override
     protected void doSetUserAttribute(String userName, String attributeName, String value, String profileName)
             throws UserStoreException {
 
@@ -1856,6 +1884,15 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     @Override
     protected void doSetUserAttributes(String userName, Map<String, String> processedClaimAttributes,
                                        String profileName) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+    @Override
+    protected void doSetUserAttributes(String userID, Map<String, List<String>> claimAttributesToAdd,
+                                       Map<String, List<String>> claimAttributesToDelete,
+                                       Map<String, List<String>> claimAttributesToReplace, String profileName)
+            throws UserStoreException {
 
         throw new UserStoreException("Operation is not supported.");
     }
