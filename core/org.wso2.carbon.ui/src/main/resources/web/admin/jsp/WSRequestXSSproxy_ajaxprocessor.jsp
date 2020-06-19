@@ -86,6 +86,9 @@
         return documentBuilder;
     }
 %><%
+    if ("true".equalsIgnoreCase(System.getProperty("tryItFunctionalityDisabled"))) {
+        return;
+    }
     boolean useWSS = false;
     String policy = "<wsp:Policy wsu:Id=\"UTOverTransport\"\n" +
 "            xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\"\n" +
