@@ -558,7 +558,7 @@ public final class CarbonUILoginUtil {
             throws IOException {
         boolean isTryIt = requestedURI.indexOf("admin/jsp/WSRequestXSSproxy_ajaxprocessor.jsp") > -1;
         boolean isFileDownload = requestedURI.endsWith("/filedownload");
-        if (requestedURI.indexOf("login.jsp") > -1
+        if ((requestedURI.indexOf("login.jsp") > -1
                 || requestedURI.indexOf("login_ajaxprocessor.jsp") > -1
                 || requestedURI.indexOf("admin/layout/template.jsp") > -1
                 || isFileDownload
@@ -566,7 +566,7 @@ public final class CarbonUILoginUtil {
                 || requestedURI.indexOf("/fileupload/") > -1
                 || requestedURI.indexOf("login_action.jsp") > -1
                 || isTryIt
-                || requestedURI.indexOf("tryit/JAXRSRequestXSSproxy_ajaxprocessor.jsp") > -1) {
+                || requestedURI.indexOf("tryit/JAXRSRequestXSSproxy_ajaxprocessor.jsp") > -1)  && !requestedURI.contains(";")) {
 
             if ((requestedURI.indexOf("login.jsp") > -1
                     || requestedURI.indexOf("login_ajaxprocessor.jsp") > -1 || requestedURI
