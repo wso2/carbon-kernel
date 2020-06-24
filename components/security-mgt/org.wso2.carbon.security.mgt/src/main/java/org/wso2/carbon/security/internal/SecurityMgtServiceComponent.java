@@ -19,7 +19,6 @@
 package org.wso2.carbon.security.internal;
 
 import org.apache.axis2.context.ConfigurationContext;
-import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
@@ -30,18 +29,20 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
-import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
+import org.wso2.carbon.registry.core.Collection;
+import org.wso2.carbon.registry.core.Registry;
+import org.wso2.carbon.registry.core.Resource;
+import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.registry.core.jdbc.utils.Transaction;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
+import org.wso2.carbon.security.SecurityConstants;
 import org.wso2.carbon.security.SecurityServiceHolder;
-import org.wso2.carbon.security.config.SecurityConfigAdmin;
 import org.wso2.carbon.security.keystore.KeyStoreManagementService;
 import org.wso2.carbon.security.keystore.KeyStoreManagementServiceImpl;
-import org.wso2.carbon.security.sts.service.STSAdminServiceImpl;
-import org.wso2.carbon.security.sts.service.STSAdminServiceInterface;
 import org.wso2.carbon.user.core.service.RealmService;
-import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
 @Component(
@@ -62,24 +63,17 @@ public class SecurityMgtServiceComponent {
     @Activate
     protected void activate(ComponentContext ctxt) {
         try {
-            ConfigurationContext mainConfigCtx = configContextService.getServerConfigContext();
-            AxisConfiguration mainAxisConfig = mainConfigCtx.getAxisConfiguration();
             BundleContext bundleCtx = ctxt.getBundleContext();
-            String enablePoxSecurity = ServerConfiguration.getInstance()
-                    .getFirstProperty("EnablePoxSecurity");
-            if (enablePoxSecurity == null || "true".equals(enablePoxSecurity)) {
-                mainAxisConfig.engageModule(POX_SECURITY_MODULE);
-            } else {
-                log.info("POX Security Disabled");
-            }
-
-            bundleCtx.registerService(SecurityConfigAdmin.class.getName(),
-                    new SecurityConfigAdmin(mainAxisConfig, registryService.getConfigSystemRegistry(), null), null);
-            bundleCtx.registerService(Axis2ConfigurationContextObserver.class.getName(),
-                    new SecurityAxis2ConfigurationContextObserver(), null);
-            bundleCtx.registerService(STSAdminServiceInterface.class, new STSAdminServiceImpl(), null);
             bundleCtx.registerService(KeyStoreManagementService.class.getName(), new KeyStoreManagementServiceImpl(),
                     null);
+            try {
+                addKeystores();
+            } catch (Exception e) {
+                String msg = "Error while adding key stores.";
+                log.error(msg, e);
+                throw new RuntimeException(msg, e);
+            }
+
             log.debug("Security Mgt bundle is activated");
         } catch (Throwable e) {
             log.error("Failed to activate SecurityMgtServiceComponent", e);
@@ -88,16 +82,7 @@ public class SecurityMgtServiceComponent {
 
     @Deactivate
     protected void deactivate(ComponentContext ctxt) {
-        try {
-            AxisConfiguration serverAxisConfig =
-                    configContextService.getServerConfigContext().getAxisConfiguration();
-            if (serverAxisConfig != null) {
-                serverAxisConfig.disengageModule(serverAxisConfig.getModule(POX_SECURITY_MODULE));
-            }
-            log.debug("Security Mgt bundle is deactivated");
-        } catch (Throwable e) {
-            log.error("Failed to deactivate SecurityMgtServiceComponent", e);
-        }
+        log.debug("Security Mgt bundle is deactivated");
     }
 
     @Reference(
@@ -209,5 +194,31 @@ public class SecurityMgtServiceComponent {
 
     public static RegistryService getRegistryService(){
         return registryService;
+    }
+
+    private void addKeystores() throws RegistryException {
+        Registry registry = SecurityServiceHolder.getRegistryService().getGovernanceSystemRegistry();
+        try {
+            boolean transactionStarted = Transaction.isStarted();
+            if (!transactionStarted) {
+                registry.beginTransaction();
+            }
+            if (!registry.resourceExists(SecurityConstants.KEY_STORES)) {
+                Collection kstores = registry.newCollection();
+                registry.put(SecurityConstants.KEY_STORES, kstores);
+
+                Resource primResource = registry.newResource();
+                if (!registry.resourceExists(RegistryResources.SecurityManagement.PRIMARY_KEYSTORE_PHANTOM_RESOURCE)) {
+                    registry.put(RegistryResources.SecurityManagement.PRIMARY_KEYSTORE_PHANTOM_RESOURCE,
+                            primResource);
+                }
+            }
+            if (!transactionStarted) {
+                registry.commitTransaction();
+            }
+        } catch (Exception e) {
+            registry.rollbackTransaction();
+            throw e;
+        }
     }
 }
