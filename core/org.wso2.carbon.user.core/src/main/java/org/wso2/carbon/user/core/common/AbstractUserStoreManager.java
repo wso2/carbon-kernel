@@ -14472,8 +14472,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             .doGetUsersClaimValuesWithID(entry.getValue(), claims, entry.getKey(), profileName);
                     allUsers.addAll(users);
                 } else {
+                    List<String> userNamesFromUserIDs = getUserNamesFromUserIDs(entry.getValue())
+                            .stream().map(UserCoreUtil::removeDomainFromName)
+                            .collect(Collectors.toList());
                     UserClaimSearchEntry[] users = ((AbstractUserStoreManager) secondaryUserStoreManager)
-                            .doGetUsersClaimValues(getUserNamesFromUserIDs(entry.getValue()),
+                            .doGetUsersClaimValues(userNamesFromUserIDs,
                                     claims.toArray(new String[0]), entry.getKey(), profileName);
                     List<UniqueIDUserClaimSearchEntry> uniqueIDUserClaimSearchEntries =
                             getUniqueIDUserClaimSearchEntries(users);
