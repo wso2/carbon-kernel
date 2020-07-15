@@ -125,6 +125,9 @@ public class NativeLibraryProvider implements CarbonTool {
                 Files.write(internal.resolve(ACTIVATOR_JAVA_FILE), source.getBytes(StandardCharsets.UTF_8));
 
                 // Compile source file.
+                if (System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("windows")) {
+                    System.setProperty("java.home", System.getenv("JAVA_HOME"));
+                }
                 JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 
                 List<String> compilerArgs = new ArrayList<>();
