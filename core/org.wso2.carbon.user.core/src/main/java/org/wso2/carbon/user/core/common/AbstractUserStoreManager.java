@@ -2691,7 +2691,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
 
             // Recursively call the getUserList method appending the domain to claim value.
-            List<String> userList = Arrays.asList(getUserList(claim, claimValueWithDomain, profileName));
+            List<String> userList = Arrays.asList(userStoreManager.getUserList(claim,
+                    claimValueWithDomain, profileName));
             if (log.isDebugEnabled()) {
                 log.debug("Secondary user list for domain: " + domainName + " : " + userList);
             }
