@@ -41,8 +41,11 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
 
     private static Log log = LogFactory.getLog(CarbonJMXAuthenticator.class);
     private static UserRealm userRealm;
-
-    private static final String JMX_USER_PERMISSION = "/permission/protected/server-admin";
+    private static final String JMX_MONITOR_ROLE = "monitorRole";
+    private static final String JMX_CONTROL_ROLE = "controlRole";
+    private static final String UI_EXECUTE = "ui.execute";
+    private static final String JMX_USER_READONLY_PERMISSION = "/permission/protected/server-admin/jmx/readonly";
+    private static final String JMX_USER_READWRITE_PERMISSION = "/permission/protected/server-admin/jmx/readwrite";
 
     private static Log audit = CarbonConstants.AUDIT_LOG;
 
@@ -95,9 +98,10 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
                 if (log.isDebugEnabled()) {
                     log.debug("Authentication Failure..Provided tenant domain name is reserved..");
                 }
-                throw new SecurityException("Authentication failed - System error occurred. Tenant domain name is reserved.");
+                throw new SecurityException(
+                        "Authentication failed - System error occurred. Tenant domain name is reserved.");
             }
-            if(authenticator.authenticate(userName, password)){
+            if (authenticator.authenticate(userName, password)) {
 
                 UserRealmService userRealmService = CarbonCoreDataHolder.getInstance().getRealmService();
                 TenantManager tenantManager = userRealmService.getTenantManager();
@@ -107,18 +111,8 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
                 carbonContext.setTenantDomain(tenantDomain);
 
                 audit.info("User " + userName + " successfully authenticated to perform JMX operations.");
-
-                if (authorize(userName)) {
-
-                    audit.info("User : " + userName + " successfully authorized to perform JMX operations.");
-
-                    return new Subject(true,
-                                   Collections.singleton(new JMXPrincipal(userName)),
-                                   Collections.EMPTY_SET,
-                                   Collections.EMPTY_SET);
-                } else {
-                    throw new SecurityException("User : " + userName + " not authorized to perform JMX operations.");
-                }
+                return new Subject(true, Collections.singleton(new JMXPrincipal(authorize(userName))),
+                        Collections.EMPTY_SET, Collections.EMPTY_SET);
 
             } else {
                 throw new SecurityException("Login failed for user : " + userName + ". Invalid username or password.");
@@ -137,21 +131,33 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
         }
     }
 
-    private boolean authorize(String userName) throws UserStoreException {
+    private String authorize(String userName) throws UserStoreException {
 
         AuthorizationManager authorizationManager = userRealm.getAuthorizationManager();
+        String roleName = null;
 
         if (authorizationManager != null) {
-            return authorizationManager.isUserAuthorized(userName, JMX_USER_PERMISSION, "ui.execute");
+            if (authorizationManager.isUserAuthorized(userName, JMX_USER_READWRITE_PERMISSION, UI_EXECUTE)) {
+                roleName = JMX_CONTROL_ROLE;
+            } else if (authorizationManager.isUserAuthorized(userName, JMX_USER_READONLY_PERMISSION, UI_EXECUTE)) {
+                roleName = JMX_MONITOR_ROLE;
+            }
+            if (roleName != null) {
+                audit.info("User: " + userName + " successfully authorized as " +
+                        roleName + " to perform JMX operations.");
+                return roleName;
+
+            } else {
+                throw new SecurityException("User: " + userName + " not authorized to perform JMX operations.");
+            }
         }
 
         throw new UserStoreException("Unable to retrieve Authorization manager to perform authorization");
     }
 
-    public static String extractTenantDomain(String userName){
+    public static String extractTenantDomain(String userName) {
         if (userName.contains("@")) {
-            String tenantDomain = userName.substring(userName.lastIndexOf('@') + 1);
-            return tenantDomain;
+            return userName.substring(userName.lastIndexOf('@') + 1);
         }
         return null;
     }
