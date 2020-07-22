@@ -117,9 +117,12 @@ public class JMXServerManager {
             JMXServiceURL url = new JMXServiceURL(jmxURL);
 
             // Security credentials are included in the env Map
-            HashMap<String, CarbonJMXAuthenticator> env =
-                new HashMap<String, CarbonJMXAuthenticator>();
+            HashMap<String, Object> env = new HashMap<>();
+            String accessFilePath = CarbonUtils.getCarbonSecurityConfigDirPath() + File.separator + "jmxremote.access";
+
             env.put(JMXConnectorServer.AUTHENTICATOR, new CarbonJMXAuthenticator());
+            env.put("jmx.remote.x.access.file", accessFilePath);
+
             jmxConnectorServer =
                 JMXConnectorServerFactory.newJMXConnectorServer(url, env, mbs);
             jmxConnectorServer.start();
