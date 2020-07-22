@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.user.core.hybrid;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -35,6 +36,7 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 import org.wso2.carbon.utils.xml.StringUtils;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -45,7 +47,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
-import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
 import static org.wso2.carbon.user.core.hybrid.HybridJDBCConstants.COUNT_INTERNAL_ONLY_ROLES_SQL;
@@ -434,6 +435,85 @@ public class HybridRoleManager {
     }
 
     /**
+     * Update group list of role.
+     *
+     * @param roleName      Role name.
+     * @param deletedGroups Deleted groups.
+     * @param newGroups     New groups.
+     * @throws UserStoreException UserStoreException.
+     */
+    public void updateGroupListOfHybridRole(String roleName, String[] deletedGroups, String[] newGroups)
+            throws UserStoreException {
+
+        String sqlStmt1 = HybridJDBCConstants.REMOVE_GROUP_FROM_ROLE_SQL;
+        String sqlStmt2 = HybridJDBCConstants.ADD_GROUP_TO_ROLE_SQL;
+
+        try (Connection dbConnection = DatabaseUtil.getDBConnection(dataSource)) {
+
+            String domainName = getMyDomainName();
+            if (domainName != null) {
+                domainName = domainName.toUpperCase();
+            }
+
+            String type = DatabaseCreator.getDatabaseType(dbConnection);
+            if (UserCoreConstants.MSSQL_TYPE.equals(type)) {
+                sqlStmt2 = HybridJDBCConstants.ADD_GROUP_TO_ROLE_SQL_MSSQL;
+            }
+
+            if (ArrayUtils.isNotEmpty(deletedGroups)) {
+                DatabaseUtil.udpateUserRoleMappingInBatchModeForInternalRoles(dbConnection, sqlStmt1, domainName,
+                        deletedGroups, roleName, tenantId, tenantId, tenantId);
+            }
+
+            if (ArrayUtils.isNotEmpty(newGroups)) {
+                if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
+                    sqlStmt2 = HybridJDBCConstants.ADD_GROUP_TO_ROLE_SQL_OPENEDGE;
+                    DatabaseUtil.udpateUserRoleMappingInBatchModeForInternalRoles(dbConnection, sqlStmt2, domainName,
+                            newGroups, tenantId, roleName, tenantId);
+                } else {
+                    DatabaseUtil.udpateUserRoleMappingInBatchModeForInternalRoles(dbConnection, sqlStmt2, domainName,
+                            newGroups, roleName, tenantId, tenantId, tenantId);
+                }
+            }
+            dbConnection.commit();
+        } catch (SQLException | UserStoreException e) {
+            String errorMessage = "Error occurred while updating user list of hybrid role : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } catch (Exception e) {
+            String errorMessage = "Error occurred while getting database type from DB connection";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        }
+    }
+
+    /**
+     * Get group list of the given hybrid role.
+     *
+     * @param roleName Role name.
+     * @return List og groups.
+     * @throws UserStoreException UserStoreException.
+     */
+    public String[] getGroupListOfHybridRole(String roleName) throws UserStoreException {
+
+        String sqlStmt = HybridJDBCConstants.GET_GROUP_LIST_OF_ROLE_SQL;
+        try (Connection dbConnection = DatabaseUtil.getDBConnection(dataSource)) {
+            return DatabaseUtil
+                    .getStringValuesFromDatabaseForInternalRoles(dbConnection, sqlStmt, roleName, tenantId, tenantId);
+        } catch (SQLException e) {
+            String errorMessage = "Error occurred while getting user list from hybrid role : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        }
+    }
+
+    /**
      * @param userName
      * @return
      * @throws UserStoreException
@@ -630,6 +710,65 @@ public class HybridRoleManager {
         }
 
         return hybridRoleListOfUsers;
+    }
+
+    /**
+     * Get hybrid role list of groups.
+     *
+     * @param groupNames group name list.
+     * @return map of hybrid role list of groups.
+     * @throws UserStoreException userStoreException.
+     */
+    public Map<String, List<String>> getHybridRoleListOfGroups(List<String> groupNames, String domainName)
+            throws UserStoreException {
+
+        Map<String, List<String>> hybridRoleListOfGroups = new HashMap<>();
+        String sqlStmt = realmConfig.getRealmProperty(HybridJDBCConstants.GET_ROLE_LIST_OF_GROUPS);
+        StringBuilder groupNameParameter = new StringBuilder();
+
+        if (StringUtils.isEmpty(sqlStmt)) {
+            sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLE_LIST_OF_GROUPS_SQL;
+        }
+        for (int i = 0; i < groupNames.size(); i++) {
+            groupNames.set(i, groupNames.get(i).replaceAll("'", "''"));
+            groupNameParameter.append("'").append(groupNames.get(i)).append("'");
+
+            if (i != groupNames.size() - 1) {
+                groupNameParameter.append(",");
+            }
+        }
+
+        sqlStmt = sqlStmt.replaceFirst("\\?", Matcher.quoteReplacement(groupNameParameter.toString()));
+        try (Connection connection = DatabaseUtil.getDBConnection(dataSource);
+                PreparedStatement prepStmt = connection.prepareStatement(sqlStmt)) {
+            prepStmt.setInt(1, tenantId);
+            prepStmt.setInt(2, tenantId);
+            prepStmt.setInt(3, tenantId);
+            prepStmt.setString(4, domainName);
+            try (ResultSet resultSet = prepStmt.executeQuery()) {
+                while (resultSet.next()) {
+                    String groupName = resultSet.getString(1);
+                    if (!groupNames.contains(groupName)) {
+                        continue;
+                    }
+
+                    String roleName = resultSet.getString(2);
+                    List<String> groupRoles = hybridRoleListOfGroups.computeIfAbsent(groupName, k -> new ArrayList<>());
+
+                    if (!roleName.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+                        roleName = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR + roleName;
+                    }
+                    groupRoles.add(roleName);
+                }
+            }
+        } catch (SQLException e) {
+            String errorMessage =
+                    "Error occurred while getting hybrid role list of groups : " + Arrays.toString(groupNames.toArray())
+                            + " in domain: " + domainName;
+            throw new UserStoreException(errorMessage, e);
+        }
+
+        return hybridRoleListOfGroups;
     }
 
     /**

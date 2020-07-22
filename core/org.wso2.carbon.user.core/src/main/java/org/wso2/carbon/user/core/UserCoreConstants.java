@@ -61,9 +61,13 @@ public class UserCoreConstants {
 
     public static final String INTERNAL_DOMAIN = "Internal";
     public static final String APPLICATION_DOMAIN = "Application";
+    public static final String WORKFLOW_DOMAIN = "Workflow";
     public static final String INTERNAL_DOMAIN_LOWER_CASED = "internal";
     public static final String PRIMARY_DEFAULT_DOMAIN_NAME = "PRIMARY";
     public static final String SYSTEM_DOMAIN_NAME = "SYSTEM";
+
+    // This is introduced with the role and group separation feature.
+    public static final String INTERNAL_SYSTEM_ROLE_PREFIX = "system_";
 
     public static final String DEFAULT_CACHE_IDENTIFIER = "defaultCacheDomain";
 
@@ -194,6 +198,9 @@ public class UserCoreConstants {
 
         //configuration to enable or disable authorization caching
         public static final String PROPERTY_AUTHORIZATION_CACHE_ENABLED = "AuthorizationCacheEnabled";
+
+        // Configuration to enable or disable groups and roles separation feature.
+        public static final String PROPERTY_GROUP_AND_ROLE_SEPARATION_ENABLED = "GroupAndRoleSeparationEnabled";
 
         public static final String PROPERTY_CASE_SENSITIVITY = "CaseSensitiveAuthorizationRules";
 

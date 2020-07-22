@@ -94,6 +94,7 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
+import static org.wso2.carbon.user.core.UserCoreConstants.SYSTEM_DOMAIN_NAME;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE;
@@ -924,6 +925,120 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
+     * Get hybrid role list of groups.
+     *
+     * @param groupNames Group names list.
+     * @return Map of hybrid role list of groups.
+     * @throws UserStoreException userStoreException.
+     */
+    public Map<String, List<String>> getHybridRoleListOfGroups(List<String> groupNames, String domainName)
+            throws UserStoreException {
+
+        // Filter hybrid roles if there are any.
+        List<String> externalGroupNames = new ArrayList<>();
+        for (String groupName : groupNames) {
+            String roleDomainName = UserCoreUtil.extractDomainFromName(groupName);
+            if (UserCoreConstants.INTERNAL_DOMAIN.
+                    equalsIgnoreCase(roleDomainName) || APPLICATION_DOMAIN.equalsIgnoreCase(roleDomainName)
+                    || WORKFLOW_DOMAIN.equalsIgnoreCase(roleDomainName) || SYSTEM_DOMAIN_NAME
+                    .equalsIgnoreCase(roleDomainName)) {
+                continue;
+            }
+            externalGroupNames.add(groupName);
+        }
+
+        return hybridRoleManager.getHybridRoleListOfGroups(externalGroupNames, domainName);
+    }
+
+    /**
+     * Get hybrid role list of a group.
+     *
+     * @param groupName Group name.
+     * @return List of hybrid roles of the group.
+     * @throws UserStoreException userStoreException.
+     */
+    public List<String> getHybridRoleListOfGroup(String groupName, String domainName) throws UserStoreException {
+
+        return getHybridRoleListOfGroups(new ArrayList<>(Collections.singleton(groupName)), domainName)
+                .getOrDefault(groupName, new ArrayList<>());
+    }
+
+    /**
+     * Get hybrid role list of users.
+     *
+     * @param userNames User names list.
+     * @return Map of hybrid role list of users.
+     * @throws UserStoreException userStoreException.
+     */
+    public Map<String, List<String>> getHybridRoleListOfUsers(List<String> userNames, String domainName)
+            throws UserStoreException {
+
+        return hybridRoleManager.getHybridRoleListOfUsers(userNames, domainName);
+    }
+
+    /**
+     * Get hybrid role list of a user.
+     *
+     * @param userName User name.
+     * @return List of hybrid roles of the user.
+     * @throws UserStoreException userStoreException.
+     */
+    public List<String> getHybridRoleListOfUser(String userName, String domainName) throws UserStoreException {
+
+        return getHybridRoleListOfUsers(new ArrayList<>(Collections.singleton(userName)), domainName)
+                .getOrDefault(userName, new ArrayList<>());
+    }
+
+    /**
+     * Check whether the given hybrid role is exist in the system.
+     *
+     * @param roleName Role name.
+     * @return {@code true} if the given role is exist in the system.
+     * @throws UserStoreException UserStoreException.
+     */
+    public boolean isExistingHybridRole(String roleName) throws UserStoreException {
+
+        return hybridRoleManager.isExistingRole(removeInternalDomain(roleName));
+    }
+
+    /**
+     * Update group list of role.
+     *
+     * @param roleName      Role name.
+     * @param deletedGroups Deleted groups.
+     * @param newGroups     New groups.
+     * @throws UserStoreException UserStoreException.
+     */
+    public void updateGroupListOfHybridRole(String roleName, String[] deletedGroups, String[] newGroups)
+            throws UserStoreException {
+
+        hybridRoleManager.updateGroupListOfHybridRole(removeInternalDomain(roleName), deletedGroups, newGroups);
+    }
+
+    private String removeInternalDomain(String roleName) {
+
+        if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(UserCoreUtil.extractDomainFromName(roleName))) {
+            return UserCoreUtil.removeDomainFromName(roleName);
+        }
+        return roleName;
+    }
+
+    /**
+     * Convert a map of lists to a set of unique elements.
+     *
+     * @param mapOfLists Map of lists.
+     * @return list with unique elements.
+     */
+    private Set<String> getUniqueSet(Map<String, List<String>> mapOfLists) {
+
+        Set<String> fullSet = new HashSet<>();
+        for (List<String> list : mapOfLists.values()) {
+            fullSet.addAll(list);
+        }
+        return fullSet;
+    }
+
+    /**
      * Only gets the external roles of the user.
      *
      * @param userName Name of the user - who we need to find roles.
@@ -1644,6 +1759,17 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private boolean isUniqueUserIdEnabledInUserStore(UserStore userStore) {
 
         return isUniqueUserIdEnabled(userStore.getUserStoreManager());
+    }
+
+    /**
+     * Checks whether groups and roles separation feature enabled.
+     *
+     * @return {@code true} if the groups and roles separation feature enabled.
+     */
+    public boolean isRoleAndGroupSeparationEnabled() {
+
+        return Boolean.parseBoolean(realmConfig.getAuthorizationManagerProperty(
+                UserCoreConstants.RealmConfig.PROPERTY_GROUP_AND_ROLE_SEPARATION_ENABLED));
     }
 
     /**
@@ -5831,7 +5957,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     return false;
                 }
             }
-        } else if (!userStore.getDomainName().equalsIgnoreCase(roleDomainName)) {
+        } else if (!userStore.getDomainName().equalsIgnoreCase(roleDomainName) && !(UserCoreConstants.INTERNAL_DOMAIN.
+                equalsIgnoreCase(roleDomainName) || APPLICATION_DOMAIN.equalsIgnoreCase(roleDomainName)
+                || WORKFLOW_DOMAIN.equalsIgnoreCase(roleDomainName))) {
             return false;
         }
 
@@ -5843,6 +5971,22 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             } else {
                 success = doCheckIsUserInRole(userStore.getDomainFreeName(),
                         UserCoreUtil.removeDomainFromName(roleName));
+            }
+
+            if (isRoleAndGroupSeparationEnabled()) {
+                String[] rolesList;
+                if (isUniqueUserIdEnabledInUserStore(userStore)) {
+                    rolesList = doGetExternalRoleListOfUserWithID(getUserIDFromUserName(userName), "*");
+                } else {
+                    rolesList = doGetExternalRoleListOfUser(userName, "*");
+                }
+
+                Map<String, List<String>> rolesOfGroups = getHybridRoleListOfGroups(Arrays.asList(rolesList),
+                        userStore.getDomainName());
+                Set<String> roleListOfGroups = getUniqueSet(rolesOfGroups);
+                if (roleListOfGroups.stream().anyMatch(roleName::equalsIgnoreCase)) {
+                    success = true;
+                }
             }
         }
 
@@ -6203,6 +6347,21 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 userNamesInHybrid = hybridRoleManager.getUserListOfHybridRole(userStore.getDomainFreeName());
             } else {
                 userNamesInHybrid = hybridRoleManager.getUserListOfHybridRole(userStore.getDomainAwareName());
+            }
+
+            // Get the users of associated groups of the role.
+            if (isRoleAndGroupSeparationEnabled()) {
+                Set<String> userListOfGroups = new HashSet<>();
+                String[] groupsOfRole;
+                if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
+                    groupsOfRole = hybridRoleManager.getGroupListOfHybridRole(userStore.getDomainFreeName());
+                } else {
+                    groupsOfRole = hybridRoleManager.getGroupListOfHybridRole(userStore.getDomainAwareName());
+                }
+                for (String group : groupsOfRole) {
+                    userListOfGroups.addAll(Arrays.asList(getUserListOfRole(group, filter, maxItemLimit)));
+                }
+                userNamesInHybrid = UserCoreUtil.combine(userNamesInHybrid, new ArrayList<>(userListOfGroups));
             }
 
             // remove domain
@@ -6917,7 +7076,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     if ((UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
                             || APPLICATION_DOMAIN.equalsIgnoreCase(domain) || WORKFLOW_DOMAIN.equalsIgnoreCase(domain))) {
                         userStore.setHybridRole(true);
-                    } else if (UserCoreConstants.SYSTEM_DOMAIN_NAME.equalsIgnoreCase(domain)) {
+                    } else if (SYSTEM_DOMAIN_NAME.equalsIgnoreCase(domain)) {
                         userStore.setSystemStore(true);
                     } else {
                         throw new UserStoreException("Invalid Domain Name");
@@ -7020,7 +7179,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         || APPLICATION_DOMAIN.equalsIgnoreCase(domainName)
                         || WORKFLOW_DOMAIN.equalsIgnoreCase(domainName))) {
                     userStore.setHybridRole(true);
-                } else if (UserCoreConstants.SYSTEM_DOMAIN_NAME.equalsIgnoreCase(domainName)) {
+                } else if (SYSTEM_DOMAIN_NAME.equalsIgnoreCase(domainName)) {
                     userStore.setSystemStore(true);
                 } else {
                     throw new UserStoreException("Invalid Domain Name");
@@ -8066,6 +8225,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private List<String> getUserRolesWithID(String userID, String filter) throws UserStoreException {
 
         List<String> internalRoles = doGetInternalRoleListOfUserWithID(userID, filter);
+        Set<String> modifiedInternalRoles = new HashSet<>();
         String[] modifiedExternalRoleList = new String[0];
 
         if (readGroupsEnabled && doCheckExistingUserWithID(userID)) {
@@ -8079,9 +8239,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             }
             modifiedExternalRoleList = UserCoreUtil.addDomainToNames(roles.toArray(new String[0]), getMyDomainName());
-        }
 
-        String[] roleList = UserCoreUtil.combine(modifiedExternalRoleList, internalRoles);
+            // Get the associated internal roles of the groups.
+            if (isRoleAndGroupSeparationEnabled()) {
+                Set<String> rolesOfGroups = getUniqueSet(getHybridRoleListOfGroups(roles, getMyDomainName()));
+                modifiedInternalRoles.addAll(rolesOfGroups);
+            }
+        }
+        modifiedInternalRoles.addAll(internalRoles);
+        String[] roleList = UserCoreUtil.combine(modifiedExternalRoleList, new ArrayList<>(modifiedInternalRoles));
 
         for (UserOperationEventListener userOperationEventListener : UMListenerServiceComponent
                 .getUserOperationEventListeners()) {
@@ -8131,7 +8297,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         String[] modifiedExternalRoleList = new String[0];
 
         if (readGroupsEnabled && doCheckExistingUser(username)) {
-            List<String> roles = new ArrayList<String>();
+            List<String> roles = new ArrayList<>();
             String[] externalRoles = doGetExternalRoleListOfUser(username, "*");
             roles.addAll(Arrays.asList(externalRoles));
             if (isSharedGroupEnabled()) {
@@ -8141,7 +8307,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             }
             modifiedExternalRoleList = UserCoreUtil
-                    .addDomainToNames(roles.toArray(new String[roles.size()]), getMyDomainName());
+                    .addDomainToNames(roles.toArray(new String[0]), getMyDomainName());
+
+            // Get the associated internal roles of the groups.
+            if (isRoleAndGroupSeparationEnabled()) {
+                Set<String> rolesOfGroups = getUniqueSet(getHybridRoleListOfGroups(roles, getMyDomainName()));
+                internalRoles = UserCoreUtil.combine(internalRoles, new ArrayList<>(rolesOfGroups));
+            }
         }
 
         String[] roleList = UserCoreUtil.combine(internalRoles, Arrays.asList(modifiedExternalRoleList));
@@ -11057,6 +11229,21 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 userNamesInHybrid = hybridRoleManager.getUserListOfHybridRole(userStore.getDomainFreeName());
             } else {
                 userNamesInHybrid = hybridRoleManager.getUserListOfHybridRole(userStore.getDomainAwareName());
+            }
+
+            // Get the users of associated groups of the role.
+            if (isRoleAndGroupSeparationEnabled()) {
+                Set<String> userListOfGroups = new HashSet<>();
+                String[] groupsOfRole;
+                if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
+                    groupsOfRole = hybridRoleManager.getGroupListOfHybridRole(userStore.getDomainFreeName());
+                } else {
+                    groupsOfRole = hybridRoleManager.getGroupListOfHybridRole(userStore.getDomainAwareName());
+                }
+                for (String group : groupsOfRole) {
+                    userListOfGroups.addAll(Arrays.asList(getUserListOfRole(group, filter, maxItemLimit)));
+                }
+                userNamesInHybrid = UserCoreUtil.combine(userNamesInHybrid, new ArrayList<>(userListOfGroups));
             }
 
             // remove domain
