@@ -26,5 +26,17 @@
             <DisplayName>Home Page</DisplayName>
             <ResourceId>/permission/protected/server-admin/homepage</ResourceId>
         </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Java Management Extensions</DisplayName>
+            <ResourceId>/permission/protected/server-admin/jmx</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Read Only</DisplayName>
+            <ResourceId>/permission/protected/server-admin/jmx/readonly</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Read Write</DisplayName>
+            <ResourceId>/permission/protected/server-admin/jmx/readwrite</ResourceId>
+        </ManagementPermission>
     </ManagementPermissions>
 </component>
