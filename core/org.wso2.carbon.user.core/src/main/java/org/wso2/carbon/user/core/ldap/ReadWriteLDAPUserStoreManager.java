@@ -874,6 +874,10 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         Attributes updatedAttributes = new BasicAttributes(true);
 
         processedClaimAttributes.entrySet().forEach(claimEntry -> {
+            // Skipping profile configuration attribute.
+            if (UserCoreConstants.PROFILE_CONFIGURATION.equals(claimEntry.getKey())) {
+                return;
+            }
             Attribute currentUpdatedAttribute = new BasicAttribute(claimEntry.getKey());
             // If updated attribute value is null, remove its values.
             if (EMPTY_ATTRIBUTE_STRING.equals(claimEntry.getValue())) {
