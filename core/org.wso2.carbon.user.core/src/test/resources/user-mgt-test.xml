@@ -40,7 +40,7 @@
             <Property name="PasswordJavaScriptRegEx">[\\S]{5,30}</Property>
             <Property name="UsernameJavaRegEx">^[^~!@#$;%^*+={}\\|\\\\&lt;&gt;]{3,30}$</Property>
             <Property name="RoleameJavaRegEx">^[^~!@#$;%^*+={}\\|\\\\&lt;&gt;]{3,30}$</Property>
-            <Property name="SelectUserSQL">SELECT * FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?</Property>
+            <Property name="SelectUserSQL">SELECT UM_ID, UM_USER_NAME, UM_USER_PASSWORD, UM_SALT_VALUE, UM_REQUIRE_CHANGE, UM_CHANGED_TIME FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?</Property>
             <!--<Property name="GetRoleListSQL">SELECT UM_ROLE_NAME FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? ORDER BY UM_ROLE_NAME</Property>-->
             <!--<Property name="UserFilterSQL">SELECT UM_USER_NAME FROM UM_USER WHERE UM_USER_NAME LIKE ? AND UM_TENANT_ID=? ORDER BY UM_USER_NAME</Property>-->
             <!--<Property name="UserRoleSQL">SELECT UM_ROLE_NAME FROM UM_USER_ROLE, UM_ROLE, UM_USER WHERE UM_USER.UM_USER_NAME=? AND UM_USER.UM_ID=UM_USER_ROLE.UM_USER_ID AND UM_ROLE.UM_ID=UM_USER_ROLE.UM_ROLE_ID AND UM_USER_ROLE.UM_TENANT_ID=? AND UM_ROLE.UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?</Property>-->
