@@ -68,8 +68,10 @@ public class PermissionUpdater {
             Long lastModifiedTime = System.currentTimeMillis();
             if (registry.resourceExists(PERM_TREE_TIMESTAMP_LOC)) {
                 Resource resource = registry.get(PERM_TREE_TIMESTAMP_LOC);
-                lastModifiedTime =
-                        new Long(resource.getProperty(PERM_TREE_TIMESTAMP_PROP).trim());
+                if (resource.getProperty(PERM_TREE_TIMESTAMP_PROP) != null) {
+                    lastModifiedTime =
+                            new Long(resource.getProperty(PERM_TREE_TIMESTAMP_PROP).trim());
+                }
             } else {
                 Resource resource = registry.newResource();
                 resource.setProperty(PERM_TREE_TIMESTAMP_PROP,
