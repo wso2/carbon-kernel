@@ -53,7 +53,6 @@ public class Bootstrap {
 
     protected final void loadClass(String args[]) {
         try {
-            addSystemProperties();
             addClassPathEntries();
             ClassLoader cl = new URLClassLoader(classpath.toArray(new URL[classpath.size()]));
 
@@ -73,37 +72,6 @@ public class Bootstrap {
             System.exit(1);
         }
 
-    }
-
-    private void addSystemProperties(){
-        Properties properties = new Properties();
-        String filePath = System.getProperty(CONF_DIRECTORY_PATH) + File.separator + CARBON_PROPERTIES;
-        File file = new File(filePath);
-
-        if (file.exists()) {
-            InputStream in = null;
-            try {
-                in = new FileInputStream(file);
-                properties.load(in);
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.exit(1);
-            } finally {
-                if (in != null) {
-                    try {
-                        in.close();
-                    } catch (IOException ignored) {
-                        // Exception is ignored as there is no need to break the execution here
-                    }
-                }
-            }
-        }
-
-        Set<Object> keys = properties.keySet();
-        for (Object key: keys)  {
-            System.setProperty((String)key, (String)properties.get(key));
-        }
-        System.setProperty("javax.xml.bind.JAXBContextFactory", "com.sun.xml.bind.v2.ContextFactory");
     }
 
     protected void addClassPathEntries() throws MalformedURLException {
