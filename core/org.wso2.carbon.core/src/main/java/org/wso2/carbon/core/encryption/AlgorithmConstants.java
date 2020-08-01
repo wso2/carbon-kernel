@@ -39,5 +39,4 @@ final class AlgorithmConstants {
         static final int DEFAULT_IV_LENGTH = 8;
         static final String DEFAULT_KEY_LENGTH = "64";
     }
-
 }
