@@ -36,6 +36,8 @@ import java.util.logging.Level;
 
 public class Main {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Main.class.getName());
+    private static final String CARBON_PROPERTIES = "carbon.properties";
+    private static final String CONF_DIRECTORY_PATH = "carbon.config.dir.path";
 
     /**
      * Launch the Carbon server.
@@ -101,6 +103,7 @@ public class Main {
             System.setProperty(LauncherConstants.PROFILE, LauncherConstants.DEFAULT_CARBON_PROFILE);
         }
         handleConfiguration();
+        addSystemProperties();
         invokeExtensions();
         launchCarbon();
     }
@@ -233,5 +236,39 @@ public class Main {
             logger.log(Level.SEVERE, "Error while performing configuration changes", e);
             System.exit(1);
         }
+    }
+
+    /**
+     * Reading carbon.properties file and setting system properties.
+     */
+    private static void addSystemProperties(){
+        java.util.Properties properties = new java.util.Properties();
+        String filePath = System.getProperty(CONF_DIRECTORY_PATH) + File.separator + CARBON_PROPERTIES;
+        File file = new File(filePath);
+
+        if (file.exists()) {
+            java.io.InputStream in = null;
+            try {
+                in = new java.io.FileInputStream(file);
+                properties.load(in);
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.exit(1);
+            } finally {
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (IOException ignored) {
+                        // Exception is ignored as there is no need to break the execution here
+                    }
+                }
+            }
+        }
+
+        java.util.Set<Object> keys = properties.keySet();
+        for (Object key: keys)  {
+            System.setProperty((String)key, (String)properties.get(key));
+        }
+        System.setProperty("javax.xml.bind.JAXBContextFactory", "com.sun.xml.bind.v2.ContextFactory");
     }
 }
