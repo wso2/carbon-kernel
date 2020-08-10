@@ -118,7 +118,7 @@ public interface TenantManager {
      * @param removeFromPersistentStorage
      * @throws UserStoreException
      */
-    public void deleteTenant(int tenantId, boolean removeFromPersistentStorage) throws UserStoreException;
+    void deleteTenant(int tenantId, boolean removeFromPersistentStorage) throws UserStoreException;
 
     /**
      * Checks whether the super tenant.

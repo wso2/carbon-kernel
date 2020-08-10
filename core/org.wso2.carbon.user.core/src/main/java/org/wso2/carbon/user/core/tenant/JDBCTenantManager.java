@@ -22,17 +22,21 @@ import org.apache.axiom.om.OMElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
+import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.caching.impl.CacheManagerFactoryImpl;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.authorization.DBConstants;
 import org.wso2.carbon.user.core.common.RealmCache;
 import org.wso2.carbon.user.core.common.UserStoreDeploymentManager;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
 import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
+import org.wso2.carbon.user.core.hybrid.HybridJDBCConstants;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
+import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -905,6 +909,50 @@ public class JDBCTenantManager implements TenantManager {
         }
     }
 
+    /**
+     * Delete all tenant information related to tenant stored in UM tables.
+     *
+     * @param tenantId Id of the tenant
+     * @throws UserStoreException
+     */
+    @Override
+    public void deleteTenantUMData(int tenantId) throws UserStoreException {
+
+        ServerConfigurationService serverConfigurationService = UserStoreMgtDSComponent.getServerConfigurationService();
+
+        try (Connection conn = getDBConnection()) {
+            conn.setAutoCommit(false);
+
+            executeDeleteQuery(conn, DBConstants.DELETE_USER_PERMISSIONS_BY_TENANT_ID_SQL, tenantId);
+            executeDeleteQuery(conn, DBConstants.DELETE_ROLE_PERMISSIONS_BY_TENANT_ID_SQL, tenantId);
+            executeDeleteQuery(conn, DBConstants.DELETE_PERMISSION_BY_TENANT_ID_SQL, tenantId);
+
+            executeDeleteQuery(conn, JDBCRealmConstants.DELETE_USER_PROPERTY_BY_TENANT_ID_SQL, tenantId);
+            executeDeleteQuery(conn, JDBCRealmConstants.DELETE_DOMAIN_FROM_USER_ROLE_BY_TENANT_ID, tenantId);
+            executeDeleteQuery(conn, JDBCRealmConstants.REMOVE_USER_ROLES_BY_TENANT_ID_SQL, tenantId);
+
+            executeDeleteQuery(conn, HybridJDBCConstants.DELETE_ROLES_BY_TENANT_ID_SQL, tenantId);
+            executeDeleteQuery(conn, HybridJDBCConstants.DELETE_REMEMBERME_VALUES_BY_TENANT_ID_SQL, tenantId);
+
+            if (Boolean.parseBoolean(serverConfigurationService
+                    .getFirstProperty("Tenant.DeletePrimaryUsersOnTenantDeletion"))) {
+                executeDeleteQuery(conn, JDBCRealmConstants.DELETE_ROLES_BY_TENANT_ID_SQL, tenantId);
+                executeDeleteQuery(conn, JDBCRealmConstants.DELETE_USERS_BY_TENANT_ID_SQL, tenantId);
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Tenant.DeletePrimaryUsersOnTenantDeletion flag is not enabled in carbon.xml. " +
+                            "Users and Roles will not be deleted.");
+                }
+            }
+
+            conn.commit();
+        } catch (SQLException e) {
+            String errorMsg = "An error occurred while deleting um data for tenant: " + tenantId;
+            log.error(e);
+            throw new UserStoreException(errorMsg, e);
+        }
+    };
+
     private void clearTenantCache(int tenantId) throws UserStoreException {
 
         String domain = getDomain(tenantId);
@@ -1178,7 +1226,7 @@ public class JDBCTenantManager implements TenantManager {
             } else if (dbType.contains("Informix")) {
                 // Driver name = "IBM Informix JDBC Driver for IBM Informix Dynamic Server"
                 sql = TenantConstants.IS_TENANT_UUID_COLUMN_EXISTS_INFORMIX;
-            } else if (dbType.contains("oracle")){
+            } else if (dbType.contains("oracle")) {
                 sql = TenantConstants.IS_TENANT_UUID_COLUMN_EXISTS_ORACLE;
             } else {
                 String message = "Error while loading tenant from DB: Database driver could not be identified" +
@@ -1200,5 +1248,25 @@ public class JDBCTenantManager implements TenantManager {
                             COLUMN_NAME_UM_TENANT_UUID + "in table UM_TENANT.", e);
         }
         return false;
+    }
+
+    /**
+     * Execute deletion queries.
+     *
+     * @param conn DB connection
+     * @param query SQL query
+     * @param tenantId Id of the tenant
+     * @throws Exception
+     */
+    private void executeDeleteQuery(Connection conn, String query, int tenantId)  throws SQLException {
+
+        try (PreparedStatement prepStmt = conn.prepareStatement(query)) {
+            prepStmt.setInt(1, tenantId);
+            prepStmt.executeUpdate();
+        } catch (SQLException e) {
+            String errMsg = "Error executing query " + query + " for tenant: " + tenantId;
+            log.error(errMsg, e);
+            throw e;
+        }
     }
 }
