@@ -1456,7 +1456,13 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                         String searchFilter = context.getSearchFilter();
 
                         if (isExistingRole(deletedRole)) {
-                            roleSearchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(deletedRole));
+                            roleSearchFilter = "(&" + searchFilter.replace("?",
+                                    escapeSpecialCharactersForFilter(deletedRole)) + "(" + membershipAttribute + "=" +
+                                    userNameDN + "))";
+                            if (log.isDebugEnabled()) {
+                                log.debug("Searching in the group where the user is assigned with search filter: " +
+                                        roleSearchFilter);
+                            }
                             String[] returningAttributes = new String[] { membershipAttribute, roleNameAttribute };
                             String searchBase = context.getSearchBase();
                             NamingEnumeration<SearchResult> groupResults = searchInGroupBase(roleSearchFilter,
@@ -1467,7 +1473,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                                 resultedGroup = groupResults.next();
                                 groupDN = getGroupName(resultedGroup);
                             }
-                            if (resultedGroup != null && isUserInRole(userNameDN, resultedGroup)) {
+                            if (resultedGroup != null) {
                                 this.modifyUserInRole(userNameDN, groupDN, DirContext.REMOVE_ATTRIBUTE, searchBase);
                             } else {
                                 errorMessage =
@@ -1502,20 +1508,21 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                         String searchFilter = context.getSearchFilter();
 
                         if (isExistingRole(newRole)) {
-                            roleSearchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(newRole));
+                            roleSearchFilter = "(&" + searchFilter.replace("?",
+                                    escapeSpecialCharactersForFilter(newRole)) + "(" + membershipAttribute + "=" +
+                                    userNameDN + "))";
+                            if (log.isDebugEnabled()) {
+                                log.debug("Searching in the group where the user is assigned with search filter: " +
+                                        roleSearchFilter);
+                            }
                             String[] returningAttributes = new String[] { membershipAttribute, roleNameAttribute };
                             String searchBase = context.getSearchBase();
 
                             NamingEnumeration<SearchResult> groupResults = searchInGroupBase(roleSearchFilter,
                                     returningAttributes, SearchControls.SUBTREE_SCOPE, mainDirContext, searchBase);
-                            SearchResult resultedGroup = null;
                             // assume only one group with given group name
-                            String groupDN = null;
-                            if (groupResults.hasMore()) {
-                                resultedGroup = groupResults.next();
-                                groupDN = getGroupName(resultedGroup);
-                            }
-                            if (resultedGroup != null && !isUserInRole(userNameDN, resultedGroup)) {
+                            String groupDN = "cn=" + newRole;
+                            if (!groupResults.hasMore()) {
                                 modifyUserInRole(userNameDN, groupDN, DirContext.ADD_ATTRIBUTE, searchBase);
                             } else {
                                 errorMessage = "User: " + userName + " already belongs to role: " + groupDN;
