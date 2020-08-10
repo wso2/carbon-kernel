@@ -6853,7 +6853,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
-    private UserStore getUserStoreWithID(final String userID) throws UserStoreException {
+    protected UserStore getUserStoreWithID(final String userID) throws UserStoreException {
 
         try {
             return AccessController
@@ -11851,7 +11851,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return userName;
     }
 
-    private String getFromUserNameCache(String userID) {
+    protected String getFromUserNameCache(String userID) {
 
         return UserIdResolverCache.getInstance().getValueFromCache(userID,
                 RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME, tenantId);
@@ -11864,14 +11864,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME, tenantId);
     }
 
-    private void addToUserIDCache(String userID, String userName, UserStore userStore) {
+    protected void addToUserIDCache(String userID, String userName, UserStore userStore) {
 
         UserIdResolverCache.getInstance()
                 .addToCache(UserCoreUtil.addDomainToName(userName, userStore.getDomainName()), userID,
                         RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME, tenantId);
     }
 
-    private void addToUserNameCache(String userID, String userName, UserStore userStore) {
+    protected void addToUserNameCache(String userID, String userName, UserStore userStore) {
 
         UserIdResolverCache.getInstance()
                 .addToCache(userID, UserCoreUtil.addDomainToName(userName, userStore.getDomainName()),

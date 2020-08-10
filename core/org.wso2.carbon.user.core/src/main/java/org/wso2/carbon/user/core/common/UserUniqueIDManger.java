@@ -19,6 +19,7 @@
 package org.wso2.carbon.user.core.common;
 
 import org.apache.commons.lang.StringUtils;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
@@ -67,20 +68,29 @@ public class UserUniqueIDManger {
     public User getUser(String uniqueId, AbstractUserStoreManager userStoreManager)
             throws UserStoreException {
 
-        String[] usernames = userStoreManager.getUserList(UserCoreClaimConstants.USER_ID_CLAIM_URI, uniqueId, null);
+        String userName = userStoreManager.getFromUserNameCache(uniqueId);
+        if (StringUtils.isEmpty(userName)) {
 
-        if (usernames.length > 1) {
-            throw new UserStoreException("More than one user presents with the same user unique id.");
-        }
+            String[] usernames = userStoreManager.getUserList(UserCoreClaimConstants.USER_ID_CLAIM_URI, uniqueId, null);
 
-        if (usernames.length == 0) {
-            return null;
+            if (usernames.length > 1) {
+                throw new UserStoreException("More than one user presents with the same user unique id.");
+            }
+
+            if (usernames.length == 0) {
+                return null;
+            }
+            userName = usernames[0];
+            UserStore userStore = userStoreManager.getUserStoreWithID(uniqueId);
+            String domainFreeUserName = UserCoreUtil.removeDomainFromName(userName);
+            userStoreManager.addToUserNameCache(uniqueId, domainFreeUserName, userStore);
+            userStoreManager.addToUserIDCache(uniqueId, domainFreeUserName, userStore);
         }
 
         User user = new User();
         user.setUserID(uniqueId);
-        user.setUsername(UserCoreUtil.removeDomainFromName(usernames[0]));
-        user.setUserStoreDomain(UserCoreUtil.extractDomainFromName(usernames[0]));
+        user.setUsername(UserCoreUtil.removeDomainFromName(userName));
+        user.setUserStoreDomain(UserCoreUtil.extractDomainFromName(userName));
         return user;
     }
 
