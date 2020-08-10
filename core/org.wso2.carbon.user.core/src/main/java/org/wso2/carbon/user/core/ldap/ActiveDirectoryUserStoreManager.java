@@ -261,7 +261,25 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 
             attributeValueMap.forEach((attributeName, attributeValue) -> {
                 BasicAttribute claim = new BasicAttribute(attributeName);
-                claim.add(attributeValue);
+                if (attributeValue != null) {
+                    String claimSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+                    if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
+                        userAttributeSeparator = claimSeparator;
+                    }
+                    if (attributeValue.contains(userAttributeSeparator)) {
+                        StringTokenizer st = new StringTokenizer(attributeValue, userAttributeSeparator);
+                        while (st.hasMoreElements()) {
+                            String newVal = st.nextElement().toString();
+                            if (newVal != null && newVal.trim().length() > 0) {
+                                claim.add(newVal.trim());
+                            }
+                        }
+                    } else {
+                        claim.add(attributeValue);
+                    }
+                } else {
+                    claim.add(attributeValue);
+                }
                 if (logger.isDebugEnabled()) {
                     logger.debug("AttributeName: " + attributeName + " AttributeValue: " + attributeValue);
                 }
