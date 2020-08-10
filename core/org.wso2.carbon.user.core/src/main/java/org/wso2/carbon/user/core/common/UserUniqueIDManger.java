@@ -19,8 +19,6 @@
 package org.wso2.carbon.user.core.common;
 
 import org.apache.commons.lang.StringUtils;
-import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
@@ -31,6 +29,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_UNIQUE_ID_FROM_USER_NAME_CACHE_NAME;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_UNIQUE_NAME_FROM_USER_ID_CACHE_NAME;
+import static org.wso2.carbon.utils.multitenancy.MultitenantConstants.SUPER_TENANT_ID;
 
 /**
  * This will manage the relationship between the user unique id in the system against the unique id in the user store.
@@ -68,7 +70,7 @@ public class UserUniqueIDManger {
     public User getUser(String uniqueId, AbstractUserStoreManager userStoreManager)
             throws UserStoreException {
 
-        String userName = userStoreManager.getFromUserNameCache(uniqueId);
+        String userName = getFromUserNameCache(uniqueId);
         if (StringUtils.isEmpty(userName)) {
 
             String[] usernames = userStoreManager.getUserList(UserCoreClaimConstants.USER_ID_CLAIM_URI, uniqueId, null);
@@ -83,8 +85,8 @@ public class UserUniqueIDManger {
             userName = usernames[0];
             UserStore userStore = userStoreManager.getUserStoreWithID(uniqueId);
             String domainFreeUserName = UserCoreUtil.removeDomainFromName(userName);
-            userStoreManager.addToUserNameCache(uniqueId, domainFreeUserName, userStore);
-            userStoreManager.addToUserIDCache(uniqueId, domainFreeUserName, userStore);
+            addToUserNameCache(uniqueId, domainFreeUserName, userStore);
+            addToUserIDCache(uniqueId, domainFreeUserName, userStore);
         }
 
         User user = new User();
@@ -92,6 +94,26 @@ public class UserUniqueIDManger {
         user.setUsername(UserCoreUtil.removeDomainFromName(userName));
         user.setUserStoreDomain(UserCoreUtil.extractDomainFromName(userName));
         return user;
+    }
+
+    private void addToUserIDCache(String userID, String userName, UserStore userStore) {
+
+        UserUniqueIDResolverCache.getInstance()
+                .addToCache(UserCoreUtil.addDomainToName(userName, userStore.getDomainName()), userID,
+                        RESOLVE_USER_UNIQUE_ID_FROM_USER_NAME_CACHE_NAME, SUPER_TENANT_ID);
+    }
+
+    private void addToUserNameCache(String userID, String userName, UserStore userStore) {
+
+        UserUniqueIDResolverCache.getInstance()
+                .addToCache(userID, UserCoreUtil.addDomainToName(userName, userStore.getDomainName()),
+                        RESOLVE_USER_UNIQUE_NAME_FROM_USER_ID_CACHE_NAME, SUPER_TENANT_ID);
+    }
+
+    private String getFromUserNameCache(String userID) {
+
+        return UserUniqueIDResolverCache.getInstance().getValueFromCache(userID,
+                RESOLVE_USER_UNIQUE_NAME_FROM_USER_ID_CACHE_NAME, SUPER_TENANT_ID);
     }
 
     /**

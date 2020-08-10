@@ -11835,23 +11835,26 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return ((AbstractUserStoreManager) userStore.getUserStoreManager())
                     .getUserNameFromUserID(userStore.getDomainFreeUserId());
         }
-        String userName = getFromUserNameCache(userID);
-        if (StringUtils.isEmpty(userName)) {
-            if (isUniqueUserIdEnabledInUserStore(userStore)) {
-                userName = doGetUserNameFromUserIDWithID(userID);
-                addToUserNameCache(userID, userName, userStore);
-                addToUserIDCache(userID, userName, userStore);
-                return UserCoreUtil.addDomainToName(userName, userStore.getDomainName());
-            }
-            userName = userUniqueIDManger.getUser(userID, this).getDomainQualifiedUsername();
-            addToUserNameCache(userID, userName, userStore);
-            addToUserIDCache(userID, userName, userStore);
-            return userName;
+
+        if (isUniqueUserIdEnabledInUserStore(userStore)) {
+            return getUserNameFromCurrentUserStore(userID, userStore);
+        } else {
+            return userUniqueIDManger.getUser(userID, this).getDomainQualifiedUsername();
         }
-        return userName;
     }
 
-    protected String getFromUserNameCache(String userID) {
+    private String getUserNameFromCurrentUserStore(String userID, UserStore userStore) throws UserStoreException {
+
+        String userName = getFromUserNameCache(userID);
+        if (StringUtils.isEmpty(userName)) {
+            userName = doGetUserNameFromUserIDWithID(userID);
+            addToUserNameCache(userID, userName, userStore);
+            addToUserIDCache(userID, userName, userStore);
+        }
+        return UserCoreUtil.addDomainToName(userName, userStore.getDomainName());
+    }
+
+    private String getFromUserNameCache(String userID) {
 
         return UserIdResolverCache.getInstance().getValueFromCache(userID,
                 RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME, tenantId);
@@ -11864,14 +11867,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME, tenantId);
     }
 
-    protected void addToUserIDCache(String userID, String userName, UserStore userStore) {
+    private void addToUserIDCache(String userID, String userName, UserStore userStore) {
 
         UserIdResolverCache.getInstance()
                 .addToCache(UserCoreUtil.addDomainToName(userName, userStore.getDomainName()), userID,
                         RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME, tenantId);
     }
 
-    protected void addToUserNameCache(String userID, String userName, UserStore userStore) {
+    private void addToUserNameCache(String userID, String userName, UserStore userStore) {
 
         UserIdResolverCache.getInstance()
                 .addToCache(userID, UserCoreUtil.addDomainToName(userName, userStore.getDomainName()),
