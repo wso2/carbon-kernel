@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_UNIQUE_ID_FROM_USER_NAME_CACHE_NAME;
-import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_UNIQUE_NAME_FROM_USER_ID_CACHE_NAME;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_UNIQUE_USER_ID_CACHE_NAME;
 import static org.wso2.carbon.utils.multitenancy.MultitenantConstants.SUPER_TENANT_ID;
 
 /**
@@ -83,10 +83,8 @@ public class UserUniqueIDManger {
                 return null;
             }
             userName = usernames[0];
-            UserStore userStore = userStoreManager.getUserStoreWithID(uniqueId);
-            String domainFreeUserName = UserCoreUtil.removeDomainFromName(userName);
-            addToUserNameCache(uniqueId, domainFreeUserName, userStore);
-            addToUserIDCache(uniqueId, domainFreeUserName, userStore);
+            addToUserNameCache(uniqueId, userName);
+            addToUserIDCache(uniqueId, userName);
         }
 
         User user = new User();
@@ -96,24 +94,24 @@ public class UserUniqueIDManger {
         return user;
     }
 
-    private void addToUserIDCache(String userID, String userName, UserStore userStore) {
+    private void addToUserIDCache(String userID, String userName) {
 
-        UserUniqueIDResolverCache.getInstance()
-                .addToCache(UserCoreUtil.addDomainToName(userName, userStore.getDomainName()), userID,
+        UserIdResolverCache.getInstance()
+                .addToCache(userName, userID,
                         RESOLVE_USER_UNIQUE_ID_FROM_USER_NAME_CACHE_NAME, SUPER_TENANT_ID);
     }
 
-    private void addToUserNameCache(String userID, String userName, UserStore userStore) {
+    private void addToUserNameCache(String userID, String userName) {
 
-        UserUniqueIDResolverCache.getInstance()
-                .addToCache(userID, UserCoreUtil.addDomainToName(userName, userStore.getDomainName()),
-                        RESOLVE_USER_UNIQUE_NAME_FROM_USER_ID_CACHE_NAME, SUPER_TENANT_ID);
+        UserIdResolverCache.getInstance()
+                .addToCache(userID, userName,
+                        RESOLVE_USER_NAME_FROM_UNIQUE_USER_ID_CACHE_NAME, SUPER_TENANT_ID);
     }
 
     private String getFromUserNameCache(String userID) {
 
-        return UserUniqueIDResolverCache.getInstance().getValueFromCache(userID,
-                RESOLVE_USER_UNIQUE_NAME_FROM_USER_ID_CACHE_NAME, SUPER_TENANT_ID);
+        return UserIdResolverCache.getInstance().getValueFromCache(userID,
+                RESOLVE_USER_NAME_FROM_UNIQUE_USER_ID_CACHE_NAME, SUPER_TENANT_ID);
     }
 
     /**

@@ -27,7 +27,7 @@ public class UserStoreConfigConstants {
     public static final String RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME = "user_id_from_user_name_cache";
     public static final String RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME = "user_name_from_user_id_cache";
     public static final String RESOLVE_USER_UNIQUE_ID_FROM_USER_NAME_CACHE_NAME = "user_unique_id_from_user_name_cache";
-    public static final String RESOLVE_USER_UNIQUE_NAME_FROM_USER_ID_CACHE_NAME = "user_unique_name_from_user_id_cache";
+    public static final String RESOLVE_USER_NAME_FROM_UNIQUE_USER_ID_CACHE_NAME = "user_name_from_unique_user_id_cache";
     //Define datasource property for JDBC
     public static final String dataSource = "dataSource";
     public static final String dataSourceDescription = "Connection name to user store";
