@@ -1053,7 +1053,6 @@ public class PermissionTree {
             statement.setString(3, resourceId);
             rs = statement.executeQuery();
             write.lock();
-            getNode(root, PermissionTreeUtil.toComponenets(resourceId)).getLastNode().getRoleAllowPermissions().clear();
             try {
                 while (rs.next()) {
                     short allow = rs.getShort(3);
