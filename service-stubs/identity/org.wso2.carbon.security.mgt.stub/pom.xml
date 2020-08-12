@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity.framework</groupId>
         <artifactId>carbon-service-stubs</artifactId>
-        <version>5.17.110-SNAPSHOT</version>
+        <version>5.18.50-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -42,6 +42,10 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
+                            org.wso2.carbon.identity.base.xsd.* ;
+                            version="${carbon.identity.package.export.version}",
+                            org.wso2.carbon.identity.sts.common.stub.config.* ;
+                            version="${carbon.identity.package.export.version}",
                             org.wso2.carbon.security.mgt.stub.*;
                             version="${carbon.identity.package.export.version}"
                         </Export-Package>
@@ -72,7 +76,7 @@
                                     <classpath refid="wsdl2java.classpath" />
                                 </java>
                                 <java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true">
-                                    <arg line="-uri src/main/resources/SecurityConfigAdmin.wsdl -u -g -o target/generated-code -ns2p http://service.config.security.carbon.wso2.org=org.wso2.carbon.security.mgt.stub.config,http://service.config.security.carbon.wso2.org/xsd=org.wso2.carbon.security.mgt.stub.config.xsd" />
+                                    <arg line="-uri src/main/resources/SecurityConfigAdmin.wsdl -u -g -o target/generated-code -ns2p http://service.config.security.carbon.wso2.org=org.wso2.carbon.security.mgt.stub.config,http://service.config.security.carbon.wso2.org/xsd=org.wso2.carbon.security.mgt.stub.config.xsd,http://service.config.common.sts.identity.carbon.wso2.org=org.wso2.carbon.identity.sts.common.stub.config,http://service.config.common.sts.identity.carbon.wso2.org/xsd=org.wso2.carbon.identity.sts.common.stub.config.xsd" />
                                     <classpath refid="wsdl2java.classpath" />
                                 </java>
                             </tasks>

@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity.framework</groupId>
         <artifactId>security-mgt-feature</artifactId>
-        <version>5.17.110-SNAPSHOT</version>
+        <version>5.18.50-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -37,58 +37,6 @@
         <dependency>
             <groupId>org.wso2.carbon.identity.framework</groupId>
             <artifactId>org.wso2.carbon.security.mgt</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.rampart.wso2</groupId>
-            <artifactId>rampart-policy</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.rampart.wso2</groupId>
-            <artifactId>rampart-core</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.opensaml</groupId>
-                    <artifactId>opensaml</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.opensaml</groupId>
-                    <artifactId>opensaml1</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.opensaml</groupId>
-                    <artifactId>xmltooling</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.opensaml</groupId>
-                    <artifactId>openws</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.rampart.wso2</groupId>
-            <artifactId>rampart-trust</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.opensaml</groupId>
-                    <artifactId>opensaml</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.opensaml</groupId>
-                    <artifactId>opensaml1</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.opensaml</groupId>
-                    <artifactId>xmltooling</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.opensaml</groupId>
-                    <artifactId>openws</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ws.security.wso2</groupId>
-            <artifactId>wss4j</artifactId>
         </dependency>
         <!--<dependency>-->
             <!--<groupId>org.wso2.carbon.identity.framework</groupId>-->
@@ -145,10 +93,6 @@
                             </adviceFile>
                             <bundles>
                                 <bundleDef>org.wso2.carbon.identity.framework:org.wso2.carbon.security.mgt</bundleDef>
-                                <bundleDef>org.apache.rampart.wso2:rampart-policy</bundleDef>
-                                <bundleDef>org.apache.rampart.wso2:rampart-core</bundleDef>
-                                <bundleDef>org.apache.rampart.wso2:rampart-trust</bundleDef>
-                                <bundleDef>org.apache.ws.security.wso2:wss4j</bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.core:compatible:${carbon.kernel.feature.version}

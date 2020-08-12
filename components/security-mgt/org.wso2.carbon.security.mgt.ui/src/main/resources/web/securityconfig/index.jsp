@@ -20,8 +20,8 @@
 <%@page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@page
         import="org.wso2.carbon.CarbonConstants" %>
-<%@page import="org.wso2.carbon.security.mgt.stub.config.xsd.SecurityScenarioData" %>
-<%@page import="org.wso2.carbon.security.mgt.stub.config.xsd.SecurityScenarioDataWrapper" %>
+<%@page import="org.wso2.carbon.identity.sts.common.stub.config.xsd.SecurityScenarioData" %>
+<%@page import="org.wso2.carbon.identity.sts.common.stub.config.xsd.SecurityScenarioDataWrapper" %>
 <%@page import="org.wso2.carbon.security.ui.client.SecurityAdminClient" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
