@@ -928,6 +928,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * Get hybrid role list of groups.
      *
      * @param groupNames Group names list.
+     * @param domainName Domain name of the groups.
      * @return Map of hybrid role list of groups.
      * @throws UserStoreException userStoreException.
      */
@@ -954,6 +955,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * Get hybrid role list of a group.
      *
      * @param groupName Group name.
+     * @param domainName Domain name of the group.
      * @return List of hybrid roles of the group.
      * @throws UserStoreException userStoreException.
      */
@@ -967,6 +969,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * Get hybrid role list of users.
      *
      * @param userNames User names list.
+     * @param domainName Domain name of the users.
      * @return Map of hybrid role list of users.
      * @throws UserStoreException userStoreException.
      */
@@ -980,6 +983,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * Get hybrid role list of a user.
      *
      * @param userName User name.
+     * @param domainName Domain name of the user.
      * @return List of hybrid roles of the user.
      * @throws UserStoreException userStoreException.
      */
@@ -6427,7 +6431,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         String[] roleNames;
-        String userID = null;
+        String userID;
 
         // anonymous user is only assigned to  anonymous role
         if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equalsIgnoreCase(userName)) {
@@ -8297,9 +8301,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         String[] modifiedExternalRoleList = new String[0];
 
         if (readGroupsEnabled && doCheckExistingUser(username)) {
-            List<String> roles = new ArrayList<>();
             String[] externalRoles = doGetExternalRoleListOfUser(username, "*");
-            roles.addAll(Arrays.asList(externalRoles));
+            List<String> roles = Arrays.asList(externalRoles);
             if (isSharedGroupEnabled()) {
                 String[] sharedRoles = doGetSharedRoleListOfUser(username, null, "*");
                 if (sharedRoles != null) {
