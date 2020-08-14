@@ -7022,7 +7022,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
-    protected UserStore getUserStoreWithID(final String userID) throws UserStoreException {
+    private UserStore getUserStoreWithID(final String userID) throws UserStoreException {
 
         try {
             return AccessController
@@ -12086,23 +12086,20 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return ((AbstractUserStoreManager) userStore.getUserStoreManager())
                     .getUserNameFromUserID(userStore.getDomainFreeUserId());
         }
-
-        if (isUniqueUserIdEnabledInUserStore(userStore)) {
-            return getUserNameFromCurrentUserStore(userID, userStore);
-        } else {
-            return userUniqueIDManger.getUser(userID, this).getDomainQualifiedUsername();
-        }
-    }
-
-    private String getUserNameFromCurrentUserStore(String userID, UserStore userStore) throws UserStoreException {
-
         String userName = getFromUserNameCache(userID);
         if (StringUtils.isEmpty(userName)) {
-            userName = doGetUserNameFromUserIDWithID(userID);
+            if (isUniqueUserIdEnabledInUserStore(userStore)) {
+                userName = doGetUserNameFromUserIDWithID(userID);
+                addToUserNameCache(userID, userName, userStore);
+                addToUserIDCache(userID, userName, userStore);
+                return UserCoreUtil.addDomainToName(userName, userStore.getDomainName());
+            }
+            userName = userUniqueIDManger.getUser(userID, this).getDomainQualifiedUsername();
             addToUserNameCache(userID, userName, userStore);
             addToUserIDCache(userID, userName, userStore);
+            return userName;
         }
-        return UserCoreUtil.addDomainToName(userName, userStore.getDomainName());
+        return userName;
     }
 
     private String getFromUserNameCache(String userID) {
