@@ -46,11 +46,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
 
@@ -272,27 +269,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                 }
             }
 
-            if (isRoleAndGroupSeparationEnabled) {
-                String[] roles = userRealm.getUserStoreManager().getRoleListOfUser(userName);
-                Map<String, List<String>> roleListOfGroups = ((AbstractUserStoreManager) userRealm
-                        .getUserStoreManager())
-                        .getHybridRoleListOfGroups(Arrays.asList(roles), UserCoreUtil.extractDomainFromName(userName));
-                Set<String> rolesOfGroups = getUniqueSet(roleListOfGroups);
-                Set<String> allRolesList = new HashSet<>(
-                        Arrays.asList(UserCoreUtil.combine(roles, new ArrayList<>(rolesOfGroups))));
-
-                for (String allowRole : allowedRoles) {
-                    if (allRolesList.stream().anyMatch(allowRole::equalsIgnoreCase)) {
-                        userAllowed = true;
-                        break;
-                    }
-                }
-
-                if (log.isDebugEnabled()) {
-                    log.debug(userName + " user has permitted resource :  " + resourceId + ", action :" + action);
-                }
-
-            } else if (verifyByRetrievingAllUserRoles) {
+            if (isRoleAndGroupSeparationEnabled || verifyByRetrievingAllUserRoles) {
                 String[] roles = null;
                 try {
                     roles = userRealm.getUserStoreManager().getRoleListOfUser(userName);
@@ -496,30 +473,15 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             return (String[]) object;
         }
 
-        if (isRoleAndGroupSeparationEnabled) {
-            List<String> lstPermissions = new ArrayList<>();
-            String[] roles = userRealm.getUserStoreManager().getRoleListOfUser(userName);
-            Map<String, List<String>> roleListOfGroups = ((AbstractUserStoreManager) userRealm.getUserStoreManager())
-                    .getHybridRoleListOfGroups(Arrays.asList(roles), UserCoreUtil.extractDomainFromName(userName));
-            Set<String> rolesOfGroups = getUniqueSet(roleListOfGroups);
-            String[] allRoles = UserCoreUtil.combine(roles, new ArrayList<>(rolesOfGroups));
-            permissionTree.updatePermissionTree();
-            permissionTree.getUIResourcesForRoles(allRoles, lstPermissions, permissionRootPath);
-            String[] permissions = lstPermissions.toArray(new String[0]);
-            return UserCoreUtil.optimizePermissions(permissions);
-
-        } else if (verifyByRetrievingAllUserRoles) {
-
-            List<String> lstPermissions = new ArrayList<String>();
+        List<String> lstPermissions = new ArrayList<>();
+        if (isRoleAndGroupSeparationEnabled || verifyByRetrievingAllUserRoles) {
             String[] roles = this.userRealm.getUserStoreManager().getRoleListOfUser(userName);
             permissionTree.updatePermissionTree();
             permissionTree.getUIResourcesForRoles(roles, lstPermissions, permissionRootPath);
-            String[] permissions = lstPermissions.toArray(new String[lstPermissions.size()]);
+            String[] permissions = lstPermissions.toArray(new String[0]);
             return UserCoreUtil.optimizePermissions(permissions);
 
         } else {
-
-            List<String> lstPermissions = new ArrayList<String>();
             List<String> resourceIds = getUIPermissionId();
             if (resourceIds != null) {
                 for (String resourceId : resourceIds) {
@@ -535,7 +497,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                 }//loop over resource list
             }//resource ID checkup
 
-            String[] permissions = lstPermissions.toArray(new String[lstPermissions.size()]);
+            String[] permissions = lstPermissions.toArray(new String[0]);
             String[] optimizedList = UserCoreUtil.optimizePermissions(permissions);
 
             if (debug) {
@@ -1540,20 +1502,4 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             isSecureCall.set(Boolean.FALSE);
         }
     }
-
-    /**
-     * Convert a map of lists to a set of unique elements.
-     *
-     * @param mapOfLists Map of lists.
-     * @return list with unique elements.
-     */
-    private Set<String> getUniqueSet(Map<String, List<String>> mapOfLists) {
-
-        Set<String> fullSet = new HashSet<>();
-        for (List<String> list : mapOfLists.values()) {
-            fullSet.addAll(list);
-        }
-        return fullSet;
-    }
-
 }
