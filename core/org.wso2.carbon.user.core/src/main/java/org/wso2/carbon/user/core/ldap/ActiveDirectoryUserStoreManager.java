@@ -29,8 +29,10 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
+import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.util.JNDIUtil;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 
@@ -51,6 +53,7 @@ import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.PartialResultException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
@@ -623,6 +626,142 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
         }
+    }
+
+    @Override
+    public String[] getUserListOfLDAPRole(RoleContext context, String filter) throws UserStoreException {
+
+        boolean debug = logger.isDebugEnabled();
+
+        if (debug) {
+            logger.debug("Getting user list of role: " + context.getRoleName() + " with filter: " + filter);
+        }
+
+        List<String> userList = new ArrayList<String>();
+        String[] names = new String[0];
+        int givenMax, searchTime;
+
+        try {
+            givenMax = Integer.parseInt(realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST));
+        } catch (NumberFormatException e) {
+            if (debug) {
+                logger.debug("Error occurred while reading user store property: "
+                        + UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST + " : " + e);
+            }
+            givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
+        }
+
+        try {
+            searchTime = Integer.parseInt(realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
+        } catch (NumberFormatException e) {
+            if (debug) {
+                logger.debug("Error occurred while reading user store property: "
+                        + UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME + " : " + e);
+            }
+            searchTime = UserCoreConstants.MAX_SEARCH_TIME;
+        }
+
+        DirContext dirContext = null;
+        NamingEnumeration<SearchResult> answer = null;
+
+        try {
+            SearchControls searchCtls = new SearchControls();
+            searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            searchCtls.setTimeLimit(searchTime);
+            searchCtls.setCountLimit(givenMax);
+
+            String groupSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE);
+            String userListFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
+            String memberOFAttribute = realmConfig.getUserStoreProperty(LDAPConstants.MEMBEROF_ATTRIBUTE);
+            String groupNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
+            userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+            String searchFilter = "(&" + userListFilter + "(" + memberOFAttribute + "=" + groupNameAttribute + "="
+                    + escapeSpecialCharactersForFilter(context.getRoleName()) + "," + groupSearchBase + "))";
+            String userNameProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+            String displayNameAttribute = realmConfig
+                    .getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
+            String returnedAtts[] = {userNameProperty, displayNameAttribute};
+            searchCtls.setReturningAttributes(returnedAtts);
+
+            SearchResult sr = null;
+            dirContext = connectionSource.getContext();
+
+            answer = dirContext.search(escapeDNForSearch(userSearchBase), searchFilter, searchCtls);
+
+            for (int index = 0; index < givenMax && answer.hasMore(); index++) {
+                String displayName = null;
+                String userName = null;
+                sr = answer.next();
+                Attributes userAttributes = sr.getAttributes();
+                if (userAttributes != null) {
+                    Attribute userNameAttribute = userAttributes.get(userNameProperty);
+                    if (userNameAttribute != null) {
+                        userName = (String) userNameAttribute.get();
+                        if (debug) {
+                            logger.debug("UserName: " + userName);
+                        }
+                    }
+                    if (StringUtils.isNotEmpty(displayNameAttribute)) {
+                        Attribute displayAttribute = userAttributes.get(displayNameAttribute);
+                        if (displayAttribute != null) {
+                            displayName = (String) displayAttribute.get();
+                        }
+                        if (debug) {
+                            logger.debug("DisplayName: " + displayName);
+                        }
+                    }
+
+                    String domainName = realmConfig.getUserStoreProperty(
+                            UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+
+                         /*
+                         Username will be null in the special case where the
+                         username attribute has changed to another
+                         and having different userNameProperty than the current
+                         user-mgt.xml
+                          */
+                    if (userName != null) {
+                        userName = UserCoreUtil.getCombinedName(domainName, userName, displayName);
+                        userList.add(userName);
+                        if (debug) {
+                            logger.debug(userName + " is added to the result list");
+                        }
+                    } else {
+                        // Skip listing users which are not applicable to current user-mgt.xml.
+                        if (debug) {
+                            logger.debug("User doesn't have the user name property : " +
+                                    userNameProperty);
+                        }
+                    }
+                }
+            }
+
+            names = userList.toArray(new String[userList.size()]);
+
+        } catch (PartialResultException e) {
+            // Can be due to referrals in AD. so just ignore the error.
+            String errorMessage = "Error in reading user information in the user store for filter : " + filter;
+            if (isIgnorePartialResultException()) {
+                if (debug) {
+                    logger.debug(errorMessage, e);
+                }
+            } else {
+                throw new UserStoreException(errorMessage, e);
+            }
+        } catch (NamingException e) {
+            String errorMessage = "Error in reading user information in the user store for filter : " + filter;
+            if (debug) {
+                logger.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            JNDIUtil.closeNamingEnumeration(answer);
+            JNDIUtil.closeContext(dirContext);
+        }
+
+        return names;
     }
 
     @Override
