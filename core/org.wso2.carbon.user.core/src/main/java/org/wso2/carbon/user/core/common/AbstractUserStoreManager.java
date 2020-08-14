@@ -96,13 +96,16 @@ import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.UserCoreConstants.SYSTEM_DOMAIN_NAME;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_UNIQUE_USER_ID_CACHE_NAME;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_UNIQUE_ID_FROM_USER_NAME_CACHE_NAME;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS;
+import static org.wso2.carbon.utils.multitenancy.MultitenantConstants.SUPER_TENANT_ID;
 
 public abstract class AbstractUserStoreManager implements PaginatedUserStoreManager,
         UniqueIDUserStoreManager {
@@ -12138,6 +12141,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .clearCacheEntry(UserCoreUtil.addDomainToName(userName, userStore.getDomainName()),
                         RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME, tenantId);
         UserIdResolverCache.getInstance().clearCacheEntry(userID, RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME, tenantId);
+        UserIdResolverCache.getInstance()
+                .clearCacheEntry(UserCoreUtil.addDomainToName(userName, userStore.getDomainName()),
+                        RESOLVE_USER_UNIQUE_ID_FROM_USER_NAME_CACHE_NAME, SUPER_TENANT_ID);
+        UserIdResolverCache.getInstance()
+                .clearCacheEntry(userID, RESOLVE_USER_NAME_FROM_UNIQUE_USER_ID_CACHE_NAME, SUPER_TENANT_ID);
     }
 
     /**
