@@ -63,6 +63,7 @@
         <module>components/template-mgt</module>
         <module>components/configuration-mgt</module>
         <module>components/captcha-mgt</module>
+        <module>components/user-functionality-mgt</module>
         <module>components/cors-mgt</module>
         <module>features/security-mgt</module>
         <module>features/claim-mgt</module>
@@ -85,6 +86,7 @@
         <module>features/functions-library-mgt</module>
         <module>features/template-mgt</module>
         <module>features/configuration-mgt</module>
+        <module>features/user-functionality-mgt</module>
         <module>features/cors-mgt</module>
     </modules>
 
@@ -1288,6 +1290,17 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.identity.functions.library.mgt.ui.feature</artifactId>
+                <version>${project.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.user.functionality.mgt</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.user.functionality.mgt.server.feature</artifactId>
                 <version>${project.version}</version>
                 <type>zip</type>
             </dependency>
