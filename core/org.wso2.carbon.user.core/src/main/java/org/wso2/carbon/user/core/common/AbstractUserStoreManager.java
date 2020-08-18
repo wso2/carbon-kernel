@@ -7143,11 +7143,20 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         }
                     } else {
                         // This is happening when the user store is not supporting uniqueID.
-                        if (abstractUserStoreManager.getUserList(UserCoreClaimConstants.USER_ID_CLAIM_URI, userId,
-                                null).length > 0) {
-                            domainName = entry.getKey();
-                            userUniqueIDDomainResolver.setDomainForUserId(userId, domainName, tenantId);
-                            break;
+                        try {
+                            if (abstractUserStoreManager.getUserListFromProperties(claimManager.getAttributeName(entry
+                                    .getKey(), UserCoreClaimConstants.USER_ID_CLAIM_URI), userId, null).length > 0) {
+                                domainName = entry.getKey();
+                                userUniqueIDDomainResolver.setDomainForUserId(userId, domainName, tenantId);
+                                break;
+                            }
+                        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                                handleGetUserListFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getCode(),
+                                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getMessage(),
+                                                e.getMessage()), UserCoreClaimConstants.USER_ID_CLAIM_URI, userId,
+                                        null);
+                                throw new UserStoreException("Unable retrieve users from getUserListFromProperties " +
+                                        "method from the user store: " + entry.getKey() + ".", e);
                         }
                     }
                 }
