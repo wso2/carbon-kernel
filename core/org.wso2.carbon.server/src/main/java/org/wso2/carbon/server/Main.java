@@ -262,6 +262,9 @@ public class Main {
             System.setProperty((String)key, (String)properties.get(key));
         }
         // Set the javax.xml.bind.JAXBContext
+        // To fix issue in creating JAXBContext instance in JDK11,
+        // It uses the default factory class as “com.sun.xml.internal.bind.v2 ContextFactory".
+        // But in the Java 11 runtime, this class is not found.
         System.setProperty("javax.xml.bind.JAXBContextFactory", "com.sun.xml.bind.v2.ContextFactory");
     }
 }
