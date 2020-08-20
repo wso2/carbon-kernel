@@ -38,7 +38,9 @@ import java.io.File;
 import java.io.InputStream;
 
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_UNIQUE_USER_ID_CACHE_NAME;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_UNIQUE_ID_FROM_USER_NAME_CACHE_NAME;
 
 public class PermissionWithIDTest extends BaseTestCase {
 
@@ -217,6 +219,10 @@ public class PermissionWithIDTest extends BaseTestCase {
 
     private void clearUserIdResolverCache() {
 
+        UserIdResolverCache.getInstance()
+                .clear(RESOLVE_USER_UNIQUE_ID_FROM_USER_NAME_CACHE_NAME, MultitenantConstants.SUPER_TENANT_ID);
+        UserIdResolverCache.getInstance()
+                .clear(RESOLVE_USER_NAME_FROM_UNIQUE_USER_ID_CACHE_NAME, MultitenantConstants.SUPER_TENANT_ID);
         UserIdResolverCache.getInstance()
                 .clear(RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME, MultitenantConstants.SUPER_TENANT_ID);
         UserIdResolverCache.getInstance()
