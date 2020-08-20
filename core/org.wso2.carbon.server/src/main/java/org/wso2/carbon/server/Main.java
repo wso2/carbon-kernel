@@ -26,9 +26,11 @@ import org.wso2.config.mapper.ConfigParserException;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.UUID;
@@ -247,7 +249,7 @@ public class Main {
         File file = new File(filePath);
 
         if (file.exists()) {
-            try (java.io.InputStream in = new java.io.FileInputStream(file)) {
+            try (InputStream in = new FileInputStream(file)) {
                 properties.load(in);
             } catch (IOException e) {
                 logger.log(Level.SEVERE, "Error while reading the file '" + filePath + "'.", e);
