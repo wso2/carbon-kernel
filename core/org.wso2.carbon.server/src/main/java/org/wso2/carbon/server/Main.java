@@ -247,28 +247,21 @@ public class Main {
         File file = new File(filePath);
 
         if (file.exists()) {
-            java.io.InputStream in = null;
-            try {
-                in = new java.io.FileInputStream(file);
+            try (java.io.InputStream in = new java.io.FileInputStream(file)) {
                 properties.load(in);
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.log(Level.SEVERE, "Error while reading the file '" + filePath + "' " + e.getMessage(), e);
                 System.exit(1);
-            } finally {
-                if (in != null) {
-                    try {
-                        in.close();
-                    } catch (IOException ignored) {
-                        // Exception is ignored as there is no need to break the execution here
-                    }
-                }
             }
+        } else {
+            logger.log(Level.WARNING, "The file '" + filePath + "' does not exist.");
         }
 
         java.util.Set<Object> keys = properties.keySet();
         for (Object key: keys)  {
             System.setProperty((String)key, (String)properties.get(key));
         }
+        // Set the javax.xml.bind.JAXBContext
         System.setProperty("javax.xml.bind.JAXBContextFactory", "com.sun.xml.bind.v2.ContextFactory");
     }
 }
