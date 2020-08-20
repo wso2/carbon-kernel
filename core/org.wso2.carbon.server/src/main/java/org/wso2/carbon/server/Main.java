@@ -250,7 +250,7 @@ public class Main {
             try (java.io.InputStream in = new java.io.FileInputStream(file)) {
                 properties.load(in);
             } catch (IOException e) {
-                logger.log(Level.SEVERE, "Error while reading the file '" + filePath + "' " + e.getMessage(), e);
+                logger.log(Level.SEVERE, "Error while reading the file '" + filePath + "'.", e);
                 System.exit(1);
             }
         } else {
