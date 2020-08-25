@@ -466,6 +466,19 @@
         </filter>
     -->
 
+    {% if custom_header_filter.enable is sameas true %}
+    <filter>
+        <filter-name>CustomHeaderFilter</filter-name>
+        <filter-class>org.wso2.carbon.identity.custom.header.filter.CustomHeaderFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>CustomHeaderFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+    </filter-mapping>
+    {% endif %}
 
     <!-- ==================== Built In Filter Mappings ====================== -->
 
