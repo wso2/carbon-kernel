@@ -26,9 +26,11 @@ import org.wso2.config.mapper.ConfigParserException;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.UUID;
@@ -36,6 +38,8 @@ import java.util.logging.Level;
 
 public class Main {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Main.class.getName());
+    private static final String CARBON_PROPERTIES = "carbon.properties";
+    private static final String CONF_DIRECTORY_PATH = "carbon.config.dir.path";
 
     /**
      * Launch the Carbon server.
@@ -101,6 +105,7 @@ public class Main {
             System.setProperty(LauncherConstants.PROFILE, LauncherConstants.DEFAULT_CARBON_PROFILE);
         }
         handleConfiguration();
+        addSystemProperties();
         invokeExtensions();
         launchCarbon();
     }
@@ -233,5 +238,35 @@ public class Main {
             logger.log(Level.SEVERE, "Error while performing configuration changes", e);
             System.exit(1);
         }
+    }
+
+    /**
+     * Reading carbon.properties file and setting system properties.
+     */
+    private static void addSystemProperties(){
+        java.util.Properties properties = new java.util.Properties();
+        String filePath = System.getProperty(CONF_DIRECTORY_PATH) + File.separator + CARBON_PROPERTIES;
+        File file = new File(filePath);
+
+        if (file.exists()) {
+            try (InputStream in = new FileInputStream(file)) {
+                properties.load(in);
+            } catch (IOException e) {
+                logger.log(Level.SEVERE, "Error while reading the file '" + filePath + "'.", e);
+                System.exit(1);
+            }
+        } else {
+            logger.log(Level.WARNING, "The file '" + filePath + "' does not exist.");
+        }
+
+        java.util.Set<Object> keys = properties.keySet();
+        for (Object key: keys)  {
+            System.setProperty((String)key, (String)properties.get(key));
+        }
+        // Set the javax.xml.bind.JAXBContext
+        // To fix issue in creating JAXBContext instance in JDK11,
+        // It uses the default factory class as “com.sun.xml.internal.bind.v2 ContextFactory".
+        // But in the Java 11 runtime, this class is not found.
+        System.setProperty("javax.xml.bind.JAXBContextFactory", "com.sun.xml.bind.v2.ContextFactory");
     }
 }
