@@ -133,7 +133,7 @@ public class JDBCPathCache extends PathCache {
                 }
             }
         } catch (SQLException e) {
-            if (e instanceof SQLIntegrityConstraintViolationException) {
+            if (e instanceof SQLIntegrityConstraintViolationException || "23505".equals(e.getSQLState())) {
                 if (log.isDebugEnabled()) {
                     log.debug("Failed to insert due to already exist in database : " + path);
                 }
