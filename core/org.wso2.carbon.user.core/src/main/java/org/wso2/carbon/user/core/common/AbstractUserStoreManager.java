@@ -96,13 +96,16 @@ import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.UserCoreConstants.SYSTEM_DOMAIN_NAME;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_UNIQUE_USER_ID_CACHE_NAME;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_UNIQUE_ID_FROM_USER_NAME_CACHE_NAME;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS;
+import static org.wso2.carbon.utils.multitenancy.MultitenantConstants.SUPER_TENANT_ID;
 
 public abstract class AbstractUserStoreManager implements PaginatedUserStoreManager,
         UniqueIDUserStoreManager {
@@ -7026,7 +7029,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
-    private UserStore getUserStoreWithID(final String userID) throws UserStoreException {
+    protected UserStore getUserStoreWithID(final String userID) throws UserStoreException {
 
         try {
             return AccessController
@@ -11154,9 +11157,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // Check whether roles exist in cache
-        User user = userUniqueIDManger.getUser(userID, this);
-        if (user != null) {
-            String[] roleListOfUserFromCache = getRoleListOfUserFromCache(this.tenantId, user.getUsername());
+        String userName = this.getUserNameFromUserID(userID);
+        if (StringUtils.isNotEmpty(userName)) {
+            String[] roleListOfUserFromCache = getRoleListOfUserFromCache(this.tenantId, userName);
             if (roleListOfUserFromCache != null) {
                 roleNames = Arrays.asList(roleListOfUserFromCache);
                 if (roleNames.size() > 0) {
@@ -11172,10 +11175,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // If unique id feature is not enabled, we have to call the legacy methods.
         if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-            if (user == null) {
+            if (StringUtils.isEmpty(userName)) {
                 return Arrays.asList(realmConfig.getEveryOneRoleName());
             }
-            return Arrays.asList(doGetRoleListOfUser(user.getUsername(), "*"));
+            return Arrays.asList(doGetRoleListOfUser(userName, "*"));
         } else {
             return doGetRoleListOfUserWithID(userID, "*");
         }
@@ -12098,20 +12101,31 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return ((AbstractUserStoreManager) userStore.getUserStoreManager())
                     .getUserNameFromUserID(userStore.getDomainFreeUserId());
         }
+
+        if (isUniqueUserIdEnabledInUserStore(userStore)) {
+            return getUserNameFromCurrentUserStore(userID, userStore);
+        } else {
+            return userUniqueIDManger.getUser(userID, this).getDomainQualifiedUsername();
+        }
+    }
+
+    /**
+     * Get the user name of the given user from a unique user id natively supported user store.
+     *
+     * @param userID userID of the user.
+     * @param userStore user store of the user.
+     * @return user name.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    private String getUserNameFromCurrentUserStore(String userID, UserStore userStore) throws UserStoreException {
+
         String userName = getFromUserNameCache(userID);
         if (StringUtils.isEmpty(userName)) {
-            if (isUniqueUserIdEnabledInUserStore(userStore)) {
-                userName = doGetUserNameFromUserIDWithID(userID);
-                addToUserNameCache(userID, userName, userStore);
-                addToUserIDCache(userID, userName, userStore);
-                return UserCoreUtil.addDomainToName(userName, userStore.getDomainName());
-            }
-            userName = userUniqueIDManger.getUser(userID, this).getDomainQualifiedUsername();
+            userName = doGetUserNameFromUserIDWithID(userID);
             addToUserNameCache(userID, userName, userStore);
             addToUserIDCache(userID, userName, userStore);
-            return userName;
         }
-        return userName;
+        return UserCoreUtil.addDomainToName(userName, userStore.getDomainName());
     }
 
     private String getFromUserNameCache(String userID) {
@@ -12147,6 +12161,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .clearCacheEntry(UserCoreUtil.addDomainToName(userName, userStore.getDomainName()),
                         RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME, tenantId);
         UserIdResolverCache.getInstance().clearCacheEntry(userID, RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME, tenantId);
+        UserIdResolverCache.getInstance()
+                .clearCacheEntry(UserCoreUtil.addDomainToName(userName, userStore.getDomainName()),
+                        RESOLVE_USER_UNIQUE_ID_FROM_USER_NAME_CACHE_NAME, SUPER_TENANT_ID);
+        UserIdResolverCache.getInstance()
+                .clearCacheEntry(userID, RESOLVE_USER_NAME_FROM_UNIQUE_USER_ID_CACHE_NAME, SUPER_TENANT_ID);
     }
 
     /**
