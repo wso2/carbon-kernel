@@ -12109,6 +12109,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
+    /**
+     * Get the user name of the given user from a unique user id natively supported user store.
+     *
+     * @param userID userID of the user.
+     * @param userStore user store of the user.
+     * @return user name.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
     private String getUserNameFromCurrentUserStore(String userID, UserStore userStore) throws UserStoreException {
 
         String userName = getFromUserNameCache(userID);
