@@ -204,12 +204,13 @@ public class CustomQueryTest  extends BaseTestCase {
 
         try {
             registry.addComment("/test/comments/r1x", new Comment("commentXX1 on this resource :)"));
-            Thread.sleep(500);
+            Thread.sleep(2000);
             registry.addComment("/test/comments/r1x", new Comment("commentXX2 on this resource :)"));
-            Thread.sleep(500);
+            Thread.sleep(2000);
             registry.addComment("/test/comments/r1x", new Comment("commentXX3 on this resource :)"));
-            Thread.sleep(500);
+            Thread.sleep(2000);
             registry.addComment("/test/comments/r1x", new Comment("a new test comment"));
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             throw new RegistryException("Error adding comments to resource", e);
         }
@@ -264,12 +265,18 @@ public class CustomQueryTest  extends BaseTestCase {
         Resource r2 = registry.newResource();
         r2.setContent("r2 content");
         registry.put("/test/comments/r2", r2);
-
-        registry.addComment("/test/comments/r2", new Comment("commentXX1 on this resource :)"));
-        registry.addComment("/test/comments/r2", new Comment("commentXX2 on this resource :)"));
-        registry.addComment("/test/comments/r2", new Comment("commentXX3 on this resource :)"));
-        registry.addComment("/test/comments/r2", new Comment("a new test comment"));
-
+        try {
+            registry.addComment("/test/comments/r2", new Comment("commentXX1 on this resource :)"));
+            Thread.sleep(2000);
+            registry.addComment("/test/comments/r2", new Comment("commentXX2 on this resource :)"));
+            Thread.sleep(2000);
+            registry.addComment("/test/comments/r2", new Comment("commentXX3 on this resource :)"));
+            Thread.sleep(2000);
+            registry.addComment("/test/comments/r2", new Comment("a new test comment"));
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RegistryException("Sleep Thread Interrupted", e);
+        }
         comQuery = configSystemRegistry.newResource();
         sql = "SELECT REG_COMMENT_ID FROM REG_COMMENT C, REG_RESOURCE_COMMENT RC " +
                 "WHERE C.REG_COMMENT_TEXT LIKE ? AND C.REG_ID=RC.REG_COMMENT_ID " +
