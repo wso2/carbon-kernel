@@ -140,18 +140,8 @@ public class CryptoUtil {
                     log.debug(String.format("Cipher transformation is enabled. Crypto algorithm: '%s'", algorithm));
                 }
             }
-
-            if (StringUtils.isNotBlank(cipherTransformation) && plainTextBytes.length == 0) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Plaintext is empty. An empty array will be used as the ciphertext bytes.");
-                }
-                encryptedKey = StringUtils.EMPTY.getBytes();
-            } else {
-                encryptedKey = cryptoService
-                        .encrypt(plainTextBytes, algorithm, CRYPTO_API_PROVIDER_BC, returnSelfContainedCipherText);
-            }
-
-
+            encryptedKey = cryptoService
+                    .encrypt(plainTextBytes, algorithm, CRYPTO_API_PROVIDER_BC, returnSelfContainedCipherText);
         } catch (Exception e) {
             throw new CryptoException("An error occurred while encrypting data.", e);
         }
