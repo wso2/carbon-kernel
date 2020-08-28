@@ -727,4 +727,10 @@
 	<LoadAPIContextsInServerStartup>true</LoadAPIContextsInServerStartup>
    </APIManagement>
 
+    <!-- Configure disable/enable shutdown and restart from the Management Console UI -->
+    <disableShutdownRestartFromUI>
+        <disableShutdown>false</disableShutdown>
+        <disableRestart>false</disableRestart>
+    </disableShutdownRestartFromUI>
+
 </Server>
