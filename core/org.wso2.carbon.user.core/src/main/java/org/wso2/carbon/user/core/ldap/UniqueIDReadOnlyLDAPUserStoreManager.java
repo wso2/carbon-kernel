@@ -358,40 +358,18 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         }
         String[] returnedAttributes = new String[]{userPropertyName, serviceNameAttribute};
         try {
-            SearchControls searchCtls = new SearchControls();
-            searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            if (ArrayUtils.isNotEmpty(returnedAttributes)) {
-                searchCtls.setReturningAttributes(returnedAttributes);
-            }
-            String nameInNamespace = null;
-            try {
-                nameInNamespace = dirContext.getNameInNamespace();
-            } catch (NamingException e) {
-                log.error("Error while getting DN of search base", e);
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: "
-                        + nameInNamespace);
-                if (ArrayUtils.isEmpty(returnedAttributes)) {
-                    log.debug("No attributes requested");
-                } else {
-                    for (String attribute : returnedAttributes) {
-                        log.debug("Requesting attribute :" + attribute);
-                    }
-                }
-            }
             String searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
             String[] searchBaseArray = searchBases.split("#");
 
             for (String searchBase : searchBaseArray) {
-                answer = this.searchForUsers(searchFilter, searchBase, searchBases, MAX_ITEM_LIMIT_UNLIMITED,
-                        returnedAttributes);
+                answer = this.searchUsersForASearchBase(searchFilter, returnedAttributes, dirContext,
+                        searchBase, MAX_ITEM_LIMIT_UNLIMITED);
                 if (answer.hasMore()) {
                     break;
                 }
             }
 
-            while (answer.hasMoreElements()) {
+            while (answer != null && answer.hasMoreElements()) {
                 SearchResult sr = (SearchResult) answer.next();
                 Attributes attributes = sr.getAttributes();
                 if (attributes != null) {
@@ -432,7 +410,17 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                     }
                 }
             }
-
+        } catch (PartialResultException e) {
+            // can be due to referrals in AD. so just ignore error
+            String errorMessage =
+                    "Error occurred while getting user list for SearchFilter : " + searchFilter;
+            if (isIgnorePartialResultException()) {
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+            } else {
+                throw new UserStoreException(errorMessage, e);
+            }
         } catch (NamingException e) {
             String errorMessage = "Error occurred while getting user list with SearchFilter: " + searchFilter;
             if (log.isDebugEnabled()) {
@@ -1326,40 +1314,18 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         }
         String[] returnedAttributes = new String[]{userIDProperty, serviceNameAttribute};
         try {
-            SearchControls searchCtls = new SearchControls();
-            searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            if (ArrayUtils.isNotEmpty(returnedAttributes)) {
-                searchCtls.setReturningAttributes(returnedAttributes);
-            }
-            String nameInNamespace = null;
-            try {
-                nameInNamespace = dirContext.getNameInNamespace();
-            } catch (NamingException e) {
-                log.error("Error while getting DN of search base", e);
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: "
-                        + nameInNamespace);
-                if (ArrayUtils.isEmpty(returnedAttributes)) {
-                    log.debug("No attributes requested");
-                } else {
-                    for (String attribute : returnedAttributes) {
-                        log.debug("Requesting attribute :" + attribute);
-                    }
-                }
-            }
             String searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
             String[] searchBaseArray = searchBases.split("#");
 
             for (String searchBase : searchBaseArray) {
-                answer = this.searchForUsers(searchFilter, searchBase, searchBases, MAX_ITEM_LIMIT_UNLIMITED,
-                        returnedAttributes);
+                answer = this.searchUsersForASearchBase(searchFilter, returnedAttributes, dirContext,
+                        searchBase, MAX_ITEM_LIMIT_UNLIMITED);
                 if (answer.hasMore()) {
                     break;
                 }
             }
 
-            while (answer.hasMoreElements()) {
+            while (answer != null && answer.hasMoreElements()) {
                 SearchResult sr = (SearchResult) answer.next();
                 Attributes attributes = sr.getAttributes();
                 if (attributes != null) {
@@ -1439,7 +1405,16 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                     }
                 }
             }
-
+        } catch (PartialResultException e) {
+            // can be due to referrals in AD. so just ignore error
+            String errorMessage = "Error occurred while getting user list from search Filter : " + searchFilter;
+            if (isIgnorePartialResultException()) {
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+            } else {
+                throw new UserStoreException(errorMessage, e);
+            }
         } catch (NamingException e) {
             String errorMessage =
                     "Error occurred while getting user list from property : " + property + " & value : " + value

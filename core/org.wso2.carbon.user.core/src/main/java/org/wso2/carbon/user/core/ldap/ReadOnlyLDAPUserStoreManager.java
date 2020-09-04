@@ -71,6 +71,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+
 import javax.cache.Cache;
 import javax.cache.CacheBuilder;
 import javax.cache.CacheConfiguration;
@@ -651,7 +652,16 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     throw new UserStoreException(errorMessage, e);
                 }
             } else {
-                answer = this.searchForUser(searchFilter, propertyNames, dirContext);
+                String searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+
+                String[] searchBaseAraay = searchBases.split("#");
+                for (String searchBase : searchBaseAraay) {
+                    answer = this.searchUserForASearchBase(searchFilter, propertyNames, dirContext, searchBase);
+                    if (answer.hasMore()) {
+                        break;
+                    }
+                }
+
             }
             while (answer != null && answer.hasMoreElements()) {
                 SearchResult sr = (SearchResult) answer.next();
@@ -723,6 +733,16 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         }
                     }
                 }
+            }
+        } catch (PartialResultException e) {
+            // can be due to referrals in AD. so just ignore error
+            String errorMessage ="Error occurred while search user for filter : " + searchFilter;
+            if (isIgnorePartialResultException()) {
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+            } else {
+                throw new UserStoreException(errorMessage, e);
             }
         } catch (NamingException e) {
             String errorMessage = "Error occurred while getting user property values for user : " + userName;
@@ -935,15 +955,16 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         NamingEnumeration<SearchResult> answer = null;
         List<String> list = new ArrayList<String>();
+        DirContext dirContext = this.connectionSource.getContext();
 
         try {
             // handle multiple search bases
             String[] searchBaseArray = searchBases.split("#");
 
             for (String searchBase : searchBaseArray) {
-                answer = searchForUsers(finalFilter.toString(), searchBase, searchBases, maxItemLimit,
-                        returnedAtts);
-                while (answer.hasMoreElements()) {
+                answer = searchUsersForASearchBase(finalFilter.toString(), returnedAtts, dirContext,
+                        searchBase, maxItemLimit);
+                while (answer != null && answer.hasMoreElements()) {
                     SearchResult sr = (SearchResult) answer.next();
                     if (sr.getAttributes() != null) {
                         log.debug("Result found ..");
@@ -1023,7 +1044,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             }
             throw new UserStoreException(errorMessage, e);
         } finally {
+            // close the naming enumeration and free up resources
             JNDIUtil.closeNamingEnumeration(answer);
+            // close directory context
+            JNDIUtil.closeContext(dirContext);
         }
         return userNames;
     }
@@ -1083,6 +1107,91 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             throw new UserStoreException(errorMessage, e);
         } finally {
             JNDIUtil.closeContext(dirContext);
+        }
+        return answer;
+    }
+
+    /**
+     * This method is to search for users in a given search base for a particular ldap user-store.
+     * When using this method ldap referrals should handle explicitly.
+     *
+     * @param searchFilter       The search filter to be used in the ldap query. This can not be null.
+     * @param returnedAttributes Specifies the attributes that will be returned as part of the search.
+     *                           null indicates that all attributes will be returned.
+     *                           An empty array indicates no attributes are returned.
+     * @param dirContext         The directory context for searching the directory. This can not be null.
+     * @param searchBase         Specifies user search base to search for the user. This can not be null.
+     * @param maxItemLimit       Specifies the max search items to be returned.
+     * @return NamingEnumeration returns an enumerating lists for the search criteria.
+     * @throws NamingException throws NamingException.
+     */
+    protected NamingEnumeration<SearchResult> searchUsersForASearchBase(String searchFilter,
+                                                                        String[] returnedAttributes,
+                                                                        DirContext dirContext, String searchBase,
+                                                                        int maxItemLimit) throws NamingException {
+
+        int givenMax;
+        int searchTime;
+
+        try {
+            givenMax = Integer.parseInt(
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST));
+        } catch (Exception e) {
+            givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
+        }
+
+        try {
+            searchTime = Integer.parseInt(
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
+        } catch (Exception e) {
+            searchTime = UserCoreConstants.MAX_SEARCH_TIME;
+        }
+
+        if (maxItemLimit < 0 || maxItemLimit > givenMax) {
+            maxItemLimit = givenMax;
+        }
+
+        SearchControls searchCtls = new SearchControls();
+        searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        searchCtls.setCountLimit(maxItemLimit);
+        searchCtls.setTimeLimit(searchTime);
+        searchCtls.setReturningAttributes(returnedAttributes);
+
+        if (log.isDebugEnabled()) {
+            try {
+                log.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: " +
+                        dirContext.getNameInNamespace());
+            } catch (NamingException e) {
+                log.debug("Error while getting DN of search base", e);
+            }
+            if (returnedAttributes == null) {
+                log.debug("ReturnedAttributes are null, hence retuning all.");
+            } else if (ArrayUtils.isEmpty(returnedAttributes)) {
+                log.debug("No attributes requested.");
+            } else {
+                for (String attribute : returnedAttributes) {
+                    log.debug("Requesting attribute :" + attribute);
+                }
+            }
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Listing users. SearchBase: " + searchBase + " Constructed-Filter: " + searchFilter);
+            log.debug("Search controls. Max Limit: " + maxItemLimit + " Max Time: " + searchTime);
+        }
+
+        NamingEnumeration<SearchResult> answer;
+
+        try {
+            answer = dirContext.search(escapeDNForSearch(searchBase), searchFilter, searchCtls);
+        } catch (NamingException e) {
+            String errorMessage =
+                    "Error occurred while getting user list for filter : " + searchFilter + "max limit : " +
+                            maxItemLimit;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw e;
         }
         return answer;
     }
@@ -1374,6 +1483,60 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         return answer;
     }
 
+    /**
+     * This method is to search user for a given search base in a particular ldap user-store.
+     * When using this method ldap referrals should handle explicitly.
+     *
+     * @param searchFilter       The search filter to be used in the ldap query. This can not be null.
+     * @param returnedAttributes Specifies the attributes that will be returned as part of the search.
+     *                           null indicates that all attributes will be returned.
+     *                           An empty array indicates no attributes are returned.
+     * @param dirContext         The directory context for searching the directory. This can not be null.
+     * @param searchBase         Specified user search base to search for the user. This can not be null.
+     * @return NamingEnumeration returns an enumerating lists for the search criteria.
+     * @throws NamingException throws NamingException.
+     */
+    protected NamingEnumeration<SearchResult> searchUserForASearchBase(String searchFilter,
+                                                                       String[] returnedAttributes,
+                                                                       DirContext dirContext, String searchBase)
+            throws NamingException {
+
+        SearchControls searchCtls = new SearchControls();
+        searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        searchCtls.setReturningAttributes(returnedAttributes);
+
+        if (log.isDebugEnabled()) {
+            try {
+                log.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: " +
+                        dirContext.getNameInNamespace());
+            } catch (NamingException e) {
+                log.debug("Error while getting DN of search base", e);
+            }
+            if (returnedAttributes == null) {
+                log.debug("ReturnedAttributes are null, hence retuning all.");
+            } else if (ArrayUtils.isEmpty(returnedAttributes)) {
+                log.debug("No attributes requested.");
+            } else {
+                for (String attribute : returnedAttributes) {
+                    log.debug("Requesting attribute :" + attribute);
+                }
+            }
+        }
+
+        NamingEnumeration<SearchResult> answer;
+
+        try {
+            answer = dirContext.search(escapeDNForSearch(searchBase), searchFilter, searchCtls);
+        } catch (NamingException e) {
+            String errorMessage = "Error occurred while search user for filter : " + searchFilter + " in the search " +
+                    "base: " + searchBase;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw e;
+        }
+        return answer;
+    }
 
     /**
      *
@@ -1462,7 +1625,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             String domain =
                     this.getRealmConfiguration()
                             .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
-
+            //DirContext.search never returns null.
             while (answer.hasMoreElements()) {
                 SearchResult sr = (SearchResult) answer.next();
                 if (sr.getAttributes() != null) {
@@ -2412,6 +2575,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             dirContext = connectionSource.getContext();
             answer = dirContext.search(escapeDNForSearch(searchBase), searchFilter, searchCtls);
             int count = 0;
+            //DirContext.search never returns null.
             while (answer.hasMore()) {
                 if (count > 0) {
                     log.error("More than element user exist with name");
@@ -2638,40 +2802,19 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         }
         String[] returnedAttributes = new String[]{userPropertyName, serviceNameAttribute};
         try {
-            SearchControls searchCtls = new SearchControls();
-            searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            if (ArrayUtils.isNotEmpty(returnedAttributes)) {
-                searchCtls.setReturningAttributes(returnedAttributes);
-            }
-            String nameInNamespace = null;
-            try {
-                nameInNamespace = dirContext.getNameInNamespace();
-            } catch (NamingException e) {
-                log.error("Error while getting DN of search base", e);
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: " +
-                        nameInNamespace);
-                if (ArrayUtils.isEmpty(returnedAttributes)) {
-                    log.debug("No attributes requested");
-                } else {
-                    for (String attribute : returnedAttributes) {
-                        log.debug("Requesting attribute :" + attribute);
-                    }
-                }
-            }
+
             String searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
             String[] searchBaseArray = searchBases.split("#");
 
             for (String searchBase : searchBaseArray) {
-                answer = this.searchForUsers(searchFilter, searchBase, searchBases, MAX_ITEM_LIMIT_UNLIMITED,
-                        returnedAttributes);
+                answer = this.searchUsersForASearchBase(searchFilter, returnedAttributes, dirContext, searchBase,
+                        MAX_ITEM_LIMIT_UNLIMITED);
                 if (answer.hasMore()) {
                     break;
                 }
             }
 
-            while (answer.hasMoreElements()) {
+            while (answer != null && answer.hasMoreElements()) {
                 SearchResult sr = (SearchResult) answer.next();
                 Attributes attributes = sr.getAttributes();
                 if (attributes != null) {
@@ -2712,7 +2855,16 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     }
                 }
             }
-
+        } catch (PartialResultException e) {
+            // can be due to referrals in AD. so just ignore error
+            String errorMessage ="Error occurred while getting user list from properties for filter : " + searchFilter;
+            if (isIgnorePartialResultException()) {
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+            } else {
+                throw new UserStoreException(errorMessage, e);
+            }
         } catch (NamingException e) {
             String errorMessage =
                     "Error occurred while getting user list from property : " + property + " & value : " + value +
@@ -2933,6 +3085,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 do {
                     List<String> tempUserList = new ArrayList<>();
                     answer = ldapContext.search(escapeDNForSearch(searchBase), searchFilter, searchControls);
+                    //DirContext.search never returns null
                     if (answer.hasMore()) {
                         tempUserList = getUserListFromSearch(isGroupFiltering, returnedAttributes, answer,
                                 isSingleAttributeFilterOperation(expressionConditions));
