@@ -60,8 +60,6 @@
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.i18n:${carbon.kernel.version}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.server.admin.ui:${carbon.kernel.version}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.server.admin.stub:${carbon.kernel.version}</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.feature.mgt.ui:${carbon.kernel.version}</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.feature.mgt.stub:${carbon.kernel.version}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.roles.mgt.ui:${carbon.kernel.version}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.roles.mgt.stub:${carbon.kernel.version}</bundleDef>
                                 <bundleDef>org.ajaxtags.wso2:ajaxtags:${version.sourceforge.ajaxtags}</bundleDef>
