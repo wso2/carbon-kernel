@@ -59,9 +59,6 @@
                                 </bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.registry.server:${carbon.kernel.version}
                                 </bundleDef>
-                                <bundleDef>
-                                    org.wso2.carbon:org.wso2.carbon.feature.mgt.services:${carbon.kernel.version}
-                                </bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.cluster.mgt.core:${carbon.kernel.version}
                                 </bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.roles.mgt:${carbon.kernel.version}
