@@ -10420,7 +10420,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // If domain name is provided, directly authenticate using the corresponding user store.
         if (domainProvided) {
-            String providedDomainName = this.getUserStore(preferredUserNameValue).getDomainName();
+            String providedDomainName = UserCoreUtil.extractDomainFromName(preferredUserNameValue);
             // Check whether provided domain is in the preference list.
             if (!userStorePreferenceOrder.contains(providedDomainName)) {
                 if (log.isDebugEnabled()) {
