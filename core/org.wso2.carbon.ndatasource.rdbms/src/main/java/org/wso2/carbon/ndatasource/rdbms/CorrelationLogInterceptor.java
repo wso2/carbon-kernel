@@ -25,6 +25,7 @@ import org.wso2.carbon.utils.xml.StringUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -169,9 +170,11 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
 
                     return result;
                 }
-            } catch (Exception e) {
-                log.error("Unable get query run-time", e);
-                return null;
+            } catch (InvocationTargetException e) {
+                if (e.getCause() != null) {
+                    throw e.getCause();
+                }
+                throw e;
             }
         }
 
