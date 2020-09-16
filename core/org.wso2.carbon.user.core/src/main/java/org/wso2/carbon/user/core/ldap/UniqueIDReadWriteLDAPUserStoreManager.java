@@ -65,6 +65,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
@@ -263,6 +264,11 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
         String userID = getUniqueUserID();
         persistUser(userID, userName, credential, roleList, claims);
+
+        if (isUserIdGeneratedByUserStore(userName, claims)) {
+            //If the userId attribute is immutable then we need to retrieve the userId from the user store.
+            return getUser(null, userName);
+        }
         return getUser(userID, userName);
 
     }
@@ -355,6 +361,9 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
          */
         boolean isSNExists = false;
         boolean isCNExists = false;
+        String immutableAttributesProperty = Optional.ofNullable(realmConfig
+                .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse(StringUtils.EMPTY);
+        String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
 
         if (claims != null) {
             for (Map.Entry<String, String> entry : claims.entrySet()) {
@@ -387,6 +396,15 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                     isSNExists = true;
                 }
 
+                //Skip in case of immutable attribute passing via the claim map
+                if (StringUtils.isNotBlank(attributeName)  &&
+                        ArrayUtils.contains(immutableAttributes, attributeName)) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Skipped Immutable attribute: " + attributeName);
+                    }
+                    continue;
+                }
+
                 if (log.isDebugEnabled()) {
                     log.debug("Mapped attribute: " + attributeName);
                     log.debug("Attribute value: " + claims.get(entry.getKey()));
@@ -398,9 +416,14 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         }
         // Add userID attribute.
         String userIDAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
-        claim = new BasicAttribute(userIDAttribute);
-        claim.add(userID);
-        basicAttributes.put(claim);
+        //Skipping if the userId attribute is a immutable attribute
+        if (StringUtils.isNotBlank(userIDAttribute) &&
+                !ArrayUtils.contains(immutableAttributes, userIDAttribute)) {
+            claim = new BasicAttribute(userIDAttribute);
+            claim.add(userID);
+            basicAttributes.put(claim);
+        }
+
         if (log.isDebugEnabled()) {
             log.debug("Mapped attribute: " + userIDAttribute);
             log.debug("Attribute value: " + userID);
@@ -2298,6 +2321,18 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
         Property property = new Property(name, value, displayName + "#" + description, null);
         UNIQUE_ID_RW_LDAP_UM_ADVANCED_PROPERTIES.add(property);
+    }
+
+    @Override
+    protected boolean isUserIdGeneratedByUserStore(String userID, Map<String, String> userAttributes) {
+
+        String immutableAttributesProperty = Optional.ofNullable(realmConfig
+                .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse("");
+
+        String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
+        String userIdProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
+
+        return ArrayUtils.contains(immutableAttributes, userIdProperty);
     }
 
 }
