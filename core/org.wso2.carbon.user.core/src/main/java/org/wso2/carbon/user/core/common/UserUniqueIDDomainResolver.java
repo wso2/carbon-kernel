@@ -197,6 +197,7 @@ public class UserUniqueIDDomainResolver {
                     preparedStatement.setInt(3, tenantId);
                     preparedStatement.setString(4, userId);
                     preparedStatement.execute();
+                    commitTransaction(dbConnection);
                 }
             } else {
                 if (log.isDebugEnabled()) {
@@ -209,6 +210,7 @@ public class UserUniqueIDDomainResolver {
                     preparedStatement.setInt(3, tenantId);
                     preparedStatement.setInt(4, tenantId);
                     preparedStatement.execute();
+                    commitTransaction(dbConnection);
                 }
             }
         } catch (SQLException ex) {
@@ -232,5 +234,21 @@ public class UserUniqueIDDomainResolver {
             throw new UserStoreException("Datasource is null. Cannot create connection.");
         }
         return dataSource.getConnection();
+    }
+
+    /**
+     * Commit the transaction.
+     *
+     * @param dbConnection database connection.
+     */
+    private void commitTransaction(Connection dbConnection) {
+
+        try {
+            if (dbConnection != null) {
+                dbConnection.commit();
+            }
+        } catch (SQLException e) {
+            log.error("An error occurred while commit transactions. ", e);
+        }
     }
 }
