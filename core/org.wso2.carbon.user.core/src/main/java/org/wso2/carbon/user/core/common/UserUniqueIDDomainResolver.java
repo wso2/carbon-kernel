@@ -187,31 +187,36 @@ public class UserUniqueIDDomainResolver {
             // Check whether the domain already exists in the DB against this user id. If so, we have to
             // update the record.
             // Do it in the same connection.
-            if (isDomainExistsForUserId(userId, dbConnection)) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Domain name available for the provided user id: " + userId + " Hence updating it.");
+            try {
+                if (isDomainExistsForUserId(userId, dbConnection)) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Domain name available for the provided user id: " + userId + " Hence updating it.");
+                    }
+                    try (PreparedStatement preparedStatement = dbConnection.prepareStatement(UPDATE_DOMAIN_NAME)) {
+                        preparedStatement.setString(1, userDomain);
+                        preparedStatement.setInt(2, tenantId);
+                        preparedStatement.setInt(3, tenantId);
+                        preparedStatement.setString(4, userId);
+                        preparedStatement.execute();
+                        commitTransaction(dbConnection);
+                    }
+                } else {
+                    if (log.isDebugEnabled()) {
+                        log.debug("No domain name found for the give user id: " + userId
+                                + " Hence adding it as a new value.");
+                    }
+                    try (PreparedStatement preparedStatement = dbConnection.prepareStatement(ADD_DOMAIN_NAME)) {
+                        preparedStatement.setString(1, userId);
+                        preparedStatement.setString(2, userDomain);
+                        preparedStatement.setInt(3, tenantId);
+                        preparedStatement.setInt(4, tenantId);
+                        preparedStatement.execute();
+                        commitTransaction(dbConnection);
+                    }
                 }
-                try (PreparedStatement preparedStatement = dbConnection.prepareStatement(UPDATE_DOMAIN_NAME)) {
-                    preparedStatement.setString(1, userDomain);
-                    preparedStatement.setInt(2, tenantId);
-                    preparedStatement.setInt(3, tenantId);
-                    preparedStatement.setString(4, userId);
-                    preparedStatement.execute();
-                    commitTransaction(dbConnection);
-                }
-            } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("No domain name found for the give user id: " + userId
-                            + " Hence adding it as a new value.");
-                }
-                try (PreparedStatement preparedStatement = dbConnection.prepareStatement(ADD_DOMAIN_NAME)) {
-                    preparedStatement.setString(1, userId);
-                    preparedStatement.setString(2, userDomain);
-                    preparedStatement.setInt(3, tenantId);
-                    preparedStatement.setInt(4, tenantId);
-                    preparedStatement.execute();
-                    commitTransaction(dbConnection);
-                }
+            } catch (SQLException e) {
+                rollbackTransaction(dbConnection);
+                throw new UserStoreException("Error occurred while persisting domain against the user id.", e);
             }
         } catch (SQLException ex) {
             throw new UserStoreException("Error occurred while persisting domain against the user id.", ex);
@@ -237,18 +242,35 @@ public class UserUniqueIDDomainResolver {
     }
 
     /**
-     * Commit the transaction.
+     * Commit a transaction.
      *
      * @param dbConnection database connection.
      */
     private void commitTransaction(Connection dbConnection) {
 
         try {
-            if (dbConnection != null) {
+            if (dbConnection != null && !dbConnection.getAutoCommit()) {
                 dbConnection.commit();
             }
         } catch (SQLException e) {
-            log.error("An error occurred while commit transactions. ", e);
+            log.error("An error occurred while transaction commit. ", e);
+            rollbackTransaction(dbConnection);
+        }
+    }
+
+    /**
+     * Rollback a transaction.
+     *
+     * @param dbConnection database connection.
+     */
+    private void rollbackTransaction(Connection dbConnection) {
+
+        try {
+            if (dbConnection != null && !dbConnection.getAutoCommit()) {
+                dbConnection.rollback();
+            }
+        } catch (SQLException e) {
+            log.error("An error occurred while transaction rollback.", e);
         }
     }
 }
