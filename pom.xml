@@ -484,14 +484,14 @@
                 <version>${opencsv.wso2.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.poi.wso2</groupId>
+                <groupId>org.wso2.orbit.org.apache.poi</groupId>
                 <artifactId>poi-scratchpad</artifactId>
-                <version>${apache.poi.wso2.version}</version>
+                <version>${orbit.version.poi}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.poi.wso2</groupId>
+                <groupId>org.wso2.orbit.org.apache.poi</groupId>
                 <artifactId>poi-ooxml</artifactId>
-                <version>${apache.poi.wso2.version}</version>
+                <version>${orbit.version.poi}</version>
             </dependency>
 
             <dependency>
@@ -1970,7 +1970,7 @@
         <cxf-bundle.wso2.version>2.7.16.wso2v1</cxf-bundle.wso2.version>
         <org.apache.cxf.version>3.3.7</org.apache.cxf.version>
         <opencsv.wso2.version>1.8.wso2v1</opencsv.wso2.version>
-        <apache.poi.wso2.version>3.9.0.wso2v1</apache.poi.wso2.version>
+        <orbit.version.poi>3.17.0.wso2v1</orbit.version.poi>
         <javax.activation.import.pkg.version>[0.0.0, 1.0.0)</javax.activation.import.pkg.version>
         <com.yubico.version>0.14.0</com.yubico.version>
         <encoder.wso2.version>1.2.0.wso2v1</encoder.wso2.version>
