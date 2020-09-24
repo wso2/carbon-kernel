@@ -1283,7 +1283,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
         String userIDProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
 
-        if (OBJECT_GUID.equalsIgnoreCase(property)) {
+        if (OBJECT_GUID.equalsIgnoreCase(property) && (isGUIDValue(value) || StringUtils.equals(value, "*"))) {
             String transformObjectGuidToUuidProperty = realmConfig.getUserStoreProperty(TRANSFORM_OBJECTGUID_TO_UUID);
 
             boolean transformObjectGuidToUuid = StringUtils.isEmpty(transformObjectGuidToUuidProperty) || Boolean
