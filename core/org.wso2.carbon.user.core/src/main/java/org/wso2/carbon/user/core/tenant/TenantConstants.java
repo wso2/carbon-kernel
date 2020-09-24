@@ -60,6 +60,7 @@ public class TenantConstants {
     public static final String DEACTIVATE_BY_UUID_SQL = "UPDATE UM_TENANT SET UM_ACTIVE='0' WHERE UM_TENANT_UUID=?";
     public static final String IS_TENANT_ACTIVE_SQL = "SELECT UM_ACTIVE FROM UM_TENANT WHERE UM_ID=?";
     public static final String DELETE_TENANT_SQL = "DELETE FROM UM_TENANT WHERE UM_ID=?";
+    public static final String DELETE_TENANT_BY_UUID_SQL = "DELETE FROM UM_TENANT WHERE UM_TENANT_UUID=?";
     public static final String GET_MATCHING_TENANT_IDS_SQL = "SELECT UM_ID, UM_DOMAIN_NAME, UM_EMAIL," +
             " UM_CREATED_DATE, UM_ACTIVE FROM UM_TENANT WHERE UM_DOMAIN_NAME like ?";
 
