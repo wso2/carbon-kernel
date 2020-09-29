@@ -8506,8 +8506,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         User user = null;
 
         try {
-            if (Boolean.parseBoolean(this.getRealmConfiguration().getUserStoreProperty(
-                    UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED))) {
+            if (!isRoleAndGroupSeparationEnabled() && Boolean.parseBoolean(this.getRealmConfiguration()
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED))) {
                 roleExist = doCheckExistingRole(adminRoleName);
             }
         } catch (Exception e) {
@@ -8601,7 +8601,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         if (!roleExist) {
             if (addAdmin) {
-                if (!isReadOnly() && writeGroupsEnabled) {
+                if (!isRoleAndGroupSeparationEnabled() && !isReadOnly() && writeGroupsEnabled) {
                     try {
                         if (isUniqueUserIdEnabled()) {
                             this.doAddRoleWithID(adminRoleName, new String[] { adminUserID }, false);
@@ -8624,7 +8624,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         }
                     }
                 } else {
-                    // creates internal role
+                    // Creates internal role.
                     try {
                         if (isUniqueUserIdEnabled()) {
                             hybridRoleManager.addHybridRole(adminRoleName, new String[] { adminUserName });
@@ -8632,6 +8632,27 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             hybridRoleManager.addHybridRole(adminRoleName, new String[] { adminUserName });
                         }
                         isInternalRole = true;
+
+                        if (isRoleAndGroupSeparationEnabled()) {
+                            // Create a new admin group with the same role name if not exist.
+                            boolean groupExist = false;
+                            if (Boolean.parseBoolean(this.getRealmConfiguration()
+                                    .getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED))) {
+                                groupExist = doCheckExistingRole(adminRoleName);
+                            }
+                            if (!groupExist && !isReadOnly() && writeGroupsEnabled) {
+                                if (isUniqueUserIdEnabled()) {
+                                    this.doAddRoleWithID(adminRoleName, new String[] { adminUserID }, false);
+                                } else {
+                                    this.doAddRole(adminRoleName, new String[] { adminUserName }, false);
+                                }
+                                groupExist = true;
+                            }
+                            // Assign the admin group to the admin role.
+                            if (groupExist) {
+                                this.updateGroupListOfHybridRole(adminRoleName, null, new String[] { adminRoleName });
+                            }
+                        }
                     } catch (Exception e) {
                         String message = "Admin role has not been created. " +
                                 "Error occurs while creating Admin role in primary user store.";
@@ -8663,7 +8684,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isInternalRole) {
 
             if (isUniqueUserIdEnabled()) {
-                updateHybridRoleListOfUserInternal(initialSetup, adminRoleName, adminUserID);
+                updateHybridRoleListOfUserInternal(initialSetup, adminRoleName, adminUserName);
             } else {
                 updateHybridRoleListOfUserInternal(initialSetup, adminRoleName, adminUserName);
             }

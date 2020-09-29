@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.user.core.hybrid;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -632,6 +633,9 @@ public class HybridRoleManager {
     public Map<String, List<String>> getHybridRoleListOfUsers(List<String> userNames, String domainName) throws
             UserStoreException {
 
+        if (CollectionUtils.isEmpty(userNames)) {
+            return new HashMap<>();
+        }
         Map<String, List<String>> hybridRoleListOfUsers = new HashMap<>();
         String sqlStmt = realmConfig.getRealmProperty(HybridJDBCConstants.GET_ROLE_LIST_OF_USERS);
         StringBuilder usernameParameter = new StringBuilder();
@@ -722,6 +726,9 @@ public class HybridRoleManager {
     public Map<String, List<String>> getHybridRoleListOfGroups(List<String> groupNames, String domainName)
             throws UserStoreException {
 
+        if (CollectionUtils.isEmpty(groupNames)) {
+            return new HashMap<>();
+        }
         Map<String, List<String>> hybridRoleListOfGroups = new HashMap<>();
         String sqlStmt = realmConfig.getRealmProperty(HybridJDBCConstants.GET_ROLE_LIST_OF_GROUPS);
         StringBuilder groupNameParameter = new StringBuilder();
