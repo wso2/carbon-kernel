@@ -1387,6 +1387,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                           Map<String, String> claims, String profileName, boolean requirePasswordChange)
             throws UserStoreException {
 
+        // Assign username to the username claim.
+        claims = addUserNameAttribute(userName, claims);
+
         // persist the user info. in the database.
         persistUser(userName, credential, roleList, claims, profileName, requirePasswordChange);
 
