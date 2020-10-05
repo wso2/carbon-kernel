@@ -247,11 +247,14 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @param profileName                      The profile name, can be null. If null the default profile is considered.
      * @throws UserStoreException Thrown if an error occurred in userstore operation.
      */
-    void setUserClaimValuesWithID(String userID, Map<String, List<String>> oldClaimMap,
+    default void setUserClaimValuesWithID(String userID, Map<String, List<String>> oldClaimMap,
                                   Map<String, List<String>> multiValuedClaimsToAdd,
                                   Map<String, List<String>> multiValuedClaimsToDelete,
                                   Map<String, List<String>> claimsExcludingMultiValuedClaims,
-                                  String profileName) throws UserStoreException;
+                                  String profileName) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
 
     /**
      * Retrieves a list of users for given user claim value.

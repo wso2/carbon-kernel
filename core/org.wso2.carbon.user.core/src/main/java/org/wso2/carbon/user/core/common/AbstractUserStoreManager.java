@@ -735,7 +735,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                         String profileName)
             throws UserStoreException, NotImplementedException {
 
-        if (profileName == null) {
+        if (StringUtils.isBlank(profileName)) {
             profileName = UserCoreConstants.DEFAULT_PROFILE;
         }
 
@@ -792,7 +792,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throws UserStoreException {
 
         Map<String, List<String>> userStoreAttributeValueMap = new HashMap<>();
-
         try {
             for (Map.Entry<String, List<String>> claimEntry : claims.entrySet()) {
                 String claimURI = claimEntry.getKey();
@@ -801,11 +800,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             String errorMessage = "Error occurred while getting claim attribute for user : " + userIdentifier;
-
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
-
             throw new UserStoreException(errorMessage, e);
         }
         return userStoreAttributeValueMap;
@@ -12905,8 +12902,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         invokeDoPreSetUserClaimsWithIDListeners(userID, claims, profileName);
         // #################### </Pre Listeners> #####################################################
 
-        // If user store is readonly this method should not get invoked with non empty claim set.
-
+        // If userstore is readonly this method should not get invoked with non empty claim set.
         if (isReadOnly() && !claims.isEmpty()) {
             handleSetUserClaimValuesFailureWithID(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
                     ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), userID, claims, profileName);

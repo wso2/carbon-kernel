@@ -954,14 +954,11 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 returnedUserEntry = returnedResultList.next().getName();
                 handleLdapUserNameAttributeChanges(claimAttributesToReplace, subDirContext, returnedUserEntry);
             }
-
         } catch (NamingException e) {
             String errorMessage = "Results could not be retrieved from the directory context for user : " + userName;
-
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
-
             throw new UserStoreException(errorMessage, e);
         } finally {
             JNDIUtil.closeNamingEnumeration(returnedResultList);
