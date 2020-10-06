@@ -1470,8 +1470,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     private String resolveGroupDN(String searchFilter, String role, LDAPRoleContext context) throws UserStoreException {
 
         String roleSearchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(role));
-        String membershipAttribute = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
-        String[] returningAttributes = new String[]{membershipAttribute};
+        String[] returningAttributes = new String[]{};
         String searchBase = context.getSearchBase();
         DirContext mainDirContext = this.connectionSource.getContext();
 
