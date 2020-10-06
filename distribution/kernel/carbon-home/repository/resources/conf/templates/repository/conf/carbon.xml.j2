@@ -810,4 +810,13 @@
       {% if sts.time_to_live is defined %}
       <STSTimeToLive>{{sts.time_to_live}}</STSTimeToLive>
       {% endif %}
+
+
+    <!-- Configure disable/enable shutdown and restart from the Management Console UI -->
+
+     <disableShutdownRestartFromUI>
+        <disableShutdown>{{server.disable_shutdown_from_ui | default('false')}}</disableShutdown>
+        <disableRestart>{{server.disable_restart_from_ui | default('false')}}</disableRestart>
+     </disableShutdownRestartFromUI>
+
 </Server>
