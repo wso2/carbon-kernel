@@ -615,10 +615,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                              Map<String, List<String>> claimAttributesToReplace, String profileName)
             throws UserStoreException, NotImplementedException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("doSetUserAttributes operation is not implemented in: " + this.getClass());
-        }
-
         throw new NotImplementedException("doSetUserAttributes operation is not implemented in: " + this.getClass());
     }
 
@@ -658,9 +654,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                              Map<String, List<String>> claimAttributesToReplace, String profileName)
             throws UserStoreException, NotImplementedException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("doSetUserAttributesWithID operation is not implemented in: " + this.getClass());
-        }
         throw new NotImplementedException("doSetUserAttributesWithID operation is not implemented in: "
                 + this.getClass());
     }
@@ -15442,7 +15435,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             e.getMessage()), userID, claims, profileName);
             throw e;
         }
-
     }
 
     private void invokeDoPostSetUserClaimsWithIDListeners(String userID, Map<String, String> claims, String profileName)

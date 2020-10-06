@@ -1832,7 +1832,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                                            Map<String, List<String>> claimsExcludingMultiValuedClaims,
                                            String profileName) throws NotImplementedException {
 
-        throw new NotImplementedException("This functionality is not yet implemented for JDBC userstores.");
+        throw new NotImplementedException("This functionality is not yet implemented for UniqueID JDBC userstores.");
     }
 
     @Override
