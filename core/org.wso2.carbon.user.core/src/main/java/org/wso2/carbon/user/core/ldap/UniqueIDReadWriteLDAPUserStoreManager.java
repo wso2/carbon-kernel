@@ -1481,7 +1481,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                         if (isExistingRole(deletedRole)) {
                             roleSearchFilter = "(&" + searchFilter.replace("?",
                                     escapeSpecialCharactersForFilter(deletedRole)) + "(" + membershipAttribute + "=" +
-                                    userNameDN + "))";
+                                    escapeSpecialCharactersForFilter(userNameDN) + "))";
                             if (log.isDebugEnabled()) {
                                 log.debug("Searching in the group where the user is assigned with search filter: " +
                                         roleSearchFilter);
@@ -1533,7 +1533,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                         if (isExistingRole(newRole)) {
                             roleSearchFilter = "(&" + searchFilter.replace("?",
                                     escapeSpecialCharactersForFilter(newRole)) + "(" + membershipAttribute + "=" +
-                                    userNameDN + "))";
+                                    escapeSpecialCharactersForFilter(userNameDN) + "))";
                             if (log.isDebugEnabled()) {
                                 log.debug("Searching in the group where the user is assigned with search filter: " +
                                         roleSearchFilter);
