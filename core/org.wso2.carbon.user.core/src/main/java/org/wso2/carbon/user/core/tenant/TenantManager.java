@@ -98,4 +98,16 @@ public interface TenantManager extends org.wso2.carbon.user.api.TenantManager {
     default void deleteTenantUMData(int tenantId) throws UserStoreException {
 
     };
+
+    /**
+     * Deletes a tenant from the system.
+     *
+     * @param tenantUniqueID tenant unique identifier.
+     * @throws UserStoreException if there is an error in tenant deletion.
+     */
+    default void deleteTenant(String tenantUniqueID) throws UserStoreException {
+
+        throw new NotImplementedException(
+                "deleteTenant operation is not implemented in: " + this.getClass());
+    }
 }

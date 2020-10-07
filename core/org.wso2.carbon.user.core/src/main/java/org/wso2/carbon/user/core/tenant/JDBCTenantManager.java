@@ -872,6 +872,35 @@ public class JDBCTenantManager implements TenantManager {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public void deleteTenant(String tenantUniqueID) throws UserStoreException {
+
+        Tenant tenant = this.getTenant(tenantUniqueID);
+        // Remove tenant information from the cache.
+        if (tenant != null) {
+            clearTenantCaches(tenant);
+            invalidateCacheManager(tenant.getDomain());
+        }
+        String sqlStmt = TenantConstants.DELETE_TENANT_BY_UUID_SQL;
+        try (Connection dbConnection = getDBConnection()) {
+            try (PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
+                prepStmt.setString(1, tenantUniqueID);
+                prepStmt.executeUpdate();
+                dbConnection.commit();
+            } catch (SQLException e) {
+                DatabaseUtil.rollBack(dbConnection);
+            }
+        } catch (SQLException e) {
+            String msg = "Error in deleting the tenant with tenant unique ID " + tenantUniqueID + ".";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        }
+    }
+
+    /**
      * Delete Tenant
      *
      * @param tenantId                    - Tenant Id
@@ -971,6 +1000,16 @@ public class JDBCTenantManager implements TenantManager {
             tenantIdCache.clearCacheEntry(new TenantDomainKey(tenant.getDomain()));
             tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
         }
+    }
+
+    private void clearTenantCaches(Tenant tenant) throws UserStoreException {
+
+            int tenantId = tenant.getId();
+            String tenantUniqueID = tenant.getTenantUniqueID();
+            tenantUniqueIdCache.clearCacheEntry(new TenantUniqueIDKey(tenantUniqueID));
+            tenantDomainCache.clearCacheEntry(new TenantIdKey(tenantId));
+            tenantIdCache.clearCacheEntry(new TenantDomainKey(tenant.getDomain()));
+            tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
     }
 
     private void invalidateCacheManager(String domain) {
