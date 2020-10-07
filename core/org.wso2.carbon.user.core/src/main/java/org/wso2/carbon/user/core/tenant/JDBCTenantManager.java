@@ -797,8 +797,7 @@ public class JDBCTenantManager implements TenantManager {
     public void activateTenant(String tenantUniqueID) throws UserStoreException {
 
         // Remove tenant information from the cache.
-        Tenant tenant = this.getTenant(tenantUniqueID);
-        clearTenantCaches(tenant);
+        clearTenantCaches(tenantUniqueID);
 
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
@@ -823,9 +822,8 @@ public class JDBCTenantManager implements TenantManager {
 
     public void deactivateTenant(String tenantUniqueID) throws UserStoreException {
 
-        Tenant tenant = this.getTenant(tenantUniqueID);
         // Remove tenant information from the cache.
-        clearTenantCaches(tenant);
+        clearTenantCaches(tenantUniqueID);
 
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
@@ -1010,6 +1008,18 @@ public class JDBCTenantManager implements TenantManager {
         tenantDomainCache.clearCacheEntry(new TenantIdKey(tenantId));
         tenantIdCache.clearCacheEntry(new TenantDomainKey(domain));
         tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
+    }
+
+    private void clearTenantCaches(String tenantUniqueID) throws UserStoreException {
+
+        Tenant tenant = this.getTenant(tenantUniqueID);
+        if (tenant != null) {
+            int tenantId = tenant.getId();
+            tenantUniqueIdCache.clearCacheEntry(new TenantUniqueIDKey(tenantUniqueID));
+            tenantDomainCache.clearCacheEntry(new TenantIdKey(tenantId));
+            tenantIdCache.clearCacheEntry(new TenantDomainKey(tenant.getDomain()));
+            tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
+        }
     }
 
     private void clearTenantCaches(Tenant tenant) throws UserStoreException {
