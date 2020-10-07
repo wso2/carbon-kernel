@@ -306,7 +306,25 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
 
             attributeValueMap.forEach((attributeName, attributeValue) -> {
                 BasicAttribute claim = new BasicAttribute(attributeName);
-                claim.add(attributeValue);
+                if (attributeValue != null) {
+                    String claimSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+                    if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
+                        userAttributeSeparator = claimSeparator;
+                    }
+                    if (attributeValue.contains(userAttributeSeparator)) {
+                        StringTokenizer st = new StringTokenizer(attributeValue, userAttributeSeparator);
+                        while (st.hasMoreElements()) {
+                            String newVal = st.nextElement().toString();
+                            if (newVal != null && newVal.trim().length() > 0) {
+                                claim.add(newVal.trim());
+                            }
+                        }
+                    } else {
+                        claim.add(attributeValue);
+                    }
+                } else {
+                    claim.add(attributeValue);
+                }
                 if (logger.isDebugEnabled()) {
                     logger.debug("AttributeName: " + attributeName + " AttributeValue: " + attributeValue);
                 }
@@ -559,13 +577,28 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
     }
 
     @Override
-    protected void handleLdapUserIdAttributeChanges(Map<String, String> userAttributeValues,
+    public void doSetUserClaimValues(String userName, Map<String, List<String>> multiValuedClaimsToAdd,
+                                     Map<String, List<String>> multiValuedClaimsToDelete,
+                                     Map<String, List<String>> claimsExcludingMultiValuedClaims,
+                                     String profileName) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+    @Override
+    protected void handleLdapUserIdAttributeChanges(Map<String, ? extends Object> userAttributeValues,
                                                     DirContext subDirContext, String returnedUserEntry)
             throws NamingException {
 
         if (userAttributeValues.containsKey(LDAPConstants.CN)) {
-            subDirContext.rename(returnedUserEntry, LDAPConstants.CN_CAPITALIZED + "=" +
-                    escapeSpecialCharactersForDN(userAttributeValues.get(LDAPConstants.CN)));
+            String commonName = StringUtils.EMPTY;
+            if (userAttributeValues.get(LDAPConstants.CN) instanceof String) {
+                commonName = (String) userAttributeValues.get(LDAPConstants.CN);
+            } else if (userAttributeValues.get(LDAPConstants.CN) instanceof List) {
+                commonName = (String) ((List) userAttributeValues.get(LDAPConstants.CN)).get(0);
+            }
+            subDirContext.rename(returnedUserEntry,
+                    LDAPConstants.CN_CAPITALIZED + "=" + escapeSpecialCharactersForDN(commonName));
             userAttributeValues.remove(LDAPConstants.CN);
         }
     }
@@ -909,7 +942,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
     }
 
     @Override
-    protected void processAttributesBeforeUpdateWithID(String userID, Map<String, String> userStorePropertyValues,
+    protected void processAttributesBeforeUpdateWithID(String userID, Map<String, ? extends Object> userStorePropertyValues,
                                                        String profileName) {
 
         String immutableAttributesProperty = Optional.ofNullable(realmConfig

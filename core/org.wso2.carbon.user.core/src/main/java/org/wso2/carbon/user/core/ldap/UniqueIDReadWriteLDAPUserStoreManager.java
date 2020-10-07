@@ -27,6 +27,7 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.Properties;
 import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.core.NotImplementedException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
@@ -850,6 +851,15 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     }
 
     @Override
+    public void doSetUserClaimValues(String userName, Map<String, List<String>> multiValuedClaimsToAdd,
+                                     Map<String, List<String>> multiValuedClaimsToDelete,
+                                     Map<String, List<String>> claimsExcludingMultiValuedClaims,
+                                     String profileName) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+    @Override
     protected void doSetUserAttribute(String userName, String attributeName, String value, String profileName)
             throws UserStoreException {
 
@@ -944,6 +954,15 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     @Override
     protected void doSetUserAttributes(String userName, Map<String, String> processedClaimAttributes,
                                        String profileName) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+    @Override
+    protected void doSetUserAttributes(String userID, Map<String, List<String>> claimAttributesToAdd,
+                                       Map<String, List<String>> claimAttributesToDelete,
+                                       Map<String, List<String>> claimAttributesToReplace, String profileName)
+            throws UserStoreException {
 
         throw new UserStoreException("Operation is not supported.");
     }
@@ -1051,6 +1070,88 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         }
     }
 
+    @Override
+    protected void doSetUserAttributesWithID(String userID, Map<String, List<String>> claimAttributesToAdd,
+                                             Map<String, List<String>> claimAttributesToDelete,
+                                             Map<String, List<String>> claimAttributesToReplace, String profileName)
+            throws NotImplementedException, UserStoreException {
+
+        // Get the LDAP Directory context.
+        DirContext dirContext = this.connectionSource.getContext();
+        DirContext subDirContext = null;
+        // Search the relevant user entry by user name.
+        String userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+        String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_SEARCH_FILTER);
+        String userIDAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
+
+        userSearchFilter = userSearchFilter.replace(LDAPConstants.UID, userIDAttribute);
+
+        if (OBJECT_GUID.equalsIgnoreCase(userIDAttribute) && isBinaryUserAttribute(userIDAttribute)) {
+            userID = transformUUIDToObjectGUID(userID);
+            userSearchFilter = userSearchFilter.replace("?", userID);
+        } else {
+            userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userID));
+        }
+
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        searchControls.setReturningAttributes(null);
+
+        NamingEnumeration<SearchResult> returnedResultList = null;
+        String returnedUserEntry = "";
+
+        try {
+            subDirContext = (DirContext) dirContext.lookup(escapeDNForSearch(userSearchBase));
+            returnedResultList = dirContext.search(escapeDNForSearch(userSearchBase), userSearchFilter, searchControls);
+
+            // Assume only one user is returned from the search.
+            if (returnedResultList.hasMore()) {
+                returnedUserEntry = returnedResultList.next().getName();
+                handleLdapUserIdAttributeChanges(claimAttributesToReplace, subDirContext, returnedUserEntry);
+            }
+
+        } catch (NamingException e) {
+            String errorMessage = "Results could not be retrieved from the directory context for user : " + userID;
+
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            JNDIUtil.closeNamingEnumeration(returnedResultList);
+        }
+
+        try {
+            Attributes attributesToBeAdded = getUpdatedAttributes(userID, claimAttributesToAdd);
+            Attributes attributesToBeDeleted = getUpdatedAttributes(userID, claimAttributesToDelete);
+            Attributes attributesToBeReplaced = getUpdatedAttributes(userID, claimAttributesToReplace);
+
+            try {
+                subDirContext.modifyAttributes(returnedUserEntry, DirContext.ADD_ATTRIBUTE, attributesToBeAdded);
+            } catch (Exception e) {
+                if (!StringUtils.equals("error code 20 - ATTRIBUTE_OR_VALUE_EXISTS",
+                        (e.getMessage()).split(":")[1].trim())) {
+                    handleException(e, userID);
+                }
+            }
+            try {
+                subDirContext.modifyAttributes(returnedUserEntry, DirContext.REMOVE_ATTRIBUTE, attributesToBeDeleted);
+            } catch (Exception e) {
+                if (!StringUtils
+                        .equals("error code 16 - NO_SUCH_ATTRIBUTE", (e.getMessage()).split(":")[1].trim())) {
+                    handleException(e, userID);
+                }
+            }
+            subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE, attributesToBeReplaced);
+        } catch (NamingException e) {
+            handleException(e, userID);
+        } finally {
+            JNDIUtil.closeContext(subDirContext);
+            JNDIUtil.closeContext(dirContext);
+        }
+    }
+
     /**
      * Handle the modification of any changes to the userName attribute.
      *
@@ -1059,12 +1160,24 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
      * @param returnedUserEntry   Returned result from the user search operation.
      * @throws NamingException Thrown if an error is occurred during the userName modification.
      */
-    protected void handleLdapUserIdAttributeChanges(Map<String, String> userAttributeValues,
+    protected void handleLdapUserIdAttributeChanges(Map<String, ? extends Object> userAttributeValues,
                                                     DirContext subDirContext, String returnedUserEntry)
             throws NamingException {
 
-        userAttributeValues.computeIfPresent(LDAPConstants.UID,
-                (attributeName, attributeValue) -> UserCoreUtil.removeDomainFromName(attributeValue));
+        if (userAttributeValues.containsKey(LDAPConstants.UID)) {
+            String attributeValue = StringUtils.EMPTY;
+            if (userAttributeValues.get(LDAPConstants.UID) instanceof String) {
+                Map<String, String> newMap = (Map<String, String>) userAttributeValues;
+                attributeValue = (String) userAttributeValues.get(LDAPConstants.UID);
+                newMap.put(LDAPConstants.UID, UserCoreUtil.removeDomainFromName(attributeValue));
+            } else if (userAttributeValues.get(LDAPConstants.UID) instanceof List) {
+                Map<String, List<String>> newMap = (Map<String, List<String>>) userAttributeValues;
+                List<String> domainNameFreeUserName = new ArrayList<>();
+                attributeValue = (String) ((List) userAttributeValues.get(LDAPConstants.UID)).get(0);
+                domainNameFreeUserName.add(UserCoreUtil.removeDomainFromName(attributeValue));
+                newMap.put(LDAPConstants.UID, domainNameFreeUserName);
+            }
+        }
     }
 
     @Override
@@ -1479,7 +1592,13 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                         String searchFilter = context.getSearchFilter();
 
                         if (isExistingRole(deletedRole)) {
-                            roleSearchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(deletedRole));
+                            roleSearchFilter = "(&" + searchFilter.replace("?",
+                                    escapeSpecialCharactersForFilter(deletedRole)) + "(" + membershipAttribute + "=" +
+                                    userNameDN + "))";
+                            if (log.isDebugEnabled()) {
+                                log.debug("Searching in the group where the user is assigned with search filter: " +
+                                        roleSearchFilter);
+                            }
                             String[] returningAttributes = new String[] { membershipAttribute, roleNameAttribute };
                             String searchBase = context.getSearchBase();
                             NamingEnumeration<SearchResult> groupResults = searchInGroupBase(roleSearchFilter,
@@ -1490,7 +1609,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                                 resultedGroup = groupResults.next();
                                 groupDN = getGroupName(resultedGroup);
                             }
-                            if (resultedGroup != null && isUserInRole(userNameDN, resultedGroup)) {
+                            if (resultedGroup != null) {
                                 this.modifyUserInRole(userNameDN, groupDN, DirContext.REMOVE_ATTRIBUTE, searchBase);
                             } else {
                                 errorMessage =
@@ -1525,20 +1644,21 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                         String searchFilter = context.getSearchFilter();
 
                         if (isExistingRole(newRole)) {
-                            roleSearchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(newRole));
+                            roleSearchFilter = "(&" + searchFilter.replace("?",
+                                    escapeSpecialCharactersForFilter(newRole)) + "(" + membershipAttribute + "=" +
+                                    userNameDN + "))";
+                            if (log.isDebugEnabled()) {
+                                log.debug("Searching in the group where the user is assigned with search filter: " +
+                                        roleSearchFilter);
+                            }
                             String[] returningAttributes = new String[] { membershipAttribute, roleNameAttribute };
                             String searchBase = context.getSearchBase();
 
                             NamingEnumeration<SearchResult> groupResults = searchInGroupBase(roleSearchFilter,
                                     returningAttributes, SearchControls.SUBTREE_SCOPE, mainDirContext, searchBase);
-                            SearchResult resultedGroup = null;
                             // assume only one group with given group name
-                            String groupDN = null;
-                            if (groupResults.hasMore()) {
-                                resultedGroup = groupResults.next();
-                                groupDN = getGroupName(resultedGroup);
-                            }
-                            if (resultedGroup != null && !isUserInRole(userNameDN, resultedGroup)) {
+                            String groupDN = resolveGroupDN(searchFilter, newRole, context);
+                            if (!groupResults.hasMore()) {
                                 modifyUserInRole(userNameDN, groupDN, DirContext.ADD_ATTRIBUTE, searchBase);
                             } else {
                                 errorMessage = "User: " + userName + " already belongs to role: " + groupDN;
@@ -1568,6 +1688,40 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            JNDIUtil.closeContext(mainDirContext);
+        }
+    }
+
+    /**
+     * Resolves groupDN which is used in doUpdateRoleListOfUser method to modify the roles of the user.
+     *
+     * @param searchFilter Search filter.
+     * @param role         Role to be assigned to a user.
+     * @param context      LDAPRoleContext.
+     * @return String groupDN.
+     * @throws UserStoreException Error in resolving groupDN.
+     */
+    private String resolveGroupDN(String searchFilter, String role, LDAPRoleContext context) throws UserStoreException {
+
+        String roleSearchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(role));
+        String[] returningAttributes = new String[]{};
+        String searchBase = context.getSearchBase();
+        DirContext mainDirContext = this.connectionSource.getContext();
+
+        try {
+            NamingEnumeration<SearchResult> groupResults = searchInGroupBase(roleSearchFilter, returningAttributes,
+                    SearchControls.SUBTREE_SCOPE, mainDirContext, searchBase);
+            SearchResult resultedGroup;
+            String groupDN = null;
+            if (groupResults.hasMore()) {
+                resultedGroup = groupResults.next();
+                groupDN = resultedGroup.getName();
+            }
+            return groupDN;
+        } catch (NamingException e) {
+            String errorMessage = "Error while resolving the GroupDN.";
             throw new UserStoreException(errorMessage, e);
         } finally {
             JNDIUtil.closeContext(mainDirContext);
@@ -2323,16 +2477,30 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         UNIQUE_ID_RW_LDAP_UM_ADVANCED_PROPERTIES.add(property);
     }
 
-    @Override
-    protected boolean isUserIdGeneratedByUserStore(String userID, Map<String, String> userAttributes) {
+    private Attributes getUpdatedAttributes(String userID, Map<String, List<String>> processedClaimAttributes) {
 
-        String immutableAttributesProperty = Optional.ofNullable(realmConfig
-                .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse("");
-
-        String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
-        String userIdProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
-
-        return ArrayUtils.contains(immutableAttributes, userIdProperty);
+        if (processedClaimAttributes.containsKey(realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE))) {
+            removeFromUserCache(userID);
+        }
+        Attributes updatedAttributes = new BasicAttributes(true);
+        processedClaimAttributes.entrySet().forEach(claimEntry -> {
+            Attribute currentUpdatedAttribute = new BasicAttribute(claimEntry.getKey());
+            // Skipping profile configuration attribute.
+            if (UserCoreConstants.PROFILE_CONFIGURATION.equals(claimEntry.getKey())) {
+                return;
+            }
+            // If updated attribute value is null, remove its values.
+            if (EMPTY_ATTRIBUTE_STRING.equals(claimEntry.getValue().get(0))) {
+                currentUpdatedAttribute.clear();
+            } else {
+                for (String claimValue : claimEntry.getValue()) {
+                    if (claimValue != null && claimValue.trim().length() > 0) {
+                        currentUpdatedAttribute.add(claimValue);
+                    }
+                }
+            }
+            updatedAttributes.put(currentUpdatedAttribute);
+        });
+        return updatedAttributes;
     }
-
 }

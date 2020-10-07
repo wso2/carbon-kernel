@@ -17,6 +17,7 @@
  -->
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
+<%@ page import="org.wso2.carbon.base.ServerConfiguration" %>
 <jsp:include page="../dialog/display_messages.jsp"/>
 
 <script type="text/javascript" src="js/serveradmin.js"></script>
@@ -35,11 +36,26 @@
     <div id="workArea">
         <div id="output" style="display:none;"></div>
 
+        <%
+            ServerConfiguration serverConfig = ServerConfiguration.getInstance();
+            String disableShutdown = serverConfig.getFirstProperty("disableShutdownRestartFromUI.disableShutdown");
+            String disableRestart = serverConfig.getFirstProperty("disableShutdownRestartFromUI.disableRestart");
+        %>
+
         <table class="styledLeft" id="shutDown" width="100%">
             <thead>
             <tr><th colspan="2"><fmt:message key="shutdown"/></th></tr>
             </thead>
             <tbody>
+            <%
+                if ("true".equals(disableShutdown)) {
+            %>
+            <tr>
+                <td width="100%"><strong><fmt:message key="shutdown.disabled"/></strong></td>
+            </tr>
+            <%
+            } else {
+            %>
             <tr>
                 <td width="50%"><strong><fmt:message key="graceful.shutdown"/></strong></td>
                 <td width="50%"><strong><fmt:message key="forced.shutdown"/></strong></td>
@@ -66,6 +82,9 @@
                     </a>
                 </td>
             </tr>
+            <%
+                }
+            %>
             </tbody>
         </table>
 
@@ -76,6 +95,15 @@
             <tr><th colspan="2"><fmt:message key="restart"/></th></tr>
             </thead>
             <tbody>
+            <%
+                if ("true".equals(disableRestart)) {
+            %>
+            <tr>
+                <td width="100%"><strong><fmt:message key="restart.disabled"/></strong></td>
+            </tr>
+            <%
+            } else {
+            %>
             <tr>
                 <td width="50%"><strong><fmt:message key="graceful.restart"/></strong></td>
                 <td width="50%"><strong><fmt:message key="forced.restart"/></strong></td>
@@ -102,6 +130,9 @@
                     </a>
                 </td>
             </tr>
+            <%
+                }
+            %>
             </tbody>
         </table>
         

@@ -41,6 +41,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringTokenizer;
@@ -261,7 +262,25 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 
             attributeValueMap.forEach((attributeName, attributeValue) -> {
                 BasicAttribute claim = new BasicAttribute(attributeName);
-                claim.add(attributeValue);
+                if (attributeValue != null) {
+                    String claimSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+                    if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
+                        userAttributeSeparator = claimSeparator;
+                    }
+                    if (attributeValue.contains(userAttributeSeparator)) {
+                        StringTokenizer st = new StringTokenizer(attributeValue, userAttributeSeparator);
+                        while (st.hasMoreElements()) {
+                            String newVal = st.nextElement().toString();
+                            if (newVal != null && newVal.trim().length() > 0) {
+                                claim.add(newVal.trim());
+                            }
+                        }
+                    } else {
+                        claim.add(attributeValue);
+                    }
+                } else {
+                    claim.add(attributeValue);
+                }
                 if (logger.isDebugEnabled()) {
                     logger.debug("AttributeName: " + attributeName + " AttributeValue: " + attributeValue);
                 }
@@ -509,13 +528,19 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     }
 
     @Override
-    protected void handleLdapUserNameAttributeChanges(Map<String, String> userAttributeValues,
+    protected void handleLdapUserNameAttributeChanges(Map<String, ? extends Object> userAttributeValues,
                                                       DirContext subDirContext, String returnedUserEntry)
             throws NamingException {
 
         if (userAttributeValues.containsKey(LDAPConstants.CN)) {
-            subDirContext.rename(returnedUserEntry, LDAPConstants.CN_CAPITALIZED + "=" +
-                    escapeSpecialCharactersForDN(userAttributeValues.get(LDAPConstants.CN)));
+            String commonName = StringUtils.EMPTY;
+            if (userAttributeValues.get(LDAPConstants.CN) instanceof String) {
+                commonName = (String) userAttributeValues.get(LDAPConstants.CN);
+            } else if (userAttributeValues.get(LDAPConstants.CN) instanceof List) {
+                commonName = (String) ((List) userAttributeValues.get(LDAPConstants.CN)).get(0);
+            }
+            subDirContext.rename(returnedUserEntry,
+                    LDAPConstants.CN_CAPITALIZED + "=" + escapeSpecialCharactersForDN(commonName));
             userAttributeValues.remove(LDAPConstants.CN);
         }
     }
@@ -841,7 +866,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     }
 
     @Override
-    protected void processAttributesBeforeUpdate(String userName, Map<String, String> userStorePropertyValues,
+    protected void processAttributesBeforeUpdate(String userName, Map<String,  ? extends Object> userStorePropertyValues,
                                                  String profileName) {
 
         String immutableAttributesProperty = Optional.ofNullable(realmConfig
