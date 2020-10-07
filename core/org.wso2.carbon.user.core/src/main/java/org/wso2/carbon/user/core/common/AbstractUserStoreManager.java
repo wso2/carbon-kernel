@@ -602,6 +602,25 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * Set the user attributes of a user.
      *
+     * @param userName                 UserName of the user.
+     * @param claimAttributesToAdd     A processed map of userstore attribute values to add.
+     * @param claimAttributesToDelete  A processed map of userstore attribute values to delte.
+     * @param claimAttributesToReplace A processed map of userstore attribute values to replace.
+     * @param profileName              The profile name, can be null. If null the default profile is considered.
+     * @throws UserStoreException      Thrown if the userstore operation fails.
+     * @throws NotImplementedException Thrown if the operation is not implemented in the underlying userstore.
+     */
+    protected void doSetUserAttributes(String userName, Map<String, List<String>> claimAttributesToAdd,
+                                             Map<String, List<String>> claimAttributesToDelete,
+                                             Map<String, List<String>> claimAttributesToReplace, String profileName)
+            throws UserStoreException, NotImplementedException {
+
+        throw new NotImplementedException("doSetUserAttributes operation is not implemented in: " + this.getClass());
+    }
+
+    /**
+     * Set the user attributes of a user.
+     *
      * @param processedClaimAttributes A processed map of user store attribute values.
      * @param userID                   UserID of the user.
      * @param profileName              The profile name, can be null. If null the default profile is considered.
@@ -614,6 +633,26 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (log.isDebugEnabled()) {
             log.debug("doSetUserAttributesWithID operation is not implemented in: " + this.getClass());
         }
+
+        throw new NotImplementedException("doSetUserAttributesWithID operation is not implemented in: "
+                + this.getClass());
+    }
+
+    /**
+     * Set the user attributes of a user.
+     *
+     * @param userID                   UserID of the user.
+     * @param claimAttributesToAdd     A processed map of userstore attribute values to add.
+     * @param claimAttributesToDelete  A processed map of userstore attribute values to delete.
+     * @param claimAttributesToReplace A processed map of userstore attribute values to replace.
+     * @param profileName              The profile name, can be null. If null the default profile is considered.
+     * @throws UserStoreException      Thrown if the userstore operation fails.
+     * @throws NotImplementedException Thrown if the operation is not implemented in the underlying userstore.
+     */
+    protected void doSetUserAttributesWithID(String userID, Map<String, List<String>> claimAttributesToAdd,
+                                             Map<String, List<String>> claimAttributesToDelete,
+                                             Map<String, List<String>> claimAttributesToReplace, String profileName)
+            throws UserStoreException, NotImplementedException {
 
         throw new NotImplementedException("doSetUserAttributesWithID operation is not implemented in: "
                 + this.getClass());
@@ -672,6 +711,45 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
+     * Set many user claim values by treating multi-valued claims independently from simple claims.
+     *
+     * @param userName                         User's username.
+     * @param multiValuedClaimsToAdd           Map of multi-valued claim URIs against values to be added.
+     * @param multiValuedClaimsToDelete        Map of multi-valued claim URIs against values to be deleted.
+     * @param claimsExcludingMultiValuedClaims Map of claim URIs excluding multi-valued claims against values
+     *                                         to be modified.
+     * @param profileName                      The profile name, can be null. If null the default profile is considered.
+     * @throws UserStoreException      An unexpected exception has occurred.
+     * @throws NotImplementedException Functionality is not implemented exception.
+     */
+    protected void doSetUserClaimValues(String userName, Map<String, List<String>> multiValuedClaimsToAdd,
+                                        Map<String, List<String>> multiValuedClaimsToDelete,
+                                        Map<String, List<String>> claimsExcludingMultiValuedClaims,
+                                        String profileName)
+            throws UserStoreException, NotImplementedException {
+
+        if (StringUtils.isBlank(profileName)) {
+            profileName = UserCoreConstants.DEFAULT_PROFILE;
+        }
+
+        // Resolving claims to user store attributes.
+        Map<String, List<String>> claimAttributeValueMapToAdd =
+                resolveUserStoreAttributeValueMaps(userName, multiValuedClaimsToAdd);
+        Map<String, List<String>> claimAttributeValueMapToDelete =
+                resolveUserStoreAttributeValueMaps(userName, multiValuedClaimsToDelete);
+        Map<String, List<String>> claimAttributeValueMapToModify =
+                resolveUserStoreAttributeValueMaps(userName, claimsExcludingMultiValuedClaims);
+
+        processAttributesBeforeUpdate(userName, claimAttributeValueMapToAdd, profileName);
+        processAttributesBeforeUpdate(userName, claimAttributeValueMapToDelete, profileName);
+        processAttributesBeforeUpdate(userName, claimAttributeValueMapToModify, profileName);
+
+        // Persist the attribute values map.
+        doSetUserAttributes(userName, claimAttributeValueMapToAdd, claimAttributeValueMapToDelete,
+                claimAttributeValueMapToModify, profileName);
+    }
+
+    /**
      * Resolves claim URIs as user store properties.
      *
      * @param userIdentifier Username of the user.
@@ -702,6 +780,27 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return userStoreAttributeValueMap;
     }
 
+    private Map<String, List<String>> resolveUserStoreAttributeValueMaps(String userIdentifier,
+                                                                         Map<String, List<String>> claims)
+            throws UserStoreException {
+
+        Map<String, List<String>> userStoreAttributeValueMap = new HashMap<>();
+        try {
+            for (Map.Entry<String, List<String>> claimEntry : claims.entrySet()) {
+                String claimURI = claimEntry.getKey();
+                String attributeName = getClaimAtrribute(claimURI, userIdentifier, null);
+                userStoreAttributeValueMap.put(attributeName, claimEntry.getValue());
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            String errorMessage = "Error occurred while getting claim attribute for user : " + userIdentifier;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        }
+        return userStoreAttributeValueMap;
+    }
+
     /**
      * Set many user claim values.
      *
@@ -724,6 +823,41 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // Persist the attribute values map.
         doSetUserAttributesWithID(userID, claimAttributeValueMapForPersist, profileName);
+    }
+
+    /**
+     * Set many user claim values.
+     *
+     * @param userID                           The user ID.
+     * @param multiValuedClaimsToAdd           Map of multi-valued claim URIs against values to add.
+     * @param multiValuedClaimsToDelete        Map of multi-valued claim URIs against values to delete.
+     * @param claimsExcludingMultiValuedClaims Map of non-multi-valued claim URIs against values to replace.
+     * @param profileName                      The profile name, can be null. If null the default profile is considered.
+     * @throws UserStoreException      Thrown if an unexpected exception has occurred in userstore operation.
+     * @throws NotImplementedException Thrown if the operation is not implemented in the underlying userstore.
+     */
+    protected void doSetUserClaimValuesWithID(String userID, Map<String, List<String>> multiValuedClaimsToAdd,
+                                              Map<String, List<String>> multiValuedClaimsToDelete,
+                                              Map<String, List<String>> claimsExcludingMultiValuedClaims,
+                                              String profileName) throws UserStoreException, NotImplementedException {
+
+        if (profileName == null) {
+            profileName = UserCoreConstants.DEFAULT_PROFILE;
+        }
+        // Resolving claims to user store attributes.
+        Map<String, List<String>> claimAttributeValueMapToAdd =
+                resolveUserStoreAttributeValueMaps(userID, multiValuedClaimsToAdd);
+        Map<String, List<String>> claimAttributeValueMapToDelete =
+                resolveUserStoreAttributeValueMaps(userID, multiValuedClaimsToDelete);
+        Map<String, List<String>> claimAttributeValueMapToModify =
+                resolveUserStoreAttributeValueMaps(userID, claimsExcludingMultiValuedClaims);
+
+        processAttributesBeforeUpdateWithID(userID, claimAttributeValueMapToAdd, profileName);
+        processAttributesBeforeUpdateWithID(userID, claimAttributeValueMapToDelete, profileName);
+        processAttributesBeforeUpdateWithID(userID, claimAttributeValueMapToModify, profileName);
+        // Persist the attribute values map.
+        doSetUserAttributesWithID(userID, claimAttributeValueMapToAdd, claimAttributeValueMapToDelete,
+                claimAttributeValueMapToModify, profileName);
     }
 
     /**
@@ -7715,7 +7849,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param userAttributes Un-processed map (user store attribute name -> attribute value) of user store.
      * @param profileName    Profile name of the user.
      */
-    protected void processAttributesBeforeUpdate(String userName, Map<String, String> userAttributes,
+    protected void processAttributesBeforeUpdate(String userName, Map<String, ? extends Object> userAttributes,
                                                  String profileName) {
         // Not implemented for AbstractUserStoreManager, may have implementations at subclasses.
     }
@@ -7739,7 +7873,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param userAttributes Un-processed map (user store attribute name -> attribute value) of user store.
      * @param profileName    Profile name of the user.
      */
-    protected void processAttributesBeforeUpdateWithID(String userID, Map<String, String> userAttributes,
+    protected void processAttributesBeforeUpdateWithID(String userID, Map<String, ? extends Object> userAttributes,
                                                        String profileName) {
         // Not implemented for AbstractUserStoreManager, may have implementations at subclasses.
     }
@@ -12721,6 +12855,100 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
+    public final void setUserClaimValuesWithID(String userID, Map<String, List<String>> oldClaimMap,
+                                               Map<String, List<String>> multiValuedClaimsToAdd,
+                                               Map<String, List<String>> multiValuedClaimsToDelete,
+                                               Map<String, List<String>> claimsExcludingMultiValuedClaims,
+                                               String profileName) throws UserStoreException {
+
+        UserStore userStore = getUserStoreWithID(userID);
+        if (userStore.isRecurssive()) {
+            ((AbstractUserStoreManager) userStore.getUserStoreManager())
+                    .setUserClaimValuesWithID(userStore.getDomainFreeUserId(), oldClaimMap, multiValuedClaimsToAdd,
+                            multiValuedClaimsToDelete, claimsExcludingMultiValuedClaims, profileName);
+            return;
+        }
+        Map<String, String> claims =
+                getModifiedClaims(oldClaimMap, multiValuedClaimsToAdd, multiValuedClaimsToDelete,
+                        claimsExcludingMultiValuedClaims);
+
+        // #################### Domain Name Free Zone Starts Here ################################
+
+        boolean isUniqueIdEnabled = isUniqueUserIdEnabledInUserStore(userStore);
+        boolean isUserExists;
+        if (isUniqueIdEnabled) {
+            isUserExists = doCheckExistingUserWithID(userID);
+        } else {
+            String userNameFromUserID = doGetUserNameFromUserID(userID);
+            isUserExists = userNameFromUserID != null;
+        }
+
+        if (!isUserExists) {
+            String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userID,
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
+            String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
+            handleSetUserClaimValuesFailureWithID(errorCode, errorMessage, userID, claims, profileName);
+            throw new UserStoreException(errorCode + " - " + errorMessage);
+        }
+
+        // #################### <Pre Listeners> #####################################################
+        invokeDoPreSetUserClaimsWithIDListeners(userID, claims, profileName);
+        // #################### </Pre Listeners> #####################################################
+
+        // If userstore is readonly this method should not get invoked with non empty claim set.
+        if (isReadOnly() && !claims.isEmpty()) {
+            handleSetUserClaimValuesFailureWithID(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), userID, claims, profileName);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+        }
+
+        // Any additional simple claim modified due to pre listeners are taken into claimsExcludingMultiValuedClaims map.
+        String separator = ",";
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR))) {
+            separator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+        }
+        if (claimsExcludingMultiValuedClaims != null) {
+            for (Map.Entry<String, String> claim : claims.entrySet()) {
+                claimsExcludingMultiValuedClaims.put(claim.getKey(), Arrays.asList(claim.getValue().split(separator)));
+            }
+        }
+        (claimsExcludingMultiValuedClaims.keySet()).removeAll(multiValuedClaimsToAdd.keySet());
+        (claimsExcludingMultiValuedClaims.keySet()).removeAll(multiValuedClaimsToDelete.keySet());
+
+        // Set claim values if user store is not read only.
+        try {
+            if (!isReadOnly()) {
+                // If unique id feature is not enabled, we have to call the legacy methods.
+                if (!isUniqueUserIdEnabledInUserStore(userStore)) {
+                    User user = userUniqueIDManger.getUser(userID, this);
+                    doSetUserClaimValues(user.getUsername(), multiValuedClaimsToAdd, multiValuedClaimsToDelete,
+                            claimsExcludingMultiValuedClaims, profileName);
+                } else {
+                    doSetUserClaimValuesWithID(userID, multiValuedClaimsToAdd, multiValuedClaimsToDelete,
+                            claimsExcludingMultiValuedClaims, profileName);
+                }
+            }
+        } catch (NotImplementedException e) {
+            if (!isUniqueUserIdEnabledInUserStore(userStore)) {
+                User user = userUniqueIDManger.getUser(userID, this);
+                doSetUserClaimValues(user.getUsername(), claims, profileName);
+            } else {
+                doSetUserClaimValuesWithID(userID, claims, profileName);
+            }
+        } catch (UserStoreException e) {
+            handleSetUserClaimValuesFailureWithID(
+                    ErrorMessages.ERROR_CODE_ERROR_WHILE_SETTING_USER_CLAIM_VALUES.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_SETTING_USER_CLAIM_VALUES.getMessage(),
+                            e.getMessage()), userID, claims, profileName);
+            throw e;
+        }
+
+        // #################### <Post Listeners> #####################################################
+        invokeDoPostSetUserClaimsWithIDListeners(userID, claims, profileName);
+        // #################### </Post Listeners> #####################################################
+    }
+
+    @Override
     public final void updateCredentialByAdminWithID(String userID, Object newCredential) throws UserStoreException {
 
         if (!isSecureCall.get()) {
@@ -15122,5 +15350,114 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             domainNameProperty = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
         }
         return domainNameProperty;
+    }
+
+    /**
+     * Process and return the modifed claim values against claim URI. Add or remove specific claim values
+     * against old claim values of multi-valued claims. Replace old claim values from modified values for
+     * non multi-valued claims.
+     *
+     * @param oldClaimMap                      Map of claim URIs against old claim values of user.
+     * @param multiValuedClaimsToAdd           Map of multi-valued claim URIs against values need to be added to
+     *                                         old claim value.
+     * @param multiValuedClaimsToDelete        Map of multi-valued claim URIs against values need to be removed from
+     *                                         old claim value.
+     * @param claimsExcludingMultiValuedClaims Map of non multi-valued claim URIs against modified values to be stred.
+     * @return Map of claim URIs against the modified claim values.
+     */
+    private Map<String, String> getModifiedClaims(Map<String, List<String>> oldClaimMap,
+                                                  Map<String, List<String>> multiValuedClaimsToAdd,
+                                                  Map<String, List<String>> multiValuedClaimsToDelete,
+                                                  Map<String, List<String>> claimsExcludingMultiValuedClaims) {
+
+        Map<String, String> claims = new HashMap<>();
+        String separator = ",";
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR))) {
+            separator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+        }
+        if (claimsExcludingMultiValuedClaims != null) {
+            for (String claimURI : claimsExcludingMultiValuedClaims.keySet()) {
+                claims.put(claimURI,
+                        StringUtils.join(claimsExcludingMultiValuedClaims.get(claimURI).iterator(), separator));
+            }
+        }
+
+        // Get modified claim values for multi-valued claims.
+        if (multiValuedClaimsToAdd != null) {
+            for (String claimURI : multiValuedClaimsToAdd.keySet()) {
+                List<String> modifiedValue = new ArrayList<>();
+                if (oldClaimMap.containsKey(claimURI)) {
+                    modifiedValue.addAll(oldClaimMap.get(claimURI));
+                    modifiedValue.addAll(multiValuedClaimsToAdd.get(claimURI));
+                } else {
+                    modifiedValue.addAll(multiValuedClaimsToAdd.get(claimURI));
+                }
+                claims.put(claimURI, StringUtils.join(modifiedValue.iterator(), separator));
+            }
+        }
+        if (multiValuedClaimsToDelete != null) {
+            for (String claimURI : multiValuedClaimsToDelete.keySet()) {
+                List<String> values = null;
+                if (claims.containsKey(claimURI)) {
+                    values = Arrays.asList(claims.get(claimURI).split(separator));
+                } else if (oldClaimMap.containsKey(claimURI)) {
+                    values = oldClaimMap.get(claimURI);
+                }
+                if (!CollectionUtils.isEmpty(values)) {
+                    List<String> modifiedValue =
+                            (List<String>) CollectionUtils.subtract(values, multiValuedClaimsToDelete.get(claimURI));
+                    claims.put(claimURI, StringUtils.join(modifiedValue.iterator(), separator));
+                }
+            }
+        }
+        return claims;
+    }
+
+    private void invokeDoPreSetUserClaimsWithIDListeners(String userID, Map<String, String> claims, String profileName)
+            throws UserStoreException {
+
+        try {
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (!((AbstractUserOperationEventListener) listener)
+                        .doPreSetUserClaimValuesWithID(userID, claims, profileName, this)) {
+                    handleSetUserClaimValuesFailureWithID(
+                            ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_SET_USER_CLAIM_VALUES.getCode(),
+                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_SET_USER_CLAIM_VALUES.getMessage(),
+                                    UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), userID, claims,
+                            profileName);
+                    return;
+                }
+            }
+        } catch (UserStoreException e) {
+            handleSetUserClaimValuesFailureWithID(
+                    ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_SET_USER_CLAIM_VALUES.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_SET_USER_CLAIM_VALUES.getMessage(),
+                            e.getMessage()), userID, claims, profileName);
+            throw e;
+        }
+    }
+
+    private void invokeDoPostSetUserClaimsWithIDListeners(String userID, Map<String, String> claims, String profileName)
+            throws UserStoreException {
+
+        try {
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (!((AbstractUserOperationEventListener) listener)
+                        .doPostSetUserClaimValuesWithID(userID, claims, profileName, this)) {
+                    handleSetUserClaimValuesFailureWithID(
+                            ErrorMessages.ERROR_CODE_ERROR_DURING_POST_SET_USER_CLAIM_VALUES.getCode(),
+                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_SET_USER_CLAIM_VALUES.getMessage(),
+                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userID, claims,
+                            profileName);
+                    return;
+                }
+            }
+        } catch (UserStoreException e) {
+            handleSetUserClaimValuesFailureWithID(
+                    ErrorMessages.ERROR_CODE_ERROR_DURING_POST_SET_USER_CLAIM_VALUES.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_SET_USER_CLAIM_VALUES.getMessage(),
+                            e.getMessage()), userID, claims, profileName);
+            throw e;
+        }
     }
 }

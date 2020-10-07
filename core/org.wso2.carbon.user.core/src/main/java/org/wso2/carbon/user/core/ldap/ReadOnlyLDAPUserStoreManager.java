@@ -3903,6 +3903,16 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 "User store is operating in read only mode. Cannot write into the user store.");
     }
 
+    @Override
+    protected void doSetUserAttributes(String userName, Map<String, List<String>> claimAttributesToAdd,
+                                       Map<String, List<String>> claimAttributesToDelete,
+                                       Map<String, List<String>> claimAttributesToReplace, String profileName)
+            throws UserStoreException {
+
+        throw new UserStoreException(
+                "User store is operating in read only mode. Cannot write into the user store.");
+    }
+
     /**
      *
      */

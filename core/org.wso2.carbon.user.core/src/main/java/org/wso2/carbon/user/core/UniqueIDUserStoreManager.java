@@ -237,6 +237,26 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
             throws UserStoreException;
 
     /**
+     * Set user claim values.
+     *
+     * @param userID                           UserID of the user.
+     * @param oldClaimMap                      A map of existing claim URIs of the user against values.
+     * @param multiValuedClaimsToAdd           A map of multi-valued claim URIs against values to add.
+     * @param multiValuedClaimsToDelete        A map of multi-valued claim URIs against values to delete.
+     * @param claimsExcludingMultiValuedClaims A map of non-multi-valued claim URIs against values to replace.
+     * @param profileName                      The profile name, can be null. If null the default profile is considered.
+     * @throws UserStoreException Thrown if an error occurred in userstore operation.
+     */
+    default void setUserClaimValuesWithID(String userID, Map<String, List<String>> oldClaimMap,
+                                  Map<String, List<String>> multiValuedClaimsToAdd,
+                                  Map<String, List<String>> multiValuedClaimsToDelete,
+                                  Map<String, List<String>> claimsExcludingMultiValuedClaims,
+                                  String profileName) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+    /**
      * Retrieves a list of users for given user claim value.
      *
      * @param claim       claim uri.
