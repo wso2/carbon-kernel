@@ -1544,7 +1544,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                             NamingEnumeration<SearchResult> groupResults = searchInGroupBase(roleSearchFilter,
                                     returningAttributes, SearchControls.SUBTREE_SCOPE, mainDirContext, searchBase);
                             // assume only one group with given group name
-                            String groupDN = "cn=" + newRole;
+                            String groupDN = resolveGroupDN(searchFilter, newRole, context);
                             if (!groupResults.hasMore()) {
                                 modifyUserInRole(userNameDN, groupDN, DirContext.ADD_ATTRIBUTE, searchBase);
                             } else {
@@ -1575,6 +1575,40 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            JNDIUtil.closeContext(mainDirContext);
+        }
+    }
+
+    /**
+     * Resolves groupDN which is used in doUpdateRoleListOfUser method to modify the roles of the user.
+     *
+     * @param searchFilter Search filter.
+     * @param role         Role to be assigned to a user.
+     * @param context      LDAPRoleContext.
+     * @return String groupDN.
+     * @throws UserStoreException Error in resolving groupDN.
+     */
+    private String resolveGroupDN(String searchFilter, String role, LDAPRoleContext context) throws UserStoreException {
+
+        String roleSearchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(role));
+        String[] returningAttributes = new String[]{};
+        String searchBase = context.getSearchBase();
+        DirContext mainDirContext = this.connectionSource.getContext();
+
+        try {
+            NamingEnumeration<SearchResult> groupResults = searchInGroupBase(roleSearchFilter, returningAttributes,
+                    SearchControls.SUBTREE_SCOPE, mainDirContext, searchBase);
+            SearchResult resultedGroup;
+            String groupDN = null;
+            if (groupResults.hasMore()) {
+                resultedGroup = groupResults.next();
+                groupDN = resultedGroup.getName();
+            }
+            return groupDN;
+        } catch (NamingException e) {
+            String errorMessage = "Error while resolving the GroupDN.";
             throw new UserStoreException(errorMessage, e);
         } finally {
             JNDIUtil.closeContext(mainDirContext);
