@@ -110,19 +110,4 @@ public interface TenantManager extends org.wso2.carbon.user.api.TenantManager {
         throw new NotImplementedException(
                 "deleteTenant operation is not implemented in: " + this.getClass());
     }
-
-    /**
-     * Deletes a tenant from the system which use to delete the cache in each worker nodes
-     * using clustered message and delete the persistence storage in management node
-     *
-     * @param tenantUniqueID              tenant unique identifier.
-     * @param removeFromPersistentStorage remove from persistence storage.
-     * @throws UserStoreException if there is an error in tenant deletion.
-     */
-    default void deleteTenant(String tenantUniqueID, boolean removeFromPersistentStorage) throws UserStoreException {
-
-        throw new NotImplementedException(
-                "deleteTenant operation for deleting the cache in each worker nodes is not implemented in: " + this
-                        .getClass());
-    }
 }

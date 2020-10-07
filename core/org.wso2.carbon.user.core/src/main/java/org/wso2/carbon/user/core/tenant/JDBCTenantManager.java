@@ -871,52 +871,32 @@ public class JDBCTenantManager implements TenantManager {
         }
     }
 
-    public void deleteTenant(String tenantUniqueID) throws UserStoreException {
-
-        try {
-            deleteTenant(tenantUniqueID, true);
-        } catch (UserStoreException e) {
-            throw new UserStoreException(e);
-        }
-    }
-
     /**
-     * Delete Tenant
-     *
-     * @param tenantUniqueID              - Tenant Id
-     * @param removeFromPersistentStorage - Flag to decide weather delete from persistent storage
-     * @throws UserStoreException
+     * {@inheritDoc}
      */
-    public void deleteTenant(String tenantUniqueID, boolean removeFromPersistentStorage)
-            throws UserStoreException {
+    public void deleteTenant(String tenantUniqueID) throws UserStoreException {
 
         Tenant tenant = this.getTenant(tenantUniqueID);
         // Remove tenant information from the cache.
-        clearTenantCaches(tenant);
         if (tenant != null) {
+            clearTenantCaches(tenant);
             invalidateCacheManager(tenant.getDomain());
         }
-        if (removeFromPersistentStorage) {
-            Connection dbConnection = null;
-            PreparedStatement prepStmt = null;
-            try {
-                dbConnection = getDBConnection();
-                String sqlStmt = TenantConstants.DELETE_TENANT_BY_UUID_SQL;
-                prepStmt = dbConnection.prepareStatement(sqlStmt);
+        String sqlStmt = TenantConstants.DELETE_TENANT_BY_UUID_SQL;
+        try (Connection dbConnection = getDBConnection()) {
+            try (PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
                 prepStmt.setString(1, tenantUniqueID);
-
                 prepStmt.executeUpdate();
                 dbConnection.commit();
             } catch (SQLException e) {
                 DatabaseUtil.rollBack(dbConnection);
-                String msg = "Error in deleting the tenant with tenant unique ID " + tenantUniqueID + ".";
-                if (log.isDebugEnabled()) {
-                    log.debug(msg, e);
-                }
-                throw new UserStoreException(msg, e);
-            } finally {
-                DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
             }
+        } catch (SQLException e) {
+            String msg = "Error in deleting the tenant with tenant unique ID " + tenantUniqueID + ".";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
         }
     }
 
@@ -1024,14 +1004,12 @@ public class JDBCTenantManager implements TenantManager {
 
     private void clearTenantCaches(Tenant tenant) throws UserStoreException {
 
-        if (tenant != null) {
             int tenantId = tenant.getId();
             String tenantUniqueID = tenant.getTenantUniqueID();
             tenantUniqueIdCache.clearCacheEntry(new TenantUniqueIDKey(tenantUniqueID));
             tenantDomainCache.clearCacheEntry(new TenantIdKey(tenantId));
             tenantIdCache.clearCacheEntry(new TenantDomainKey(tenant.getDomain()));
             tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
-        }
     }
 
     private void invalidateCacheManager(String domain) {
