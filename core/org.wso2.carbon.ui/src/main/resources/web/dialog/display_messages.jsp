@@ -23,13 +23,13 @@
 <script type="text/javascript">
     var msgId;
     <%
-    if(CharacterEncoder.getSafeText(request.getParameter("msgId")) == null){
+    if(Encode.forJavaScript(request.getParameter("msgId")) == null){
     %>
     msgId = '<%="MSG" + System.currentTimeMillis() + Math.random()%>';
     <%
     } else {
     %>
-    msgId = '<%=CharacterEncoder.getSafeText(request.getParameter("msgId"))%>';
+    msgId = '<%=Encode.forJavaScript(request.getParameter("msgId"))%>';
     <%
     }
     %>
