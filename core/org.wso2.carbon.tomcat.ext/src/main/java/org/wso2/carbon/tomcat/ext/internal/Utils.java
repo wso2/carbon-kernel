@@ -22,9 +22,9 @@ import org.wso2.carbon.tomcat.ext.utils.URLMappingHolder;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import java.io.File;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.io.File;
 
 /**
  * A collection of useful utility methods
@@ -98,11 +98,15 @@ public class Utils {
             temp = uri.substring(uri.indexOf(JAX_APP_PATTERN) + 12);
         } else {
             //if ST request getting the appName from the contex
-            appName = request.getContext().getName();
-            if ("".equals(appName)) {
-                return appName;
-            } else if(!appName.equals("/")) {
-                return appName.substring(1);
+            if (request.getContext() != null) {
+                appName = request.getContext().getName();
+                if ("".equals(appName)) {
+                    return appName;
+                } else if (!appName.equals("/")) {
+                    return appName.substring(1);
+                } else {
+                    return null;
+                }
             } else {
                 return null;
             }
