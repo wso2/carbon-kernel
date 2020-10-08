@@ -1504,7 +1504,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                                             mainDirContext,
                                             searchBase);
                             // assume only one group with given group name
-                            String groupDN = resolveGroupDN(searchFilter, newRole, context);
+                            String groupDN = "cn=" + newRole;
                             if (!groupResults.hasMore()) {
                                 modifyUserInRole(userNameDN, groupDN, DirContext.ADD_ATTRIBUTE,
                                         searchBase);
