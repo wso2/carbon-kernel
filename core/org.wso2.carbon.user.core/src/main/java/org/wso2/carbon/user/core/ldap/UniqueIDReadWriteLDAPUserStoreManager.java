@@ -1657,7 +1657,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                             NamingEnumeration<SearchResult> groupResults = searchInGroupBase(roleSearchFilter,
                                     returningAttributes, SearchControls.SUBTREE_SCOPE, mainDirContext, searchBase);
                             // assume only one group with given group name
-                            String groupDN = resolveGroupDN(searchFilter, newRole, context);
+                            String groupDN = "cn=" + newRole;
                             if (!groupResults.hasMore()) {
                                 modifyUserInRole(userNameDN, groupDN, DirContext.ADD_ATTRIBUTE, searchBase);
                             } else {
