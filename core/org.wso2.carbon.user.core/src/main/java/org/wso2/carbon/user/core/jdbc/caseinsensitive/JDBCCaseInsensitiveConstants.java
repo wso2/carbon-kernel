@@ -48,6 +48,8 @@ public class JDBCCaseInsensitiveConstants {
             "GetUsersPropertiesForProfileSQLCaseInsensitive";
     public static final String GET_PROP_FOR_PROFILE_CASE_INSENSITIVE = "GetUserPropertyForProfileSQLCaseInsensitive";
     public static final String GET_PROFILE_NAMES_FOR_USER_CASE_INSENSITIVE = "GetUserProfileNamesSQLCaseInsensitive";
+    public static final String GET_USERS_FOR_PROP_WITH_ID_CASE_INSENSITIVE =
+            "GetUserListForPropertyWithIDSQLCaseInsensitive";
     public static final String GET_USERID_FROM_USERNAME_CASE_INSENSITIVE = "GetUserIDFromUserNameSQLCaseInsensitive";
     public static final String GET_TENANT_ID_FROM_USERNAME_CASE_INSENSITIVE =
             "GetTenantIDFromUserNameSQLCaseInsensitive";
@@ -142,7 +144,10 @@ public class JDBCCaseInsensitiveConstants {
             " UM_ATTR_VALUE FROM UM_USER_ATTRIBUTE, UM_USER WHERE UM_USER.UM_ID = UM_USER_ATTRIBUTE.UM_USER_ID AND " +
             "LOWER(UM_USER.UM_USER_NAME) IN (?) AND UM_PROFILE_ID=? AND UM_USER_ATTRIBUTE.UM_TENANT_ID=? AND UM_USER" +
             ".UM_TENANT_ID=?";
-
+    public static final String GET_USERS_FOR_PROP_WITH_ID_SQL_CASE_INSENSITIVE = "SELECT DISTINCT UM_USER.UM_USER_ID " +
+            "FROM UM_USER, UM_USER_ATTRIBUTE WHERE UM_USER_ATTRIBUTE.UM_USER_ID = UM_USER.UM_ID AND " +
+            "UM_USER_ATTRIBUTE.UM_ATTR_NAME =? AND LOWER(UM_USER_ATTRIBUTE.UM_ATTR_VALUE) LIKE LOWER(?) AND " +
+            "UM_USER_ATTRIBUTE.UM_PROFILE_ID=? AND UM_USER_ATTRIBUTE.UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?";
     public static final String GET_PROP_FOR_PROFILE_SQL_CASE_INSENSITIVE = "SELECT UM_ATTR_VALUE FROM " +
             "UM_USER_ATTRIBUTE, UM_USER WHERE UM_USER.UM_ID = UM_USER_ATTRIBUTE.UM_USER_ID AND LOWER(UM_USER" +
             ".UM_USER_NAME)=LOWER(?) AND UM_ATTR_NAME=? AND UM_PROFILE_ID=? AND UM_USER_ATTRIBUTE.UM_TENANT_ID=? AND " +

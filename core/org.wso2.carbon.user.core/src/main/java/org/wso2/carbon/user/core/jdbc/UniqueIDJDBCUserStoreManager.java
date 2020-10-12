@@ -98,6 +98,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             "This is the separator for multiple claim " + "values";
     private static final String VALIDATION_INTERVAL = "validationInterval";
     private static final List<Property> UNIQUE_ID_JDBC_UM_ADVANCED_PROPERTIES = new ArrayList<>();
+    private static final String UID = "uid";
 
     public UniqueIDJDBCUserStoreManager() {
 
@@ -2315,7 +2316,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         List<String> userList = new ArrayList<>();
         try {
             dbConnection = getDBConnection();
-            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_FOR_PROP_WITH_ID);
+            if (!isCaseSensitiveUsername() && UID.equals(property)) {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.
+                        GET_USERS_FOR_PROP_WITH_ID_CASE_INSENSITIVE);
+            } else {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_FOR_PROP_WITH_ID);
+            }
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, property);
             prepStmt.setString(2, value);
