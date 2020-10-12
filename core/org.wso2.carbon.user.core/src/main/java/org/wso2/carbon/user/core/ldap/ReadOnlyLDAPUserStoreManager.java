@@ -71,6 +71,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.cache.Cache;
 import javax.cache.CacheBuilder;
@@ -104,6 +106,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
     public static final String MEMBER_UID = "memberUid";
     private static final String OBJECT_GUID = "objectGUID";
+    private static final String OBJECT_GUID_REGEX =
+            "^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$";
+    private static Pattern OBJECT_GUID_PATTERN;
     protected static final String MEMBERSHIP_ATTRIBUTE_RANGE = "MembershipAttributeRange";
     protected static final String MEMBERSHIP_ATTRIBUTE_RANGE_DISPLAY_NAME = "Membership Attribute Range";
     private static final String USER_CACHE_NAME_PREFIX = CachingConstants.LOCAL_CACHE_PREFIX + "UserCache-";
@@ -163,6 +168,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
     static {
         setAdvancedProperties();
+        OBJECT_GUID_PATTERN = Pattern.compile(OBJECT_GUID_REGEX, Pattern.CASE_INSENSITIVE);
     }
 
     public ReadOnlyLDAPUserStoreManager() {
@@ -2771,7 +2777,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         String userPropertyName =
                 realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
 
-        if (OBJECT_GUID.equalsIgnoreCase(property)) {
+        if (OBJECT_GUID.equalsIgnoreCase(property) && (isGUIDValue(value) || StringUtils.equals(value, "*"))) {
             String transformObjectGuidToUuidProperty =
                     realmConfig.getUserStoreProperty(TRANSFORM_OBJECTGUID_TO_UUID);
 
@@ -4727,6 +4733,21 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             }
 
             return ArrayUtils.contains(ldapBinaryAttributes, attributeName);
+        }
+        return false;
+    }
+
+    /**
+     * Method for checking whether the claim value is in ObjectGUID format.
+     *
+     * @param value Claim value.
+     * @return Boolean stating whether claim value is in ObjectGUID format.
+     */
+    protected boolean isGUIDValue(String value) {
+
+        if (StringUtils.isNotBlank(value)) {
+            Matcher matcher = OBJECT_GUID_PATTERN.matcher(value);
+            return matcher.find();
         }
         return false;
     }
