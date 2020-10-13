@@ -13795,7 +13795,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             String message = ErrorMessages.ERROR_CODE_USERNAME_CANNOT_BE_EMPTY.getMessage();
             String errorCode = ErrorMessages.ERROR_CODE_USERNAME_CANNOT_BE_EMPTY.getCode();
             handleAddUserFailureWithID(errorCode, message, null, credential, roleList, claims, profileName);
-            throw new UserStoreException(errorCode + " - " + message);
+            throw new UserStoreException(errorCode + " - " + message, errorCode);
         }
 
         // If the username claims presents, the value should be equal to the username attribute.
