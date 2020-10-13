@@ -1148,33 +1148,33 @@ public class JDBCTenantManager implements TenantManager {
         String sqlTail;
         sqlQuery = TenantConstants.LIST_TENANTS_PAGINATED_SQL;
 
-        if (dbType.contains("MySQL") || dbType.contains("H2")) {
+        if (dbType.equalsIgnoreCase("MySQL") || dbType.equalsIgnoreCase("H2")) {
             sqlTail = String.format(TenantConstants.LIST_TENANTS_MYSQL_TAIL, sortedOrder);
             sqlQuery = sqlQuery + sqlTail;
             prepStmt = dbConnection.prepareStatement(sqlQuery);
             prepStmt.setInt(1, offset);
             prepStmt.setInt(2, limit);
-        } else if (dbType.contains("oracle")) {
+        } else if (dbType.equalsIgnoreCase("oracle")) {
             sqlQuery = TenantConstants.LIST_TENANTS_PAGINATED_ORACLE;
             sqlTail = String.format(TenantConstants.LIST_TENANTS_ORACLE_TAIL, sortedOrder);
             sqlQuery = sqlQuery + sqlTail;
             prepStmt = dbConnection.prepareStatement(sqlQuery);
             prepStmt.setInt(1, offset + limit);
             prepStmt.setInt(2, offset);
-        } else if (dbType.contains("Microsoft")) {
+        } else if (dbType.equalsIgnoreCase("Microsoft")) {
             sqlTail = String.format(TenantConstants.LIST_TENANTS_MSSQL_TAIL, sortedOrder);
             sqlQuery = sqlQuery + sqlTail;
             prepStmt = dbConnection.prepareStatement(sqlQuery);
             prepStmt.setInt(1, offset);
             prepStmt.setInt(2, limit);
-        } else if (dbType.contains("db2") || dbType.contains("DB2")) {
+        } else if (dbType.equalsIgnoreCase("db2")) {
             sqlQuery = TenantConstants.LIST_TENANTS_PAGINATED_DB2;
             sqlTail = String.format(TenantConstants.LIST_TENANTS_DB2_TAIL, sortedOrder);
             sqlQuery = sqlQuery + sqlTail;
             prepStmt = dbConnection.prepareStatement(sqlQuery);
             prepStmt.setInt(1, offset + 1);
             prepStmt.setInt(2, offset + limit);
-        } else if (dbType.contains("PostgreSQL")) {
+        } else if (dbType.equalsIgnoreCase("PostgreSQL")) {
             sqlTail = String.format(TenantConstants.LIST_TENANTS_POSTGRESQL_TAIL, sortedOrder);
             sqlQuery = sqlQuery + sqlTail;
             prepStmt = dbConnection.prepareStatement(sqlQuery);
@@ -1255,17 +1255,18 @@ public class JDBCTenantManager implements TenantManager {
         String sql;
         try (Connection connection = getDBConnection()) {
             String dbType = connection.getMetaData().getDatabaseProductName();
-            if (dbType.contains("MySQL") || dbType.contains("H2") || dbType.contains("PostgreSQL")) {
+            if (dbType.equalsIgnoreCase("MySQL") || dbType.equalsIgnoreCase("H2") ||
+                    dbType.equalsIgnoreCase("PostgreSQL")) {
                 sql = TenantConstants.IS_TENANT_UUID_COLUMN_EXISTS_MYSQL;
-            } else if (dbType.contains("DB2") || dbType.contains("DB2")) {
+            } else if (dbType.equalsIgnoreCase("db2")) {
                 sql = TenantConstants.IS_TENANT_UUID_COLUMN_EXISTS_DB2;
-            } else if (dbType.contains("MS SQL") ||
+            } else if (dbType.equalsIgnoreCase("MS SQL") ||
                     connection.getMetaData().getDriverName().contains("Microsoft")) {
                 sql = TenantConstants.IS_TENANT_UUID_COLUMN_EXISTS_MSSQL;
-            } else if (dbType.contains("Informix")) {
+            } else if (dbType.equalsIgnoreCase("Informix")) {
                 // Driver name = "IBM Informix JDBC Driver for IBM Informix Dynamic Server"
                 sql = TenantConstants.IS_TENANT_UUID_COLUMN_EXISTS_INFORMIX;
-            } else if (dbType.contains("oracle")) {
+            } else if (dbType.equalsIgnoreCase("oracle")) {
                 sql = TenantConstants.IS_TENANT_UUID_COLUMN_EXISTS_ORACLE;
             } else {
                 String message = "Error while loading tenant from DB: Database driver could not be identified" +
