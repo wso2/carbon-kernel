@@ -3454,8 +3454,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                                 " FROM UM_USER U");
             } else if (ORACLE.equals(dbType)) {
                 sqlStatement = new StringBuilder(
-                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT UM_USER_NAME, rownum AS rnum "
-                                + "FROM (SELECT UM_USER_NAME FROM UM_USER U");
+                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, rownum AS rnum "
+                                + "FROM (SELECT UM_USER_ID, UM_USER_NAME FROM UM_USER U");
             } else {
                 sqlStatement = new StringBuilder("SELECT U.UM_USER_ID, U.UM_USER_NAME FROM UM_USER U");
             }
