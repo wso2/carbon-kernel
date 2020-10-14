@@ -1046,9 +1046,9 @@ public class JDBCTenantManager implements TenantManager {
      * @param tenantId           tenant id
      * @throws UserStoreException throws
      */
-    private void setSecondaryUserStoreConfig(RealmConfiguration realmConfiguration, int tenantId)
-            throws UserStoreException {
-        // Get the last realm configuration
+    private void setSecondaryUserStoreConfig(RealmConfiguration realmConfiguration, int tenantId) {
+
+        // Get the last realm configuration.
         RealmConfiguration lastRealm = realmConfiguration;
         if (realmConfiguration != null) {
             while (lastRealm.getSecondaryRealmConfig() != null) {
@@ -1067,13 +1067,17 @@ public class JDBCTenantManager implements TenantManager {
             });
             if (files != null) {
                 for (File file : files) {
-                    RealmConfiguration newRealmConfig = userStoreDeploymentManager.
-                            getUserStoreConfiguration(file.getAbsolutePath());
-                    if (newRealmConfig != null) {
-                        lastRealm.setSecondaryRealmConfig(newRealmConfig);
-                        lastRealm = lastRealm.getSecondaryRealmConfig();
-                    } else {
-                        log.error("Error while creating realm configuration from file " + file.getAbsolutePath());
+                    try {
+                        RealmConfiguration newRealmConfig = userStoreDeploymentManager.
+                                getUserStoreConfiguration(file.getAbsolutePath());
+                        if (newRealmConfig != null) {
+                            lastRealm.setSecondaryRealmConfig(newRealmConfig);
+                            lastRealm = lastRealm.getSecondaryRealmConfig();
+                        } else {
+                            log.error("Error while creating realm configuration from file " + file.getAbsolutePath());
+                        }
+                    } catch (UserStoreException e) {
+                        log.error("Error while creating realm configuration from file " + file.getAbsolutePath(), e);
                     }
                 }
             }
