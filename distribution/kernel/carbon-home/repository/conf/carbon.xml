@@ -21,7 +21,7 @@
     ${carbon.home} represents the carbon.home system property.
     Other system properties can be specified in a similar manner.
 -->
-<Server xmlns="http://wso2.org/projects/carbon/carbon.xml">
+<Server xmlns="http://wso2.org/projects/carbon/carbon.xml" xmlns:svns="http://org.wso2.securevault/configuration">
 
     <!--
        Product Name
@@ -265,7 +265,10 @@
         </LoadingPolicy>
 
         <!-- Flag to enable or disable tenant deletion. By default tenant deletion is enabled-->
-        <TenantDelete>true</TenantDelete>
+        <TenantDelete>false</TenantDelete>
+
+        <!-- Flag to enable or disable primary users deletion -->
+        <DeletePrimaryUsersOnTenantDeletion>false</DeletePrimaryUsersOnTenantDeletion>
 
         <!-- Configurations related to listener invocation by tenant admin service-->
         <ListenerInvocationPolicy>
@@ -284,6 +287,7 @@
         <!-- Force all caches to act as local -->
         <ForceLocalCache>true</ForceLocalCache>
         <DiscardEmptyCaches>false</DiscardEmptyCaches>
+        <CacheInvalidationImpl>org.wso2.carbon.caching.impl.clustering.ClusterCacheInvalidationRequestSender</CacheInvalidationImpl>
     </Cache>
 
     <!--
@@ -387,12 +391,40 @@
             <KeyResolver className="org.wso2.carbon.crypto.defaultProvider.resolver.ContextIndependentKeyResolver" priority="-1"/>
         </KeyResolvers>
 
+        <!--
+            Uncomment the following configuration to use hardware security module for cryptographic operations.
+            Provide configurations as detailed in each tag.
+        -->
+
+        <!--
+            <HSMBasedCryptoProviderConfig>
+                <HSMConfiguration>
+                    <PKCS11Module>#AbsolutePathToHSMModule</PKCS11Module>
+                    <SlotConfiguration>
+                        <Slot id="#SlotID" pin="#UserPIN"/>
+                    </SlotConfiguration>
+                </HSMConfiguration>
+
+                <InternalProvider>
+                    <InternalProviderSlotID>#SlotIDOfInternalProvider</InternalProviderSlotID>
+                    <KeyAlias>#KeyAlias</KeyAlias>
+                </InternalProvider>
+
+                <ExternalProvider>
+                    <ExternalProviderSlotID>#SlotIDOfExternalProvider</ExternalProviderSlotID>
+                </ExternalProvider>
+
+                <HSMStore>
+                    <Enabled>false</Enabled>
+                </HSMStore>
+            </HSMBasedCryptoProviderConfig>
+        -->
     </CryptoService>
 
     <!-- 
       Enable following config to allow Emails as usernames. 	
-    -->	    	
-    <!--EnableEmailUserName>true</EnableEmailUserName-->
+    -->
+    <EnableEmailUserName>false</EnableEmailUserName>
     <!--EnablePasswordTrim>false</EnablePasswordTrim-->
     <!--
       Security configurations
@@ -491,6 +523,7 @@
 	<!--Option to disable storing of tokens issued by STS-->
 	<DisableTokenStore>false</DisableTokenStore>
 
+        <STSCallBackHandlerName>org.wso2.carbon.identity.sts.common.identity.provider.AttributeCallbackHandler</STSCallBackHandlerName>
 	<!--
 	 Security token store class name. If this is not set, default class will be
 	 org.wso2.carbon.security.util.SecurityTokenStore
