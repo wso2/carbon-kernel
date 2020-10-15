@@ -57,10 +57,10 @@ public class ReadOnlyLDAPUserStoreConstants {
         setMandatoryProperty(UserStoreConfigConstants.connectionPassword, "Connection Password", "",
                 UserStoreConfigConstants.connectionPasswordDescription, true,
                 new Property[] { CONNECTION.getProperty(), PASSWORD.getProperty(), TRUE.getProperty() });
-        setMandatoryProperty(UserStoreConfigConstants.userSearchBase, "User Search Base", "ou=system",
-                UserStoreConfigConstants.userSearchBaseDescription, false,
+        setMandatoryProperty(UserStoreConfigConstants.userSearchBase, "User Search Base",
+                "ou=Users,dc=wso2,dc=org", UserStoreConfigConstants.userSearchBaseDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        setMandatoryProperty(UserStoreConfigConstants.userNameAttribute, "Username Attribute", "",
+        setMandatoryProperty(UserStoreConfigConstants.userNameAttribute, "Username Attribute", "uid",
                 UserStoreConfigConstants.userNameAttributeDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
 
@@ -71,8 +71,9 @@ public class ReadOnlyLDAPUserStoreConstants {
                 UserStoreConfigConstants.usernameListFilterDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdAttribute,
-                UserStoreConfigConstants.userIdAttributeName, "", UserStoreConfigConstants.userIdAttributeDescription,
-                false, new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
+                UserStoreConfigConstants.userIdAttributeName, "scimId",
+                UserStoreConfigConstants.userIdAttributeDescription,false,
+                new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdSearchFilter,
                 UserStoreConfigConstants.userIdSearchFilterAttributeName, "(&(objectClass=person)(uid=?))",
                 UserStoreConfigConstants.userIdSearchFilterDescription, false,
