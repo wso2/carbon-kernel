@@ -1845,6 +1845,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         } catch (SQLException e) {
             DatabaseUtil.rollBack(dbConnection);
             String msg = "Error occurred while deleting user : " + userName;
+            // Logging error here since this will not get logged further up the call stack.
             log.error(msg, e);
             throw new UserStoreException(msg, e);
         } finally {
@@ -2578,6 +2579,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         } catch (SQLException e) {
             DatabaseUtil.rollBack(dbConnection);
             String msg = "Error occurred while updating string values to database.";
+            // Logging error here since this will not get logged further up the call stack.
             log.error(msg, e);
             if (e instanceof SQLIntegrityConstraintViolationException) {
                 // Duplicate entry
