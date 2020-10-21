@@ -31,6 +31,7 @@ import org.wso2.carbon.user.core.Permission;
 import org.wso2.carbon.user.core.UniqueIDUserStoreManager;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.UserStoreClientException;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
@@ -3008,7 +3009,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         UserStoreManager userManager = this;
-        if (StringUtils.isNotEmpty(extractedDomain)) {
+        /*
+        * This method("getUserListWithID") can be called for secondary userstore managers.
+        * At that time the "extractedDomain" is the name of the "this" usertore manager.
+        */
+        if (StringUtils.isNotEmpty(extractedDomain) && !StringUtils.equals(getMyDomainName(), extractedDomain)) {
             UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(extractedDomain);
             if (secondaryUserStoreManager != null) {
                 userManager = secondaryUserStoreManager;
@@ -3016,6 +3021,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     log.debug("Domain: " + extractedDomain + " is passed with the claim and user store manager is loaded"
                             + " for the given domain name.");
                 }
+            } else {
+                throw new UserStoreClientException("Invalid Domain Name.");
             }
         }
 
@@ -7619,7 +7626,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     return UserCoreUtil.combineArrays(roleList, externalRoles);
                 }
             } else {
-                throw new UserStoreException("Invalid Domain Name");
+                throw new UserStoreClientException("Invalid Domain Name.");
             }
         } else if (index == 0) {
             if (readGroupsEnabled) {
@@ -14781,6 +14788,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     filteredUsers = userUniqueIDManger.listUsers(users.getUsers(), this);
                 }
             }
+        } else if (secManager == null && StringUtils.isNotEmpty(domain)) {
+            throw new UserStoreClientException("Invalid Domain Name.");
         }
 
         handlePostGetUserListWithID(condition, domain, profileName, limit, offset, sortBy, sortOrder, filteredUsers,
