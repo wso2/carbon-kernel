@@ -1431,7 +1431,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                         if (isExistingRole(deletedRole)) {
                             roleSearchFilter = "(&" + searchFilter.replace("?",
                                     escapeSpecialCharactersForFilter(deletedRole)) + "(" + membershipAttribute + "=" +
-                                    userNameDN + "))";
+                                    escapeSpecialCharactersForFilter(userNameDN) + "))";
                             if (log.isDebugEnabled()) {
                                 log.debug("Searching in the group where the user is assigned with search filter: " +
                                         roleSearchFilter);
@@ -1488,7 +1488,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                         if (isExistingRole(newRole)) {
                             roleSearchFilter = "(&" + searchFilter.replace("?",
                                     escapeSpecialCharactersForFilter(newRole)) + "(" + membershipAttribute + "=" +
-                                    userNameDN + "))";
+                                    escapeSpecialCharactersForFilter(userNameDN) + "))";
 
                             if (log.isDebugEnabled()) {
                                 log.debug("Searching in the group where the user is assigned with search filter: " +
