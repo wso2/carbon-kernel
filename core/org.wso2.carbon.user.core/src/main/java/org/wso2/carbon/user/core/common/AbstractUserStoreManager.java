@@ -8705,7 +8705,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         user = doAddUserWithID(adminUserName, realmConfig.getAdminPassword(), null, null, null, false);
                     } else {
                         // Call the old API since this user store does not support the unique user id related APIs.
-                        this.doAddUser(adminUserName, realmConfig.getAdminPassword(), null, null, null, false);
+                        Map<String, String> claims = new HashMap<>();
+                        claims.put(UserCoreClaimConstants.USER_ID_CLAIM_URI, getUniqueUserID());
+                        this.doAddUser(adminUserName, realmConfig.getAdminPassword(), null, claims, null, false);
                     }
                 } catch (Exception e) {
                     String message = "Admin user has not been created. " +
