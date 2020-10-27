@@ -698,6 +698,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                         DELETE_USER_PERMISSIONS), resourceId, tenantId);
                 String type = DatabaseCreator.getDatabaseType(dbConnection);
                 if (UserCoreConstants.MYSQL_TYPE.equals(type)
+                        || UserCoreConstants.MARIADB_TYPE.equals(type)
                         || UserCoreConstants.MSSQL_TYPE.equals(type)) {
                     DatabaseUtil.updateDatabase(dbConnection, realmConfig.getAuthzProperties().get
                             (DELETE_ROLE_PERMISSIONS_MYSQL), resourceId, tenantId);

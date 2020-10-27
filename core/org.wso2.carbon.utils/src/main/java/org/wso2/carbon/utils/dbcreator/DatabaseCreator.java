@@ -248,6 +248,8 @@ public class DatabaseCreator {
                     type = "derby";
                 } else if (dbUrl.matches("(?i).*mysql.*")) {
                     type = "mysql";
+                } else if (dbUrl.matches("(?i).*mariadb.*")) {
+                    type = "mariadb";
                 } else if (dbUrl.matches("(?i).*oracle.*")) {
                     type = "oracle";
                 } else if (dbUrl.matches("(?i).*microsoft.*")) {

@@ -83,6 +83,7 @@ public final class RegistryUtils {
     private static final Log log = LogFactory.getLog(RegistryUtils.class);
     private static final String ENCODING = System.getProperty("carbon.registry.character.encoding");
     private static final String MY_SQL_PRODUCT_NAME = "MySQL";
+    private static final String MARIADB_PRODUCT_NAME = "MariaDB";
 
     private RegistryUtils() {
     }
@@ -186,7 +187,7 @@ public final class RegistryUtils {
             DatabaseMetaData connectionMetaData = connection.getMetaData();
             if (connectionMetaData != null) {
                 String productName = connectionMetaData.getDatabaseProductName();
-                if (MY_SQL_PRODUCT_NAME.equals(productName)) {
+                if (MY_SQL_PRODUCT_NAME.equals(productName) || MARIADB_PRODUCT_NAME.equals(productName)) {
                     /*
                      For MySQL getUserName() method executes 'SELECT USER()' query on DB via mysql connector
                      causing a huge number of 'SELECT USER()' queries to be executed.

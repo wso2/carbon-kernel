@@ -51,6 +51,7 @@ public class UserCoreConstants {
     public static final String SYSTEM_RESOURCE = "System";
     public static final String MSSQL_TYPE = "mssql";
     public static final String MYSQL_TYPE = "mysql";
+    public static final String MARIADB_TYPE = "mariadb";
     public static final String OPENEDGE_TYPE = "openedge";
 
     /*To hold a boolean property to track the first startup of the server.*/
