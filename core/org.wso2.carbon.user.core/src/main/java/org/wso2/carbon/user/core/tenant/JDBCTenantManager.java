@@ -1152,7 +1152,7 @@ public class JDBCTenantManager implements TenantManager {
         String sqlTail;
         sqlQuery = TenantConstants.LIST_TENANTS_PAGINATED_SQL;
 
-        if (dbType.equalsIgnoreCase("MySQL") || dbType.equalsIgnoreCase("H2")) {
+        if (dbType.equalsIgnoreCase("MySQL") || dbType.equalsIgnoreCase("MariaDB") || dbType.equalsIgnoreCase("H2")) {
             sqlTail = String.format(TenantConstants.LIST_TENANTS_MYSQL_TAIL, sortedOrder);
             sqlQuery = sqlQuery + sqlTail;
             prepStmt = dbConnection.prepareStatement(sqlQuery);
@@ -1259,7 +1259,7 @@ public class JDBCTenantManager implements TenantManager {
         String sql;
         try (Connection connection = getDBConnection()) {
             String dbType = connection.getMetaData().getDatabaseProductName();
-            if (dbType.equalsIgnoreCase("MySQL") || dbType.equalsIgnoreCase("H2") ||
+            if (dbType.equalsIgnoreCase("MySQL") || dbType.equalsIgnoreCase("MariaDB") || dbType.equalsIgnoreCase("H2") ||
                     dbType.equalsIgnoreCase("PostgreSQL")) {
                 sql = TenantConstants.IS_TENANT_UUID_COLUMN_EXISTS_MYSQL;
             } else if (dbType.equalsIgnoreCase("db2")) {

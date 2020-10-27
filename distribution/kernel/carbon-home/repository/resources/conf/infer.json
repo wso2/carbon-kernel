@@ -239,6 +239,11 @@
       "database.$1.url": "jdbc:mysql://$ref{database.$1.hostname}:$ref{database.$1.port}/$ref{database.$1.name}",
       "database.$1.validationQuery": "SELECT 1"
     },
+    "mariadb": {
+      "database.$1.driver": "org.mariadb.jdbc.Driver",
+      "database.$1.url": "jdbc:mariadb://$ref{database.$1.hostname}:$ref{database.$1.port}/$ref{database.$1.name}",
+      "database.$1.validationQuery": "SELECT 1"
+    },
     "oracle": {
       "database.$1.driver": "oracle.jdbc.OracleDriver",
       "database.$1.url": "jdbc:oracle:thin:@$ref{database.$1.hostname}:$ref{database.$1.port}/$ref{database.$1.sid}",

@@ -108,6 +108,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private static final String MSSQL = "mssql";
     private static final String ORACLE = "oracle";
     private static final String MYSQL = "mysql";
+    private static final String MARIADB = "mariadb";
     private static final String POSTGRESQL = "postgresql";
 
     private static final int MAX_ITEM_LIMIT_UNLIMITED = -1;
@@ -4108,7 +4109,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     expressionConditions, limit, offset, sortBy, sortOrder, profileName, type, totalMultiGroupFilters,
                     totalMulitClaimFitlers);
 
-            if (MYSQL.equals(type) && totalMultiGroupFilters > 1 && totalMulitClaimFitlers > 1) {
+            if ((MYSQL.equals(type) || MARIADB.equals(type))
+                    && totalMultiGroupFilters > 1 && totalMulitClaimFitlers > 1) {
                 String fullQuery = sqlBuilder.getQuery();
                 String[] splits = fullQuery.split("INTERSECT ");
                 int startIndex = 0;
@@ -4304,8 +4306,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         for (ExpressionCondition expressionCondition : expressionConditions) {
             if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName())) {
-                if (!MYSQL.equals(dbType) || (MYSQL.equals(dbType) && totalMultiGroupFilters > 1 &&
-                        totalMulitClaimFitlers > 1)) {
+                if (!(MYSQL.equals(dbType) || MARIADB.equals(dbType)) || totalMultiGroupFilters > 1 && totalMulitClaimFitlers > 1) {
                     multiGroupQueryBuilder(sqlBuilder, header, hitGroupFilter, expressionCondition);
                     hitGroupFilter = true;
                 } else {
@@ -4346,8 +4347,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 }
             } else {
                 // Claim filtering
-                if (!MYSQL.equals(dbType) || (MYSQL.equals(dbType) && totalMultiGroupFilters > 1 &&
-                        totalMulitClaimFitlers > 1)) {
+                if (!(MYSQL.equals(dbType) || MARIADB.equals(dbType)) || totalMultiGroupFilters > 1 && totalMulitClaimFitlers > 1) {
                     multiClaimQueryBuilder(sqlBuilder, header, hitClaimFilter, expressionCondition);
                     hitClaimFilter = true;
                 } else {
@@ -4357,7 +4357,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
         }
 
-        if (MYSQL.equals(dbType)) {
+        if (MYSQL.equals(dbType) || MARIADB.equals(dbType)) {
             sqlBuilder.updateSql(" GROUP BY U.UM_USER_NAME ");
             if (groupFilterCount > 0 && claimFilterCount > 0) {
                 sqlBuilder.updateSql(" HAVING (COUNT(DISTINCT R.UM_ROLE_NAME) = " + groupFilterCount +
@@ -4369,7 +4369,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
         }
 
-        if (!(MYSQL.equals(dbType) && totalMultiGroupFilters > 1 && totalMulitClaimFitlers > 1)) {
+        if (!((MYSQL.equals(dbType) || MARIADB.equals(dbType)) && totalMultiGroupFilters > 1 && totalMulitClaimFitlers > 1)) {
             if (DB2.equals(dbType)) {
                 sqlBuilder.setTail(") AS p) WHERE rn BETWEEN ? AND ?", limit, offset);
             } else if (MSSQL.equals(dbType)) {
