@@ -93,6 +93,29 @@
     <!--                                                                      -->
     <!--
                                                                       -->
+    {% for filter in tomcat.filter %}
+    <filter>
+        <filter-name>{{filter.name}}</filter-name>
+        <filter-class>{{filter.class}}</filter-class>
+        {% for key,value in filter.init_params.items() %}
+        <init-param>
+            <param-name>{{key}}</param-name>
+            <param-value>{{value}}</param-value>
+        </init-param>
+        {% endfor %}
+    </filter>
+    {% endfor %}
+
+    {% for filter_mapping in tomcat.filter_mapping %}
+    <filter-mapping>
+        <filter-name>{{filter_mapping.name}}</filter-name>
+        <url-pattern>{{filter_mapping.url_pattern}}</url-pattern>
+        {% for dispatcher in filter_mapping.dispatchers %}
+        <dispatcher>{{dispatcher}}</dispatcher>
+        {% endfor %}
+    </filter-mapping>
+    {% endfor %}
+
     <servlet>
         <servlet-name>default</servlet-name>
         <servlet-class>org.apache.catalina.servlets.DefaultServlet</servlet-class>
