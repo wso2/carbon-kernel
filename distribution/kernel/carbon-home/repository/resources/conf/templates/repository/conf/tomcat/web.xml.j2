@@ -97,6 +97,12 @@
     <filter>
         <filter-name>{{filter.name}}</filter-name>
         <filter-class>{{filter.class}}</filter-class>
+        {% for key,value in filter.init_params.items() %}
+        <init-param>
+            <param-name>{{key}}</param-name>
+            <param-value>{{value}}</param-value>
+        </init-param>
+        {% endfor %}
     </filter>
     {% endfor %}
 
@@ -104,6 +110,9 @@
     <filter-mapping>
         <filter-name>{{filter_mapping.name}}</filter-name>
         <url-pattern>{{filter_mapping.url_pattern}}</url-pattern>
+        {% for dispatcher in filter_mapping.dispatchers %}
+        <dispatcher>{{dispatcher}}</dispatcher>
+        {% endfor %}
     </filter-mapping>
     {% endfor %}
 
