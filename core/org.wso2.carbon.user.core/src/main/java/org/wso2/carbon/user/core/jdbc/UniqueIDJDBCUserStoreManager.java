@@ -3536,7 +3536,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             if (DB2.equals(dbType)) {
                 sqlBuilder.setTail(") AS p) WHERE rn BETWEEN ? AND ?", limit, offset);
             } else if (MSSQL.equals(dbType)) {
-                sqlBuilder.setTail(") AS R) AS P WHERE P.RowNum BETWEEN ? AND ?", limit, offset);
+                if (isClaimFiltering && !isGroupFiltering && !isUsernameFiltering) {
+                    // Handle multi attribute filtering without username filtering.
+                    sqlBuilder.setTail(") AS Q) AS S) AS R) AS P WHERE P.RowNum BETWEEN ? AND ?", limit, offset);
+                } else {
+                    sqlBuilder.setTail(") AS R) AS P WHERE P.RowNum BETWEEN ? AND ?", limit, offset);
+                }
             } else if (ORACLE.equals(dbType)) {
                 sqlBuilder.setTail(" ORDER BY UM_USER_NAME) where rownum <= ?) WHERE  rnum > ?", limit, offset);
             } else {
