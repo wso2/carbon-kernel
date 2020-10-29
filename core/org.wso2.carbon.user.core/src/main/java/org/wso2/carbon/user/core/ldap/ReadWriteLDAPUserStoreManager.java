@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.user.core.ldap;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,9 +50,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
+
 import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
@@ -431,81 +434,62 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         return basicAttributes;
     }
 
-    /**
-     * Sets the set of claims provided at adding users
-     *
-     * @param claims
-     * @param basicAttributes
-     * @throws UserStoreException
-     */
-    protected void setUserClaims(Map<String, String> claims, BasicAttributes basicAttributes,
-                                 String userName) throws UserStoreException {
-        BasicAttribute claim;
-        boolean debug = log.isDebugEnabled();
+    private static void setAdvancedProperties() {
+        //Set Advanced Properties
 
-        log.debug("Processing user claims");
-		/*
-		 * we keep boolean values to know whether compulsory attributes 'sn' and 'cn' are set during
-		 * setting claims.
-		 */
-        boolean isSNExists = false;
-        boolean isCNExists = false;
+        RW_LDAP_UM_ADVANCED_PROPERTIES.clear();
+        setAdvancedProperty(BULK_IMPORT_SUPPORT, "Bulk Import Support", "true", "Bulk Import Supported");
+        setAdvancedProperty(UserStoreConfigConstants.emptyRolesAllowed, "Allow Empty Roles", "true", UserStoreConfigConstants
+                .emptyRolesAllowedDescription);
 
-        if (claims != null) {
-            for (Map.Entry<String, String> entry : claims.entrySet()) {
-				/*
-				 * LDAP does not allow for empty values. If an attribute has a value it’s stored
-				 * with the entry, otherwise it is not. Hence needs to check for empty values before
-				 * storing the attribute.
-				 */
-                if (EMPTY_ATTRIBUTE_STRING.equals(entry.getValue())) {
-                    continue;
-                }
-                // needs to get attribute name from claim mapping
-                String claimURI = entry.getKey();
+        setAdvancedProperty(UserStoreConfigConstants.passwordHashMethod, "Password Hashing Algorithm", "PLAIN_TEXT",
+                UserStoreConfigConstants.passwordHashMethodDescription);
+        setAdvancedProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",", MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION);
 
-                if (debug) {
-                    log.debug("Claim URI: " + claimURI);
-                }
+        setAdvancedProperty(UserStoreConfigConstants.maxUserNameListLength, "Maximum User List Length", "100", UserStoreConfigConstants
+                .maxUserNameListLengthDescription);
+        setAdvancedProperty(UserStoreConfigConstants.maxRoleNameListLength, "Maximum Role List Length", "100", UserStoreConfigConstants
+                .maxRoleNameListLengthDescription);
+        setAdvancedProperty("kdcEnabled", "Enable KDC", "false", "Whether key distribution center enabled");
+        setAdvancedProperty("defaultRealmName", "Default Realm Name", "WSO2.ORG", "Default name for the realm");
 
-                String attributeName = null;
-                try {
-                    attributeName = getClaimAtrribute(claimURI, userName, null);
-                } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                    String errorMessage = "Error in obtaining claim mapping.";
-                    throw new UserStoreException(errorMessage, e);
-                }
+        setAdvancedProperty(UserStoreConfigConstants.userRolesCacheEnabled, "Enable User Role Cache", "true", UserStoreConfigConstants
+                .userRolesCacheEnabledDescription);
 
-                if (ATTR_NAME_CN.equals(attributeName)) {
-                    isCNExists = true;
-                } else if (ATTR_NAME_SN.equals(attributeName)) {
-                    isSNExists = true;
-                }
+        setAdvancedProperty(UserStoreConfigConstants.connectionPoolingEnabled, "Enable LDAP Connection Pooling", "false",
+                UserStoreConfigConstants.connectionPoolingEnabledDescription);
 
-                if (debug) {
-                    log.debug("Mapped attribute: " + attributeName);
-                    log.debug("Attribute value: " + claims.get(entry.getKey()));
-                }
-                claim = new BasicAttribute(attributeName);
-                claim.add(claims.get(entry.getKey()));
-                basicAttributes.put(claim);
-            }
-        }
-
-        // If required attributes cn, sn are not set during claim mapping,
-        // set them as user names
-
-        if (!isCNExists) {
-            BasicAttribute cn = new BasicAttribute("cn");
-            cn.add(userName);
-            basicAttributes.put(cn);
-        }
-
-        if (!isSNExists) {
-            BasicAttribute sn = new BasicAttribute("sn");
-            sn.add(userName);
-            basicAttributes.put(sn);
-        }
+        setAdvancedProperty(LDAPConnectionTimeout, "LDAP Connection Timeout", "5000", LDAPConnectionTimeoutDescription);
+        setAdvancedProperty(readTimeout, "LDAP Read Timeout", "5000", readTimeoutDescription);
+        setAdvancedProperty(RETRY_ATTEMPTS, "Retry Attempts", "0", "Number of retries for" +
+                " authentication in case ldap read timed out.");
+        setAdvancedProperty("CountRetrieverClass", "Count Implementation", "",
+                "Name of the class that implements the count functionality");
+        setAdvancedProperty(LDAPConstants.LDAP_ATTRIBUTES_BINARY, "LDAP binary attributes", " ",
+                LDAPBinaryAttributesDescription);
+        setAdvancedProperty(UserStoreConfigConstants.claimOperationsSupported, UserStoreConfigConstants
+                .getClaimOperationsSupportedDisplayName, "true", UserStoreConfigConstants.claimOperationsSupportedDescription);
+        setAdvancedProperty(MEMBERSHIP_ATTRIBUTE_RANGE, MEMBERSHIP_ATTRIBUTE_RANGE_DISPLAY_NAME,
+                String.valueOf(MEMBERSHIP_ATTRIBUTE_RANGE_VALUE), "Number of maximum users of role returned by the LDAP");
+        setAdvancedProperty(LDAPConstants.USER_CACHE_EXPIRY_MILLISECONDS, USER_CACHE_EXPIRY_TIME_ATTRIBUTE_NAME, "",
+                USER_CACHE_EXPIRY_TIME_ATTRIBUTE_DESCRIPTION);
+        setAdvancedProperty(LDAPConstants.USER_DN_CACHE_ENABLED, USER_DN_CACHE_ENABLED_ATTRIBUTE_NAME, "true",
+                USER_DN_CACHE_ENABLED_ATTRIBUTE_DESCRIPTION);
+        setAdvancedProperty(UserStoreConfigConstants.STARTTLS_ENABLED,
+                UserStoreConfigConstants.STARTTLS_ENABLED_DISPLAY_NAME, "false",
+                UserStoreConfigConstants.STARTTLS_ENABLED_DESCRIPTION);
+        setAdvancedProperty(UserStoreConfigConstants.CONNECTION_RETRY_DELAY,
+                UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DISPLAY_NAME,
+                String.valueOf(UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS),
+                UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DESCRIPTION);
+        setAdvancedProperty(UserStoreConfigConstants.SSLCertificateValidationEnabled, "Enable SSL certificate" +
+                " validation", "true", UserStoreConfigConstants.SSLCertificateValidationEnabledDescription);
+        setAdvancedProperty(UserStoreConfigConstants.immutableAttributes,
+                UserStoreConfigConstants.immutableAttributesDisplayName, " ",
+                UserStoreConfigConstants.immutableAttributesDescription);
+        setAdvancedProperty(UserStoreConfigConstants.timestampAttributes,
+                UserStoreConfigConstants.timestampAttributesDisplayName, " ",
+                UserStoreConfigConstants.timestampAttributesDescription);
     }
 
     @SuppressWarnings("deprecation")
@@ -2121,57 +2105,92 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
     }
 
+    /**
+     * Sets the set of claims provided at adding users
+     *
+     * @param claims
+     * @param basicAttributes
+     * @throws UserStoreException
+     */
+    protected void setUserClaims(Map<String, String> claims, BasicAttributes basicAttributes,
+                                 String userName) throws UserStoreException {
+        BasicAttribute claim;
+        boolean debug = log.isDebugEnabled();
 
-    private static void setAdvancedProperties() {
-        //Set Advanced Properties
+        log.debug("Processing user claims");
+        /*
+         * we keep boolean values to know whether compulsory attributes 'sn' and 'cn' are set during
+         * setting claims.
+         */
+        boolean isSNExists = false;
+        boolean isCNExists = false;
 
-        RW_LDAP_UM_ADVANCED_PROPERTIES.clear();
-        setAdvancedProperty(BULK_IMPORT_SUPPORT, "Bulk Import Support", "true", "Bulk Import Supported");
-        setAdvancedProperty(UserStoreConfigConstants.emptyRolesAllowed, "Allow Empty Roles", "true", UserStoreConfigConstants
-                .emptyRolesAllowedDescription);
+        String immutableAttributesProperty = Optional.ofNullable(realmConfig
+                .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse(EMPTY_ATTRIBUTE_STRING);
+        String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
 
-        setAdvancedProperty(UserStoreConfigConstants.passwordHashMethod, "Password Hashing Algorithm", "PLAIN_TEXT",
-                UserStoreConfigConstants.passwordHashMethodDescription);
-        setAdvancedProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",", MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION);
+        if (claims != null) {
+            for (Map.Entry<String, String> entry : claims.entrySet()) {
+                /*
+                 * LDAP does not allow for empty values. If an attribute has a value it’s stored
+                 * with the entry, otherwise it is not. Hence needs to check for empty values before
+                 * storing the attribute.
+                 */
+                if (EMPTY_ATTRIBUTE_STRING.equals(entry.getValue())) {
+                    continue;
+                }
+                // needs to get attribute name from claim mapping
+                String claimURI = entry.getKey();
 
-        setAdvancedProperty(UserStoreConfigConstants.maxUserNameListLength, "Maximum User List Length", "100", UserStoreConfigConstants
-                .maxUserNameListLengthDescription);
-        setAdvancedProperty(UserStoreConfigConstants.maxRoleNameListLength, "Maximum Role List Length", "100", UserStoreConfigConstants
-                .maxRoleNameListLengthDescription);
-        setAdvancedProperty("kdcEnabled", "Enable KDC", "false", "Whether key distribution center enabled");
-        setAdvancedProperty("defaultRealmName", "Default Realm Name", "WSO2.ORG", "Default name for the realm");
+                if (debug) {
+                    log.debug("Claim URI: " + claimURI);
+                }
 
-        setAdvancedProperty(UserStoreConfigConstants.userRolesCacheEnabled, "Enable User Role Cache", "true", UserStoreConfigConstants
-                .userRolesCacheEnabledDescription);
+                String attributeName = null;
+                try {
+                    attributeName = getClaimAtrribute(claimURI, userName, null);
+                } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                    String errorMessage = "Error in obtaining claim mapping.";
+                    throw new UserStoreException(errorMessage, e);
+                }
 
-        setAdvancedProperty(UserStoreConfigConstants.connectionPoolingEnabled, "Enable LDAP Connection Pooling", "false",
-                UserStoreConfigConstants.connectionPoolingEnabledDescription);
+                if (ATTR_NAME_CN.equals(attributeName)) {
+                    isCNExists = true;
+                } else if (ATTR_NAME_SN.equals(attributeName)) {
+                    isSNExists = true;
+                }
+                //Skip in case of immutable attribute passing via the claim map
+                if (StringUtils.isNotEmpty(attributeName) &&
+                        ArrayUtils.contains(immutableAttributes, attributeName)) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Skipped Immutable attribute: " + attributeName);
+                    }
+                    continue;
+                }
+                if (debug) {
+                    log.debug("Mapped attribute: " + attributeName);
+                    log.debug("Attribute value: " + claims.get(entry.getKey()));
+                }
+                claim = new BasicAttribute(attributeName);
+                claim.add(claims.get(entry.getKey()));
+                basicAttributes.put(claim);
+            }
+        }
 
-        setAdvancedProperty(LDAPConnectionTimeout, "LDAP Connection Timeout", "5000", LDAPConnectionTimeoutDescription);
-        setAdvancedProperty(readTimeout, "LDAP Read Timeout", "5000", readTimeoutDescription);
-        setAdvancedProperty(RETRY_ATTEMPTS, "Retry Attempts", "0", "Number of retries for" +
-                " authentication in case ldap read timed out.");
-        setAdvancedProperty("CountRetrieverClass", "Count Implementation", "",
-                "Name of the class that implements the count functionality");
-        setAdvancedProperty(LDAPConstants.LDAP_ATTRIBUTES_BINARY, "LDAP binary attributes", " ",
-                LDAPBinaryAttributesDescription);
-        setAdvancedProperty(UserStoreConfigConstants.claimOperationsSupported, UserStoreConfigConstants
-                .getClaimOperationsSupportedDisplayName, "true", UserStoreConfigConstants.claimOperationsSupportedDescription);
-        setAdvancedProperty(MEMBERSHIP_ATTRIBUTE_RANGE, MEMBERSHIP_ATTRIBUTE_RANGE_DISPLAY_NAME,
-                String.valueOf(MEMBERSHIP_ATTRIBUTE_RANGE_VALUE), "Number of maximum users of role returned by the LDAP");
-        setAdvancedProperty(LDAPConstants.USER_CACHE_EXPIRY_MILLISECONDS, USER_CACHE_EXPIRY_TIME_ATTRIBUTE_NAME, "",
-                USER_CACHE_EXPIRY_TIME_ATTRIBUTE_DESCRIPTION);
-        setAdvancedProperty(LDAPConstants.USER_DN_CACHE_ENABLED, USER_DN_CACHE_ENABLED_ATTRIBUTE_NAME, "true",
-                USER_DN_CACHE_ENABLED_ATTRIBUTE_DESCRIPTION);
-        setAdvancedProperty(UserStoreConfigConstants.STARTTLS_ENABLED,
-                UserStoreConfigConstants.STARTTLS_ENABLED_DISPLAY_NAME, "false",
-                UserStoreConfigConstants.STARTTLS_ENABLED_DESCRIPTION);
-        setAdvancedProperty(UserStoreConfigConstants.CONNECTION_RETRY_DELAY,
-                UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DISPLAY_NAME,
-                String.valueOf(UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS),
-                UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DESCRIPTION);
-        setAdvancedProperty(UserStoreConfigConstants.SSLCertificateValidationEnabled, "Enable SSL certificate" +
-                " validation", "true", UserStoreConfigConstants.SSLCertificateValidationEnabledDescription);
+        // If required attributes cn, sn are not set during claim mapping,
+        // set them as user names
+
+        if (!isCNExists) {
+            BasicAttribute cn = new BasicAttribute("cn");
+            cn.add(userName);
+            basicAttributes.put(cn);
+        }
+
+        if (!isSNExists) {
+            BasicAttribute sn = new BasicAttribute("sn");
+            sn.add(userName);
+            basicAttributes.put(sn);
+        }
     }
 
 //	/**
@@ -2499,5 +2518,27 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             updatedAttributes.put(currentUpdatedAttribute);
         });
         return updatedAttributes;
+    }
+
+    protected void processAttributesBeforeUpdate(String userName, Map<String, ? extends Object> userStorePropertyValues,
+                                                 String profileName) {
+
+        String immutableAttributesProperty = Optional.ofNullable(realmConfig
+                .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse(StringUtils.EMPTY);
+
+        String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Retrieved user store properties for update: " + userStorePropertyValues);
+        }
+
+        if (ArrayUtils.isNotEmpty(immutableAttributes)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Skipping Read only user store maintained default attributes: " +
+                        Arrays.toString(immutableAttributes));
+            }
+
+            Arrays.stream(immutableAttributes).map(StringUtils::trim).forEach(userStorePropertyValues::remove);
+        }
     }
 }
