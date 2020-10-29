@@ -1406,6 +1406,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
             dbConnection.commit();
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg = "Error occurred while adding role : " + roleName;
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
@@ -1467,6 +1468,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
             dbConnection.commit();
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg = "Error occurred while deleting user : " + userID;
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
@@ -1550,6 +1552,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
             dbConnection.commit();
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg = "Database error occurred while updating user list of role : " + roleName;
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
@@ -1726,6 +1729,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
             dbConnection.commit();
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg = "Database error occurred while updating role list of user : " + userID;
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
@@ -1780,6 +1784,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
             dbConnection.commit();
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg =
                     "Database error occurred while saving user claim value for user : " + userID + " & attribute : "
                             + attributeName + " claim value : " + value;
@@ -1855,6 +1860,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     receivedProperties, alreadyAvailableProperties), profileName);
             dbConnection.commit();
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg = "Database error occurred while setting user claim values for user : " + userId;
 
             if (log.isDebugEnabled()) {
@@ -1925,6 +1931,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             this.deletePropertyWithID(dbConnection, userID, property, profileName);
             dbConnection.commit();
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg =
                     "Database error occurred while deleting user claim value for user : " + userID + " & claim URI : "
                             + claimURI;
@@ -1967,6 +1974,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
             dbConnection.commit();
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg = "Database error occurred while deleting user claim values for user : " + userID;
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
@@ -2150,6 +2158,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 dbConnection.commit();
             }
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg = "Error occurred while updating string values to database.";
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
@@ -2681,6 +2690,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 dbConnection.commit();
             }
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg = "Error occurred while updating string values to database.";
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
@@ -2770,6 +2780,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 dbConnection.commit();
             }
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg = "Error occurred while updating string values to database.";
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
