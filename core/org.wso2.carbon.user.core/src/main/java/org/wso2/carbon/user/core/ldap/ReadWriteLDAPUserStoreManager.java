@@ -1051,37 +1051,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         try {
             Attributes updatedAttributes = new BasicAttributes(true);
             // If there is no attribute for profile configuration in LDAP, skip updating it.
-            Attribute currentUpdatedAttribute = new BasicAttribute(attributeName);
-            // If updated attribute value is null, remove its values.
-            if (EMPTY_ATTRIBUTE_STRING.equals(value)) {
-                currentUpdatedAttribute.clear();
-            } else {
-                if (attributeName.equals("uid") || attributeName.equals("sn")) {
-                    currentUpdatedAttribute.add(value);
-                } else {
-                    String userAttributeSeparator = ",";
-                    String claimSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
-
-                    if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
-                        userAttributeSeparator = claimSeparator;
-                    }
-
-                    if (value.contains(userAttributeSeparator)) {
-                        StringTokenizer st = new StringTokenizer(value, userAttributeSeparator);
-
-                        while (st.hasMoreElements()) {
-                            String newVal = st.nextElement().toString();
-
-                            if (newVal != null && newVal.trim().length() > 0) {
-                                currentUpdatedAttribute.add(newVal.trim());
-                            }
-                        }
-                    } else {
-                        currentUpdatedAttribute.add(value);
-                    }
-
-                }
-            }
+            Attribute currentUpdatedAttribute = getAttribute(attributeName, value);
             updatedAttributes.put(currentUpdatedAttribute);
 
             // Update the attributes in the relevant entry of the directory store.
@@ -2136,7 +2106,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                  * with the entry, otherwise it is not. Hence needs to check for empty values before
                  * storing the attribute.
                  */
-                if (EMPTY_ATTRIBUTE_STRING.equals(entry.getValue())) {
+                if (StringUtils.isEmpty(entry.getValue())) {
                     continue;
                 }
                 // needs to get attribute name from claim mapping
@@ -2171,9 +2141,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                     log.debug("Mapped attribute: " + attributeName);
                     log.debug("Attribute value: " + claims.get(entry.getKey()));
                 }
-                claim = new BasicAttribute(attributeName);
-                claim.add(claims.get(entry.getKey()));
-                basicAttributes.put(claim);
+                BasicAttribute attribute = getAttribute(attributeName, claims.get(entry.getKey()));
+                basicAttributes.put(attribute);
             }
         }
 
@@ -2540,5 +2509,43 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
             Arrays.stream(immutableAttributes).map(StringUtils::trim).forEach(userStorePropertyValues::remove);
         }
+    }
+
+    /**
+     * Handle multi valued attributes where there are multi valued attribute separator and return the correct attribute.
+     * @param attributeName Name of the attribute.
+     * @param attributeValue Value of the attribute
+     * @return Multi value handled basic attribute.
+     */
+    private BasicAttribute getAttribute(String attributeName, String attributeValue) {
+
+        BasicAttribute currentUpdatedAttribute = new BasicAttribute(attributeName);
+        /* if updated attribute value is null, remove its values. */
+        if (StringUtils.isEmpty(attributeValue)) {
+            currentUpdatedAttribute.clear();
+        } else {
+            if (attributeName.equals("uid") || attributeName.equals("sn")) {
+                currentUpdatedAttribute.add(attributeValue);
+            } else {
+                String userAttributeSeparator = ",";
+                String claimSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+                if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
+                    userAttributeSeparator = claimSeparator;
+                }
+
+                if (attributeValue.contains(userAttributeSeparator)) {
+                    StringTokenizer st = new StringTokenizer(attributeValue, userAttributeSeparator);
+                    while (st.hasMoreElements()) {
+                        String newVal = st.nextElement().toString();
+                        if (newVal != null && newVal.trim().length() > 0) {
+                            currentUpdatedAttribute.add(newVal.trim());
+                        }
+                    }
+                } else {
+                    currentUpdatedAttribute.add(attributeValue);
+                }
+            }
+        }
+        return currentUpdatedAttribute;
     }
 }
