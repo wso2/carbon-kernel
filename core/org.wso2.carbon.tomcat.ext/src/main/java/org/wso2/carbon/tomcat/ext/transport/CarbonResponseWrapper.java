@@ -21,9 +21,6 @@ import org.apache.catalina.connector.Response;
 import org.wso2.carbon.core.SameSiteCookie;
 import org.wso2.carbon.core.ServletCookie;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
@@ -33,19 +30,32 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * Tomcat Response wrapper, which can handle the responses and generates headers with sameSite attribute value.
  */
 public class CarbonResponseWrapper extends Response {
 
     private Response wrapped;
+    private Request request;
     private ResponseFacadeWrapper responseFacadeWrapper;
 
     public CarbonResponseWrapper(Response wrapped) {
+
         this.wrapped = wrapped;
     }
 
+    public CarbonResponseWrapper(Response wrapped, Request request) {
+
+        this.wrapped = wrapped;
+        this.request = request;
+    }
+
     public Response getWrapped() {
+
         return wrapped;
     }
 
@@ -58,6 +68,10 @@ public class CarbonResponseWrapper extends Response {
      */
     @Override
     public String generateCookieString(Cookie cookie) {
+
+        if (super.request == null) {
+            super.request = this.request;
+        }
         String cookieString = super.generateCookieString(cookie);
         if (cookie instanceof ServletCookie) {
             cookieString = cookieString + "; SameSite=" + ((ServletCookie) cookie).getSameSite().getName();

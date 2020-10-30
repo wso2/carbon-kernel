@@ -20,8 +20,9 @@ import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
 import org.wso2.carbon.tomcat.ext.transport.CarbonResponseWrapper;
 
-import javax.servlet.ServletException;
 import java.io.IOException;
+
+import javax.servlet.ServletException;
 
 /**
  * SameSiteValve can be used to add sameSite attribute for the response cookies.
@@ -32,7 +33,7 @@ public class SameSiteCookieValve extends ValveBase {
     public void invoke(Request request, Response response) throws IOException, ServletException {
 
         if (getNext() != null) {
-            getNext().invoke(request, new CarbonResponseWrapper(response));
+            getNext().invoke(request, new CarbonResponseWrapper(response, request));
         }
     }
 }
