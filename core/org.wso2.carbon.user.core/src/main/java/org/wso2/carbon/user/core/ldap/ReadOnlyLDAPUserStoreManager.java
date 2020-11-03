@@ -4437,7 +4437,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         return new CompositeName().add(dn);
     }
 
-    private boolean isIgnorePartialResultException() {
+    protected boolean isIgnorePartialResultException() {
 
         if (PROPERTY_REFERRAL_IGNORE.equals(realmConfig.getUserStoreProperty(LDAPConstants.PROPERTY_REFERRAL))) {
             return true;

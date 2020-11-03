@@ -1752,8 +1752,12 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     public void doUpdateUserListOfRoleWithID(String roleName, String[] deletedUserIDs, String[] newUserIDs)
             throws UserStoreException {
 
-        List<String> deletedUsers = getUserNamesFromUserIDs(Arrays.asList(deletedUserIDs));
-        List<String> newUsers = getUserNamesFromUserIDs(Arrays.asList(newUserIDs));
+        List<String> deletedUsers = getUserNamesFromUserIDs(Arrays.asList(deletedUserIDs)).stream()
+                .map(UserCoreUtil::removeDomainFromName)
+                .collect(Collectors.toList());;
+        List<String> newUsers = getUserNamesFromUserIDs(Arrays.asList(newUserIDs)).stream()
+                .map(UserCoreUtil::removeDomainFromName)
+                .collect(Collectors.toList());
         String errorMessage;
         NamingEnumeration<SearchResult> groupSearchResults = null;
 
@@ -1768,9 +1772,8 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
             try {
                 searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(roleName));
-                String membershipAttributeName = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
                 String roleNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
-                String[] returningAttributes = new String[] { membershipAttributeName, roleNameAttribute };
+                String[] returningAttributes = new String[]{roleNameAttribute};
 
                 String searchBase = ctx.getSearchBase();
                 groupSearchResults = searchInGroupBase(searchFilter, returningAttributes, SearchControls.SUBTREE_SCOPE,
@@ -1786,8 +1789,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                 // restriction specified in user-mgt.xml by
                 // checking whether all users are trying to be deleted
                 // before updating LDAP.
-                Attribute returnedMemberAttribute = resultedGroup.getAttributes().get(membershipAttributeName);
-                if (!emptyRolesAllowed && newUsers.size() - deletedUsers.size() + returnedMemberAttribute.size() == 0) {
+                if (!emptyRolesAllowed) {
                     errorMessage = "There should be at least one member in the role. "
                             + "Hence can not delete all the members.";
                     throw new UserStoreException(errorMessage);

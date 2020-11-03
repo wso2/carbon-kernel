@@ -1857,14 +1857,6 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         return new CompositeName().add(dn);
     }
 
-    private boolean isIgnorePartialResultException() {
-
-        if (PROPERTY_REFERRAL_IGNORE.equals(realmConfig.getUserStoreProperty(LDAPConstants.PROPERTY_REFERRAL))) {
-            return true;
-        }
-        return false;
-    }
-
     @Override
     public Properties getDefaultUserStoreProperties() {
 

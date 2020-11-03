@@ -56,6 +56,7 @@ import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
 import javax.naming.Name;
+import javax.naming.NameAlreadyBoundException;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -1569,11 +1570,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
             try {
                 searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(roleName));
-                String membershipAttributeName =
-                        realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
                 String roleNameAttribute =
                         realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
-                String[] returningAttributes = new String[]{membershipAttributeName, roleNameAttribute};
+                String[] returningAttributes = new String[]{roleNameAttribute};
 
                 String searchBase = ctx.getSearchBase();
                 groupSearchResults =
@@ -1591,11 +1590,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 // restriction specified in user-mgt.xml by
                 // checking whether all users are trying to be deleted
                 // before updating LDAP.
-                Attribute returnedMemberAttribute =
-                        resultedGroup.getAttributes()
-                                .get(membershipAttributeName);
-                if (!emptyRolesAllowed &&
-                        newUsers.length - deletedUsers.length + returnedMemberAttribute.size() == 0) {
+                if (!emptyRolesAllowed) {
                     errorMessage =
                             "There should be at least one member in the role. "
                                     + "Hence can not delete all the members.";
@@ -1666,6 +1661,12 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                         userRealm.getAuthorizationManager().clearUserAuthorization(deletedUserNameWithDomain);
                     }
                 }
+            } catch (NameAlreadyBoundException e) {
+                errorMessage = "User already exists in in LDAP role: " + roleName;
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+                throw new UserStoreException(errorMessage);
             } catch (NamingException e) {
                 errorMessage = "Error occurred while modifying the user list of role: " + roleName;
                 if (log.isDebugEnabled()) {
