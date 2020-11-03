@@ -716,12 +716,12 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                     String domainName = realmConfig.getUserStoreProperty(
                             UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
 
-                         /*
-                         Username will be null in the special case where the
-                         username attribute has changed to another
-                         and having different userNameProperty than the current
-                         user-mgt.xml
-                          */
+                    /*
+                    Username will be null in the special case where the
+                    username attribute has changed to another
+                    and having different userNameProperty than the current
+                    user-mgt.xml.
+                    */
                     if (userName != null) {
                         userName = UserCoreUtil.getCombinedName(domainName, userName, displayName);
                         userList.add(userName);
