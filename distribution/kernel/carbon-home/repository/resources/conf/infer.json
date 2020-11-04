@@ -55,7 +55,8 @@
       "user_store.properties.ReplaceEscapeCharactersAtUserLogin": true,
       "user_store.properties.SCIMEnabled": true,
       "user_store.properties.UserRolesCacheEnabled": true,
-      "user_store.properties.ConnectionRetryDelay": "2m"
+      "user_store.properties.ConnectionRetryDelay": "2m",
+      "user_store.properties.CaseInsensitiveUsername": true
     },
     "read_only_ldap_unique_id": {
       "user_store.class": "org.wso2.carbon.user.core.ldap.UniqueIDReadOnlyLDAPUserStoreManager",
@@ -82,7 +83,8 @@
       "user_store.properties.UserRolesCacheEnabled": true,
       "user_store.properties.ConnectionRetryDelay": "2m",
       "user_store.properties.UserIDAttribute": "scimId",
-      "user_store.properties.UserIdSearchFilter": "(&amp;(objectClass=person)(uid=?))"
+      "user_store.properties.UserIdSearchFilter": "(&amp;(objectClass=person)(uid=?))",
+      "user_store.properties.CaseInsensitiveUsername": true
     },
     "read_write_ldap": {
       "user_store.class": "org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager",
@@ -115,7 +117,8 @@
       "user_store.properties.defaultRealmName": "WSO2.ORG",
       "user_store.properties.StartTLSEnabled": false,
       "user_store.properties.UserRolesCacheEnabled": true,
-      "user_store.properties.ConnectionRetryDelay": "2m"
+      "user_store.properties.ConnectionRetryDelay": "2m",
+      "user_store.properties.CaseInsensitiveUsername": true
     },
     "read_write_ldap_unique_id": {
       "user_store.class": "org.wso2.carbon.user.core.ldap.UniqueIDReadWriteLDAPUserStoreManager",
@@ -150,7 +153,8 @@
       "user_store.properties.UserRolesCacheEnabled": true,
       "user_store.properties.ConnectionRetryDelay": "2m",
       "user_store.properties.UserIDAttribute": "scimId",
-      "user_store.properties.UserIdSearchFilter": "(&amp;(objectClass=person)(uid=?))"
+      "user_store.properties.UserIdSearchFilter": "(&amp;(objectClass=person)(uid=?))",
+      "user_store.properties.CaseInsensitiveUsername": true
     },
     "active_directory": {
       "user_store.class": "org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager",
@@ -188,7 +192,8 @@
       "user_store.properties.StartTLSEnabled": false,
       "user_store.properties.SCIMEnabled": false,
       "user_store.properties.UserRolesCacheEnabled": true,
-      "user_store.properties.ConnectionRetryDelay": "2m"
+      "user_store.properties.ConnectionRetryDelay": "2m",
+      "user_store.properties.CaseInsensitiveUsername": true
     },
     "active_directory_unique_id": {
       "user_store.class": "org.wso2.carbon.user.core.ldap.UniqueIDActiveDirectoryUserStoreManager",
@@ -230,7 +235,8 @@
       "user_store.properties.UserIDAttribute": "objectGuid",
       "user_store.properties.'java.naming.ldap.attributes.binary'": "objectGuid",
       "user_store.properties.ImmutableAttributes": "objectGuid",
-      "user_store.properties.UserIdSearchFilter": "(&amp;(objectClass=person)(uid=?))"
+      "user_store.properties.UserIdSearchFilter": "(&amp;(objectClass=person)(uid=?))",
+      "user_store.properties.CaseInsensitiveUsername": true
     }
   },
   "database.$1.type": {

@@ -247,6 +247,7 @@ public class JDBCCaseInsensitiveConstants {
             ".UM_TENANT_ID=? AND UM_HYBRID_USER_ROLE.UM_DOMAIN_ID=(SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE " +
             "UM_TENANT_ID=? AND UM_DOMAIN_NAME=?)";
 
+    @Deprecated
     public static final String CASE_SENSITIVE_USERNAME = "CaseInsensitiveUsername";
     public static final String CASE_SENSITIVE_USERNAME_DESCRIPTION = "Whether the username is case sensitive or not";
 
