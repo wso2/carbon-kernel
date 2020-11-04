@@ -11947,53 +11947,19 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // #################### <Listeners> #####################################################
         try {
             try {
-                for (UserStoreManagerListener listener : UMListenerServiceComponent.getUserStoreManagerListeners()) {
-                    if (listener instanceof SecretHandleableListener) {
-                        if (!listener.updateCredential(userID, newCredentialObj, oldCredentialObj, this)) {
-                            handleUpdateCredentialFailureWithID(
-                                    ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_CREDENTIAL.getCode(),
-                                    String.format(
-                                            ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_CREDENTIAL.getMessage(),
-                                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), userID,
-                                    newCredential, oldCredential);
-                            return;
-                        }
-                    } else {
-                        if (!listener.updateCredential(userID, newCredential, oldCredential, this)) {
-                            handleUpdateCredentialFailureWithID(
-                                    ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_CREDENTIAL.getCode(),
-                                    String.format(
-                                            ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_CREDENTIAL.getMessage(),
-                                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), userID,
-                                    newCredential, oldCredential);
-                            return;
-                        }
-                    }
-                }
 
                 for (UserOperationEventListener listener : UMListenerServiceComponent
                         .getUserOperationEventListeners()) {
-
-                    if (listener instanceof SecretHandleableListener) {
-                        if (!listener.doPreUpdateCredential(userID, newCredentialObj, oldCredentialObj, this)) {
-                            handleUpdateCredentialFailureWithID(
-                                    ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_CREDENTIAL.getCode(),
-                                    String.format(
-                                            ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_CREDENTIAL.getMessage(),
-                                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), userID,
-                                    newCredential, oldCredential);
-                            return;
-                        }
-                    } else {
-                        if (!listener.doPreUpdateCredential(userID, newCredential, oldCredential, this)) {
-                            handleUpdateCredentialFailureWithID(
-                                    ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_CREDENTIAL.getCode(),
-                                    String.format(
-                                            ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_CREDENTIAL.getMessage(),
-                                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), userID,
-                                    newCredential, oldCredential);
-                            return;
-                        }
+                    if (listener instanceof AbstractUserOperationEventListener &&
+                            !((AbstractUserOperationEventListener) listener)
+                                    .doPreUpdateCredentialWithID(userID, newCredential, oldCredential, this)) {
+                        handleUpdateCredentialFailureWithID(
+                                ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_CREDENTIAL.getCode(),
+                                String.format(
+                                        ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_CREDENTIAL.getMessage(),
+                                        UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), userID,
+                                newCredential, oldCredential);
+                        return;
                     }
                 }
             } catch (UserStoreException e) {
@@ -12069,24 +12035,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 try {
                     for (UserOperationEventListener listener : UMListenerServiceComponent
                             .getUserOperationEventListeners()) {
-                        if (listener instanceof SecretHandleableListener) {
-                            if (!listener.doPostUpdateCredential(userID, newCredentialObj, this)) {
-                                handleUpdateCredentialFailureWithID(
-                                        ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL.getCode(),
-                                        String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL
-                                                .getMessage(), "Post update credential tasks failed"), userID,
-                                        newCredentialObj, oldCredentialObj);
-                                return;
-                            }
-                        } else {
-                            if (!listener.doPostUpdateCredential(userID, newCredential, this)) {
-                                handleUpdateCredentialFailureWithID(
-                                        ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL.getCode(),
-                                        String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL
-                                                .getMessage(), "Post update credential tasks failed"), userID,
-                                        newCredential, oldCredential);
-                                return;
-                            }
+                        if (listener instanceof AbstractUserOperationEventListener &&
+                                !((AbstractUserOperationEventListener) listener)
+                                        .doPostUpdateCredentialWithID(userID, newCredential, this)) {
+                            handleUpdateCredentialFailureWithID(
+                                    ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL.getCode(),
+                                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL
+                                            .getMessage(), "Post update credential tasks failed"), userID,
+                                    newCredential, oldCredential);
+                            return;
                         }
                     }
                 } catch (UserStoreException ex) {
