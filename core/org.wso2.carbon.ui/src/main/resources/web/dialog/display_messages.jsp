@@ -23,7 +23,7 @@
 <script type="text/javascript">
     var msgId;
     <%
-    if(Encode.forJavaScript(request.getParameter("msgId")) == null){
+    if (Encode.forJavaScript(request.getParameter("msgId")).equals("null")){
     %>
     msgId = '<%="MSG" + System.currentTimeMillis() + Math.random()%>';
     <%
