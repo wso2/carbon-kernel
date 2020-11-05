@@ -979,7 +979,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_SEARCH_FILTER);
         String userIDAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
 
-        userSearchFilter = userSearchFilter.replace(LDAPConstants.UID_EXACT_MATCH, userIDAttribute);
+        userSearchFilter = userSearchFilter.replaceAll(LDAPConstants.UID_EXACT_MATCH, userIDAttribute);
 
         if (OBJECT_GUID.equalsIgnoreCase(userIDAttribute) && isBinaryUserAttribute(userIDAttribute)) {
             userID = transformUUIDToObjectGUID(userID);
@@ -1085,7 +1085,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_SEARCH_FILTER);
         String userIDAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
 
-        userSearchFilter = userSearchFilter.replace(LDAPConstants.UID_EXACT_MATCH, userIDAttribute);
+        userSearchFilter = userSearchFilter.replaceAll(LDAPConstants.UID_EXACT_MATCH, userIDAttribute);
 
         if (OBJECT_GUID.equalsIgnoreCase(userIDAttribute) && isBinaryUserAttribute(userIDAttribute)) {
             userID = transformUUIDToObjectGUID(userID);
@@ -1199,7 +1199,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_SEARCH_FILTER);
         String userIDAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
 
-        userSearchFilter = userSearchFilter.replace(LDAPConstants.UID_EXACT_MATCH, userIDAttribute);
+        userSearchFilter = userSearchFilter.replaceAll(LDAPConstants.UID_EXACT_MATCH, userIDAttribute);
         userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userID));
 
         SearchControls searchControls = new SearchControls();
