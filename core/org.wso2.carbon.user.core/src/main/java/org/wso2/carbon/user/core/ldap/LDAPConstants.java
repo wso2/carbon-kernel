@@ -35,6 +35,7 @@ public class LDAPConstants {
     //Property that defines the status of the referral to be used:
     public static final String PROPERTY_REFERRAL = "Referral";
     public static final String UID = "uid";
+    public static final String UID_EXACT_MATCH = "\\buid\\b";
     public static final String CN = "cn";
     public static final String CN_CAPITALIZED = "CN";
 
