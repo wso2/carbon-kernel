@@ -35,25 +35,28 @@ public class Utils {
     private static final String JAX_APP_PATTERN = "/jaxwebapps/";
 
 	public static String getTenantDomain(HttpServletRequest request) {
-		String requestURI = request.getRequestURI();
-		String domain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+        String requestURI = request.getRequestURI();
+        String domain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
 
-		if (!requestURI.contains("/t/")) {
-			// check for admin services - tenant admin services are deployed in
-			// super tenant flow
-			HttpSession session = request.getSession(false);
-			if (session != null && session.getAttribute(MultitenantConstants.TENANT_DOMAIN) != null) {
-				domain = (String) session.getAttribute(MultitenantConstants.TENANT_DOMAIN);
-			}
-		} else {
-			String temp = requestURI.substring(requestURI.indexOf("/t/") + 3);
-			if (temp.indexOf('/') != -1) {
-				temp = temp.substring(0, temp.indexOf('/'));
-				domain = temp;
-			}
-		}
-		return domain;
-	}
+        if (requestURI == null) {
+            return domain;
+        }
+        if (!requestURI.contains("/t/")) {
+            // check for admin services - tenant admin services are deployed in
+            // super tenant flow
+            HttpSession session = request.getSession(false);
+            if (session != null && session.getAttribute(MultitenantConstants.TENANT_DOMAIN) != null) {
+                domain = (String) session.getAttribute(MultitenantConstants.TENANT_DOMAIN);
+            }
+        } else {
+            String temp = requestURI.substring(requestURI.indexOf("/t/") + 3);
+            if (temp.indexOf('/') != -1) {
+                temp = temp.substring(0, temp.indexOf('/'));
+                domain = temp;
+            }
+        }
+        return domain;
+    }
 
 	public static String getServiceName(String requestURI) {
 		String serviceName = "";
