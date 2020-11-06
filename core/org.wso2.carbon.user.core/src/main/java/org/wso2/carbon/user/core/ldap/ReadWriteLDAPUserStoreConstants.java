@@ -164,6 +164,9 @@ public class ReadWriteLDAPUserStoreConstants {
                 new Property[] { CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty() });
         setProperty(UserStoreConfigConstants.dateAndTimePattern, "", UserStoreConfigConstants
                 .dateAndTimePatternDisplayName, UserStoreConfigConstants.dateAndTimePatternDescription, new Property[]{CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty()});
+        setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "true",
+                UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION,
+                new Property[] { USER.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
     }
 
     private static void setMandatoryProperty(String name, String displayName, String value, String description,
