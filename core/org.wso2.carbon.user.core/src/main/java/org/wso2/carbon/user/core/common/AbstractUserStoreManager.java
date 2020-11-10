@@ -7282,30 +7282,39 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (entry.getValue() instanceof AbstractUserStoreManager) {
                     // If there is a user for the give user id, then that is the correct domain.
                     AbstractUserStoreManager abstractUserStoreManager = (AbstractUserStoreManager) entry.getValue();
-                    if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
-                        if (abstractUserStoreManager.doGetUserNameFromUserIDWithID(userId) != null) {
-                            // If we found a domain name for the give user id, update the domain resolver with the name.
-                            domainName = entry.getKey();
-                            userUniqueIDDomainResolver.setDomainForUserId(userId, domainName, tenantId);
-                            break;
-                        }
-                    } else {
-                        // This is happening when the user store is not supporting uniqueID.
-                        try {
-                            if (abstractUserStoreManager.getUserListFromProperties(claimManager.getAttributeName(entry
-                                    .getKey(), UserCoreClaimConstants.USER_ID_CLAIM_URI), userId, null).length > 0) {
+                    try {
+                        if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
+                            if (abstractUserStoreManager.doGetUserNameFromUserIDWithID(userId) != null) {
+                                // If we found a domain name for the give user id, update the domain resolver with
+                                // the name.
                                 domainName = entry.getKey();
                                 userUniqueIDDomainResolver.setDomainForUserId(userId, domainName, tenantId);
                                 break;
                             }
-                        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                                handleGetUserListFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getCode(),
-                                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getMessage(),
-                                                e.getMessage()), UserCoreClaimConstants.USER_ID_CLAIM_URI, userId,
-                                        null);
+                        } else {
+                            // This is happening when the user store is not supporting uniqueID.
+                            try {
+                                if (abstractUserStoreManager.getUserListFromProperties(
+                                        claimManager.getAttributeName(entry.getKey(),
+                                                UserCoreClaimConstants.USER_ID_CLAIM_URI),
+                                        userId, null).length > 0) {
+                                    domainName = entry.getKey();
+                                    userUniqueIDDomainResolver.setDomainForUserId(userId, domainName, tenantId);
+                                    break;
+                                }
+                            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                                handleGetUserListFailure(
+                                        ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getCode(),
+                                        String.format(
+                                                ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getMessage(),
+                                                e.getMessage()), UserCoreClaimConstants.USER_ID_CLAIM_URI,
+                                        userId, null);
                                 throw new UserStoreException("Unable retrieve users from getUserListFromProperties " +
                                         "method from the user store: " + entry.getKey() + ".", e);
+                            }
                         }
+                    } catch (UserStoreException e) {
+                        log.error("Error while user id in domain name: " + entry.getKey(), e);
                     }
                 }
             }
