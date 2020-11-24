@@ -26,6 +26,7 @@ import org.wso2.carbon.utils.xml.StringUtils;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.sql.CallableStatement;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -96,7 +97,7 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
     private Object invokeProxy(Method method, Object[] args, Object statement, long time) throws Exception {
         String name = method.getName();
         String sql = null;
-        Constructor<?> constructor = null;
+        Constructor<?> constructor;
 
         if (this.compare("prepareStatement", name)) {
             sql = (String) args[0];
@@ -104,7 +105,13 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
             if (sql != null) {
                 this.prepareStatement(sql, time);
             }
-        } else if (!this.compare("prepareCall", name)) {
+        } else if (this.compare("prepareCall", name)) {
+            if (args != null && args.length > 0) {
+                sql = (String) args[0];
+            }
+            constructor = this.getConstructor(2, CallableStatement.class);
+            this.prepareCall(sql, time);
+        } else {
             return statement;
         }
 
