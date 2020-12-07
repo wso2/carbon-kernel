@@ -34,6 +34,7 @@ public class LDAPConstants {
     public static final String LDAP_INITIAL_CONTEXT_FACTORY = "LDAPInitialContextFactory";
     //Property that defines the status of the referral to be used:
     public static final String PROPERTY_REFERRAL = "Referral";
+    public static final String PROPERTY_REFERRAL_IGNORE = "ignore";
     public static final String UID = "uid";
     public static final String UID_EXACT_MATCH = "\\buid\\b";
     public static final String CN = "cn";
