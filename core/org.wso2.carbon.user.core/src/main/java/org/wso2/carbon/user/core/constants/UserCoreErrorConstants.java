@@ -220,7 +220,8 @@ public class UserCoreErrorConstants {
         // Error code related with updating permissions of role.
         ERROR_CODE_ERROR_WHILE_UPDATING_PERMISSIONS_OF_ROLE("32101", "Un-expected error while updating permissions of  "
                 + "updating role,  %s"),
-        ERROR_CODE_USERNAME_CANNOT_BE_EMPTY("32102", "Username %s is not valid. User name cannot be empty.");
+        ERROR_CODE_USERNAME_CANNOT_BE_EMPTY("32102", "Username %s is not valid. User name cannot be empty."),
+        ERROR_CODE_INVALID_DOMAIN_NAME("32103", "Domain name: %s, is not valid");
 
         private final String code;
         private final String message;

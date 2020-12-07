@@ -14751,8 +14751,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     filteredUsers = userUniqueIDManger.listUsers(users.getUsers(), this);
                 }
             }
-        } else if (secManager == null && StringUtils.isNotEmpty(domain)) {
-            throw new UserStoreClientException("Invalid Domain Name.");
+        } else if (StringUtils.isNotEmpty(domain)) {
+            String message = ErrorMessages.ERROR_CODE_INVALID_DOMAIN_NAME.getMessage();
+            String errorCode = ErrorMessages.ERROR_CODE_INVALID_DOMAIN_NAME.getCode();
+            throw new UserStoreClientException(errorCode + " - " + String.format(message, domain), errorCode);
         }
 
         handlePostGetUserListWithID(condition, domain, profileName, limit, offset, sortBy, sortOrder, filteredUsers,
