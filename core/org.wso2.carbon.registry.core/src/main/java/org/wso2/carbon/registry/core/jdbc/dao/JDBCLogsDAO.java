@@ -56,6 +56,7 @@ public class JDBCLogsDAO implements LogsDAO {
 
     private static final Log log = LogFactory.getLog(JDBCLogsDAO.class);
     private String enableApiPagination = PaginationConstants.ENABLE_API_PAGINATE;
+    private String MSSQL_DATABASE_TYPE = "Microsoft";
     private Map<String, DataBaseConfiguration> dbConfigs = new HashMap<String, DataBaseConfiguration>();
     private Map<String, String> pathMap = new HashMap<String, String>();
 
@@ -385,7 +386,7 @@ public class JDBCLogsDAO implements LogsDAO {
         boolean queryStarted = false;
         boolean isMssql = false;
         try {
-            if (conn.getMetaData().getDatabaseProductName().contains("Microsoft")) {
+            if (conn.getMetaData().getDatabaseProductName().contains(MSSQL_DATABASE_TYPE)) {
                 isMssql = true;
             }
         } catch (SQLException e) {
@@ -574,9 +575,9 @@ public class JDBCLogsDAO implements LogsDAO {
         if (from != null) {
             if(isMssql) {
                 if (queryStarted) {
-                    sql = sql + " AND REG_LOGGED_TIME>CONVERT(datetime, ?)";
+                    sql = sql + " AND REG_LOGGED_TIME > CONVERT(datetime, ?)";
                 } else {
-                    sql = sql + " WHERE REG_LOGGED_TIME>CONVERT(datetime, ?)";
+                    sql = sql + " WHERE REG_LOGGED_TIME > CONVERT(datetime, ?)";
                     queryStarted = true;
                 }
             } else {
@@ -592,9 +593,9 @@ public class JDBCLogsDAO implements LogsDAO {
         if (to != null) {
             if(isMssql) {
                 if(queryStarted) {
-                    sql = sql + " AND REG_LOGGED_TIME<CONVERT(datetime, ?)";
+                    sql = sql + " AND REG_LOGGED_TIME < CONVERT(datetime, ?)";
                 } else {
-                    sql = sql + " WHERE REG_LOGGED_TIME<CONVERT(datetime, ?)";
+                    sql = sql + " WHERE REG_LOGGED_TIME < CONVERT(datetime, ?)";
                     queryStarted = true;
                 }
             } else {
@@ -719,7 +720,7 @@ public class JDBCLogsDAO implements LogsDAO {
         boolean isMssql = false;
         try {
             conn = dataSource.getConnection();
-            if (conn.getMetaData().getDatabaseProductName().contains("Microsoft")) {
+            if (conn.getMetaData().getDatabaseProductName().contains(MSSQL_DATABASE_TYPE)) {
                 isMssql = true;
             }
             sql = addWherePart(resourcePath, queryStarted, sql, userName, from, to, action, isMssql);
@@ -893,7 +894,7 @@ public class JDBCLogsDAO implements LogsDAO {
 
         try {
             conn = dataSource.getConnection();
-            if (conn.getMetaData().getDatabaseProductName().contains("Microsoft")) {
+            if (conn.getMetaData().getDatabaseProductName().contains(MSSQL_DATABASE_TYPE)) {
                 isMssql = true;
             }
             sql = addWherePart(resourcePath, queryStarted, sql, userName, from, to, action, isMssql);
@@ -994,7 +995,7 @@ public class JDBCLogsDAO implements LogsDAO {
         boolean queryStarted = false;
         boolean isMssql = false;
         try {
-            if (conn.getMetaData().getDatabaseProductName().contains("Microsoft")) {
+            if (conn.getMetaData().getDatabaseProductName().contains(MSSQL_DATABASE_TYPE)) {
                 isMssql = true;
             }
         } catch (SQLException e) {
