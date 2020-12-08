@@ -56,6 +56,7 @@ public class JDBCLogsDAO implements LogsDAO {
 
     private static final Log log = LogFactory.getLog(JDBCLogsDAO.class);
     private String enableApiPagination = PaginationConstants.ENABLE_API_PAGINATE;
+    private String MSSQL_DATABASE_TYPE = "Microsoft";
     private Map<String, DataBaseConfiguration> dbConfigs = new HashMap<String, DataBaseConfiguration>();
     private Map<String, String> pathMap = new HashMap<String, String>();
 
@@ -383,7 +384,15 @@ public class JDBCLogsDAO implements LogsDAO {
                         "REG_LOG";
 
         boolean queryStarted = false;
-        sql = addWherePart(resourcePath, queryStarted, sql, userName, from, to, action);
+        boolean isMssql = false;
+        try {
+            if (conn.getMetaData().getDatabaseProductName().contains(MSSQL_DATABASE_TYPE)) {
+                isMssql = true;
+            }
+        } catch (SQLException e) {
+            throw new RegistryException("Failed to get Database product name ", e);
+        }
+        sql = addWherePart(resourcePath, queryStarted, sql, userName, from, to, action, isMssql);
 
         if ("ASC".equals(sortOrder)) {
             descending = false;
@@ -543,7 +552,8 @@ public class JDBCLogsDAO implements LogsDAO {
                                 String userName,
                                 Date from,
                                 Date to,
-                                int action) {
+                                int action,
+                                boolean isMssql) {
         if (resourcePath != null) {
             if (queryStarted) {
                 sql = sql + " AND REG_PATH=?";
@@ -563,20 +573,38 @@ public class JDBCLogsDAO implements LogsDAO {
         }
 
         if (from != null) {
-            if (queryStarted) {
-                sql = sql + " AND REG_LOGGED_TIME>?";
+            if(isMssql) {
+                if (queryStarted) {
+                    sql = sql + " AND REG_LOGGED_TIME > CONVERT(datetime, ?)";
+                } else {
+                    sql = sql + " WHERE REG_LOGGED_TIME > CONVERT(datetime, ?)";
+                    queryStarted = true;
+                }
             } else {
-                sql = sql + " WHERE REG_LOGGED_TIME>?";
-                queryStarted = true;
+                if (queryStarted) {
+                    sql = sql + " AND REG_LOGGED_TIME>?";
+                } else {
+                    sql = sql + " WHERE REG_LOGGED_TIME>?";
+                    queryStarted = true;
+                }
             }
         }
 
         if (to != null) {
-            if (queryStarted) {
-                sql = sql + " AND REG_LOGGED_TIME<?";
+            if(isMssql) {
+                if(queryStarted) {
+                    sql = sql + " AND REG_LOGGED_TIME < CONVERT(datetime, ?)";
+                } else {
+                    sql = sql + " WHERE REG_LOGGED_TIME < CONVERT(datetime, ?)";
+                    queryStarted = true;
+                }
             } else {
-                sql = sql + " WHERE REG_LOGGED_TIME<?";
-                queryStarted = true;
+                if (queryStarted) {
+                    sql = sql + " AND REG_LOGGED_TIME<?";
+                } else {
+                    sql = sql + " WHERE REG_LOGGED_TIME<?";
+                    queryStarted = true;
+                }
             }
         }
 
@@ -689,13 +717,16 @@ public class JDBCLogsDAO implements LogsDAO {
         Connection conn = null;
         PreparedStatement s = null;
         ResultSet results = null;
-        sql = addWherePart(resourcePath, queryStarted, sql, userName, from, to, action);
-
-        if (descending) {
-            sql = sql + " ORDER BY REG_LOGGED_TIME DESC";
-        }
+        boolean isMssql = false;
         try {
             conn = dataSource.getConnection();
+            if (conn.getMetaData().getDatabaseProductName().contains(MSSQL_DATABASE_TYPE)) {
+                isMssql = true;
+            }
+            sql = addWherePart(resourcePath, queryStarted, sql, userName, from, to, action, isMssql);
+            if (descending) {
+                sql = sql + " ORDER BY REG_LOGGED_TIME DESC";
+            }
             s = conn.prepareStatement(sql);
 
             int paramNumber = 1;
@@ -859,15 +890,17 @@ public class JDBCLogsDAO implements LogsDAO {
         String sql =
                 "SELECT REG_PATH, REG_USER_ID, REG_LOGGED_TIME, REG_ACTION, REG_ACTION_DATA FROM " +
                         "REG_LOG";
-
-        sql = addWherePart(resourcePath, queryStarted, sql, userName, from, to, action);
-
-        if (descending) {
-            sql = sql + " ORDER BY REG_LOGGED_TIME DESC";
-        }
+        boolean isMssql = false;
 
         try {
             conn = dataSource.getConnection();
+            if (conn.getMetaData().getDatabaseProductName().contains(MSSQL_DATABASE_TYPE)) {
+                isMssql = true;
+            }
+            sql = addWherePart(resourcePath, queryStarted, sql, userName, from, to, action, isMssql);
+            if (descending) {
+                sql = sql + " ORDER BY REG_LOGGED_TIME DESC";
+            }
             s = conn.prepareStatement(sql);
 
             int paramNumber = 1;
@@ -960,8 +993,16 @@ public class JDBCLogsDAO implements LogsDAO {
         String sql = "SELECT COUNT(*) AS REG_LOG_COUNT FROM REG_LOG";
 
         boolean queryStarted = false;
+        boolean isMssql = false;
+        try {
+            if (conn.getMetaData().getDatabaseProductName().contains(MSSQL_DATABASE_TYPE)) {
+                isMssql = true;
+            }
+        } catch (SQLException e) {
+            throw new RegistryException("Failed to get Database product name ", e);
+        }
 
-        sql = addWherePart(resourcePath, queryStarted, sql, userName, from, to, action);
+        sql = addWherePart(resourcePath, queryStarted, sql, userName, from, to, action, isMssql);
 
         PreparedStatement s = null;
         ResultSet results = null;
