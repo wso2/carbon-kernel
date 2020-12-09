@@ -14745,15 +14745,22 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         List<User> filteredUsers = new ArrayList<>();
-        UserStoreManager secManager = getSecondaryUserStoreManager(domain);
-        if (secManager != null) {
-            if (secManager instanceof AbstractUserStoreManager) {
-                if (isUniqueUserIdEnabled(secManager)) {
-                    UniqueIDPaginatedSearchResult users = ((AbstractUserStoreManager) secManager)
+        UserStoreManager userManager = this;
+        /*
+         * This method("getUserListWithID") can be called for secondary userstore managers.
+         * At that time the "domain" is the name of the "this" usertore manager.
+         */
+        if (StringUtils.isNotEmpty(domain) && !StringUtils.equalsIgnoreCase(getMyDomainName(), domain)) {
+            userManager = getSecondaryUserStoreManager(domain);
+        }
+        if (userManager != null) {
+            if (userManager instanceof AbstractUserStoreManager) {
+                if (isUniqueUserIdEnabled(userManager)) {
+                    UniqueIDPaginatedSearchResult users = ((AbstractUserStoreManager) userManager)
                             .doGetUserListWithID(condition, profileName, limit, offset, sortBy, sortOrder);
                     filteredUsers = users.getUsers();
                 } else {
-                    PaginatedSearchResult users = ((AbstractUserStoreManager) secManager)
+                    PaginatedSearchResult users = ((AbstractUserStoreManager) userManager)
                             .doGetUserList(condition, profileName, limit, offset, sortBy, sortOrder);
                     filteredUsers = userUniqueIDManger.listUsers(users.getUsers(), this);
                 }
