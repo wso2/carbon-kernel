@@ -4682,9 +4682,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throw new UserStoreException(errorCode + " - " + message);
         }
 
+        String userNameWithoutDomain = UserCoreUtil.removeDomainFromName(userName);
         // If the username claims presents, the value should be equal to the username attribute.
         if (claims != null && claims.containsKey(USERNAME_CLAIM_URI) &&
-                !claims.get(USERNAME_CLAIM_URI).equals(userName)) {
+                !claims.get(USERNAME_CLAIM_URI).equals(userNameWithoutDomain)) {
             // If not we cannot continue.
             throw new UserStoreException("Username and the username claim value should be same.");
         }
@@ -13773,8 +13774,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // If the username claims presents, the value should be equal to the username attribute.
+        String userNameWithoutDomain = UserCoreUtil.removeDomainFromName(userName);
         if (claims != null && claims.containsKey(USERNAME_CLAIM_URI) &&
-                !claims.get(USERNAME_CLAIM_URI).equals(userName)) {
+                !claims.get(USERNAME_CLAIM_URI).equals(userNameWithoutDomain)) {
             // If not we cannot continue.
             throw new UserStoreException("Username and the username claim value should be same.");
         }
