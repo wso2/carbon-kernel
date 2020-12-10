@@ -568,28 +568,13 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     @Override
     public boolean doCheckExistingUserWithID(String userID) throws UserStoreException {
 
-        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_IS_USER_EXISTING_WITH_ID);
-        if (sqlStmt == null) {
-            throw new UserStoreException("The sql statement for is user existing null.");
+        if (log.isDebugEnabled()) {
+            log.debug("Searching for userID " + userID);
         }
-        boolean isExisting;
-
-        String isUnique = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USERNAME_UNIQUE);
-        if (Boolean.parseBoolean(isUnique) && !CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userID)) {
-            String uniquenesSql = realmConfig.getUserStoreProperty(JDBCRealmConstants.USER_ID_UNIQUE_WITH_ID);
-            isExisting = isValueExisting(uniquenesSql, null, userID);
-            if (log.isDebugEnabled()) {
-                log.debug("The user ID should be unique across tenants.");
-            }
-        } else {
-            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                isExisting = isValueExisting(sqlStmt, null, userID, tenantId);
-            } else {
-                isExisting = isValueExisting(sqlStmt, null, userID);
-            }
+        if (userID == null) {
+            return false;
         }
-
-        return isExisting;
+        return doGetUserNameFromUserID(userID) != null;
     }
 
     @Override
@@ -3294,6 +3279,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                         String userID = rs.getString(1);
                         String userName = rs.getString(2);
                         User user = getUser(userID, userName);
+                        user.setUserStoreDomain(getMyDomainName());
                         tempUserList.add(user);
                     }
 
@@ -3313,6 +3299,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     String userID = rs.getString(1);
                     String userName = rs.getString(2);
                     User user = getUser(userID, userName);
+                    user.setUserStoreDomain(getMyDomainName());
                     list.add(user);
                 }
             }
