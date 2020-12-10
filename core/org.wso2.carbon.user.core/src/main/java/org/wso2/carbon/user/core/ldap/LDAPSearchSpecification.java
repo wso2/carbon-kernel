@@ -95,6 +95,7 @@ public class LDAPSearchSpecification {
             /* To get the serviceNameAttributeValue while interpreting the search result
             for username or claim filtering. */
             returnedAttributes.add(SERVICE_NAME_ATTRIBUTE);
+            returnedAttributes.add(realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE));
         }
 
         if (CollectionUtils.isNotEmpty(returnedAttributes)) {
@@ -151,6 +152,7 @@ public class LDAPSearchSpecification {
                 this.isMemberOfPropertyFound = true;
                 this.searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
                 returnedAttributes.add(realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE));
+                returnedAttributes.add(realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE));
             }
         }
     }
@@ -277,8 +279,8 @@ public class LDAPSearchSpecification {
 
         StringBuilder property;
         property = new StringBuilder(memberAttributeName).append(EQUALS_SIGN).append(userPropertyName);
-        if (ExpressionOperation.CO.toString().equals(operation) ||
-                ExpressionOperation.EW.toString().equals(operation)) {
+        if (ExpressionOperation.CO.toString().equals(operation) || ExpressionOperation.SW.toString().equals(operation)
+                || ExpressionOperation.EW.toString().equals(operation)) {
             return null;
         } else if (ExpressionOperation.EQ.toString().equals(operation)) {
             value.append(VALUE_SEPARATOR).append(realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE));
