@@ -294,7 +294,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         String userPropertyName =
                 realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
         if (preferredUserNameProperty.equals(userPropertyName)) {
-            users = new String[]{preferredUserNameValue};
+            users = new String[] { preferredUserNameValue };
         } else {
             users = super
                     .getUserListFromProperties(preferredUserNameProperty, preferredUserNameValue, profileName);
@@ -1473,13 +1473,14 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
      * @param offset      Start index.
      * @param sortBy      Sort according to the given attribute name.
      * @param sortOrder   Sorting order.
-     * @return A non-null PaginatedSearchResult instance. Typically contains user names with pagination.
+     * @return A non-null UniqueIDPaginatedSearchResult instance. Typically contains users list with pagination.
      * @throws UserStoreException If an UserStoreException is encountered
      *                            while searching for users in a given condition.
      */
     @Override
     protected UniqueIDPaginatedSearchResult doGetUserListWithID(Condition condition, String profileName, int limit,
-            int offset, String sortBy, String sortOrder) throws UserStoreException {
+                                                                int offset, String sortBy, String sortOrder)
+            throws UserStoreException {
 
         UniqueIDPaginatedSearchResult result = new UniqueIDPaginatedSearchResult();
         List<ExpressionCondition> expressionConditions = getExpressionConditions(condition);
@@ -1488,19 +1489,17 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         boolean isMemberShipPropertyFound = ldapSearchSpecification.isMemberShipPropertyFound();
         limit = getLimit(limit, isMemberShipPropertyFound);
         offset = getOffset(offset);
-
         if (limit == 0) {
             return result;
         }
-
         int pageSize = limit;
         DirContext dirContext = this.connectionSource.getContext();
         LdapContext ldapContext = (LdapContext) dirContext;
         List<User> users;
         String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
         try {
-            ldapContext.setRequestControls(new Control[]{new PagedResultsControl(pageSize, Control.CRITICAL),
-                    new SortControl(userNameAttribute, Control.NONCRITICAL)});
+            ldapContext.setRequestControls(new Control[] { new PagedResultsControl(pageSize, Control.CRITICAL),
+                    new SortControl(userNameAttribute, Control.NONCRITICAL) });
             users = performLDAPSearch(ldapContext, ldapSearchSpecification, pageSize, offset, expressionConditions);
             result.setUsers(users);
             return result;
