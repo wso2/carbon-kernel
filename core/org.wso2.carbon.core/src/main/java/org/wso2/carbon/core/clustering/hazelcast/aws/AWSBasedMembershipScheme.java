@@ -100,6 +100,22 @@ public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
     public void init() throws ClusteringFault {
         networkConfig.getJoin().getMulticastConfig().setEnabled(false);
         networkConfig.getJoin().getTcpIpConfig().setEnabled(false);
+
+        Parameter outboundPortDefinition = getParameter(AWSConstants.OUTBOUND_PORT_DEFINITION);
+        if (outboundPortDefinition != null) {
+            networkConfig.addOutboundPortDefinition(((String) outboundPortDefinition.getValue()).trim());
+        }
+
+        Parameter outboundPort = getParameter(AWSConstants.OUTBOUND_PORT);
+        if (outboundPort != null) {
+            String outboundPortString = ((String) outboundPort.getValue()).trim();
+            try {
+                networkConfig.addOutboundPort(Integer.parseInt(outboundPortString));
+            } catch (NumberFormatException e) {
+                log.error("Invalid value for the parameter: " + AWSConstants.OUTBOUND_PORT, e);
+            }
+        }
+
         AwsConfig awsConfig = networkConfig.getJoin().getAwsConfig();
         awsConfig.setEnabled(true);
 

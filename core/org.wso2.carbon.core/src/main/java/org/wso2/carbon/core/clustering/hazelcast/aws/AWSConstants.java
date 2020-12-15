@@ -32,4 +32,6 @@ public class AWSConstants {
     public static final String TAG_VALUE = "tagValue";
     public static final String IAM_ROLE = "iamRole";
     public static final String NETWORK_INTERFACE = "networkInterface";
+    public static final String OUTBOUND_PORT_DEFINITION = "outboundPortDefinition";
+    public static final String OUTBOUND_PORT = "outboundPort";
 }
