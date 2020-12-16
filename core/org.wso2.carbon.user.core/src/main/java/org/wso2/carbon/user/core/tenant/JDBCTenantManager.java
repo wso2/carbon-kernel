@@ -142,13 +142,12 @@ public class JDBCTenantManager implements TenantManager {
             }
             prepStmt.setTimestamp(3, new Timestamp(createdTimeMs));
 
-            // Add the tenant UUID to the realm config and update the tenant object.
-            RealmConfiguration tenantRealmConfiguration = tenant.getRealmConfig();
+            // Add the tenant UUID to the realm config.
             if (isTenantUniqueIdColumnAvailable()) {
-                tenantRealmConfiguration.setTenantUniqueId(tenantUniqueID);
-                tenant.setRealmConfig(tenantRealmConfiguration);
+                tenant.getRealmConfig().setTenantUniqueId(tenantUniqueID);
             }
-            String realmConfigString = RealmConfigXMLProcessor.serialize(tenantRealmConfiguration).toString();
+            String realmConfigString = RealmConfigXMLProcessor.serialize(
+                    (RealmConfiguration) tenant.getRealmConfig()).toString();
             InputStream is = new ByteArrayInputStream(realmConfigString.getBytes());
             prepStmt.setBinaryStream(4, is, is.available());
 
@@ -228,13 +227,12 @@ public class JDBCTenantManager implements TenantManager {
             }
             prepStmt.setTimestamp(4, new Timestamp(createdTimeMs));
 
-            // Add the tenant UUID to the realm config and update the tenant object.
-            RealmConfiguration tenantRealmConfiguration = tenant.getRealmConfig();
+            // Add the tenant UUID to the realm config.
             if (isTenantUniqueIdColumnAvailable()) {
-                tenantRealmConfiguration.setTenantUniqueId(tenant.getTenantUniqueID());
-                tenant.setRealmConfig(tenantRealmConfiguration);
+                tenant.getRealmConfig().setTenantUniqueId(tenant.getTenantUniqueID());
             }
-            String realmConfigString = RealmConfigXMLProcessor.serialize(tenantRealmConfiguration).toString();
+            String realmConfigString = RealmConfigXMLProcessor.serialize(
+                    (RealmConfiguration) tenant.getRealmConfig()).toString();
             InputStream is = new ByteArrayInputStream(realmConfigString.getBytes());
             prepStmt.setBinaryStream(5, is, is.available());
 
