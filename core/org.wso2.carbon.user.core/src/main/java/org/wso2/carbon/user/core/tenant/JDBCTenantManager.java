@@ -227,8 +227,14 @@ public class JDBCTenantManager implements TenantManager {
                 createdTimeMs = createdTime.getTime();
             }
             prepStmt.setTimestamp(4, new Timestamp(createdTimeMs));
-            String realmConfigString = RealmConfigXMLProcessor.serialize(
-                    (RealmConfiguration) tenant.getRealmConfig()).toString();
+
+            // Add the tenant UUID to the realm config and update the tenant object.
+            RealmConfiguration tenantRealmConfiguration = tenant.getRealmConfig();
+            if (isTenantUniqueIdColumnAvailable()) {
+                tenantRealmConfiguration.setTenantUuid(tenant.getTenantUniqueID());
+                tenant.setRealmConfig(tenantRealmConfiguration);
+            }
+            String realmConfigString = RealmConfigXMLProcessor.serialize(tenantRealmConfiguration).toString();
             InputStream is = new ByteArrayInputStream(realmConfigString.getBytes());
             prepStmt.setBinaryStream(5, is, is.available());
 
