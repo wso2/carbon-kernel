@@ -39,6 +39,7 @@ public class RealmConfiguration {
     protected String everyOneRoleName = null;
     protected String realmClassName = null;
     protected String description = null;
+    protected String tenantUniqueId = null;
     protected List<String> restrictedDomainsForSelfSignUp = new ArrayList<String>();
     protected List<String> reservedRoleNames = new ArrayList<String>();
     protected String isOverrideUsernameClaimFromInternalUsername = "false";
@@ -54,6 +55,26 @@ public class RealmConfiguration {
 
     public RealmConfiguration() {
         tenantId = MultitenantConstants.SUPER_TENANT_ID;
+    }
+
+    /**
+     * Get tenant unique id.
+     *
+     * @return Unique id of the tenant.
+     */
+    public String getTenantUniqueId() {
+
+        return tenantUniqueId;
+    }
+
+    /**
+     * Set the unique id of the tenant.
+     *
+     * @param tenantUniqueId Unique id of the tenant.
+     */
+    public void setTenantUniqueId(String tenantUniqueId) {
+
+        this.tenantUniqueId = tenantUniqueId;
     }
 
     public boolean isRestrictedDomainForSlefSignUp(String domain) {

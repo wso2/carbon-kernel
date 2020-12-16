@@ -141,6 +141,11 @@ public class JDBCTenantManager implements TenantManager {
                 createdTimeMs = createdTime.getTime();
             }
             prepStmt.setTimestamp(3, new Timestamp(createdTimeMs));
+
+            // Add the tenant UUID to the realm config.
+            if (isTenantUniqueIdColumnAvailable()) {
+                tenant.getRealmConfig().setTenantUniqueId(tenantUniqueID);
+            }
             String realmConfigString = RealmConfigXMLProcessor.serialize(
                     (RealmConfiguration) tenant.getRealmConfig()).toString();
             InputStream is = new ByteArrayInputStream(realmConfigString.getBytes());
@@ -221,6 +226,11 @@ public class JDBCTenantManager implements TenantManager {
                 createdTimeMs = createdTime.getTime();
             }
             prepStmt.setTimestamp(4, new Timestamp(createdTimeMs));
+
+            // Add the tenant UUID to the realm config.
+            if (isTenantUniqueIdColumnAvailable()) {
+                tenant.getRealmConfig().setTenantUniqueId(tenant.getTenantUniqueID());
+            }
             String realmConfigString = RealmConfigXMLProcessor.serialize(
                     (RealmConfiguration) tenant.getRealmConfig()).toString();
             InputStream is = new ByteArrayInputStream(realmConfigString.getBytes());
