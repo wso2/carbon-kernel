@@ -145,7 +145,7 @@ public class JDBCTenantManager implements TenantManager {
             // Add the tenant UUID to the realm config and update the tenant object.
             RealmConfiguration tenantRealmConfiguration = tenant.getRealmConfig();
             if (isTenantUniqueIdColumnAvailable()) {
-                tenantRealmConfiguration.setTenantUuid(tenantUniqueID);
+                tenantRealmConfiguration.setTenantUniqueId(tenantUniqueID);
                 tenant.setRealmConfig(tenantRealmConfiguration);
             }
             String realmConfigString = RealmConfigXMLProcessor.serialize(tenantRealmConfiguration).toString();
@@ -231,7 +231,7 @@ public class JDBCTenantManager implements TenantManager {
             // Add the tenant UUID to the realm config and update the tenant object.
             RealmConfiguration tenantRealmConfiguration = tenant.getRealmConfig();
             if (isTenantUniqueIdColumnAvailable()) {
-                tenantRealmConfiguration.setTenantUuid(tenant.getTenantUniqueID());
+                tenantRealmConfiguration.setTenantUniqueId(tenant.getTenantUniqueID());
                 tenant.setRealmConfig(tenantRealmConfiguration);
             }
             String realmConfigString = RealmConfigXMLProcessor.serialize(tenantRealmConfiguration).toString();
