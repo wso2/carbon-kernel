@@ -6288,7 +6288,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             } else {
                 userList = doListUsersWithID(filter, maxItemLimit)
                         .stream()
-                        .map(User::getDomainQualifiedUsername)
+                        .map(User::getUsername)
                         .toArray(String[]::new);
             }
         } catch (UserStoreException ex) {
