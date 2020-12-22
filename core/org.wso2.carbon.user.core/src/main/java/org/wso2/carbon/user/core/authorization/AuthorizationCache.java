@@ -32,7 +32,7 @@ import javax.cache.Caching;
  */
 
 /**
- * This class is used to cache some of autrhorization information.
+ * This class is used to cache some of autrhorization.
  */
 public class AuthorizationCache {
     public static final String AUTHORIZATION_CACHE_MANAGER = "AUTHORIZATION_CACHE_MANAGER";
