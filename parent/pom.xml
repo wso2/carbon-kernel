@@ -617,7 +617,7 @@
         <orbit.version.qpid>0.12.wso2v1</orbit.version.qpid>
 
         <!--Wso2 Secure Vault -->
-        <securevault.version>1.1.4-SNAPSHOT</securevault.version>
+        <securevault.version>1.1.4</securevault.version>
 
         <jdbc-pool.version>9.0.35.wso2v1</jdbc-pool.version>
 
@@ -664,7 +664,7 @@
         <version.org.apache.felix.scr.ds-annotations>1.2.10</version.org.apache.felix.scr.ds-annotations>
         <maven.felix.scr.plugin.version>1.25.0</maven.felix.scr.plugin.version>
         <import.package.version.commons.logging>[1.2.0,2.0.0)</import.package.version.commons.logging>
-        <config.mapper.version>1.0.2</config.mapper.version>
+        <config.mapper.version>1.0.13</config.mapper.version>
     </properties>
 
     <dependencyManagement>
