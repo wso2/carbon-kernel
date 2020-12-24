@@ -55,7 +55,7 @@ public class UserCoreErrorConstants {
         ERROR_CODE_DOMAIN_VALUE_WITH_FILTER_EMPTY("34012", "Filter value is not provided"),
         ERROR_CODE_NULL_CLAIM_URI("30018", "Claim URI is not provided"),
         // Error code related with authentication
-        ERROR_CODE_ERROR_WHILE_AUTHENTICATION("31001", "Un-expected error while authenticating"),
+        ERROR_CODE_ERROR_WHILE_AUTHENTICATION("31001", "Un-expected error while authenticating, %s"),
         ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION("31002", "Un-expected error while pre-authenticating, %s"),
         ERROR_CODE_TENANT_DEACTIVATED("31003", "Tenant has been deactivated. TenantID : %s"),
         ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION("31004", "TUn-expected error while post-authentication, %s"),
