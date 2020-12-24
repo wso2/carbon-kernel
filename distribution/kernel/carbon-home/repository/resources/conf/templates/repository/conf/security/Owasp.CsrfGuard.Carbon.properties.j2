@@ -454,8 +454,8 @@ org.owasp.csrfguard.configOverlay.secondsBetweenUpdateChecks = 60
 # If you run server with CSRF guard behind forwarding proxy, javascript sees domain name of proxy server, not backend
 # server. To make domain origin check work in such network configuration there needs to be way to send name of proxy
 # server to client. org.owasp.csrfguard.domainOrigin property which if defined can override server name sent to client.
-{% if owasp.csrfguard.js_servlet.domain_origin is defined %}
-org.owasp.csrfguard.JavascriptServlet.domainOrigin = {{owasp.csrfguard.js_servlet.domain_origin}}
+{% if owasp.csrfguard.domain_origin is defined %}
+org.owasp.csrfguard.domainOrigin = {{owasp.csrfguard.domain_origin}}
 {% endif %}
 
 ###########################
