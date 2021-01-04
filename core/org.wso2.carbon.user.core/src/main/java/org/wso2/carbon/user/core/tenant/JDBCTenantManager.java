@@ -41,6 +41,7 @@ import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.DBUtils;
+import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.io.ByteArrayInputStream;
@@ -74,6 +75,13 @@ public class JDBCTenantManager implements TenantManager {
     protected TenantCache tenantCacheManager = TenantCache.getInstance();
     DataSource dataSource;
     private static Boolean tenantUniqueIdColumnAvailable;
+    private static final String DB2 = "db2";
+    private static final String MSSQL = "mssql";
+    private static final String ORACLE = "oracle";
+    private static final String MYSQL = "mysql";
+    private static final String MARIADB = "mariadb";
+    private static final String POSTGRESQL = "postgresql";
+    private static final String H2 = "h2";
     /**
      * Map which maps tenant domains to tenant IDs
      * <p/>
@@ -1158,39 +1166,48 @@ public class JDBCTenantManager implements TenantManager {
     private ResultSet getTenantQueryResultSet(Connection dbConnection, String sortedOrder, Integer offset,
                                               Integer limit) throws SQLException, UserStoreException {
 
-        String dbType = dbConnection.getMetaData().getDatabaseProductName();
+        String dbType;
+        try {
+            dbType = DatabaseCreator.getDatabaseType(dbConnection);
+        } catch (Exception e) {
+            String msg = "Error occurred while getting database type from DB connection";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        }
         PreparedStatement prepStmt;
         String sqlQuery;
         String sqlTail;
         sqlQuery = TenantConstants.LIST_TENANTS_PAGINATED_SQL;
 
-        if (dbType.equalsIgnoreCase("MySQL") || dbType.equalsIgnoreCase("MariaDB") || dbType.equalsIgnoreCase("H2")) {
+        if (MYSQL.equalsIgnoreCase(dbType) || MARIADB.equalsIgnoreCase(dbType) || H2.equalsIgnoreCase(dbType)) {
             sqlTail = String.format(TenantConstants.LIST_TENANTS_MYSQL_TAIL, sortedOrder);
             sqlQuery = sqlQuery + sqlTail;
             prepStmt = dbConnection.prepareStatement(sqlQuery);
             prepStmt.setInt(1, offset);
             prepStmt.setInt(2, limit);
-        } else if (dbType.equalsIgnoreCase("oracle")) {
+        } else if (ORACLE.equalsIgnoreCase(dbType)) {
             sqlQuery = TenantConstants.LIST_TENANTS_PAGINATED_ORACLE;
             sqlTail = String.format(TenantConstants.LIST_TENANTS_ORACLE_TAIL, sortedOrder);
             sqlQuery = sqlQuery + sqlTail;
             prepStmt = dbConnection.prepareStatement(sqlQuery);
             prepStmt.setInt(1, offset + limit);
             prepStmt.setInt(2, offset);
-        } else if (dbType.equalsIgnoreCase("Microsoft")) {
+        } else if (MSSQL.equalsIgnoreCase(dbType)) {
             sqlTail = String.format(TenantConstants.LIST_TENANTS_MSSQL_TAIL, sortedOrder);
             sqlQuery = sqlQuery + sqlTail;
             prepStmt = dbConnection.prepareStatement(sqlQuery);
             prepStmt.setInt(1, offset);
             prepStmt.setInt(2, limit);
-        } else if (dbType.equalsIgnoreCase("db2")) {
+        } else if (DB2.equalsIgnoreCase(dbType)) {
             sqlQuery = TenantConstants.LIST_TENANTS_PAGINATED_DB2;
             sqlTail = String.format(TenantConstants.LIST_TENANTS_DB2_TAIL, sortedOrder);
             sqlQuery = sqlQuery + sqlTail;
             prepStmt = dbConnection.prepareStatement(sqlQuery);
             prepStmt.setInt(1, offset + 1);
             prepStmt.setInt(2, offset + limit);
-        } else if (dbType.equalsIgnoreCase("PostgreSQL")) {
+        } else if (POSTGRESQL.equalsIgnoreCase(dbType)) {
             sqlTail = String.format(TenantConstants.LIST_TENANTS_POSTGRESQL_TAIL, sortedOrder);
             sqlQuery = sqlQuery + sqlTail;
             prepStmt = dbConnection.prepareStatement(sqlQuery);
