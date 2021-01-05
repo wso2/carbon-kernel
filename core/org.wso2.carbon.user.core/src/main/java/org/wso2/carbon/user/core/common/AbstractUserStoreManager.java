@@ -4727,6 +4727,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         claims, profileName);
                 throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
             }
+            // Set a thread local if the user creation flow is ask password enabled.
+            if (claims.containsKey(UserCoreClaimConstants.ASK_PASSWORD_CLAIM_URI) &&
+                    Boolean.parseBoolean(claims.get(UserCoreClaimConstants.ASK_PASSWORD_CLAIM_URI))) {
+                UserCoreUtil.setThreadLocalToSetAskPasswordEnabled(true);
+            }
 
             // This happens only once during first startup - adding administrator user/role.
             if (userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
@@ -4855,7 +4860,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
 
             // Validate the password against provided regular expressions.
-            if (!checkUserPasswordValid(credentialObj)) {
+            if (!UserCoreUtil.getAskPasswordEnabledFromThreadLocal() && !checkUserPasswordValid(credentialObj)) {
                 String regEx = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX);
                 String message = String.format(ErrorMessages.ERROR_CODE_INVALID_PASSWORD.getMessage(), regEx);
                 String errorCode = ErrorMessages.ERROR_CODE_INVALID_PASSWORD.getCode();
@@ -4980,6 +4985,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
             // #################### </Post-Listeners> #####################################################
         } finally {
+            UserCoreUtil.removeAskPasswordEnabledInThreadLocal();
             credentialObj.clear();
         }
 
@@ -13859,6 +13865,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         claims, profileName);
                 throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
             }
+            // Set a thread local if the user creation flow is ask password enabled.
+            if (claims.containsKey(UserCoreClaimConstants.ASK_PASSWORD_CLAIM_URI) &&
+                    Boolean.parseBoolean(claims.get(UserCoreClaimConstants.ASK_PASSWORD_CLAIM_URI))) {
+                UserCoreUtil.setThreadLocalToSetAskPasswordEnabled(true);
+            }
 
             // This happens only once during first startup - adding administrator user/role.
             if (userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
@@ -13986,7 +13997,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
 
             // Validate the password against provided regular expressions.
-            if (!checkUserPasswordValid(credentialObj)) {
+            if (!UserCoreUtil.getAskPasswordEnabledFromThreadLocal() && !checkUserPasswordValid(credentialObj)) {
                 String regEx = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX);
                 String message = String.format(ErrorMessages.ERROR_CODE_INVALID_PASSWORD.getMessage(), regEx);
                 String errorCode = ErrorMessages.ERROR_CODE_INVALID_PASSWORD.getCode();
@@ -14114,6 +14125,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
             // #################### </Post-Listeners> #####################################################
         } finally {
+            UserCoreUtil.removeAskPasswordEnabledInThreadLocal();
             credentialObj.clear();
         }
 
