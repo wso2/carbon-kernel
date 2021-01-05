@@ -4730,7 +4730,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // Set a thread local if the user creation flow is ask password enabled.
             if (claims.containsKey(UserCoreClaimConstants.ASK_PASSWORD_CLAIM_URI) &&
                     Boolean.parseBoolean(claims.get(UserCoreClaimConstants.ASK_PASSWORD_CLAIM_URI))) {
-                UserCoreUtil.setThreadLocalToSetAskPasswordEnabled(true);
+                UserCoreUtil.setSkipPasswordPatternValidationThreadLocal(true);
             }
 
             // This happens only once during first startup - adding administrator user/role.
@@ -4860,7 +4860,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
 
             // Validate the password against provided regular expressions.
-            if (!UserCoreUtil.getAskPasswordEnabledFromThreadLocal() && !checkUserPasswordValid(credentialObj)) {
+            if (!checkUserPasswordValid(credentialObj)) {
                 String regEx = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX);
                 String message = String.format(ErrorMessages.ERROR_CODE_INVALID_PASSWORD.getMessage(), regEx);
                 String errorCode = ErrorMessages.ERROR_CODE_INVALID_PASSWORD.getCode();
@@ -4985,7 +4985,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
             // #################### </Post-Listeners> #####################################################
         } finally {
-            UserCoreUtil.removeAskPasswordEnabledInThreadLocal();
+            UserCoreUtil.removeSkipPasswordPatternValidationThreadLocal();
             credentialObj.clear();
         }
 
@@ -7939,6 +7939,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     protected boolean checkUserPasswordValid(Object credential) throws UserStoreException {
 
+        // Skip password pattern validation if the skipPasswordValidationThreadLocal is set to true.
+        if (UserCoreUtil.getSkipPasswordPatternValidationThreadLocal()) {
+            return true;
+        }
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{Object.class};
             Object object = callSecure("checkUserPasswordValid", new Object[]{credential}, argTypes);
@@ -13868,7 +13872,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // Set a thread local if the user creation flow is ask password enabled.
             if (claims.containsKey(UserCoreClaimConstants.ASK_PASSWORD_CLAIM_URI) &&
                     Boolean.parseBoolean(claims.get(UserCoreClaimConstants.ASK_PASSWORD_CLAIM_URI))) {
-                UserCoreUtil.setThreadLocalToSetAskPasswordEnabled(true);
+                UserCoreUtil.setSkipPasswordPatternValidationThreadLocal(true);
             }
 
             // This happens only once during first startup - adding administrator user/role.
@@ -13997,7 +14001,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
 
             // Validate the password against provided regular expressions.
-            if (!UserCoreUtil.getAskPasswordEnabledFromThreadLocal() && !checkUserPasswordValid(credentialObj)) {
+            if (!checkUserPasswordValid(credentialObj)) {
                 String regEx = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX);
                 String message = String.format(ErrorMessages.ERROR_CODE_INVALID_PASSWORD.getMessage(), regEx);
                 String errorCode = ErrorMessages.ERROR_CODE_INVALID_PASSWORD.getCode();
@@ -14125,7 +14129,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
             // #################### </Post-Listeners> #####################################################
         } finally {
-            UserCoreUtil.removeAskPasswordEnabledInThreadLocal();
+            UserCoreUtil.removeSkipPasswordPatternValidationThreadLocal();
             credentialObj.clear();
         }
 

@@ -79,7 +79,7 @@ public final class UserCoreUtil {
     /**
      * This thread local is used to keep track whether Ask Password option is enabled during the user addition flow.
      */
-    private static ThreadLocal<Boolean> threadLocalToSetAskPasswordEnabled = new ThreadLocal<>();
+    private static ThreadLocal<Boolean> skipPasswordPatternValidationThreadLocal = new ThreadLocal<>();
 
     /**
      * @param arr1
@@ -484,23 +484,23 @@ public final class UserCoreUtil {
         threadLocalToSetUserMgtContext.remove();
     }
 
-    public static void setThreadLocalToSetAskPasswordEnabled(Boolean askPasswordEnabled) {
+    public static void setSkipPasswordPatternValidationThreadLocal(Boolean askPasswordEnabled) {
 
-        threadLocalToSetAskPasswordEnabled.set(askPasswordEnabled);
+        skipPasswordPatternValidationThreadLocal.set(askPasswordEnabled);
     }
 
-    public static boolean getAskPasswordEnabledFromThreadLocal() {
+    public static boolean getSkipPasswordPatternValidationThreadLocal() {
 
-        if (threadLocalToSetAskPasswordEnabled.get() != null) {
-            return threadLocalToSetAskPasswordEnabled.get().booleanValue();
+        if (skipPasswordPatternValidationThreadLocal.get() != null) {
+            return skipPasswordPatternValidationThreadLocal.get().booleanValue();
         } else {
             return false;
         }
     }
 
-    public static void removeAskPasswordEnabledInThreadLocal() {
+    public static void removeSkipPasswordPatternValidationThreadLocal() {
 
-        threadLocalToSetAskPasswordEnabled.remove();
+        skipPasswordPatternValidationThreadLocal.remove();
     }
 
     /**
