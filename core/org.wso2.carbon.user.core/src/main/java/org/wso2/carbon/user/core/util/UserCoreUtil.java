@@ -77,7 +77,8 @@ public final class UserCoreUtil {
             ThreadLocal<UserMgtContext>();
 
     /**
-     * This thread local is used to keep track whether Ask Password option is enabled during the user addition flow.
+     * This thread local is used to keep track whether password policy validation is skipped
+     * during the user addition flow.
      */
     private static ThreadLocal<Boolean> skipPasswordPatternValidationThreadLocal = new ThreadLocal<>();
 
