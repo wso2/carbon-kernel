@@ -4727,7 +4727,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         claims, profileName);
                 throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
             }
-            // Set a thread local if the user creation flow is ask password enabled.
+            // Set skipPasswordPolicyValidation thread local if the user creation flow is ask password enabled.
             if (claims.containsKey(UserCoreClaimConstants.ASK_PASSWORD_CLAIM_URI) &&
                     Boolean.parseBoolean(claims.get(UserCoreClaimConstants.ASK_PASSWORD_CLAIM_URI))) {
                 UserCoreUtil.setSkipPasswordPatternValidationThreadLocal(true);
@@ -13869,7 +13869,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         claims, profileName);
                 throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
             }
-            // Set a thread local if the user creation flow is ask password enabled.
+            // Set skipPasswordPolicyValidation thread local if the user creation flow is ask password enabled.
             if (claims.containsKey(UserCoreClaimConstants.ASK_PASSWORD_CLAIM_URI) &&
                     Boolean.parseBoolean(claims.get(UserCoreClaimConstants.ASK_PASSWORD_CLAIM_URI))) {
                 UserCoreUtil.setSkipPasswordPatternValidationThreadLocal(true);
