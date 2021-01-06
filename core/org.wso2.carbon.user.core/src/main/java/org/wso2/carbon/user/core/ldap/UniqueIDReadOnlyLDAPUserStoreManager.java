@@ -18,6 +18,7 @@
 package org.wso2.carbon.user.core.ldap;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -42,15 +43,21 @@ import org.wso2.carbon.user.core.common.UniqueIDPaginatedSearchResult;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.model.Condition;
+import org.wso2.carbon.user.core.model.ExpressionAttribute;
+import org.wso2.carbon.user.core.model.ExpressionCondition;
+import org.wso2.carbon.user.core.model.ExpressionOperation;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.JNDIUtil;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -75,7 +82,11 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.Control;
+import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.LdapName;
+import javax.naming.ldap.PagedResultsControl;
+import javax.naming.ldap.SortControl;
 
 import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID;
 
@@ -279,8 +290,15 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             return handleAuthenticationFailure(reason);
         }
         User user;
-        String[] users = super
-                .getUserListFromProperties(preferredUserNameProperty, preferredUserNameValue, profileName);
+        String[] users;
+        String userPropertyName =
+                realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+        if (preferredUserNameProperty.equals(userPropertyName)) {
+            users = new String[] { preferredUserNameValue };
+        } else {
+            users = super
+                    .getUserListFromProperties(preferredUserNameProperty, preferredUserNameValue, profileName);
+        }
 
         if (ArrayUtils.isEmpty(users)) {
             String reason =
@@ -1446,22 +1464,56 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         return values;
     }
 
+    /**
+     * This method supports multi-attribute filters with paginated search for user(s).
+     *
+     * @param condition   Validated Condition tree.
+     * @param profileName Default profile name.
+     * @param limit       The number of entries to return in a page.
+     * @param offset      Start index.
+     * @param sortBy      Sort according to the given attribute name.
+     * @param sortOrder   Sorting order.
+     * @return A non-null UniqueIDPaginatedSearchResult instance. Typically contains users list with pagination.
+     * @throws UserStoreException If an UserStoreException is encountered
+     *                            while searching for users in a given condition.
+     */
     @Override
     protected UniqueIDPaginatedSearchResult doGetUserListWithID(Condition condition, String profileName, int limit,
-            int offset, String sortBy, String sortOrder) throws UserStoreException {
+                                                                int offset, String sortBy, String sortOrder)
+            throws UserStoreException {
 
-        // TODO: Need to improve this method to get the userID as well.
-        PaginatedSearchResult userNames = super.doGetUserList(condition, profileName, limit, offset, sortBy, sortOrder);
-        UniqueIDPaginatedSearchResult userList = new UniqueIDPaginatedSearchResult();
-        userList.setPaginatedSearchResult(userNames);
-        userList.setSkippedUserCount(userNames.getSkippedUserCount());
-        List<User> users = new ArrayList<>();
-        for (String userName : userNames.getUsers()) {
-            User user = getUser(null, userName);
-            users.add(user);
+        UniqueIDPaginatedSearchResult result = new UniqueIDPaginatedSearchResult();
+        List<ExpressionCondition> expressionConditions = getExpressionConditions(condition);
+        LDAPSearchSpecification ldapSearchSpecification = new LDAPSearchSpecification(realmConfig,
+                expressionConditions);
+        boolean isMemberShipPropertyFound = ldapSearchSpecification.isMemberShipPropertyFound();
+        limit = getLimit(limit, isMemberShipPropertyFound);
+        offset = getOffset(offset);
+        if (limit == 0) {
+            return result;
         }
-        userList.setUsers(users);
-        return userList;
+        int pageSize = limit;
+        DirContext dirContext = this.connectionSource.getContext();
+        LdapContext ldapContext = (LdapContext) dirContext;
+        List<User> users;
+        String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+        try {
+            ldapContext.setRequestControls(new Control[] { new PagedResultsControl(pageSize, Control.CRITICAL),
+                    new SortControl(userNameAttribute, Control.NONCRITICAL) });
+            users = performLDAPSearch(ldapContext, ldapSearchSpecification, pageSize, offset, expressionConditions);
+            result.setUsers(users);
+            return result;
+        } catch (NamingException e) {
+            log.error(String.format("Error occurred while performing paginated search, %s", e.getMessage()));
+            throw new UserStoreException(e.getMessage(), e);
+        } catch (IOException e) {
+            log.error(String.format("Error occurred while setting paged results controls for paginated search, %s",
+                    e.getMessage()));
+            throw new UserStoreException(e.getMessage(), e);
+        } finally {
+            JNDIUtil.closeContext(dirContext);
+            JNDIUtil.closeContext(ldapContext);
+        }
     }
 
     @Override
@@ -2195,4 +2247,570 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         }
     }
 
+    /**
+     * Do LDAP paginated search and return user objects as a list.
+     *
+     * @param ldapContext             LDAP connection context.
+     * @param ldapSearchSpecification Contains LDAP context search parameters.
+     * @param pageSize                Number of results per page.
+     * @param offset                  Start index.
+     * @param expressionConditions    List of input expressions.
+     * @return List of users.
+     * @throws UserStoreException
+     */
+    private List<User> performLDAPSearch(LdapContext ldapContext, LDAPSearchSpecification ldapSearchSpecification,
+                                           int pageSize, int offset, List<ExpressionCondition> expressionConditions)
+            throws UserStoreException {
+
+        byte[] cookie;
+        int pageIndex = -1;
+        boolean isGroupFiltering = ldapSearchSpecification.isGroupFiltering();
+        boolean isUsernameFiltering = ldapSearchSpecification.isUsernameFiltering();
+        boolean isClaimFiltering = ldapSearchSpecification.isClaimFiltering();
+        boolean isMemberShipPropertyFound = ldapSearchSpecification.isMemberShipPropertyFound();
+
+        String searchBases = ldapSearchSpecification.getSearchBases();
+        String[] searchBaseArray = searchBases.split("#");
+        String searchFilter = ldapSearchSpecification.getSearchFilterQuery();
+        SearchControls searchControls = ldapSearchSpecification.getSearchControls();
+        List<String> returnedAttributes = Arrays.asList(searchControls.getReturningAttributes());
+        NamingEnumeration<SearchResult> answer = null;
+        List<User> users = new ArrayList<>();
+
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("Searching for user(s) with SearchFilter: %s and page size %d", searchFilter,
+                    pageSize));
+        }
+        try {
+            for (String searchBase : searchBaseArray) {
+                do {
+                    List<User> tempUsersList = new ArrayList<>();
+                    answer = ldapContext.search(escapeDNForSearch(searchBase), searchFilter, searchControls);
+                    //DirContext.search never returns null
+                    if (answer.hasMore()) {
+                        tempUsersList = getUserListFromSearch(isGroupFiltering, returnedAttributes, answer,
+                                isSingleAttributeFilterOperation(expressionConditions));
+                        pageIndex++;
+                    }
+                    if (CollectionUtils.isNotEmpty(tempUsersList)) {
+                        if (isMemberShipPropertyFound) {
+                            /*
+                            Pagination is not supported for 'member' attribute group filtering. Also,
+                            we need do post-processing if we found username filtering or claim filtering,
+                            because can't apply claim filtering with memberShip group filtering and
+                            can't apply username filtering with 'CO', 'EW', 'SW' filter operations.
+                             */
+                            users = membershipGroupFilterPostProcessing(isUsernameFiltering, isClaimFiltering,
+                                    expressionConditions, tempUsersList);
+                            break;
+                        } else {
+                            // Handle pagination depending on given offset, i.e. start index.
+                            generatePaginatedUserList(pageIndex, offset, pageSize, tempUsersList, users);
+                            int needMore = pageSize - users.size();
+                            if (needMore == 0) {
+                                break;
+                            }
+                        }
+                    }
+                    cookie = parseControls(ldapContext.getResponseControls());
+                    String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+                    ldapContext.setRequestControls(new Control[]{new PagedResultsControl(pageSize, cookie,
+                            Control.CRITICAL), new SortControl(userNameAttribute, Control.NONCRITICAL)});
+                } while ((cookie != null) && (cookie.length != 0));
+            }
+        } catch (PartialResultException e) {
+            // Can be due to referrals in AD. So just ignore error.
+            if (isIgnorePartialResultException()) {
+                if (log.isDebugEnabled()) {
+                    log.debug(String.format("Error occurred while searching for user(s) for filter: %s", searchFilter));
+                }
+            } else {
+                log.error(String.format("Error occurred while searching for user(s) for filter: %s", searchFilter));
+                throw new UserStoreException(e.getMessage(), e);
+            }
+        } catch (NamingException e) {
+            log.error(String.format("Error occurred while searching for user(s) for filter: %s, %s",
+                    searchFilter, e.getMessage()));
+            throw new UserStoreException(e.getMessage(), e);
+        } catch (IOException e) {
+            log.error(String.format("Error occurred while doing paginated search, %s", e.getMessage()));
+            throw new UserStoreException(e.getMessage(), e);
+        } finally {
+            JNDIUtil.closeNamingEnumeration(answer);
+        }
+        return users;
+    }
+
+    /**
+     * Get user list from multi attribute search filter.
+     *
+     * @param isGroupFiltering        Whether the filtering has the group attribute name.
+     * @param returnedAttributes      Returned Attributes.
+     * @param answer                  Answer.
+     * @param isSingleAttributeFilter Whether the original request is from a single attribute filter or a multi
+     *                                attribute filter, so that AND operation can be omitted during the filtering
+     *                                process.
+     * @return A users list.
+     * @throws UserStoreException
+     * @throws NamingException
+     */
+    private List<User> getUserListFromSearch(boolean isGroupFiltering, List<String> returnedAttributes,
+                                               NamingEnumeration<SearchResult> answer, boolean isSingleAttributeFilter)
+            throws UserStoreException {
+
+        List<User> tempUsersList;
+        if (isGroupFiltering) {
+            if (returnedAttributes.contains(realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE))) {
+                tempUsersList = getUserListFromMembershipGroupFilterResult
+                        (answer, returnedAttributes, isSingleAttributeFilter);
+            }
+            else {
+                tempUsersList = getUserListFromMemberOfGroupFilterResult(answer);
+            }
+        } else {
+            tempUsersList = getUserListFromNonGroupFilterResult(answer, returnedAttributes);
+        }
+        return tempUsersList;
+    }
+
+    /**
+     * Parse the search result of non group filtering and get the user list.
+     *
+     * @param answer                Answer from LDAP search.
+     * @param returnedAttributes    Returned attributes.
+     * @return  A users list.
+     * @throws UserStoreException
+     */
+    private List<User> getUserListFromNonGroupFilterResult(NamingEnumeration<SearchResult> answer,
+                                                             List<String> returnedAttributes)
+            throws UserStoreException {
+
+        List<User> finalUserList = new ArrayList<>();
+        String userAttributeSeparator = ",";
+        NamingEnumeration<?> attrs = null;
+
+        try {
+            while (answer.hasMoreElements()) {
+                SearchResult searchResult = answer.next();
+                Attributes attributes = searchResult.getAttributes();
+                if (attributes == null) {
+                    continue;
+                }
+                Attribute attribute = attributes.get(returnedAttributes.get(0));
+                if (attribute == null) {
+                    continue;
+                }
+                StringBuffer attrBuffer = new StringBuffer();
+                for (attrs = attribute.getAll(); attrs.hasMore(); ) {
+                    String attr = (String) attrs.next();
+                    if (StringUtils.isNotEmpty(attr.trim())) {
+                        String attrSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+                        if (StringUtils.isNotEmpty(attrSeparator.trim())) {
+                            userAttributeSeparator = attrSeparator;
+                        }
+                        attrBuffer.append(attr + userAttributeSeparator);
+                        if (log.isDebugEnabled()) {
+                            log.debug(returnedAttributes.get(0) + " : " + attr);
+                        }
+                    }
+                }
+                String userNamePropertyValue = attrBuffer.toString();
+                Attribute serviceNameObject = attributes.get(returnedAttributes.get(1));
+                String serviceNameAttributeValue = null;
+                if (serviceNameObject != null) {
+                    serviceNameAttributeValue = (String) serviceNameObject.get();
+                }
+                /* Length needs to be more than userAttributeSeparator.length() for a valid attribute,
+                since we attach userAttributeSeparator. */
+                if (userNamePropertyValue.trim().length() > userAttributeSeparator.length()) {
+                    if (LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE.equals(serviceNameAttributeValue)) {
+                        continue;
+                    }
+                    userNamePropertyValue = userNamePropertyValue.substring(0, userNamePropertyValue.length() -
+                            userAttributeSeparator.length());
+
+                    Attribute userIdObject =
+                            attributes.get(realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE));
+                    String userIdAttributeValue = null;
+                    if (userIdObject != null) {
+                        userIdAttributeValue = resolveLdapAttributeValue(userIdObject.get());
+                    }
+
+                    String domain = this.getRealmConfiguration()
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+
+                    User user = getUser(userIdAttributeValue, userNamePropertyValue);
+                    user.setDisplayName(null);
+                    user.setUserStoreDomain(domain);
+                    user.setTenantDomain(getTenantDomain(tenantId));
+                    finalUserList.add(user);
+                }
+            }
+        } catch (NamingException e) {
+            log.error(String.format("Error occurred while getting user list from non group filter %s", e.getMessage()));
+            throw new UserStoreException(e.getMessage(), e);
+        } finally {
+            // Close the naming enumeration and free up resources
+            JNDIUtil.closeNamingEnumeration(attrs);
+        }
+        return finalUserList;
+    }
+
+    /**
+     * Parse the search result of group filtering and get the user list.
+     * As it's membership group filtering, we retrieve all members of the requested group(s) and then
+     * get the mutual members' out of it as a DN list.
+     *
+     * @param answer                  Answer.
+     * @param returnedAttributes      Returned Attributes.
+     * @param isSingleAttributeFilter Whether the original request is from a single attribute filter or a multi
+     *                                attribute filter, so that AND operation can be omitted during the filtering
+     *                                process.
+     * @return A users list.
+     * @throws UserStoreException
+     */
+    private List<User> getUserListFromMembershipGroupFilterResult(NamingEnumeration<SearchResult> answer,
+                                                        List<String> returnedAttributes, boolean
+                                                                isSingleAttributeFilter) throws UserStoreException {
+
+        // User DN list.
+        List<String> userListFromSearch = new ArrayList<>();
+        // Multi group retrieval.
+        int count = 0;
+        NamingEnumeration<?> attrs = null;
+        List<User> finalUserList;
+
+        try {
+            while (answer.hasMoreElements()) {
+                count++;
+                List<String> tempUserList = new ArrayList<>();
+                SearchResult searchResult = answer.next();
+                Attributes attributes = searchResult.getAttributes();
+                if (attributes == null)
+                    continue;
+                NamingEnumeration attributeEntry;
+                for (attributeEntry = attributes.getAll(); attributeEntry.hasMore(); ) {
+                    Attribute valAttribute = (Attribute) attributeEntry.next();
+                    if (isAttributeEqualsProperty(returnedAttributes.get(0), valAttribute.getID())) {
+                        NamingEnumeration values;
+                        for (values = valAttribute.getAll(); values.hasMore(); ) {
+                            tempUserList.add(values.next().toString());
+                        }
+                    }
+                }
+                /*
+                 When singleAttributeFilter is true, that implies that the request is a single attribute filter. In
+                 this case, the intersection (AND operation) should not be performed on the filtered results.
+                 Following IF block handles the single attribute filter.
+                 */
+                if (isSingleAttributeFilter) {
+                    userListFromSearch.addAll(tempUserList);
+                } else {
+                    if (count == 1) {
+                        userListFromSearch.addAll(tempUserList);
+                    } else {
+                        userListFromSearch.retainAll(tempUserList);
+                    }
+                }
+            }
+        } catch (NamingException e) {
+            log.error(String.format("Error occurred while getting user list from group filter %s", e.getMessage()));
+            throw new UserStoreException(e.getMessage(), e);
+        } finally {
+            JNDIUtil.closeNamingEnumeration(attrs);
+        }
+
+        // We need iterate over users' DN list and get users.
+        finalUserList = getUserListFromDNList(userListFromSearch);
+        return finalUserList;
+    }
+
+    /**
+     * Parse the search result of group filtering and get the user list.
+     * As it's memberOf group filtering, directly get the user name list from search result.
+     *
+     * @param answer        LDAP search answer.
+     * @return A users list.
+     * @throws UserStoreException
+     */
+    private List<User> getUserListFromMemberOfGroupFilterResult(NamingEnumeration<SearchResult> answer)
+            throws UserStoreException {
+
+        List<User> finalUserList = new ArrayList<>();
+        try {
+            while (answer.hasMoreElements()) {
+                SearchResult searchResult = answer.next();
+                if (searchResult.getAttributes() != null) {
+                    Attribute userName = searchResult.getAttributes().
+                            get(realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE));
+                    Attribute userID = searchResult.getAttributes().
+                            get(realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE));
+                    /*
+                     * If this is a service principle, just ignore and
+                     * iterate rest of the array. The entity is a service if
+                     * value of surname is Service.
+                     */
+                    String serviceNameAttribute = "sn";
+                    Attribute attrSurname = searchResult.getAttributes().get(serviceNameAttribute);
+
+                    if (attrSurname != null) {
+                        if (log.isDebugEnabled()) {
+                            log.debug(serviceNameAttribute + " : " + attrSurname);
+                        }
+                        String serviceName = (String) attrSurname.get();
+                        if (serviceName != null && serviceName
+                                .equals(LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE)) {
+                            continue;
+                        }
+                    }
+                    String name = null;
+                    String displayName = null;
+                    String id = null;
+                    String domain = null;
+                    if (userName != null) {
+                        name = resolveLdapAttributeValue(userName.get());
+                        domain = this.getRealmConfiguration()
+                                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+                    }
+                    if (userID != null) {
+                        id = resolveLdapAttributeValue(userID.get());
+                    }
+                    User user = getUser(id, name);
+                    user.setDisplayName(displayName);
+                    user.setUserStoreDomain(domain);
+                    user.setTenantDomain(getTenantDomain(tenantId));
+                    finalUserList.add(user);
+                }
+            }
+        } catch (NamingException e) {
+            log.error(String.format("Error occurred while getting user list from non group filter %s", e.getMessage()));
+            throw new UserStoreException(e.getMessage(), e);
+        }
+        return finalUserList;
+    }
+
+    /**
+     * Get user name list from DN list.
+     *
+     * @param userListFromSearch    User DN list obtained from search.
+     * @return List of user objects.
+     * @throws UserStoreException
+     */
+    private List<User> getUserListFromDNList(List<String> userListFromSearch) throws UserStoreException {
+
+        List<User> usersList = new ArrayList<>();
+        DirContext dirContext = this.connectionSource.getContext();
+        String userNameProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+        String displayNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
+        String userIdProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
+        String[] requiredAttributes = {userNameProperty, displayNameAttribute, userIdProperty};
+
+        for (String userFromSearch : userListFromSearch) {
+            try {
+                String displayName = null;
+                String userName = null;
+                String userId = null;
+                Attributes userAttributes = dirContext.getAttributes
+                        (escapeDNForSearch(userFromSearch), requiredAttributes);
+
+                if (userAttributes != null) {
+                    Attribute userNameAttribute = userAttributes.get(userNameProperty);
+                    if (userNameAttribute != null) {
+                        userName = (String) userNameAttribute.get();
+                    }
+                    if (StringUtils.isNotEmpty(displayNameAttribute)) {
+                        Attribute displayAttribute = userAttributes.get(displayNameAttribute);
+                        if (displayAttribute != null) {
+                            displayName = (String) displayAttribute.get();
+                        }
+                    }
+                    Attribute userIdAttribute = userAttributes.get(userIdProperty);
+                    if (userIdAttribute != null) {
+                        userId = resolveLdapAttributeValue(userIdAttribute.get());
+                    }
+                }
+                String domainName =
+                        realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+                /* Username will be null in the special case where the username attribute has changed to another
+                and having different userNameProperty than the current user-mgt.xml. */
+                if (userName != null) {
+                    User user = getUser(userId, userName);
+                    user.setDisplayName(displayName);
+                    user.setUserStoreDomain(domainName);
+                    user.setTenantDomain(getTenantDomain(tenantId));
+                    usersList.add(user);
+                } else {
+                    // Skip listing users which are not applicable to current user-mgt.xml
+                    if (log.isDebugEnabled()) {
+                        log.debug(String.format("User %s doesn't have the user name property %s", userFromSearch,
+                                userNameProperty));
+                    }
+                }
+            } catch (NamingException e) {
+                log.error(String.format("Error in reading user information in the user store for the user %s, %s",
+                        userFromSearch, e.getMessage()));
+                throw new UserStoreException(e.getMessage(), e);
+            }
+        }
+        return usersList;
+    }
+
+    /**
+     * Generate paginated user list. Since LDAP doesn't support pagination with start index.
+     * So we need to process the page results according to the requested start index.
+     *
+     * @param pageIndex    Index of the paginated page.
+     * @param offset       Start index.
+     * @param pageSize     Number of results per page which is equal to count/limit.
+     * @param tempUserList Users in the particular indexed page.
+     * @param users        Final paginated user list.
+     */
+    protected void generatePaginatedUserList(int pageIndex, int offset, int pageSize, List<User> tempUserList,
+                                             List<User> users) {
+
+        int needMore;
+        // Handle pagination depends on given offset, i.e. start index.
+        if (pageIndex == (offset / pageSize)) {
+            int startPosition = (offset % pageSize);
+            if (startPosition < tempUserList.size() - 1) {
+                users.addAll(tempUserList.subList(startPosition, tempUserList.size()));
+            } else if (startPosition == tempUserList.size() - 1) {
+                users.add(tempUserList.get(tempUserList.size() - 1));
+            }
+        } else if (pageIndex == (offset / pageSize) + 1) {
+            needMore = pageSize - users.size();
+            if (tempUserList.size() >= needMore) {
+                users.addAll(tempUserList.subList(0, needMore));
+            } else {
+                users.addAll(tempUserList);
+            }
+        }
+    }
+
+    /**
+     * Post processing the user list, when found membership group filtering.
+     *
+     * @param isUsernameFiltering   Whether condition contains username filtering.
+     * @param isClaimFiltering      Whether condition contains claim filtering.
+     * @param expressionConditions  Expression conditions.
+     * @param tempUserList          User list to be processed.
+     * @return Final list of filtered users.
+     * @throws UserStoreException
+     */
+    private List<User> membershipGroupFilterPostProcessing(boolean isUsernameFiltering, boolean isClaimFiltering,
+                                                             List<ExpressionCondition> expressionConditions,
+                                                             List<User> tempUserList) throws UserStoreException {
+
+        List<User> users;
+        if (isUsernameFiltering) {
+            tempUserList = getMatchUsersFromMemberList(expressionConditions, tempUserList);
+        }
+        if (isClaimFiltering) {
+            users = getUserListFromClaimFiltering(expressionConditions, tempUserList);
+        } else {
+            users = tempUserList;
+        }
+        return users;
+    }
+
+    /**
+     * Post processing the user list, when found membership group filter with user name filtering.
+     * Get match users from member list. When found username filtering.
+     *
+     * @param expressionConditions  Expression conditions.
+     * @param userList              List of users to be filtered.
+     * @return Filtered user list.
+     */
+    private List<User> getMatchUsersFromMemberList(List<ExpressionCondition> expressionConditions,
+                                                     List<User> userList) {
+        /*
+        If group filtering and username filtering found, we need to get match users names only.
+        'member' filtering retrieve all the members once the conditions matched because 'member' is a
+        multi valued attribute.
+        */
+        List<User> derivedUserList = new ArrayList<>();
+
+        for (ExpressionCondition expressionCondition : expressionConditions) {
+            if (ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
+                derivedUserList.addAll(getMatchUsers(expressionCondition, userList));
+            }
+        }
+        LinkedHashSet<User> linkedHashSet = new LinkedHashSet<>();
+        linkedHashSet.addAll(derivedUserList);
+        derivedUserList.clear();
+        derivedUserList.addAll(linkedHashSet);
+        return derivedUserList;
+    }
+
+    /**
+     * Get match users from given expression condition.
+     *
+     * @param expressionCondition   Expression condition.
+     * @param users List of users to be filtered.
+     * @return Filtered user list.
+     */
+    private List<User> getMatchUsers(ExpressionCondition expressionCondition, List<User> users) {
+
+        List<User> newUsersList = new ArrayList<>();
+        for (User user : users) {
+            if (ExpressionOperation.SW.toString().equals(expressionCondition.getOperation())
+                    && user.getUsername().startsWith(expressionCondition.getAttributeValue()) && !newUsersList.contains(user)) {
+                newUsersList.add(user);
+            } else if (ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation())
+                    && user.getUsername().equals(expressionCondition.getAttributeValue()) && !newUsersList.contains(user)) {
+                newUsersList.add(user);
+            } else if (ExpressionOperation.CO.toString().equals(expressionCondition.getOperation())
+                    && user.getUsername().contains(expressionCondition.getAttributeValue()) && !newUsersList.contains(user)) {
+                newUsersList.add(user);
+            } else if (ExpressionOperation.EW.toString().equals(expressionCondition.getOperation())
+                    && user.getUsername().endsWith(expressionCondition.getAttributeValue()) && !newUsersList.contains(user)) {
+                newUsersList.add(user);
+            }
+        }
+        return newUsersList;
+    }
+
+    /**
+     * Post processing the user list, when membership group filter with claim filtering is found.
+     *
+     * @param expressionConditions  Expression conditions.
+     * @param tempUserList          User list to be filtered.
+     * @return Filtered user list.
+     * @throws UserStoreException
+     */
+    private List<User> getUserListFromClaimFiltering(List<ExpressionCondition> expressionConditions,
+                                                       List<User> tempUserList) throws UserStoreException {
+
+        List<User> claimSearchUserList = new ArrayList<>();
+        List<ExpressionCondition> derivedConditionList = expressionConditions;
+        Iterator<ExpressionCondition> iterator = derivedConditionList.iterator();
+
+        while (iterator.hasNext()) {
+            ExpressionCondition expressionCondition = iterator.next();
+            if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName())) {
+                iterator.remove();
+            }
+        }
+        LDAPSearchSpecification claimSearch = new LDAPSearchSpecification(realmConfig, derivedConditionList);
+        SearchControls claimSearchControls = claimSearch.getSearchControls();
+        DirContext claimSearchDirContext = this.connectionSource.getContext();
+        NamingEnumeration<SearchResult> tempAnswer = null;
+        try {
+            tempAnswer = claimSearchDirContext.search(claimSearch.getSearchBases(),
+                    claimSearch.getSearchFilterQuery(), claimSearchControls);
+            if (tempAnswer.hasMore()) {
+                claimSearchUserList = getUserListFromNonGroupFilterResult(tempAnswer,
+                        Arrays.asList(claimSearchControls.getReturningAttributes()));
+            }
+        } catch (NamingException e) {
+            log.error(String.format("Error occurred while doing claim filtering for user(s) with filter: %s, %s",
+                    claimSearch.getSearchFilterQuery(), e.getMessage()));
+            throw new UserStoreException(e.getMessage(), e);
+        } finally {
+            JNDIUtil.closeContext(claimSearchDirContext);
+            JNDIUtil.closeNamingEnumeration(tempAnswer);
+        }
+        tempUserList.retainAll(claimSearchUserList);
+        return tempUserList;
+    }
 }

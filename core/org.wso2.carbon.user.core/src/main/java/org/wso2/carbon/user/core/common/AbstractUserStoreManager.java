@@ -4682,9 +4682,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throw new UserStoreException(errorCode + " - " + message);
         }
 
+        String userNameWithoutDomain = UserCoreUtil.removeDomainFromName(userName);
         // If the username claims presents, the value should be equal to the username attribute.
         if (claims != null && claims.containsKey(USERNAME_CLAIM_URI) &&
-                !claims.get(USERNAME_CLAIM_URI).equals(userName)) {
+                !claims.get(USERNAME_CLAIM_URI).equals(userNameWithoutDomain)) {
             // If not we cannot continue.
             throw new UserStoreException("Username and the username claim value should be same.");
         }
@@ -4725,6 +4726,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), userName, credential, roleList,
                         claims, profileName);
                 throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+            }
+            // Set skipPasswordPolicyValidation thread local if the user creation flow is ask password enabled.
+            if (claims.containsKey(UserCoreClaimConstants.ASK_PASSWORD_CLAIM_URI) &&
+                    Boolean.parseBoolean(claims.get(UserCoreClaimConstants.ASK_PASSWORD_CLAIM_URI))) {
+                UserCoreUtil.setSkipPasswordPatternValidationThreadLocal(true);
             }
 
             // This happens only once during first startup - adding administrator user/role.
@@ -4979,6 +4985,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
             // #################### </Post-Listeners> #####################################################
         } finally {
+            UserCoreUtil.removeSkipPasswordPatternValidationThreadLocal();
             credentialObj.clear();
         }
 
@@ -7285,7 +7292,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     // If there is a user for the give user id, then that is the correct domain.
                     AbstractUserStoreManager abstractUserStoreManager = (AbstractUserStoreManager) entry.getValue();
                     if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
-                        if (abstractUserStoreManager.doGetUserNameFromUserIDWithID(userId) != null) {
+                        if (isUserExistsWithGivenDomain(userId, abstractUserStoreManager, entry.getKey())) {
                             // If we found a domain name for the give user id, update the domain resolver with the name.
                             domainName = entry.getKey();
                             userUniqueIDDomainResolver.setDomainForUserId(userId, domainName, tenantId);
@@ -7356,6 +7363,26 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             userStore.setUserStoreManager(this);
             return userStore;
         }
+    }
+
+    /**
+     * Check if a user with the given ID exists in the cache. If so check if user domain matches the given domain.
+     * If the user does not exist in the cache, search the user in the underlying user store.
+     *
+     * @param userId                    User ID.
+     * @param abstractUserStoreManager  Corresponding user store manager instance.
+     * @param domainName                User store manager domain.
+     * @return True if a username is found, false otherwise.
+     * @throws UserStoreException       Thrown by the underlying UserStoreManager.
+         */
+    private Boolean isUserExistsWithGivenDomain(String userId, AbstractUserStoreManager abstractUserStoreManager,
+                                               String domainName) throws UserStoreException {
+
+        String userName = getFromUserNameCache(userId);
+        if (StringUtils.isNotEmpty(userName)) {
+            return StringUtils.equals(UserCoreUtil.extractDomainFromName(userName), domainName);
+        }
+        return (abstractUserStoreManager.doGetUserNameFromUserIDWithID(userId) != null);
     }
 
     /**
@@ -7912,6 +7939,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     protected boolean checkUserPasswordValid(Object credential) throws UserStoreException {
 
+        // Skip password pattern validation if the skipPasswordValidationThreadLocal is set to true.
+        if (UserCoreUtil.getSkipPasswordPatternValidationThreadLocal()) {
+            return true;
+        }
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{Object.class};
             Object object = callSecure("checkUserPasswordValid", new Object[]{credential}, argTypes);
@@ -9746,6 +9777,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (((AbstractUserStoreManager) secManager).isUniqueUserIdEnabled()) {
                     UniqueIDPaginatedSearchResult users = ((AbstractUserStoreManager) secManager).doGetUserListWithID(condition,
                             profileName, limit, offset, sortBy, sortOrder);
+                    addUsersToUserIdCache(users.getUsers());
+                    addUsersToUserNameCache(users.getUsers());
                     filteredUsers = users.getUsers().stream().map(User::getUsername).toArray(String[]::new);
                 } else {
                     PaginatedSearchResult users = ((AbstractUserStoreManager) secManager).doGetUserList(condition,
@@ -12210,6 +12243,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected String doGetUserNameFromUserID(String userID) throws UserStoreException {
 
         if (isUniqueUserIdEnabled()) {
+            String userName = getFromUserNameCache(userID);
+            if (StringUtils.isNotEmpty(userName)) {
+                return UserCoreUtil.removeDomainFromName(userName);
+            }
             return doGetUserNameFromUserIDWithID(userID);
         }
         User user = userUniqueIDManger.getUser(userID, this);
@@ -12295,6 +12332,26 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         RESOLVE_USER_UNIQUE_ID_FROM_USER_NAME_CACHE_NAME, SUPER_TENANT_ID);
         UserIdResolverCache.getInstance()
                 .clearCacheEntry(userID, RESOLVE_USER_NAME_FROM_UNIQUE_USER_ID_CACHE_NAME, SUPER_TENANT_ID);
+    }
+
+    private void addUsersToUserIdCache(List<User> userList) {
+
+        UserIdResolverCache userIdResolverCacheInstance = UserIdResolverCache.getInstance();
+        for (User user : userList) {
+            userIdResolverCacheInstance.addToCache(
+                    UserCoreUtil.addDomainToName(user.getUsername(), user.getUserStoreDomain()), user.getUserID(),
+                    RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME, tenantId);
+        }
+    }
+
+    private void addUsersToUserNameCache(List<User> userList) {
+
+        UserIdResolverCache userIdResolverCacheInstance = UserIdResolverCache.getInstance();
+        for (User user : userList) {
+            userIdResolverCacheInstance.addToCache(
+                    user.getUserID(), UserCoreUtil.addDomainToName(user.getUsername(), user.getUserStoreDomain()),
+                    RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME, tenantId);
+        }
     }
 
     /**
@@ -13773,8 +13830,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // If the username claims presents, the value should be equal to the username attribute.
+        String userNameWithoutDomain = UserCoreUtil.removeDomainFromName(userName);
         if (claims != null && claims.containsKey(USERNAME_CLAIM_URI) &&
-                !claims.get(USERNAME_CLAIM_URI).equals(userName)) {
+                !claims.get(USERNAME_CLAIM_URI).equals(userNameWithoutDomain)) {
             // If not we cannot continue.
             throw new UserStoreException("Username and the username claim value should be same.");
         }
@@ -13810,6 +13868,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), userName, credential, roleList,
                         claims, profileName);
                 throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+            }
+            // Set skipPasswordPolicyValidation thread local if the user creation flow is ask password enabled.
+            if (claims.containsKey(UserCoreClaimConstants.ASK_PASSWORD_CLAIM_URI) &&
+                    Boolean.parseBoolean(claims.get(UserCoreClaimConstants.ASK_PASSWORD_CLAIM_URI))) {
+                UserCoreUtil.setSkipPasswordPatternValidationThreadLocal(true);
             }
 
             // This happens only once during first startup - adding administrator user/role.
@@ -14066,6 +14129,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
             // #################### </Post-Listeners> #####################################################
         } finally {
+            UserCoreUtil.removeSkipPasswordPatternValidationThreadLocal();
             credentialObj.clear();
         }
 
@@ -14745,21 +14809,32 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         List<User> filteredUsers = new ArrayList<>();
-        UserStoreManager secManager = getSecondaryUserStoreManager(domain);
-        if (secManager != null) {
-            if (secManager instanceof AbstractUserStoreManager) {
-                if (isUniqueUserIdEnabled(secManager)) {
-                    UniqueIDPaginatedSearchResult users = ((AbstractUserStoreManager) secManager)
+        UserStoreManager userManager = this;
+        /*
+         * This method("getUserListWithID") can be called for secondary userstore managers.
+         * At that time the "domain" is the name of the "this" usertore manager.
+         */
+        if (StringUtils.isNotEmpty(domain) && !StringUtils.equalsIgnoreCase(getMyDomainName(), domain)) {
+            userManager = getSecondaryUserStoreManager(domain);
+        }
+        if (userManager != null) {
+            if (userManager instanceof AbstractUserStoreManager) {
+                if (isUniqueUserIdEnabled(userManager)) {
+                    UniqueIDPaginatedSearchResult users = ((AbstractUserStoreManager) userManager)
                             .doGetUserListWithID(condition, profileName, limit, offset, sortBy, sortOrder);
+                    addUsersToUserIdCache(users.getUsers());
+                    addUsersToUserNameCache(users.getUsers());
                     filteredUsers = users.getUsers();
                 } else {
-                    PaginatedSearchResult users = ((AbstractUserStoreManager) secManager)
+                    PaginatedSearchResult users = ((AbstractUserStoreManager) userManager)
                             .doGetUserList(condition, profileName, limit, offset, sortBy, sortOrder);
                     filteredUsers = userUniqueIDManger.listUsers(users.getUsers(), this);
                 }
             }
-        } else if (secManager == null && StringUtils.isNotEmpty(domain)) {
-            throw new UserStoreClientException("Invalid Domain Name.");
+        } else if (StringUtils.isNotEmpty(domain)) {
+            String message = ErrorMessages.ERROR_CODE_INVALID_DOMAIN_NAME.getMessage();
+            String errorCode = ErrorMessages.ERROR_CODE_INVALID_DOMAIN_NAME.getCode();
+            throw new UserStoreClientException(errorCode + " - " + String.format(message, domain), errorCode);
         }
 
         handlePostGetUserListWithID(condition, domain, profileName, limit, offset, sortBy, sortOrder, filteredUsers,

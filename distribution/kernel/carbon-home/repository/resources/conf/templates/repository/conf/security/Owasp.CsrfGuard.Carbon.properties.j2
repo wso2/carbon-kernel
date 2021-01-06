@@ -362,7 +362,11 @@ org.owasp.csrfguard.JavascriptServlet.sourceFile =
 # from which the HTML originated. With a value of false, the JavaScript code will place the
 # token in links that not only point to the same exact domain from which the HTML originated,
 # but sub-domains as well.
+{% if owasp.csrfguard.js_servlet.domain_strict is defined %}
+org.owasp.csrfguard.JavascriptServlet.domainStrict = {{owasp.csrfguard.js_servlet.domain_strict}}
+{% else %}
 org.owasp.csrfguard.JavascriptServlet.domainStrict = true
+{% endif %}
 
 # Allows the developer to specify the value of the Cache-Control header in the HTTP response
 # when serving the dynamic JavaScript file. The default value is private, maxage=28800.
@@ -383,7 +387,11 @@ org.owasp.csrfguard.JavascriptServlet.refererPattern = .*
 # Similar to javascript servlet referer pattern, but this will make sure the referer of the
 # javascript servlet matches the domain of the request.  If there is no referer (proxy strips it?)
 # then it will not fail.  Generally this is a good idea to be true.
+{% if owasp.csrfguard.js_servlet.referer_match_domain is defined %}
+org.owasp.csrfguard.JavascriptServlet.refererMatchDomain = {{owasp.csrfguard.js_servlet.referer_match_domain}}
+{% else %}
 org.owasp.csrfguard.JavascriptServlet.refererMatchDomain = true
+{% endif %}
 
 # Boolean value that determines whether or not the dynamic JavaScript code should
 # inject the CSRF prevention token as a hidden field into HTML forms. The default
@@ -443,6 +451,12 @@ org.owasp.csrfguard.configOverlay.hierarchy = classpath:Owasp.CsrfGuard.properti
 # seconds between checking to see if the config files are updated
 org.owasp.csrfguard.configOverlay.secondsBetweenUpdateChecks = 60
 
+# If you run server with CSRF guard behind forwarding proxy, javascript sees domain name of proxy server, not backend
+# server. To make domain origin check work in such network configuration there needs to be way to send name of proxy
+# server to client. org.owasp.csrfguard.domainOrigin property which if defined can override server name sent to client.
+{% if owasp.csrfguard.domain_origin is defined %}
+org.owasp.csrfguard.domainOrigin = {{owasp.csrfguard.domain_origin}}
+{% endif %}
 
 ###########################
 
