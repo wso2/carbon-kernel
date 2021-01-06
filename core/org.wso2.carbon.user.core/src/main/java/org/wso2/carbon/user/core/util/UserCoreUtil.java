@@ -22,7 +22,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.common.User;
@@ -36,7 +35,6 @@ import org.wso2.carbon.user.core.dto.RoleDTO;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 import org.wso2.carbon.user.core.service.RealmService;
-import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.xml.StringUtils;
@@ -52,7 +50,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -78,6 +75,11 @@ public final class UserCoreUtil {
     private static ThreadLocal<String> threadLocalToSetDomain = new ThreadLocal<String>();
     private static ThreadLocal<UserMgtContext> threadLocalToSetUserMgtContext = new
             ThreadLocal<UserMgtContext>();
+
+    /**
+     * This thread local is used to keep track whether Ask Password option is enabled during the user addition flow.
+     */
+    private static ThreadLocal<Boolean> skipPasswordPatternValidationThreadLocal = new ThreadLocal<>();
 
     /**
      * @param arr1
@@ -480,6 +482,25 @@ public final class UserCoreUtil {
     public static void removeUserMgtContextInThreadLocal() {
 
         threadLocalToSetUserMgtContext.remove();
+    }
+
+    public static void setSkipPasswordPatternValidationThreadLocal(Boolean askPasswordEnabled) {
+
+        skipPasswordPatternValidationThreadLocal.set(askPasswordEnabled);
+    }
+
+    public static boolean getSkipPasswordPatternValidationThreadLocal() {
+
+        if (skipPasswordPatternValidationThreadLocal.get() != null) {
+            return skipPasswordPatternValidationThreadLocal.get().booleanValue();
+        } else {
+            return false;
+        }
+    }
+
+    public static void removeSkipPasswordPatternValidationThreadLocal() {
+
+        skipPasswordPatternValidationThreadLocal.remove();
     }
 
     /**
