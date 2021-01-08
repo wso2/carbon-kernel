@@ -481,3 +481,6 @@ org.owasp.csrfguard.unprotected.identity=%servletContext%/identity/*
 {% for unprotected_service in owasp.csrfguard.unprotected.service %}
 org.owasp.csrfguard.unprotected.{{unprotected_service.name}}={{unprotected_service.service}}
 {% endfor %}
+{% for name,value in owasp.csrfguard.items() %}
+org.owasp.csrfguard.{{name}} = {{value}}
+{% endfor %}
