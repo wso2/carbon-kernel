@@ -11844,8 +11844,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     property = mapping.getMappedAttribute();
                 }
 
-                value = userPropertyValues.get(property);
-                if (value != null && value.trim().length() > 0) {
+                if (StringUtils.isNotBlank(value = userPropertyValues.get(property))) {
                     finalValues.put(claim, value);
                 }
 
@@ -11854,8 +11853,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     property = this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
                 }
 
-                value = userPropertyValues.get(property);
-                if (value != null && value.trim().length() > 0) {
+                if (StringUtils.isNotBlank(value = userPropertyValues.get(property))) {
                     finalValues.put(claim, value);
                 }
             }
@@ -15069,9 +15067,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             for (String claim : claims) {
                 for (Map.Entry<String, String> userAttribute : entry.getValue().entrySet()) {
+                    String value;
                     if (claimToAttributeMap.get(claim) != null && claimToAttributeMap.get(claim)
-                            .equals(userAttribute.getKey())) {
-                        userClaims.put(claim, userAttribute.getValue());
+                            .equals(userAttribute.getKey()) && StringUtils.isNotBlank(value = userAttribute.getValue())
+                    ) {
+                        userClaims.put(claim, value);
                     }
                 }
             }
