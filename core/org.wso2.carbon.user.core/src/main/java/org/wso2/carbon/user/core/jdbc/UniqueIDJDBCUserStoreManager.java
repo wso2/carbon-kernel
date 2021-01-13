@@ -3534,8 +3534,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             if (DB2.equals(dbType)) {
                 sqlBuilder.setTail(") AS p) WHERE rn BETWEEN ? AND ?", limit, offset);
             } else if (MSSQL.equals(dbType)) {
-                if (isClaimFiltering && !isGroupFiltering && !isUsernameFiltering) {
-                    // Handle multi attribute filtering without username filtering.
+                if (isClaimFiltering && !isGroupFiltering && totalMultiClaimFilters > 1) {
+                    // Handle multi attribute filtering without group filtering.
                     sqlBuilder.setTail(") AS Q) AS S) AS R) AS P WHERE P.RowNum BETWEEN ? AND ?", limit, offset);
                 } else {
                     sqlBuilder.setTail(") AS R) AS P WHERE P.RowNum BETWEEN ? AND ?", limit, offset);
