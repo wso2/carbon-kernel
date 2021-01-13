@@ -29,11 +29,25 @@ import javax.servlet.ServletException;
  */
 public class SameSiteCookieValve extends ValveBase {
 
+    private String legacyUserAgentRegex;
+
     @Override
     public void invoke(Request request, Response response) throws IOException, ServletException {
 
         if (getNext() != null) {
-            getNext().invoke(request, new CarbonResponseWrapper(response, request));
+            getNext().invoke(request, new CarbonResponseWrapper(response, request, legacyUserAgentRegex));
         }
+    }
+
+    /**
+     * Read the configured regex pattern to identify legacy user agents which will erroneously treat cookies marked
+     * with `SameSite=None` as if they were marked `SameSite=Strict`.
+     * References: https://bugs.webkit.org/show_bug.cgi?id=198181
+     *
+     * @param legacyUserAgentRegex The configured regex pattern.
+     */
+    public void setLegacyUserAgentRegex(String legacyUserAgentRegex) {
+
+        this.legacyUserAgentRegex = legacyUserAgentRegex;
     }
 }
