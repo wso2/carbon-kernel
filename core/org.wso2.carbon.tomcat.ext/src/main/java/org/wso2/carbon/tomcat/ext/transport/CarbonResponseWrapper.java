@@ -88,7 +88,8 @@ public class CarbonResponseWrapper extends Response {
         }
 
         if (StringUtils.isNotBlank(legacyUserAgentRegex) && cookie instanceof ServletCookie && isLegacyUserAgent() &&
-                SameSiteCookie.NONE.getName().equals(((ServletCookie) cookie).getSameSite().getName())) {
+                ((ServletCookie) cookie).getSameSite() != null && SameSiteCookie.NONE.getName()
+                .equals(((ServletCookie) cookie).getSameSite().getName())) {
             if (log.isDebugEnabled()) {
                 log.debug("Returning the cookie without appending SameSite property.");
             }
