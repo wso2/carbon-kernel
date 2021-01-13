@@ -18,6 +18,9 @@ package org.wso2.carbon.tomcat.ext.transport;
 import org.apache.catalina.Context;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.core.SameSiteCookie;
 import org.wso2.carbon.core.ServletCookie;
 
@@ -39,9 +42,13 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class CarbonResponseWrapper extends Response {
 
+    private static final Log log = LogFactory.getLog(CarbonResponseWrapper.class);
+    private static final String USER_AGENT_HEADER = "User-Agent";
+
     private Response wrapped;
     private Request request;
     private ResponseFacadeWrapper responseFacadeWrapper;
+    private String legacyUserAgentRegex;
 
     public CarbonResponseWrapper(Response wrapped) {
 
@@ -52,6 +59,13 @@ public class CarbonResponseWrapper extends Response {
 
         this.wrapped = wrapped;
         this.request = request;
+    }
+
+    public CarbonResponseWrapper(Response wrapped, Request request, String legacyUserAgentRegex) {
+
+        this.wrapped = wrapped;
+        this.request = request;
+        this.legacyUserAgentRegex = legacyUserAgentRegex;
     }
 
     public Response getWrapped() {
@@ -72,6 +86,16 @@ public class CarbonResponseWrapper extends Response {
         if (super.request == null) {
             super.request = this.request;
         }
+
+        if (StringUtils.isNotBlank(legacyUserAgentRegex) && cookie instanceof ServletCookie && isLegacyUserAgent() &&
+                ((ServletCookie) cookie).getSameSite() != null && SameSiteCookie.NONE.getName()
+                .equals(((ServletCookie) cookie).getSameSite().getName())) {
+            if (log.isDebugEnabled()) {
+                log.debug("Returning the cookie without appending SameSite property.");
+            }
+            return this.getContext().getCookieProcessor().generateHeader(cookie, null);
+        }
+
         String cookieString = super.generateCookieString(cookie);
         if (cookie instanceof ServletCookie) {
             cookieString = cookieString + "; SameSite=" + ((ServletCookie) cookie).getSameSite().getName();
@@ -79,6 +103,19 @@ public class CarbonResponseWrapper extends Response {
             cookieString = cookieString + "; SameSite=" + SameSiteCookie.STRICT.getName();
         }
         return cookieString;
+    }
+
+    private boolean isLegacyUserAgent() {
+
+        String userAgent = this.request.getHeader(USER_AGENT_HEADER);
+        if (StringUtils.isNotBlank(userAgent) && userAgent.matches(legacyUserAgentRegex)) {
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("%s : %s matches the configured legacy user agent regex pattern.",
+                        USER_AGENT_HEADER, userAgent));
+            }
+            return true;
+        }
+        return false;
     }
 
     @Override
