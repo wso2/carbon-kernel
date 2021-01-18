@@ -67,17 +67,15 @@ public class UserRolesCache {
     private Cache<UserRolesCacheKey, UserRolesCacheEntry> getUserRolesCache() {
 
         CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(USER_ROLES_CACHE_MANAGER);
-        Cache userRoleCache = null;
-        for (Cache cache : cacheManager.getCaches()) {
-            if (StringUtils.equals(cache.getName(), USER_ROLES_CACHE) ||
-                    StringUtils.equals(cache.getName(), CachingConstants.LOCAL_CACHE_PREFIX + USER_ROLES_CACHE)) {
-                userRoleCache = cache;
+        if (cacheManager.getCache(USER_ROLES_CACHE) == null &&
+                cacheManager.getCache(CachingConstants.LOCAL_CACHE_PREFIX + USER_ROLES_CACHE) == null) {
+            synchronized (USER_ROLES_CACHE) {
+                if (cacheManager.getCache(USER_ROLES_CACHE) == null &&
+                        cacheManager.getCache(CachingConstants.LOCAL_CACHE_PREFIX + USER_ROLES_CACHE) == null) {
+                    cacheManager.createCacheBuilder(USER_ROLES_CACHE).setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
+                            new CacheConfiguration.Duration(TimeUnit.MINUTES, timeOut)).build();
+                }
             }
-        }
-
-        if (userRoleCache == null) {
-            cacheManager.createCacheBuilder(USER_ROLES_CACHE).setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
-                    new CacheConfiguration.Duration(TimeUnit.MINUTES, timeOut)).build();
         }
         return cacheManager.getCache(USER_ROLES_CACHE);
     }
