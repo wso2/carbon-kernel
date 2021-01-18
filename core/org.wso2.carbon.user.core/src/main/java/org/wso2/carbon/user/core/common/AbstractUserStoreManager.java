@@ -8418,47 +8418,61 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     private List<String> getUserRolesWithID(String userID, String filter) throws UserStoreException {
 
-        List<String> internalRoles = doGetInternalRoleListOfUserWithID(userID, filter);
-        Set<String> modifiedInternalRoles = new HashSet<>();
-        String[] modifiedExternalRoleList = new String[0];
-
-        if (readGroupsEnabled && doCheckExistingUserWithID(userID)) {
-            List<String> roles = new ArrayList<>();
-            String[] externalRoles = doGetExternalRoleListOfUserWithID(userID, "*");
-            roles.addAll(Arrays.asList(externalRoles));
-            if (isSharedGroupEnabled()) {
-                String[] sharedRoles = doGetSharedRoleListOfUserWithID(userID, null, "*");
-                if (sharedRoles != null) {
-                    roles.addAll(Arrays.asList(sharedRoles));
-                }
-            }
-            modifiedExternalRoleList = UserCoreUtil.addDomainToNames(roles.toArray(new String[0]), getMyDomainName());
-
-            // Get the associated internal roles of the groups.
-            if (isRoleAndGroupSeparationEnabled()) {
-                Set<String> rolesOfGroups = getUniqueSet(getHybridRoleListOfGroups(roles, getMyDomainName()));
-                modifiedInternalRoles.addAll(rolesOfGroups);
-            }
-        }
-        modifiedInternalRoles.addAll(internalRoles);
-        String[] roleList = UserCoreUtil.combine(modifiedExternalRoleList, new ArrayList<>(modifiedInternalRoles));
-
-        for (UserOperationEventListener userOperationEventListener : UMListenerServiceComponent
-                .getUserOperationEventListeners()) {
-            if (userOperationEventListener instanceof AbstractUserOperationEventListener) {
-                if (!((AbstractUserOperationEventListener) userOperationEventListener)
-                        .doPostGetRoleListOfUserWithID(userID, filter, roleList, this)) {
-                    break;
-                }
-            }
-        }
-
-        // Add to user role cache uisng username.
+        List<String> userRoleList;
         String username = getUserNameFromUserID(userID);
-        if (username != null) {
-            addToUserRolesCache(this.tenantId, username, roleList);
+        synchronized (userID.intern()) {
+            if (username != null) {
+                String[] roleListOfUserFromCache = getRoleListOfUserFromCache(this.tenantId, username);
+                if (roleListOfUserFromCache != null) {
+                    List<String> roleList = Arrays.asList(roleListOfUserFromCache);
+                    if (!roleList.isEmpty()) {
+                        return roleList;
+                    }
+                }
+            }
+
+            List<String> internalRoles = doGetInternalRoleListOfUserWithID(userID, filter);
+            Set<String> modifiedInternalRoles = new HashSet<>();
+            String[] modifiedExternalRoleList = new String[0];
+
+            if (readGroupsEnabled && doCheckExistingUserWithID(userID)) {
+                List<String> roles = new ArrayList<>();
+                String[] externalRoles = doGetExternalRoleListOfUserWithID(userID, "*");
+                roles.addAll(Arrays.asList(externalRoles));
+                if (isSharedGroupEnabled()) {
+                    String[] sharedRoles = doGetSharedRoleListOfUserWithID(userID, null, "*");
+                    if (sharedRoles != null) {
+                        roles.addAll(Arrays.asList(sharedRoles));
+                    }
+                }
+                modifiedExternalRoleList = UserCoreUtil.addDomainToNames(roles.toArray(new String[0]), getMyDomainName());
+
+                // Get the associated internal roles of the groups.
+                if (isRoleAndGroupSeparationEnabled()) {
+                    Set<String> rolesOfGroups = getUniqueSet(getHybridRoleListOfGroups(roles, getMyDomainName()));
+                    modifiedInternalRoles.addAll(rolesOfGroups);
+                }
+            }
+            modifiedInternalRoles.addAll(internalRoles);
+            String[] roleList = UserCoreUtil.combine(modifiedExternalRoleList, new ArrayList<>(modifiedInternalRoles));
+            userRoleList = Arrays.asList(roleList);
+
+            for (UserOperationEventListener userOperationEventListener : UMListenerServiceComponent
+                    .getUserOperationEventListeners()) {
+                if (userOperationEventListener instanceof AbstractUserOperationEventListener) {
+                    if (!((AbstractUserOperationEventListener) userOperationEventListener)
+                            .doPostGetRoleListOfUserWithID(userID, filter, roleList, this)) {
+                        break;
+                    }
+                }
+            }
+
+            // Add to user role cache using username.
+            if (username != null) {
+                addToUserRolesCache(this.tenantId, username, roleList);
+            }
         }
-        return Arrays.asList(roleList);
+        return userRoleList;
     }
 
     /**
@@ -8487,40 +8501,48 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     private String[] getUserRoles(String username, String filter) throws UserStoreException {
 
-        String[] internalRoles = doGetInternalRoleListOfUser(username, filter);
-        String[] modifiedExternalRoleList = new String[0];
+        String[] roleList;
+        String usernameWithTenantDomain = username + "@" + this.getTenantDomain(this.tenantId);
+        synchronized (usernameWithTenantDomain.intern()) {
+            roleList = getRoleListOfUserFromCache(this.tenantId, username);
+            if (roleList != null && roleList.length > 0) {
+                return roleList;
+            }
+            String[] internalRoles = doGetInternalRoleListOfUser(username, filter);
+            String[] modifiedExternalRoleList = new String[0];
 
-        if (readGroupsEnabled && doCheckExistingUser(username)) {
-            String[] externalRoles = doGetExternalRoleListOfUser(username, "*");
-            List<String> roles = Arrays.asList(externalRoles);
-            if (isSharedGroupEnabled()) {
-                String[] sharedRoles = doGetSharedRoleListOfUser(username, null, "*");
-                if (sharedRoles != null) {
-                    roles.addAll(Arrays.asList(sharedRoles));
+            if (readGroupsEnabled && doCheckExistingUser(username)) {
+                String[] externalRoles = doGetExternalRoleListOfUser(username, "*");
+                List<String> roles = Arrays.asList(externalRoles);
+                if (isSharedGroupEnabled()) {
+                    String[] sharedRoles = doGetSharedRoleListOfUser(username, null, "*");
+                    if (sharedRoles != null) {
+                        roles.addAll(Arrays.asList(sharedRoles));
+                    }
+                }
+                modifiedExternalRoleList = UserCoreUtil
+                        .addDomainToNames(roles.toArray(new String[0]), getMyDomainName());
+
+                // Get the associated internal roles of the groups.
+                if (isRoleAndGroupSeparationEnabled()) {
+                    Set<String> rolesOfGroups = getUniqueSet(getHybridRoleListOfGroups(roles, getMyDomainName()));
+                    internalRoles = UserCoreUtil.combine(internalRoles, new ArrayList<>(rolesOfGroups));
                 }
             }
-            modifiedExternalRoleList = UserCoreUtil
-                    .addDomainToNames(roles.toArray(new String[0]), getMyDomainName());
 
-            // Get the associated internal roles of the groups.
-            if (isRoleAndGroupSeparationEnabled()) {
-                Set<String> rolesOfGroups = getUniqueSet(getHybridRoleListOfGroups(roles, getMyDomainName()));
-                internalRoles = UserCoreUtil.combine(internalRoles, new ArrayList<>(rolesOfGroups));
-            }
-        }
+            roleList = UserCoreUtil.combine(internalRoles, Arrays.asList(modifiedExternalRoleList));
 
-        String[] roleList = UserCoreUtil.combine(internalRoles, Arrays.asList(modifiedExternalRoleList));
-
-        for (UserOperationEventListener userOperationEventListener : UMListenerServiceComponent
-                .getUserOperationEventListeners()) {
-            if (userOperationEventListener instanceof AbstractUserOperationEventListener) {
-                if (!((AbstractUserOperationEventListener) userOperationEventListener)
-                        .doPostGetRoleListOfUser(username, filter, roleList, this)) {
-                    break;
+            for (UserOperationEventListener userOperationEventListener : UMListenerServiceComponent
+                    .getUserOperationEventListeners()) {
+                if (userOperationEventListener instanceof AbstractUserOperationEventListener) {
+                    if (!((AbstractUserOperationEventListener) userOperationEventListener)
+                            .doPostGetRoleListOfUser(username, filter, roleList, this)) {
+                        break;
+                    }
                 }
             }
+            addToUserRolesCache(this.tenantId, username, roleList);
         }
-        addToUserRolesCache(this.tenantId, username, roleList);
         return roleList;
     }
 
