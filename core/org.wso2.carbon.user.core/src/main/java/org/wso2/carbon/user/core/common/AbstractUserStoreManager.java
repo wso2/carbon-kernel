@@ -8436,6 +8436,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     private String[] getUserRolesWithIDFromDatabase(String userID, String filter) throws UserStoreException {
 
+        if (log.isDebugEnabled()) {
+            log.debug("Retrieving user role list for userID: " + userID + " from database");
+        }
         List<String> internalRoles = doGetInternalRoleListOfUserWithID(userID, filter);
         Set<String> modifiedInternalRoles = new HashSet<>();
         String[] modifiedExternalRoleList = new String[0];
@@ -8508,6 +8511,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     private String[] getUserRolesFromDatabase(String username, String filter) throws UserStoreException {
 
+        if (log.isDebugEnabled()) {
+            log.debug("Retrieving user role list for user: " + username + " from database");
+        }
         String[] internalRoles = doGetInternalRoleListOfUser(username, filter);
         String[] modifiedExternalRoleList = new String[0];
 
