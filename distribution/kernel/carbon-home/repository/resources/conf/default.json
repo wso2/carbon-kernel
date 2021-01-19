@@ -10,6 +10,7 @@
   "server.max_items_per_page": "100",
   "user_store.type": "database",
   "super_admin.admin_role": "admin",
+  "everyone.rolename": "everyone",
   "authorization_manager.class": "org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager",
   "authorization_manager.properties.AdminRoleManagementPermissions": "/permission",
   "authorization_manager.properties.AuthorizationCacheEnabled": "true",
