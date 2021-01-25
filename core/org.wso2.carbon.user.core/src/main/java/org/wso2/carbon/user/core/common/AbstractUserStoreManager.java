@@ -5719,11 +5719,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return;
         }
 
-        if (!isRoleNameValid(roleName)) {
+        if (!isRoleNameValid(newRoleName)) {
             String regEx = realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_ROLE_NAME_JAVA_REG_EX);
             String errorMessage = String
-                    .format(ErrorMessages.ERROR_CODE_INVALID_ROLE_NAME.getMessage(), roleName, regEx);
+                    .format(ErrorMessages.ERROR_CODE_INVALID_ROLE_NAME.getMessage(), newRoleName, regEx);
             String errorCode = ErrorMessages.ERROR_CODE_INVALID_ROLE_NAME.getCode();
             handleUpdateRoleNameFailure(errorCode, errorMessage, roleName, newRoleName);
             throw new UserStoreException(errorCode + " - " + errorMessage);
