@@ -96,7 +96,7 @@ public class JDBCUserStoreConstants {
         setProperty("RolenameJavaRegEx", "Group Name RegEx (Java)", "[a-zA-Z0-9._\\-|//]{3,30}$",
                 "A regular expression to validate group names",
                 new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        setProperty("RolenameJavaScriptRegEx", "Group Name RegEx (Javascript)", "^[\\S]{5,30}$",
+        setProperty("RolenameJavaScriptRegEx", "Group Name RegEx (Javascript)", "^[\\S]{3,30}$",
                 "The regular expression used by the font-end components for group name validation",
                 new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "false",
