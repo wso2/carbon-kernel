@@ -358,6 +358,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     public String[] getProfileNames(String userName) throws UserStoreException {
 
         String userID = getUserIDFromUserName(userName);
+        if (StringUtils.isBlank(userID)) {
+            handleGetNonExistentUser(userName, null, null);
+        }
         return getProfileNamesWithID(userID);
     }
 

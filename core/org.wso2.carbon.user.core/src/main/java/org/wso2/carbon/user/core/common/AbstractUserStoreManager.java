@@ -1833,11 +1833,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (!isUserExist) {
-            String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
-            String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userName,
-                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
-            handleGetUserClaimValueFailure(errorCode, errorMessage, userName, claim, profileName);
-            throw new UserStoreException(errorCode + " - " + errorMessage);
+            handleGetNonExistentUser(userName, claim, profileName);
         }
 
         Map<String, String> finalValues;
@@ -15529,5 +15525,22 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             e.getMessage()), userID, claims, profileName);
             throw e;
         }
+    }
+
+    /**
+     * Throw an error if the requested user does not exist.
+     *
+     * @param userName              Username.
+     * @param profileName           Profile name.
+     * @throws UserStoreException   Exception when the user does not exist.
+     */
+    protected void handleGetNonExistentUser(String userName, String claim, String profileName)
+            throws UserStoreException {
+
+        String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
+        String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userName,
+                realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
+        handleGetUserClaimValueFailure(errorCode, errorMessage, userName, claim, profileName);
+        throw new UserStoreException(errorCode + " - " + errorMessage);
     }
 }

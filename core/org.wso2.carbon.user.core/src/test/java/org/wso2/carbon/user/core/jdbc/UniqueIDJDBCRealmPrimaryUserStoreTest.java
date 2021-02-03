@@ -652,6 +652,17 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
         }
     }
 
+    public void test204GetProfileOfNonExistentUser() {
+
+        try {
+            admin.getProfileNames("nonExistentUser");
+        } catch (UserStoreException e) {
+            // Expected exception.
+            assertEquals("30007 - UserNotFound: User nonExistentUser does not exist in: PRIMARY",
+                    e.getMessage());
+        }
+    }
+
     private void clearUserIdResolverCache() {
 
         UserIdResolverCache.getInstance()
