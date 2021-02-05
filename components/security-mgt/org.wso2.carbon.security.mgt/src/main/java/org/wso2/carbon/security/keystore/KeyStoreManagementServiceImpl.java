@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
 import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_ADD_CERTIFICATE;
 import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_ALIAS_EXISTS;
 import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_BAD_VALUE_FOR_FILTER;
+import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_CANNOT_DELETE_TENANT_CERT;
 import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_CERTIFICATE_EXISTS;
 import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_DELETE_CERTIFICATE;
 import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_EMPTY_ALIAS;
@@ -180,6 +181,10 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
     public void deleteCertificate(String tenantDomain, String alias) throws KeyStoreManagementException {
 
         try {
+            Map<String, X509Certificate> publicCertificate = getPublicCertificate(tenantDomain);
+            if (publicCertificate.keySet().contains(alias)) {
+                throw handleClientException(ERROR_CODE_CANNOT_DELETE_TENANT_CERT, alias);
+            }
             getKeyStoreAdmin(tenantDomain).removeCertFromStore(alias, getKeyStoreName(tenantDomain));
         } catch (SecurityConfigException e) {
             throw handleServerException(ERROR_CODE_DELETE_CERTIFICATE, alias, e);
