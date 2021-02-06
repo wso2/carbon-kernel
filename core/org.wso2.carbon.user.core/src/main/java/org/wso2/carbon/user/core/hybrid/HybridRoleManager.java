@@ -911,7 +911,7 @@ public class HybridRoleManager {
 
         // ########### Domain-less Roles and Domain-aware Users from here onwards #############
 
-        if (this.isExistingRole(newRoleName)) {
+        if (!roleName.equalsIgnoreCase(newRoleName) && this.isExistingRole(newRoleName)) {
             throw new UserStoreException("Role name: " + newRoleName
                     + " in the system. Please pick another role name.");
         }
