@@ -5729,7 +5729,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throw new UserStoreException(errorCode + " - " + errorMessage);
         }
 
-        if (!roleName.equalsIgnoreCase(newRoleName) && isExistingRole(newRoleName)) {
+        if (isExistingRole(newRoleName)) {
             String errorMessage = String.format(ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS.getMessage(), newRoleName);
             String errorCode = ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS.getCode();
             handleUpdateRoleNameFailure(errorCode, errorMessage, roleName, newRoleName);
