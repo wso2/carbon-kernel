@@ -153,6 +153,14 @@
             <groupId>org.wso2.orbit.sun.xml.ws</groupId>
             <artifactId>jaxws-ri</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.sun.xml.messaging.saaj</groupId>
+            <artifactId>saaj-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jvnet.staxex</groupId>
+            <artifactId>stax-ex</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
