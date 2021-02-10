@@ -98,7 +98,11 @@ public class CarbonResponseWrapper extends Response {
 
         String cookieString = super.generateCookieString(cookie);
         if (cookie instanceof ServletCookie) {
-            cookieString = cookieString + "; SameSite=" + ((ServletCookie) cookie).getSameSite().getName();
+            if (((ServletCookie) cookie).getSameSite() == null) {
+                cookieString = cookieString + "; SameSite=" + SameSiteCookie.STRICT.getName();
+            } else {
+                cookieString = cookieString + "; SameSite=" + ((ServletCookie) cookie).getSameSite().getName();
+            }
         } else {
             cookieString = cookieString + "; SameSite=" + SameSiteCookie.STRICT.getName();
         }
