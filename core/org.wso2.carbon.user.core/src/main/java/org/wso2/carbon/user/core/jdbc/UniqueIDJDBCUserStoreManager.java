@@ -29,6 +29,7 @@ import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.NotImplementedException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.UserStoreClientException;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.ClaimManager;
@@ -3223,6 +3224,11 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         getExpressionConditions(condition, expressionConditions);
 
         for (ExpressionCondition expressionCondition : expressionConditions) {
+            // TODO: This validation has to be removed once ge and le operations are implemented for JDBC userstores.
+            if (ExpressionOperation.GE.toString().equals(expressionCondition.getOperation()) ||
+                    ExpressionOperation.LE.toString().equals(expressionCondition.getOperation())) {
+                throw new UserStoreClientException("ge and le operations are not supported for JDBC userstores.");
+            }
             if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName())) {
                 isGroupFiltering = true;
                 totalMultiGroupFilters++;
