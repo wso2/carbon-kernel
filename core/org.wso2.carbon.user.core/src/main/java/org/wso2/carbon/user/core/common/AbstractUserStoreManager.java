@@ -11510,7 +11510,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         }
                     }
                 } else {
-                    List<User> usersInHybrid = userUniqueIDManger.getListOfUsers(userNamesInHybrid, this);
+                    List<User> usersInHybrid = userUniqueIDManger.listUsers(userNamesInHybrid, this);
                     handleDoPostGetUserListOfRoleWithID(roleName, usersInHybrid);
                     return usersInHybrid;
                 }
