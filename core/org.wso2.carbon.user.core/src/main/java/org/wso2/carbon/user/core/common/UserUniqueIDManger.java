@@ -225,6 +225,43 @@ public class UserUniqueIDManger {
     }
 
     /**
+     * Get list of user's from array of user names.
+     * @param listUsers List of user names.
+     * @param userStoreManager User store manger instance.
+     * @return List of @see User objects.
+     */
+    public List<User> getListOfUsers(String[] listUsers, AbstractUserStoreManager userStoreManager) {
+
+        return getListOfUsers(Arrays.asList(listUsers), userStoreManager);
+    }
+
+    /**
+     * Get list of user's from list of user names.
+     * @param listUsers List of user names.
+     * @param userStoreManager User store manger instance.
+     * @return List of @see User objects.
+     */
+    public List<User> getListOfUsers(List<String> listUsers, AbstractUserStoreManager userStoreManager) {
+
+        List<User> users = new ArrayList<>();
+        for (String username : listUsers) {
+            User user = new User();
+            try {
+                String uniqueId = getUniqueId(username, userStoreManager);
+                user.setUsername(username);
+                user.setUserID(uniqueId);
+                user.setUserStoreDomain(userStoreManager.getMyDomainName());
+            } catch (UserStoreException e) {
+                // If the user does not have a userID we drop the user from the list.
+                continue;
+            }
+            users.add(user);
+        }
+
+        return users;
+    }
+
+    /**
      * Generate an unique identifier.
      * @return String representation of the unique identifier.
      */
