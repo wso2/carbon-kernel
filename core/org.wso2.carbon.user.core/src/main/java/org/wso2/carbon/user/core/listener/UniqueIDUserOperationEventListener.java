@@ -478,6 +478,22 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
             throws UserStoreException;
 
     /**
+     * Defines any additional actions before updating the internal role list of a user.
+     *
+     * @param userID ID of the user.
+     * @param deletedRoles deleted role array.
+     * @param newRoles newly added role array.
+     * @param userStoreManager user store manager.
+     * @throws UserStoreException UserStoreException.
+     */
+    default boolean doPreUpdateInternalRoleListOfUserWithID(String userID, String[] deletedRoles,
+                                                            String[] newRoles, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    /**
      * Define any additional actions before user is deleted by Admin.
      *
      * @param userID           User ID of User.
@@ -632,6 +648,22 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
      */
     boolean doPreUpdateUserListOfRoleWithID(String roleName, String deletedUsers[], String[] newUsers,
             UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Defines any additional actions before updating a role.
+     *
+     * @param roleName     role names.
+     * @param deletedUsers deleted user IDs.
+     * @param newUsers     new user IDs.
+     * @return true if handling succeeds, otherwise false.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    default boolean doPreUpdateUserListOfInternalRoleWithID(String roleName, String deletedUsers[], String[] newUsers,
+                                            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
 
     /**
      * Defines any additional actions after updating a role.

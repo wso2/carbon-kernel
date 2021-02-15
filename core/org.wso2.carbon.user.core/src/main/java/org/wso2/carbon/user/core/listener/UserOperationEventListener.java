@@ -385,6 +385,38 @@ public interface UserOperationEventListener {
     }
 
     /**
+     * Defines any additional actions before updating the internal role list of a user.
+     *
+     * @param userName Name of the user.
+     * @param deletedRoles deleted role array.
+     * @param newRoles newly added role array.
+     * @param userStoreManager user store manager.
+     * @throws UserStoreException UserStoreException.
+     */
+    default boolean doPreUpdateInternalRoleListOfUser(String userName, String[] deletedRoles,
+                                                      String[] newRoles,
+                                                      UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    /**
+     * Defines any additional actions before updating the internal role list of a user.
+     *
+     * @param roleName Name of the role.
+     * @param deletedUsers deleted user array.
+     * @param newUsers newly added user array.
+     * @param userStoreManager user store manager.
+     * @throws UserStoreException UserStoreException.
+     */
+    default boolean doPreUpdateUserListOfInternalRole(String roleName, String deletedUsers[],
+                                                      String[] newUsers, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+
+    /**
      * Defines any additional actions before deleting a role.
      *
      * @param roleName
