@@ -32,6 +32,8 @@ public class LDAPFilterQueryBuilder {
     private static final String AND_OPERATION = "&";
     private static final String OR_OPERATION = "|";
     private static final String EQUALS_SIGN = "=";
+    private static final String GREATER_THAN_SIGN = ">";
+    private static final String LESS_THAN_SIGN = "<";
     private static final String ANY_STRING = "*";
 
     private StringBuilder searchFilter;
@@ -80,6 +82,10 @@ public class LDAPFilterQueryBuilder {
             queryBuilder.append(endWithFilterBuilder(property, value));
         } else if (ExpressionOperation.SW.toString().equals(operation)) {
             queryBuilder.append(startWithFilterBuilder(property, value));
+        } else if (ExpressionOperation.GE.toString().equals(operation)) {
+            queryBuilder.append(greaterThanOrEqualFilterBuilder(property, value));
+        } else if (ExpressionOperation.LE.toString().equals(operation)) {
+            queryBuilder.append(lessThanOrEqualFilterBuilder(property, value));
         }
     }
 
@@ -138,6 +144,36 @@ public class LDAPFilterQueryBuilder {
 
         StringBuilder filter = new StringBuilder();
         filter.append(OPEN_PARENTHESIS).append(property).append(EQUALS_SIGN).append(value).append(ANY_STRING).
+                append(CLOSE_PARENTHESIS);
+        return filter.toString();
+    }
+
+    /**
+     * Generate "LE" filter.
+     *
+     * @param property Attribute name.
+     * @param value    Attribute value.
+     * @return Filter query with less than or equal filter.
+     */
+    private String lessThanOrEqualFilterBuilder(String property, String value) {
+
+        StringBuilder filter = new StringBuilder();
+        filter.append(OPEN_PARENTHESIS).append(property).append(LESS_THAN_SIGN).append(EQUALS_SIGN).append(value).
+                append(CLOSE_PARENTHESIS);
+        return filter.toString();
+    }
+
+    /**
+     * Generate "GE" filter.
+     *
+     * @param property Attribute name.
+     * @param value    Attribute value.
+     * @return Filter query with greater than or equal filter.
+     */
+    private String greaterThanOrEqualFilterBuilder(String property, String value) {
+
+        StringBuilder filter = new StringBuilder();
+        filter.append(OPEN_PARENTHESIS).append(property).append(GREATER_THAN_SIGN).append(EQUALS_SIGN).append(value).
                 append(CLOSE_PARENTHESIS);
         return filter.toString();
     }
