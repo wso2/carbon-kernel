@@ -1326,12 +1326,12 @@ public class JDBCTenantManager implements TenantManager {
     /**
      * Execute deletion queries.
      *
-     * @param conn DB connection
-     * @param query SQL query
-     * @param tenantId Id of the tenant
-     * @throws Exception
+     * @param conn          The database connection.
+     * @param query         The SQL query.
+     * @param tenantId      The id of the tenant.
+     * @throws SQLException throws when an error occurs in executing the deletion query.
      */
-    private void executeDeleteQuery(Connection conn, String query, int tenantId)  throws SQLException {
+    private void executeDeleteQuery(Connection conn, String query, int tenantId) throws SQLException {
 
         try (PreparedStatement prepStmt = conn.prepareStatement(query)) {
             prepStmt.setInt(1, tenantId);
