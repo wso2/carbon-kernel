@@ -238,10 +238,11 @@ public class STSAdminServiceImpl extends AbstractAdmin implements STSAdminServic
                     resource = registry.newResource();
                 }
                 if (resource.getProperty(trustedService) != null) {
-                    resource.removeProperty(trustedService);
+                    return;
+                } else {
+                    resource.addProperty(trustedService, certAlias);
+                    registry.put(resourcePath, resource);
                 }
-                resource.addProperty(trustedService, certAlias);
-                registry.put(resourcePath, resource);
             }
         } catch (Exception e) {
             log.error("Error occured while adding trusted service for STS", e);
