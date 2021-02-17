@@ -409,12 +409,22 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(JDBCRealmConstants.GET_USERS_FOR_PROP, "Get User List for Property SQL",
                 JDBCRealmConstants.GET_USERS_FOR_PROP_SQL, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCRealmConstants.GET_USERS_FOR_CLAIM_VALUE, "Get User List for Claim Value SQL",
+                JDBCRealmConstants.GET_USERS_FOR_CLAIM_VALUE_SQL, "",
+                new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCRealmConstants.GET_USERS_FOR_PROP_WITH_ID, "Get User List for Property With ID SQL",
                 JDBCRealmConstants.GET_USERS_FOR_PROP_WITH_ID_SQL, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCRealmConstants.GET_USERS_FOR_CLAIM_VALUE_WITH_ID,
+                "Get User List for Claim Value With ID SQL", JDBCRealmConstants.GET_USERS_FOR_CLAIM_VALUE_WITH_ID_SQL, "",
+                new Property[]{USER.getProperty(), SQL.getProperty(), FALSE.getProperty()});
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_USERS_FOR_PROP_WITH_ID_CASE_INSENSITIVE,
                 "Get User List For Property With ID SQL With Case Insensitive Username",
                 JDBCCaseInsensitiveConstants.GET_USERS_FOR_PROP_WITH_ID_SQL_CASE_INSENSITIVE, "",
+                new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_USERS_FOR_CLAIM_VALUE_WITH_ID_CASE_INSENSITIVE,
+                "Get User List For Claim Value With ID SQL With Case Insensitive Username",
+                JDBCCaseInsensitiveConstants.GET_USERS_FOR_CLAIM_VALUE_WITH_ID_SQL_CASE_INSENSITIVE, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCRealmConstants.GET_PROFILE_NAMES, "Get Profile Names SQL",
                 JDBCRealmConstants.GET_PROFILE_NAMES_SQL, "",
