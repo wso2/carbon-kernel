@@ -19,7 +19,8 @@
 package org.wso2.carbon.user.core.common;
 
 import org.apache.commons.lang.StringUtils;
-import org.wso2.carbon.user.core.UserCoreConstants;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
@@ -39,6 +40,8 @@ import static org.wso2.carbon.utils.multitenancy.MultitenantConstants.SUPER_TENA
  * This will manage the relationship between the user unique id in the system against the unique id in the user store.
  */
 public class UserUniqueIDManger {
+
+    private static final Log log = LogFactory.getLog(UserUniqueIDManger.class);
 
     /**
      * Add new user and create a unique user id for that user.
@@ -196,8 +199,7 @@ public class UserUniqueIDManger {
      * @param userStoreManager User store manger instance.
      * @return List of @see User objects.
      */
-    public List<User> listUsers(String[] listUsers, AbstractUserStoreManager userStoreManager)
-            throws UserStoreException {
+    public List<User> listUsers(String[] listUsers, AbstractUserStoreManager userStoreManager) {
 
         return listUsers(Arrays.asList(listUsers), userStoreManager);
     }
@@ -208,16 +210,22 @@ public class UserUniqueIDManger {
      * @param userStoreManager User store manger instance.
      * @return List of @see User objects.
      */
-    public List<User> listUsers(List<String> listUsers, AbstractUserStoreManager userStoreManager)
-            throws UserStoreException {
+    public List<User> listUsers(List<String> listUsers, AbstractUserStoreManager userStoreManager) {
 
         List<User> users = new ArrayList<>();
         for (String username : listUsers) {
             User user = new User();
-            String uniqueId = getUniqueId(username, userStoreManager);
-            user.setUsername(username);
-            user.setUserID(uniqueId);
-            user.setUserStoreDomain(userStoreManager.getMyDomainName());
+            try {
+                String uniqueId = getUniqueId(username, userStoreManager);
+                user.setUsername(username);
+                user.setUserID(uniqueId);
+                user.setUserStoreDomain(userStoreManager.getMyDomainName());
+            } catch (UserStoreException e) {
+                log.debug(String.format("Error while retrieving user ID for user: %s. Hence dropping this user from " +
+                        "the list of users." , username), e);
+                // If the user does not have a userID we drop the user from the list.
+                continue;
+            }
             users.add(user);
         }
 
