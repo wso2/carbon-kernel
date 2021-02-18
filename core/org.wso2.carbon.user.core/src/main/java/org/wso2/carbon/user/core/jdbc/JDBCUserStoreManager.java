@@ -2978,24 +2978,27 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         if(value == null){
             throw new IllegalArgumentException("Filter value cannot be null");
         }
+
+        String sqlStmt;
         if (value.contains(QUERY_FILTER_STRING_ANY)) {
             // This is to support LDAP like queries. Value having only * is restricted except one *.
             if (!value.matches("(\\*)\\1+")) {
                 // Convert all the * to % except \*.
                 value = value.replaceAll("(?<!\\\\)\\*", SQL_FILTER_STRING_ANY);
             }
+            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_FOR_PROP);
+        } else {
+            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_FOR_CLAIM_VALUE);
         }
 
         String[] users = new String[0];
         Connection dbConnection = null;
-        String sqlStmt = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
 
         List<String> list = new ArrayList<String>();
         try {
             dbConnection = getDBConnection();
-            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_FOR_PROP);
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, property);
             prepStmt.setString(2, value);

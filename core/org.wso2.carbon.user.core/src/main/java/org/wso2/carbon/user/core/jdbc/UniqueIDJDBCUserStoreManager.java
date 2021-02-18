@@ -2300,27 +2300,35 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         if (value == null) {
             throw new IllegalArgumentException("Filter value cannot be null");
         }
+
+        String sqlStmt;
         if (value.contains(QUERY_FILTER_STRING_ANY)) {
             // This is to support LDAP like queries. Value having only * is restricted except one *.
             if (!value.matches("(\\*)\\1+")) {
                 // Convert all the * to % except \*.
                 value = value.replaceAll("(?<!\\\\)\\*", SQL_FILTER_STRING_ANY);
             }
-        }
-
-        Connection dbConnection = null;
-        String sqlStmt;
-        PreparedStatement prepStmt = null;
-        ResultSet rs = null;
-        List<String> userList = new ArrayList<>();
-        try {
-            dbConnection = getDBConnection();
             if (!isCaseSensitiveUsername() && UID.equals(property)) {
                 sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.
                         GET_USERS_FOR_PROP_WITH_ID_CASE_INSENSITIVE);
             } else {
                 sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_FOR_PROP_WITH_ID);
             }
+        } else {
+            if (!isCaseSensitiveUsername() && UID.equals(property)) {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.
+                        GET_USERS_FOR_CLAIM_VALUE_WITH_ID_CASE_INSENSITIVE);
+            } else {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_FOR_CLAIM_VALUE_WITH_ID);
+            }
+        }
+
+        Connection dbConnection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        List<String> userList = new ArrayList<>();
+        try {
+            dbConnection = getDBConnection();
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, property);
             prepStmt.setString(2, value);
