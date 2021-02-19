@@ -65,6 +65,7 @@
         <module>components/captcha-mgt</module>
         <module>components/user-functionality-mgt</module>
         <module>components/cors-mgt</module>
+        <module>components/multi-attribute-login</module>
         <module>features/security-mgt</module>
         <module>features/claim-mgt</module>
         <module>features/identity-core</module>
