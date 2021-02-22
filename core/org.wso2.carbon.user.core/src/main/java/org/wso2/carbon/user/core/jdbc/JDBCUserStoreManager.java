@@ -2810,9 +2810,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     /**
      * Prepare the password including the salt, and hashes if hash algorithm is provided.
      *
-     * @param password  original password value which needs to be hashed
-     * @param saltValue salt value
-     * @return hashed password or plain text password as a String
+     * @param password  Original password value which needs to be hashed
+     * @param saltValue Salt value
+     * @return Hashed password or plain text password as a String
      * @throws UserStoreException The exception thrown at hashing the passwords.
      */
     protected String preparePassword(Object password, String saltValue) throws UserStoreException {
@@ -2830,7 +2830,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             if (digestFunction.equals(UserCoreConstants.RealmConfig.PASSWORD_HASH_METHOD_PLAIN_TEXT)) {
                 passwordHash = new String(credentialObj.getChars());
                 return passwordHash;
-            } else if (digestFunction.equals("SHA-256")) {
+            } else if (digestFunction.equals(UserCoreConstants.HashConstants.PASSWORD_HASH_METHOD_SHA256)) {
                 try {
                     if (saltValue != null) {
                         credentialObj.addChars(saltValue.toCharArray());
@@ -2846,7 +2846,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     }
                     throw new UserStoreException(msg, e);
                 }
-            } else if (digestFunction.equals("PBKDF2")) {
+            } else if (digestFunction.equals(UserCoreConstants.HashConstants.PASSWORD_HASH_METHOD_PBKDF2)) {
                 String passwordString = String.valueOf(credentialObj.getChars());
                 Map<String, Object> metaProperties = new HashMap<>();
                 metaProperties.put("iterations", 10000);

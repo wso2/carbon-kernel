@@ -47,5 +47,4 @@ public class HashProviderException extends Exception {
         super(message);
         this.errorCode = errorCode;
     }
-
 }

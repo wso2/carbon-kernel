@@ -293,4 +293,10 @@ public class UserCoreConstants {
         public static final String USER_IS_LOCKED = "17003";
 
     }
+
+    public static final class HashConstants {
+
+        public static final String PASSWORD_HASH_METHOD_SHA256 = "SHA-256";
+        public static final String PASSWORD_HASH_METHOD_PBKDF2 = "PBKDF2";
+    }
 }
