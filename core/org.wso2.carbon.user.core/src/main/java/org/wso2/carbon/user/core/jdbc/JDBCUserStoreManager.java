@@ -38,7 +38,10 @@ import org.wso2.carbon.user.core.common.RoleBreakdown;
 import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
 import org.wso2.carbon.user.core.dto.RoleDTO;
+import org.wso2.carbon.user.core.exceptions.HashProviderException;
+import org.wso2.carbon.user.core.hash.HashProvider;
 import org.wso2.carbon.user.core.hybrid.HybridJDBCConstants;
+import org.wso2.carbon.user.core.internal.UserStoreMgtDataHolder;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
 import org.wso2.carbon.user.core.model.Condition;
 import org.wso2.carbon.user.core.model.ExpressionAttribute;
@@ -2805,52 +2808,66 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Prepare the password including the salt, and hashes if hash algorithm is provided
+     * Prepare the password including the salt, and hashes if hash algorithm is provided.
      *
-     * @param password original password value
+     * @param password  original password value which needs to be hashed
      * @param saltValue salt value
-     * @return  hashed password or plain text password as a String
-     * @throws UserStoreException
+     * @return hashed password or plain text password as a String
+     * @throws UserStoreException The exception thrown at hashing the passwords.
      */
     protected String preparePassword(Object password, String saltValue) throws UserStoreException {
 
         Secret credentialObj;
+        String passwordHash = "";
         try {
             credentialObj = Secret.getSecret(password);
         } catch (UnsupportedSecretTypeException e) {
             throw new UserStoreException("Unsupported credential type", e);
         }
+        String digestFunction = realmConfig.getUserStoreProperties().get(JDBCRealmConstants.DIGEST_FUNCTION);
+        if (digestFunction != null) {
 
-        try {
-            String passwordString;
-            if (saltValue != null) {
-                credentialObj.addChars(saltValue.toCharArray());
-            }
+            if (digestFunction.equals(UserCoreConstants.RealmConfig.PASSWORD_HASH_METHOD_PLAIN_TEXT)) {
+                passwordHash = new String(credentialObj.getChars());
+                return passwordHash;
+            } else if (digestFunction.equals("SHA-256")) {
+                try {
+                    if (saltValue != null) {
+                        credentialObj.addChars(saltValue.toCharArray());
+                    }
+                    MessageDigest digest = MessageDigest.getInstance(digestFunction);
+                    byte[] byteValue = digest.digest(credentialObj.getBytes());
+                    passwordHash = Base64.encode(byteValue);
 
-            String digestFunction = realmConfig.getUserStoreProperties().get(JDBCRealmConstants.DIGEST_FUNCTION);
-            if (digestFunction != null) {
-                if (digestFunction.equals(UserCoreConstants.RealmConfig.PASSWORD_HASH_METHOD_PLAIN_TEXT)) {
-                    passwordString = new String(credentialObj.getChars());
-                    return passwordString;
+                } catch (NoSuchAlgorithmException e) {
+                    String msg = "Error occurred while preparing password.";
+                    if (log.isDebugEnabled()) {
+                        log.debug(msg, e);
+                    }
+                    throw new UserStoreException(msg, e);
                 }
-
-                MessageDigest digest = MessageDigest.getInstance(digestFunction);
-                byte[] byteValue = digest.digest(credentialObj.getBytes());
-                passwordString = Base64.encode(byteValue);
-            } else {
-                passwordString = new String(credentialObj.getChars());
+            } else if (digestFunction.equals("PBKDF2")) {
+                String passwordString = String.valueOf(credentialObj.getChars());
+                Map<String, Object> metaProperties = new HashMap<>();
+                metaProperties.put("iterations", 10000);
+                metaProperties.put("dkLength", 256);
+                metaProperties.put("PRF", "PBKDF2WithHmacSHA256");
+                HashProvider hashProvider = UserStoreMgtDataHolder.getInstance().getHashProvider(
+                        "PBKDF2");
+                try {
+                    byte[] hashByteArray = hashProvider.getHash(passwordString, saltValue, metaProperties);
+                    passwordHash = Base64.encode(hashByteArray);
+                } catch (HashProviderException e) {
+                    String msg = "Error in pbkdf2 hashing.";
+                    if (log.isDebugEnabled()) {
+                        log.debug(msg, e);
+                    }
+                }
             }
-
-            return passwordString;
-        } catch (NoSuchAlgorithmException e) {
-            String msg = "Error occurred while preparing password.";
-            if (log.isDebugEnabled()) {
-                log.debug(msg, e);
-            }
-            throw new UserStoreException(msg, e);
-        } finally {
-            credentialObj.clear();
+        } else {
+            passwordHash = new String(credentialObj.getChars());
         }
+        return passwordHash;
     }
 
     /**
