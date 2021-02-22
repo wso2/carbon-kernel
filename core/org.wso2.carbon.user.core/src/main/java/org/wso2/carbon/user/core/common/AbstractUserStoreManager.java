@@ -7745,12 +7745,16 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             } else if (UserCoreConstants.EXT_ROLE_CLAIM.equalsIgnoreCase(claim)) {
                 requireExtRole = true;
                 roleClaim = claim;
-            } else if (UserCoreConstants.INTERNAL_ROLES_CLAIM.equalsIgnoreCase(claim)) {
-                requireRoles = true;
-                rolesClaim = claim;
-            } else if (UserCoreConstants.USER_STORE_GROUPS_CLAIM.equalsIgnoreCase(claim)) {
-                requireGroups = true;
-                groupsClaim = claim;
+            }
+
+            if (isGroupsVsRolesSeparationEnabled()) {
+                if (UserCoreConstants.INTERNAL_ROLES_CLAIM.equalsIgnoreCase(claim)) {
+                    requireRoles = true;
+                    rolesClaim = claim;
+                } else if (UserCoreConstants.USER_STORE_GROUPS_CLAIM.equalsIgnoreCase(claim)) {
+                    requireGroups = true;
+                    groupsClaim = claim;
+                }
             }
         }
 
@@ -7858,26 +7862,27 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             role = rolesList.toArray(new String[rolesList.size()]);
         }
 
-        if (requireRoles) {
-            roles = doGetInternalRoleListOfUser(userName, "*");
-        }
-
-        if (requireGroups) {
-            groups = doGetExternalRoleListOfUser(userName, "*");
-        }
-
         if (role != null && role.length > 0) {
             finalValues.put(roleClaim, getMultiValuedString(Arrays.asList(role)));
         }
 
-        if (roles != null && roles.length > 0) {
-            finalValues.put(rolesClaim, getMultiValuedString(Arrays.asList(roles)));
-        }
+        if (isGroupsVsRolesSeparationEnabled()) {
+            if (requireRoles) {
+                roles = doGetInternalRoleListOfUser(userName, "*");
+            }
 
-        if (groups != null && groups.length > 0) {
-            finalValues.put(groupsClaim, getMultiValuedString(Arrays.asList(groups)));
-        }
+            if (requireGroups) {
+                groups = doGetExternalRoleListOfUser(userName, "*");
+            }
 
+            if (roles != null && roles.length > 0) {
+                finalValues.put(rolesClaim, getMultiValuedString(Arrays.asList(roles)));
+            }
+
+            if (groups != null && groups.length > 0) {
+                finalValues.put(groupsClaim, getMultiValuedString(Arrays.asList(groups)));
+            }
+        }
         return finalValues;
     }
 
@@ -11841,12 +11846,16 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             } else if (UserCoreConstants.EXT_ROLE_CLAIM.equalsIgnoreCase(claim)) {
                 requireExtRole = true;
                 roleClaim = claim;
-            } else if (UserCoreConstants.INTERNAL_ROLES_CLAIM.equalsIgnoreCase(claim)) {
-                requireRoles = true;
-                rolesClaim = claim;
-            } else if (UserCoreConstants.USER_STORE_GROUPS_CLAIM.equalsIgnoreCase(claim)) {
-                requireGroups = true;
-                groupsClaim = claim;
+            }
+
+            if (isGroupsVsRolesSeparationEnabled()) {
+                if (UserCoreConstants.INTERNAL_ROLES_CLAIM.equalsIgnoreCase(claim)) {
+                    requireRoles = true;
+                    rolesClaim = claim;
+                } else if (UserCoreConstants.USER_STORE_GROUPS_CLAIM.equalsIgnoreCase(claim)) {
+                    requireGroups = true;
+                    groupsClaim = claim;
+                }
             }
         }
 
@@ -11934,26 +11943,27 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             role = rolesList;
         }
 
-        if (requireRoles) {
-            roles = doGetInternalRoleListOfUserWithID(userID, "*");
-        }
-
-        if (requireGroups) {
-            groups = Arrays.asList(doGetExternalRoleListOfUserWithID(userID, "*"));
-        }
-
         if (role != null && role.size() > 0) {
             finalValues.put(roleClaim, getMultiValuedString(role));
         }
 
-        if (roles != null && roles.size() > 0) {
-            finalValues.put(rolesClaim, getMultiValuedString(roles));
-        }
+        if (isGroupsVsRolesSeparationEnabled()) {
+            if (requireRoles) {
+                roles = doGetInternalRoleListOfUserWithID(userID, "*");
+            }
 
-        if (groups != null && groups.size() > 0) {
-            finalValues.put(groupsClaim, getMultiValuedString(groups));
-        }
+            if (requireGroups) {
+                groups = Arrays.asList(doGetExternalRoleListOfUserWithID(userID, "*"));
+            }
 
+            if (roles != null && roles.size() > 0) {
+                finalValues.put(rolesClaim, getMultiValuedString(roles));
+            }
+
+            if (groups != null && groups.size() > 0) {
+                finalValues.put(groupsClaim, getMultiValuedString(groups));
+            }
+        }
         return finalValues;
     }
 
@@ -15594,7 +15604,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     private boolean isNotARoleOrGroupClaim(String claim) {
 
-        return isNotARoleClaim(claim) || isNotARolesClaim(claim) || isNotAGroupsClaim(claim);
+        return isNotARoleClaim(claim)
+                || (isGroupsVsRolesSeparationEnabled() && (isNotARolesClaim(claim) || isNotAGroupsClaim(claim)));
     }
 
     private String getMultiValuedString(List<String> values) {
@@ -15611,5 +15622,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             delim = userAttributeSeparator;
         }
         return multiValuedStringBf.toString();
+    }
+
+    private boolean isGroupsVsRolesSeparationEnabled() {
+
+        return Boolean.parseBoolean(realmConfig.getAuthorizationManagerProperty(
+                UserCoreConstants.RealmConfig.PROPERTY_GROUP_AND_ROLE_SEPARATION_ENABLED));
     }
 }
