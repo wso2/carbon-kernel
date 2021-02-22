@@ -7707,10 +7707,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             String domainName, String profileName) throws UserStoreException {
 
         // Here the user name should be domain-less.
+        boolean requireRole = false;
+        boolean requireIntRole = false;
+        boolean requireExtRole = false;
         boolean requireRoles = false;
-        boolean requireIntRoles = false;
-        boolean requireExtRoles = false;
+        boolean requireGroups = false;
         String roleClaim = null;
+        String rolesClaim = null;
+        String groupsClaim = null;
+
 
         if (profileName == null || profileName.trim().length() == 0) {
             profileName = UserCoreConstants.DEFAULT_PROFILE;
@@ -7727,22 +7732,25 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
                 throw new UserStoreException(e);
             }
-            if (property != null
-                    && (!UserCoreConstants.ROLE_CLAIM.equalsIgnoreCase(claim)
-                    || !UserCoreConstants.INT_ROLE_CLAIM.equalsIgnoreCase(claim) ||
-                    !UserCoreConstants.EXT_ROLE_CLAIM.equalsIgnoreCase(claim))) {
+            if (property != null && isNotARoleOrGroupClaim(claim)) {
                 propertySet.add(property);
             }
 
             if (UserCoreConstants.ROLE_CLAIM.equalsIgnoreCase(claim)) {
-                requireRoles = true;
+                requireRole = true;
                 roleClaim = claim;
             } else if (UserCoreConstants.INT_ROLE_CLAIM.equalsIgnoreCase(claim)) {
-                requireIntRoles = true;
+                requireIntRole = true;
                 roleClaim = claim;
             } else if (UserCoreConstants.EXT_ROLE_CLAIM.equalsIgnoreCase(claim)) {
-                requireExtRoles = true;
+                requireExtRole = true;
                 roleClaim = claim;
+            } else if (UserCoreConstants.INTERNAL_ROLES_CLAIM.equalsIgnoreCase(claim)) {
+                requireRoles = true;
+                rolesClaim = claim;
+            } else if (UserCoreConstants.USER_STORE_GROUPS_CLAIM.equalsIgnoreCase(claim)) {
+                requireGroups = true;
+                groupsClaim = claim;
             }
         }
 
@@ -7826,13 +7834,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // We treat roles claim in special way.
+        String[] role = null;
         String[] roles = null;
+        String[] groups = null;
 
-        if (requireRoles) {
-            roles = getRoleListOfUser(userName);
-        } else if (requireIntRoles) {
-            roles = doGetInternalRoleListOfUser(userName, "*");
-        } else if (requireExtRoles) {
+        if (requireRole) {
+            role = getRoleListOfUser(userName);
+        } else if (requireIntRole) {
+            role = doGetInternalRoleListOfUser(userName, "*");
+        } else if (requireExtRole) {
 
             List<String> rolesList = new ArrayList<String>();
             String[] externalRoles = doGetExternalRoleListOfUser(userName, "*");
@@ -7845,22 +7855,27 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             }
 
-            roles = rolesList.toArray(new String[rolesList.size()]);
+            role = rolesList.toArray(new String[rolesList.size()]);
+        }
+
+        if (requireRoles) {
+            roles = doGetInternalRoleListOfUser(userName, "*");
+        }
+
+        if (requireGroups) {
+            groups = doGetExternalRoleListOfUser(userName, "*");
+        }
+
+        if (role != null && role.length > 0) {
+            finalValues.put(roleClaim, getMultiValuedString(Arrays.asList(role)));
         }
 
         if (roles != null && roles.length > 0) {
-            String userAttributeSeparator = ",";
-            String claimSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
-            if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
-                userAttributeSeparator = claimSeparator;
-            }
-            String delim = "";
-            StringBuffer roleBf = new StringBuffer();
-            for (String role : roles) {
-                roleBf.append(delim).append(role);
-                delim = userAttributeSeparator;
-            }
-            finalValues.put(roleClaim, roleBf.toString());
+            finalValues.put(rolesClaim, getMultiValuedString(Arrays.asList(roles)));
+        }
+
+        if (groups != null && groups.length > 0) {
+            finalValues.put(groupsClaim, getMultiValuedString(Arrays.asList(groups)));
         }
 
         return finalValues;
@@ -11789,10 +11804,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // Here the user name should be domain-less.
+        boolean requireRole = false;
+        boolean requireIntRole = false;
+        boolean requireExtRole = false;
         boolean requireRoles = false;
-        boolean requireIntRoles = false;
-        boolean requireExtRoles = false;
+        boolean requireGroups = false;
         String roleClaim = null;
+        String rolesClaim = null;
+        String groupsClaim = null;
 
         if (StringUtils.isEmpty(profileName)) {
             profileName = UserCoreConstants.DEFAULT_PROFILE;
@@ -11809,21 +11828,25 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
                 throw new UserStoreException(e);
             }
-            if (property != null && (!UserCoreConstants.ROLE_CLAIM.equalsIgnoreCase(claim)
-                    || !UserCoreConstants.INT_ROLE_CLAIM.equalsIgnoreCase(claim) || !UserCoreConstants.EXT_ROLE_CLAIM
-                    .equalsIgnoreCase(claim))) {
+            if (property != null && isNotARoleOrGroupClaim(claim)) {
                 propertySet.add(property);
             }
 
             if (UserCoreConstants.ROLE_CLAIM.equalsIgnoreCase(claim)) {
-                requireRoles = true;
+                requireRole = true;
                 roleClaim = claim;
             } else if (UserCoreConstants.INT_ROLE_CLAIM.equalsIgnoreCase(claim)) {
-                requireIntRoles = true;
+                requireIntRole = true;
                 roleClaim = claim;
             } else if (UserCoreConstants.EXT_ROLE_CLAIM.equalsIgnoreCase(claim)) {
-                requireExtRoles = true;
+                requireExtRole = true;
                 roleClaim = claim;
+            } else if (UserCoreConstants.INTERNAL_ROLES_CLAIM.equalsIgnoreCase(claim)) {
+                requireRoles = true;
+                rolesClaim = claim;
+            } else if (UserCoreConstants.USER_STORE_GROUPS_CLAIM.equalsIgnoreCase(claim)) {
+                requireGroups = true;
+                groupsClaim = claim;
             }
         }
 
@@ -11887,15 +11910,16 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         }
 
-        // We treat roles claim in special way.
+        // We treat following claims in a special way.
+        List<String> role = null;
         List<String> roles = null;
+        List<String> groups = null;
 
-        if (requireRoles) {
-            roles = getRoleListOfUserWithID(userID);
-        } else if (requireIntRoles) {
-            roles = doGetInternalRoleListOfUserWithID(userID, "*");
-        } else if (requireExtRoles) {
-
+        if (requireRole) {
+            role = getRoleListOfUserWithID(userID);
+        } else if (requireRoles || requireIntRole) {
+            role = doGetInternalRoleListOfUserWithID(userID, "*");
+        } else if (requireGroups || requireExtRole) {
             List<String> rolesList = new ArrayList<>();
             String[] externalRoles = doGetExternalRoleListOfUserWithID(userID, "*");
             rolesList.addAll(Arrays.asList(externalRoles));
@@ -11907,22 +11931,27 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             }
 
-            roles = rolesList;
+            role = rolesList;
+        }
+
+        if (requireRoles) {
+            roles = doGetInternalRoleListOfUserWithID(userID, "*");
+        }
+
+        if (requireGroups) {
+            groups = Arrays.asList(doGetExternalRoleListOfUserWithID(userID, "*"));
+        }
+
+        if (role != null && role.size() > 0) {
+            finalValues.put(roleClaim, getMultiValuedString(role));
         }
 
         if (roles != null && roles.size() > 0) {
-            String userAttributeSeparator = ",";
-            String claimSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
-            if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
-                userAttributeSeparator = claimSeparator;
-            }
-            String delim = "";
-            StringBuffer roleBf = new StringBuffer();
-            for (String role : roles) {
-                roleBf.append(delim).append(role);
-                delim = userAttributeSeparator;
-            }
-            finalValues.put(roleClaim, roleBf.toString());
+            finalValues.put(rolesClaim, getMultiValuedString(roles));
+        }
+
+        if (groups != null && groups.size() > 0) {
+            finalValues.put(groupsClaim, getMultiValuedString(groups));
         }
 
         return finalValues;
@@ -15544,5 +15573,43 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
         handleGetUserClaimValueFailure(errorCode, errorMessage, userName, claim, profileName);
         throw new UserStoreException(errorCode + " - " + errorMessage);
+    }
+
+    private boolean isNotARoleClaim(String claim) {
+
+        return !UserCoreConstants.ROLE_CLAIM.equalsIgnoreCase(claim)
+                || !UserCoreConstants.INT_ROLE_CLAIM.equalsIgnoreCase(claim)
+                || !UserCoreConstants.EXT_ROLE_CLAIM.equalsIgnoreCase(claim);
+    }
+
+    private boolean isNotARolesClaim(String claim) {
+
+        return !UserCoreConstants.INTERNAL_ROLES_CLAIM.equalsIgnoreCase(claim);
+    }
+
+    private boolean isNotAGroupsClaim(String claim) {
+
+        return !UserCoreConstants.USER_STORE_GROUPS_CLAIM.equalsIgnoreCase(claim);
+    }
+
+    private boolean isNotARoleOrGroupClaim(String claim) {
+
+        return isNotARoleClaim(claim) || isNotARolesClaim(claim) || isNotAGroupsClaim(claim);
+    }
+
+    private String getMultiValuedString(List<String> values) {
+
+        String userAttributeSeparator = ",";
+        String claimSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+        if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
+            userAttributeSeparator = claimSeparator;
+        }
+        String delim = "";
+        StringBuffer multiValuedStringBf = new StringBuffer();
+        for (String eachValue : values) {
+            multiValuedStringBf.append(delim).append(eachValue);
+            delim = userAttributeSeparator;
+        }
+        return multiValuedStringBf.toString();
     }
 }
