@@ -19,6 +19,7 @@
 package org.wso2.carbon.user.core.tenant;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
@@ -1249,7 +1250,16 @@ public class JDBCTenantManager implements TenantManager {
             tenant.setCreatedDate(createdDate);
             String adminUserName = realmConfig.getAdminUserName();
             tenant.setAdminName(adminUserName);
-            tenant.setAdminUserId(getUserId(adminUserName, id));
+            String tenantAdminUuid = StringUtils.EMPTY;
+            try {
+                tenantAdminUuid = getUserId(adminUserName, id);
+            } catch (UserStoreException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug(String.format("Error occurred while getting the unique id of the admin user: %s of " +
+                            "tenant: %s", adminUserName, domain), e);
+                }
+            }
+            tenant.setAdminUserId(tenantAdminUuid);
             tenantList.add(tenant);
         }
         return tenantList;
