@@ -19,7 +19,7 @@
 package org.wso2.carbon.user.core.exceptions;
 
 /**
- * This class contains the implementation of Client exceptions in HashProvider.
+ * This class contains the implementation of client exceptions in HashProvider.
  */
 public class HashProviderClientException extends HashProviderException {
 

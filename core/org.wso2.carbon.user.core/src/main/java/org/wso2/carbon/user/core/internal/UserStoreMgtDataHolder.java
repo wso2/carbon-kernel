@@ -88,14 +88,4 @@ public class UserStoreMgtDataHolder {
 
         hashProviderMap.remove(hashProvider.getAlgorithm());
     }
-
-    /**
-     * Get the map of registered HashProviders.
-     *
-     * @return Map of registered HashProviders.
-     */
-    public Map<String, HashProvider> getHashProviderMap() {
-
-        return hashProviderMap;
-    }
 }

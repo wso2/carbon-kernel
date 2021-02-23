@@ -293,13 +293,4 @@ public class UserCoreConstants {
         public static final String USER_IS_LOCKED = "17003";
 
     }
-
-    /**
-     * This class contains constants related to hashing.
-     */
-    public static final class HashConstants {
-
-        public static final String HASH_FUNCTION_SHA256 = "SHA-256";
-        public static final String HASH_FUNCTION_PBKDF2 = "PBKDF2";
-    }
 }

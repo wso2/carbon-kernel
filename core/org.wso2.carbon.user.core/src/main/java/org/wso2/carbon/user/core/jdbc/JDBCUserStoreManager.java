@@ -2818,17 +2818,17 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     protected String preparePassword(Object password, String saltValue) throws UserStoreException {
 
         Secret credentialObj;
-        String passwordHash = StringUtils.EMPTY;
+        String passwordHash;
         try {
             credentialObj = Secret.getSecret(password);
         } catch (UnsupportedSecretTypeException e) {
             throw new UserStoreException("Unsupported credential type", e);
         }
-        Map<String, Object> userStoreProperties = Collections.unmodifiableMap(realmConfig.getUserStoreProperties());
-        String digestFunction = userStoreProperties.get(JDBCRealmConstants.DIGEST_FUNCTION).toString();
+        Map<String, Object> userStorePropertiesMap = new HashMap<>(realmConfig.getUserStoreProperties());
+        String digestFunction = userStorePropertiesMap.get(JDBCRealmConstants.DIGEST_FUNCTION).toString();
         if (digestFunction != null) {
-            Map<String, HashProvider> hashProviderMap = UserStoreMgtDataHolder.getInstance().getHashProviderMap();
-            if (!hashProviderMap.containsKey(digestFunction)) {
+            HashProvider hashProvider = UserStoreMgtDataHolder.getInstance().getHashProvider(digestFunction);
+            if (hashProvider == null) {
                 try {
                     if (digestFunction.equals(UserCoreConstants.RealmConfig.PASSWORD_HASH_METHOD_PLAIN_TEXT)) {
                         passwordHash = new String(credentialObj.getChars());
@@ -2849,15 +2849,15 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 }
             } else {
                 String passwordString = String.valueOf(credentialObj.getChars());
-                HashProvider hashProvider = UserStoreMgtDataHolder.getInstance().getHashProvider(digestFunction);
                 try {
-                    byte[] hashByteArray = hashProvider.getHash(passwordString, saltValue, userStoreProperties);
+                    byte[] hashByteArray = hashProvider.getHash(passwordString, saltValue, userStorePropertiesMap);
                     passwordHash = Base64.encode(hashByteArray);
                 } catch (HashProviderException e) {
-                    String msg = "Error in providing hashing functionality.";
+                    String msg = "Error occurred while preparing password";
                     if (log.isDebugEnabled()) {
                         log.debug(msg, e);
                     }
+                    throw new UserStoreException(msg, e);
                 }
             }
         } else {
