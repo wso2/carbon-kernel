@@ -294,9 +294,12 @@ public class UserCoreConstants {
 
     }
 
+    /**
+     * This class contains constants related to hashing.
+     */
     public static final class HashConstants {
 
-        public static final String PASSWORD_HASH_METHOD_SHA256 = "SHA-256";
-        public static final String PASSWORD_HASH_METHOD_PBKDF2 = "PBKDF2";
+        public static final String HASH_FUNCTION_SHA256 = "SHA-256";
+        public static final String HASH_FUNCTION_PBKDF2 = "PBKDF2";
     }
 }

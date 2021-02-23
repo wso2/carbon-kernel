@@ -52,6 +52,11 @@ public class UserStoreMgtDataHolder {
         return cryptoService;
     }
 
+    /**
+     * Set each HashProvider instance in a Map.
+     *
+     * @param hashProvider Instance of HashProvider.
+     */
     public void setHashProvider(HashProvider hashProvider) {
 
         if (hashProviderMap == null) {
@@ -60,13 +65,37 @@ public class UserStoreMgtDataHolder {
         hashProviderMap.put(hashProvider.getAlgorithm(), hashProvider);
     }
 
+    /**
+     * Get the HashProvider instance from Map.
+     *
+     * @param algorithm Algorithm name for respective instance of HashProvider.
+     * @return The HashProvider instance, null if there were no such instance from the algorithm name.
+     */
     public HashProvider getHashProvider(String algorithm) {
 
+        if (hashProviderMap == null) {
+            return null;
+        }
         return hashProviderMap.get(algorithm);
     }
 
+    /**
+     * Remove HashProvider instance from Map.
+     *
+     * @param hashProvider Instance of HashProvider.
+     */
     public void unbindHashProvider(HashProvider hashProvider) {
 
         hashProviderMap.remove(hashProvider.getAlgorithm());
+    }
+
+    /**
+     * Get the map of registered HashProviders.
+     *
+     * @return Map of registered HashProviders.
+     */
+    public Map<String, HashProvider> getHashProviderMap() {
+
+        return hashProviderMap;
     }
 }

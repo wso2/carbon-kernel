@@ -2810,35 +2810,36 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     /**
      * Prepare the password including the salt, and hashes if hash algorithm is provided.
      *
-     * @param password  Original password value which needs to be hashed
-     * @param saltValue Salt value
-     * @return Hashed password or plain text password as a String
+     * @param password  Original password value which needs to be hashed.
+     * @param saltValue Salt value.
+     * @return Hashed password or plain text password as a String.
      * @throws UserStoreException The exception thrown at hashing the passwords.
      */
     protected String preparePassword(Object password, String saltValue) throws UserStoreException {
 
         Secret credentialObj;
-        String passwordHash = "";
+        String passwordHash = StringUtils.EMPTY;
         try {
             credentialObj = Secret.getSecret(password);
         } catch (UnsupportedSecretTypeException e) {
             throw new UserStoreException("Unsupported credential type", e);
         }
-        String digestFunction = realmConfig.getUserStoreProperties().get(JDBCRealmConstants.DIGEST_FUNCTION);
+        Map<String, Object> userStoreProperties = Collections.unmodifiableMap(realmConfig.getUserStoreProperties());
+        String digestFunction = userStoreProperties.get(JDBCRealmConstants.DIGEST_FUNCTION).toString();
         if (digestFunction != null) {
-
-            if (digestFunction.equals(UserCoreConstants.RealmConfig.PASSWORD_HASH_METHOD_PLAIN_TEXT)) {
-                passwordHash = new String(credentialObj.getChars());
-                return passwordHash;
-            } else if (digestFunction.equals(UserCoreConstants.HashConstants.PASSWORD_HASH_METHOD_SHA256)) {
+            Map<String, HashProvider> hashProviderMap = UserStoreMgtDataHolder.getInstance().getHashProviderMap();
+            if (!hashProviderMap.containsKey(digestFunction)) {
                 try {
-                    if (saltValue != null) {
-                        credentialObj.addChars(saltValue.toCharArray());
+                    if (digestFunction.equals(UserCoreConstants.RealmConfig.PASSWORD_HASH_METHOD_PLAIN_TEXT)) {
+                        passwordHash = new String(credentialObj.getChars());
+                    } else {
+                        if (saltValue != null) {
+                            credentialObj.addChars(saltValue.toCharArray());
+                        }
+                        MessageDigest digest = MessageDigest.getInstance(digestFunction);
+                        byte[] byteValue = digest.digest(credentialObj.getBytes());
+                        passwordHash = Base64.encode(byteValue);
                     }
-                    MessageDigest digest = MessageDigest.getInstance(digestFunction);
-                    byte[] byteValue = digest.digest(credentialObj.getBytes());
-                    passwordHash = Base64.encode(byteValue);
-
                 } catch (NoSuchAlgorithmException e) {
                     String msg = "Error occurred while preparing password.";
                     if (log.isDebugEnabled()) {
@@ -2846,19 +2847,14 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     }
                     throw new UserStoreException(msg, e);
                 }
-            } else if (digestFunction.equals(UserCoreConstants.HashConstants.PASSWORD_HASH_METHOD_PBKDF2)) {
+            } else {
                 String passwordString = String.valueOf(credentialObj.getChars());
-                Map<String, Object> metaProperties = new HashMap<>();
-                metaProperties.put("iterations", 10000);
-                metaProperties.put("dkLength", 256);
-                metaProperties.put("PRF", "PBKDF2WithHmacSHA256");
-                HashProvider hashProvider = UserStoreMgtDataHolder.getInstance().getHashProvider(
-                        "PBKDF2");
+                HashProvider hashProvider = UserStoreMgtDataHolder.getInstance().getHashProvider(digestFunction);
                 try {
-                    byte[] hashByteArray = hashProvider.getHash(passwordString, saltValue, metaProperties);
+                    byte[] hashByteArray = hashProvider.getHash(passwordString, saltValue, userStoreProperties);
                     passwordHash = Base64.encode(hashByteArray);
                 } catch (HashProviderException e) {
-                    String msg = "Error in pbkdf2 hashing.";
+                    String msg = "Error in providing hashing functionality.";
                     if (log.isDebugEnabled()) {
                         log.debug(msg, e);
                     }

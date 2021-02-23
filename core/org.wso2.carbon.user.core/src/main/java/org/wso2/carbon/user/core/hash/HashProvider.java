@@ -23,29 +23,26 @@ import org.wso2.carbon.user.core.exceptions.HashProviderException;
 import java.util.Map;
 
 /**
- * This interface is the common interface for all the hashing algorithms which can be implemented from this.
+ * This is the service interface for the HashProvider which can be used to integrate any hashing algorithm.
  */
 public interface HashProvider {
 
     /**
-     * This method is responsible for calculating the hash value of a value(Password, Token) using the particular
-     * hashing algorithm which is residing in the implemented class.
+     * Calculate the hash value according to the given properties and salt.
      *
-     * @param value          The value which needs to be hashed. (eg:- Password, Token)
-     * @param salt           The salt value which is needed for each values inorder to be hashed.
-     * @param metaProperties The attribute which were needed to a hashing algorithm other than salt and value.
-     * @return The calculated hash value for the respective value..
+     * @param value          The value which needs to be hashed.
+     * @param salt           The salt value.
+     * @param metaProperties The attributes which are needed by the HashProvider to calculate hash of a given value.
+     * @return The calculated hash value for the respective value.
      * @throws HashProviderException Exception which will be thrown when there is an issue with HashProvider service.
      */
     byte[] getHash(String value, String salt, Map<String, Object> metaProperties)
             throws HashProviderException;
 
     /**
-     * This method is responsible for returning the hashing algorithm supported by the calculator.
+     * Get hash algorithm supported by the HashProvider.
      *
      * @return Hashing algorithm which is being used for hashing.
      */
     String getAlgorithm();
-
 }
-

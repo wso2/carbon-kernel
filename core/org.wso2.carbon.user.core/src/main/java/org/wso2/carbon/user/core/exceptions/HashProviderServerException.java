@@ -19,42 +19,37 @@
 package org.wso2.carbon.user.core.exceptions;
 
 /**
- * This class contains the implementation of HashProviderException.
+ * This class contains the implementation of Server exceptions in HashProvider.
  */
-public class HashProviderException extends Exception {
+public class HashProviderServerException extends HashProviderException {
 
-    private static final long serialVersionUID = -6057036683816666355L;
+    private static final long serialVersionUID = -6057036683816677355L;
     private String errorCode;
 
-    public HashProviderException() {
+    public HashProviderServerException() {
 
         super();
     }
 
-    public HashProviderException(String message) {
+    public HashProviderServerException(String message) {
 
         super(message);
     }
 
-    public HashProviderException(String message, Throwable cause) {
+    public HashProviderServerException(String message, Throwable cause) {
 
         super(message, cause);
     }
 
-    public HashProviderException(String message, String errorCode, Throwable cause) {
+    public HashProviderServerException(String message, String errorCode, Throwable cause) {
 
         super(message, cause);
         this.errorCode = errorCode;
     }
 
-    public HashProviderException(String message, String errorCode) {
+    public HashProviderServerException(String message, String errorCode) {
 
         super(message);
         this.errorCode = errorCode;
-    }
-
-    public String getErrorCode() {
-
-        return errorCode;
     }
 }
