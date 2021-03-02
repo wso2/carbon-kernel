@@ -1683,12 +1683,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(), e.getMessage()),
                         userName, credential);
                 // We can ignore and proceed. Ignore the results from this user store.
-
-                if (log.isDebugEnabled()) {
-                  log.debug("Error occurred while authenticating user: " + userName, e);
-                } else {
-                  log.error(e);
+                // But throw the message to the upper level if it is a client exception.
+                if (e instanceof UserStoreClientException) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Error occurred while authenticating user: " + userName, e);
+                    }
+                    throw (UserStoreClientException) e;
                 }
+                log.error("Error occurred while authenticating user: " + userName, e);
                 authenticated = false;
             }
 
@@ -10841,12 +10843,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(), e.getMessage()),
                         preferredUserNameClaim, preferredUserNameValue, credential);
                 // We can ignore and proceed. Ignore the results from this user store.
-
-                if (log.isDebugEnabled()) {
-                    log.debug("Error occurred while authenticating user: " + preferredUserNameValue, e);
-                } else {
-                    log.error(e);
+                // But throw the message to the upper level if it is a client exception.
+                if (e instanceof UserStoreClientException) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Error occurred while authenticating user: " + preferredUserNameValue, e);
+                    }
+                    throw (UserStoreClientException) e;
                 }
+                log.error("Error occurred while authenticating user: " + preferredUserNameValue, e);
                 authenticated = false;
             }
 
