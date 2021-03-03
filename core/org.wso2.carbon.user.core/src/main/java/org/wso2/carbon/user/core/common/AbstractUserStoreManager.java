@@ -7707,12 +7707,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             String domainName, String profileName) throws UserStoreException {
 
         // Here the user name should be domain-less.
-        boolean requireRole = false;
+        boolean requireRolesAndGroups = false;
         boolean requireIntRole = false;
         boolean requireExtRole = false;
         boolean requireRoles = false;
         boolean requireGroups = false;
-        String roleClaim = null;
+        String rolesAndGroupsClaim = null;
         String rolesClaim = null;
         String groupsClaim = null;
 
@@ -7737,14 +7737,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
 
             if (UserCoreConstants.ROLE_CLAIM.equalsIgnoreCase(claim)) {
-                requireRole = true;
-                roleClaim = claim;
+                requireRolesAndGroups = true;
+                rolesAndGroupsClaim = claim;
             } else if (UserCoreConstants.INT_ROLE_CLAIM.equalsIgnoreCase(claim)) {
                 requireIntRole = true;
-                roleClaim = claim;
+                rolesAndGroupsClaim = claim;
             } else if (UserCoreConstants.EXT_ROLE_CLAIM.equalsIgnoreCase(claim)) {
                 requireExtRole = true;
-                roleClaim = claim;
+                rolesAndGroupsClaim = claim;
             }
 
             if (isGroupsVsRolesSeparationEnabled()) {
@@ -7838,14 +7838,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // We treat roles claim in special way.
-        String[] role = null;
+        String[] rolesAndGroups = null;
         String[] roles = null;
         String[] groups = null;
 
-        if (requireRole) {
-            role = getRoleListOfUser(userName);
+        if (requireRolesAndGroups) {
+            rolesAndGroups = getRoleListOfUser(userName);
         } else if (requireIntRole) {
-            role = doGetInternalRoleListOfUser(userName, "*");
+            rolesAndGroups = doGetInternalRoleListOfUser(userName, "*");
         } else if (requireExtRole) {
 
             List<String> rolesList = new ArrayList<String>();
@@ -7859,11 +7859,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             }
 
-            role = rolesList.toArray(new String[rolesList.size()]);
+            rolesAndGroups = rolesList.toArray(new String[rolesList.size()]);
         }
 
-        if (role != null && role.length > 0) {
-            finalValues.put(roleClaim, getMultiValuedString(Arrays.asList(role)));
+        if (rolesAndGroups != null && rolesAndGroups.length > 0) {
+            finalValues.put(rolesAndGroupsClaim, getMultiValuedString(Arrays.asList(rolesAndGroups)));
         }
 
         if (isGroupsVsRolesSeparationEnabled()) {
@@ -11809,12 +11809,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // Here the user name should be domain-less.
-        boolean requireRole = false;
+        boolean requireRolesAndGroups = false;
         boolean requireIntRole = false;
         boolean requireExtRole = false;
         boolean requireRoles = false;
         boolean requireGroups = false;
-        String roleClaim = null;
+        String rolesAndGroupsClaim = null;
         String rolesClaim = null;
         String groupsClaim = null;
 
@@ -11838,14 +11838,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
 
             if (UserCoreConstants.ROLE_CLAIM.equalsIgnoreCase(claim)) {
-                requireRole = true;
-                roleClaim = claim;
+                requireRolesAndGroups = true;
+                rolesAndGroupsClaim = claim;
             } else if (UserCoreConstants.INT_ROLE_CLAIM.equalsIgnoreCase(claim)) {
                 requireIntRole = true;
-                roleClaim = claim;
+                rolesAndGroupsClaim = claim;
             } else if (UserCoreConstants.EXT_ROLE_CLAIM.equalsIgnoreCase(claim)) {
                 requireExtRole = true;
-                roleClaim = claim;
+                rolesAndGroupsClaim = claim;
             }
 
             if (isGroupsVsRolesSeparationEnabled()) {
@@ -11920,14 +11920,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // We treat following claims in a special way.
-        List<String> role = null;
+        List<String> rolesAndGroups = null;
         List<String> roles = null;
         List<String> groups = null;
 
-        if (requireRole) {
-            role = getRoleListOfUserWithID(userID);
+        if (requireRolesAndGroups) {
+            rolesAndGroups = getRoleListOfUserWithID(userID);
         } else if (requireRoles || requireIntRole) {
-            role = doGetInternalRoleListOfUserWithID(userID, "*");
+            rolesAndGroups = doGetInternalRoleListOfUserWithID(userID, "*");
         } else if (requireGroups || requireExtRole) {
             List<String> rolesList = new ArrayList<>();
             String[] externalRoles = doGetExternalRoleListOfUserWithID(userID, "*");
@@ -11940,11 +11940,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             }
 
-            role = rolesList;
+            rolesAndGroups = rolesList;
         }
 
-        if (role != null && role.size() > 0) {
-            finalValues.put(roleClaim, getMultiValuedString(role));
+        if (rolesAndGroups != null && rolesAndGroups.size() > 0) {
+            finalValues.put(rolesAndGroupsClaim, getMultiValuedString(rolesAndGroups));
         }
 
         if (isGroupsVsRolesSeparationEnabled()) {
