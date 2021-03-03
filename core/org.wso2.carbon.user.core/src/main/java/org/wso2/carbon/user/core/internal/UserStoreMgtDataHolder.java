@@ -21,7 +21,7 @@ package org.wso2.carbon.user.core.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.crypto.api.CryptoService;
-import org.wso2.carbon.user.core.hash.HashProvider;
+import org.wso2.carbon.user.core.hash.HashProviderFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +31,7 @@ public class UserStoreMgtDataHolder {
     private static UserStoreMgtDataHolder instance = new UserStoreMgtDataHolder();
     private static final Log log = LogFactory.getLog(UserStoreMgtDataHolder.class);
     private CryptoService cryptoService;
-    private Map<String, HashProvider> hashProviderMap;
+    private Map<String, HashProviderFactory> hashProviderFactoryMap;
 
     public static UserStoreMgtDataHolder getInstance() {
 
@@ -53,39 +53,39 @@ public class UserStoreMgtDataHolder {
     }
 
     /**
-     * Set each HashProvider instance in a Map.
+     * Set each HashProviderFactory instance in a Map.
      *
-     * @param hashProvider Instance of HashProvider.
+     * @param hashProviderFactory Instance of HashProviderFactory.
      */
-    public void setHashProvider(HashProvider hashProvider) {
+    public void setHashProviderFactory(HashProviderFactory hashProviderFactory) {
 
-        if (hashProviderMap == null) {
-            hashProviderMap = new HashMap<>();
+        if (hashProviderFactoryMap == null) {
+            hashProviderFactoryMap = new HashMap<>();
         }
-        hashProviderMap.put(hashProvider.getAlgorithm(), hashProvider);
+        hashProviderFactoryMap.put(hashProviderFactory.getType(), hashProviderFactory);
     }
 
     /**
-     * Get the HashProvider instance from Map.
+     * Get the HashProviderFactory instance from Map.
      *
-     * @param algorithm Algorithm name for respective instance of HashProvider.
-     * @return The HashProvider instance, null if there were no such instance from the algorithm name.
+     * @param algorithm Algorithm name for respective instance of HashProviderFactory.
+     * @return The HashProviderFactory instance, null if there were no such instance from the algorithm name.
      */
-    public HashProvider getHashProvider(String algorithm) {
+    public HashProviderFactory getHashProviderFactory(String algorithm) {
 
-        if (hashProviderMap == null) {
+        if (hashProviderFactoryMap == null) {
             return null;
         }
-        return hashProviderMap.get(algorithm);
+        return hashProviderFactoryMap.get(algorithm);
     }
 
     /**
-     * Remove HashProvider instance from Map.
+     * Remove HashProviderFactory instance from Map.
      *
-     * @param hashProvider Instance of HashProvider.
+     * @param hashProviderFactory Instance of HashProviderFactory.
      */
-    public void unbindHashProvider(HashProvider hashProvider) {
+    public void unbindHashProviderFactory(HashProviderFactory hashProviderFactory) {
 
-        hashProviderMap.remove(hashProvider.getAlgorithm());
+        hashProviderFactoryMap.remove(hashProviderFactory.getType());
     }
 }

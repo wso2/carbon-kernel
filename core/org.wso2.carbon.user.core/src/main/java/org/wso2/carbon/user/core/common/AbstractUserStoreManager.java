@@ -44,6 +44,7 @@ import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
 import org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages;
 import org.wso2.carbon.user.core.dto.RoleDTO;
+import org.wso2.carbon.user.core.hash.HashProvider;
 import org.wso2.carbon.user.core.hybrid.HybridRoleManager;
 import org.wso2.carbon.user.core.internal.UMListenerServiceComponent;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
@@ -143,6 +144,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected ClaimManager claimManager = null;
     protected UserRealm userRealm = null;
     protected HybridRoleManager hybridRoleManager = null;
+    protected HashProvider hashProvider = null;
     // User roles cache
     protected UserRolesCache userRolesCache = null;
     protected SystemUserRoleManager systemUserRoleManager = null;

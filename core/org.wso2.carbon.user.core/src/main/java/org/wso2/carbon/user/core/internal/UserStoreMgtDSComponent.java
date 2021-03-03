@@ -34,7 +34,7 @@ import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.claim.ClaimManager;
-import org.wso2.carbon.user.core.hash.HashProvider;
+import org.wso2.carbon.user.core.hash.HashProviderFactory;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.jdbc.UniqueIDJDBCUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager;
@@ -81,19 +81,19 @@ public class UserStoreMgtDSComponent {
 
     @Reference(
             name = "hash.provider.component",
-            service = org.wso2.carbon.user.core.hash.HashProvider.class,
+            service = org.wso2.carbon.user.core.hash.HashProviderFactory.class,
             cardinality = ReferenceCardinality.MULTIPLE,
             policy = ReferencePolicy.DYNAMIC,
-            unbind = "unsetHashProvider"
+            unbind = "unsetHashProviderFactory"
     )
-    protected void setHashProvider(HashProvider hashProvider) {
+    protected void setHashProviderFactory(HashProviderFactory hashProviderFactory) {
 
-        userStoreMgtDataHolder.setHashProvider(hashProvider);
+        userStoreMgtDataHolder.setHashProviderFactory(hashProviderFactory);
     }
 
-    protected void unsetHashProvider(HashProvider hashProvider) {
+    protected void unsetHashProviderFactory(HashProviderFactory hashProviderFactory) {
 
-        userStoreMgtDataHolder.unbindHashProvider(hashProvider);
+        userStoreMgtDataHolder.unbindHashProviderFactory(hashProviderFactory);
     }
 
     @Activate

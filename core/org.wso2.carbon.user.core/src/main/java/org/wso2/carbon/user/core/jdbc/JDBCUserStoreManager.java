@@ -40,6 +40,7 @@ import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
 import org.wso2.carbon.user.core.dto.RoleDTO;
 import org.wso2.carbon.user.core.exceptions.HashProviderException;
 import org.wso2.carbon.user.core.hash.HashProvider;
+import org.wso2.carbon.user.core.hash.HashProviderFactory;
 import org.wso2.carbon.user.core.hybrid.HybridJDBCConstants;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDataHolder;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
@@ -137,6 +138,15 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 //		}
 
         // new properties after carbon core 4.0.7 release.
+        Map<String, Object> userStorePropertiesMap = new HashMap<>(realmConfig.getUserStoreProperties());
+        String digestFunction = userStorePropertiesMap.get(JDBCRealmConstants.DIGEST_FUNCTION).toString();
+        HashProviderFactory hashProviderFactory = UserStoreMgtDataHolder.getInstance().getHashProviderFactory(digestFunction);
+        if (hashProviderFactory == null) {
+            hashProvider = null;
+        } else {
+            hashProvider = hashProviderFactory.getHashProvider(userStorePropertiesMap);
+        }
+
         if (realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED) != null) {
             readGroupsEnabled = Boolean.parseBoolean(realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED));
@@ -2824,10 +2834,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         } catch (UnsupportedSecretTypeException e) {
             throw new UserStoreException("Unsupported credential type", e);
         }
-        Map<String, Object> userStorePropertiesMap = new HashMap<>(realmConfig.getUserStoreProperties());
-        String digestFunction = userStorePropertiesMap.get(JDBCRealmConstants.DIGEST_FUNCTION).toString();
+        String digestFunction = realmConfig.getUserStoreProperties().get(JDBCRealmConstants.DIGEST_FUNCTION);
         if (digestFunction != null) {
-            HashProvider hashProvider = UserStoreMgtDataHolder.getInstance().getHashProvider(digestFunction);
             if (hashProvider == null) {
                 try {
                     if (digestFunction.equals(UserCoreConstants.RealmConfig.PASSWORD_HASH_METHOD_PLAIN_TEXT)) {
@@ -2850,7 +2858,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             } else {
                 String passwordString = String.valueOf(credentialObj.getChars());
                 try {
-                    byte[] hashByteArray = hashProvider.getHash(passwordString, saltValue, userStorePropertiesMap);
+                    byte[] hashByteArray = hashProvider.getHash(passwordString, saltValue);
                     passwordHash = Base64.encode(hashByteArray);
                 } catch (HashProviderException e) {
                     String msg = "Error occurred while preparing password";

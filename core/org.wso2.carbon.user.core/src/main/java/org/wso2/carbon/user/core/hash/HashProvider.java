@@ -23,9 +23,31 @@ import org.wso2.carbon.user.core.exceptions.HashProviderException;
 import java.util.Map;
 
 /**
- * This is the service interface for the HashProvider which can be used to integrate any hashing algorithm.
+ * This is the service interface for the HashProvider.
  */
 public interface HashProvider {
+
+    /**
+     * Initialize the params from default values.
+     */
+    void init();
+
+    /**
+     * Initialize the params from the initProperties.
+     *
+     * @param initProperties Contains the properties that needs to be initialized.
+     */
+    void init(Map<String, Object> initProperties);
+
+    /**
+     * Calculate the hash value according to the default initProperties.
+     *
+     * @param value The value which needs to be hashed.
+     * @param salt  The salt value.
+     * @return The calculated hash value for the respective value.
+     * @throws HashProviderException Exception which will be thrown when there is an issue with HashProvider service.
+     */
+    byte[] getHash(String value, String salt) throws HashProviderException;
 
     /**
      * Calculate the hash value according to the given properties and salt.
