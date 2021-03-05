@@ -92,10 +92,14 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
+import static org.wso2.carbon.user.core.UserCoreConstants.INTERNAL_ROLES_CLAIM;
+import static org.wso2.carbon.user.core.UserCoreConstants.ROLE_CLAIM;
 import static org.wso2.carbon.user.core.UserCoreConstants.SYSTEM_DOMAIN_NAME;
+import static org.wso2.carbon.user.core.UserCoreConstants.USER_STORE_GROUPS_CLAIM;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_UNIQUE_USER_ID_CACHE_NAME;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME;
@@ -9454,8 +9458,32 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             claimToAttributeMap.put(claim, property);
         }
 
-        String[] properties = propertySet.toArray(new String[0]);
-        Map<String, Map<String, String>> userProperties = this.getUsersPropertyValues(users, properties, profileName);
+        List<String> properties = new ArrayList<>(propertySet);
+
+        List<String> roleAndGroupProperties = null;
+        if (isGroupsVsRolesSeparationEnabled()) {
+            roleAndGroupProperties = getRolesAndGroupsClaimURIs().stream().map(claimToAttributeMap::get)
+                    .filter(StringUtils::isNotBlank).collect(Collectors.toList());
+            properties.removeAll(roleAndGroupProperties);
+        }
+
+        Map<String, Map<String, String>> userProperties = this.getUsersPropertyValues(users,
+                properties.toArray(new String[]{}), profileName);
+
+        if (isGroupsVsRolesSeparationEnabled()) {
+            // Inject group and roles attributes.
+            if (CollectionUtils.isNotEmpty(roleAndGroupProperties)) {
+                for (Map.Entry<String, Map<String, String>> userEntry : userProperties.entrySet()) {
+                    List<String> claimsList = Arrays.asList(claims);
+                    populateRoleGroupAttributes(claimsList, claimToAttributeMap, userEntry, Arrays.asList(
+                            getRoleListOfUser(userEntry.getKey())), ROLE_CLAIM);
+                    populateRoleGroupAttributes(claimsList, claimToAttributeMap, userEntry, Arrays.asList(
+                            doGetInternalRoleListOfUser(userEntry.getKey(), "*")), INTERNAL_ROLES_CLAIM);
+                    populateRoleGroupAttributes(claimsList, claimToAttributeMap, userEntry, Arrays.asList(
+                            doGetExternalRoleListOfUser(userEntry.getKey(), "*")), USER_STORE_GROUPS_CLAIM);
+                }
+            }
+        }
 
         for (Map.Entry<String, Map<String, String>> entry : userProperties.entrySet()) {
             UserClaimSearchEntry userClaimSearchEntry = new UserClaimSearchEntry();
@@ -15108,9 +15136,32 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             claimToAttributeMap.put(claim, property);
         }
 
-        String[] properties = propertySet.toArray(new String[0]);
+        List<String> properties = new ArrayList<>(propertySet);
+
+        List<String> roleAndGroupProperties = null;
+        if (isGroupsVsRolesSeparationEnabled()) {
+            roleAndGroupProperties = getRolesAndGroupsClaimURIs().stream().map(claimToAttributeMap::get)
+                    .filter(StringUtils::isNotBlank).collect(Collectors.toList());
+            properties.removeAll(roleAndGroupProperties);
+        }
+
         Map<String, Map<String, String>> userProperties = this
-                .getUsersPropertyValuesWithID(userIDs, properties, profileName);
+                .getUsersPropertyValuesWithID(userIDs, properties.toArray(new String[]{}), profileName);
+
+        if (isGroupsVsRolesSeparationEnabled()) {
+            // Inject group and roles attributes.
+            if (CollectionUtils.isNotEmpty(roleAndGroupProperties)) {
+                for (Map.Entry<String, Map<String, String>> userEntry : userProperties.entrySet()) {
+                    populateRoleGroupAttributes(claims, claimToAttributeMap, userEntry,
+                            getRoleListOfUserWithID(userEntry.getKey()), ROLE_CLAIM);
+                    populateRoleGroupAttributes(claims, claimToAttributeMap, userEntry,
+                            doGetInternalRoleListOfUserWithID(userEntry.getKey(), "*"), INTERNAL_ROLES_CLAIM);
+                    populateRoleGroupAttributes(claims, claimToAttributeMap, userEntry, Arrays.asList(
+                            doGetExternalRoleListOfUserWithID(userEntry.getKey(), "*")), USER_STORE_GROUPS_CLAIM);
+                }
+            }
+        }
+
 
         for (Map.Entry<String, Map<String, String>> entry : userProperties.entrySet()) {
             UniqueIDUserClaimSearchEntry uniqueIDUserClaimSearchEntry = new UniqueIDUserClaimSearchEntry();
@@ -15138,6 +15189,18 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             userClaimSearchEntryList.add(uniqueIDUserClaimSearchEntry);
         }
         return userClaimSearchEntryList;
+    }
+
+    private void populateRoleGroupAttributes(List<String> claims, Map<String, String> claimToAttributeMap,
+                                             Map.Entry<String, Map<String, String>> userEntry,
+                                             List<String> roleGroupList, String roleGroupClaimURI) {
+
+        if (claims.contains(roleGroupClaimURI)) {
+            if (CollectionUtils.isNotEmpty(roleGroupList)) {
+                userEntry.getValue().put(claimToAttributeMap.get(roleGroupClaimURI),
+                        getMultiValuedString(roleGroupList));
+            }
+        }
     }
 
     private Map<String, List<String>> getDomainFreeUsersWithID(List<String> userIDs) throws UserStoreException {
@@ -15632,5 +15695,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         return Boolean.parseBoolean(realmConfig.getAuthorizationManagerProperty(
                 UserCoreConstants.RealmConfig.PROPERTY_GROUP_AND_ROLE_SEPARATION_ENABLED));
+    }
+
+    private Set<String> getRolesAndGroupsClaimURIs() {
+
+        return Stream.of(INTERNAL_ROLES_CLAIM, USER_STORE_GROUPS_CLAIM, ROLE_CLAIM).collect(Collectors.toSet());
     }
 }
