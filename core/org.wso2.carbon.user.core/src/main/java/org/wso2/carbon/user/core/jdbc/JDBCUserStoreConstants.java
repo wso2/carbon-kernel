@@ -49,6 +49,8 @@ public class JDBCUserStoreConstants {
     private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim "
             + "values";
     private static final String VALIDATION_INTERVAL = "validationInterval";
+    private static final String DISPLAY_NAME_ATTRIBUTE_DESCRIPTION = "This is the attribute name to display as the Display Name";
+    public static final String DISPLAY_NAME_ATTRIBUTE = "DisplayNameAttribute";
 
     static {
 
@@ -69,6 +71,8 @@ public class JDBCUserStoreConstants {
         setProperty("ReadOnly", "Read-only", "false",
                 "Indicates whether the user store of this realm operates in the user read only mode or not",
                 new Property[] { BASIC.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
+        setProperty(DISPLAY_NAME_ATTRIBUTE, "Display Name", "", DISPLAY_NAME_ATTRIBUTE_DESCRIPTION,
+                new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setProperty(UserStoreConfigConstants.readGroups, "Read Groups", "true",
                 UserStoreConfigConstants.readLDAPGroupsDescription,
                 new Property[] { GROUP.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
