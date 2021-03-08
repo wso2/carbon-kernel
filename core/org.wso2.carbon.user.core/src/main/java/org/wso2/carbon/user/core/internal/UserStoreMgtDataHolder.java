@@ -53,7 +53,7 @@ public class UserStoreMgtDataHolder {
     }
 
     /**
-     * Set each HashProviderFactory instance in a Map.
+     * Set each HashProviderFactory to the HashProviderFactory collection.
      *
      * @param hashProviderFactory Instance of HashProviderFactory.
      */
@@ -66,10 +66,11 @@ public class UserStoreMgtDataHolder {
     }
 
     /**
-     * Get the HashProviderFactory instance from Map.
+     * Get the HashProviderFactory from HashProviderFactory collection.
      *
      * @param algorithm Algorithm name for respective instance of HashProviderFactory.
-     * @return The HashProviderFactory instance, null if there were no such instance from the algorithm name.
+     * @return The HashProviderFactory instance which has the given algorithm as the type.
+     * The method will return NULL if there were no matching HashProviderFactory to the given algorithm.
      */
     public HashProviderFactory getHashProviderFactory(String algorithm) {
 
@@ -80,7 +81,7 @@ public class UserStoreMgtDataHolder {
     }
 
     /**
-     * Remove HashProviderFactory instance from Map.
+     * Remove HashProviderFactory from HashProviderFactory collection.
      *
      * @param hashProviderFactory Instance of HashProviderFactory.
      */

@@ -24,7 +24,7 @@ package org.wso2.carbon.user.core.exceptions;
 public class HashProviderClientException extends HashProviderException {
 
     private static final long serialVersionUID = -6057036683816687355L;
-    private String errorCode;
+    private String errorCode = null;
 
     public HashProviderClientException() {
 

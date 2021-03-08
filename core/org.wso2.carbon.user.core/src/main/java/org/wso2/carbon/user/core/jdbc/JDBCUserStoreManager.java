@@ -138,13 +138,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 //		}
 
         // new properties after carbon core 4.0.7 release.
-        Map<String, Object> userStorePropertiesMap = new HashMap<>(realmConfig.getUserStoreProperties());
-        String digestFunction = userStorePropertiesMap.get(JDBCRealmConstants.DIGEST_FUNCTION).toString();
-        HashProviderFactory hashProviderFactory = UserStoreMgtDataHolder.getInstance().getHashProviderFactory(digestFunction);
-        if (hashProviderFactory == null) {
-            hashProvider = null;
-        } else {
-            hashProvider = hashProviderFactory.getHashProvider(userStorePropertiesMap);
+        if (hashProvider == null) {
+            Map<String, Object> userStorePropertiesMap = new HashMap<>(realmConfig.getUserStoreProperties());
+            hashProvider = initializeHashProvider(userStorePropertiesMap);
         }
 
         if (realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED) != null) {
@@ -220,6 +216,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         if (log.isDebugEnabled()) {
             log.debug("Started " + System.currentTimeMillis());
         }
+        if (hashProvider == null) {
+            Map<String, Object> userStorePropertiesMap = new HashMap<>(realmConfig.getUserStoreProperties());
+            hashProvider = initializeHashProvider(userStorePropertiesMap);
+        }
         realmConfig.setUserStoreProperties(JDBCRealmUtil.getSQL(realmConfig
                 .getUserStoreProperties()));
         this.jdbcds = ds;
@@ -257,6 +257,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         realmConfig.setUserStoreProperties(JDBCRealmUtil.getSQL(realmConfig
                 .getUserStoreProperties()));
         this.jdbcds = ds;
+        if (hashProvider == null) {
+            Map<String, Object> userStorePropertiesMap = new HashMap<>(realmConfig.getUserStoreProperties());
+            hashProvider = initializeHashProvider(userStorePropertiesMap);
+        }
     }
 
     /**
@@ -272,6 +276,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                                 ClaimManager claimManager, ProfileConfigurationManager profileManager, UserRealm realm,
                                 Integer tenantId) throws UserStoreException {
         this(realmConfig, properties, claimManager, profileManager, realm, tenantId, false);
+        if (hashProvider == null) {
+            Map<String, Object> userStorePropertiesMap = new HashMap<>(realmConfig.getUserStoreProperties());
+            hashProvider = initializeHashProvider(userStorePropertiesMap);
+        }
     }
 
     /**
@@ -337,12 +345,34 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         }
 
         initUserRolesCache();
-
+        if (hashProvider == null) {
+            Map<String, Object> userStorePropertiesMap = new HashMap<>(realmConfig.getUserStoreProperties());
+            hashProvider = initializeHashProvider(userStorePropertiesMap);
+        }
         if (log.isDebugEnabled()) {
             log.debug("Ended " + System.currentTimeMillis());
         }
         /* Initialize user roles cache as implemented in AbstractUserStoreManager */
 
+    }
+
+    /**
+     * Initializes the HashProvider.
+     *
+     * @param userStorePropertiesMap The map which contains the params needed to be initialized and the digest function.
+     * @return Initialized HashProvider.
+     */
+    private HashProvider initializeHashProvider(Map<String, Object> userStorePropertiesMap) {
+
+        String digestFunction = userStorePropertiesMap.get(JDBCRealmConstants.DIGEST_FUNCTION).toString();
+        HashProviderFactory hashProviderFactory =
+                UserStoreMgtDataHolder.getInstance().getHashProviderFactory(digestFunction);
+        if (hashProviderFactory == null) {
+            hashProvider = null;
+        } else {
+            hashProvider = hashProviderFactory.getHashProvider(userStorePropertiesMap);
+        }
+        return hashProvider;
     }
 
     // Loading JDBC data store on demand.
