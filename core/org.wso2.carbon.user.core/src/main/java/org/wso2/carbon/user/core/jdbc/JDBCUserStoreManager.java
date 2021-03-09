@@ -114,6 +114,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private static final String MYSQL = "mysql";
     private static final String MARIADB = "mariadb";
     private static final String POSTGRESQL = "postgresql";
+    private static final String HASH = "hash";
 
     private static final int MAX_ITEM_LIMIT_UNLIMITED = -1;
 
@@ -139,8 +140,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         // new properties after carbon core 4.0.7 release.
         if (hashProvider == null) {
-            Map<String, Object> userStorePropertiesMap = new HashMap<>(realmConfig.getUserStoreProperties());
-            hashProvider = initializeHashProvider(userStorePropertiesMap);
+            hashProvider = initializeHashProvider(realmConfig.getUserStoreProperties());
         }
 
         if (realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED) != null) {
@@ -217,8 +217,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             log.debug("Started " + System.currentTimeMillis());
         }
         if (hashProvider == null) {
-            Map<String, Object> userStorePropertiesMap = new HashMap<>(realmConfig.getUserStoreProperties());
-            hashProvider = initializeHashProvider(userStorePropertiesMap);
+            hashProvider = initializeHashProvider(realmConfig.getUserStoreProperties());
         }
         realmConfig.setUserStoreProperties(JDBCRealmUtil.getSQL(realmConfig
                 .getUserStoreProperties()));
@@ -258,8 +257,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 .getUserStoreProperties()));
         this.jdbcds = ds;
         if (hashProvider == null) {
-            Map<String, Object> userStorePropertiesMap = new HashMap<>(realmConfig.getUserStoreProperties());
-            hashProvider = initializeHashProvider(userStorePropertiesMap);
+            hashProvider = initializeHashProvider(realmConfig.getUserStoreProperties());
         }
     }
 
@@ -277,8 +275,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                                 Integer tenantId) throws UserStoreException {
         this(realmConfig, properties, claimManager, profileManager, realm, tenantId, false);
         if (hashProvider == null) {
-            Map<String, Object> userStorePropertiesMap = new HashMap<>(realmConfig.getUserStoreProperties());
-            hashProvider = initializeHashProvider(userStorePropertiesMap);
+            hashProvider = initializeHashProvider(realmConfig.getUserStoreProperties());
         }
     }
 
@@ -346,8 +343,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         initUserRolesCache();
         if (hashProvider == null) {
-            Map<String, Object> userStorePropertiesMap = new HashMap<>(realmConfig.getUserStoreProperties());
-            hashProvider = initializeHashProvider(userStorePropertiesMap);
+            hashProvider = initializeHashProvider(realmConfig.getUserStoreProperties());
         }
         if (log.isDebugEnabled()) {
             log.debug("Ended " + System.currentTimeMillis());
@@ -362,17 +358,61 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      * @param userStorePropertiesMap The map which contains the params needed to be initialized and the digest function.
      * @return Initialized HashProvider.
      */
-    private HashProvider initializeHashProvider(Map<String, Object> userStorePropertiesMap) {
+    private HashProvider initializeHashProvider(Map<String, String> userStorePropertiesMap) {
 
-        String digestFunction = userStorePropertiesMap.get(JDBCRealmConstants.DIGEST_FUNCTION).toString();
+        String digestFunction = userStorePropertiesMap.get(JDBCRealmConstants.DIGEST_FUNCTION);
         HashProviderFactory hashProviderFactory =
                 UserStoreMgtDataHolder.getInstance().getHashProviderFactory(digestFunction);
         if (hashProviderFactory == null) {
             hashProvider = null;
         } else {
-            hashProvider = hashProviderFactory.getHashProvider(userStorePropertiesMap);
+            List<String> metaProperties = hashProviderFactory.getMetaPropertyKeys();
+            Map<String, Object> hashProviderPropertiesMap = new HashMap<>();
+            if (!metaProperties.isEmpty()) {
+                hashProviderPropertiesMap = getHashProviderInitConfigs(userStorePropertiesMap, metaProperties);
+            }
+            hashProvider = hashProviderFactory.getHashProvider(hashProviderPropertiesMap);
         }
         return hashProvider;
+    }
+
+    /**
+     * Get map of userstore properties related to hashing.
+     *
+     * @param userStorePropertiesMap User store properties map.
+     * @return Map of userstore properties related to hashing.
+     */
+    private Map<String, String> getHashProperties(Map<String, String> userStorePropertiesMap) {
+
+        Map<String, String> hashPropertiesMap = new HashMap<>();
+        for (Map.Entry<String, String> entry : userStorePropertiesMap.entrySet()) {
+            if (entry.getKey().indexOf(HASH + ".") == 1) {
+                hashPropertiesMap.put(entry.getKey().substring(5), entry.getValue());
+            }
+        }
+        return hashPropertiesMap;
+    }
+
+    /**
+     * Get map of userstore properties related to the HashProviderFactory.
+     *
+     * @param userStorePropertiesMap The map which contains the userstore properties.
+     * @param metaProperties         The list which contains the mandatory metaProperties respective to the
+     *                               HashProviderFactory.
+     * @return The map of userstore properties related to the HashProviderFactory.
+     */
+    private Map<String, Object> getHashProviderInitConfigs
+    (Map<String, String> userStorePropertiesMap, List<String> metaProperties) {
+
+        Map<String, String> hashPropertiesMap = getHashProperties(userStorePropertiesMap);
+        Map<String, String> hashProviderInitConfigsMap = new HashMap<>();
+        Set<String> sample = hashPropertiesMap.keySet();
+        for (String key : metaProperties) {
+            if (sample.contains(key)) {
+                hashProviderInitConfigsMap.put(key, hashPropertiesMap.get(key));
+            }
+        }
+        return new HashMap<>(hashProviderInitConfigsMap);
     }
 
     // Loading JDBC data store on demand.

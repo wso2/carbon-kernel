@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.user.core.hash;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,6 +40,13 @@ public interface HashProviderFactory {
      * @return HashProvider instance.
      */
     HashProvider getHashProvider(Map<String, Object> initProperties);
+
+    /**
+     * Get meta property keys.
+     *
+     * @return List of metaProperty keys.
+     */
+    List<String> getMetaPropertyKeys();
 
     /**
      * Get the type of the factory algorithm being used.
