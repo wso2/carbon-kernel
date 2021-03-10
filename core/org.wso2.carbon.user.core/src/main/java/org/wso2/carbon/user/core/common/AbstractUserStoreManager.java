@@ -11958,9 +11958,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         if (requireRolesAndGroups) {
             rolesAndGroups = getRoleListOfUserWithID(userID);
-        } else if (requireRoles || requireIntRole) {
+        } else if (requireIntRole) {
             rolesAndGroups = doGetInternalRoleListOfUserWithID(userID, "*");
-        } else if (requireGroups || requireExtRole) {
+        } else if (requireExtRole) {
             List<String> rolesList = new ArrayList<>();
             String[] externalRoles = doGetExternalRoleListOfUserWithID(userID, "*");
             rolesList.addAll(Arrays.asList(externalRoles));
