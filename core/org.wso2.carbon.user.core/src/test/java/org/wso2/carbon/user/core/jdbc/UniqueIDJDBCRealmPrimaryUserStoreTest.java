@@ -324,6 +324,11 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
         admin.updateRoleName("role3", "newrole3");
         String[] usersAfter = admin.getUserListOfRole("newrole3");
         assertEquals(usersBefore.length, usersAfter.length);
+
+        String[] usersBefore1 = admin.getUserListOfRole("newrole3");
+        admin.updateRoleName("newrole3", "NewRole3");
+        String[] usersAfter1 = admin.getUserListOfRole("NewRole3");
+        assertEquals(usersBefore1.length, usersAfter1.length);
     }
 
     public void test124DeleteUserClaimValue() throws UserStoreException {

@@ -1635,7 +1635,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         JDBCRoleContext ctx = (JDBCRoleContext) createRoleContext(roleName);
 
-        if (isExistingRole(newRoleName)) {
+        if (!StringUtils.equalsIgnoreCase(roleName, newRoleName) && isExistingRole(newRoleName)) {
             throw new UserStoreException("Role name: " + newRoleName
                     + " in the system. Please pick another role name.");
         }
