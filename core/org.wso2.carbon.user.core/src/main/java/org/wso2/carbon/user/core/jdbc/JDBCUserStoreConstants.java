@@ -110,10 +110,13 @@ public class JDBCUserStoreConstants {
         //set Advanced properties
         setAdvancedProperty("IsBulkImportSupported", "Is Bulk Import Supported", "false",
                 "Support Bulk User Import Operation for this user store",
-                new Property[] { USER.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
+                new Property[] { USER.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
         setAdvancedProperty(JDBCRealmConstants.DIGEST_FUNCTION, "Password Hashing Algorithm", "SHA-256",
                 UserStoreConfigConstants.passwordHashMethodDescription,
-                new Property[] { USER.getProperty(), STRING.getProperty(), FALSE.getProperty() });
+                new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
+        setAdvancedProperty("Hash.algorithm.props","UserStore Hashing Configurations", "null",
+                "Configurations for UserStore Hashing in JSON format",
+                new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setAdvancedProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",",
                 MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION,
                 new Property[] { USER.getProperty(), STRING.getProperty(), FALSE.getProperty() });

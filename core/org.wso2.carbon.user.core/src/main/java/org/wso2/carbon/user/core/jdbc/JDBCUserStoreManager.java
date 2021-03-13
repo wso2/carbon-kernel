@@ -17,6 +17,8 @@ z * Copyright 2005-2007 WSO2, Inc. (http://wso2.com)
 
 package org.wso2.carbon.user.core.jdbc;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.apache.axiom.om.util.Base64;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -114,7 +116,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private static final String MYSQL = "mysql";
     private static final String MARIADB = "mariadb";
     private static final String POSTGRESQL = "postgresql";
-    private static final String HASH = "hash";
 
     private static final int MAX_ITEM_LIMIT_UNLIMITED = -1;
 
@@ -256,9 +257,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         realmConfig.setUserStoreProperties(JDBCRealmUtil.getSQL(realmConfig
                 .getUserStoreProperties()));
         this.jdbcds = ds;
-        if (hashProvider == null) {
-            hashProvider = initializeHashProvider(realmConfig.getUserStoreProperties());
-        }
     }
 
     /**
@@ -274,9 +272,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                                 ClaimManager claimManager, ProfileConfigurationManager profileManager, UserRealm realm,
                                 Integer tenantId) throws UserStoreException {
         this(realmConfig, properties, claimManager, profileManager, realm, tenantId, false);
-        if (hashProvider == null) {
-            hashProvider = initializeHashProvider(realmConfig.getUserStoreProperties());
-        }
     }
 
     /**
@@ -366,7 +361,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         if (hashProviderFactory == null) {
             hashProvider = null;
         } else {
-            List<String> metaProperties = hashProviderFactory.getMetaPropertyKeys();
+            List<String> metaProperties = hashProviderFactory.getHashProviderMetaProperties();
             Map<String, Object> hashProviderPropertiesMap = new HashMap<>();
             if (!metaProperties.isEmpty()) {
                 hashProviderPropertiesMap = getHashProviderInitConfigs(userStorePropertiesMap, metaProperties);
@@ -377,39 +372,23 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Get map of userstore properties related to hashing.
+     * Get map of user store properties related to the HashProviderFactory.
      *
-     * @param userStorePropertiesMap User store properties map.
-     * @return Map of userstore properties related to hashing.
-     */
-    private Map<String, String> getHashProperties(Map<String, String> userStorePropertiesMap) {
-
-        Map<String, String> hashPropertiesMap = new HashMap<>();
-        for (Map.Entry<String, String> entry : userStorePropertiesMap.entrySet()) {
-            if (entry.getKey().indexOf(HASH + ".") == 1) {
-                hashPropertiesMap.put(entry.getKey().substring(5), entry.getValue());
-            }
-        }
-        return hashPropertiesMap;
-    }
-
-    /**
-     * Get map of userstore properties related to the HashProviderFactory.
-     *
-     * @param userStorePropertiesMap The map which contains the userstore properties.
+     * @param userStorePropertiesMap The map which contains the user store properties.
      * @param metaProperties         The list which contains the mandatory metaProperties respective to the
      *                               HashProviderFactory.
-     * @return The map of userstore properties related to the HashProviderFactory.
+     * @return The map of user store properties related to the HashProviderFactory.
      */
     private Map<String, Object> getHashProviderInitConfigs
     (Map<String, String> userStorePropertiesMap, List<String> metaProperties) {
 
-        Map<String, String> hashPropertiesMap = getHashProperties(userStorePropertiesMap);
+        String hashingAlgorithmProperties = userStorePropertiesMap.get("Hash.algorithm.props");
         Map<String, String> hashProviderInitConfigsMap = new HashMap<>();
-        Set<String> sample = hashPropertiesMap.keySet();
-        for (String key : metaProperties) {
-            if (sample.contains(key)) {
-                hashProviderInitConfigsMap.put(key, hashPropertiesMap.get(key));
+        Gson gson = new Gson();
+        JsonObject hashPropertyJSON = gson.fromJson(hashingAlgorithmProperties, JsonObject.class);
+        for (String hashProperty : metaProperties) {
+            if (hashPropertyJSON.has(hashProperty)) {
+                hashProviderInitConfigsMap.put(hashProperty, hashPropertyJSON.get(hashProperty).getAsString());
             }
         }
         return new HashMap<>(hashProviderInitConfigsMap);
