@@ -386,10 +386,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         Map<String, String> hashProviderInitConfigsMap = new HashMap<>();
         Gson gson = new Gson();
         JsonObject hashPropertyJSON = gson.fromJson(hashingAlgorithmProperties, JsonObject.class);
-        for (String hashProperty : metaProperties) {
-            if (hashPropertyJSON.has(hashProperty)) {
-                hashProviderInitConfigsMap.put(hashProperty, hashPropertyJSON.get(hashProperty).getAsString());
-            }
+        Set<String> hashPropertyJSONKey = hashPropertyJSON.keySet();
+        for (String hashProperty : hashPropertyJSONKey) {
+            hashProviderInitConfigsMap.put(hashProperty, hashPropertyJSON.get(hashProperty).getAsString());
         }
         return new HashMap<>(hashProviderInitConfigsMap);
     }
