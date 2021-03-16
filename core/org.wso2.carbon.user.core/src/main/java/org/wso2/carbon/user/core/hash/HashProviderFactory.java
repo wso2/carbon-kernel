@@ -29,14 +29,14 @@ import java.util.Map;
 public interface HashProviderFactory {
 
     /**
-     * Initializes the default params and get HashProvider.
+     * Get an instance HashProvider with the default hash provider configurations.
      *
      * @return HashProvider instance.
      */
     HashProvider getHashProvider();
 
     /**
-     * Initializes the params and get HashProvider.
+     * Get an instance HashProvider with the define hash provider configurations.
      *
      * @param initProperties The properties that needs to be initialized.
      * @return HashProvider instance.
@@ -58,7 +58,7 @@ public interface HashProviderFactory {
     List<String> getHashProviderMetaProperties();
 
     /**
-     * Get the type of the factory algorithm being used.
+     * Get the hashing algorithm supported by the HashProvider instance which is returned from the factory.
      *
      * @return The factory algorithm type.
      */

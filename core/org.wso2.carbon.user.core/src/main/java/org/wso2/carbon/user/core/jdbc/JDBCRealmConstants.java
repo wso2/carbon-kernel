@@ -439,6 +439,7 @@ public final class JDBCRealmConstants {
             "WHERE UM_TENANT_ID = ?";
     public static final String DELETE_DOMAIN_SQL = "DELETE FROM UM_DOMAIN WHERE UM_DOMAIN_NAME=? AND UM_TENANT_ID=?";
     public static final String DIGEST_FUNCTION = "PasswordDigest";
+    public static final String HASHING_ALGORITHM_PROPERTIES = "Hash.Algorithm.Properties";
     public static final String STORE_SALTED_PASSWORDS = "StoreSaltedPassword";
     public static final String COUNT_INTERNAL_ROLES_SQL = "SELECT COUNT(UM_ID) AS RESULT FROM UM_HYBRID_ROLE WHERE " +
             "UM_ROLE_NAME NOT LIKE '" + APPLICATION_DOMAIN + "%' AND UM_ROLE_NAME LIKE ? AND UM_TENANT_ID = ?";

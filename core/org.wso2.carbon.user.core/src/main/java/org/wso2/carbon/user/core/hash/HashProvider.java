@@ -28,24 +28,24 @@ import java.util.Map;
 public interface HashProvider {
 
     /**
-     * Initialize the params from default values.
+     * Initialize the HashProvider with default configuration values.
      */
     void init();
 
     /**
-     * Initialize the params from the initProperties.
+     * Initialize the HashProvider with the given configuration values.
      *
-     * @param initProperties Contains the properties that needs to be initialized.
+     * @param initProperties Map with HashProvider initializing properties.
      */
     void init(Map<String, Object> initProperties);
 
     /**
-     * Calculate the hash value according to the default initProperties.
+     * Calculate the hash value according to initialized HashProvider configurations.
      *
      * @param value The value which needs to be hashed.
      * @param salt  The salt value.
      * @return The calculated hash value for the respective value.
-     * @throws HashProviderException Exception which will be thrown when there is an issue with HashProvider service.
+     * @throws HashProviderException If an error occurred while getting the hash value.
      */
     byte[] getHash(String value, String salt) throws HashProviderException;
 
@@ -55,8 +55,8 @@ public interface HashProvider {
      * @param value          The value which needs to be hashed.
      * @param salt           The salt value.
      * @param metaProperties The attributes which are needed by the HashProvider to calculate hash of a given value.
-     * @return The calculated hash value for the respective value.
-     * @throws HashProviderException Exception which will be thrown when there is an issue with HashProvider service.
+     * @return The calculated hash value.
+     * @throws HashProviderException If an error occurred while getting the hash value.
      */
     byte[] getHash(String value, String salt, Map<String, Object> metaProperties)
             throws HashProviderException;
@@ -64,7 +64,7 @@ public interface HashProvider {
     /**
      * Get hash algorithm supported by the HashProvider.
      *
-     * @return Hashing algorithm which is being used for hashing.
+     * @return Hashing algorithm which is supported by the HashProvider.
      */
     String getAlgorithm();
 }

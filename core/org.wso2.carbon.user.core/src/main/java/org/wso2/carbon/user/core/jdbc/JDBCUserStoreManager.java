@@ -139,11 +139,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 //			realmConfig.setAdminRoleName(UserCoreUtil.addInternalDomainName(adminRoleName));
 //		}
 
-        // new properties after carbon core 4.0.7 release.
         if (hashProvider == null) {
             hashProvider = initializeHashProvider(realmConfig.getUserStoreProperties());
         }
 
+        // new properties after carbon core 4.0.7 release.
         if (realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED) != null) {
             readGroupsEnabled = Boolean.parseBoolean(realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED));
@@ -348,9 +348,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Initializes the HashProvider.
+     * Initialize the HashProvider according to the given user store properties.
      *
-     * @param userStorePropertiesMap The map which contains the params needed to be initialized and the digest function.
+     * @param userStorePropertiesMap User store properties.
      * @return Initialized HashProvider.
      */
     private HashProvider initializeHashProvider(Map<String, String> userStorePropertiesMap) {
@@ -363,10 +363,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         } else {
             List<String> metaProperties = hashProviderFactory.getHashProviderMetaProperties();
             Map<String, Object> hashProviderPropertiesMap = new HashMap<>();
-            if (!metaProperties.isEmpty()) {
+            if (metaProperties.isEmpty()) {
+                hashProvider = hashProviderFactory.getHashProvider();
+            } else {
                 hashProviderPropertiesMap = getHashProviderInitConfigs(userStorePropertiesMap, metaProperties);
+                hashProvider = hashProviderFactory.getHashProvider(hashProviderPropertiesMap);
             }
-            hashProvider = hashProviderFactory.getHashProvider(hashProviderPropertiesMap);
         }
         return hashProvider;
     }
@@ -382,7 +384,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private Map<String, Object> getHashProviderInitConfigs
     (Map<String, String> userStorePropertiesMap, List<String> metaProperties) {
 
-        String hashingAlgorithmProperties = userStorePropertiesMap.get("Hash.algorithm.props");
+        String hashingAlgorithmProperties = userStorePropertiesMap.get(JDBCRealmConstants.HASHING_ALGORITHM_PROPERTIES);
         Map<String, String> hashProviderInitConfigsMap = new HashMap<>();
         Gson gson = new Gson();
         JsonObject hashPropertyJSON = gson.fromJson(hashingAlgorithmProperties, JsonObject.class);
