@@ -89,6 +89,7 @@
         <module>features/configuration-mgt</module>
         <module>features/user-functionality-mgt</module>
         <module>features/cors-mgt</module>
+        <module>features/multi-attribute-login</module>
     </modules>
 
     <repositories>
