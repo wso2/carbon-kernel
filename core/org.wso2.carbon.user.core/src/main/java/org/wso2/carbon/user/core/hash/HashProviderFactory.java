@@ -22,6 +22,7 @@ import org.wso2.carbon.user.core.model.hash.Config;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This is the service interface for the HashProviderFactory which can be used to integrate any hashing algorithm.
@@ -55,7 +56,7 @@ public interface HashProviderFactory {
      *
      * @return Hash Provider meta properties names.
      */
-    List<String> getHashProviderMetaProperties();
+    Set<String> getHashProviderMetaProperties();
 
     /**
      * Get the hashing algorithm supported by the HashProvider instance which is returned from the factory.

@@ -361,12 +361,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         if (hashProviderFactory == null) {
             hashProvider = null;
         } else {
-            List<String> metaProperties = hashProviderFactory.getHashProviderMetaProperties();
-            Map<String, Object> hashProviderPropertiesMap = new HashMap<>();
+            Set<String> metaProperties = hashProviderFactory.getHashProviderMetaProperties();
             if (metaProperties.isEmpty()) {
                 hashProvider = hashProviderFactory.getHashProvider();
             } else {
-                hashProviderPropertiesMap = getHashProviderInitConfigs(userStorePropertiesMap, metaProperties);
+                Map<String, Object> hashProviderPropertiesMap =
+                        getHashProviderInitConfigs(userStorePropertiesMap);
                 hashProvider = hashProviderFactory.getHashProvider(hashProviderPropertiesMap);
             }
         }
@@ -377,12 +377,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      * Get map of user store properties related to the HashProviderFactory.
      *
      * @param userStorePropertiesMap The map which contains the user store properties.
-     * @param metaProperties         The list which contains the mandatory metaProperties respective to the
-     *                               HashProviderFactory.
      * @return The map of user store properties related to the HashProviderFactory.
      */
-    private Map<String, Object> getHashProviderInitConfigs
-    (Map<String, String> userStorePropertiesMap, List<String> metaProperties) {
+    private Map<String, Object> getHashProviderInitConfigs(Map<String, String> userStorePropertiesMap) {
 
         String hashingAlgorithmProperties = userStorePropertiesMap.get(JDBCRealmConstants.HASHING_ALGORITHM_PROPERTIES);
         Map<String, String> hashProviderInitConfigsMap = new HashMap<>();
