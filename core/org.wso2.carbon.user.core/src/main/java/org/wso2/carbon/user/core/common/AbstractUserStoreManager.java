@@ -5731,7 +5731,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throw new UserStoreException(errorCode + " - " + errorMessage);
         }
 
-        if (isExistingRole(newRoleName)) {
+        /* Adding two different roles case-sensitively is not possible. Therefore the possibility to have an
+        existing role in the newRoleName's name is zero. Hence case sensitively updating the role name will
+        not give any error. */
+        if (!StringUtils.equalsIgnoreCase(roleName, newRoleName) && isExistingRole(newRoleName)) {
             String errorMessage = String.format(ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS.getMessage(), newRoleName);
             String errorCode = ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS.getCode();
             handleUpdateRoleNameFailure(errorCode, errorMessage, roleName, newRoleName);
