@@ -50,7 +50,9 @@
     <!--
     Host name to be used for the Carbon management console
     -->
-     {%if server.hostname is defined %}
+     {%if server.mgt_console_hostname is defined %}
+    <MgtHostName>{{server.mgt_console_hostname}}</MgtHostName>
+     {%elif server.hostname is defined %}
     <MgtHostName>{{server.hostname}}</MgtHostName>
      {% endif %}
 
