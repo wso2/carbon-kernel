@@ -65,6 +65,7 @@
         <module>components/captcha-mgt</module>
         <module>components/user-functionality-mgt</module>
         <module>components/cors-mgt</module>
+        <module>components/multi-attribute-login</module>
         <module>features/security-mgt</module>
         <module>features/claim-mgt</module>
         <module>features/identity-core</module>
@@ -88,6 +89,7 @@
         <module>features/configuration-mgt</module>
         <module>features/user-functionality-mgt</module>
         <module>features/cors-mgt</module>
+        <module>features/multi-attribute-login</module>
     </modules>
 
     <repositories>
@@ -378,7 +380,28 @@
                 <version>${project.version}</version>
                 <type>zip</type>
             </dependency>
-
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.multi.attribute.login.mgt</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.multi.attribute.login.mgt.server.feature</artifactId>
+                <version>${project.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.unique.claim.mgt</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.unique.claim.mgt.server.feature</artifactId>
+                <version>${project.version}</version>
+                <type>zip</type>
+            </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.security.mgt</artifactId>
