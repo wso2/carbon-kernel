@@ -695,6 +695,38 @@ public class UniqueIDJDBCRealmSecondaryUserStoreTest extends BaseTestCase {
         }
     }
 
+    public void test204GetDisplayNameOfUser() throws UserStoreException {
+
+        // Create user in User Store.
+        User user6WithID = admin.addUserWithID("SECONDARY/user6WithID", "pass1",
+                null, null, null);
+        assertNotNull(user6WithID);
+
+        // Check UserID is not null.
+        String userID = user6WithID.getUserID();
+        assertNotNull(userID);
+
+        // Set display name attribute in user-store properties.
+        Map<String, String> userStoreProperties = new HashMap<>();
+        userStoreProperties.put(JDBCUserStoreConstants.DISPLAY_NAME_ATTRIBUTE, "usergivenname2withId");
+        admin.getRealmConfiguration().setUserStoreProperties(userStoreProperties);
+        String displayNameAttribute = admin.getRealmConfiguration().getUserStoreProperty(JDBCUserStoreConstants.DISPLAY_NAME_ATTRIBUTE);
+        assertEquals("usergivenname2withId", displayNameAttribute);
+
+        // Get Claim value for the display name.
+        Map<String, String> map = new HashMap<>();
+        map.put(ClaimTestUtil.CLAIM_URI1, "usergivenname2withId");
+        admin.setUserClaimValuesWithID(userID, map, UserCoreConstants.DEFAULT_PROFILE);
+        String[] displayNameClaim = {ClaimTestUtil.CLAIM_URI1};
+        Map<String, String> obtained = admin.getUserClaimValuesWithID(userID, displayNameClaim, UserCoreConstants.DEFAULT_PROFILE);
+        assertEquals("usergivenname2withId", obtained.get(ClaimTestUtil.CLAIM_URI1));
+
+        // Append display name to user name.
+        String username = user6WithID.getUsername();
+        username = UserCoreUtil.getCombinedName(user6WithID.getUserStoreDomain(), username, obtained.get(ClaimTestUtil.CLAIM_URI1));
+        assertEquals("SECONDARY/user6WithID$_USERNAME_SEPARATOR_$SECONDARY/usergivenname2withId", username);
+    }
+
     private void addSecondaryUserStoreManager(RealmConfiguration primaryRealm,
                                               AbstractUserStoreManager userStoreManager, UserRealm userRealm,
                                               String dbUrl, String configFilePath,
