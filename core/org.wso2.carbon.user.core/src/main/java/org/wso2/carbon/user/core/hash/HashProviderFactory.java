@@ -18,9 +18,6 @@
 
 package org.wso2.carbon.user.core.hash;
 
-import org.wso2.carbon.user.core.model.hash.Config;
-
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,13 +40,6 @@ public interface HashProviderFactory {
      * @return HashProvider instance.
      */
     HashProvider getHashProvider(Map<String, Object> initProperties);
-
-    /**
-     * Get meta property keys.
-     *
-     * @return List of metaProperty keys.
-     */
-    List<Config> getHashProviderConfig();
 
     /**
      * Get Hash Provider meta properties names.

@@ -62,6 +62,13 @@ public interface HashProvider {
             throws HashProviderException;
 
     /**
+     * Get HashProvider parameters.
+     *
+     * @return Map of HashProvider parameters.
+     */
+    Map<String, Object> getParameters();
+
+    /**
      * Get hash algorithm supported by the HashProvider.
      *
      * @return Hashing algorithm which is supported by the HashProvider.

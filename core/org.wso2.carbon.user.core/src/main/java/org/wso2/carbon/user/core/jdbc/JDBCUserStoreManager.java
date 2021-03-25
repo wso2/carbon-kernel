@@ -382,14 +382,14 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private Map<String, Object> getHashProviderInitConfigs(Map<String, String> userStorePropertiesMap) {
 
         String hashingAlgorithmProperties = userStorePropertiesMap.get(JDBCRealmConstants.HASHING_ALGORITHM_PROPERTIES);
-        Map<String, String> hashProviderInitConfigsMap = new HashMap<>();
+        Map<String, Object> hashProviderInitConfigsMap = new HashMap<>();
         Gson gson = new Gson();
         JsonObject hashPropertyJSON = gson.fromJson(hashingAlgorithmProperties, JsonObject.class);
         Set<String> hashPropertyJSONKey = hashPropertyJSON.keySet();
         for (String hashProperty : hashPropertyJSONKey) {
             hashProviderInitConfigsMap.put(hashProperty, hashPropertyJSON.get(hashProperty).getAsString());
         }
-        return new HashMap<>(hashProviderInitConfigsMap);
+        return hashProviderInitConfigsMap;
     }
 
     // Loading JDBC data store on demand.

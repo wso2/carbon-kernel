@@ -52,4 +52,9 @@ public class HashProviderClientException extends HashProviderException {
         super(message);
         this.errorCode = errorCode;
     }
+
+    public String getErrorCode() {
+
+        return errorCode;
+    }
 }
