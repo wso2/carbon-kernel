@@ -94,5 +94,6 @@
   "clustering.logging_type": "hazelcast.'hazelcast.logging.type'",
   "clustering.properties.vpcCidrBlock": "clustering.properties.networkInterface",
 
-  "authorization_manager.properties.group_and_role_separation_enabled": "authorization_manager.properties.GroupAndRoleSeparationEnabled"
+  "authorization_manager.properties.group_and_role_separation_enabled": "authorization_manager.properties.GroupAndRoleSeparationEnabled",
+  "authorization_manager.properties.group_and_role_separation_improvements_enabled": "authorization_manager.properties.GroupAndRoleSeparationImprovementsEnabled"
 }

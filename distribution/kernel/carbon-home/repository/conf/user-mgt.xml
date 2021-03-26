@@ -228,6 +228,7 @@
             <Property name="AuthorizationCacheEnabled">true</Property>
             <Property name="GetAllRolesOfUserEnabled">false</Property>
             <Property name="GroupAndRoleSeparationEnabled">false</Property>
+            <Property name="GroupAndRoleSeparationImprovementsEnabled">false</Property>
         </AuthorizationManager>
     </Realm>
 </UserManager>

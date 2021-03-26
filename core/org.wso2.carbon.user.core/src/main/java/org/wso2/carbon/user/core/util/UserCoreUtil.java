@@ -24,17 +24,17 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
-import org.wso2.carbon.user.core.common.User;
-import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.authorization.DBConstants;
+import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.common.UserStore;
-import org.wso2.carbon.user.core.model.UserMgtContext;
 import org.wso2.carbon.user.core.dto.RoleDTO;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
+import org.wso2.carbon.user.core.model.UserMgtContext;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.xml.StringUtils;
@@ -53,6 +53,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.sql.DataSource;
 
 /**
@@ -1179,4 +1180,16 @@ public final class UserCoreUtil {
         return usersList;
     }
 
+    /**
+     * Checks whether groups vs roles improvements are enabled or not.
+     *
+     * @return whether groups vs roles improvements are enabled.
+     */
+    public static boolean isGroupsVsRolesSeparationImprovementsEnabled(RealmConfiguration realmConfiguration) {
+
+        return Boolean.parseBoolean(realmConfiguration.getAuthorizationManagerProperty(
+                UserCoreConstants.RealmConfig.PROPERTY_GROUP_AND_ROLE_SEPARATION_ENABLED))
+                && Boolean.parseBoolean(realmConfiguration.getAuthorizationManagerProperty(
+                UserCoreConstants.RealmConfig.PROPERTY_GROUP_AND_ROLE_SEPARATION_IMPROVEMENTS_ENABLED));
+    }
 }
