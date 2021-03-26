@@ -34,7 +34,7 @@ public interface HashProviderFactory {
     HashProvider getHashProvider();
 
     /**
-     * Get an instance HashProvider with the define hash provider configurations.
+     * Get an instance of HashProvider with the given initProperty configurations.
      *
      * @param initProperties The properties that needs to be initialized.
      * @return HashProvider instance.
