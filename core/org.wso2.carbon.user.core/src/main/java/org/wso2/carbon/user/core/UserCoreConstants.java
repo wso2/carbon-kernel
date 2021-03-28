@@ -107,8 +107,10 @@ public class UserCoreConstants {
     public static final String PROFILE_CONFIGURATION = "profileConfiguration";
     public static final String PICTURE_CLAIM = "picture";
     public static final String ROLE_CLAIM = "http://wso2.org/claims/role";
+    public static final String INTERNAL_ROLES_CLAIM = "http://wso2.org/claims/roles";
     public static final String INT_ROLE_CLAIM = "http://wso2.org/claims/role/internal";
     public static final String EXT_ROLE_CLAIM = "http://wso2.org/claims/role/external";
+    public static final String USER_STORE_GROUPS_CLAIM = "http://wso2.org/claims/groups";
     public static final String CLAIM_HIDDEN = "Hidden";
     public static final String CLAIM_OVERRIDEN = "Overridden";
     public static final String CLAIM_INHERITED = "Inherited";
@@ -202,6 +204,10 @@ public class UserCoreConstants {
 
         // Configuration to enable or disable groups and roles separation feature.
         public static final String PROPERTY_GROUP_AND_ROLE_SEPARATION_ENABLED = "GroupAndRoleSeparationEnabled";
+
+        // Configuration to enable or disable groups and roles separation improvements.
+        public static final String PROPERTY_GROUP_AND_ROLE_SEPARATION_IMPROVEMENTS_ENABLED =
+                "GroupAndRoleSeparationImprovementsEnabled";
 
         public static final String PROPERTY_CASE_SENSITIVITY = "CaseSensitiveAuthorizationRules";
 

@@ -1192,10 +1192,10 @@ public class CarbonUtils {
     }
 
     /**
-     * Create a secure process enabled TransformerFactory
+     * Create a secure process enabled TransformerFactory.
      *
-     * @return
-     * @throws TransformerConfigurationException
+     * @return A new instance of TransformerFactory.
+     * @throws TransformerConfigurationException if a configuration error has occurred while processing XML securely.
      */
     public static TransformerFactory getSecureTransformerFactory() throws TransformerConfigurationException {
 

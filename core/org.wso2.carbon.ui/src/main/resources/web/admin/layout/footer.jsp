@@ -19,7 +19,7 @@
 <div id="footer-div">
 	<div class="footer-content">
 		<div class="copyright">
-		    &copy; 2005 - 2020 WSO2 Inc. All Rights Reserved.
+		    &copy; <script>document.write(new Date().getFullYear());</script> WSO2 Inc. All Rights Reserved.
 		</div>
 		<!--div class="poweredby">
 		</div-->

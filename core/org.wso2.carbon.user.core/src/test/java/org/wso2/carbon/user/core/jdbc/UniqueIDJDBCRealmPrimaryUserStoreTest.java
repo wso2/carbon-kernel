@@ -26,6 +26,7 @@ import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.BaseTestCase;
 import org.wso2.carbon.user.core.ClaimTestUtil;
+import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserCoreTestConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
@@ -41,6 +42,7 @@ import org.wso2.carbon.user.core.model.ExpressionOperation;
 import org.wso2.carbon.user.core.model.UniqueIDUserClaimSearchEntry;
 import org.wso2.carbon.user.core.model.UserClaimSearchEntry;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -324,6 +326,11 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
         admin.updateRoleName("role3", "newrole3");
         String[] usersAfter = admin.getUserListOfRole("newrole3");
         assertEquals(usersBefore.length, usersAfter.length);
+
+        String[] usersBefore1 = admin.getUserListOfRole("newrole3");
+        admin.updateRoleName("newrole3", "NewRole3");
+        String[] usersAfter1 = admin.getUserListOfRole("NewRole3");
+        assertEquals(usersBefore1.length, usersAfter1.length);
     }
 
     public void test124DeleteUserClaimValue() throws UserStoreException {
@@ -662,6 +669,38 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
             assertEquals("30007 - UserNotFound: User nonExistentUser does not exist in: PRIMARY",
                     e.getMessage());
         }
+    }
+
+    public void test205GetDisplayNameOfUser() throws UserStoreException {
+
+        // Create user in User Store.
+        User user6WithID = admin.addUserWithID("user6WithID", "pass1",
+                null, null, null);
+        assertNotNull(user6WithID);
+
+        // Check UserID is not null.
+        String userID = user6WithID.getUserID();
+        assertNotNull(userID);
+
+        // Set display name attribute in user-store properties.
+        Map<String, String> userStoreProperties = admin.getRealmConfiguration().getUserStoreProperties();
+        userStoreProperties.put(JDBCUserStoreConstants.DISPLAY_NAME_ATTRIBUTE, "usergivenname2withId");
+        admin.getRealmConfiguration().setUserStoreProperties(userStoreProperties);
+        String displayNameAttribute = admin.getRealmConfiguration().getUserStoreProperty(JDBCUserStoreConstants.DISPLAY_NAME_ATTRIBUTE);
+        assertEquals("usergivenname2withId", displayNameAttribute);
+
+        // Get Claim value for the display name.
+        Map<String, String> map = new HashMap<>();
+        map.put(ClaimTestUtil.CLAIM_URI1, "usergivenname2withId");
+        admin.setUserClaimValuesWithID(userID, map, null);
+        String[] displayNameClaim = {ClaimTestUtil.CLAIM_URI1};
+        Map<String, String> obtained = admin.getUserClaimValuesWithID(userID, displayNameClaim, null);
+        assertEquals("usergivenname2withId", obtained.get(ClaimTestUtil.CLAIM_URI1));
+
+        // Append display name to user name.
+        String username = user6WithID.getUsername();
+        username = UserCoreUtil.getCombinedName(user6WithID.getUserStoreDomain(), username, obtained.get(ClaimTestUtil.CLAIM_URI1));
+        assertEquals("user6WithID$_USERNAME_SEPARATOR_$usergivenname2withId", username);
     }
 
     private void clearUserIdResolverCache() {

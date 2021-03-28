@@ -68,6 +68,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     private boolean preserveCaseForResources = true;
     private boolean verifyByRetrievingAllUserRoles;
     private boolean isRoleAndGroupSeparationEnabled;
+    private boolean isRoleAndGroupSeparationImprovementsEnabled;
     private String cacheIdentifier;
     private int tenantId;
     private String isCascadeDeleteEnabled;
@@ -105,6 +106,12 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         if (Boolean.parseBoolean(realmConfig.getAuthorizationManagerProperty(
                 UserCoreConstants.RealmConfig.PROPERTY_GROUP_AND_ROLE_SEPARATION_ENABLED))) {
             isRoleAndGroupSeparationEnabled = true;
+
+            // Only if the group role separation is enabled.
+            if (Boolean.parseBoolean(realmConfig.getAuthorizationManagerProperty(
+                    UserCoreConstants.RealmConfig.PROPERTY_GROUP_AND_ROLE_SEPARATION_IMPROVEMENTS_ENABLED))) {
+                isRoleAndGroupSeparationImprovementsEnabled = true;
+            }
         }
 
         if (!realmConfig.getAuthzProperties().containsKey(DELETE_ROLE_PERMISSIONS)) {

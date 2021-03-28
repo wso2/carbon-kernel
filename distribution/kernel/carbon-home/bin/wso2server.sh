@@ -234,7 +234,11 @@ fi
 for f in "$CARBON_HOME"/bin/*.jar
 do
     if [ "$f" != "$CARBON_HOME/bin/*.jar" ];then
-        CARBON_CLASSPATH="$CARBON_CLASSPATH":$f
+      if [ -z "$CARBON_CLASSPATH" ];then
+            CARBON_CLASSPATH=$f
+      else
+            CARBON_CLASSPATH="$CARBON_CLASSPATH":$f
+      fi
     fi
 done
 for t in "$CARBON_HOME"/lib/*.jar

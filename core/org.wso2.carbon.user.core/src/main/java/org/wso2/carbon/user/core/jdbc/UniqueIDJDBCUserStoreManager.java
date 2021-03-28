@@ -168,7 +168,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         if (maxItemLimit < 0 || maxItemLimit > givenMax) {
             maxItemLimit = givenMax;
         }
-
+        String displayNameAttribute = realmConfig.getUserStoreProperty(JDBCUserStoreConstants.DISPLAY_NAME_ATTRIBUTE);
+        String domain = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
         try {
 
             if (filter != null && filter.trim().length() != 0) {
@@ -227,13 +228,31 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
 
             while (rs.next()) {
+                String displayName = null;
+                User user;
+
                 String userID = rs.getString(1);
                 String userName = rs.getString(2);
                 if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userID)) {
                     continue;
                 }
+                if (StringUtils.isNotEmpty(displayNameAttribute)) {
+                    String[] propertyNames = {displayNameAttribute};
 
-                User user = getUser(userID, userName);
+                    // There is no capability to select profile in UI, So select the Default profile.
+                    Map<String, String> profileDetails = getUserPropertyValuesWithID(userID, propertyNames, UserCoreConstants.DEFAULT_PROFILE);
+                    displayName = profileDetails.get(displayNameAttribute);
+
+                    // If user created without the display name attribute applied.
+                    if (StringUtils.isNotEmpty(displayName)) {
+                        userName = UserCoreUtil.getCombinedName(domain, userName, displayName);
+                        if (log.isDebugEnabled()) {
+                            log.debug(displayNameAttribute + " : " + displayName);
+                        }
+                    }
+                }
+                user = getUser(userID, userName);
+                user.setDisplayName(displayName);
                 userList.add(user);
             }
             rs.close();
@@ -2300,27 +2319,35 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         if (value == null) {
             throw new IllegalArgumentException("Filter value cannot be null");
         }
+
+        String sqlStmt;
         if (value.contains(QUERY_FILTER_STRING_ANY)) {
             // This is to support LDAP like queries. Value having only * is restricted except one *.
             if (!value.matches("(\\*)\\1+")) {
                 // Convert all the * to % except \*.
                 value = value.replaceAll("(?<!\\\\)\\*", SQL_FILTER_STRING_ANY);
             }
-        }
-
-        Connection dbConnection = null;
-        String sqlStmt;
-        PreparedStatement prepStmt = null;
-        ResultSet rs = null;
-        List<String> userList = new ArrayList<>();
-        try {
-            dbConnection = getDBConnection();
             if (!isCaseSensitiveUsername() && UID.equals(property)) {
                 sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.
                         GET_USERS_FOR_PROP_WITH_ID_CASE_INSENSITIVE);
             } else {
                 sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_FOR_PROP_WITH_ID);
             }
+        } else {
+            if (!isCaseSensitiveUsername() && UID.equals(property)) {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.
+                        GET_USERS_FOR_CLAIM_VALUE_WITH_ID_CASE_INSENSITIVE);
+            } else {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_FOR_CLAIM_VALUE_WITH_ID);
+            }
+        }
+
+        Connection dbConnection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        List<String> userList = new ArrayList<>();
+        try {
+            dbConnection = getDBConnection();
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, property);
             prepStmt.setString(2, value);
