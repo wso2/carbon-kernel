@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.user.core.hash;
 
+import org.wso2.carbon.user.core.exceptions.HashProviderException;
+
 import java.util.Map;
 import java.util.Set;
 
@@ -38,20 +40,21 @@ public interface HashProviderFactory {
      *
      * @param initProperties The properties that needs to be initialized.
      * @return HashProvider instance.
+     * @throws HashProviderException If an error occurred while getting the instance of the hashProvider.
      */
-    HashProvider getHashProvider(Map<String, Object> initProperties);
+    HashProvider getHashProvider(Map<String, Object> initProperties) throws HashProviderException;
 
     /**
      * Get Hash Provider meta properties names.
      *
      * @return Hash Provider meta properties names.
      */
-    Set<String> getHashProviderMetaProperties();
+    Set<String> getHashProviderConfigProperties();
 
     /**
      * Get the hashing algorithm supported by the HashProvider instance which is returned from the factory.
      *
      * @return The factory algorithm type.
      */
-    String getType();
+    String getAlgorithm();
 }

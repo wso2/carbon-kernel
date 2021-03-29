@@ -36,30 +36,19 @@ public interface HashProvider {
      * Initialize the HashProvider with the given configuration values.
      *
      * @param initProperties Map with HashProvider initializing properties.
+     * @throws HashProviderException If an error occurred while initializing the hashProvider.
      */
-    void init(Map<String, Object> initProperties);
+    void init(Map<String, Object> initProperties) throws HashProviderException;
 
     /**
      * Calculate the hash value according to initialized HashProvider configurations.
      *
-     * @param value The value which needs to be hashed.
-     * @param salt  The salt value.
+     * @param plainText The plain text value which needs to be hashed.
+     * @param salt      The salt value.
      * @return The calculated hash value for the respective value.
      * @throws HashProviderException If an error occurred while getting the hash value.
      */
-    byte[] getHash(String value, String salt) throws HashProviderException;
-
-    /**
-     * Calculate the hash value according to the given properties and salt.
-     *
-     * @param value          The value which needs to be hashed.
-     * @param salt           The salt value.
-     * @param metaProperties The attributes which are needed by the HashProvider to calculate hash of a given value.
-     * @return The calculated hash value.
-     * @throws HashProviderException If an error occurred while getting the hash value.
-     */
-    byte[] getHash(String value, String salt, Map<String, Object> metaProperties)
-            throws HashProviderException;
+    byte[] calculateHash(char[] plainText, String salt) throws HashProviderException;
 
     /**
      * Get HashProvider parameters.

@@ -140,7 +140,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 //		}
 
         if (hashProvider == null) {
-            hashProvider = initializeHashProvider(realmConfig.getUserStoreProperties());
+            initializeHashProvider(realmConfig.getUserStoreProperties());
         }
 
         // new properties after carbon core 4.0.7 release.
@@ -218,7 +218,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             log.debug("Started " + System.currentTimeMillis());
         }
         if (hashProvider == null) {
-            hashProvider = initializeHashProvider(realmConfig.getUserStoreProperties());
+            initializeHashProvider(realmConfig.getUserStoreProperties());
         }
         realmConfig.setUserStoreProperties(JDBCRealmUtil.getSQL(realmConfig
                 .getUserStoreProperties()));
@@ -338,7 +338,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         initUserRolesCache();
         if (hashProvider == null) {
-            hashProvider = initializeHashProvider(realmConfig.getUserStoreProperties());
+            initializeHashProvider(realmConfig.getUserStoreProperties());
         }
         if (log.isDebugEnabled()) {
             log.debug("Ended " + System.currentTimeMillis());
@@ -351,26 +351,35 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      * Initialize the HashProvider according to the given user store properties.
      *
      * @param userStorePropertiesMap User store properties.
-     * @return Initialized HashProvider.
+     * @throws UserStoreException The exception thrown at initializing the hashProvider.
      */
-    private HashProvider initializeHashProvider(Map<String, String> userStorePropertiesMap) {
+    private void initializeHashProvider(Map<String, String> userStorePropertiesMap) throws UserStoreException {
 
         String digestFunction = userStorePropertiesMap.get(JDBCRealmConstants.DIGEST_FUNCTION);
         HashProviderFactory hashProviderFactory =
                 UserStoreMgtDataHolder.getInstance().getHashProviderFactory(digestFunction);
-        if (hashProviderFactory == null) {
-            hashProvider = null;
-        } else {
-            Set<String> metaProperties = hashProviderFactory.getHashProviderMetaProperties();
+        if (hashProviderFactory != null) {
+            Set<String> metaProperties = hashProviderFactory.getHashProviderConfigProperties();
             if (metaProperties.isEmpty()) {
                 hashProvider = hashProviderFactory.getHashProvider();
             } else {
                 Map<String, Object> hashProviderPropertiesMap =
                         getHashProviderInitConfigs(userStorePropertiesMap);
-                hashProvider = hashProviderFactory.getHashProvider(hashProviderPropertiesMap);
+                if (hashProviderPropertiesMap.isEmpty()) {
+                    hashProvider = hashProviderFactory.getHashProvider();
+                } else {
+                    try {
+                        hashProvider = hashProviderFactory.getHashProvider(hashProviderPropertiesMap);
+                    } catch (HashProviderException e) {
+                        String msg = "Error occurred while initializing the hashProvider.";
+                        if (log.isDebugEnabled()) {
+                            log.debug(msg, e);
+                        }
+                        throw new UserStoreException(msg, e);
+                    }
+                }
             }
         }
-        return hashProvider;
     }
 
     /**
@@ -383,9 +392,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         String hashingAlgorithmProperties = userStorePropertiesMap.get(JDBCRealmConstants.HASHING_ALGORITHM_PROPERTIES);
         Map<String, Object> hashProviderInitConfigsMap = new HashMap<>();
-        Gson gson = new Gson();
-        JsonObject hashPropertyJSON = gson.fromJson(hashingAlgorithmProperties, JsonObject.class);
-        if (hashPropertyJSON != null) {
+        if (StringUtils.isNotBlank(hashingAlgorithmProperties)) {
+            Gson gson = new Gson();
+            JsonObject hashPropertyJSON = gson.fromJson(hashingAlgorithmProperties, JsonObject.class);
             Set<String> hashPropertyJSONKey = hashPropertyJSON.keySet();
             for (String hashProperty : hashPropertyJSONKey) {
                 hashProviderInitConfigsMap.put(hashProperty, hashPropertyJSON.get(hashProperty).getAsString());
@@ -2905,9 +2914,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     throw new UserStoreException(msg, e);
                 }
             } else {
-                String passwordString = String.valueOf(credentialObj.getChars());
                 try {
-                    byte[] hashByteArray = hashProvider.getHash(passwordString, saltValue);
+                    byte[] hashByteArray = hashProvider.calculateHash(credentialObj.getChars(), saltValue);
                     passwordHash = Base64.encode(hashByteArray);
                 } catch (HashProviderException e) {
                     String msg = "Error occurred while preparing password";
