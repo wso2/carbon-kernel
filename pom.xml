@@ -823,6 +823,7 @@
                 <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.identity.entitlement.endpoint</artifactId>
                 <version>${project.version}</version>
+                <type>war</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
@@ -1203,6 +1204,11 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.api.server.entitlement</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.identity.entitlement.ui</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -1348,8 +1354,14 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.api.server.configuration.mgt</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.identity.configuration.mgt.endpoint</artifactId>
                 <version>${project.version}</version>
+                <type>war</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
