@@ -115,7 +115,7 @@ public class JDBCUserStoreConstants {
                 UserStoreConfigConstants.passwordHashMethodDescription,
                 new Property[] { USER.getProperty(), STRING.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCRealmConstants.HASHING_ALGORITHM_PROPERTIES,
-                "UserStore Hashing Configurations", "null",
+                "UserStore Hashing Configurations", "{}",
                 "Configurations for UserStore Hashing in JSON format",
                 new Property[]{USER.getProperty(), STRING.getProperty(), FALSE.getProperty()});
         setAdvancedProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",",
