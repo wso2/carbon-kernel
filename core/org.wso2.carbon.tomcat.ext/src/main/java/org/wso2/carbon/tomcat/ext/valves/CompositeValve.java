@@ -64,7 +64,7 @@ public class CompositeValve extends ValveBase {
             // --------- Valve chaining happens from here onwards --------------------
 
         } catch (Exception e) {
-            log.error("Could not handle request: " + request.getRequestURI(), e);
+            log.error("Could not handle the request, could be due to the maxHttpHeaderSize limitation: ", e);
         }
     }
 
