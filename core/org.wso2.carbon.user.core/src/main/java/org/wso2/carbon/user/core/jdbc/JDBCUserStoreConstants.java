@@ -187,6 +187,24 @@ public class JDBCUserStoreConstants {
                 "If autoCommit==false then the pool can terminate the transaction by calling rollback on the " +
                         "connection as it is returned to the pool");
 
+        setAdvancedProperty(JDBCRealmConstants.MAX_WAIT, "Max Wait", "60000",
+                "The maximum number of milliseconds that the pool waits (when there are no available " +
+                        " connections) for a connection to be returned before throwing an exception");
+
+        setAdvancedProperty(JDBCRealmConstants.MAX_ACTIVE, "Max Active", "40",
+                "The maximum number of active connections that can be allocated from the JDBC pool at the same time.");
+
+        setAdvancedProperty(JDBCRealmConstants.MIN_IDLE, "Min Idle", "5",
+                "The minimum number of active connections that can remain idle in the pool without extra connections being created.");
+
+        setAdvancedProperty(JDBCRealmConstants.MAX_IDLE, "Max Idle", "6",
+                "The maximum number of active connections that can remain idle in the pool without extra connections being released.");
+
+        setAdvancedProperty(JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS, "Time between eviction", "",
+                "The number of milliseconds to sleep between runs of the thread that evicts unused connections from the JDBC pool.");
+
+        setAdvancedProperty(JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS, "Minimum idle time", "",
+                "The minimum amount of time an object may sit idle in the pool before it is eligible for eviction by the idle object evictor (if any).");
 
         setAdvancedProperty("CountRetrieverClass", "Count Implementation",
                 "org.wso2.carbon.identity.user.store.count.jdbc.JDBCUserStoreCountRetriever",
