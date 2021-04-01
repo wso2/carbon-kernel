@@ -63,6 +63,7 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
     private static final String FORCE_POST_PUT_NOBODY = "FORCE_POST_PUT_NOBODY";
     private static final String DELETE_REQUEST_WITH_PAYLOAD = "DELETE_REQUEST_WITH_PAYLOAD";
     private static final String TRANSPORT_MAIL_FORMAT = "transport.mail.Format";
+    private static final String DECODE_MULTIPART_DATA = "DECODE_MULTIPART_DATA";
 
     private MultitenantMsgContextDataHolder dataHolder = MultitenantMsgContextDataHolder.getInstance();
 
@@ -260,6 +261,11 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
         if (msgContext.getProperty(TRANSPORT_MAIL_FORMAT) != null) {
             superTenantOutMessageContext.setProperty(TRANSPORT_MAIL_FORMAT,
                     msgContext.getProperty(TRANSPORT_MAIL_FORMAT));
+        }
+
+        if (msgContext.getProperty(DECODE_MULTIPART_DATA) != null) {
+            superTenantOutMessageContext.setProperty(DECODE_MULTIPART_DATA,
+                    msgContext.getProperty(DECODE_MULTIPART_DATA));
         }
 
         // set additional multitenant message context properties read from multitenant-msg-context.properties file
