@@ -18,6 +18,7 @@
 package org.wso2.carbon.user.core.common;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -139,6 +140,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private static final String ADMIN_USER = "AdminUser";
     private static final String PROPERTY_PASSWORD_ERROR_MSG = "PasswordJavaRegExViolationErrorMsg";
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
+    private static final String LOCATION_CLAIM_URI = "http://wso2.org/claims/location";
     private static Log log = LogFactory.getLog(AbstractUserStoreManager.class);
     protected int tenantId;
     protected DataSource dataSource = null;
@@ -444,6 +446,27 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             log.debug("doAddUserWithID operation is not implemented in: " + this.getClass());
         }
         throw new NotImplementedException("doAddUserWithID operation is not implemented in: " + this.getClass());
+    }
+
+    /**
+     * Update location claim in claims that contains invalid user ID with generated user ID.
+     *
+     * @param userID new user ID of the user.
+     * @param claims claim map for the user.
+     */
+    protected void updateLocationClaimWithUserId(String userID, Map<String, String> claims) {
+
+        if (MapUtils.isEmpty(claims)) {
+            return;
+        }
+
+        String locationClaim = claims.get(LOCATION_CLAIM_URI);
+
+        // Update location claim with new user ID.
+        if (locationClaim != null && locationClaim.contains("/Users/")) {
+            claims.put(LOCATION_CLAIM_URI,
+                    locationClaim.substring(0, locationClaim.indexOf("/Users/") + 7) + userID);
+        }
     }
 
     /**
