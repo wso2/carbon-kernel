@@ -1100,6 +1100,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
         // Assigning unique user ID of the user as the username in the system.
         String userID = getUniqueUserID();
+        // Update location claim with new User ID.
+        updateLocationClaimWithUserId(userID, claims);
         // Assign username to the username claim.
         claims = addUserNameAttribute(userName, claims);
         // Assign userID to the userid claim.
