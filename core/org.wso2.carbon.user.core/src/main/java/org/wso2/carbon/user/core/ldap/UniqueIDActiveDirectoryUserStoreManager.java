@@ -154,6 +154,8 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
             String profileName, boolean requirePasswordChange) throws UserStoreException {
 
         String userID = getUniqueUserID();
+        // Update location claim with new User ID.
+        updateLocationClaimWithUserId(userID, claims);
         persistUser(userID, userName, credential, roleList, claims);
 
         if (isUserIdGeneratedByUserStore(userName, claims)) {
