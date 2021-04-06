@@ -15,6 +15,8 @@
  */
 package org.wso2.carbon.core.multitenancy;
 
+import org.apache.axiom.soap.SOAPEnvelope;
+import org.apache.axiom.soap.SOAPHeaderBlock;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.description.AxisOperation;
@@ -25,6 +27,8 @@ import org.apache.axis2.engine.AxisConfiguration;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.xml.namespace.QName;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * If none of the dispatcher were able to find an Axis2 service or operation, this dispatcher will
@@ -49,6 +53,24 @@ public class MultitenantDispatcher extends AbstractDispatcher {
             int tenantDelimiterIndex = to.indexOf("/t/");
             if (tenantDelimiterIndex != -1) {
                 AxisConfiguration ac = mc.getConfigurationContext().getAxisConfiguration();
+
+                SOAPEnvelope envelope = mc.getEnvelope();
+
+                if (envelope.getHeader() != null) {
+                    Iterator headerBlocks = envelope.getHeader().getHeadersToProcess(null);
+                    ArrayList<SOAPHeaderBlock> markedHeaderBlocks = new ArrayList<SOAPHeaderBlock>();
+
+                    while (headerBlocks.hasNext()) {
+                        SOAPHeaderBlock headerBlock = (SOAPHeaderBlock) headerBlocks.next();
+
+                        // If this header block mustUnderstand but has not been processed then mark it as processed
+                        // to get the message in to the mediation engine.
+                        if (!headerBlock.isProcessed() && headerBlock.getMustUnderstand()) {
+                            markedHeaderBlocks.add(headerBlock);
+                            headerBlock.setProcessed();
+                        }
+                    }
+                }
                 return ac.getService(MultitenantConstants.MULTITENANT_DISPATCHER_SERVICE);
             }
         }
