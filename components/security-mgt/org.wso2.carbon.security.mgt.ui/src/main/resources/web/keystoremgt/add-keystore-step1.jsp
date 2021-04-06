@@ -79,7 +79,7 @@
                             <fmt:message key="keystore.password"/><font color="red">*</font>
                         </td>
                         <td>
-                            <input name="ksPassword" autocomplete="off" type="password" value=""/>
+                            <input name="ksPassword" autocomplete="new-password" type="password" value=""/>
                         </td>
                     </tr>
                     <tr>

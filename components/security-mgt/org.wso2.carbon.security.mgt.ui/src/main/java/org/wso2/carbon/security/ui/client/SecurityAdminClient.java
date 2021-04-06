@@ -22,6 +22,9 @@ import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.sts.common.stub.config.xsd.SecurityConfigData;
+import org.wso2.carbon.identity.sts.common.stub.config.xsd.SecurityScenarioData;
+import org.wso2.carbon.identity.sts.common.stub.config.xsd.SecurityScenarioDataWrapper;
 import org.wso2.carbon.security.mgt.stub.config.ActivateUsernameTokenAuthentication;
 import org.wso2.carbon.security.mgt.stub.config.ApplyKerberosSecurityPolicy;
 import org.wso2.carbon.security.mgt.stub.config.ApplySecurity;
@@ -33,9 +36,6 @@ import org.wso2.carbon.security.mgt.stub.config.GetSecurityConfigDataResponse;
 import org.wso2.carbon.security.mgt.stub.config.GetSecurityScenario;
 import org.wso2.carbon.security.mgt.stub.config.GetSecurityScenarioResponse;
 import org.wso2.carbon.security.mgt.stub.config.SecurityAdminServiceStub;
-import org.wso2.carbon.security.mgt.stub.config.xsd.SecurityConfigData;
-import org.wso2.carbon.security.mgt.stub.config.xsd.SecurityScenarioData;
-import org.wso2.carbon.security.mgt.stub.config.xsd.SecurityScenarioDataWrapper;
 
 /**
  * Client class for SecurityAdminServiceStub.
