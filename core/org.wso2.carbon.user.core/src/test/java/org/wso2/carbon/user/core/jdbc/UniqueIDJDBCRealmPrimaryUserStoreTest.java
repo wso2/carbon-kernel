@@ -654,18 +654,6 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
         }
     }
 
-    public void test204GetProfileOfNonExistentUser() {
-
-        try {
-            admin.getProfileNames("nonExistentUser");
-        } catch (Exception e) {
-            // Expected exception.
-            assertTrue(e instanceof UserStoreException);
-            assertEquals("30007 - UserNotFound: User nonExistentUser does not exist in: PRIMARY",
-                    e.getMessage());
-        }
-    }
-
     public void test205GetDisplayNameOfUser() throws UserStoreException {
 
         // Create user in User Store.
