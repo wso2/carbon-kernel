@@ -597,7 +597,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         if (userID == null) {
             return false;
         }
-        return doGetUserNameFromUserID(userID) != null;
+        return StringUtils.isNotEmpty(doGetUserNameFromUserID(userID));
     }
 
     @Override
