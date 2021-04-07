@@ -21,6 +21,11 @@
 
         <Enable>{{carbon_health_check.enable}}</Enable>
 
+        <CarbonMemoryLoggerConfigs>
+               <Enable>{{carbon_memory_logger.enable}}</Enable>
+               <Interval>{{carbon_memory_logger.interval}}</Interval>
+        </CarbonMemoryLoggerConfigs>
+
         <HealthCheckers>
             <HealthChecker name="DataSourceHealthChecker"
                            orderId="{{carbon_health_check.health_checker.data_source_health_checker.order}}"
