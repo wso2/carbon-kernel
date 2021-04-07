@@ -29,6 +29,7 @@ import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.NotImplementedException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.UserStoreClientException;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.ClaimManager;
@@ -167,7 +168,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         if (maxItemLimit < 0 || maxItemLimit > givenMax) {
             maxItemLimit = givenMax;
         }
-
+        String displayNameAttribute = realmConfig.getUserStoreProperty(JDBCUserStoreConstants.DISPLAY_NAME_ATTRIBUTE);
+        String domain = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
         try {
 
             if (filter != null && filter.trim().length() != 0) {
@@ -226,13 +228,31 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
 
             while (rs.next()) {
+                String displayName = null;
+                User user;
+
                 String userID = rs.getString(1);
                 String userName = rs.getString(2);
                 if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userID)) {
                     continue;
                 }
+                if (StringUtils.isNotEmpty(displayNameAttribute)) {
+                    String[] propertyNames = {displayNameAttribute};
 
-                User user = getUser(userID, userName);
+                    // There is no capability to select profile in UI, So select the Default profile.
+                    Map<String, String> profileDetails = getUserPropertyValuesWithID(userID, propertyNames, UserCoreConstants.DEFAULT_PROFILE);
+                    displayName = profileDetails.get(displayNameAttribute);
+
+                    // If user created without the display name attribute applied.
+                    if (StringUtils.isNotEmpty(displayName)) {
+                        userName = UserCoreUtil.getCombinedName(domain, userName, displayName);
+                        if (log.isDebugEnabled()) {
+                            log.debug(displayNameAttribute + " : " + displayName);
+                        }
+                    }
+                }
+                user = getUser(userID, userName);
+                user.setDisplayName(displayName);
                 userList.add(user);
             }
             rs.close();
@@ -568,28 +588,13 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     @Override
     public boolean doCheckExistingUserWithID(String userID) throws UserStoreException {
 
-        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_IS_USER_EXISTING_WITH_ID);
-        if (sqlStmt == null) {
-            throw new UserStoreException("The sql statement for is user existing null.");
+        if (log.isDebugEnabled()) {
+            log.debug("Searching for userID " + userID);
         }
-        boolean isExisting;
-
-        String isUnique = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USERNAME_UNIQUE);
-        if (Boolean.parseBoolean(isUnique) && !CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userID)) {
-            String uniquenesSql = realmConfig.getUserStoreProperty(JDBCRealmConstants.USER_ID_UNIQUE_WITH_ID);
-            isExisting = isValueExisting(uniquenesSql, null, userID);
-            if (log.isDebugEnabled()) {
-                log.debug("The user ID should be unique across tenants.");
-            }
-        } else {
-            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                isExisting = isValueExisting(sqlStmt, null, userID, tenantId);
-            } else {
-                isExisting = isValueExisting(sqlStmt, null, userID);
-            }
+        if (userID == null) {
+            return false;
         }
-
-        return isExisting;
+        return doGetUserNameFromUserID(userID) != null;
     }
 
     @Override
@@ -1095,6 +1100,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
         // Assigning unique user ID of the user as the username in the system.
         String userID = getUniqueUserID();
+        // Update location claim with new User ID.
+        updateLocationClaimWithUserId(userID, claims);
         // Assign username to the username claim.
         claims = addUserNameAttribute(userName, claims);
         // Assign userID to the userid claim.
@@ -2311,27 +2318,35 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         if (value == null) {
             throw new IllegalArgumentException("Filter value cannot be null");
         }
+
+        String sqlStmt;
         if (value.contains(QUERY_FILTER_STRING_ANY)) {
             // This is to support LDAP like queries. Value having only * is restricted except one *.
             if (!value.matches("(\\*)\\1+")) {
                 // Convert all the * to % except \*.
                 value = value.replaceAll("(?<!\\\\)\\*", SQL_FILTER_STRING_ANY);
             }
-        }
-
-        Connection dbConnection = null;
-        String sqlStmt;
-        PreparedStatement prepStmt = null;
-        ResultSet rs = null;
-        List<String> userList = new ArrayList<>();
-        try {
-            dbConnection = getDBConnection();
             if (!isCaseSensitiveUsername() && UID.equals(property)) {
                 sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.
                         GET_USERS_FOR_PROP_WITH_ID_CASE_INSENSITIVE);
             } else {
                 sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_FOR_PROP_WITH_ID);
             }
+        } else {
+            if (!isCaseSensitiveUsername() && UID.equals(property)) {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.
+                        GET_USERS_FOR_CLAIM_VALUE_WITH_ID_CASE_INSENSITIVE);
+            } else {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_FOR_CLAIM_VALUE_WITH_ID);
+            }
+        }
+
+        Connection dbConnection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        List<String> userList = new ArrayList<>();
+        try {
+            dbConnection = getDBConnection();
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, property);
             prepStmt.setString(2, value);
@@ -3235,6 +3250,11 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         getExpressionConditions(condition, expressionConditions);
 
         for (ExpressionCondition expressionCondition : expressionConditions) {
+            // TODO: This validation has to be removed once ge and le operations are implemented for JDBC userstores.
+            if (ExpressionOperation.GE.toString().equals(expressionCondition.getOperation()) ||
+                    ExpressionOperation.LE.toString().equals(expressionCondition.getOperation())) {
+                throw new UserStoreClientException("ge and le operations are not supported for JDBC userstores.");
+            }
             if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName())) {
                 isGroupFiltering = true;
                 totalMultiGroupFilters++;
@@ -3294,6 +3314,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                         String userID = rs.getString(1);
                         String userName = rs.getString(2);
                         User user = getUser(userID, userName);
+                        user.setUserStoreDomain(getMyDomainName());
                         tempUserList.add(user);
                     }
 
@@ -3313,6 +3334,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     String userID = rs.getString(1);
                     String userName = rs.getString(2);
                     User user = getUser(userID, userName);
+                    user.setUserStoreDomain(getMyDomainName());
                     list.add(user);
                 }
             }
@@ -3547,8 +3569,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             if (DB2.equals(dbType)) {
                 sqlBuilder.setTail(") AS p) WHERE rn BETWEEN ? AND ?", limit, offset);
             } else if (MSSQL.equals(dbType)) {
-                if (isClaimFiltering && !isGroupFiltering && !isUsernameFiltering) {
-                    // Handle multi attribute filtering without username filtering.
+                if (isClaimFiltering && !isGroupFiltering && totalMultiClaimFilters > 1) {
+                    // Handle multi attribute filtering without group filtering.
                     sqlBuilder.setTail(") AS Q) AS S) AS R) AS P WHERE P.RowNum BETWEEN ? AND ?", limit, offset);
                 } else {
                     sqlBuilder.setTail(") AS R) AS P WHERE P.RowNum BETWEEN ? AND ?", limit, offset);

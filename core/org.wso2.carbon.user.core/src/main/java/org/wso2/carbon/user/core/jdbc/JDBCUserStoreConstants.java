@@ -49,6 +49,8 @@ public class JDBCUserStoreConstants {
     private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim "
             + "values";
     private static final String VALIDATION_INTERVAL = "validationInterval";
+    private static final String DISPLAY_NAME_ATTRIBUTE_DESCRIPTION = "This is the attribute name to display as the Display Name";
+    public static final String DISPLAY_NAME_ATTRIBUTE = "DisplayNameAttribute";
 
     static {
 
@@ -69,6 +71,8 @@ public class JDBCUserStoreConstants {
         setProperty("ReadOnly", "Read-only", "false",
                 "Indicates whether the user store of this realm operates in the user read only mode or not",
                 new Property[] { BASIC.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
+        setProperty(DISPLAY_NAME_ATTRIBUTE, "Display Name", "", DISPLAY_NAME_ATTRIBUTE_DESCRIPTION,
+                new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setProperty(UserStoreConfigConstants.readGroups, "Read Groups", "true",
                 UserStoreConfigConstants.readLDAPGroupsDescription,
                 new Property[] { GROUP.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
@@ -409,12 +413,22 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(JDBCRealmConstants.GET_USERS_FOR_PROP, "Get User List for Property SQL",
                 JDBCRealmConstants.GET_USERS_FOR_PROP_SQL, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCRealmConstants.GET_USERS_FOR_CLAIM_VALUE, "Get User List for Claim Value SQL",
+                JDBCRealmConstants.GET_USERS_FOR_CLAIM_VALUE_SQL, "",
+                new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCRealmConstants.GET_USERS_FOR_PROP_WITH_ID, "Get User List for Property With ID SQL",
                 JDBCRealmConstants.GET_USERS_FOR_PROP_WITH_ID_SQL, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCRealmConstants.GET_USERS_FOR_CLAIM_VALUE_WITH_ID,
+                "Get User List for Claim Value With ID SQL", JDBCRealmConstants.GET_USERS_FOR_CLAIM_VALUE_WITH_ID_SQL, "",
+                new Property[]{USER.getProperty(), SQL.getProperty(), FALSE.getProperty()});
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_USERS_FOR_PROP_WITH_ID_CASE_INSENSITIVE,
                 "Get User List For Property With ID SQL With Case Insensitive Username",
                 JDBCCaseInsensitiveConstants.GET_USERS_FOR_PROP_WITH_ID_SQL_CASE_INSENSITIVE, "",
+                new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_USERS_FOR_CLAIM_VALUE_WITH_ID_CASE_INSENSITIVE,
+                "Get User List For Claim Value With ID SQL With Case Insensitive Username",
+                JDBCCaseInsensitiveConstants.GET_USERS_FOR_CLAIM_VALUE_WITH_ID_SQL_CASE_INSENSITIVE, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCRealmConstants.GET_PROFILE_NAMES, "Get Profile Names SQL",
                 JDBCRealmConstants.GET_PROFILE_NAMES_SQL, "",

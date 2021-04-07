@@ -33,6 +33,7 @@ import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.PartialResultException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
@@ -138,6 +139,20 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
         try {
             userSearchResults = initialDirContext.search(partitionDN, searchFilter, userSearchControl);
             return userSearchResults.hasMore();
+        } catch (PartialResultException e) {
+            /* This exception can be due to the configured referrals in the Active Directory. This code segment can
+             ignore that exception if it is configured as ignore in the user store properties. */
+            String errorMessage = "Error occurred while getting user list from search Filter : " + searchFilter;
+            if (isIgnorePartialResultException()) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(errorMessage, e);
+                }
+                /* Here we expect that from Active Directory level we get referrals as PartialResultException. When
+                 these referrals can be ignored, we are returning false. */
+                return false;
+            } else {
+                throw new UserStoreException(errorMessage, e);
+            }
         } catch (NamingException e) {
             String errorMessage = "Error occurred while searching in root partition for organization : " + orgName;
             if (logger.isDebugEnabled()) {
@@ -145,6 +160,12 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
             }
             throw new UserStoreException(errorMessage, e);
         }
+    }
+
+    private boolean isIgnorePartialResultException() {
+
+        return LDAPConstants.PROPERTY_REFERRAL_IGNORE.equals(
+                realmConfig.getUserStoreProperty(LDAPConstants.PROPERTY_REFERRAL));
     }
 
     /**

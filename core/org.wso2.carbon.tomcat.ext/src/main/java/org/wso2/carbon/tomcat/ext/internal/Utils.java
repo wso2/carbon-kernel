@@ -87,6 +87,9 @@ public class Utils {
         String uri = request.getRequestURI();
         String temp = null;
 
+        if (uri == null) {
+            return null;
+        }
         if (uri.startsWith("/services/")) {
             //setting the application id for services
             return Utils.getServiceName(uri);

@@ -18,6 +18,7 @@
 package org.wso2.carbon.user.core.common;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -95,6 +96,9 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
+import static org.wso2.carbon.user.core.UserCoreConstants.DOMAIN_SEPARATOR;
+import static org.wso2.carbon.user.core.UserCoreConstants.INTERNAL_DOMAIN;
+import static org.wso2.carbon.user.core.UserCoreConstants.INTERNAL_SYSTEM_ROLE_PREFIX;
 import static org.wso2.carbon.user.core.UserCoreConstants.SYSTEM_DOMAIN_NAME;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_UNIQUE_USER_ID_CACHE_NAME;
@@ -131,6 +135,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private static final String ADMIN_USER = "AdminUser";
     private static final String PROPERTY_PASSWORD_ERROR_MSG = "PasswordJavaRegExViolationErrorMsg";
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
+    private static final String LOCATION_CLAIM_URI = "http://wso2.org/claims/location";
     private static Log log = LogFactory.getLog(AbstractUserStoreManager.class);
     protected int tenantId;
     protected DataSource dataSource = null;
@@ -436,6 +441,27 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             log.debug("doAddUserWithID operation is not implemented in: " + this.getClass());
         }
         throw new NotImplementedException("doAddUserWithID operation is not implemented in: " + this.getClass());
+    }
+
+    /**
+     * Update location claim in claims that contains invalid user ID with generated user ID.
+     *
+     * @param userID new user ID of the user.
+     * @param claims claim map for the user.
+     */
+    protected void updateLocationClaimWithUserId(String userID, Map<String, String> claims) {
+
+        if (MapUtils.isEmpty(claims)) {
+            return;
+        }
+
+        String locationClaim = claims.get(LOCATION_CLAIM_URI);
+
+        // Update location claim with new user ID.
+        if (locationClaim != null && locationClaim.contains("/Users/")) {
+            claims.put(LOCATION_CLAIM_URI,
+                    locationClaim.substring(0, locationClaim.indexOf("/Users/") + 7) + userID);
+        }
     }
 
     /**
@@ -1683,12 +1709,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(), e.getMessage()),
                         userName, credential);
                 // We can ignore and proceed. Ignore the results from this user store.
-
-                if (log.isDebugEnabled()) {
-                  log.debug("Error occurred while authenticating user: " + userName, e);
-                } else {
-                  log.error(e);
+                // But throw the message to the upper level if it is a client exception.
+                if (e instanceof UserStoreClientException) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Error occurred while authenticating user: " + userName, e);
+                    }
+                    throw (UserStoreClientException) e;
                 }
+                log.error("Error occurred while authenticating user: " + userName, e);
                 authenticated = false;
             }
 
@@ -2780,7 +2808,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         UserStoreManager userManager = this;
-        if (StringUtils.isNotEmpty(extractedDomain)) {
+        if (StringUtils.isNotEmpty(extractedDomain) && !StringUtils.equalsIgnoreCase(getMyDomainName(), extractedDomain)) {
             UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(extractedDomain);
             if (secondaryUserStoreManager != null) {
                 userManager = secondaryUserStoreManager;
@@ -2788,6 +2816,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     log.debug("Domain: " + extractedDomain + " is passed with the claim and user store manager is loaded"
                             + " for the given domain name.");
                 }
+            } else {
+                throw new UserStoreException("Invalid Domain Name: " + extractedDomain);
             }
         }
 
@@ -3013,7 +3043,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         * This method("getUserListWithID") can be called for secondary userstore managers.
         * At that time the "extractedDomain" is the name of the "this" usertore manager.
         */
-        if (StringUtils.isNotEmpty(extractedDomain) && !StringUtils.equals(getMyDomainName(), extractedDomain)) {
+        if (StringUtils.isNotEmpty(extractedDomain) && !StringUtils.equalsIgnoreCase(getMyDomainName(), extractedDomain)) {
             UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(extractedDomain);
             if (secondaryUserStoreManager != null) {
                 userManager = secondaryUserStoreManager;
@@ -3022,7 +3052,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             + " for the given domain name.");
                 }
             } else {
-                throw new UserStoreClientException("Invalid Domain Name.");
+                throw new UserStoreException("Invalid Domain Name: " + extractedDomain);
             }
         }
 
@@ -4680,9 +4710,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throw new UserStoreException(errorCode + " - " + message);
         }
 
+        String userNameWithoutDomain = UserCoreUtil.removeDomainFromName(userName);
         // If the username claims presents, the value should be equal to the username attribute.
         if (claims != null && claims.containsKey(USERNAME_CLAIM_URI) &&
-                !claims.get(USERNAME_CLAIM_URI).equals(userName)) {
+                !claims.get(USERNAME_CLAIM_URI).equals(userNameWithoutDomain)) {
             // If not we cannot continue.
             throw new UserStoreException("Username and the username claim value should be same.");
         }
@@ -5145,7 +5176,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         newUsers);
                 throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_UPDATE_EVERYONE_ROLE.toString());
             }
-
+            if (!handlePreUpdateUserListOfRole(roleName, deletedUsers, newUsers, false, true)) {
+                handleUpdateUserListOfRoleFailure(
+                        ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_UPDATE_USERS_OF_ROLE.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_UPDATE_USERS_OF_ROLE.getMessage(),
+                                UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), roleName, deletedUsers,
+                        newUsers);
+                return;
+            }
             if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
                 hybridRoleManager.updateUserListOfHybridRole(userStore.getDomainFreeName(), deletedUsers, newUsers);
                 handleDoPostUpdateUserListOfRole(roleName, deletedUsers, newUsers, true);
@@ -5179,26 +5217,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (newUsers == null) {
             newUsers = new String[0];
         }
-        // #################### <Listeners> #####################################################
-        try {
-            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
-                if (!listener.doPreUpdateUserListOfRole(roleName, deletedUsers, newUsers, this)) {
-                    handleUpdateUserListOfRoleFailure(
-                            ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_UPDATE_USERS_OF_ROLE.getCode(),
-                            String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_UPDATE_USERS_OF_ROLE.getMessage(),
-                                    UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), roleName, deletedUsers,
-                            newUsers);
-                    return;
-                }
-            }
-        } catch (UserStoreException ex) {
-            handleUpdateUserListOfRoleFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_UPDATE_USERS_OF_ROLE.getCode(),
+        if (!handlePreUpdateUserListOfRole(roleName, deletedUsers, newUsers, false, false)) {
+            handleUpdateUserListOfRoleFailure(
+                    ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_UPDATE_USERS_OF_ROLE.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_UPDATE_USERS_OF_ROLE.getMessage(),
-                            ex.getMessage()), roleName, deletedUsers, newUsers);
-            throw ex;
+                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), roleName, deletedUsers,
+                    newUsers);
+            return;
         }
-        // #################### </Listeners> #####################################################
-
         if (deletedUsers.length > 0 || newUsers != null && newUsers.length > 0) {
             if (!isReadOnly() && writeGroupsEnabled) {
                 try {
@@ -5424,6 +5450,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         List<String> roleDel = new ArrayList<String>();
         List<String> roleNew = new ArrayList<String>();
 
+        List<String> internalRoleDelWithDomain = new ArrayList<>();
+        List<String> internalRoleNewWithDomain = new ArrayList<>();
+
         if (deletedRoles != null && deletedRoles.length > 0) {
             for (String deleteRole : deletedRoles) {
                 if (UserCoreUtil.isEveryoneRole(deleteRole, realmConfig)) {
@@ -5437,7 +5466,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (index1 > 0) {
                     domain = deleteRole.substring(0, index1);
                 }
-                processDeletedRoles(internalRoleDel, roleDel, deleteRole, domain);
+                processDeletedRoles(internalRoleDel, roleDel, deleteRole, domain, internalRoleDelWithDomain);
             }
             deletedRoles = roleDel.toArray(new String[roleDel.size()]);
         }
@@ -5456,38 +5485,47 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     domain = newRole.substring(0, index2);
                 }
 
-                processNewRoles(internalRoleNew, roleNew, newRole, domain);
+                processNewRoles(internalRoleNew, roleNew, newRole, domain, internalRoleNewWithDomain);
             }
             newRoles = roleNew.toArray(new String[roleNew.size()]);
         }
 
-        if (internalRoleDel.size() > 0 || internalRoleNew.size() > 0) {
-            hybridRoleManager.updateHybridRoleListOfUser(userStore.getDomainFreeName(),
-                    internalRoleDel.toArray(new String[internalRoleDel.size()]),
-                    internalRoleNew.toArray(new String[internalRoleNew.size()]));
+        boolean isPreUpdateInternalRoleListOfUserSuccess = true;
+        boolean isPreUpdateRoleListOfUserSuccess = true;
+        String[] deletedInternalRolesArray = new String[0];
+        String[] addInternalRolesArray = new String[0];
+
+        if (CollectionUtils.isNotEmpty(internalRoleDel) || CollectionUtils.isNotEmpty(internalRoleNew)) {
+            deletedInternalRolesArray = internalRoleDel.toArray(new String[internalRoleDel.size()]);
+            String[] deletedRolesArrayWithDomain = internalRoleDelWithDomain.toArray(new
+                    String[internalRoleDelWithDomain.size()]);
+            addInternalRolesArray = internalRoleNew.toArray(new String[internalRoleNew.size()]);
+            String[] addRolesArrayWithDomain =
+                    internalRoleNewWithDomain.toArray(new String[internalRoleNewWithDomain.size()]);
+            isPreUpdateInternalRoleListOfUserSuccess =
+                    handlePreUpdateRoleListOfUser(userName, deletedRolesArrayWithDomain,
+                            addRolesArrayWithDomain, false, true);
         }
 
-        // #################### <Listeners> #####################################################
-        try {
-            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
-                if (!listener.doPreUpdateRoleListOfUser(userName, deletedRoles, newRoles, this)) {
-                    handleUpdateRoleListOfUserFailure(
-                            ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_OF_USER.getCode(),
-                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_OF_USER.getMessage(),
-                                    UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), userName, deletedRoles,
-                            newRoles);
-                    return;
-                }
-            }
-        } catch (UserStoreException ex) {
-            handleUpdateRoleListOfUserFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_OF_USER.getCode(),
+        if (ArrayUtils.isNotEmpty(deletedRoles) || ArrayUtils.isNotEmpty(newRoles)) {
+            isPreUpdateRoleListOfUserSuccess = handlePreUpdateRoleListOfUser(userName, deletedRoles, newRoles,
+                    false, false);
+        }
+
+        if (!isPreUpdateInternalRoleListOfUserSuccess || !isPreUpdateRoleListOfUserSuccess) {
+            handleUpdateRoleListOfUserFailure(
+                    ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_OF_USER.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_OF_USER.getMessage(),
-                            ex.getMessage()), userName, deletedRoles, newRoles);
-            throw ex;
+                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), userName, deletedRoles,
+                    newRoles);
+            return;
         }
-        // #################### </Listeners> #####################################################
+        if (ArrayUtils.isNotEmpty(deletedInternalRolesArray) || ArrayUtils.isNotEmpty(addInternalRolesArray)) {
+            hybridRoleManager.updateHybridRoleListOfUser(userStore.getDomainFreeName(), deletedInternalRolesArray,
+                    addInternalRolesArray);
+        }
 
-        if ((deletedRoles != null && deletedRoles.length > 0) || (newRoles != null && newRoles.length > 0)) {
+        if (ArrayUtils.isNotEmpty(deletedRoles) || ArrayUtils.isNotEmpty(newRoles)) {
             if (!isReadOnly() && writeGroupsEnabled) {
                 try {
                     // Property to check whether this user store supports new APIs with unique user id.
@@ -6285,7 +6323,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             } else {
                 userList = doListUsersWithID(filter, maxItemLimit)
                         .stream()
-                        .map(User::getDomainQualifiedUsername)
+                        .map(User::getUsername)
                         .toArray(String[]::new);
             }
         } catch (UserStoreException ex) {
@@ -6722,18 +6760,21 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         try {
             boolean internalRole = isAnInternalRole(roleName);
+            String internalSystemRolePrefix = INTERNAL_DOMAIN + DOMAIN_SEPARATOR + INTERNAL_SYSTEM_ROLE_PREFIX;
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
                 if (isAuditLogOnly && !listener.getClass().getName().endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
                     continue;
                 }
 
-                boolean success = false;
-                if (internalRole && listener instanceof AbstractUserOperationEventListener) {
+                boolean success;
+                if (internalRole && roleName.startsWith(internalSystemRolePrefix)) {
+                    success = true;
+                } else if (internalRole && listener instanceof AbstractUserOperationEventListener) {
                     success = ((AbstractUserOperationEventListener) listener).doPreAddInternalRole(roleName,
                             userList, permissions, this);
-                } else if (internalRole && !(listener instanceof AbstractUserOperationEventListener)) {
+                } else if (internalRole) {
                     success = true;
-                } else if (!internalRole) {
+                } else {
                     success = listener.doPreAddRole(roleName, userList, permissions, this);
                 }
 
@@ -6991,18 +7032,20 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         try {
             boolean internalRole = isAnInternalRole(roleName);
+            String internalSystemRolePrefix = INTERNAL_DOMAIN + DOMAIN_SEPARATOR + INTERNAL_SYSTEM_ROLE_PREFIX;
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
                 if (isAuditLogOnly && !listener.getClass().getName()
                         .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
                     continue;
                 }
-
-                boolean success = false;
-                if (internalRole && listener instanceof AbstractUserOperationEventListener) {
-                    success = ((AbstractUserOperationEventListener) listener).doPreDeleteInternalRole(roleName, this);
-                } else if (internalRole && !(listener instanceof AbstractUserOperationEventListener)) {
+                boolean success;
+                if (internalRole && roleName.startsWith(internalSystemRolePrefix)) {
                     success = true;
-                } else if (!internalRole) {
+                } else if (internalRole && listener instanceof AbstractUserOperationEventListener) {
+                    success = ((AbstractUserOperationEventListener) listener).doPreDeleteInternalRole(roleName, this);
+                } else if (internalRole) {
+                    success = true;
+                } else {
                     success = listener.doPreDeleteRole(roleName, this);
                 }
 
@@ -7283,7 +7326,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     // If there is a user for the give user id, then that is the correct domain.
                     AbstractUserStoreManager abstractUserStoreManager = (AbstractUserStoreManager) entry.getValue();
                     if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
-                        if (abstractUserStoreManager.doGetUserNameFromUserIDWithID(userId) != null) {
+                        if (isUserExistsWithGivenDomain(userId, abstractUserStoreManager, entry.getKey())) {
                             // If we found a domain name for the give user id, update the domain resolver with the name.
                             domainName = entry.getKey();
                             userUniqueIDDomainResolver.setDomainForUserId(userId, domainName, tenantId);
@@ -7354,6 +7397,26 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             userStore.setUserStoreManager(this);
             return userStore;
         }
+    }
+
+    /**
+     * Check if a user with the given ID exists in the cache. If so check if user domain matches the given domain.
+     * If the user does not exist in the cache, search the user in the underlying user store.
+     *
+     * @param userId                    User ID.
+     * @param abstractUserStoreManager  Corresponding user store manager instance.
+     * @param domainName                User store manager domain.
+     * @return True if a username is found, false otherwise.
+     * @throws UserStoreException       Thrown by the underlying UserStoreManager.
+         */
+    private Boolean isUserExistsWithGivenDomain(String userId, AbstractUserStoreManager abstractUserStoreManager,
+                                               String domainName) throws UserStoreException {
+
+        String userName = getFromUserNameCache(userId);
+        if (StringUtils.isNotEmpty(userName)) {
+            return StringUtils.equals(UserCoreUtil.extractDomainFromName(userName), domainName);
+        }
+        return (abstractUserStoreManager.doGetUserNameFromUserIDWithID(userId) != null);
     }
 
     /**
@@ -9577,7 +9640,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         UserStoreManager userManager = this;
-        if (StringUtils.isNotEmpty(extractedDomain)) {
+        if (StringUtils.isNotEmpty(extractedDomain) && !StringUtils.equalsIgnoreCase(getMyDomainName(), extractedDomain)) {
             UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(extractedDomain);
             if (secondaryUserStoreManager != null) {
                 userManager = secondaryUserStoreManager;
@@ -9585,6 +9648,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     log.debug("Domain: " + extractedDomain + " is passed with the claim and user store manager is loaded"
                             + " for the given domain name.");
                 }
+            } else {
+                throw new UserStoreException("Invalid Domain Name: " + extractedDomain);
             }
         }
 
@@ -9742,6 +9807,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (((AbstractUserStoreManager) secManager).isUniqueUserIdEnabled()) {
                     UniqueIDPaginatedSearchResult users = ((AbstractUserStoreManager) secManager).doGetUserListWithID(condition,
                             profileName, limit, offset, sortBy, sortOrder);
+                    addUsersToUserIdCache(users.getUsers());
+                    addUsersToUserNameCache(users.getUsers());
                     filteredUsers = users.getUsers().stream().map(User::getUsername).toArray(String[]::new);
                 } else {
                     PaginatedSearchResult users = ((AbstractUserStoreManager) secManager).doGetUserList(condition,
@@ -9952,7 +10019,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return !(ExpressionOperation.EQ.toString().equals(condition.getOperation()) ||
                 ExpressionOperation.CO.toString().equals(condition.getOperation()) ||
                 ExpressionOperation.SW.toString().equals(condition.getOperation()) ||
-                ExpressionOperation.EW.toString().equals(condition.getOperation()));
+                ExpressionOperation.EW.toString().equals(condition.getOperation()) ||
+                ExpressionOperation.GE.toString().equals(condition.getOperation()) ||
+                ExpressionOperation.LE.toString().equals(condition.getOperation()));
     }
 
     private boolean isAnInternalRole(String roleName) {
@@ -10790,12 +10859,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(), e.getMessage()),
                         preferredUserNameClaim, preferredUserNameValue, credential);
                 // We can ignore and proceed. Ignore the results from this user store.
-
-                if (log.isDebugEnabled()) {
-                    log.debug("Error occurred while authenticating user: " + preferredUserNameValue, e);
-                } else {
-                    log.error(e);
+                // But throw the message to the upper level if it is a client exception.
+                if (e instanceof UserStoreClientException) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Error occurred while authenticating user: " + preferredUserNameValue, e);
+                    }
+                    throw (UserStoreClientException) e;
                 }
+                log.error("Error occurred while authenticating user: " + preferredUserNameValue, e);
                 authenticated = false;
             }
 
@@ -11807,8 +11878,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     property = mapping.getMappedAttribute();
                 }
 
-                value = userPropertyValues.get(property);
-                if (value != null && value.trim().length() > 0) {
+                if (StringUtils.isNotBlank(value = userPropertyValues.get(property))) {
                     finalValues.put(claim, value);
                 }
 
@@ -11817,8 +11887,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     property = this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
                 }
 
-                value = userPropertyValues.get(property);
-                if (value != null && value.trim().length() > 0) {
+                if (StringUtils.isNotBlank(value = userPropertyValues.get(property))) {
                     finalValues.put(claim, value);
                 }
             }
@@ -12206,6 +12275,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected String doGetUserNameFromUserID(String userID) throws UserStoreException {
 
         if (isUniqueUserIdEnabled()) {
+            String userName = getFromUserNameCache(userID);
+            if (StringUtils.isNotEmpty(userName)) {
+                return UserCoreUtil.removeDomainFromName(userName);
+            }
             return doGetUserNameFromUserIDWithID(userID);
         }
         User user = userUniqueIDManger.getUser(userID, this);
@@ -12291,6 +12364,26 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         RESOLVE_USER_UNIQUE_ID_FROM_USER_NAME_CACHE_NAME, SUPER_TENANT_ID);
         UserIdResolverCache.getInstance()
                 .clearCacheEntry(userID, RESOLVE_USER_NAME_FROM_UNIQUE_USER_ID_CACHE_NAME, SUPER_TENANT_ID);
+    }
+
+    private void addUsersToUserIdCache(List<User> userList) {
+
+        UserIdResolverCache userIdResolverCacheInstance = UserIdResolverCache.getInstance();
+        for (User user : userList) {
+            userIdResolverCacheInstance.addToCache(
+                    UserCoreUtil.addDomainToName(user.getUsername(), user.getUserStoreDomain()), user.getUserID(),
+                    RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME, tenantId);
+        }
+    }
+
+    private void addUsersToUserNameCache(List<User> userList) {
+
+        UserIdResolverCache userIdResolverCacheInstance = UserIdResolverCache.getInstance();
+        for (User user : userList) {
+            userIdResolverCacheInstance.addToCache(
+                    user.getUserID(), UserCoreUtil.addDomainToName(user.getUsername(), user.getUserStoreDomain()),
+                    RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME, tenantId);
+        }
     }
 
     /**
@@ -13427,6 +13520,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         List<String> roleDel = new ArrayList<>();
         List<String> roleNew = new ArrayList<>();
 
+        List<String> internalRoleDelWithDomain = new ArrayList<>();
+        List<String> internalRoleNewWithDomain = new ArrayList<>();
+
         if (deletedRoles != null && deletedRoles.length > 0) {
             for (String deleteRole : deletedRoles) {
                 if (UserCoreUtil.isEveryoneRole(deleteRole, realmConfig)) {
@@ -13441,7 +13537,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (index1 > 0) {
                     domain = deleteRole.substring(0, index1);
                 }
-                processDeletedRoles(internalRoleDel, roleDel, deleteRole, domain);
+                processDeletedRoles(internalRoleDel, roleDel, deleteRole, domain, internalRoleDelWithDomain);
             }
             deletedRoles = roleDel.toArray(new String[0]);
         }
@@ -13461,14 +13557,44 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     domain = newRole.substring(0, index2);
                 }
 
-                processNewRoles(internalRoleNew, roleNew, newRole, domain);
+                processNewRoles(internalRoleNew, roleNew, newRole, domain, internalRoleNewWithDomain);
             }
             newRoles = roleNew.toArray(new String[0]);
         }
 
-        if (internalRoleDel.size() > 0 || internalRoleNew.size() > 0) {
-            hybridRoleManager.updateHybridRoleListOfUser(doGetUserNameFromUserID(userID),
-                    internalRoleDel.toArray(new String[0]), internalRoleNew.toArray(new String[0]));
+        boolean isPreUpdateInternalRoleListOfUserSuccess = true;
+        boolean isPreUpdateRoleListOfUserSuccess = true;
+        String[] deletedInternalRolesArray = new String[0];
+        String[] addInternalRolesArray = new String[0];
+
+        if (CollectionUtils.isNotEmpty(internalRoleDel) || CollectionUtils.isNotEmpty(internalRoleNew)) {
+            deletedInternalRolesArray = internalRoleDel.toArray(new String[internalRoleDel.size()]);
+            String[] deletedRolesArrayWithDomain = internalRoleDelWithDomain.toArray(new
+                    String[internalRoleDelWithDomain.size()]);
+            addInternalRolesArray = internalRoleNew.toArray(new String[internalRoleNew.size()]);
+            String[] addRolesArrayWithDomain =
+                    internalRoleNewWithDomain.toArray(new String[internalRoleNewWithDomain.size()]);
+
+            isPreUpdateInternalRoleListOfUserSuccess = handlePreUpdateRoleListOfUserWithID(userID,
+                    deletedRolesArrayWithDomain, addRolesArrayWithDomain, false, true);
+        }
+
+        if (ArrayUtils.isNotEmpty(deletedRoles) || ArrayUtils.isNotEmpty(newRoles)) {
+            isPreUpdateRoleListOfUserSuccess = handlePreUpdateRoleListOfUserWithID(userID, deletedRoles, newRoles,
+                    false, false);
+        }
+
+        if (!isPreUpdateInternalRoleListOfUserSuccess || !isPreUpdateRoleListOfUserSuccess) {
+            handleUpdateRoleListOfUserFailureWithID(
+                    ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_OF_USER.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_OF_USER.getMessage(),
+                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), userID, deletedRoles,
+                    newRoles);
+            return;
+        }
+        if (ArrayUtils.isNotEmpty(deletedInternalRolesArray) || ArrayUtils.isNotEmpty(addInternalRolesArray)) {
+            hybridRoleManager.updateHybridRoleListOfUser(doGetUserNameFromUserID(userID), deletedInternalRolesArray,
+                    addInternalRolesArray);
         }
 
         // #################### <Listeners> #####################################################
@@ -13543,28 +13669,181 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
-    private void processNewRoles(List<String> internalRoleNew, List<String> roleNew, String newRole, String domain)
+    private boolean handlePreUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers,
+                                                  boolean isAuditLogOnly, boolean isInternalRole) throws
+            UserStoreException {
+
+        // Calling pre listeners.
+        try {
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (isAuditLogOnly &&
+                        !listener.getClass().getName().endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+
+                boolean success;
+                if (isInternalRole && listener instanceof AbstractUserOperationEventListener) {
+                    success = ((AbstractUserOperationEventListener) listener).doPreUpdateUserListOfInternalRole(
+                            roleName, deletedUsers, newUsers, this);
+                } else if (isInternalRole) {
+                    success = true;
+                } else {
+                    success = listener.doPreUpdateUserListOfRole(roleName, deletedUsers, newUsers, this);
+                }
+
+                if (!success) {
+                    return false;
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleUpdateUserListOfRoleFailure(
+                    ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_UPDATE_USERS_OF_ROLE.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_UPDATE_USERS_OF_ROLE.getMessage(),
+                            ex.getMessage()), roleName, deletedUsers,
+                    newUsers);
+            throw ex;
+        }
+        return true;
+    }
+
+    private boolean handlePreUpdateUserListOfRoleWithID(String roleName, String[] deletedUsersIDs, String[] newUsersIDs,
+                                                        boolean isAuditLogOnly, boolean isInternalRole) throws
+            UserStoreException {
+
+        // Calling pre listeners.
+        try {
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (isAuditLogOnly &&
+                        !listener.getClass().getName().endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+                boolean success;
+                if (isInternalRole && listener instanceof AbstractUserOperationEventListener) {
+                    success = ((AbstractUserOperationEventListener) listener).doPreUpdateUserListOfInternalRoleWithID
+                            (roleName, deletedUsersIDs, newUsersIDs, this);
+                } else if (isInternalRole) {
+                    success = true;
+                } else {
+                    success = ((AbstractUserOperationEventListener) listener).doPreUpdateUserListOfRoleWithID(roleName,
+                            deletedUsersIDs, newUsersIDs, this);
+                }
+
+                if (!success) {
+                    return false;
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleUpdateUserListOfRoleFailureWithID(
+                    ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_UPDATE_USERS_OF_ROLE.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_UPDATE_USERS_OF_ROLE.getMessage(),
+                            ex.getMessage()), roleName, deletedUsersIDs, newUsersIDs);
+            throw ex;
+        }
+        return true;
+    }
+
+    private boolean handlePreUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles,
+                                                  boolean isAuditLogOnly, boolean isInternalRole) throws
+            UserStoreException {
+
+        // Calling pre listeners.
+        try {
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (isAuditLogOnly &&
+                        !listener.getClass().getName().endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+
+                boolean success;
+                if (isInternalRole && listener instanceof AbstractUserOperationEventListener) {
+                    success =
+                            ((AbstractUserOperationEventListener) listener).doPreUpdateInternalRoleListOfUser(userName,
+                                    deletedRoles, newRoles, this);
+                } else if (isInternalRole) {
+                    success = true;
+                } else {
+                    success = listener.doPreUpdateRoleListOfUser(userName, deletedRoles, newRoles, this);
+                }
+
+                if (!success) {
+                    return false;
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleUpdateRoleListOfUserFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_OF_USER.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_OF_USER.getMessage(),
+                            ex.getMessage()), userName, deletedRoles, newRoles);
+            throw ex;
+        }
+        return true;
+    }
+
+    private boolean handlePreUpdateRoleListOfUserWithID(String userID, String[] deletedRoles, String[] newRoles,
+                                                        boolean isAuditLogOnly, boolean isInternalRole) throws
+            UserStoreException {
+
+        // Calling pre listeners.
+        try {
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (isAuditLogOnly &&
+                        !listener.getClass().getName().endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+
+                boolean success = true;
+                if (isInternalRole && listener instanceof AbstractUserOperationEventListener) {
+                    success = ((AbstractUserOperationEventListener) listener).doPreUpdateInternalRoleListOfUserWithID(
+                            userID, deletedRoles, newRoles, this);
+                } else if (isInternalRole) {
+                    success = true;
+                } else if (listener instanceof AbstractUserOperationEventListener) {
+                    success = ((AbstractUserOperationEventListener) listener).doPreUpdateRoleListOfUserWithID(userID,
+                            deletedRoles, newRoles, this);
+                }
+
+                if (!success) {
+                    return false;
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleUpdateRoleListOfUserFailureWithID(
+                    ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_OF_USER.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_OF_USER.getMessage(),
+                            ex.getMessage()), userID, deletedRoles, newRoles);
+            throw ex;
+        }
+        return true;
+    }
+
+    private void processNewRoles(List<String> internalRoleNew, List<String> roleNew, String newRole, String domain,
+                                 List<String> internalRoleNewWithDomain)
             throws UserStoreException {
         if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
             // If this is an internal role.
             internalRoleNew.add(UserCoreUtil.removeDomainFromName(newRole));
+            internalRoleNewWithDomain.add(newRole);
         } else if (APPLICATION_DOMAIN.equalsIgnoreCase(domain) || WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
             // If this is an application role or workflow role.
             internalRoleNew.add(newRole);
+            internalRoleNewWithDomain.add(newRole);
         } else if (this.isReadOnly()) {
             // If this is a readonly user store, we add even normal roles as internal roles.
             internalRoleNew.add(UserCoreUtil.removeDomainFromName(newRole));
+            internalRoleNewWithDomain.add(newRole);
         } else {
             roleNew.add(UserCoreUtil.removeDomainFromName(newRole));
         }
     }
 
     private void processDeletedRoles(List<String> internalRoleDel, List<String> roleDel, String deleteRole,
-            String domain) throws UserStoreException {
+            String domain, List<String> internalRoleDelWithDomain) throws
+            UserStoreException {
         if (APPLICATION_DOMAIN.equalsIgnoreCase(domain) || WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
             internalRoleDel.add(deleteRole);
+            internalRoleDelWithDomain.add(deleteRole);
         } else if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) || this.isReadOnly()) {
             internalRoleDel.add(UserCoreUtil.removeDomainFromName(deleteRole));
+            internalRoleDelWithDomain.add(deleteRole);
         } else {
             // This is domain free role name.
             roleDel.add(UserCoreUtil.removeDomainFromName(deleteRole));
@@ -13660,6 +13939,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_UPDATE_EVERYONE_ROLE.toString());
             }
 
+            if (!handlePreUpdateUserListOfRoleWithID(roleName, deletedUserIDs, newUserIDs, false,
+                    true)) {
+                handleUpdateUserListOfRoleFailureWithID(
+                        ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_UPDATE_USERS_OF_ROLE.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_UPDATE_USERS_OF_ROLE.getMessage(),
+                                UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), roleName, deletedUserIDs,
+                        newUserIDs);
+                return;
+            }
             if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
                 hybridRoleManager.updateUserListOfHybridRole(userStore.getDomainFreeName(), deletedUsernames,
                         newUsernames);
@@ -13696,25 +13984,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (newUserIDs == null) {
             newUserIDs = new String[0];
         }
-        // #################### <Listeners> #####################################################
-        try {
-            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
-                if (!((AbstractUserOperationEventListener) listener)
-                        .doPreUpdateUserListOfRoleWithID(roleName, deletedUserIDs, newUserIDs, this)) {
-                    handleUpdateRoleListOfUserFailureWithID(
-                            ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_UPDATE_USERS_OF_ROLE.getCode(),
-                            String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_UPDATE_USERS_OF_ROLE.getMessage(),
-                                    UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), roleName, deletedUserIDs,
-                            newUserIDs);
-                    return;
-                }
-            }
-        } catch (UserStoreException ex) {
-            handleUpdateRoleListOfUserFailureWithID(
+        if (!handlePreUpdateUserListOfRoleWithID(roleName, deletedUserIDs, newUserIDs, false,
+                false)) {
+            handleUpdateUserListOfRoleFailureWithID(
                     ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_UPDATE_USERS_OF_ROLE.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_UPDATE_USERS_OF_ROLE.getMessage(),
-                            ex.getMessage()), roleName, deletedUserIDs, newUserIDs);
-            throw ex;
+                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), roleName, deletedUserIDs,
+                    newUserIDs);
+            return;
         }
         // #################### </Listeners> #####################################################
 
@@ -13769,8 +14046,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // If the username claims presents, the value should be equal to the username attribute.
+        String userNameWithoutDomain = UserCoreUtil.removeDomainFromName(userName);
         if (claims != null && claims.containsKey(USERNAME_CLAIM_URI) &&
-                !claims.get(USERNAME_CLAIM_URI).equals(userName)) {
+                !claims.get(USERNAME_CLAIM_URI).equals(userNameWithoutDomain)) {
             // If not we cannot continue.
             throw new UserStoreException("Username and the username claim value should be same.");
         }
@@ -14266,19 +14544,22 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         try {
             boolean internalRole = isAnInternalRole(roleName);
+            String internalSystemRolePrefix = INTERNAL_DOMAIN + DOMAIN_SEPARATOR + INTERNAL_SYSTEM_ROLE_PREFIX;
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
                 if (isAuditLogOnly && !listener.getClass().getName()
                         .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
                     continue;
                 }
 
-                boolean success = false;
-                if (internalRole && listener instanceof AbstractUserOperationEventListener) {
+                boolean success;
+                if (internalRole && roleName.startsWith(internalSystemRolePrefix)) {
+                    success = true;
+                } else if (internalRole && listener instanceof AbstractUserOperationEventListener) {
                     success = ((AbstractUserOperationEventListener) listener)
                             .doPreAddInternalRoleWithID(roleName, userList, permissions, this);
-                } else if (internalRole && !(listener instanceof AbstractUserOperationEventListener)) {
+                } else if (internalRole) {
                     success = true;
-                } else if (!internalRole) {
+                } else {
                     success = ((UniqueIDUserOperationEventListener) listener)
                             .doPreAddRoleWithID(roleName, userList, permissions, this);
                 }
@@ -14657,8 +14938,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         UserStoreManager userManager = this;
-        if (StringUtils.isNotEmpty(extractedDomain)) {
+        if (StringUtils.isNotEmpty(extractedDomain) && !StringUtils.equalsIgnoreCase(getMyDomainName(), extractedDomain)) {
             userManager = getSecondaryUserStoreManager(extractedDomain);
+            if (userManager == null) {
+                throw new UserStoreException("Invalid Domain Name: " + extractedDomain);
+            }
             if (log.isDebugEnabled()) {
                 log.debug("Domain: " + extractedDomain + " is passed with the claim and user store manager is loaded"
                         + " for the given domain name.");
@@ -14744,6 +15028,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (isUniqueUserIdEnabled(secManager)) {
                     UniqueIDPaginatedSearchResult users = ((AbstractUserStoreManager) secManager)
                             .doGetUserListWithID(condition, profileName, limit, offset, sortBy, sortOrder);
+                    addUsersToUserIdCache(users.getUsers());
+                    addUsersToUserNameCache(users.getUsers());
                     filteredUsers = users.getUsers();
                 } else {
                     PaginatedSearchResult users = ((AbstractUserStoreManager) secManager)
@@ -14987,9 +15273,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             for (String claim : claims) {
                 for (Map.Entry<String, String> userAttribute : entry.getValue().entrySet()) {
+                    String value;
                     if (claimToAttributeMap.get(claim) != null && claimToAttributeMap.get(claim)
-                            .equals(userAttribute.getKey())) {
-                        userClaims.put(claim, userAttribute.getValue());
+                            .equals(userAttribute.getKey()) && StringUtils.isNotBlank(value = userAttribute.getValue())
+                    ) {
+                        userClaims.put(claim, value);
                     }
                 }
             }

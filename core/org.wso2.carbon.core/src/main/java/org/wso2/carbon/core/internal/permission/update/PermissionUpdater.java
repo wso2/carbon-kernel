@@ -15,6 +15,7 @@
  */
 package org.wso2.carbon.core.internal.permission.update;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
@@ -66,7 +67,8 @@ public class PermissionUpdater {
             }
             UserRegistry registry = registryService.getGovernanceSystemRegistry(tenantId);
             Long lastModifiedTime = System.currentTimeMillis();
-            if (registry.resourceExists(PERM_TREE_TIMESTAMP_LOC)) {
+            if (registry.resourceExists(PERM_TREE_TIMESTAMP_LOC) && StringUtils.isNotBlank(
+                    registry.get(PERM_TREE_TIMESTAMP_LOC).getProperty(PERM_TREE_TIMESTAMP_PROP))) {
                 Resource resource = registry.get(PERM_TREE_TIMESTAMP_LOC);
                 lastModifiedTime =
                         new Long(resource.getProperty(PERM_TREE_TIMESTAMP_PROP).trim());
