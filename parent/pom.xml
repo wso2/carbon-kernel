@@ -572,8 +572,8 @@
         <version.drools>5.1.1</version.drools>
         <version.jsr94>1.1</version.jsr94>
 
-        <version.log4j.core>2.12.0</version.log4j.core>
-        <version.log4j.jul>2.12.0</version.log4j.jul>
+        <version.log4j.core>2.13.3</version.log4j.core>
+        <version.log4j.jul>2.13.3</version.log4j.jul>
         <version.commons.logging>1.2</version.commons.logging>
         <version.xmlunit>1.1</version.xmlunit>
         <version.jaxen>1.1.1</version.jaxen>
@@ -664,7 +664,7 @@
         <version.org.apache.felix.scr.ds-annotations>1.2.10</version.org.apache.felix.scr.ds-annotations>
         <maven.felix.scr.plugin.version>1.25.0</maven.felix.scr.plugin.version>
         <import.package.version.commons.logging>[1.2.0,2.0.0)</import.package.version.commons.logging>
-        <config.mapper.version>1.0.2</config.mapper.version>
+        <config.mapper.version>1.0.18</config.mapper.version>
     </properties>
 
     <dependencyManagement>
