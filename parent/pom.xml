@@ -1895,6 +1895,6 @@
     </dependencyManagement>
 
   <scm>
-    <tag>v4.6.2-SNAPSHOT-RC2</tag>
+    <tag>v4.6.2</tag>
   </scm>
 </project>
