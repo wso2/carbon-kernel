@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -161,6 +162,8 @@ public class NativeLibraryProvider implements CarbonTool {
                 logger.log(Level.SEVERE, "Error while adding SPI", e);
             } catch (CarbonToolException e) {
                 logger.log(Level.SEVERE, "Error while converting to bundle", e);
+            } catch (URISyntaxException e) {
+                logger.log(Level.SEVERE, "Error while creating URI", e);
             } finally {
                 if (process != null) {
                     process.destroy();
@@ -188,7 +191,8 @@ public class NativeLibraryProvider implements CarbonTool {
      * @throws IOException         if an error occur while reading/writing jar file
      * @throws CarbonToolException if an error occur when converting to bundle
      */
-    private void addBundleActivatorHeader(Path finalJarPath, Path destination) throws IOException, CarbonToolException {
+    private void addBundleActivatorHeader(Path finalJarPath, Path destination) throws IOException, CarbonToolException,
+            URISyntaxException {
         Manifest manifest = new Manifest();
         manifest.getMainAttributes().putValue(BUNDLE_ACTIVATOR, ACTIVATOR_FULL_QUALIFIED_NAME);
         if (BundleGeneratorUtils.isOSGiBundle(finalJarPath)) {
@@ -207,7 +211,7 @@ public class NativeLibraryProvider implements CarbonTool {
 
             Map<String, String> env = new HashMap<>();
             env.put("create", "true");
-            URI uri = URI.create("jar:file:" + finalJarPath.toString());
+            URI uri = new URI("jar:" + finalJarPath.toUri());
             try (FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
                 Path pathInZipfile = zipfs.getPath(JAR_MANIFEST_FOLDER, MANIFEST_FILE_NAME);
                 Files.copy(manifestmfFile, pathInZipfile, StandardCopyOption.REPLACE_EXISTING);
