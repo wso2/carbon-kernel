@@ -55,6 +55,7 @@ public class JMXServerManager {
     private static final String JMX_RMI_REGISTRY_PORT = "RMIRegistryPort";
     private static final String JMX_RMI_SERVER_PORT   = "RMIServerPort";
     private static final int ENTITY_EXPANSION_LIMIT = 0;
+    private static final String JMX_REMOTE_ACCESS_CONTROL_ENABLED_SYSTEM_PROPERTY = "jmx.remote.access.control.enabled";
 
     private JMXConfig jmxProperties = new JMXConfig();
 
@@ -118,10 +119,15 @@ public class JMXServerManager {
 
             // Security credentials are included in the env Map
             HashMap<String, Object> env = new HashMap<>();
-            String accessFilePath = CarbonUtils.getCarbonSecurityConfigDirPath() + File.separator + "jmxremote.access";
+            boolean jmxRemoteAccessControlEnabled =
+                    Boolean.getBoolean(JMX_REMOTE_ACCESS_CONTROL_ENABLED_SYSTEM_PROPERTY);
+            if (jmxRemoteAccessControlEnabled) {
+                String accessFilePath = CarbonUtils.getCarbonSecurityConfigDirPath() + File.separator
+                                        + "jmxremote.access";
+                env.put("jmx.remote.x.access.file", accessFilePath);
+            }
 
             env.put(JMXConnectorServer.AUTHENTICATOR, new CarbonJMXAuthenticator());
-            env.put("jmx.remote.x.access.file", accessFilePath);
 
             jmxConnectorServer =
                 JMXConnectorServerFactory.newJMXConnectorServer(url, env, mbs);
