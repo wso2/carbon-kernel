@@ -56,7 +56,11 @@ org.owasp.csrfguard.configuration.provider.factory = org.owasp.csrfguard.config.
 
 
 # If csrfguard filter is enabled
+{% if owasp.csrfguard.enable is defined %}
+org.owasp.csrfguard.Enabled = {{owasp.csrfguard.enable}}
+{% else %}
 org.owasp.csrfguard.Enabled = true
+{% endif %}
 
 # If csrf guard filter should check even if there is no session for the user
 # Note: this changed around 2014/04, the default behavior used to be to
