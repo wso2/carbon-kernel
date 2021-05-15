@@ -3482,10 +3482,20 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             throw new UserStoreException(msg, e);
         }
 
-        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY + "-"
-                + type);
+        String sqlStmt;
+        if (isCaseSensitiveUsername()) {
+            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY + "-" + type);
+        } else {
+            sqlStmt = realmConfig.getUserStoreProperty(
+                    JDBCCaseInsensitiveConstants.UPDATE_USER_PROPERTY_CASE_INSENSITIVE + "-" + type);
+        }
         if (sqlStmt == null) {
-            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY);
+            if (isCaseSensitiveUsername()) {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY);
+            } else {
+                sqlStmt = realmConfig
+                        .getUserStoreProperty(JDBCCaseInsensitiveConstants.UPDATE_USER_PROPERTY_CASE_INSENSITIVE);
+            }
         }
         if (sqlStmt == null) {
             throw new UserStoreException("The sql statement for update user property sql is null");
