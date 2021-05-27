@@ -679,7 +679,7 @@ public class CacheImpl<K, V> implements Cache<K, V> {
 
     @Override
     public CacheConfiguration<K, V> getConfiguration() {
-        Util.checkAccess(ownerTenantDomain, ownerTenantId);
+
         if (cacheConfiguration == null) {
             cacheConfiguration = getDefaultCacheConfiguration();
         }
@@ -962,7 +962,8 @@ public class CacheImpl<K, V> implements Cache<K, V> {
                         Util.getDefaultCacheTimeout() * 60 * 1000 :
                         accessedExpiry.getTimeUnit().toMillis(accessedExpiry.getDurationAmount());
 
-        Collection<CacheEntry<K, V>> cacheEntries = getAll();
+        checkStatusStarted();
+        Collection<CacheEntry<K, V>> cacheEntries = localCache.values();
 
         long evictionListSize = 0;
         if (localCache.size() > capacity) {

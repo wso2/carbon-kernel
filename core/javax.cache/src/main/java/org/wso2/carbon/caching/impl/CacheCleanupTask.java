@@ -52,27 +52,19 @@ public class CacheCleanupTask implements Runnable {
         // Get all the caches
         // Get the configurations from the caches
         // Check the timeout policy and clear out old values
-        try {
-            PrivilegedCarbonContext.startTenantFlow();
-            PrivilegedCarbonContext cc = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-            cc.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
-            cc.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
-            for (CacheImpl cache : caches) {
-                try {
-                    cache.runCacheExpiry();
-                    if (log.isDebugEnabled()) {
-                        log.debug("Cache expiry completed for the cache: " + cache.getName());
-                    }
-                } catch (IllegalStateException e) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Error occurred while running CacheCleanupTask for the cache: " + cache.getName(), e);
-                    }
-                } catch (Throwable e) {
-                    log.error("Error occurred while running CacheCleanupTask for the cache: " + cache.getName(), e);
+        for (CacheImpl cache : caches) {
+            try {
+                cache.runCacheExpiry();
+                if (log.isDebugEnabled()) {
+                    log.debug("Cache expiry completed for the cache: " + cache.getName());
                 }
+            } catch (IllegalStateException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Error occurred while running CacheCleanupTask for the cache: " + cache.getName(), e);
+                }
+            } catch (Throwable e) {
+                log.error("Error occurred while running CacheCleanupTask for the cache: " + cache.getName(), e);
             }
-        } finally {
-            PrivilegedCarbonContext.endTenantFlow();
         }
     }
 }
