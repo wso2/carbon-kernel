@@ -88,32 +88,19 @@
                             complete: function(res, status){
                                 if (res.responseText.search(/----valid----/) != -1) {
                                     jQuery("#result").load(url, null, function (responseText, status, XMLHttpRequest) {
-                                        if (status != "success") {
-                                            stopRefreshStats();
-                                        }
                                     });
-                                } else {
-                                    stopRefreshStats();
                                 }
                             },error: function(res, status, error){
-                            	stopRefreshStats();
+
                             }
                         });
                     } catch (e) {
-                    	stopRefreshStats();
-                    }
-                }
-                function stopRefreshStats() {
-                    if (refresh) {
-                        clearInterval(refresh);
                     }
                 }
                 try {
                     jQuery(document).ready(function() {
                         refreshStats();
-                        if (document.getElementById('systemInfoDiv').style.display == '') {
-                            refresh = setInterval("refreshStats()", 6000);
-                        }
+
                     });
                 } catch (e) {
                 } // ignored
