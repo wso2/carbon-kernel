@@ -57,6 +57,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
      * The root node of the tree
      */
     private static Log log = LogFactory.getLog(JDBCAuthorizationManager.class);
+    private static final Log diagnosticLog = LogFactory.getLog("diagnostics");
     private static boolean debug = log.isDebugEnabled();
     private final String GET_ALL_ROLES_OF_USER_ENABLED = "GetAllRolesOfUserEnabled";
     private DataSource dataSource = null;
@@ -198,6 +199,9 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                 log.debug(roleName + " role is not Authorized to perform " + action + " on " + resourceId);
             }
         }
+        if (!sr.getLastNodeAllowedAccess()) {
+            diagnosticLog.info(roleName + " role is not Authorized to perform " + action + " on " + resourceId);
+        }
 
         return sr.getLastNodeAllowedAccess();
     }
@@ -284,6 +288,8 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                     if (log.isDebugEnabled()) {
                         log.debug("Error getting role list of user : " + userName, e);
                     }
+                    diagnosticLog.error("Error getting role list of user : " + userName + ". Error message: " +
+                            e.getMessage());
                 }
 
                 if (roles == null || roles.length == 0) {
@@ -304,6 +310,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                 if (log.isDebugEnabled()) {
                     log.debug(userName + " user has permitted resource :  " + resourceId + ", action :" + action);
                 }
+                diagnosticLog.info(userName + " user has permitted resource :  " + resourceId + ", action :" + action);
 
             } else {
                 AbstractUserStoreManager manager = (AbstractUserStoreManager) userRealm.getUserStoreManager();
@@ -339,6 +346,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             if (log.isDebugEnabled()) {
                 log.debug("No roles have permission for resource : " + resourceId + " action : " + action);
             }
+            diagnosticLog.info("No roles have permission for resource : " + resourceId + " action : " + action);
         }
 
         //need to add the authorization decision taken by role based permission
@@ -349,6 +357,9 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             if (!userAllowed) {
                 log.debug(userName + " user is not Authorized to perform " + action + " on " + resourceId);
             }
+        }
+        if (!userAllowed) {
+            diagnosticLog.info(userName + " user is not Authorized to perform " + action + " on " + resourceId);
         }
 
         return userAllowed;
@@ -1106,6 +1117,9 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                             + UserCoreUtil.removeDomainFromName(roleName) + " of tenant: " + tenantId
                             + " of domain: " + domain + " to resource: " + resourceId);
                 }
+                diagnosticLog.info("Adding permission Id: " + permissionId + " to the role: "
+                        + UserCoreUtil.removeDomainFromName(roleName) + " of tenant: " + tenantId
+                        + " of domain: " + domain + " to resource: " + resourceId);
 
                 try {
                     DatabaseUtil.updateDatabase(dbConnection, DBConstants.ADD_ROLE_PERMISSION_SQL, permissionId,
@@ -1285,6 +1299,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                 String errorMessage =
                         "Error occurred while getting UI permission ID for resource id : " + resourceId + " & action : " +
                                 action;
+                diagnosticLog.error(errorMessage);
                 throw new UserStoreException(errorMessage);
             }
         }
@@ -1381,6 +1396,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                 if(log.isDebugEnabled()){
                     log.debug("Error while clearing Permission Tree : " + e);
                 }
+                diagnosticLog.error("Error while clearing Permission Tree. Error message: " + e.getMessage());
             }
             return;
         }

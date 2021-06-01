@@ -142,6 +142,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     private static final String LOCATION_CLAIM_URI = "http://wso2.org/claims/location";
     private static Log log = LogFactory.getLog(AbstractUserStoreManager.class);
+    private static final Log diagnosticLog = LogFactory.getLog("diagnostics");
     protected int tenantId;
     protected DataSource dataSource = null;
     protected RealmConfiguration realmConfig = null;
@@ -569,6 +570,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 doSetUserAttribute(userName, entry.getKey(), entry.getValue(), profileName);
             }
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            diagnosticLog.error("Error occurred while getting the claim attribute for claimURI: " + claimURI +
+                    " of the user: " + userName + ". Error message: " + e.getMessage());
             throw new UserStoreException(
                     "Error occurred while getting the claim attribute for claimURI: " + claimURI + " of the user: "
                             + userName, e);
@@ -712,6 +715,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 doSetUserAttributeWithID(userID, entry.getKey(), entry.getValue(), profileName);
             }
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            diagnosticLog.error("Error occurred while getting the claim attribute for claimURI: " + claimURI +
+                    " of the user: " + userID + ". Error message: " + e.getMessage());
             throw new UserStoreException(
                     "Error occurred while getting the claim attribute for claimURI: " + claimURI + " of the user: "
                             + userID, e);
@@ -807,6 +812,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 log.debug(errorMessage, e);
             }
 
+            diagnosticLog.error(errorMessage + ". Error message: " + e.getMessage());
             throw new UserStoreException(errorMessage, e);
         }
         return userStoreAttributeValueMap;
@@ -828,6 +834,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
+            diagnosticLog.error(errorMessage + ". Error message: " + e.getMessage());
             throw new UserStoreException(errorMessage, e);
         }
         return userStoreAttributeValueMap;
@@ -1033,6 +1040,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (log.isDebugEnabled()) {
             log.debug("Retrieving internal roles for user name :  " + userName + " and search filter : " + filter);
         }
+        diagnosticLog.error("Retrieving internal roles for user name :  " + userName + " and search filter : " + filter);
         return hybridRoleManager.getHybridRoleListOfUser(userName, filter);
     }
 
@@ -1045,8 +1053,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     protected List<String> doGetInternalRoleListOfUserWithID(String userID, String filter) throws UserStoreException {
 
+        diagnosticLog.info("Retrieving internal role list of user with ID: " + userID);
         String username = doGetUserNameFromUserID(userID);
         if (StringUtils.isEmpty(username)) {
+            diagnosticLog.error("No user found with UserID: " + userID);
             throw new UserStoreException("No user found with UserID: " + userID);
         }
         return Arrays.asList(hybridRoleManager.getHybridRoleListOfUser(username, filter));
@@ -1386,6 +1396,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (userName == null || credential == null) {
             String message = String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
                     "Authentication failure. Either Username or Password is null");
+            diagnosticLog.error(message);
             handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(), message,
                     userName, credential);
             log.error(message);
@@ -1400,6 +1411,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (userID == null || credential == null) {
             String message = String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
                     "Authentication failure. Either Username or Password is null");
+            diagnosticLog.error(message);
             handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(),
                     message, userID, credential);
             log.error(message);
@@ -1414,6 +1426,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (claimURI == null || claimValue == null || credential == null) {
             String message = String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
                     "Authentication failure. One of the credential element is null.");
+            diagnosticLog.error(message);
             handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(), message,
                     claimValue, credential);
             log.error(message);
@@ -1431,6 +1444,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     || loginIdentifier.getLoginValue() == null) {
                 String message = String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
                         "Authentication failure. One of the credential element is null.");
+                diagnosticLog.error(message);
                 handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(), message,
                         loginIdentifier.getLoginValue(), credential);
                 log.error(message);
@@ -1458,6 +1472,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         return authenticate(userName, credential, domainProvided);
                     });
         } catch (PrivilegedActionException e) {
+            diagnosticLog.error("Error during user authentication. Error message: " + e.getMessage());
             if (!(e.getException() instanceof UserStoreException)) {
                 handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
                         String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(), e.getMessage()),
@@ -1474,6 +1489,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return AccessController.doPrivileged((PrivilegedExceptionAction<Boolean>)
                     () -> authenticateInternalIteration(userName, credential, domainProvided));
         } catch (PrivilegedActionException e) {
+            diagnosticLog.error("Error during user authentication. Error message: " + e.getMessage());
             throw (UserStoreException) e.getException();
         }
     }
@@ -1488,6 +1504,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 log.debug("User store chain generation is needed hence generating the user store chain using the user" +
                         " store preference order: " + userStorePreferenceOrder);
             }
+            diagnosticLog.info("User store chain generation is needed hence generating the user store chain using the" +
+                    " user store preference order: " + userStorePreferenceOrder);
             return generateUserStoreChain(userName, credential, domainProvided, userStorePreferenceOrder);
         } else {
             // Authenticate the user.
@@ -1512,6 +1530,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && !listener
                     .onAuthenticateFailure(errorCode, errorMessage, userName, credential, this)) {
+                diagnosticLog.error("'onAuthenticateFailure' event invocation failed on listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -1534,6 +1554,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && !((AbstractUserManagementErrorListener) listener)
                     .onAuthenticateFailureWithID(errorCode, errorMessage, userID, credential, this)) {
+                diagnosticLog.error("'onAuthenticateFailureWithID' event invocation failed on listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -1556,6 +1578,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && !((AbstractUserManagementErrorListener) listener)
                     .onAuthenticateFailureWithID(errorCode, errorMessage, loginIdentifiers, credential, this)) {
+                diagnosticLog.error("'onAuthenticateFailureWithID' event invocation failed on listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -1580,6 +1604,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (listener.isEnable() && !((AbstractUserManagementErrorListener) listener)
                     .onAuthenticateFailureWithID(errorCode, errorMessage, preferredUserNameClaim,
                             preferredUserNameValue, credential, this)) {
+                diagnosticLog.error("'onAuthenticateFailureWithID' event invocation failed on listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -1656,6 +1682,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     }
 
                     if (!listener.doPreAuthenticate(userName, credentialArgument, abstractUserStoreManager)) {
+                        diagnosticLog.error("'doPreAuthenticate' event invocation failed on listener: " +
+                                listener.getClass().getName());
                         handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(),
                                 String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
                                         UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), userName,
@@ -1683,6 +1711,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         String errorMessage = String
                                 .format(ErrorMessages.ERROR_CODE_TENANT_DEACTIVATED.getMessage(), tenantId);
                         log.warn(errorCode + " - " + errorMessage);
+                        diagnosticLog.error(errorMessage);
                         handleOnAuthenticateFailure(errorCode, errorMessage, userName, credential);
                         return false;
                     }
@@ -1691,6 +1720,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(),
                         String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
                                 e.getMessage()), userName, credential);
+                diagnosticLog.error("Error while trying to check tenant status for Tenant : " + tenantId +
+                        ". Error message: " + e.getMessage());
                 throw new UserStoreException("Error while trying to check tenant status for Tenant : " + tenantId, e);
             }
 
@@ -1699,6 +1730,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             try {
                 // Let's authenticate with the primary UserStoreManager.
                 if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
+                    diagnosticLog.info("Unique user ID feature is enabled for the userstore: " +
+                            abstractUserStoreManager.getMyDomainName() + ". Authenticating with user ID.");
                     String userNameProperty = abstractUserStoreManager.getUsernameProperty();
                     AuthenticationResult authenticationResult = abstractUserStoreManager
                             .doAuthenticateWithID(userNameProperty, userName, credential, null);
@@ -1707,6 +1740,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         authenticated = true;
                     }
                 } else {
+                    diagnosticLog.info("Unique user ID feature is disabled for the userstore: " +
+                            abstractUserStoreManager.getMyDomainName() + ". Authenticating with username.");
                     authenticated = abstractUserStoreManager.doAuthenticate(userName, credentialObj);
                 }
             } catch (Exception e) {
@@ -1722,6 +1757,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     throw (UserStoreClientException) e;
                 }
                 log.error("Error occurred while authenticating user: " + userName, e);
+                diagnosticLog.error("Error occurred while authenticating user: " + userName + ". Error message: "
+                + e.getMessage());
                 authenticated = false;
             }
 
@@ -1759,6 +1796,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // You cannot change authentication decision in post handler to TRUE
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
                 if (!listener.doPostAuthenticate(userName, authenticated, abstractUserStoreManager)) {
+                    diagnosticLog.error("'doPostAuthenticate' event invocation failed on listener: " +
+                            listener.getClass().getName());
                     handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getMessage(),
                                     UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userName, credential);
@@ -1766,6 +1805,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             }
         } catch (UserStoreException ex) {
+            diagnosticLog.error("Error occurred while authenticating user. Error message: " + ex.getMessage());
             handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getMessage(),
                             ex.getMessage()), userName, credential);
@@ -1776,6 +1816,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (!authenticated) {
                 log.debug("Authentication failure. Wrong username or password is provided.");
             }
+        }
+        if (!authenticated) {
+            diagnosticLog.info("Authentication failure. Wrong username or password is provided.");
+        } else {
+            diagnosticLog.info("Authentication successful for the user: " + userName);
         }
 
         return authenticated;
@@ -1808,6 +1853,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && !listener
                     .onGetUserClaimValueFailure(errorCode, errorMessage, userName, claim, profileName, this)) {
+                diagnosticLog.error("'onGetUserClaimValueFailure' event invocation failed on listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -1830,6 +1877,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && !((AbstractUserManagementErrorListener) listener)
                     .onGetUserClaimValueFailureWithID(errorCode, errorMessage, userID, claim, profileName, this)) {
+                diagnosticLog.error("'onGetUserClaimValueFailureWithID' event invocation failed on listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -1841,6 +1890,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public final String getUserClaimValue(String userName, String claim, String profileName)
             throws UserStoreException {
 
+        diagnosticLog.info("Fetching user claim: " + claim + " of user: " + userName);
         if (!isSecureCall.get()) {
             Class[] argTypes = new Class[]{String.class, String.class, String.class};
             Object object = callSecure("getUserClaimValue", new Object[]{userName, claim, profileName}, argTypes);
@@ -1866,19 +1916,25 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (!isUserExist) {
+            diagnosticLog.error("Could not find a valid user with name: " + userName);
             handleGetNonExistentUser(userName, claim, profileName);
         }
 
         Map<String, String> finalValues;
         try {
             if (isUniqueUserIdEnabledInUserStore(userStore)) {
+                diagnosticLog.info("Unique user ID feature is enabled in userstore: " + userStore.getDomainName() +
+                        ". Hence retrieving claim with user ID: " + userID);
                 finalValues = doGetUserClaimValuesWithID(userID, new String[]{claim},
                         userStore.getDomainName(), profileName);
             } else {
+                diagnosticLog.info("Unique user ID feature is disabled in userstore: " + userStore.getDomainName() +
+                        ". Hence retrieving claim with username: " + userName);
                 finalValues = doGetUserClaimValues(userName, new String[]{claim}, userStore.getDomainName(),
                         profileName);
             }
         } catch (UserStoreException ex) {
+            diagnosticLog.error("Error occurred while retrieving user claim. Error message: " + ex.getMessage());
             handleGetUserClaimValueFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_CLAIM_VALUE.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_CLAIM_VALUE.getMessage(),
                             ex.getMessage()), userName, claim, profileName);
@@ -1903,6 +1959,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (listener instanceof AbstractUserOperationEventListener) {
                     AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
                     if (!newListener.doPostGetUserClaimValue(userName, claim, list, profileName, this)) {
+                        diagnosticLog.error("'doPostGetUserClaimValue' event invocation failed on listener: " +
+                                listener.getClass().getName());
                         handleGetUserClaimValueFailure(
                                 ErrorMessages.ERROR_CODE_ERROR_DURING_POST_GET_USER_CLAIM_VALUE.getCode(),
                                 String.format(
@@ -1914,6 +1972,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             }
         } catch (UserStoreException ex) {
+            diagnosticLog.error("Error occurred while retrieving user claim. Error message: " + ex.getMessage());
             handleGetUserClaimValueFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_GET_USER_CLAIM_VALUE.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_GET_USER_CLAIM_VALUE.getMessage(),
                             ex.getMessage()), userName, claim, profileName);
@@ -1961,6 +2020,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && !listener
                     .onGetUserClaimValuesFailure(errorCode, errorMessage, userName, claims, profileName, this)) {
+                diagnosticLog.error("'onGetUserClaimValuesFailure' event invocation failed on listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -1984,6 +2045,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && !((AbstractUserManagementErrorListener) listener)
                     .onGetUserClaimValuesFailureWithID(errorCode, errorMessage, userID, claims, profileName, this)) {
+                diagnosticLog.error("'onGetUserClaimValuesFailureWithID' event invocation failed on listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -1995,6 +2058,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public final Claim[] getUserClaimValues(String userName, String profileName)
             throws UserStoreException {
 
+        diagnosticLog.info("Retrieving user claims for the user: " + userName);
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class, String.class};
             Object object = callSecure("getUserClaimValues", new Object[]{userName, profileName}, argTypes);
@@ -2024,6 +2088,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (!isUserExists) {
+            diagnosticLog.error("Could not find a valid user for the username: " + userName);
             String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userName,
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
             String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
@@ -2039,6 +2104,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         try {
             claims = claimManager.getAllClaimUris();
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            diagnosticLog.error("Error occurred while retrieving user claims. Error message: " + e.getMessage());
             handleGetUserClaimValuesFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_CLAIM_URI.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_CLAIM_URI.getMessage(), e.getMessage()),
                     userName, null, profileName);
@@ -2058,6 +2124,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public final Map<String, String> getUserClaimValues(String userName, String[] claims,
                                                         String profileName) throws UserStoreException {
 
+        diagnosticLog.info("Retrieving user claims of user: " + userName);
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class, String[].class, String.class};
             Object object = callSecure("getUserClaimValues", new Object[]{userName, claims, profileName}, argTypes);
@@ -2083,6 +2150,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // #################### Domain Name Free Zone Starts Here ################################
         if (!isUserExists) {
+            diagnosticLog.error("Could not find a valid user for the username: " + userName);
             String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userName,
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
             String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
@@ -2102,6 +2170,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 finalValues = doGetUserClaimValues(userStore.getDomainFreeName(), claims, userStore.getDomainName(), profileName);
             }
         } catch (UserStoreException ex) {
+            diagnosticLog.error("Error occurred while fetching user claims. Error message: " + ex.getMessage());
             handleGetUserClaimValuesFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_CLAIM_VALUES.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_CLAIM_VALUES.getMessage(),
                             ex.getMessage()), userName, claims, profileName);
@@ -2116,6 +2185,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     if (!newListener
                             .doPostGetUserClaimValues(userStore.getDomainFreeName(), claims, profileName, finalValues,
                                     this)) {
+                        diagnosticLog.error("'doPostGetUserClaimValues' event invocation failed for listener: " +
+                                listener.getClass().getName());
                         handleGetUserClaimValuesFailure(
                                 ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getCode(),
                                 String.format(ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getMessage(),
@@ -2126,6 +2197,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             }
         } catch (UserStoreException ex) {
+            diagnosticLog.error("Error occurred while retrieving user claims of user. Error message: " +
+                    ex.getMessage());
             handleGetUserClaimValuesFailure(ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getMessage(),
                             ex.getMessage()), userName, claims, profileName);
@@ -2154,6 +2227,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && !listener
                     .onGetUserListFailure(errorCode, errorMessage, claim, claimValue, profileName, this)) {
+                diagnosticLog.error("'onGetUserListFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -2176,6 +2251,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && !listener
                     .onGetUserCountFailure(errorCode, errorMessage, claim, claimValue, this)) {
+                diagnosticLog.error("'onGetUserCountFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -2199,6 +2276,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && !((AbstractUserManagementErrorListener) listener)
                     .onGetUserListFailureWithID(errorCode, errorMessage, claim, claimValue, profileName, this)) {
+                diagnosticLog.error("'onGetUserListFailureWithID' event invocation failed for listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -2222,6 +2301,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && !((AbstractUserManagementErrorListener) listener)
                     .onGetUserFailureWithID(errorCode, errorMessage, userID, requestedClaims, profileName, this)) {
+                diagnosticLog.error("'onGetUserFailureWithID' event invocation failed for listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -2249,6 +2330,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     && !listener
                     .onGetUserListFailure(errorCode, errorMessage, claim, claimValue, limit, offset, profileName,
                             this)) {
+                diagnosticLog.error("'onGetUserListFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -2276,6 +2359,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     && !((AbstractUserManagementErrorListener) listener)
                     .onGetUserListFailureWithID(errorCode, errorMessage, claim, claimValue, limit, offset, profileName,
                             this)) {
+                diagnosticLog.error("'onGetUserListFailureWithID' event invocation failed for listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -2290,6 +2375,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     && !listener
                     .onGetUserListFailure(errorCode, errorMassage, condition, domain, profileName, limit, offset,
                             sortBy, sortOrder, this)) {
+                diagnosticLog.error("'onGetUserListFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -2305,6 +2392,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     && !((AbstractUserManagementErrorListener) listener)
                     .onGetUserListFailureWithID(errorCode, errorMassage, condition, domain, profileName, limit, offset,
                             sortBy, sortOrder, this)) {
+                diagnosticLog.error("'onGetUserListFailureWithID' event invocation failed for listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -2329,6 +2418,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (listener.isEnable() && listener instanceof AbstractUserManagementErrorListener
                     && !listener.onGetPaginatedUserListFailure(errorCode, errorMessage, claim, claimValue,
                     profileName, this)) {
+                diagnosticLog.error("'onGetPaginatedUserListFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -2354,6 +2445,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     && !((AbstractUserManagementErrorListener) listener)
                     .onGetPaginatedUserListFailureWithID(errorCode, errorMessage, claim, claimValue, profileName,
                             this)) {
+                diagnosticLog.error("'onGetPaginatedUserListFailureWithID' event invocation failed for listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -2377,6 +2470,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && listener instanceof AbstractUserManagementErrorListener
                     && !listener.onListUsersFailure(errorCode, errorMessage, filter, limit, offset, this)) {
+                diagnosticLog.error("'onListUsersFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -2782,6 +2877,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (log.isDebugEnabled()) {
             log.debug("Listing users who having value as " + claimValue + " for the claim " + claim);
         }
+        diagnosticLog.info("Listing users who having value as " + claimValue + " for the claim " + claim);
 
         if (!isUniqueUserIdEnabled() && (USERNAME_CLAIM_URI.equalsIgnoreCase(claim) || SCIM_USERNAME_CLAIM_URI
                 .equalsIgnoreCase(claim) || SCIM2_USERNAME_CLAIM_URI.equalsIgnoreCase(claim))) {
@@ -2795,6 +2891,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (log.isDebugEnabled()) {
                 log.debug("Filtered users: " + Arrays.toString(filteredUsers));
             }
+            diagnosticLog.info("Filtered users: " + Arrays.toString(filteredUsers));
 
             return filteredUsers;
         }
@@ -2818,6 +2915,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             + " for the given domain name.");
                 }
             } else {
+                diagnosticLog.error("Invalid Domain Name: " + extractedDomain);
                 throw new UserStoreClientException("Invalid Domain Name: " + extractedDomain);
             }
         }
@@ -2898,6 +2996,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                        UserStoreManager userManager)
         throws UserStoreException {
 
+        diagnosticLog.info("Fetching user list with claim: " + claim + " and value: " + claimValue);
         String property;
 
         // If domain is present, then we search within that domain only.
@@ -2907,6 +3006,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (log.isDebugEnabled()) {
                     log.debug("No user store manager found for domain: " + extractedDomain);
                 }
+                diagnosticLog.info("No user store manager found for domain: " + extractedDomain);
                 return Collections.emptyList();
             }
 
@@ -2914,10 +3014,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 log.debug("Domain found in claim value. Searching only in the " + extractedDomain + " for possible " +
                         "matches");
             }
+            diagnosticLog.info("Domain found in claim value. Searching only in the " + extractedDomain +
+                    " for possible matches.");
 
             try {
                 property = claimManager.getAttributeName(extractedDomain, claim);
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                diagnosticLog.error("Error occurred while retrieving attribute name for domain : " + extractedDomain +
+                        " and claim " + claim + ". Error message: " + e.getMessage());
                 handleGetUserListFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET_USER_LIST.getCode(),
                         String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET_USER_LIST.getMessage(),
                                 e.getMessage()), claim, claimValue, profileName);
@@ -2931,6 +3035,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             "claim :" + claim +
                             "domain :" + extractedDomain);
                 }
+                diagnosticLog.info("Could not find matching property for claim : " + claim + ", domain : " +
+                        extractedDomain);
                 return Collections.emptyList();
             }
 
@@ -2942,6 +3048,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     if (log.isDebugEnabled()) {
                         log.debug("List of filtered users for: " + extractedDomain + " : " + Arrays.asList(userArray));
                     }
+                    diagnosticLog.info("List of filtered users for: " + extractedDomain + " : " +
+                            Arrays.asList(userArray));
                     return Arrays.asList(UserCoreUtil.addDomainToNames(userArray, extractedDomain));
                 } catch (UserStoreException ex) {
                     handleGetUserListFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getCode(),
@@ -2962,6 +3070,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (log.isDebugEnabled()) {
             log.debug("No domain name found in claim value. Searching through all user stores for possible matches");
         }
+        diagnosticLog.info("No domain name found in claim value. Searching through all user stores for possible matches");
 
         List<String> usersFromAllStoresList = new ArrayList<>();
         List<UserStoreManager> userStoreManagers = getUserStoreMangers();
@@ -3007,6 +3116,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public final List<User> getUserListWithID(String claim, String claimValue, String profileName)
             throws UserStoreException {
 
+        diagnosticLog.info("Fetching users list with ID for claim: " + claim + " and value: " + claimValue);
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[] { String.class, String.class, String.class };
             Object object = callSecure("getUserListWithID", new Object[] { claim, claimValue, profileName }, argTypes);
@@ -3052,7 +3162,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     log.debug("Domain: " + extractedDomain + " is passed with the claim and user store manager is loaded"
                             + " for the given domain name.");
                 }
+                diagnosticLog.info("Domain: " + extractedDomain + " is passed with the claim and user store manager is" +
+                        " loaded for the given domain name.");
             } else {
+                diagnosticLog.error("Invalid Domain Name: " + extractedDomain);
                 throw new UserStoreClientException("Invalid Domain Name: " + extractedDomain);
             }
         }
@@ -3119,6 +3232,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private List<User> doGetUserListWithID(String claim, String claimValue, String profileName, String extractedDomain,
             UserStoreManager userManager) throws UserStoreException {
 
+        diagnosticLog.info("Fetching user list with ID for claim: " + claim + " with value: " + claimValue);
         String property;
         // If domain is present, then we search within that domain only.
         if (StringUtils.isNotEmpty(extractedDomain)) {
@@ -3127,6 +3241,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (log.isDebugEnabled()) {
                     log.debug("No user store manager found for domain: " + extractedDomain);
                 }
+                diagnosticLog.info("No user store manager found for domain: " + extractedDomain);
                 return Collections.emptyList();
             }
 
@@ -3134,10 +3249,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 log.debug("Domain found in claim value. Searching only in the " + extractedDomain + " for possible "
                         + "matches");
             }
+            diagnosticLog.info("Domain found in claim value. Searching only in the " + extractedDomain +
+                    " for possible matches.");
 
             try {
                 property = claimManager.getAttributeName(extractedDomain, claim);
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                diagnosticLog.error("Error occurred while retrieving attribute name for domain : " + extractedDomain +
+                        " and claim " + claim + ". Error message: " + e.getMessage());
                 handleGetUserListFailureWithID(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET_USER_LIST.getCode(),
                         String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET_USER_LIST.getMessage(),
                                 e.getMessage()), claim, claimValue, profileName);
@@ -3150,6 +3269,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     log.debug("Could not find matching property for\n" + "claim :" + claim + "domain :"
                             + extractedDomain);
                 }
+                diagnosticLog.info("Could not find matching property for claim :" + claim + "domain :"
+                        + extractedDomain);
                 return Collections.emptyList();
             }
 
@@ -3183,6 +3304,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (log.isDebugEnabled()) {
             log.debug("No domain name found in claim value. Searching through all user stores for possible matches");
         }
+        diagnosticLog.info("No domain name found in claim value. Searching through all user stores for possible matches");
 
         List<User> usersFromAllStoresList = new ArrayList<>();
         List<UserStoreManager> userStoreManagers = getUserStoreMangers();
@@ -3219,6 +3341,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
                 usersFromAllStoresList.addAll(userList);
             } catch (UserStoreException e) {
+                diagnosticLog.error(String.format("Error occurred while getting the users list for domain: %s " +
+                        "Therefore, proceeding remaining domains. Error message: %s", domainName, e.getMessage()));
                 log.error(String.format("Error occurred while getting the users list for domain: %s Therefore, " +
                         "proceeding remaining domains", domainName), e);
             }
@@ -3386,6 +3510,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (listener.isEnable() && !((AbstractUserManagementErrorListener) listener)
                     .onUpdateCredentialFailureWithID(errorCode, errorMessage, userID, newCredential, oldCredential,
                             this)) {
+                diagnosticLog.info("'onUpdateCredentialFailureWithID' event invocation failed for the listener: " +
+                        "" + listener.getClass().getName());
                 return;
             }
         }
@@ -3407,6 +3533,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && !listener
                     .onUpdateCredentialFailure(errorCode, errorMessage, userName, newCredential, oldCredential, this)) {
+                diagnosticLog.info("'onUpdateCredentialFailure' event invocation failed for the listener: " +
+                        "" + listener.getClass().getName());
                 return;
             }
         }
@@ -3625,6 +3753,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && !listener
                     .onUpdateCredentialByAdminFailure(errorCode, errorMessage, userName, newCredential, this)) {
+                diagnosticLog.info("'onUpdateCredentialByAdminFailure' event invocation failed for the listener: " +
+                        "" + listener.getClass().getName());
                 return;
             }
         }
@@ -3646,6 +3776,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && !((AbstractUserManagementErrorListener) listener)
                     .onUpdateCredentialByAdminFailureWithID(errorCode, errorMessage, userID, newCredential, this)) {
+                diagnosticLog.info("'onUpdateCredentialByAdminFailureWithID' event invocation failed for the " +
+                        "listener: " + listener.getClass().getName());
                 return;
             }
         }
@@ -3868,6 +4000,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     protected String getClaimAtrribute(String claimURI, String identifier, String domainName)
             throws org.wso2.carbon.user.api.UserStoreException {
+
+        diagnosticLog.info("Fetching attribute for the claim: " + claimURI + " and identifier: " + identifier);
         domainName =
                 (domainName == null || domainName.isEmpty())
                         ? (identifier.indexOf(UserCoreConstants.DOMAIN_SEPARATOR) > -1
@@ -3888,6 +4022,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             } else if (DISAPLAY_NAME_CLAIM.equals(claimURI)) {
                 attributeName = this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
             } else {
+                diagnosticLog.error("Mapped attribute cannot be found for claim : " + claimURI + " in user " +
+                        "store : " + getMyDomainName());
                 throw new UserStoreException("Mapped attribute cannot be found for claim : " + claimURI + " in user " +
                         "store : " + getMyDomainName());
             }
@@ -3910,6 +4046,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         for (UserManagementErrorEventListener listener : UMListenerServiceComponent
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && !listener.onDeleteUserFailure(errorCode, errorMessage, userName, this)) {
+                diagnosticLog.info("'onDeleteUserFailure' event invocation failed for the listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -3930,6 +4068,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && !((AbstractUserManagementErrorListener) listener)
                     .onDeleteUserFailureWithID(errorCode, errorMessage, userID, this)) {
+                diagnosticLog.info("'onDeleteUserFailureWithID' event invocation failed for the listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -4100,6 +4240,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (listener.isEnable() && !listener
                     .onSetUserClaimValueFailure(errorCode, errorMessage, userName, claimURI, claimValue, profileName,
                             this)) {
+
                 return;
             }
         }
@@ -4124,6 +4265,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (listener.isEnable() && !((AbstractUserManagementErrorListener) listener)
                     .onSetUserClaimValueFailureWithID(errorCode, errorMessage, userID, claimURI, claimValue,
                             profileName, this)) {
+                diagnosticLog.info("'onSetUserClaimValueFailureWithID' event invocation failed for the listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -4268,6 +4411,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && !((AbstractUserManagementErrorListener) listener)
                     .onSetUserClaimValuesFailureWithID(errorCode, errorMessage, userName, claims, profileName, this)) {
+                diagnosticLog.info("'onSetUserClaimValuesFailureWithID' event invocation failed for the listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -4419,6 +4564,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (listener.isEnable() && !((AbstractUserManagementErrorListener) listener)
                     .onDeleteUserClaimValueFailureWithID(errorCode, errorMessage, userID, claimURI, profileName,
                             this)) {
+                diagnosticLog.info("'onDeleteUserClaimValueFailureWithID' event invocation failed for the listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -4563,6 +4710,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && !listener
                     .onDeleteUserClaimValuesFailure(errorCode, errorMessage, userID, claims, profileName, this)) {
+                diagnosticLog.info("'onDeleteUserClaimValuesFailure' event invocation failed for the listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -5076,6 +5225,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (listener.isEnable() && !((AbstractUserManagementErrorListener) listener)
                     .onAddUserFailureWithID(errorCode, errorMessage, userName, credential, roleList, claims,
                             profileName, this)) {
+                diagnosticLog.info("'onAddUserFailureWithID' event invocation failed for the listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -5138,6 +5289,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (listener.isEnable() && !((AbstractUserManagementErrorListener) listener)
                     .onUpdateUserListOfRoleFailureWithID(errorCode, errorMessage, roleName, deletedUserIDs, newUserIDs,
                             this)) {
+                diagnosticLog.info("'handleUpdateUserListOfRoleFailureWithID' event invocation failed for the listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -6715,6 +6868,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getUserManagementErrorEventListeners()) {
             if (listener.isEnable() && !((UniqueIDUserManagementErrorEventListener) listener)
                     .onAddRoleFailureWithID(errorCode, errorMessage, roleName, userIDList, permissions, this)) {
+                diagnosticLog.info("'onAddRoleFailureWithID' event invocation failed for the listener: " +
+                        listener.getClass().getName());
                 return;
             }
         }
@@ -8038,6 +8193,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     if (log.isDebugEnabled()) {
                         log.debug("Submitted password does not match with the regex " + regularExpression);
                     }
+                    diagnosticLog.info("Submitted password does not match with the regex " + regularExpression);
                     return false;
                 }
             }
@@ -8123,6 +8279,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     if (log.isDebugEnabled()) {
                         log.debug("Username " + userName + " does not match with the regex " + regularExpression);
                     }
+                    diagnosticLog.info("Username " + userName + " does not match with the regex " + regularExpression);
                     return false;
                 }
             }
@@ -11333,6 +11490,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public User getUserWithID(String userID, String[] requestedClaims, String profileName) throws UserStoreException {
 
+        diagnosticLog.info("Retrieving user with ID: " + userID);
         if (!isSecureCall.get()) {
             Class[] argTypes = new Class[] { String.class, String[].class, String.class };
             Object object = callSecure("getUserWithID", new Object[] { userID, requestedClaims, profileName },
@@ -11358,10 +11516,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // #################### Domain Name Free Zone Starts Here ################################
         if (!isUserExists) {
+            diagnosticLog.error("Could not find a valid user with ID: " + userID);
             String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userID,
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
             String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
             handleGetUserFailureWithID(errorCode, errorMessage, userID, requestedClaims, profileName);
+            diagnosticLog.error(errorMessage);
             throw new UserStoreException(errorCode + " - " + errorMessage, errorCode);
         }
         // check for null claim list
@@ -11379,6 +11539,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 user = getUserFromID(userID, requestedClaims, userStore.getDomainName(), profileName);
             }
         } catch (UserStoreException ex) {
+            diagnosticLog.error("Error occurred while retrieving user with ID: " + userID + ". Error message: " +
+                    ex.getMessage());
             handleGetUserFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_CLAIM_VALUES.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_CLAIM_VALUES.getMessage(),
                             ex.getMessage()), userID, requestedClaims, profileName);
@@ -11400,6 +11562,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             }
         } catch (UserStoreException ex) {
+            diagnosticLog.error("Error occurred while retrieving user with ID: " + userID + ". Error message: " +
+                    ex.getMessage());
             handleGetUserFailureWithID(ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getMessage(),
                             ex.getMessage()), userID, requestedClaims, profileName);
@@ -11513,6 +11677,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public final List<User> getUserListOfRoleWithID(String roleName, String filter, int maxItemLimit)
             throws UserStoreException {
 
+        diagnosticLog.info("Fetching user list of role for the ID: " + roleName + " and filter: " + filter);
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[] { String.class, String.class, int.class };
             Object object = callSecure("getUserListOfRoleWithID", new Object[] { roleName, filter, maxItemLimit },
@@ -11524,6 +11689,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // If role does not exit, just return
         if (!isExistingRole(roleName)) {
+            diagnosticLog.info("Could not find a valid role with the identifier: " + roleName);
             handleDoPostGetUserListOfRoleWithID(roleName, users);
             return users;
         }
@@ -11728,6 +11894,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public final Map<String, String> getUserClaimValuesWithID(String userID, String[] claims, String profileName)
             throws UserStoreException {
 
+        diagnosticLog.info("Fetching user claims for the user ID: " + userID);
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[] { String.class, String[].class, String.class };
             Object object = callSecure("getUserClaimValuesWithID", new Object[] { userID, claims, profileName },
@@ -11753,6 +11920,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (!isUserExists) {
+            diagnosticLog.error("Could not find a valid user with user ID: " + userID);
             String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userID,
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
             String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
@@ -11775,6 +11943,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 finalValues = doGetUserClaimValuesWithID(userID, claims, userStore.getDomainName(), profileName);
             }
         } catch (UserStoreException ex) {
+            diagnosticLog.error("Error occurred while fetching user claims. Error message: " + ex.getMessage());
             handleGetUserClaimValuesFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_CLAIM_VALUES.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_CLAIM_VALUES.getMessage(),
                             ex.getMessage()), userID, claims, profileName);
@@ -12239,7 +12408,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     public User getUser(String userID, String userName) throws UserStoreException {
 
+        diagnosticLog.info("Retrieving user with ID: " + userID + " and username: " + userName);
         if (userID == null && userName == null) {
+            diagnosticLog.error("Both userID and UserName cannot be null.");
             throw new UserStoreException("Both userID and UserName cannot be null.");
         }
 
@@ -14120,6 +14291,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public final User addUserWithID(String userName, Object credential, String[] roleList, Map<String, String> claims,
             String profileName) throws UserStoreException {
 
+        diagnosticLog.info("Creating new user with ID: " + userName);
         // We have to make sure this call is going through the Java Security Manager.
         if (!isSecureCall.get()) {
             Class[] argTypes = new Class[] {
@@ -14132,6 +14304,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // If we don't have a username, we cannot proceed.
         if (StringUtils.isEmpty(userName)) {
+            diagnosticLog.error("User identifier is empty. Hence unable proceed with user creation.");
             String message = ErrorMessages.ERROR_CODE_USERNAME_CANNOT_BE_EMPTY.getMessage();
             String errorCode = ErrorMessages.ERROR_CODE_USERNAME_CANNOT_BE_EMPTY.getCode();
             handleAddUserFailureWithID(errorCode, message, null, credential, roleList, claims, profileName);
@@ -14143,6 +14316,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (claims != null && claims.containsKey(USERNAME_CLAIM_URI) &&
                 !claims.get(USERNAME_CLAIM_URI).equals(userNameWithoutDomain)) {
             // If not we cannot continue.
+            diagnosticLog.error("Username and the username claim value should be same.");
             throw new UserStoreException("Username and the username claim value should be same.");
         }
 
@@ -14157,6 +14331,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         try {
             credentialObj = Secret.getSecret(credential);
         } catch (UnsupportedSecretTypeException e) {
+            diagnosticLog.error("Error occurred while creating new user. Error message: " + e.getMessage());
             handleAddUserFailureWithID(ErrorMessages.ERROR_CODE_UNSUPPORTED_CREDENTIAL_TYPE.getCode(),
                     ErrorMessages.ERROR_CODE_UNSUPPORTED_CREDENTIAL_TYPE.getMessage(), userName, credential, roleList,
                     claims, profileName);
@@ -14173,6 +14348,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // #################### Domain Name Free Zone Starts Here ################################
 
             if (isReadOnly()) {
+                diagnosticLog.error("Unable to add new user. Userstore is read-only.");
                 handleAddUserFailureWithID(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
                         ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), userName, credential, roleList,
                         claims, profileName);
@@ -14181,6 +14357,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // Set skipPasswordPolicyValidation thread local if the user creation flow is ask password enabled.
             if (claims != null && claims.containsKey(UserCoreClaimConstants.ASK_PASSWORD_CLAIM_URI) &&
                     Boolean.parseBoolean(claims.get(UserCoreClaimConstants.ASK_PASSWORD_CLAIM_URI))) {
+                diagnosticLog.info("User creation flow is ask-password enabled. Hence skipping password policy" +
+                        " validation.");
                 UserCoreUtil.setSkipPasswordPatternValidationThreadLocal(true);
             }
 
@@ -14213,10 +14391,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                 String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_USER.getMessage(),
                                         UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), userName, credential,
                                 roleList, claims, profileName);
+                        diagnosticLog.info("'addUserWithID' event invocation failed in listener: " +
+                                listener.getClass().getName());
                         return null;
                     }
                 }
             } catch (UserStoreException ex) {
+                diagnosticLog.error("Error occured while adding new user. Error message: " + ex.getMessage());
                 handleAddUserFailureWithID(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_USER.getCode(),
                         String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_USER.getMessage(), ex.getMessage()),
                         userName, credential, roleList, claims, profileName);
@@ -14236,11 +14417,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                     String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_USER.getMessage(),
                                             UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), userName,
                                     credential, roleList, claims, profileName);
+                            diagnosticLog.info("'doPreAddUserWithID' event invocation failed in listener: " +
+                                    listener.getClass().getName());
                             return null;
                         }
                     } catch (UserStoreException ex) {
                         String message = String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_USER.getMessage(),
                                 ex.getMessage());
+                        diagnosticLog.error(message);
                         handleAddUserFailureWithID(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_USER.getCode(),
                                 message, userName, credential, roleList, claims, profileName);
                         throw ex;
@@ -14266,6 +14450,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                         String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_ADD_USER.getMessage(),
                                                 UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), userName,
                                         credential, roleList, claims, profileName);
+                                diagnosticLog.info("'doPreAddUserWithID' event invocation failed in listener: " +
+                                        listener.getClass().getName());
                                 return null;
                             }
                         } catch (UserStoreException e) {
@@ -14306,6 +14492,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                 regEx);
                 String errorCode = ErrorMessages.ERROR_CODE_INVALID_USER_NAME.getCode();
                 handleAddUserFailureWithID(errorCode, message, userName, credential, roleList, claims, profileName);
+                diagnosticLog.error(message);
                 throw new UserStoreException(errorCode + " - " + message);
             }
 
@@ -14315,6 +14502,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 String message = String.format(ErrorMessages.ERROR_CODE_INVALID_PASSWORD.getMessage(), regEx);
                 String errorCode = ErrorMessages.ERROR_CODE_INVALID_PASSWORD.getCode();
                 handleAddUserFailureWithID(errorCode, message, userName, credential, roleList, claims, profileName);
+                diagnosticLog.error(message);
                 throw new UserStoreException(errorCode + " - " + message);
             }
 
@@ -14329,6 +14517,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
             // Check if the user already exists in the user store.
             if (isExistingUser) {
+                diagnosticLog.error("A user with the given identifier: " + userName + " already exists in the system.");
                 String message = String.format(ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getMessage(), userName);
                 String errorCode = ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getCode();
                 handleAddUserFailureWithID(errorCode, message, userName, credential, roleList, claims, profileName);
@@ -14347,6 +14536,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             .format(ErrorMessages.ERROR_CODE_INTERNAL_ROLE_NOT_EXISTS.getMessage(), internalRole);
                     String errorCode = ErrorMessages.ERROR_CODE_INTERNAL_ROLE_NOT_EXISTS.getCode();
                     handleAddUserFailureWithID(errorCode, message, userName, credential, roleList, claims, profileName);
+                    diagnosticLog.error(message);
                     throw new UserStoreException(errorCode + " - " + message);
                 }
             }
@@ -14358,6 +14548,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             .format(ErrorMessages.ERROR_CODE_EXTERNAL_ROLE_NOT_EXISTS.getMessage(), externalRole);
                     String errorCode = ErrorMessages.ERROR_CODE_EXTERNAL_ROLE_NOT_EXISTS.getCode();
                     handleAddUserFailureWithID(errorCode, message, userName, credential, roleList, claims, profileName);
+                    diagnosticLog.error(message);
                     throw new UserStoreException(errorCode + " - " + message);
                 }
             }
@@ -14374,6 +14565,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     String errorCode = ErrorMessages.ERROR_CODE_UNABLE_TO_FETCH_CLAIM_MAPPING.getCode();
                     handleAddUserFailureWithID(errorCode, errorMessage, userName, credential, roleList, claims,
                             profileName);
+                    diagnosticLog.error(errorMessage);
                     throw new UserStoreException(errorCode + " - " + errorMessage, e);
                 }
                 if (claimMapping == null) {
@@ -14382,6 +14574,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     String errorCode = ErrorMessages.ERROR_CODE_INVALID_CLAIM_URI.getCode();
                     handleAddUserFailureWithID(errorCode, errorMessage, userName, credential, roleList, claims,
                             profileName);
+                    diagnosticLog.error(errorMessage);
                     throw new UserStoreException(errorCode + " - " + errorMessage);
                 }
             }
@@ -14403,6 +14596,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 handleAddUserFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_ADDING_USER.getCode(),
                         String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_ADDING_USER.getMessage(), ex.getMessage()),
                         userName, credential, roleList, claims, profileName);
+                diagnosticLog.error("Error occurred while adding user. Error message: " + ex.getMessage());
                 throw ex;
             }
 
@@ -14427,6 +14621,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                 String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_USER.getMessage(),
                                         UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userName,
                                 credential, roleList, claims, profileName);
+                        diagnosticLog.info("'doPostAddUserWithID' event invocation failed in listener: "
+                        + listener.getClass().getName());
                         return null;
                     }
                 }
@@ -14434,6 +14630,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 handleAddUserFailureWithID(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_USER.getCode(),
                         String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_ADD_USER.getMessage(),
                                 ex.getMessage()), userName, credential, roleList, claims, profileName);
+                diagnosticLog.error("Error occurred during post add user operation. Error message: " +
+                        ex.getMessage());
                 throw ex;
             }
             // #################### </Post-Listeners> #####################################################
@@ -15101,16 +15299,19 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public List<User> getUserListWithID(Condition condition, String domain, String profileName, int limit, int offset,
                                         String sortBy, String sortOrder) throws UserStoreException {
 
+        diagnosticLog.info("Fetching user list of userstore domain: " + domain);
         validateCondition(condition);
         if (StringUtils.isNotEmpty(sortBy) && StringUtils.isNotEmpty(sortOrder)) {
             throw new UserStoreException("Sorting is not supported.");
         }
 
         if (StringUtils.isEmpty(domain)) {
+            diagnosticLog.info("domain parameter is empty. Setting 'Primary' as the default domain.");
             domain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
         }
 
         if (StringUtils.isEmpty(profileName)) {
+            diagnosticLog.info("domain parameter is empty. Setting to 'default' profile.");
             profileName = UserCoreConstants.DEFAULT_PROFILE;
         }
 
@@ -15146,6 +15347,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         } else if (StringUtils.isNotEmpty(domain)) {
             String message = ErrorMessages.ERROR_CODE_INVALID_DOMAIN_NAME.getMessage();
             String errorCode = ErrorMessages.ERROR_CODE_INVALID_DOMAIN_NAME.getCode();
+            diagnosticLog.error(String.format(message, domain));
             throw new UserStoreClientException(errorCode + " - " + String.format(message, domain), errorCode);
         }
 
