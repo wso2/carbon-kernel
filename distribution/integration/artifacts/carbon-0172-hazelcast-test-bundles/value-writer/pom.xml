@@ -36,7 +36,7 @@
         <repository>
             <id>wso2.releases</id>
             <name>WSO2 Releases Repository</name>
-            <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
+            <url>https://maven.wso2.org/nexus/content/repositories/releases/</url>
             <releases>
                 <enabled>true</enabled>
                 <updatePolicy>daily</updatePolicy>
