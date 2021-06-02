@@ -31,6 +31,7 @@ import org.wso2.carbon.registry.core.jdbc.DatabaseConstants;
 import org.wso2.carbon.registry.core.jdbc.dataaccess.AbstractConnection;
 import org.wso2.carbon.registry.core.jdbc.dataaccess.ConnectionWrapper;
 import org.wso2.carbon.registry.core.jdbc.dataaccess.JDBCDataAccessManager;
+import org.wso2.carbon.registry.core.jdbc.dataaccess.JDBCDatabaseTransaction;
 import org.wso2.carbon.registry.core.session.CurrentSession;
 import org.wso2.carbon.registry.core.utils.RegistryUtils;
 import org.wso2.carbon.utils.DBUtils;
@@ -84,18 +85,9 @@ public class JDBCPathCache extends PathCache {
             log.error(msg);
             throw new RegistryException(msg);
         }
-        DataSource dataSource = ((JDBCDataAccessManager)dataAccessManager).getDataSource();
-        AbstractConnection conn = new ConnectionWrapper(dataSource.getConnection(),
-                RegistryUtils.getConnectionId(dataSource));
-        if (conn != null) {
-            if (conn.getTransactionIsolation() != Connection.TRANSACTION_READ_COMMITTED) {
-                conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-            }
-            conn.setAutoCommit(false);
-        } else {
-            log.error("Unable to acquire connection to database.");
-            return -1;
-        }
+        JDBCDatabaseTransaction.ManagedRegistryConnection conn =
+            JDBCDatabaseTransaction.getConnection();
+
         boolean success = false;
         int pathId = 0;
 
