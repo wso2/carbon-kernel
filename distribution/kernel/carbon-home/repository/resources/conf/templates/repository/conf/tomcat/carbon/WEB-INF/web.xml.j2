@@ -27,6 +27,11 @@
         <param-value>repository/conf/security/Owasp.CsrfGuard.Carbon.properties</param-value>
     </context-param>
 
+    <context-param>
+        <param-name>contextPath</param-name>
+        <param-value>{{server.proxy_context_path}}</param-value>
+    </context-param>
+
     <servlet id="bridge">
         <servlet-name>bridgeservlet</servlet-name>
         <display-name>Carbon Bridge Servlet</display-name>
