@@ -132,6 +132,15 @@ public class PrivilegedCarbonContext extends CarbonContext {
     }
 
     /**
+     * Method to set the user id on this CarbonContext instance.
+     *
+     * @param userId the user id.
+     */
+    public void setUserId(String userId) {
+        getCarbonContextDataHolder().setUserId(userId);
+    }
+
+    /**
      * Method to set the tenant domain on this CarbonContext instance. This method will not
      * automatically calculate the tenant id based on the tenant domain.
      *

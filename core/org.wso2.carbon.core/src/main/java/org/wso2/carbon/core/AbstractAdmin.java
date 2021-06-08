@@ -133,6 +133,10 @@ public abstract class AbstractAdmin {
     	return (String) CarbonContext.getThreadLocalCarbonContext().getUsername();
     }
 
+    protected String getUserId() {
+        return (String) CarbonContext.getThreadLocalCarbonContext().getUserId();
+    }
+
     protected Registry getLocalRepo() {
         return (Registry) PrivilegedCarbonContext.getThreadLocalCarbonContext().getRegistry(
                 RegistryType.LOCAL_REPOSITORY);
