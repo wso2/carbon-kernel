@@ -1610,7 +1610,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                             String groupDN = null;
                             if (groupResults.hasMore()) {
                                 resultedGroup = groupResults.next();
-                                groupDN = getGroupName(resultedGroup);
+                                groupDN = getGroupName(resultedGroup, searchBase);
                             }
                             if (resultedGroup != null) {
                                 this.modifyUserInRole(userNameDN, groupDN, DirContext.REMOVE_ATTRIBUTE, searchBase);
@@ -1659,9 +1659,13 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
                             NamingEnumeration<SearchResult> groupResults = searchInGroupBase(roleSearchFilter,
                                     returningAttributes, SearchControls.SUBTREE_SCOPE, mainDirContext, searchBase);
-                            // assume only one group with given group name
-                            String groupDN = "cn=" + newRole;
-                            if (!groupResults.hasMore()) {
+                            SearchResult resultedGroup = null;
+                            String groupDN = null;
+                            if (groupResults.hasMore()) {
+                                resultedGroup = groupResults.next();
+                                groupDN = getGroupName(resultedGroup, searchBase);
+                            }
+                            if (resultedGroup != null) {
                                 modifyUserInRole(userNameDN, groupDN, DirContext.ADD_ATTRIBUTE, searchBase);
                             } else {
                                 errorMessage = "User: " + userName + " already belongs to role: " + groupDN;
@@ -1731,15 +1735,18 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         }
     }
 
-    private String getGroupName(SearchResult resultedGroup) throws NamingException {
+    private String getGroupName(SearchResult resultedGroup, String searchBase) throws NamingException {
 
         Attribute attribute = resultedGroup.getAttributes()
                 .get(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE));
         if (attribute == null) {
             return resultedGroup.getName();
         } else {
-            String groupNameAttributeValue = (String) attribute.get();
-            return realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE) + "=" + groupNameAttributeValue;
+            String groupDN = StringUtils.replace(resultedGroup.getName(), searchBase, EMPTY_ATTRIBUTE_STRING);
+            if (StringUtils.isNotBlank(groupDN) && StringUtils.endsWith(groupDN, ",")) {
+                groupDN = StringUtils.substring(groupDN,0, -1);
+            }
+            return groupDN;
         }
     }
 
@@ -1784,7 +1791,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                 String groupName = null;
                 while (groupSearchResults.hasMoreElements()) {
                     resultedGroup = groupSearchResults.next();
-                    groupName = getGroupName(resultedGroup);
+                    groupName = getGroupName(resultedGroup, searchBase);
                 }
                 // check whether update operations are going to violate non
                 // empty role
