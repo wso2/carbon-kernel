@@ -1659,13 +1659,10 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
                             NamingEnumeration<SearchResult> groupResults = searchInGroupBase(roleSearchFilter,
                                     returningAttributes, SearchControls.SUBTREE_SCOPE, mainDirContext, searchBase);
-                            SearchResult resultedGroup = null;
-                            String groupDN = null;
-                            if (groupResults.hasMore()) {
-                                resultedGroup = groupResults.next();
-                                groupDN = getGroupName(resultedGroup, searchBase);
-                            }
-                            if (resultedGroup != null) {
+                            // assume only one group with given group name
+                            //TODO - https://github.com/wso2/product-is/issues/11925
+                            String groupDN = "cn=" + newRole;
+                            if (!groupResults.hasMore()) {
                                 modifyUserInRole(userNameDN, groupDN, DirContext.ADD_ATTRIBUTE, searchBase);
                             } else {
                                 errorMessage = "User: " + userName + " already belongs to role: " + groupDN;
