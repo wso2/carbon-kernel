@@ -1458,13 +1458,10 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                                             SearchControls.SUBTREE_SCOPE,
                                             mainDirContext,
                                             searchBase);
-                            SearchResult resultedGroup = null;
-                            String groupDN = null;
-                            if (groupResults.hasMore()) {
-                                resultedGroup = groupResults.next();
-                                groupDN = getGroupName(resultedGroup, searchBase);
-                            }
-                            if (resultedGroup != null) {
+                            // assume only one group with given group name
+                            //TODO - https://github.com/wso2/product-is/issues/11925
+                            String groupDN = "cn=" + newRole;
+                            if (!groupResults.hasMore()) {
                                 modifyUserInRole(userNameDN, groupDN, DirContext.ADD_ATTRIBUTE,
                                         searchBase);
                             } else {
