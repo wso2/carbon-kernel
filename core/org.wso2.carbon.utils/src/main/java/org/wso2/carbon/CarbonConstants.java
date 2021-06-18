@@ -32,6 +32,7 @@ public final class CarbonConstants {
 	}
 
     public static final Log AUDIT_LOG = LogFactory.getLog("AUDIT_LOG");
+    public static final String AUDIT_MESSAGE = "Initiator : %s | Action : %s | Target : %s | Data : { %s } | Result : %s ";
 
     /**
      * This is used to get root context within CarbonJNDIContext when we need to operate
