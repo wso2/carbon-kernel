@@ -143,6 +143,15 @@ public class CarbonContext {
     }
 
     /**
+     * Method to obtain the user id on this CarbonContext instance.
+     *
+     * @return the user id.
+     */
+    public String getUserId() {
+        return getCarbonContextDataHolder().getUserId();
+    }
+
+    /**
      * Method to obtain the tenant domain on this CarbonContext instance.
      *
      * @return the tenant domain.

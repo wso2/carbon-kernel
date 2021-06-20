@@ -142,6 +142,7 @@ public final class CarbonContextDataHolder {
     private static final String CARBON_AUTHENTICATION_HANDLER_CLASS = "org.wso2.carbon.server.admin.module.handler.AuthenticationHandler";
 
     private String username;
+    private String userId;
     private String tenantDomain;
     private String applicationName;
 
@@ -1363,6 +1364,25 @@ public final class CarbonContextDataHolder {
     public void setUsername(String username) {
         CarbonUtils.checkSecurity();
         this.username = username;
+    }
+
+    /**
+     * Method to obtain the user id on this CarbonContext instance.
+     *
+     * @return the user id.
+     */
+    public String getUserId() {
+        return userId;
+    }
+
+    /**
+     * Method to set the user id on this CarbonContext instance.
+     *
+     * @param userId the user id.
+     */
+    public void setUserId(String userId) {
+        CarbonUtils.checkSecurity();
+        this.userId = userId;
     }
 
     /**
