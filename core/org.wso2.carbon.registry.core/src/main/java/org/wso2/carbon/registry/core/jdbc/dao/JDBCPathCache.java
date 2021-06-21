@@ -31,6 +31,7 @@ import org.wso2.carbon.registry.core.jdbc.DatabaseConstants;
 import org.wso2.carbon.registry.core.jdbc.dataaccess.AbstractConnection;
 import org.wso2.carbon.registry.core.jdbc.dataaccess.ConnectionWrapper;
 import org.wso2.carbon.registry.core.jdbc.dataaccess.JDBCDataAccessManager;
+import org.wso2.carbon.registry.core.jdbc.dataaccess.JDBCDatabaseTransaction;
 import org.wso2.carbon.registry.core.session.CurrentSession;
 import org.wso2.carbon.registry.core.utils.RegistryUtils;
 import org.wso2.carbon.utils.DBUtils;
@@ -84,9 +85,8 @@ public class JDBCPathCache extends PathCache {
             log.error(msg);
             throw new RegistryException(msg);
         }
-        DataSource dataSource = ((JDBCDataAccessManager)dataAccessManager).getDataSource();
-        AbstractConnection conn = new ConnectionWrapper(dataSource.getConnection(),
-                RegistryUtils.getConnectionId(dataSource));
+
+        JDBCDatabaseTransaction.ManagedRegistryConnection conn = JDBCDatabaseTransaction.getConnection();
         if (conn != null) {
             if (conn.getTransactionIsolation() != Connection.TRANSACTION_READ_COMMITTED) {
                 conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
@@ -179,12 +179,8 @@ public class JDBCPathCache extends PathCache {
                                     ps1.close();
                                 }
                             } finally {
-                                try {
-                                    if (ps != null) {
-                                        ps.close();
-                                    }
-                                } finally {
-                                    conn.close();
+                                if (ps != null) {
+                                    ps.close();
                                 }
                             }
                         }
@@ -209,14 +205,8 @@ public class JDBCPathCache extends PathCache {
                                 results.close();
                             }
                         } finally {
-                            try {
-                                if (ps != null) {
-                                    ps.close();
-                                }
-                            } finally {
-                                if (conn != null) {
-                                    conn.close();
-                                }
+                            if (ps != null) {
+                                ps.close();
                             }
                         }
                     } catch (SQLException e) {
