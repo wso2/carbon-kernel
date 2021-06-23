@@ -95,6 +95,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     private static final String ORACLE = "oracle";
     private static final String MYSQL = "mysql";
     private static final String MARIADB = "mariadb";
+    private static final String POSTGRE_SQL = "postgresql";
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION =
             "This is the separator for multiple claim " + "values";
@@ -3443,6 +3444,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                                 + "FROM (SELECT  UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR"
                                 + ".UM_ROLE_ID INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID INNER JOIN "
                                 + "UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
+            } else if (POSTGRE_SQL.equals(dbType)) {
+                sqlStatement = new StringBuilder(
+                        "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN " +
+                                "UM_USER_ROLE UR ON R.UM_ID =  UR.UM_ROLE_ID INNER JOIN" +
+                                " UM_USER U ON UR.UM_USER_ID =U.UM_ID INNER JOIN " +
+                                "UM_USER_ATTRIBUTE UA ON  U.UM_ID = UA.UM_USER_ID");
             } else {
                 sqlStatement = new StringBuilder(
                         "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN "
@@ -3471,6 +3478,11 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                         "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT UM_USER_NAME, rownum AS rnum "
                                 + "FROM (SELECT  UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR"
                                 + ".UM_ROLE_ID INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID");
+            } else if (POSTGRE_SQL.equals(dbType)) {
+                sqlStatement = new StringBuilder(
+                        "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN " +
+                                "UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN " +
+                                "UM_USER U ON UR.UM_USER_ID=U.UM_ID");
             } else {
                 sqlStatement = new StringBuilder(
                         "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN "
