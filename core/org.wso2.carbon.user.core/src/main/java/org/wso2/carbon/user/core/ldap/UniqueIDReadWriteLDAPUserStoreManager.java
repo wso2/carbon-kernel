@@ -86,6 +86,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     protected static final String KRB5_PRINCIPAL_NAME_ATTRIBUTE = "krb5PrincipalName";
     protected static final String KRB5_KEY_VERSION_NUMBER_ATTRIBUTE = "krb5KeyVersionNumber";
     protected static final String EMPTY_ATTRIBUTE_STRING = "";
+    protected static final String EQUAL_SIGN = "=";
     private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION =
             "This is the separator for multiple claim " + "values";
 
@@ -1739,9 +1740,16 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         if (attribute == null) {
             return resultedGroup.getName();
         } else {
+            // Handling role in sub group directory.
             String groupDN = StringUtils.replace(resultedGroup.getName(), searchBase, EMPTY_ATTRIBUTE_STRING);
             if (StringUtils.isNotBlank(groupDN) && StringUtils.endsWith(groupDN, ",")) {
                 groupDN = StringUtils.substring(groupDN,0, -1);
+            }
+            // Handling role in main Group search base.
+            if (StringUtils.split(groupDN, EQUAL_SIGN).length == 2) {
+                String groupNameAttributeValue = (String) attribute.get();
+                return realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE)
+                        + EQUAL_SIGN + groupNameAttributeValue;
             }
             return groupDN;
         }
