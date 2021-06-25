@@ -217,7 +217,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     throw new UserStoreException(e.getCause().getCause().getMessage(),
                             ((UserStoreException) e.getCause().getCause()).getErrorCode(), e);
                 }
-                // Actual UserStoreException get wrapped with two exceptions
+                // Actual UserStoreException get wrapped with two exceptions.
                 throw new UserStoreException(e.getCause().getCause().getMessage(), e);
 
             } else {
