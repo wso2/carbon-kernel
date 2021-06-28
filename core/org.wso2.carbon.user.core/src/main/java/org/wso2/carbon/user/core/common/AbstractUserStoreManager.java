@@ -213,13 +213,20 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         } catch (PrivilegedActionException e) {
             if (e.getCause() != null && e.getCause().getCause() != null && e.getCause().getCause() instanceof
                     UserStoreException) {
-                if (((UserStoreException) e.getCause().getCause()).getErrorCode() != null) {
-                    throw new UserStoreException(e.getCause().getCause().getMessage(),
-                            ((UserStoreException) e.getCause().getCause()).getErrorCode(), e);
+                boolean isClientException = e.getCause().getCause() instanceof UserStoreClientException;
+                String errorCode = ((UserStoreException) e.getCause().getCause()).getErrorCode();
+                String errorMessage = e.getCause().getCause().getMessage();
+                if (isClientException) {
+                    if (StringUtils.isBlank(errorCode)) {
+                        throw new UserStoreClientException(errorCode, e);
+                    }
+                    throw new UserStoreClientException(errorMessage, errorCode, e);
+                } else {
+                    if (StringUtils.isBlank(errorCode)) {
+                        throw new UserStoreException(errorMessage, e);
+                    }
+                    throw new UserStoreException(errorMessage, errorCode, e);
                 }
-                // Actual UserStoreException get wrapped with two exceptions
-                throw new UserStoreException(e.getCause().getCause().getMessage(), e);
-
             } else {
                 String msg;
                 if (objects != null && argTypes != null) {
