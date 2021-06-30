@@ -64,6 +64,8 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
     private static final String DELETE_REQUEST_WITH_PAYLOAD = "DELETE_REQUEST_WITH_PAYLOAD";
     private static final String TRANSPORT_MAIL_FORMAT = "transport.mail.Format";
     private static final String DECODE_MULTIPART_DATA = "DECODE_MULTIPART_DATA";
+    private static final String CHARACTER_SET_ENCODING = "CHARACTER_SET_ENCODING";
+    private static final String WRITE_XML_DECLARATION = "WRITE_XML_DECLARATION";
 
     private MultitenantMsgContextDataHolder dataHolder = MultitenantMsgContextDataHolder.getInstance();
 
@@ -261,6 +263,16 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
         if (msgContext.getProperty(TRANSPORT_MAIL_FORMAT) != null) {
             superTenantOutMessageContext.setProperty(TRANSPORT_MAIL_FORMAT,
                     msgContext.getProperty(TRANSPORT_MAIL_FORMAT));
+        }
+
+        if (msgContext.getProperty(WRITE_XML_DECLARATION) != null) {
+            superTenantOutMessageContext.setProperty(WRITE_XML_DECLARATION,
+                    msgContext.getProperty(WRITE_XML_DECLARATION));
+        }
+
+        if (msgContext.getProperty(CHARACTER_SET_ENCODING) != null) {
+            superTenantOutMessageContext.setProperty(CHARACTER_SET_ENCODING,
+                    msgContext.getProperty(CHARACTER_SET_ENCODING));
         }
 
         if (msgContext.getProperty(DECODE_MULTIPART_DATA) != null) {
