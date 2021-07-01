@@ -902,15 +902,34 @@ public class JDBCTenantManager implements TenantManager {
         if (tenant != null) {
             clearTenantCaches(tenant);
             invalidateCacheManager(tenant.getDomain());
+        } else {
+            String msg = String.format("Tenant not found for tenant unique ID %s.", tenantUniqueID);
+            if (log.isDebugEnabled()) {
+                log.debug(msg);
+            }
+            throw new UserStoreException(msg);
         }
-        String sqlStmt = TenantConstants.DELETE_TENANT_BY_UUID_SQL;
-        try (Connection dbConnection = getDBConnection()) {
-            try (PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
-                prepStmt.setString(1, tenantUniqueID);
-                prepStmt.executeUpdate();
+        try (Connection dbConnection = getDBConnection();) {
+            int tenantId = tenant.getId();
+            String deleteUMTenantSqlStmt = TenantConstants.DELETE_TENANT_BY_UUID_SQL;
+            String deleteUMDomainSqlStmt = TenantConstants.DELETE_UM_DOMAIN_BY_TENANT_ID_SQL;
+            try (PreparedStatement deleteUMTenantPrepStmt = dbConnection.prepareStatement(deleteUMTenantSqlStmt);
+                 PreparedStatement deleteUMDomainPrepStmt = dbConnection.prepareStatement(deleteUMDomainSqlStmt)) {
+                // Delete UM_TENANT records for tenantUniqueID.
+                deleteUMTenantPrepStmt.setString(1, tenantUniqueID);
+                deleteUMTenantPrepStmt.executeUpdate();
+                // Delete UM_DOMAIN records for tenantId.
+                deleteUMDomainPrepStmt.setInt(1, tenantId);
+                deleteUMDomainPrepStmt.executeUpdate();
                 dbConnection.commit();
             } catch (SQLException e) {
                 DatabaseUtil.rollBack(dbConnection);
+                String msg = String.format(
+                        "Error in deleting the tenant with tenant unique ID: %s.", tenantUniqueID);
+                if (log.isDebugEnabled()) {
+                    log.debug(msg, e);
+                }
+                throw new UserStoreException(msg, e);
             }
         } catch (SQLException e) {
             String msg = "Error in deleting the tenant with tenant unique ID " + tenantUniqueID + ".";
@@ -935,26 +954,33 @@ public class JDBCTenantManager implements TenantManager {
         clearTenantCache(tenantId);
         invalidateCacheManager(domain);
         if (removeFromPersistentStorage) {
-            Connection dbConnection = null;
-            PreparedStatement prepStmt = null;
-            try {
-                dbConnection = getDBConnection();
-                String sqlStmt = TenantConstants.DELETE_TENANT_SQL;
-                prepStmt = dbConnection.prepareStatement(sqlStmt);
-                prepStmt.setInt(1, tenantId);
-
-                prepStmt.executeUpdate();
-                dbConnection.commit();
+            try (Connection dbConnection = getDBConnection()) {
+                String deleteUMTenantSqlStmt = TenantConstants.DELETE_TENANT_SQL;
+                String deleteUMDomainSqlStmt = TenantConstants.DELETE_UM_DOMAIN_BY_TENANT_ID_SQL;
+                try (PreparedStatement deleteUMTenantPrepStmt = dbConnection.prepareStatement(deleteUMTenantSqlStmt);
+                     PreparedStatement deleteUMDomainPrepStmt = dbConnection.prepareStatement(deleteUMDomainSqlStmt)) {
+                    // Delete UM_TENANT table records for tenantId.
+                    deleteUMTenantPrepStmt.setInt(1, tenantId);
+                    deleteUMTenantPrepStmt.executeUpdate();
+                    // Delete UM_DOMAIN table records for tenantId.
+                    deleteUMDomainPrepStmt.setInt(1, tenantId);
+                    deleteUMDomainPrepStmt.executeUpdate();
+                    dbConnection.commit();
+                } catch (SQLException e) {
+                    DatabaseUtil.rollBack(dbConnection);
+                    String msg = String.format("Error in deleting the tenant with tenant id: %s.", tenantId);
+                    if (log.isDebugEnabled()) {
+                        log.debug(msg, e);
+                    }
+                    throw new UserStoreException(msg, e);
+                }
             } catch (SQLException e) {
-                DatabaseUtil.rollBack(dbConnection);
                 String msg = "Error in deleting the tenant with "
                         + "tenant id: " + tenantId + ".";
                 if (log.isDebugEnabled()) {
                     log.debug(msg, e);
                 }
                 throw new UserStoreException(msg, e);
-            } finally {
-                DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
             }
         }
     }
