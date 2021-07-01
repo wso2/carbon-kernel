@@ -236,7 +236,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 } else {
                     msg = "Error occurred while accessing Java Security Manager Privilege Block";
                 }
-                log.error(msg);
+                log.error(msg, e);
                 throw new UserStoreException(msg, e);
             }
         } finally {
