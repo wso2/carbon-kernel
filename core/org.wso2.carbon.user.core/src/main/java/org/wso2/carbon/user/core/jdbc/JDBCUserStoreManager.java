@@ -17,6 +17,8 @@ z * Copyright 2005-2007 WSO2, Inc. (http://wso2.com)
 
 package org.wso2.carbon.user.core.jdbc;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.apache.axiom.om.util.Base64;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -38,7 +40,11 @@ import org.wso2.carbon.user.core.common.RoleBreakdown;
 import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
 import org.wso2.carbon.user.core.dto.RoleDTO;
+import org.wso2.carbon.user.core.exceptions.HashProviderException;
+import org.wso2.carbon.user.core.hash.HashProvider;
+import org.wso2.carbon.user.core.hash.HashProviderFactory;
 import org.wso2.carbon.user.core.hybrid.HybridJDBCConstants;
+import org.wso2.carbon.user.core.internal.UserStoreMgtDataHolder;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
 import org.wso2.carbon.user.core.model.Condition;
 import org.wso2.carbon.user.core.model.ExpressionAttribute;
@@ -133,6 +139,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 //			realmConfig.setAdminRoleName(UserCoreUtil.addInternalDomainName(adminRoleName));
 //		}
 
+        if (hashProvider == null) {
+            initializeHashProvider(realmConfig.getUserStoreProperties());
+        }
+
         // new properties after carbon core 4.0.7 release.
         if (realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED) != null) {
             readGroupsEnabled = Boolean.parseBoolean(realmConfig
@@ -206,6 +216,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         this(realmConfig, tenantId);
         if (log.isDebugEnabled()) {
             log.debug("Started " + System.currentTimeMillis());
+        }
+        if (hashProvider == null) {
+            initializeHashProvider(realmConfig.getUserStoreProperties());
         }
         realmConfig.setUserStoreProperties(JDBCRealmUtil.getSQL(realmConfig
                 .getUserStoreProperties()));
@@ -324,12 +337,70 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         }
 
         initUserRolesCache();
-
+        if (hashProvider == null) {
+            initializeHashProvider(realmConfig.getUserStoreProperties());
+        }
         if (log.isDebugEnabled()) {
             log.debug("Ended " + System.currentTimeMillis());
         }
         /* Initialize user roles cache as implemented in AbstractUserStoreManager */
 
+    }
+
+    /**
+     * Initialize the HashProvider according to the given user store properties.
+     *
+     * @param userStorePropertiesMap User store properties.
+     * @throws UserStoreException The exception thrown at initializing the hashProvider.
+     */
+    private void initializeHashProvider(Map<String, String> userStorePropertiesMap) throws UserStoreException {
+
+        String digestFunction = userStorePropertiesMap.get(JDBCRealmConstants.DIGEST_FUNCTION);
+        HashProviderFactory hashProviderFactory =
+                UserStoreMgtDataHolder.getInstance().getHashProviderFactory(digestFunction);
+        if (hashProviderFactory != null) {
+            Set<String> metaProperties = hashProviderFactory.getHashProviderConfigProperties();
+            if (metaProperties.isEmpty()) {
+                hashProvider = hashProviderFactory.getHashProvider();
+            } else {
+                Map<String, Object> hashProviderPropertiesMap =
+                        getHashProviderInitConfigs(userStorePropertiesMap);
+                if (hashProviderPropertiesMap.isEmpty()) {
+                    hashProvider = hashProviderFactory.getHashProvider();
+                } else {
+                    try {
+                        hashProvider = hashProviderFactory.getHashProvider(hashProviderPropertiesMap);
+                    } catch (HashProviderException e) {
+                        String msg = "Error occurred while initializing the hashProvider.";
+                        if (log.isDebugEnabled()) {
+                            log.debug(msg, e);
+                        }
+                        throw new UserStoreException(msg, e);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Get map of user store properties related to the HashProviderFactory.
+     *
+     * @param userStorePropertiesMap The map which contains the user store properties.
+     * @return The map of user store properties related to the HashProviderFactory.
+     */
+    private Map<String, Object> getHashProviderInitConfigs(Map<String, String> userStorePropertiesMap) {
+
+        String hashingAlgorithmProperties = userStorePropertiesMap.get(JDBCRealmConstants.HASHING_ALGORITHM_PROPERTIES);
+        Map<String, Object> hashProviderInitConfigsMap = new HashMap<>();
+        if (StringUtils.isNotBlank(hashingAlgorithmProperties)) {
+            Gson gson = new Gson();
+            JsonObject hashPropertyJSON = gson.fromJson(hashingAlgorithmProperties, JsonObject.class);
+            Set<String> hashPropertyJSONKey = hashPropertyJSON.keySet();
+            for (String hashProperty : hashPropertyJSONKey) {
+                hashProviderInitConfigsMap.put(hashProperty, hashPropertyJSON.get(hashProperty).getAsString());
+            }
+        }
+        return hashProviderInitConfigsMap;
     }
 
     // Loading JDBC data store on demand.
@@ -2805,52 +2876,59 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Prepare the password including the salt, and hashes if hash algorithm is provided
+     * Prepare the password including the salt, and hashes if hash algorithm is provided.
      *
-     * @param password original password value
-     * @param saltValue salt value
-     * @return  hashed password or plain text password as a String
-     * @throws UserStoreException
+     * @param password  Original password value which needs to be hashed.
+     * @param saltValue Salt value.
+     * @return Hashed password or plain text password as a String.
+     * @throws UserStoreException The exception thrown at hashing the passwords.
      */
     protected String preparePassword(Object password, String saltValue) throws UserStoreException {
 
         Secret credentialObj;
+        String passwordHash;
         try {
             credentialObj = Secret.getSecret(password);
         } catch (UnsupportedSecretTypeException e) {
             throw new UserStoreException("Unsupported credential type", e);
         }
-
-        try {
-            String passwordString;
-            if (saltValue != null) {
-                credentialObj.addChars(saltValue.toCharArray());
-            }
-
-            String digestFunction = realmConfig.getUserStoreProperties().get(JDBCRealmConstants.DIGEST_FUNCTION);
-            if (digestFunction != null) {
-                if (digestFunction.equals(UserCoreConstants.RealmConfig.PASSWORD_HASH_METHOD_PLAIN_TEXT)) {
-                    passwordString = new String(credentialObj.getChars());
-                    return passwordString;
+        String digestFunction = realmConfig.getUserStoreProperties().get(JDBCRealmConstants.DIGEST_FUNCTION);
+        if (digestFunction != null) {
+            if (hashProvider == null) {
+                try {
+                    if (digestFunction.equals(UserCoreConstants.RealmConfig.PASSWORD_HASH_METHOD_PLAIN_TEXT)) {
+                        passwordHash = new String(credentialObj.getChars());
+                    } else {
+                        if (saltValue != null) {
+                            credentialObj.addChars(saltValue.toCharArray());
+                        }
+                        MessageDigest digest = MessageDigest.getInstance(digestFunction);
+                        byte[] byteValue = digest.digest(credentialObj.getBytes());
+                        passwordHash = Base64.encode(byteValue);
+                    }
+                } catch (NoSuchAlgorithmException e) {
+                    String msg = "Error occurred while preparing password.";
+                    if (log.isDebugEnabled()) {
+                        log.debug(msg, e);
+                    }
+                    throw new UserStoreException(msg, e);
                 }
-
-                MessageDigest digest = MessageDigest.getInstance(digestFunction);
-                byte[] byteValue = digest.digest(credentialObj.getBytes());
-                passwordString = Base64.encode(byteValue);
             } else {
-                passwordString = new String(credentialObj.getChars());
+                try {
+                    byte[] hashByteArray = hashProvider.calculateHash(credentialObj.getChars(), saltValue);
+                    passwordHash = Base64.encode(hashByteArray);
+                } catch (HashProviderException e) {
+                    String msg = "Error occurred while preparing password";
+                    if (log.isDebugEnabled()) {
+                        log.debug(msg, e);
+                    }
+                    throw new UserStoreException(msg, e);
+                }
             }
-
-            return passwordString;
-        } catch (NoSuchAlgorithmException e) {
-            String msg = "Error occurred while preparing password.";
-            if (log.isDebugEnabled()) {
-                log.debug(msg, e);
-            }
-            throw new UserStoreException(msg, e);
-        } finally {
-            credentialObj.clear();
+        } else {
+            passwordHash = new String(credentialObj.getChars());
         }
+        return passwordHash;
     }
 
     /**

@@ -21,12 +21,17 @@ package org.wso2.carbon.user.core.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.crypto.api.CryptoService;
+import org.wso2.carbon.user.core.hash.HashProviderFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class UserStoreMgtDataHolder {
 
     private static UserStoreMgtDataHolder instance = new UserStoreMgtDataHolder();
     private static final Log log = LogFactory.getLog(UserStoreMgtDataHolder.class);
     private CryptoService cryptoService;
+    private Map<String, HashProviderFactory> hashProviderFactoryMap;
 
     public static UserStoreMgtDataHolder getInstance() {
 
@@ -47,4 +52,41 @@ public class UserStoreMgtDataHolder {
         return cryptoService;
     }
 
+    /**
+     * Set each HashProviderFactory to the HashProviderFactory collection.
+     *
+     * @param hashProviderFactory Instance of HashProviderFactory.
+     */
+    public void setHashProviderFactory(HashProviderFactory hashProviderFactory) {
+
+        if (hashProviderFactoryMap == null) {
+            hashProviderFactoryMap = new HashMap<>();
+        }
+        hashProviderFactoryMap.put(hashProviderFactory.getAlgorithm(), hashProviderFactory);
+    }
+
+    /**
+     * Get the HashProviderFactory from HashProviderFactory collection.
+     *
+     * @param algorithm Algorithm name for respective instance of HashProviderFactory.
+     * @return The HashProviderFactory instance which has the given algorithm as the type.
+     * The method will return NULL if there were no matching HashProviderFactory to the given algorithm.
+     */
+    public HashProviderFactory getHashProviderFactory(String algorithm) {
+
+        if (hashProviderFactoryMap == null) {
+            return null;
+        }
+        return hashProviderFactoryMap.get(algorithm);
+    }
+
+    /**
+     * Remove HashProviderFactory from HashProviderFactory collection.
+     *
+     * @param hashProviderFactory Instance of HashProviderFactory.
+     */
+    public void unbindHashProviderFactory(HashProviderFactory hashProviderFactory) {
+
+        hashProviderFactoryMap.remove(hashProviderFactory.getAlgorithm());
+    }
 }
