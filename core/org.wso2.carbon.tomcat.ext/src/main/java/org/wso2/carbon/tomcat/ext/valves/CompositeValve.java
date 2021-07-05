@@ -41,7 +41,12 @@ public class CompositeValve extends ValveBase {
     @Override
     public void invoke(Request request, Response response) throws IOException, ServletException {
         try {
-
+            
+            if (request.getContext() == null) {
+                log.error("Could not handle the request, could be due to the maxHttpHeaderSize limitation.");
+                return;
+            }
+            
             String enableSaaSParam =
                     request.getContext().findParameter(ENABLE_SAAS);
             Realm realm = request.getContext().getRealm();
