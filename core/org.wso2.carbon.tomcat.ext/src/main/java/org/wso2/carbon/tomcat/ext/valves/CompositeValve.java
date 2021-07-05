@@ -64,9 +64,9 @@ public class CompositeValve extends ValveBase {
             // --------- Valve chaining happens from here onwards --------------------
 
         } catch (NullPointerException e) {
-            String msg = "Could not handle the request, could be due to the maxHttpHeaderSize limitation. ";
+            String msg = "Error could not handle the request, could be due to the maxHttpHeaderSize limitation. ";
             if (log.isDebugEnabled()) {
-                log.error(msg, e);
+                log.debug(msg, e);
             } else {
                 log.error(msg);
             }
