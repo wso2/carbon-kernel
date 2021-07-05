@@ -41,7 +41,12 @@ public class CompositeValve extends ValveBase {
     @Override
     public void invoke(Request request, Response response) throws IOException, ServletException {
         try {
-
+            
+            if (request.getContext() == null) {
+                log.error("Could not handle the request, could be due to the maxHttpHeaderSize limitation.");
+                return;
+            }
+            
             String enableSaaSParam =
                     request.getContext().findParameter(ENABLE_SAAS);
             Realm realm = request.getContext().getRealm();
@@ -64,7 +69,7 @@ public class CompositeValve extends ValveBase {
             // --------- Valve chaining happens from here onwards --------------------
 
         } catch (NullPointerException e) {
-            String msg = "Error could not handle the request, could be due to the maxHttpHeaderSize limitation. ";
+            String msg = "Could not handle the request, could be due to the maxHttpHeaderSize limitation. ";
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
             } else {
