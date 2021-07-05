@@ -463,6 +463,9 @@
     {% if password_trim.enable is defined %}
       <EnablePasswordTrim>{{password_trim.enable}}</EnablePasswordTrim>
     {% endif %}
+    {% if tenant_mgt.disable_email_domain_validation is defined %}
+      <DisableEmailUserNameValidation>{{tenant_mgt.disable_email_domain_validation}}</DisableEmailUserNameValidation>
+    {% endif %}
 
     <!--
       Security configurations
