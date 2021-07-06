@@ -20,14 +20,14 @@
     <groupId>org.wso2.carbon.identity.framework</groupId>
     <artifactId>identity-framework</artifactId>
     <packaging>pom</packaging>
-    <version>5.20.6-SNAPSHOT</version>
+    <version>5.20.104-SNAPSHOT</version>
     <name>WSO2 Carbon - Platform Aggregator Pom</name>
     <url>http://wso2.org</url>
 
     <parent>
         <groupId>org.wso2</groupId>
         <artifactId>wso2</artifactId>
-        <version>1.2</version>
+        <version>1.4</version>
     </parent>
 
     <scm>
@@ -92,44 +92,6 @@
         <module>features/multi-attribute-login</module>
     </modules>
 
-    <repositories>
-
-        <repository>
-            <id>wso2-nexus</id>
-            <name>WSO2 internal Repository</name>
-            <url>https://maven.wso2.org/nexus/content/groups/wso2-public/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </releases>
-        </repository>
-
-        <repository>
-            <id>wso2.releases</id>
-            <name>WSO2 internal Repository</name>
-            <url>https://maven.wso2.org/nexus/content/repositories/releases/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </releases>
-        </repository>
-
-        <repository>
-            <id>wso2.snapshots</id>
-            <name>Apache Snapshot Repository</name>
-            <url>https://maven.wso2.org/nexus/content/repositories/snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-
-    </repositories>
 
     <distributionManagement>
         <repository>
@@ -144,41 +106,6 @@
         </snapshotRepository>
     </distributionManagement>
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>wso2.releases</id>
-            <name>WSO2 internal Repository</name>
-            <url>https://maven.wso2.org/nexus/content/repositories/releases/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </releases>
-        </pluginRepository>
-
-        <pluginRepository>
-            <id>wso2.snapshots</id>
-            <name>WSO2 Snapshot Repository</name>
-            <url>https://maven.wso2.org/nexus/content/repositories/snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </pluginRepository>
-        <pluginRepository>
-            <id>wso2-nexus</id>
-            <name>WSO2 internal Repository</name>
-            <url>https://maven.wso2.org/nexus/content/groups/wso2-public/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </releases>
-        </pluginRepository>
-    </pluginRepositories>
 
     <dependencyManagement>
         <dependencies>
@@ -706,7 +633,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${com.fasterxml.jackson.annotation.version}</version>
+                <version>${com.fasterxml.jackson.databind.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.code.findbugs</groupId>
@@ -823,6 +750,7 @@
                 <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.identity.entitlement.endpoint</artifactId>
                 <version>${project.version}</version>
+                <type>war</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
@@ -850,11 +778,6 @@
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
                 <version>${com.google.code.gson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${com.google.guava.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
@@ -1203,6 +1126,11 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.api.server.entitlement</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.identity.entitlement.ui</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -1348,8 +1276,14 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.api.server.configuration.mgt</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.identity.configuration.mgt.endpoint</artifactId>
                 <version>${project.version}</version>
+                <type>war</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
@@ -1715,6 +1649,11 @@
             </dependency>
 
             <dependency>
+                <groupId>xml-apis</groupId>
+                <artifactId>xml-apis</artifactId>
+                <version>${xml.apis.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.tomcat</groupId>
                 <artifactId>tomcat-catalina</artifactId>
                 <version>${apache.tomcat-catalina.version}</version>
@@ -1757,7 +1696,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon kernel version -->
-        <carbon.kernel.version>4.6.2-SNAPSHOT</carbon.kernel.version>
+        <carbon.kernel.version>4.6.3-m4</carbon.kernel.version>
         <carbon.kernel.feature.version>4.6.0</carbon.kernel.feature.version>
         <carbon.kernel.package.import.version.range>[4.5.0, 5.0.0)</carbon.kernel.package.import.version.range>
         <carbon.kernel.registry.imp.pkg.version>[1.0.1, 2.0.0)</carbon.kernel.registry.imp.pkg.version>
@@ -1771,7 +1710,7 @@
         <apache.felix.scr.ds.annotations.version>1.2.8</apache.felix.scr.ds.annotations.version>
 
         <!--Carbon commons version-->
-        <carbon.commons.version>4.7.18</carbon.commons.version>
+        <carbon.commons.version>4.7.37</carbon.commons.version>
         <carbon.commons.imp.pkg.version>[4.7.2, 5.0.0)</carbon.commons.imp.pkg.version>
 
         <org.wso2.carbon.database.utils.version>2.0.13</org.wso2.carbon.database.utils.version>
@@ -1831,7 +1770,7 @@
         <xmlsec.version.imp.pkg.version.range>[1.4.4,2.0.0)</xmlsec.version.imp.pkg.version.range>
         <wsdl4j.wso2.version>1.6.2.wso2v4</wsdl4j.wso2.version>
         <jetty.version>6.1.5</jetty.version>
-        <xml-apis.version>1.3.04</xml-apis.version>
+        <xml.apis.version>1.4.01</xml.apis.version>
         <jaxen.version>1.1.1</jaxen.version>
         <woodstox.version>3.2.9</woodstox.version>
         <geronimo-stax-api.wso2.version>1.0.1.wso2v1</geronimo-stax-api.wso2.version>
@@ -1840,7 +1779,7 @@
         <uddi4j.version>1.0.1</uddi4j.version>
         <xercesImpl.version>2.12.0.wso2v1</xercesImpl.version>
         <juddi.wso2.version>3.0.3.wso2v2</juddi.wso2.version>
-        <junit.version>4.11</junit.version>
+        <junit.version>4.13.1</junit.version>
         <version.javax.servlet>3.0.0.v201112011016</version.javax.servlet>
         <oltu.version>1.0.0.wso2v3</oltu.version>
         <!--<org.apache.oltu.oauth2.client.version>1.0.0</org.apache.oltu.oauth2.client.version>-->
@@ -1928,7 +1867,6 @@
         <httpcore.version.osgi.import.range>[4.3.0, 5.0.0)</httpcore.version.osgi.import.range>
         <com.google.code.gson.version>2.8.5</com.google.code.gson.version>
         <com.google.code.gson.osgi.version.range>[2.3.1,3.0.0)</com.google.code.gson.osgi.version.range>
-        <com.google.guava.version>27.0-jre</com.google.guava.version>
         <com.google.code.findbugs.version>1.3.9</com.google.code.findbugs.version>
         <com.google.client.version>1.17.0-rc</com.google.client.version>
         <com.google.service.api.version>directory_v1-rev28-1.17.0-rc</com.google.service.api.version>
@@ -1966,6 +1904,7 @@
         <json.wso2.version.range>[3.0.0.wso2v1, 4.0.0)</json.wso2.version.range>
         <com.fasterxml.jackson.version>2.10.5</com.fasterxml.jackson.version>
         <com.fasterxml.jackson.annotation.version>2.10.5</com.fasterxml.jackson.annotation.version>
+        <com.fasterxml.jackson.databind.version>2.10.5.1</com.fasterxml.jackson.databind.version>
         <com.fasterxml.jackson.jaxrs-json-provider-version>2.10.5</com.fasterxml.jackson.jaxrs-json-provider-version>
 
         <apache.wink.version>1.1.3-incubating</apache.wink.version>
