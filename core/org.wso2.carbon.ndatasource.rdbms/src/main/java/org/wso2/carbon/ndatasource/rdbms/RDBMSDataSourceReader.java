@@ -59,16 +59,28 @@ public class RDBMSDataSourceReader implements DataSourceReader {
 	@Override
 	public Object createDataSource(String xmlConfiguration, boolean isDataSourceFactoryReference)
 			throws DataSourceException {
+
+        RDBMSConfiguration rdbmsConfiguration = loadConfig(xmlConfiguration);
+        if (rdbmsConfiguration != null && rdbmsConfiguration.getUrl() != null &&
+                (rdbmsConfiguration.getUrl().toLowerCase().contains(";init="))) {
+            throw new DataSourceException(
+                    "INIT expressions are not allowed in the connection URL due to security reasons.");
+        }
 		if (isDataSourceFactoryReference) {
-			return (new RDBMSDataSource(loadConfig(xmlConfiguration)).getDataSourceFactoryReference());
+			return (new RDBMSDataSource(rdbmsConfiguration).getDataSourceFactoryReference());
 		} else {
-			return (new RDBMSDataSource(loadConfig(xmlConfiguration)).getDataSource());
+			return (new RDBMSDataSource(rdbmsConfiguration).getDataSource());
 		}
 	}
 
 	@Override
 	public boolean testDataSourceConnection(String xmlConfiguration) throws DataSourceException {
 		RDBMSConfiguration rdbmsConfiguration = loadConfig(xmlConfiguration);
+        if (rdbmsConfiguration != null && rdbmsConfiguration.getUrl() != null &&
+                (rdbmsConfiguration.getUrl().toLowerCase().contains(";init="))) {
+            throw new DataSourceException(
+                    "INIT expressions are not allowed in the connection URL due to security reasons.");
+        }
 		DataSource dataSource = new RDBMSDataSource(rdbmsConfiguration).getDataSource();
 
 		Connection connection = null;
