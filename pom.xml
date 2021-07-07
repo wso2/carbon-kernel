@@ -1449,7 +1449,11 @@
                 <artifactId>org.wso2.carbon.user.mgt.workflow.stub</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.wso2.carbon.identity.event.handler.accountlock</groupId>
+                <artifactId>org.wso2.carbon.identity.handler.event.account.lock</artifactId>
+                <version>${account.lock.service.version}</version>
+            </dependency>
 
             <!--Feature Dependencies Ends-->
 
@@ -1974,6 +1978,9 @@
 
         <maven.checkstyleplugin.version>3.1.0</maven.checkstyleplugin.version>
         <maven.findbugsplugin.version>3.0.5</maven.findbugsplugin.version>
+
+        <account.lock.service.version>1.4.23</account.lock.service.version>
+        <account.lock.service.imp.pkg.version.range>[1.4.23, 2.0.0)</account.lock.service.imp.pkg.version.range>
     </properties>
 
     <build>
