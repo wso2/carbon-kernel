@@ -677,8 +677,8 @@
         <org.eclipse.equinox.p2.metadata.version>2.2.0.v20131211-1531</org.eclipse.equinox.p2.metadata.version>
 
         <!--PAX Logging related dependency versions-->
-        <pax.logging.api.version>1.10.0</pax.logging.api.version>
-        <pax.logging.log4j2.version>1.10.0</pax.logging.log4j2.version>
+        <pax.logging.api.version>1.10.1</pax.logging.api.version>
+        <pax.logging.log4j2.version>1.10.1</pax.logging.log4j2.version>
 
         <!--Maven Plugins -->
         <maven.wagon.ssh.version>2.1</maven.wagon.ssh.version>
