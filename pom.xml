@@ -1710,7 +1710,7 @@
         <apache.felix.scr.ds.annotations.version>1.2.8</apache.felix.scr.ds.annotations.version>
 
         <!--Carbon commons version-->
-        <carbon.commons.version>4.7.37</carbon.commons.version>
+        <carbon.commons.version>4.7.39</carbon.commons.version>
         <carbon.commons.imp.pkg.version>[4.7.2, 5.0.0)</carbon.commons.imp.pkg.version>
 
         <org.wso2.carbon.database.utils.version>2.0.13</org.wso2.carbon.database.utils.version>
