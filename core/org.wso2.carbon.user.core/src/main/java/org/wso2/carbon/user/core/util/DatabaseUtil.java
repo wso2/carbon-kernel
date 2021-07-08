@@ -21,6 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
+import org.wso2.carbon.base.CarbonBaseUtils;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
@@ -95,6 +96,7 @@ public class DatabaseUtil {
 
         String dataSourceName = realmConfig.getUserStoreProperty(JDBCRealmConstants.DATASOURCE);
         if (dataSourceName != null) {
+            dataSourceName = CarbonBaseUtils.replaceSystemProperty(dataSourceName);
             return lookupDataSource(dataSourceName);
         }
 
@@ -330,6 +332,7 @@ public class DatabaseUtil {
 
         String dataSourceName = realmConfig.getRealmProperty(JDBCRealmConstants.DATASOURCE);
         if (dataSourceName != null) {
+            dataSourceName = CarbonBaseUtils.replaceSystemProperty(dataSourceName);
             return lookupDataSource(dataSourceName);
         }
 

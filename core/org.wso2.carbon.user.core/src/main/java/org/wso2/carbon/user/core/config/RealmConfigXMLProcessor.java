@@ -27,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.CarbonException;
+import org.wso2.carbon.base.CarbonBaseUtils;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -181,6 +182,9 @@ public class RealmConfigXMLProcessor {
             Map.Entry<String, String> entry = ite.next();
             String name = entry.getKey();
             String value = entry.getValue();
+            if (value != null) {
+                value = CarbonBaseUtils.replaceSystemProperty(value);
+            }
             OMElement propElem = factory.createOMElement(new QName(
                     UserCoreConstants.RealmConfig.LOCAL_NAME_PROPERTY));
             OMAttribute propAttr = factory.createOMAttribute(
