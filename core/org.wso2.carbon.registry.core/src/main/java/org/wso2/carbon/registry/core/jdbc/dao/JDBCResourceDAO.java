@@ -493,6 +493,12 @@ public class JDBCResourceDAO implements ResourceDAO {
                 JDBCPathCache pathCache = JDBCPathCache.getPathCache();
                 int pathID = pathCache.getPathID(conn, path);
                 if (pathID == -1) {
+
+                    /*
+                    Following code seperates repeatable read process with disabled process.
+                    If disabled - we use exiting JDBCDatabaseTransaction.ManagedRegistryConnection.
+                    If enabled - we use new connection (default approach).
+                     */
                     if (isNotRepeatReadableExplicitSet(conn)) {
                         pathID = pathCache.addEntry(conn, path, parentPathID);
                     } else {
@@ -522,11 +528,11 @@ public class JDBCResourceDAO implements ResourceDAO {
             if (StringUtils.containsIgnoreCase(connectionUrl, ENABLE_REPEATABLE_READ)) {
 
                 String value = StringUtils.splitByWholeSeparator(connectionUrl, ENABLE_REPEATABLE_READ)[1];
-                if (StringUtils.containsIgnoreCase(value,AND)) {
+                if (StringUtils.containsIgnoreCase(value, AND)) {
                     value = StringUtils.split(value, AND)[0];
                 }
                 // Remove "=" sign.
-                value = StringUtils.substring(value,1);
+                value = StringUtils.substring(value, 1);
                 return StringUtils.equalsIgnoreCase(value, FALSE);
             } else {
                 return false;
