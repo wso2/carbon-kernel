@@ -18,6 +18,7 @@
  */
 package org.wso2.carbon.registry.core.jdbc.dao;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.registry.core.*;
@@ -58,6 +59,9 @@ public class JDBCResourceDAO implements ResourceDAO {
     private static final Object ADD_RESOURCE_LOCK = new Object();
     private static final Object ADD_CONTENT_LOCK = new Object();
     private static final Object ADD_PROPERTY_LOCK = new Object();
+    private static final String AND = "&";
+    private static final String FALSE = "false";
+    private static final String ENABLE_REPEATABLE_READ = "enableRepeatableRead";
 
     private static final String SELECT_NAME_VALUE_PROP_P = "SELECT REG_NAME, REG_VALUE FROM REG_PROPERTY P, ";
 
@@ -489,8 +493,17 @@ public class JDBCResourceDAO implements ResourceDAO {
                 JDBCPathCache pathCache = JDBCPathCache.getPathCache();
                 int pathID = pathCache.getPathID(conn, path);
                 if (pathID == -1) {
-                    pathID = pathCache.addEntry(path, parentPathID);
-                }
+
+                    /*
+                    Following code seperates repeatable read process with disabled process.
+                    If disabled - we use exiting JDBCDatabaseTransaction.ManagedRegistryConnection.
+                    If enabled - we use new connection (default approach).
+                     */
+                    if (isNotRepeatReadableExplicitSet(conn)) {
+                        pathID = pathCache.addEntry(conn, path, parentPathID);
+                    } else {
+                        pathID = pathCache.addEntry(path, parentPathID);
+                    }                }
                 resourceID.setPathID(pathID);
             } else {
                 String resourceName = RegistryUtils.getResourceName(path);
@@ -505,6 +518,28 @@ public class JDBCResourceDAO implements ResourceDAO {
             throw new RegistryException(msg, e);
         }
         return resourceID;
+    }
+
+    private boolean isNotRepeatReadableExplicitSet(JDBCDatabaseTransaction.ManagedRegistryConnection conn)
+            throws SQLException {
+
+        if (conn != null && conn.getMetaData() != null) {
+            String connectionUrl = conn.getMetaData().getURL();
+            if (StringUtils.containsIgnoreCase(connectionUrl, ENABLE_REPEATABLE_READ)) {
+
+                String value = StringUtils.splitByWholeSeparator(connectionUrl, ENABLE_REPEATABLE_READ)[1];
+                if (StringUtils.containsIgnoreCase(value, AND)) {
+                    value = StringUtils.split(value, AND)[0];
+                }
+                // Remove "=" sign.
+                value = StringUtils.substring(value, 1);
+                return StringUtils.equalsIgnoreCase(value, FALSE);
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     public void deleteContentStream(int contentID) throws RegistryException {
