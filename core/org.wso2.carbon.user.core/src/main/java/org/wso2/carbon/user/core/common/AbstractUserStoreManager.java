@@ -5513,18 +5513,20 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         boolean isPreUpdateInternalRoleListOfUserSuccess = true;
         boolean isPreUpdateRoleListOfUserSuccess = true;
         String[] deletedInternalRolesArray = new String[0];
+        String[] deletedInternalRolesArrayWithDomain = new String[0];
         String[] addInternalRolesArray = new String[0];
+        String[] newInternalRolesArrayWithDomain = new String[0];
 
         if (CollectionUtils.isNotEmpty(internalRoleDel) || CollectionUtils.isNotEmpty(internalRoleNew)) {
             deletedInternalRolesArray = internalRoleDel.toArray(new String[internalRoleDel.size()]);
-            String[] deletedRolesArrayWithDomain = internalRoleDelWithDomain.toArray(new
+            deletedInternalRolesArrayWithDomain = internalRoleDelWithDomain.toArray(new
                     String[internalRoleDelWithDomain.size()]);
             addInternalRolesArray = internalRoleNew.toArray(new String[internalRoleNew.size()]);
-            String[] addRolesArrayWithDomain =
+            newInternalRolesArrayWithDomain =
                     internalRoleNewWithDomain.toArray(new String[internalRoleNewWithDomain.size()]);
             isPreUpdateInternalRoleListOfUserSuccess =
-                    handlePreUpdateRoleListOfUser(userName, deletedRolesArrayWithDomain,
-                            addRolesArrayWithDomain, false, true);
+                    handlePreUpdateRoleListOfUser(userName, deletedInternalRolesArrayWithDomain,
+                                                  newInternalRolesArrayWithDomain, false, true);
         }
 
         if (ArrayUtils.isNotEmpty(deletedRoles) || ArrayUtils.isNotEmpty(newRoles)) {
@@ -5588,6 +5590,27 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             handleUpdateRoleListOfUserFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_ROLE_OF_USER.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_ROLE_OF_USER.getMessage(),
                             ex.getMessage()), userName, deletedRoles, newRoles);
+            throw ex;
+        }
+
+        try {
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (!listener.doPostUpdateInternalRoleListOfUser(userName, deletedInternalRolesArrayWithDomain,
+                                                                 newInternalRolesArrayWithDomain, this)) {
+                    handleUpdateRoleListOfUserFailure(
+                            ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_ROLE_OF_USER.getCode(),
+                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_ROLE_OF_USER.getMessage(),
+                                          UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE),
+                            userName, deletedRoles, newRoles);
+                    return;
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleUpdateRoleListOfUserFailure(
+                    ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_ROLE_OF_USER.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_ROLE_OF_USER.getMessage(),
+                                                            ex.getMessage()),
+                    userName, deletedRoles, newRoles);
             throw ex;
         }
     }
