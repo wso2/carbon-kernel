@@ -239,7 +239,7 @@ public class AuthenticationAdmin implements CarbonServerAuthenticator {
             if (delegatedBy == null && loggedInUser != null) {
                 String logMsg = "'" + loggedInUser + "@" + tenantDomain + " [" + tenantId + "]' logged out at " + date.format(currentTime);
                 log.info(logMsg);
-		if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
                     audit.info(logMsg);
                 }
             } else if (loggedInUser != null) {
