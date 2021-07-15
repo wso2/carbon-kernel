@@ -212,8 +212,8 @@ public class CarbonAuthenticationUtil {
             } else {
                 if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
                     audit.info("User with null domain tried to login.");
-                }
-            	return;
+		}
+		return;
             }
             thriftSession.setAttribute(RegistryConstants.ROOT_REGISTRY_INSTANCE, registryService
                     .getRegistry(username, tenantId));
