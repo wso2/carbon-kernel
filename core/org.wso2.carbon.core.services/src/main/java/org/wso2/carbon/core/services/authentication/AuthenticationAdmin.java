@@ -56,6 +56,7 @@ public class AuthenticationAdmin implements CarbonServerAuthenticator {
 
     private static final Log log = LogFactory.getLog(AuthenticationAdmin.class);
     private static Log audit = CarbonConstants.AUDIT_LOG;
+    private static final String DISABLE_LEGACY_LOGS = "disableLegacyLogs";
     protected static final String AUTHENTICATION_ADMIN_SERVICE = "AuthenticationAdminService";
     private static final int DEFAULT_PRIORITY_LEVEL = 5;
     private static final String AUTHENTICATOR_NAME = "DefaultCarbonAuthenticator";
@@ -238,12 +239,16 @@ public class AuthenticationAdmin implements CarbonServerAuthenticator {
             if (delegatedBy == null && loggedInUser != null) {
                 String logMsg = "'" + loggedInUser + "@" + tenantDomain + " [" + tenantId + "]' logged out at " + date.format(currentTime);
                 log.info(logMsg);
-                audit.info(logMsg);
+		if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                    audit.info(logMsg);
+                }
             } else if (loggedInUser != null) {
                 String logMsg = "'" + loggedInUser + "@" + tenantDomain + " [" + tenantId + "]' logged out at " + date.format(currentTime)
                         + " delegated by " + delegatedBy;
                 log.info(logMsg);
-                audit.info(logMsg);
+                if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                    audit.info(logMsg);
+                }
             }
             //We should not invalidate the session if the system is running on local transport
             if (!isRequestedFromLocalTransport()) {
