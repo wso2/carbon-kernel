@@ -45,6 +45,7 @@ public class CarbonAuthenticationUtil {
 
     private static final Log log = LogFactory.getLog(CarbonAuthenticationUtil.class);
     private static Log audit = CarbonConstants.AUDIT_LOG;
+    private static final String DISABLE_LEGACY_LOGS = "disableLegacyLogs";
     public static String LOGGED_IN_DOMAIN = "logged_in_domain";
 
     public static void onFailedAdminLogin(HttpSession httpSess, String username, int tenantId,
@@ -75,8 +76,9 @@ public class CarbonAuthenticationUtil {
            msg +=  " from IP address " + remoteAddress;
         }
         log.warn(msg);
-        audit.warn(msg);
-
+        if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+            audit.warn(msg);
+        }
         if (httpSess != null) {
             httpSess.invalidate();
         }
@@ -100,8 +102,9 @@ public class CarbonAuthenticationUtil {
             msg +=  " from IP address " + remoteAddress;
         }
         log.info(msg);
-        audit.info(msg);
-
+        if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+            audit.info(msg);
+        }
         // trigger the callbacks subscribe to the login event
         LoginSubscriptionManagerServiceImpl loginSubscriptionManagerServiceImpl = CarbonServicesServiceComponent
                 .getLoginSubscriptionManagerServiceImpl();
@@ -159,7 +162,9 @@ public class CarbonAuthenticationUtil {
                     httpSession.setAttribute(MultitenantConstants.IS_SUPER_TENANT, "true");
                 }
             } else {
-                audit.info("User with null domain tried to login.");
+                if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                    audit.info("User with null domain tried to login.");
+                }
                 return;
             }
 
@@ -205,7 +210,9 @@ public class CarbonAuthenticationUtil {
             if (tenantDomain != null) {
                 thriftSession.setAttribute(MultitenantConstants.TENANT_DOMAIN, tenantDomain);
             } else {
-            	audit.info("User with null domain tried to login.");
+                if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                    audit.info("User with null domain tried to login.");
+                }
             	return;
             }
             thriftSession.setAttribute(RegistryConstants.ROOT_REGISTRY_INSTANCE, registryService
@@ -232,8 +239,9 @@ public class CarbonAuthenticationUtil {
         String msg = "\'" + username + "@" + tenantDomain + " [" + tenantId + "]\' logged in at " +
                    date.format(currentTime) + " from IP address " + remoteAddress;
         log.info(msg);
-        audit.info(msg);
-       
+        if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+            audit.info(msg);
+        }
 
         // trigger the callbacks subscribe to the login event
         LoginSubscriptionManagerServiceImpl loginSubscriptionManagerServiceImpl = CarbonServicesServiceComponent

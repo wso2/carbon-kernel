@@ -48,6 +48,7 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
     private static final String JMX_USER_READWRITE_PERMISSION = "/permission/protected/server-admin/jmx/readwrite";
 
     private static Log audit = CarbonConstants.AUDIT_LOG;
+    private static final String DISABLE_LEGACY_LOGS = "disableLegacyLogs";
 
     public static void setUserRealm(UserRealm userRealm) {
         CarbonJMXAuthenticator.userRealm = userRealm;
@@ -109,8 +110,9 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
                 int tenantId = tenantManager.getTenantId(tenantDomain);
                 carbonContext.setTenantId(tenantId);
                 carbonContext.setTenantDomain(tenantDomain);
-
-                audit.info("User " + userName + " successfully authenticated to perform JMX operations.");
+                if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                    audit.info("User " + userName + " successfully authenticated to perform JMX operations.");
+                }
                 return new Subject(true, Collections.singleton(new JMXPrincipal(authorize(userName))),
                         Collections.EMPTY_SET, Collections.EMPTY_SET);
 
@@ -120,7 +122,9 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
         } catch (SecurityException se) {
 
             String msg = "Unauthorized access attempt to JMX operation. ";
-            audit.warn(msg, se);
+            if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                audit.warn(msg, se);
+            }
             throw new SecurityException(msg, se);
 
         } catch (Exception e) {
@@ -143,8 +147,10 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
                 roleName = JMX_MONITOR_ROLE;
             }
             if (roleName != null) {
-                audit.info("User: " + userName + " successfully authorized as " +
-                        roleName + " to perform JMX operations.");
+                if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                    audit.info("User: " + userName + " successfully authorized as " +
+                            roleName + " to perform JMX operations.");
+                }
                 return roleName;
 
             } else {

@@ -44,6 +44,7 @@ import java.util.Date;
 public class AuthenticationHandler extends AbstractHandler {
     private static final Log log = LogFactory.getLog(AuthenticationHandler.class);
     private static final Log audit = CarbonConstants.AUDIT_LOG;
+    private static final String DISABLE_LEGACY_LOGS = "disableLegacyLogs";
 
     public InvocationResponse invoke(MessageContext msgContext) throws AxisFault {
 
@@ -86,7 +87,9 @@ public class AuthenticationHandler extends AbstractHandler {
                         && !userTenantDomain.equals(currentTenantDomain)) {
                     String msg = "Access Denied. A user " + userName + "@" + userTenantDomain +
                             " is trying to access services in domain " + currentTenantDomain;
-                    audit.error(msg);
+                    if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                        audit.error(msg);
+                    }
                     throw new AxisFault(msg, ServerConstants.AUTHENTICATION_FAULT_CODE);
                 }
                 msgContext.setProperty(MultitenantConstants.TENANT_DOMAIN, userTenantDomain);
@@ -184,9 +187,11 @@ public class AuthenticationHandler extends AbstractHandler {
                     invalidateSession(msgContext);
                     String serviceName = getServiceName(msgContext);
                     String msg = "Illegal access attempt at " + date.format(new Date()) + " from IP address "
-                                 + remoteIP + " while trying to authenticate access to service " + serviceName;
+                            + remoteIP + " while trying to authenticate access to service " + serviceName;
                     log.warn(msg);
-                    audit.error(msg);
+                    if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                        audit.error(msg);
+                    }
                     throw e;
                 }
             }
@@ -206,7 +211,9 @@ public class AuthenticationHandler extends AbstractHandler {
                     String msg = "Illegal access attempt at " + date.format(new Date()) + " from IP address "
                                + remoteIP + " : Service is " + serviceName;
                     log.warn(msg);
-                    audit.warn(msg);
+                    if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                        audit.warn(msg);
+                    }
                 }
             }
         }
