@@ -82,6 +82,7 @@ public class CacheBackedRegistry implements Registry {
 
     private static final Log log = LogFactory.getLog(CacheBackedRegistry.class);
     private static final Log audit = CarbonConstants.AUDIT_LOG;
+    private static final String DISABLE_LEGACY_LOGS = "disableLegacyLogs";
 
 
     public CacheBackedRegistry(Registry registry) {
@@ -191,7 +192,9 @@ public class CacheBackedRegistry implements Registry {
         if (!AuthorizationUtils.authorize(path, ActionConstants.GET)) {
             String msg = "User " + CurrentSession.getUser() + " is not authorized to " +
                     "read the resource " + path + ".";
-            audit.warn(msg);
+            if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                audit.warn(msg);
+            }
             throw new AuthorizationFailedException(msg);
         }
 
@@ -322,7 +325,9 @@ public class CacheBackedRegistry implements Registry {
         if (!AuthorizationUtils.authorize(path, ActionConstants.GET)) {
             String msg = "User " + CurrentSession.getUser() + " is not authorized to " +
                     "read the resource " + path + ".";
-            audit.warn(msg);
+            if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                audit.warn(msg);
+            }
             throw new AuthorizationFailedException(msg);
         }
 

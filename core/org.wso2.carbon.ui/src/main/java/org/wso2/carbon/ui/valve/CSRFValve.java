@@ -34,6 +34,7 @@ import java.io.IOException;
 public class CSRFValve extends ValveBase {
     private static final Log log = LogFactory.getLog(CSRFValve.class);
     private static Log audit = CarbonConstants.AUDIT_LOG;
+    private static final String DISABLE_LEGACY_LOGS = "disableLegacyLogs";
 
     private final static String REFERER_HEADER = "referer";
     private final static String CSRF_VALVE_PROPERTY = "Security.CSRFPreventionConfig.CSRFValve";
@@ -141,7 +142,9 @@ public class CSRFValve extends ValveBase {
             if (!allow) {
                 String msg = "Possible CSRF attack. Refer header : " + refererHeader;
                 log.warn(msg);
-                audit.warn(msg);
+                if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                    audit.warn(msg);
+                }
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 throw new ServletException(msg);
             }
@@ -153,7 +156,9 @@ public class CSRFValve extends ValveBase {
                     currentSession.invalidate();
                     String msg = "Possible CSRF attack. Request to '" + requestURI + "' does not have a Referer header";
                     log.warn(msg);
-                    audit.warn(msg);
+                    if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                        audit.warn(msg);
+                    }
                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                     throw new ServletException(msg);
                 }

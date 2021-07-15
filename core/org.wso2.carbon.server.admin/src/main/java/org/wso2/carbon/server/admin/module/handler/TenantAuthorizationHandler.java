@@ -42,6 +42,7 @@ public class TenantAuthorizationHandler extends AbstractHandler {
     public static final String TENANT_AUTHZ_FAULT_CODE = "WSO2CarbonTenantAuthorizationFailure";
 
     private static Log audit = CarbonConstants.AUDIT_LOG;
+    private static final String DISABLE_LEGACY_LOGS = "disableLegacyLogs";
 
     public InvocationResponse invoke(MessageContext msgContext) throws AxisFault {
         if (this.callToGeneralService(msgContext)) {
@@ -60,8 +61,9 @@ public class TenantAuthorizationHandler extends AbstractHandler {
                     .append(". Tenant domain - ")
                     .append(PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain(false))
                     .append(", tenant id - ").append(tenantId);
-
-            audit.warn(message.toString());
+            if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                audit.warn(message.toString());
+            }
 
             // for non tenantId = 0 access throw an exception
             String errorMsg = "Denied accessing super tenant service.";

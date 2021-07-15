@@ -46,6 +46,7 @@ public class AuthorizationHandler extends AbstractHandler {
 
     private static Log log = LogFactory.getLog(AuthorizationHandler.class.getClass());
     private static Log audit = CarbonConstants.AUDIT_LOG;
+    private static final String DISABLE_LEGACY_LOGS = "disableLegacyLogs";
 
     public InvocationResponse invoke(MessageContext msgContext) throws AxisFault {
         if (this.callToGeneralService(msgContext) || skipAuthentication(msgContext) ) {
@@ -66,9 +67,11 @@ public class AuthorizationHandler extends AbstractHandler {
 
         Parameter actionParam = operation.getParameter("AuthorizationAction");
         if (actionParam == null) {
-            audit.warn("Unauthorized call by tenant " + carbonCtx.getTenantDomain() +
-                       ",user " + carbonCtx.getUsername() + " to service:" + service.getName() +
-                       ",operation:" + opName);
+            if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                audit.warn("Unauthorized call by tenant " + carbonCtx.getTenantDomain() +
+                        ",user " + carbonCtx.getUsername() + " to service:" + service.getName() +
+                        ",operation:" + opName);
+            }
             throw new AxisFault("Unauthorized call!. AuthorizationAction has not been specified for service:" +
                                 service.getName() + ", operation:" + opName);
         }
