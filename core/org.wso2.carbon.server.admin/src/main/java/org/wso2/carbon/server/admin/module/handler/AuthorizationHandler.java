@@ -38,6 +38,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import static org.wso2.carbon.CarbonConstants.DISABLE_LEGACY_LOGS;
+
 /**
  * This Axis2 handler checks whether the caller is authorized to invoke the
  * admin service.
@@ -46,7 +48,6 @@ public class AuthorizationHandler extends AbstractHandler {
 
     private static Log log = LogFactory.getLog(AuthorizationHandler.class.getClass());
     private static Log audit = CarbonConstants.AUDIT_LOG;
-    private static final String DISABLE_LEGACY_LOGS = "disableLegacyLogs";
 
     public InvocationResponse invoke(MessageContext msgContext) throws AxisFault {
         if (this.callToGeneralService(msgContext) || skipAuthentication(msgContext) ) {

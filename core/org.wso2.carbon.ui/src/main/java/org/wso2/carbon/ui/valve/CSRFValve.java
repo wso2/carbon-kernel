@@ -31,10 +31,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
+import static org.wso2.carbon.CarbonConstants.DISABLE_LEGACY_LOGS;
+
 public class CSRFValve extends ValveBase {
     private static final Log log = LogFactory.getLog(CSRFValve.class);
     private static Log audit = CarbonConstants.AUDIT_LOG;
-    private static final String DISABLE_LEGACY_LOGS = "disableLegacyLogs";
 
     private final static String REFERER_HEADER = "referer";
     private final static String CSRF_VALVE_PROPERTY = "Security.CSRFPreventionConfig.CSRFValve";

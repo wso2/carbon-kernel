@@ -53,6 +53,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.wso2.carbon.CarbonConstants.DISABLE_LEGACY_LOGS;
+
 /**
  * CacheBackedRegistry has wrapped from original Registry interface to support caching
  */
@@ -82,7 +84,6 @@ public class CacheBackedRegistry implements Registry {
 
     private static final Log log = LogFactory.getLog(CacheBackedRegistry.class);
     private static final Log audit = CarbonConstants.AUDIT_LOG;
-    private static final String DISABLE_LEGACY_LOGS = "disableLegacyLogs";
 
 
     public CacheBackedRegistry(Registry registry) {

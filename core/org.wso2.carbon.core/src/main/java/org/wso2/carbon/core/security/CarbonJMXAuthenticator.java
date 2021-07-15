@@ -34,6 +34,8 @@ import javax.management.remote.JMXPrincipal;
 import javax.security.auth.Subject;
 import java.util.Collections;
 
+import static org.wso2.carbon.CarbonConstants.DISABLE_LEGACY_LOGS;
+
 /**
  * JMX Authenticator for WSAS
  */
@@ -48,7 +50,6 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
     private static final String JMX_USER_READWRITE_PERMISSION = "/permission/protected/server-admin/jmx/readwrite";
 
     private static Log audit = CarbonConstants.AUDIT_LOG;
-    private static final String DISABLE_LEGACY_LOGS = "disableLegacyLogs";
 
     public static void setUserRealm(UserRealm userRealm) {
         CarbonJMXAuthenticator.userRealm = userRealm;

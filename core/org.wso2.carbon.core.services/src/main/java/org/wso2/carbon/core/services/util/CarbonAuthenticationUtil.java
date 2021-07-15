@@ -41,11 +41,12 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import static org.wso2.carbon.CarbonConstants.DISABLE_LEGACY_LOGS;
+
 public class CarbonAuthenticationUtil {
 
     private static final Log log = LogFactory.getLog(CarbonAuthenticationUtil.class);
     private static Log audit = CarbonConstants.AUDIT_LOG;
-    private static final String DISABLE_LEGACY_LOGS = "disableLegacyLogs";
     public static String LOGGED_IN_DOMAIN = "logged_in_domain";
 
     public static void onFailedAdminLogin(HttpSession httpSess, String username, int tenantId,

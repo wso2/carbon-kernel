@@ -38,13 +38,14 @@ import javax.servlet.http.HttpSession;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static org.wso2.carbon.CarbonConstants.DISABLE_LEGACY_LOGS;
+
 /**
  *
  */
 public class AuthenticationHandler extends AbstractHandler {
     private static final Log log = LogFactory.getLog(AuthenticationHandler.class);
     private static final Log audit = CarbonConstants.AUDIT_LOG;
-    private static final String DISABLE_LEGACY_LOGS = "disableLegacyLogs";
 
     public InvocationResponse invoke(MessageContext msgContext) throws AxisFault {
 
