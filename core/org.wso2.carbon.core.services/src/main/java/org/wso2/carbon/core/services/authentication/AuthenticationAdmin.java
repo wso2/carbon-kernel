@@ -48,6 +48,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import static org.wso2.carbon.CarbonConstants.DISABLE_LEGACY_LOGS;
+
 /**
  * This is not an AdminService, but we are retainig the name for historical reasons.
  * This service will have to be eventually removed
@@ -56,7 +58,6 @@ public class AuthenticationAdmin implements CarbonServerAuthenticator {
 
     private static final Log log = LogFactory.getLog(AuthenticationAdmin.class);
     private static Log audit = CarbonConstants.AUDIT_LOG;
-    private static final String DISABLE_LEGACY_LOGS = "disableLegacyLogs";
     protected static final String AUTHENTICATION_ADMIN_SERVICE = "AuthenticationAdminService";
     private static final int DEFAULT_PRIORITY_LEVEL = 5;
     private static final String AUTHENTICATOR_NAME = "DefaultCarbonAuthenticator";

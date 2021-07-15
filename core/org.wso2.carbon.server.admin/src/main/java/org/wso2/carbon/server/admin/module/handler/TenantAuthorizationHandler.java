@@ -31,6 +31,7 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import static org.wso2.carbon.CarbonConstants.DISABLE_LEGACY_LOGS;
 
 /**
  * This handler will restrict super tenant services from non super tenant services..
@@ -42,7 +43,6 @@ public class TenantAuthorizationHandler extends AbstractHandler {
     public static final String TENANT_AUTHZ_FAULT_CODE = "WSO2CarbonTenantAuthorizationFailure";
 
     private static Log audit = CarbonConstants.AUDIT_LOG;
-    private static final String DISABLE_LEGACY_LOGS = "disableLegacyLogs";
 
     public InvocationResponse invoke(MessageContext msgContext) throws AxisFault {
         if (this.callToGeneralService(msgContext)) {

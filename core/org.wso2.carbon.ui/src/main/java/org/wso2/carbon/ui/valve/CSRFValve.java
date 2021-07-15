@@ -34,7 +34,6 @@ import java.io.IOException;
 public class CSRFValve extends ValveBase {
     private static final Log log = LogFactory.getLog(CSRFValve.class);
     private static Log audit = CarbonConstants.AUDIT_LOG;
-    private static final String DISABLE_LEGACY_LOGS = "disableLegacyLogs";
 
     private final static String REFERER_HEADER = "referer";
     private final static String CSRF_VALVE_PROPERTY = "Security.CSRFPreventionConfig.CSRFValve";
