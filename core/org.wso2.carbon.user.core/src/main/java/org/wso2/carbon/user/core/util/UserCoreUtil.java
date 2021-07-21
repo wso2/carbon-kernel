@@ -65,7 +65,6 @@ public final class UserCoreUtil {
     private static final String APPLICATION_DOMAIN = "Application";
     private static final String WORKFLOW_DOMAIN = "Workflow";
     private static Log log = LogFactory.getLog(UserCoreUtil.class);
-    private static final Log diagnosticLog = LogFactory.getLog("diagnostics");
     private static Boolean isEmailUserName;
     private static Boolean isCrossTenantUniqueUserName;
     private static RealmService realmService = null;
@@ -408,7 +407,6 @@ public final class UserCoreUtil {
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
-            diagnosticLog.error(errorMessage + ". Error message: " + e.getMessage());
             throw new UserStoreException(errorMessage, e);
         }
 
@@ -996,7 +994,6 @@ public final class UserCoreUtil {
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
-            diagnosticLog.error(errorMessage + ". Error message: " + e.getMessage());
             throw new UserStoreException(errorMessage, e);
         } catch (SQLException e) {
             String errorMessage =
