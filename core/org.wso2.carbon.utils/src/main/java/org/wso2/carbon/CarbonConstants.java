@@ -34,6 +34,8 @@ public final class CarbonConstants {
     public static final Log AUDIT_LOG = LogFactory.getLog("AUDIT_LOG");
     public static final String AUDIT_MESSAGE = "Initiator : %s | Action : %s | Target : %s | Data : { %s } | Result : %s ";
     public static final String DISABLE_LEGACY_AUDIT_LOGS = "disableLegacyAuditLogs";
+    public static final String AUDIT_LOG_MESSAGE_TEMPLATE =
+            "{id : %s, recordedAt : %s, clientComponent : %s, correlationId : %s, initiator.id : %s, initiator.name : %s, initiator.type : %s, event.type : %s, target.id : %s, target.name : %s, target.type : %s, data.change : { %s }}";
 
     /**
      * This is used to get root context within CarbonJNDIContext when we need to operate
@@ -428,4 +430,27 @@ public final class CarbonConstants {
     // parameter to indicate whether HTTP access to Admin Console is enabled
     public static final String ENABLE_HTTP_ADMIN_CONSOLE = "EnableHTTPAdminConsole";
 
+    public static class LogEventConstants {
+        // Common keys for both audit/diagnostic logs.
+        public static final String LOG_ID = "id";
+        public static final String RECORDED_AT = "recordedAt";
+        public static final String CLIENT_COMPONENT = "clientComponent";
+        public static final String CORRELATION_ID = "correlationId";
+
+        // keys for initiator details in audit logs.
+        public static final String INITIATOR_ID = "initiator.id";
+        public static final String INITIATOR_NAME = "initiator.name";
+        public static final String INITIATOR_TYPE = "initiator.type";
+
+        // keys for event details in audit logs.
+        public static final String EVENT_TYPE = "event.type";
+
+        // keys for target details in audit logs.
+        public static final String TARGET_ID = "target.id";
+        public static final String TARGET_NAME = "target.name";
+        public static final String TARGET_TYPE = "target.type";
+
+        // keys for data change details in audit logs.
+        public static final String DATA_CHANGE = "data.change";
+    }
 }

@@ -36,6 +36,7 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.MDC;
 import org.apache.xerces.util.SecurityManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -86,6 +87,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.wso2.carbon.CarbonConstants.DISABLE_LEGACY_AUDIT_LOGS;
 
@@ -103,6 +105,8 @@ public class CarbonUtils {
     private static final String SECURITY_MANAGER_PROPERTY = org.apache.xerces.impl.Constants.XERCES_PROPERTY_PREFIX +
             org.apache.xerces.impl.Constants.SECURITY_MANAGER_PROPERTY;
     private static boolean isServerConfigInitialized;
+    private static Log audit = CarbonConstants.AUDIT_LOG;
+    private static final String CORRELATION_ID_MDC = "Correlation-ID";
 
     public static boolean isAdminConsoleEnabled() {
         boolean enableAdminConsole = false;
@@ -1357,5 +1361,34 @@ public class CarbonUtils {
     public static boolean isLegacyAuditLogsDisabled() {
 
         return Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_AUDIT_LOGS));
+    }
+
+    public static void publishAuditLogs(Map<String, Object> auditLogData) {
+
+        String id = UUID.randomUUID().toString();
+        String recordedAt = "";
+        String clientComponent = auditLogData.get(CarbonConstants.LogEventConstants.CLIENT_COMPONENT) != null ?
+                auditLogData.get(CarbonConstants.LogEventConstants.CLIENT_COMPONENT).toString() : "null";
+        String correlationId = MDC.get(CORRELATION_ID_MDC) != null ? MDC.get(CORRELATION_ID_MDC).toString() : "null";
+        String initiatorId = auditLogData.get(CarbonConstants.LogEventConstants.INITIATOR_ID) != null ?
+                auditLogData.get(CarbonConstants.LogEventConstants.INITIATOR_ID).toString() : "null";
+        String initiatorName = auditLogData.get(CarbonConstants.LogEventConstants.INITIATOR_NAME) != null ?
+                auditLogData.get(CarbonConstants.LogEventConstants.INITIATOR_NAME).toString() : "null";
+        String initiatorType = auditLogData.get(CarbonConstants.LogEventConstants.INITIATOR_TYPE) != null ?
+                auditLogData.get(CarbonConstants.LogEventConstants.INITIATOR_TYPE).toString() : "null";
+        String eventType = auditLogData.get(CarbonConstants.LogEventConstants.EVENT_TYPE) != null ?
+                auditLogData.get(CarbonConstants.LogEventConstants.EVENT_TYPE).toString() : "null";
+        String targetId = auditLogData.get(CarbonConstants.LogEventConstants.TARGET_ID) != null ?
+                auditLogData.get(CarbonConstants.LogEventConstants.TARGET_ID).toString() : "null";
+        String targetName = auditLogData.get(CarbonConstants.LogEventConstants.TARGET_NAME) != null ?
+                auditLogData.get(CarbonConstants.LogEventConstants.TARGET_NAME).toString() : null;
+        String targetType = auditLogData.get(CarbonConstants.LogEventConstants.TARGET_TYPE) != null ?
+                auditLogData.get(CarbonConstants.LogEventConstants.TARGET_TYPE).toString() : null;
+        String dataChange = auditLogData.get(CarbonConstants.LogEventConstants.DATA_CHANGE) != null ?
+                auditLogData.get(CarbonConstants.LogEventConstants.DATA_CHANGE).toString() : null;
+        String auditLog = String.format(CarbonConstants.AUDIT_LOG_MESSAGE_TEMPLATE, id, recordedAt, clientComponent,
+                correlationId,
+                initiatorId, initiatorName, initiatorType, eventType, targetId, targetName, targetType, dataChange);
+        audit.warn(auditLog);
     }
 }
