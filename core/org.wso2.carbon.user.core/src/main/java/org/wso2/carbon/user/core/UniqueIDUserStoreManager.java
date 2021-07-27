@@ -424,14 +424,70 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
     // Group centric methods........................................................................................
 
     /**
+     * Get group using the given group name.
+     *
+     * @param groupName       Group name.
+     * @param requestedClaims Claims required as claim URIs.
+     * @return Group Object with details.
+     * @throws UserStoreException If an error occurs while retrieving a group.
+     */
+    default Group getGroupByGroupName(String groupName, List<String> requestedClaims) throws UserStoreException {
+
+        return null;
+    }
+
+    /**
+     * Get the id of the group which matches the given group name.
+     *
+     * @param groupName Group name.
+     * @return Id of the group which matches the given group name.
+     * @throws UserStoreException If an error occurred while getting the group id.
+     */
+    default String getGroupIdByGroupName(String groupName) throws UserStoreException {
+
+        return null;
+    }
+
+    /**
+     * Get the name of the group which matches the given group id.
+     *
+     * @param groupId Group id.
+     * @return Name of the group which matches the given group id.
+     * @throws UserStoreException If an error occurred while getting the group name.
+     */
+    default String getGroupNameByGroupId(String groupId) throws UserStoreException {
+
+        return null;
+    }
+
+    /**
      * Get group details using group ID.
      *
-     * @param groupID            Group ID.
+     * @param groupID         Group ID.
      * @param requestedClaims Claims required as claim URIs.
      * @return Group Object with details.
      * @throws UserStoreException If an error occurs while retrieving a group.
      */
     Group getGroup(String groupID, List<String> requestedClaims) throws UserStoreException;
+
+    /**
+     * Retrieves list of groups evaluating the condition.
+     *
+     * @param condition Conditional filter.
+     * @param limit     Number of search results. If the given value is greater than the system configured max limit
+     *                  it will be reset to the system configured max limit.
+     * @param offset    Start index of the user search.
+     * @param domain    Userstore domain.
+     * @param sortBy    Sorted by.
+     * @param sortOrder Sorted order.
+     * @return List of Group objects.
+     * @throws UserStoreException If an error occurs while listing groups.
+     */
+    default List<Group> listGroups(Condition condition, int limit, int offset, String domain, String sortBy,
+                                   String sortOrder) throws UserStoreException {
+
+        return null;
+    }
 
     /**
      * Retrieves list of groups evaluating the condition.
@@ -471,6 +527,7 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
 
     /**
      * Retrieves list of Users that belongs to a given group ID only.
+     * NOTE: Number of results will be limited to a system configured max limit.
      *
      * @param groupID   Group ID.
      * @param sortBy    Sort by.
@@ -583,6 +640,7 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
 
     /**
      * Retrieves list of groups of a given user ID only.
+     * NOTE: Number of results will be limited to a system configured max limit.
      *
      * @param userId    User ID.
      * @param sortBy    Sorted by.
@@ -619,7 +677,8 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
             throws UserStoreException;
 
     /**
-     * Get groups of users.
+     * Get groups of users. The number of groups in the groups list for a user will have system configured max number
+     * of results.
      *
      * @param userIDs List of User IDs.
      * @return A map which contains group list with each user belongs.

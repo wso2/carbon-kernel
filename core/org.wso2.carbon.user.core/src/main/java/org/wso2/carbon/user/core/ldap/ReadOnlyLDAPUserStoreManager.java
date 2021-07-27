@@ -105,6 +105,9 @@ import javax.naming.ldap.Rdn;
 import javax.naming.ldap.SortControl;
 import javax.sql.DataSource;
 
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_ID_ATTRIBUTE;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE;
 import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID;
 
 public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
@@ -4186,6 +4189,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             roleContext.setListFilter(realmConfig.getUserStoreProperty(LDAPConstants.SHARED_GROUP_NAME_LIST_FILTER));
             roleContext.setGroupEntryObjectClass(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_ENTRY_OBJECT_CLASS));
         } else {
+            roleContext.setGroupIdProperty(realmConfig.getUserStoreProperty(GROUP_ID_ATTRIBUTE));
+            roleContext.setGroupCreatedDayProperty(realmConfig.getUserStoreProperty(GROUP_CREATED_DATE_ATTRIBUTE));
+            roleContext.setGroupLastModifiedProperty(
+                    realmConfig.getUserStoreProperty(GROUP_LAST_MODIFIED_DATE_ATTRIBUTE));
             roleContext.setSearchFilter(realmConfig.getUserStoreProperty(LDAPConstants.ROLE_NAME_FILTER));
             roleContext.setRoleNameProperty(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE));
             roleContext.setListFilter(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_LIST_FILTER));

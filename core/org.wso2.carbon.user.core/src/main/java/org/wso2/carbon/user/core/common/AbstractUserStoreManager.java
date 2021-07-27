@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) (2005-2021), WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -51,6 +51,11 @@ import org.wso2.carbon.user.core.internal.UMListenerServiceComponent;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.ldap.LDAPConstants;
+import org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager;
+import org.wso2.carbon.user.core.ldap.UniqueIDReadWriteLDAPUserStoreManager;
+import org.wso2.carbon.user.core.listener.GroupDomainResolverListener;
+import org.wso2.carbon.user.core.listener.GroupManagementErrorEventListener;
+import org.wso2.carbon.user.core.listener.GroupOperationEventListener;
 import org.wso2.carbon.user.core.listener.SecretHandleableListener;
 import org.wso2.carbon.user.core.listener.UniqueIDUserManagementErrorEventListener;
 import org.wso2.carbon.user.core.listener.UniqueIDUserOperationEventListener;
@@ -59,6 +64,7 @@ import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.listener.UserStoreManagerConfigurationListener;
 import org.wso2.carbon.user.core.listener.UserStoreManagerListener;
 import org.wso2.carbon.user.core.model.Condition;
+import org.wso2.carbon.user.core.model.ExpressionAttribute;
 import org.wso2.carbon.user.core.model.ExpressionCondition;
 import org.wso2.carbon.user.core.model.ExpressionOperation;
 import org.wso2.carbon.user.core.model.OperationalCondition;
@@ -105,6 +111,7 @@ import static org.wso2.carbon.user.core.UserCoreConstants.INTERNAL_ROLES_CLAIM;
 import static org.wso2.carbon.user.core.UserCoreConstants.ROLE_CLAIM;
 import static org.wso2.carbon.user.core.UserCoreConstants.SYSTEM_DOMAIN_NAME;
 import static org.wso2.carbon.user.core.UserCoreConstants.USER_STORE_GROUPS_CLAIM;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_GROUP_NAME_FROM_USER_ID_CACHE_NAME;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_UNIQUE_USER_ID_CACHE_NAME;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME;
@@ -115,6 +122,24 @@ import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMe
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_POST_GET_GROUP;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_POST_GET_GROUPS_LIST_BY_USER_ID;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_POST_GET_GROUP_BY_ID;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_POST_GET_GROUP_BY_NAME;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_POST_GET_GROUP_ID_BY_NAME;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_POST_GET_GROUP_NAME_BY_ID;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_PRE_GET_GROUP;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_PRE_GET_GROUPS_LIST_BY_USER_ID;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_PRE_GET_GROUP_BY_ID;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_PRE_GET_GROUP_BY_NAME;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_PRE_GET_GROUP_ID_BY_NAME;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_PRE_GET_GROUP_NAME_BY_ID;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_ID;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_NAME;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_USER_ID;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_NO_GROUP_FOUND_WITH_ID;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_NO_GROUP_FOUND_WITH_NAME;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_SORTING_NOT_SUPPORTED;
 import static org.wso2.carbon.user.core.util.UserCoreUtil.isGroupsVsRolesSeparationImprovementsEnabled;
 import static org.wso2.carbon.utils.multitenancy.MultitenantConstants.SUPER_TENANT_ID;
 
@@ -172,6 +197,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     private UserUniqueIDManger userUniqueIDManger = new UserUniqueIDManger();
     private UserUniqueIDDomainResolver userUniqueIDDomainResolver;
+    private GroupUniqueIDDomainResolver groupUniqueIDDomainResolver;
 
     private void setClaimManager(ClaimManager claimManager) throws IllegalAccessException {
         if (Boolean.parseBoolean(realmConfig.getRealmProperty(UserCoreClaimConstants.INITIALIZE_NEW_CLAIM_MANAGER))) {
@@ -2903,9 +2929,30 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return userManager instanceof AbstractUserStoreManager && ((AbstractUserStoreManager) userManager).isUniqueUserIdEnabled();
     }
 
+    /**
+     * This is to check whether the unique group id is enabled for the userstore.
+     *
+     * @param userManager UserStoreManager/
+     * @return True if unique group id is enabled for the userstore.
+     */
+    private boolean isUniqueGroupIdEnabled(UserStoreManager userManager) {
+
+        if (!(userManager instanceof AbstractUserStoreManager)) {
+            return false;
+        }
+        // todo implement group uuid support for following UserStoreManagers.
+        if (userManager instanceof JDBCUserStoreManager) {
+            return false;
+        }
+        if (userManager instanceof ReadWriteLDAPUserStoreManager) {
+            return false;
+        }
+        return ((AbstractUserStoreManager) userManager).isUniqueGroupIdEnabled();
+    }
+
     private List<String> doGetUserList(String claim, String claimValue, String profileName, String extractedDomain,
                                        UserStoreManager userManager)
-        throws UserStoreException {
+            throws UserStoreException {
 
         String property;
 
@@ -5033,11 +5080,22 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     /**
      * Checks whether this user store supports new user unique id feature.
+     *
      * @return True if this user store supports unique user id feature.
      */
     public boolean isUniqueUserIdEnabled() {
 
         return Boolean.parseBoolean(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_ID_ENABLED));
+    }
+
+    /**
+     * Checks whether this user store supports group id feature.
+     *
+     * @return True if this user store supports group id feature.
+     */
+    public boolean isUniqueGroupIdEnabled() {
+
+        return Boolean.parseBoolean(realmConfig.getUserStoreProperty(UserStoreConfigConstants.GROUP_ID_ENABLED));
     }
 
     /**
@@ -7269,6 +7327,26 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
+    protected UserStore getUserStoreWithGroupId(final String groupId) throws UserStoreException {
+
+        try {
+            return AccessController.doPrivileged((PrivilegedExceptionAction<UserStore>) 
+                    () -> getUserStoreInternalWithGroupId(groupId));
+        } catch (PrivilegedActionException e) {
+            throw (UserStoreException) e.getException();
+        }
+    }
+
+    protected UserStore getUserStoreWithGroupName(final String groupName) throws UserStoreException {
+
+        try {
+            return AccessController.doPrivileged((PrivilegedExceptionAction<UserStore>) () ->
+                            getUserStoreInternalWithGroupName(groupName));
+        } catch (PrivilegedActionException e) {
+            throw (UserStoreException) e.getException();
+        }
+    }
+
     private UserStore getUserStoreOfRoles(final String role) throws UserStoreException {
 
         return getUserStore(role);
@@ -7344,6 +7422,162 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return userStore;
     }
 
+    private UserStore getUserStoreInternalWithGroupName(String groupName) throws UserStoreException {
+
+        // If the group name is null, we set current user store manger as the selected one and return.
+        UserStore userStore = new UserStore();
+        if (groupName == null) {
+            userStore.setUserStoreManager(this);
+            userStore.setRecurssive(false);
+            userStore.setDomainName(getMyDomainName());
+            return userStore;
+        }
+        int index = groupName.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+        String domainFreeName = null;
+
+        // Check whether we have a secondary UserStoreManager setup.
+        if (index > 0) {
+            // Using the short-circuit. Here the group name comes with the domain name.
+            String domain = UserCoreUtil.extractDomainFromName(groupName);
+            UserStoreManager secManager = getSecondaryUserStoreManager(domain);
+            if (secManager == null) {
+                secManager = getSecondaryUserStore(domain);
+            }
+            domainFreeName = UserCoreUtil.removeDomainFromName(groupName);
+
+            if (secManager != null) {
+                userStore.setUserStoreManager(secManager);
+                userStore.setRecurssive(true);
+            } else {
+                if (!domain.equalsIgnoreCase(getMyDomainName())) {
+                    if ((UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
+                            || APPLICATION_DOMAIN.equalsIgnoreCase(domain)
+                            || WORKFLOW_DOMAIN.equalsIgnoreCase(domain))) {
+                        userStore.setHybridRole(true);
+                    } else if (SYSTEM_DOMAIN_NAME.equalsIgnoreCase(domain)) {
+                        userStore.setSystemStore(true);
+                    } else {
+                        throw new UserStoreException("Invalid Domain Name: " + domain);
+                    }
+                }
+                userStore.setRecurssive(false);
+                userStore.setUserStoreManager(this);
+            }
+            userStore.setDomainAwareGroupName(groupName);
+            userStore.setDomainFreeGroupName(domainFreeName);
+            userStore.setDomainName(domain);
+            return userStore;
+        }
+        String domain = getMyDomainName();
+        userStore.setUserStoreManager(this);
+        if (index > 0) {
+            userStore.setDomainAwareGroupName(groupName);
+            userStore.setDomainFreeGroupName(domainFreeName);
+        } else {
+            userStore.setDomainAwareGroupName(domain + CarbonConstants.DOMAIN_SEPARATOR + groupName);
+            userStore.setDomainFreeGroupName(groupName);
+        }
+        userStore.setRecurssive(false);
+        userStore.setDomainName(domain);
+        return userStore;
+    }
+
+    private UserStore getUserStoreInternalWithGroupId(String groupId) throws UserStoreException {
+
+        // If the group id is null, we set current user store manger as the selected one and return.
+        UserStore userStore = new UserStore();
+        if (groupId == null) {
+            userStore.setUserStoreManager(this);
+            userStore.setRecurssive(false);
+            userStore.setDomainName(getMyDomainName());
+            userStore.setDomainFreeGroupId(UserCoreUtil.removeDomainFromName(groupId));
+            return userStore;
+        }
+
+        // Get the domain if it is already resolved in our cache or in local database.
+        String domainName = groupUniqueIDDomainResolver.getDomainForGroupId(groupId, tenantId);
+        if (domainName == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Iterating though scim2 tables tenant: " + tenantId);
+            }
+            // Trigger handler to get domain name from the scim tables to maintain backward compatibility.
+            domainName = resolveDomainFromPreResolveDomainListeners(groupId, tenantId);
+            /*
+             * This means the domain name is not in our side. We need to iterate through all userstores until we
+             * encounter a matching userstore.
+             */
+            if (StringUtils.isBlank(domainName)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Iterating though group id enabled userstores in tenant: " + tenantId);
+                }
+                for (Map.Entry<String, UserStoreManager> entry : userStoreManagerHolder.entrySet()) {
+                    if (entry.getValue() instanceof AbstractUserStoreManager) {
+                        AbstractUserStoreManager abstractUserStoreManager = (AbstractUserStoreManager) entry.getValue();
+                        if (!abstractUserStoreManager.isUniqueGroupIdEnabled()) {
+                            /*
+                             * The domain names of the userstores which not have isUniqueGroupIdEnabled will be handled
+                             * from the above steps. Those will not read here unless the given group id is invalid.
+                             * Invalid group id will be handled from proceeding steps.
+                             */
+                            continue;
+                        }
+                        if (isGroupExistsWithGivenDomain(groupId, abstractUserStoreManager, entry.getKey())) {
+                            // If we found a domain name for the give group id, update the domain resolver.
+                            domainName = entry.getKey();
+                            groupUniqueIDDomainResolver.setDomainForGroupId(groupId, domainName, tenantId);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        /*
+         * Okay we didn't find the domain from there previous steps. So this should either the PRIMARY domain or an
+         * invalid group id. So we need to set the current user store manager domain as the domain name.
+         */
+        if (domainName == null || domainName.equals(getMyDomainName())) {
+            userStore.setUserStoreManager(this);
+            userStore.setDomainAwareGroupId(UserCoreUtil.addDomainToName(groupId, domainName));
+            userStore.setDomainFreeGroupId(UserCoreUtil.removeDomainFromName(groupId));
+            userStore.setRecurssive(false);
+            userStore.setDomainName(getMyDomainName());
+            return userStore;
+        }
+        // We have found an domain for the given group Id.
+        return getUserStoreInternalWithUserstoreDomainName(domainName, groupId, false);
+    }
+
+    /**
+     * Invoke the domain resolving listeners and resolve the domain.
+     *
+     * @param groupId  Group id.
+     * @param tenantId Tenant id.
+     * @return Resolved domain name.
+     */
+    private String resolveDomainFromPreResolveDomainListeners(String groupId, int tenantId) throws UserStoreException {
+
+        Group group = new Group(groupId);
+        for (GroupDomainResolverListener listener : UMListenerServiceComponent.getGroupDomainResolverListeners()) {
+            if (listener.isEnable()) {
+                listener.preResolveGroupDomainByGroupId(group, tenantId);
+            }
+        }
+        String resolvedDomain = group.getUserStoreDomain();
+        if (StringUtils.isBlank(resolvedDomain)) {
+            /*
+             * This means the group info cannot be resolved from listeners (Mainly from SCIM).
+             * This might be due to an invalid group id or the userstore does not support resolving group domain name
+             * from listeners.
+             */
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Domain not resolved by GroupDomainResolverListeners for group: %s " +
+                        "in tenant: %s", groupId, tenantId));
+            }
+            return null;
+        }
+        return resolvedDomain;
+    }
+
     private UserStore getUserStoreInternalWithId(String userId) throws UserStoreException {
 
         // If the user id is null, we set current user store manger as the selected one and return.
@@ -7384,12 +7618,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                 break;
                             }
                         } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                                handleGetUserListFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getCode(),
-                                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getMessage(),
-                                                e.getMessage()), UserCoreClaimConstants.USER_ID_CLAIM_URI, userId,
-                                        null);
-                                throw new UserStoreException("Unable retrieve users from getUserListFromProperties " +
-                                        "method from the user store: " + entry.getKey() + ".", e);
+                            handleGetUserListFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getCode(),
+                                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getMessage(),
+                                            e.getMessage()), UserCoreClaimConstants.USER_ID_CLAIM_URI, userId,
+                                    null);
+                            throw new UserStoreException("Unable retrieve users from getUserListFromProperties " +
+                                    "method from the user store: " + entry.getKey() + ".", e);
                         }
                     }
                 }
@@ -7407,18 +7641,38 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             userStore.setDomainName(domain);
             return userStore;
         }
+        return getUserStoreInternalWithUserstoreDomainName(domainName, userId, true);
+    }
 
+    /**
+     * Get the secondary userstore for the given domain. The userstore attributes will be set differently for user
+     * related flows and group related flows.
+     *
+     * @param domainName        Userstore domain name.
+     * @param resourceId        User UUID or group Id.
+     * @param isUserRelatedFlow Whether this is a user related flow.
+     * @return UserStore.
+     * @throws UserStoreException If an error occurred while getting the UserStore.
+     */
+    private UserStore getUserStoreInternalWithUserstoreDomainName(String domainName, String resourceId,
+                                                                  boolean isUserRelatedFlow) throws UserStoreException {
+
+        UserStore userStore = new UserStore();
         UserStoreManager secManager = getSecondaryUserStoreManager(domainName);
         if (secManager == null) {
             secManager = getSecondaryUserStore(domainName);
         }
         if (secManager != null) {
             userStore.setUserStoreManager(secManager);
-            userStore.setDomainAwareUserId(UserCoreUtil.addDomainToName(userId, domainName));
-            userStore.setDomainFreeUserId(userId);
+            if (isUserRelatedFlow) {
+                userStore.setDomainAwareUserId(UserCoreUtil.addDomainToName(resourceId, domainName));
+                userStore.setDomainFreeUserId(resourceId);
+            } else {
+                userStore.setDomainAwareGroupId(UserCoreUtil.addDomainToName(resourceId, domainName));
+                userStore.setDomainFreeGroupId(UserCoreUtil.removeDomainFromName(resourceId));
+            }
             userStore.setDomainName(domainName);
             userStore.setRecurssive(true);
-            return userStore;
         } else {
             if (!domainName.equalsIgnoreCase(getMyDomainName())) {
                 if ((UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domainName)
@@ -7431,14 +7685,18 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     throw new UserStoreException("Invalid Domain Name");
                 }
             }
-
-            userStore.setDomainAwareUserId(UserCoreUtil.addDomainToName(userId, domainName));
-            userStore.setDomainFreeUserId(userId);
+            if (isUserRelatedFlow) {
+                userStore.setDomainAwareUserId(UserCoreUtil.addDomainToName(resourceId, domainName));
+                userStore.setDomainFreeUserId(resourceId);
+            } else {
+                userStore.setDomainAwareGroupId(UserCoreUtil.addDomainToName(resourceId, domainName));
+                userStore.setDomainFreeGroupId(resourceId);
+            }
             userStore.setDomainName(domainName);
             userStore.setRecurssive(false);
             userStore.setUserStoreManager(this);
-            return userStore;
         }
+        return userStore;
     }
 
     /**
@@ -7450,9 +7708,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param domainName                User store manager domain.
      * @return True if a username is found, false otherwise.
      * @throws UserStoreException       Thrown by the underlying UserStoreManager.
-         */
+     */
     private Boolean isUserExistsWithGivenDomain(String userId, AbstractUserStoreManager abstractUserStoreManager,
-                                               String domainName) throws UserStoreException {
+                                                String domainName) throws UserStoreException {
 
         String userName = getFromUserNameCache(userId);
         if (StringUtils.isNotEmpty(userName)) {
@@ -7462,9 +7720,37 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
+     * Check if a group with the given ID exists in the cache. If so check if group domain matches the given domain. If
+     * the group does not exist in the cache, search the group in the underlying user store.
+     *
+     * @param groupId                  Unique id of the group.
+     * @param abstractUserStoreManager Corresponding user store manager instance.
+     * @param domainName               User store manager domain.
+     * @return True if a group name is found, false otherwise.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    private Boolean isGroupExistsWithGivenDomain(String groupId, AbstractUserStoreManager abstractUserStoreManager,
+                                                 String domainName) throws UserStoreException {
+
+        String groupNameFromCache = getGroupNameFromGroupIdCache(groupId);
+        if (StringUtils.isNotEmpty(groupNameFromCache)) {
+            return StringUtils.equals(UserCoreUtil.extractDomainFromName(groupNameFromCache), domainName);
+        }
+        String groupName = abstractUserStoreManager.doGetGroupNameFromGroupId(groupId);
+        if (StringUtils.isBlank(groupName)) {
+            return false;
+        }
+        // No need to add the domain name to the group name.
+        addGroupNameToGroupIdCache(groupId, UserCoreUtil.removeDomainFromName(groupName),
+                abstractUserStoreManager.getMyDomainName());
+        return true;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public final UserStoreManager getSecondaryUserStoreManager() {
+
         return secondaryUserStoreManager;
     }
 
@@ -8685,9 +8971,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     protected void doInitialSetup() throws UserStoreException {
+
         systemUserRoleManager = new SystemUserRoleManager(dataSource, tenantId);
         hybridRoleManager = new HybridRoleManager(dataSource, tenantId, realmConfig, userRealm);
         userUniqueIDDomainResolver = new UserUniqueIDDomainResolver(dataSource);
+        groupUniqueIDDomainResolver = new GroupUniqueIDDomainResolver(dataSource);
     }
 
     /**
@@ -11501,6 +11789,20 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     .getRoleListOfUserWithID(userStore.getDomainFreeUserId());
         }
 
+        return getRolesListOfUserWithId(userID, userStore);
+    }
+
+    /**
+     * Get the roles list of user with user id when the UserStore is resolved.
+     *
+     * @param userID User Id.
+     * @param userStore Resolved userstore.
+     * @return Roles list of the user.
+     * @throws UserStoreException If an error occurred while getting the roles from the given userstore.
+     */
+    private List<String> getRolesListOfUserWithId(String userID, UserStore userStore) throws UserStoreException {
+
+        List<String> roleNames;
         // Check whether roles exist in cache
         String userName = this.getUserNameFromUserID(userID);
         if (StringUtils.isNotEmpty(userName)) {
@@ -12455,6 +12757,19 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         return UserIdResolverCache.getInstance().getValueFromCache(userID,
                 RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME, tenantId);
+    }
+
+    private String getGroupNameFromGroupIdCache(String groupId) {
+
+        return GroupIdResolverCache.getInstance().getValueFromCache(groupId,
+                RESOLVE_GROUP_NAME_FROM_USER_ID_CACHE_NAME, tenantId);
+    }
+
+    private void addGroupNameToGroupIdCache(String groupId, String groupName, String domainName) {
+
+        String groupWithDomain = UserCoreUtil.addDomainToName(groupName, domainName);
+        GroupIdResolverCache.getInstance().addToCache(groupId, groupWithDomain,
+                RESOLVE_GROUP_NAME_FROM_USER_ID_CACHE_NAME, tenantId);
     }
 
     private String getFromUserIDCache(String userName, UserStore userStore) {
@@ -15583,6 +15898,77 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
+    public List<Group> listGroups(Condition condition, int limit, int offset, String domain, String sortBy,
+                                  String sortOrder) throws UserStoreException {
+
+        diagnosticLog.info("Fetching groups list of userstore domain: " + domain);
+        validateCondition(condition);
+        if (StringUtils.isNotBlank(sortBy) && StringUtils.isNotBlank(sortOrder)) {
+            throw new UserStoreException(ERROR_SORTING_NOT_SUPPORTED.getMessage(),
+                    ERROR_SORTING_NOT_SUPPORTED.getCode());
+        }
+        if (StringUtils.isBlank(domain)) {
+            diagnosticLog.info("domain parameter is empty. Setting 'Primary' as the default domain.");
+            domain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+        }
+        UserStoreManager userManager = this;
+        if (!StringUtils.equalsIgnoreCase(getMyDomainName(), domain)) {
+            userManager = getSecondaryUserStoreManager(domain);
+        }
+        // #################### Invoking pre-listeners ####################
+        try {
+            for (GroupOperationEventListener listener : UMListenerServiceComponent
+                    .getGroupOperationEventListeners()) {
+                if (listener instanceof AbstractGroupOperationEventListener) {
+                    AbstractGroupOperationEventListener newListener = (AbstractGroupOperationEventListener) listener;
+                    if (!newListener.preListGroups(condition, limit, offset, domain, sortBy, sortOrder, userManager)) {
+                        handlePreListGroupsFailure(ERROR_DURING_PRE_GET_GROUP.getCode(),
+                                String.format(ERROR_DURING_PRE_GET_GROUP.getMessage(),
+                                        UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), condition, limit,
+                                offset, domain, sortBy, sortOrder, userManager);
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleListGroupsFailure(ERROR_DURING_PRE_GET_GROUP.getCode(),
+                    String.format(ERROR_DURING_PRE_GET_GROUP.getMessage(), ex.getMessage()), condition, limit, offset,
+                    domain, sortBy, sortOrder, userManager);
+            throw ex;
+        }
+        // #################### Invoke userstore methods ####################
+        List<Group> groupsList = new ArrayList<>();
+        if (isUniqueGroupIdEnabled(userManager)) {
+            groupsList = ((AbstractUserStoreManager)userManager).doListGroups(condition, limit, offset,
+                    sortBy, sortOrder);
+        }
+
+        // #################### Invoking post-listeners ####################
+        try {
+            for (GroupOperationEventListener listener : UMListenerServiceComponent
+                    .getGroupOperationEventListeners()) {
+                if (listener instanceof AbstractGroupOperationEventListener) {
+                    AbstractGroupOperationEventListener newListener = (AbstractGroupOperationEventListener) listener;
+                    if (!newListener.postListGroups(condition, limit, offset, domain, sortBy, sortOrder,
+                            groupsList, userManager)) {
+                        handlePostListGroupsFailure(ERROR_DURING_POST_GET_GROUP.getCode(),
+                                String.format(ERROR_DURING_POST_GET_GROUP.getMessage(),
+                                        UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), condition, limit,
+                                offset, domain, sortBy, sortOrder, userManager);
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleListGroupsFailure(ERROR_DURING_POST_GET_GROUP.getCode(),
+                    String.format(ERROR_DURING_POST_GET_GROUP.getMessage(), ex.getMessage()), condition, limit, offset,
+                    domain, sortBy, sortOrder, userManager);
+            throw ex;
+        }
+        return groupsList;
+    }
+
+    @Override
     public List<Group> listGroups(Condition condition, int limit, int offset, String sortBy,
                                   String sortOrder) throws UserStoreException {
 
@@ -15627,22 +16013,192 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public List<Group> getGroupListOfUser(String userId, int limit, int offset, String sortBy, String sortOrder)
             throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("getGroupListOfUser operation is not implemented in: " + this.getClass());
+        if (!isSecureCall.get()) {
+            Class[] argTypes = new Class[]{String.class, int.class, int.class, String.class, String.class};
+            Object object = callSecure("getGroupListOfUser",
+                    new Object[]{userId, limit, offset, sortBy, sortOrder}, argTypes);
+            return (List<Group>) object;
         }
-        throw new NotImplementedException(
-                "getGroupListOfUser operation is not implemented in: " + this.getClass());
+        if (StringUtils.isBlank(userId)) {
+            throw new UserStoreClientException(ERROR_EMPTY_USER_ID.getMessage(), ERROR_EMPTY_USER_ID.getCode());
+        }
+        if (StringUtils.isNotBlank(sortBy) && StringUtils.isNotBlank(sortOrder)) {
+            throw new UserStoreClientException(ERROR_SORTING_NOT_SUPPORTED.getMessage(),
+                    ERROR_SORTING_NOT_SUPPORTED.getCode());
+        }
+        if (limit == 0) {
+            return new ArrayList<>();
+        }
+        UserStore userStore = getUserStoreWithID(userId);
+        if (userStore.isRecurssive()) {
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager()).
+                    getGroupListOfUser(userId, limit, offset, sortBy, sortOrder);
+        }
+        // #################### Domain Name Free Zone Starts Here ################################
+        // #################### Invoking pre-listeners ####################
+        try {
+            for (GroupOperationEventListener listener : UMListenerServiceComponent
+                    .getGroupOperationEventListeners()) {
+                if (listener instanceof AbstractGroupOperationEventListener) {
+                    AbstractGroupOperationEventListener newListener = (AbstractGroupOperationEventListener) listener;
+                    if (!newListener.preGetGroupsListOfUserByUserId(userId, this)) {
+                        handlePreGetGroupsListByUserIdFailure(ERROR_DURING_PRE_GET_GROUPS_LIST_BY_USER_ID.getCode(),
+                                String.format(ERROR_DURING_PRE_GET_GROUPS_LIST_BY_USER_ID.getMessage(),
+                                        UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), userId);
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleGetGroupsListByUserIdFailure(ERROR_DURING_PRE_GET_GROUPS_LIST_BY_USER_ID.getCode(),
+                    String.format(ERROR_DURING_PRE_GET_GROUPS_LIST_BY_USER_ID.getMessage(), ex.getMessage()), userId);
+            throw ex;
+        }
+
+        // #################### Invoke userstore methods ####################
+        List<Group> groupsList = null;
+        if (isUniqueGroupIdEnabled(this)) {
+            groupsList = this.doGetGroupListOfUser(userId, limit, offset, sortBy, sortOrder);
+        } else {
+            // This is to support backward compatibility.
+            List<String> groupNames = getRolesListOfUserWithId(userId, userStore);
+            if (CollectionUtils.isNotEmpty(groupNames)) {
+                // We need to do pagination here since we do not support pagination for groups.
+                groupNames = paginateGroupsList(offset, limit, groupNames);
+                groupsList = new ArrayList<>();
+                if (CollectionUtils.isNotEmpty(groupNames)) {
+                    // We need to create a list of Groups with group name only since other details will be added by the
+                    // post listeners.
+                    for (String groupName : groupNames) {
+                        groupsList.add(new Group(null, groupName));
+                    }
+                }
+            }
+        }
+
+        // #################### Invoking post-listeners ####################
+        try {
+            for (GroupOperationEventListener listener : UMListenerServiceComponent
+                    .getGroupOperationEventListeners()) {
+                if (listener instanceof AbstractGroupOperationEventListener) {
+                    AbstractGroupOperationEventListener newListener = (AbstractGroupOperationEventListener) listener;
+                    if (!newListener.postGetGroupsListOfUserByUserId(userId, groupsList, this)) {
+                        handlePostGetGroupsListByUserIdFailure(ERROR_DURING_POST_GET_GROUPS_LIST_BY_USER_ID.getCode(),
+                                String.format(ERROR_DURING_POST_GET_GROUPS_LIST_BY_USER_ID.getMessage(),
+                                        UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userId);
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleGetGroupsListByUserIdFailure(ERROR_DURING_POST_GET_GROUPS_LIST_BY_USER_ID.getCode(),
+                    String.format(ERROR_DURING_POST_GET_GROUPS_LIST_BY_USER_ID.getMessage(), ex.getMessage()), userId);
+            throw ex;
+        }
+        return groupsList;
+    }
+
+    private List<String> paginateGroupsList(int givenOffset, int givenLimit, List<String> groupsList) {
+
+        if (CollectionUtils.isEmpty(groupsList)) {
+            groupsList = new ArrayList<>();
+        }
+        // Resolve with the default values
+        int startIndex = resolveListOffset(givenOffset);
+        int resolvedLimit = resolveGroupListLimit(givenLimit);
+        int numberOfResults = groupsList.size();
+
+        // We cannot return more than the available results. Therefore, max would be the available results.
+        if (numberOfResults < resolvedLimit) {
+            resolvedLimit = numberOfResults;
+        }
+        // We need to subtract 1 since indexes are starting from 0.
+        int lastIndexOfTheResultsList = numberOfResults - 1;
+        // When the offset is larger the available results
+        if (lastIndexOfTheResultsList < startIndex) {
+            return new ArrayList<>();
+        }
+        if (lastIndexOfTheResultsList == startIndex) {
+            return groupsList.subList(lastIndexOfTheResultsList, lastIndexOfTheResultsList + 1);
+        }
+        int endIndex = resolvedLimit + startIndex - 1;
+        if (lastIndexOfTheResultsList <= endIndex) {
+            // Return from the start to the end of the list.
+            return groupsList.subList(startIndex, lastIndexOfTheResultsList + 1);
+        }
+        return groupsList.subList(startIndex, endIndex + 1);
+    }
+
+    /**
+     * Calculate the array offset needed to pagination.
+     *
+     * @param givenOffset Given offset value.
+     * @return Resolved offset value.
+     */
+    private int resolveListOffset(int givenOffset) {
+
+        if (givenOffset <= 1) {
+            return 0;
+        }
+        // We need to subtract 1 since indexes are starting from 0.
+        return givenOffset - 1;
     }
 
     @Override
     public List<User> getUserListOfGroup(String groupID, int limit, int offset, String sortBy, String sortOrder)
             throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("getUserListOfGroup operation is not implemented in: " + this.getClass());
+        if (!isSecureCall.get()) {
+            Class[] argTypes = new Class[]{String.class, int.class, int.class, String.class, String.class};
+            Object object = callSecure("getUserListOfGroup",
+                    new Object[]{groupID, limit, offset, sortBy, sortOrder}, argTypes);
+            return (List<User>) object;
         }
-        throw new NotImplementedException(
-                "getUserListOfGroup operation is not implemented in: " + this.getClass());
+        if (StringUtils.isBlank(groupID)) {
+            throw new UserStoreClientException(ERROR_EMPTY_GROUP_ID.getMessage(), ERROR_EMPTY_GROUP_ID.getCode());
+        }
+        if (StringUtils.isNotBlank(sortBy) && StringUtils.isNotBlank(sortOrder)) {
+            throw new UserStoreClientException(ERROR_SORTING_NOT_SUPPORTED.getMessage(),
+                    ERROR_SORTING_NOT_SUPPORTED.getCode());
+        }
+        UserStore userStore = getUserStoreWithGroupId(groupID);
+        if (userStore.isRecurssive()) {
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager()).
+                    getUserListOfGroup(userStore.getDomainFreeGroupId(), limit, offset, sortBy, sortOrder);
+        }
+        // #################### Domain Name Free Zone Starts Here ################################
+        String groupName = getGroupNameById(groupID);
+        if (StringUtils.isBlank(groupName)) {
+            throw new UserStoreClientException(String.format(ERROR_NO_GROUP_FOUND_WITH_ID.getMessage(), groupID,
+                    tenantId), ERROR_NO_GROUP_FOUND_WITH_ID.getCode());
+        }
+        if (limit == 0) {
+            // This is similar to requesting for no users.
+            return new ArrayList<>();
+        }
+        // #################### Invoke userstore specific methods ################################
+        List<User> filteredUsers;
+        Condition condition = buildGroupFilterCondition(UserCoreUtil.removeDomainFromName(groupName));
+        if (isUniqueUserIdEnabled()) {
+            UniqueIDPaginatedSearchResult users = this.doGetUserListWithID(condition,
+                    UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME, resolveUserListLimit(limit), offset,
+                    sortBy, sortOrder);
+            addUsersToUserIdCache(users.getUsers());
+            addUsersToUserNameCache(users.getUsers());
+            filteredUsers = users.getUsers();
+        } else {
+            PaginatedSearchResult users = this.doGetUserList(condition, UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME,
+                    resolveUserListLimit(limit), offset, sortBy, sortOrder);
+            filteredUsers = userUniqueIDManger.listUsers(users.getUsers(), this);
+        }
+        return filteredUsers;
+    }
+
+    private ExpressionCondition buildGroupFilterCondition(String groupName) {
+
+        String domainFreeName = UserCoreUtil.removeDomainFromName(groupName);
+        return new ExpressionCondition(ExpressionOperation.EQ.toString(),
+                ExpressionAttribute.ROLE.toString(), domainFreeName);
     }
 
     @Override
@@ -15670,31 +16226,53 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public boolean isUserInGroup(String userID, String groupID) throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("isUserInGroup operation is not implemented in: " + this.getClass());
+        if (!isSecureCall.get()) {
+            Class[] argTypes = new Class[]{String.class, String.class};
+            Object object = callSecure("isUserInGroup", new Object[]{userID, groupID}, argTypes);
+            return (boolean) object;
         }
-        throw new NotImplementedException(
-                "isUserInGroup operation is not implemented in: " + this.getClass());
+        if (StringUtils.isBlank(groupID)) {
+            throw new UserStoreClientException(ERROR_EMPTY_GROUP_ID.getMessage(), ERROR_EMPTY_GROUP_ID.getCode());
+        }
+        if (StringUtils.isBlank(userID)) {
+            throw new UserStoreClientException(ERROR_EMPTY_USER_ID.getMessage(), ERROR_EMPTY_USER_ID.getCode());
+        }
+        String groupName = getGroupNameByGroupId(groupID);
+        if (StringUtils.isBlank(groupName)) {
+            throw new UserStoreClientException(String.format(ERROR_NO_GROUP_FOUND_WITH_ID.getMessage(), groupID,
+                    tenantId), ERROR_NO_GROUP_FOUND_WITH_ID.getCode());
+        }
+        return isUserInRoleWithID(userID, groupName);
     }
 
     @Override
     public Map<String, List<Group>> getGroupListOfUsers(List<String> userIDs) throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("getGroupListOfUsers operation is not implemented in: " + this.getClass());
+        if (!isSecureCall.get()) {
+            Class[] argTypes = new Class[]{List.class};
+            Object object = callSecure("getGroupListOfUsers", new Object[]{userIDs}, argTypes);
+            return (Map<String, List<Group>>) object;
         }
-        throw new NotImplementedException(
-                "getGroupListOfUsers operation is not implemented in: " + this.getClass());
+        if (CollectionUtils.isEmpty(userIDs)) {
+            return new HashMap<>();
+        }
+        Map<String, List<Group>> listOfGroups = new HashMap<>();
+        for (String userId : userIDs) {
+            List<Group> groupsForUser = getGroupListOfUser(userId, null, null);
+            listOfGroups.put(userId, groupsForUser);
+        }
+        return listOfGroups;
     }
 
     @Override
     public boolean isGroupExist(String groupID) throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("isGroupExist operation is not implemented in: " + this.getClass());
+        if (!isSecureCall.get()) {
+            Class[] argTypes = new Class[]{String.class};
+            Object object = callSecure("isGroupExist", new Object[]{groupID}, argTypes);
+            return (boolean) object;
         }
-        throw new NotImplementedException(
-                "isGroupExist operation is not implemented in: " + this.getClass());
+        return StringUtils.isNotBlank(getGroupNameByGroupId(groupID));
     }
 
     @Override
@@ -15729,13 +16307,305 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
+    public String getGroupNameByGroupId(String groupId) throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class[] argTypes = new Class[]{String.class};
+            Object object = callSecure("getGroupNameByGroupId", new Object[]{groupId}, argTypes);
+            return (String) object;
+        }
+        if (StringUtils.isBlank(groupId)) {
+            throw new UserStoreClientException(ERROR_EMPTY_GROUP_ID.getMessage(), ERROR_EMPTY_GROUP_ID.getCode());
+        }
+        UserStore userStore = getUserStoreWithGroupId(groupId);
+        if (userStore.isRecurssive()) {
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager()).getGroupNameByGroupId(groupId);
+        }
+
+        // #################### Domain Name Free Zone Starts Here ################################
+        String groupName = getGroupNameById(groupId);
+        if (StringUtils.isBlank(groupName)) {
+            throw new UserStoreClientException(String.format(ERROR_NO_GROUP_FOUND_WITH_ID.getMessage(), groupId,
+                    tenantId), ERROR_NO_GROUP_FOUND_WITH_ID.getCode());
+        }
+        return groupName;
+    }
+
+    /**
+     * Get the group name by the group id.
+     * NOTE: Userstore needs to be resolved before using this method.
+     *
+     * @param groupId Group id.
+     * @return Name of the group with the given id.
+     * @throws UserStoreException If an error occurred.
+     */
+    private String getGroupNameById(String groupId) throws UserStoreException {
+
+        // #################### Invoking pre-listeners ####################
+        try {
+            for (GroupOperationEventListener listener : UMListenerServiceComponent
+                    .getGroupOperationEventListeners()) {
+                if (listener instanceof AbstractGroupOperationEventListener) {
+                    AbstractGroupOperationEventListener newListener = (AbstractGroupOperationEventListener) listener;
+                    if (!newListener.preGetGroupNameById(groupId, this)) {
+                        handlePreGetGroupNameByIdFailure(ERROR_DURING_PRE_GET_GROUP_NAME_BY_ID.getCode(),
+                                String.format(ERROR_DURING_PRE_GET_GROUP_NAME_BY_ID.getMessage(),
+                                        UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), groupId);
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleGetGroupIdByNameFailure(ERROR_DURING_PRE_GET_GROUP_NAME_BY_ID.getCode(),
+                    String.format(ERROR_DURING_PRE_GET_GROUP_NAME_BY_ID.getMessage(), ex.getMessage()), groupId);
+            throw ex;
+        }
+
+        // #################### Invoke userstore methods ####################
+        Group group = new Group(groupId);
+        if (isUniqueGroupIdEnabled(this)) {
+            String groupName = this.doGetGroupNameFromGroupId(groupId);
+            group.setGroupName(groupName);
+            group.setUserStoreDomain(getMyDomainName());
+        }
+
+        // #################### Invoking post-listeners ####################
+        try {
+            for (GroupOperationEventListener listener : UMListenerServiceComponent
+                    .getGroupOperationEventListeners()) {
+                if (listener instanceof AbstractGroupOperationEventListener) {
+                    AbstractGroupOperationEventListener newListener = (AbstractGroupOperationEventListener) listener;
+                    if (!newListener.postGetGroupNameById(groupId, group, this)) {
+                        handlePostGetGroupNameByIdFailure(ERROR_DURING_POST_GET_GROUP_NAME_BY_ID.getCode(),
+                                String.format(ERROR_DURING_POST_GET_GROUP_NAME_BY_ID.getMessage(),
+                                        UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), groupId);
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleGetGroupNameByIdFailure(ERROR_DURING_POST_GET_GROUP_NAME_BY_ID.getCode(),
+                    String.format(ERROR_DURING_POST_GET_GROUP_NAME_BY_ID.getMessage(), ex.getMessage()), groupId);
+            throw ex;
+        }
+        return group.getGroupName();
+    }
+
+    @Override
+    public String getGroupIdByGroupName(String groupName) throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class[] argTypes = new Class[]{String.class};
+            Object object = callSecure("getGroupIdByGroupName", new Object[]{groupName}, argTypes);
+            return (String) object;
+        }
+        if (StringUtils.isBlank(groupName)) {
+            throw new UserStoreClientException(ERROR_EMPTY_GROUP_NAME.getMessage(), ERROR_EMPTY_GROUP_NAME.getCode());
+        }
+        UserStore userStore = getUserStoreWithGroupName(groupName);
+        if (userStore.isRecurssive()) {
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager()).
+                    getGroupIdByGroupName(userStore.getDomainFreeGroupName());
+        }
+
+        // #################### Domain Name Free Zone Starts Here ################################
+        // #################### Invoking pre-listeners ####################
+        try {
+            for (GroupOperationEventListener listener : UMListenerServiceComponent
+                    .getGroupOperationEventListeners()) {
+                if (listener instanceof AbstractGroupOperationEventListener) {
+                    AbstractGroupOperationEventListener newListener = (AbstractGroupOperationEventListener) listener;
+                    if (!newListener.preGetGroupIdByName(groupName, this)) {
+                        handlePreGetGroupIdByNameFailure(ERROR_DURING_PRE_GET_GROUP_ID_BY_NAME.getCode(),
+                                String.format(ERROR_DURING_PRE_GET_GROUP_ID_BY_NAME.getMessage(),
+                                        UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), groupName);
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleGetGroupIdByNameFailure(ERROR_DURING_PRE_GET_GROUP_ID_BY_NAME.getCode(),
+                    String.format(ERROR_DURING_PRE_GET_GROUP_ID_BY_NAME.getMessage(), ex.getMessage()), groupName);
+            throw ex;
+        }
+
+        // #################### Invoke userstore methods ####################
+        Group group = new Group(null, groupName);
+        if (isUniqueGroupIdEnabled(this)) {
+            String groupId = this.doGetGroupIdFromGroupName(groupName);
+            group.setGroupID(groupId);
+            group.setUserStoreDomain(getMyDomainName());
+        }
+
+        // #################### Invoking post-listeners ####################
+        try {
+            for (GroupOperationEventListener listener : UMListenerServiceComponent
+                    .getGroupOperationEventListeners()) {
+                if (listener instanceof AbstractGroupOperationEventListener) {
+                    AbstractGroupOperationEventListener newListener = (AbstractGroupOperationEventListener) listener;
+                    if (!newListener.postGetGroupIdByName(groupName, group, this)) {
+                        handlePostGetGroupIdByNameFailure(ERROR_DURING_POST_GET_GROUP_ID_BY_NAME.getCode(),
+                                String.format(ERROR_DURING_POST_GET_GROUP_ID_BY_NAME.getMessage(),
+                                        UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), groupName);
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleGetGroupIdByNameFailure(ERROR_DURING_POST_GET_GROUP_ID_BY_NAME.getCode(),
+                    String.format(ERROR_DURING_POST_GET_GROUP_ID_BY_NAME.getMessage(), ex.getMessage()), groupName);
+            throw ex;
+        }
+        if (StringUtils.isBlank(group.getGroupID())) {
+            throw new UserStoreClientException(String.format(ERROR_NO_GROUP_FOUND_WITH_NAME.getMessage(), groupName,
+                    tenantId), ERROR_NO_GROUP_FOUND_WITH_NAME.getCode());
+        }
+        return group.getGroupID();
+    }
+
+    @Override
+    public Group getGroupByGroupName(String groupName, List<String> requiredAttributes) throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class[] argTypes = new Class[]{String.class, List.class};
+            Object object = callSecure("getGroupByGroupName",
+                    new Object[]{groupName, requiredAttributes}, argTypes);
+            return (Group) object;
+        }
+        if (StringUtils.isBlank(groupName)) {
+            throw new UserStoreClientException(ERROR_EMPTY_GROUP_NAME.getMessage(), ERROR_EMPTY_GROUP_NAME.getCode());
+        }
+        UserStore userStore = getUserStoreWithGroupName(groupName);
+        if (userStore.isRecurssive()) {
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager()).
+                    getGroupByGroupName(userStore.getDomainFreeGroupName(), requiredAttributes);
+        }
+
+        // #################### Domain Name Free Zone Starts Here ################################
+        // #################### Invoking pre-listeners ####################
+        try {
+            for (GroupOperationEventListener listener : UMListenerServiceComponent
+                    .getGroupOperationEventListeners()) {
+                if (listener instanceof AbstractGroupOperationEventListener) {
+                    AbstractGroupOperationEventListener newListener = (AbstractGroupOperationEventListener) listener;
+                    if (!newListener.preGetGroupByName(groupName, requiredAttributes, this)) {
+                        handlePreGetGroupByNameFailure(ERROR_DURING_PRE_GET_GROUP_BY_NAME.getCode(),
+                                String.format(ERROR_DURING_PRE_GET_GROUP_BY_NAME.getMessage(),
+                                        UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), groupName,
+                                requiredAttributes);
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleGetGroupByNameFailure(ERROR_DURING_PRE_GET_GROUP_BY_NAME.getCode(),
+                    String.format(ERROR_DURING_PRE_GET_GROUP_BY_NAME.getMessage(), ex.getMessage()),
+                    groupName, requiredAttributes);
+            throw ex;
+        }
+
+        // #################### Invoke userstore methods ####################
+        Group group = new Group(null, groupName);
+        if (isUniqueGroupIdEnabled(this)) {
+            group = this.doGetGroupFromGroupName(groupName, requiredAttributes);
+        }
+
+        // #################### Invoking post-listeners ####################
+        try {
+            for (GroupOperationEventListener listener : UMListenerServiceComponent
+                    .getGroupOperationEventListeners()) {
+                if (listener instanceof AbstractGroupOperationEventListener) {
+                    AbstractGroupOperationEventListener newListener = (AbstractGroupOperationEventListener) listener;
+                    if (!newListener.postGetGroupByName(groupName, requiredAttributes, group, this)) {
+                        handlePostGetGroupByNameFailure(ERROR_DURING_POST_GET_GROUP_BY_NAME.getCode(),
+                                String.format(ERROR_DURING_POST_GET_GROUP_BY_NAME.getMessage(),
+                                        UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), groupName,
+                                requiredAttributes);
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleGetGroupByNameFailure(ERROR_DURING_POST_GET_GROUP_BY_NAME.getCode(),
+                    String.format(ERROR_DURING_POST_GET_GROUP_BY_NAME.getMessage(), ex.getMessage()),
+                    groupName, requiredAttributes);
+            throw ex;
+        }
+        if (StringUtils.isBlank(group.getGroupID())) {
+            throw new UserStoreClientException(String.format(ERROR_NO_GROUP_FOUND_WITH_NAME.getMessage(), groupName,
+                    tenantId), ERROR_NO_GROUP_FOUND_WITH_NAME.getCode());
+        }
+        return group;
+    }
+
+    @Override
     public Group getGroup(String groupID, List<String> requiredAttributes) throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("getGroup operation is not implemented in: " + this.getClass());
+        if (!isSecureCall.get()) {
+            Class[] argTypes = new Class[]{String.class, List.class};
+            Object object = callSecure("getGroup", new Object[]{groupID, requiredAttributes}, argTypes);
+            return (Group) object;
         }
-        throw new NotImplementedException(
-                "getGroup operation is not implemented in: " + this.getClass());
+
+        if (StringUtils.isBlank(groupID)) {
+            throw new UserStoreClientException(ERROR_EMPTY_GROUP_ID.getMessage(), ERROR_EMPTY_GROUP_ID.getCode());
+        }
+
+        UserStore userStore = getUserStoreWithGroupId(groupID);
+        if (userStore.isRecurssive()) {
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager()).getGroup(
+                    userStore.getDomainFreeGroupId(), requiredAttributes);
+        }
+        // #################### Domain Name Free Zone Starts Here ################################
+        // #################### Invoking pre-listeners ####################
+        try {
+            for (GroupOperationEventListener listener : UMListenerServiceComponent
+                    .getGroupOperationEventListeners()) {
+                if (listener instanceof AbstractGroupOperationEventListener) {
+                    AbstractGroupOperationEventListener newListener = (AbstractGroupOperationEventListener) listener;
+                    if (!newListener.preGetGroupById(groupID, requiredAttributes, this)) {
+                        handlePreGetGroupByIdFailure(ERROR_DURING_PRE_GET_GROUP_BY_ID.getCode(),
+                                String.format(ERROR_DURING_PRE_GET_GROUP_BY_ID.getMessage(),
+                                        UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), groupID,
+                                requiredAttributes);
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleGetGroupByIdFailure(ERROR_DURING_PRE_GET_GROUP_BY_ID.getCode(),
+                    String.format(ERROR_DURING_PRE_GET_GROUP_BY_ID.getMessage(), ex.getMessage()),
+                    groupID, requiredAttributes);
+            throw ex;
+        }
+
+        // #################### Invoke userstore methods ####################
+        Group group = new Group(groupID);
+        if (isUniqueGroupIdEnabled(this)) {
+            group = this.doGetGroupFromGroupId(groupID, requiredAttributes);
+        }
+        // #################### Invoking post-listeners ####################
+        try {
+            for (GroupOperationEventListener listener : UMListenerServiceComponent
+                    .getGroupOperationEventListeners()) {
+                if (listener instanceof AbstractGroupOperationEventListener) {
+                    AbstractGroupOperationEventListener newListener = (AbstractGroupOperationEventListener) listener;
+                    if (!newListener.postGetGroupById(groupID, requiredAttributes, group, this)) {
+                        handlePostGetGroupByIdFailure(ERROR_DURING_POST_GET_GROUP_BY_ID.getCode(),
+                                String.format(ERROR_DURING_POST_GET_GROUP_BY_ID.getMessage(),
+                                        UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), groupID,
+                                requiredAttributes);
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleGetGroupByIdFailure(ERROR_DURING_POST_GET_GROUP_BY_ID.getCode(),
+                    String.format(ERROR_DURING_POST_GET_GROUP_BY_ID.getMessage(), ex.getMessage()),
+                    groupID, requiredAttributes);
+            throw ex;
+        }
+        return group;
     }
 
     @Override
@@ -15751,21 +16621,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public List<User> getUserListOfGroup(String groupID, String sortBy, String sortOrder) throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("getUserListOfGroup operation is not implemented in: " + this.getClass());
-        }
-        throw new NotImplementedException(
-                "getUserListOfGroup operation is not implemented in: " + this.getClass());
+        // Limit of -1 will indicate that to return user store configured number of results.
+        return getUserListOfGroup(groupID, -1, 1, sortBy, sortOrder);
     }
 
     @Override
     public List<Group> getGroupListOfUser(String userId, String sortBy, String sortOrder) throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("getGroupListOfUser operation is not implemented in: " + this.getClass());
-        }
-        throw new NotImplementedException(
-                "getGroupListOfUser operation is not implemented in: " + this.getClass());
+        // Limit of -1 will be used to denote max limit for the userstore.
+        return getGroupListOfUser(userId, -1, 0, sortBy, sortOrder);
     }
 
     private List<String> getNamesWithDomain(List<String> identifiers, String domain) {
@@ -15955,5 +16819,627 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private Set<String> getRolesAndGroupsClaimURIs() {
 
         return Stream.of(INTERNAL_ROLES_CLAIM, USER_STORE_GROUPS_CLAIM, ROLE_CLAIM).collect(Collectors.toSet());
+    }
+
+    /**
+     * Returns the group which has the provided id.
+     *
+     * @param groupId            Group id of the user group.
+     * @param requiredAttributes Requested attributes.
+     * @return Name of the group.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    protected Group doGetGroupFromGroupId(String groupId, List<String> requiredAttributes)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doGetGroupFromGroupID operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "doGetGroupFromGroupID operation is not implemented in: " + this.getClass());
+    }
+
+    /**
+     * Returns the group which has the provided group name.
+     *
+     * @param groupName          Group id of the user group.
+     * @param requiredAttributes Requested attributes.
+     * @return Name of the group.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    protected Group doGetGroupFromGroupName(String groupName, List<String> requiredAttributes)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doGetGroupFromGroupName operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "doGetGroupFromGroupName operation is not implemented in: " + this.getClass());
+    }
+
+    /**
+     * Returns the id of the group which has the provided group name.
+     *
+     * @param groupName Group name of the user group.
+     * @return Name of the group.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    protected String doGetGroupIdFromGroupName(String groupName) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doGetGroupIdFromGroupName operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "doGetGroupIdFromGroupName operation is not implemented in: " + this.getClass());
+    }
+
+    /**
+     * Retrieves list of groups of a given user ID.
+     *
+     * @param userId    User ID.
+     * @param limit     No of search results. If the given value is greater than the system configured max limit
+     *                  it will be reset to the system configured max limit.
+     * @param offset    Start index of the user search.
+     * @param sortBy    Sorted by.
+     * @param sortOrder Sorted order.
+     * @return List of Group objects.
+     * @throws UserStoreException If an error occurs while getting groups list of a user.
+     */
+    protected List<Group> doGetGroupListOfUser(String userId, int limit, int offset, String sortBy, String sortOrder)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doGetGroupListOfUser operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException("doGetGroupListOfUser operation is not implemented in: " + this.getClass());
+    }
+
+    /**
+     * Retrieves list of groups evaluating the condition.
+     *
+     * @param condition Conditional filter.
+     * @param limit     Number of search results. If the given value is greater than the system configured max limit
+     *                  it will be reset to the system configured max limit.
+     * @param offset    Start index of the user search.
+     * @param sortBy    Sorted by.
+     * @param sortOrder Sorted order.
+     * @return List of Group objects.
+     * @throws UserStoreException If an error occurs while getting groups list.
+     */
+    protected List<Group> doListGroups(Condition condition, int limit, int offset, String sortBy, String sortOrder)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doGetGroupListOfUser operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException("doGetGroupListOfUser operation is not implemented in: " + this.getClass());
+    }
+
+    /**
+     * Returns the name of the group which has the provided group id.
+     *
+     * @param groupId Group id of the user group.
+     * @return Name of the group.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    protected String doGetGroupNameFromGroupId(String groupId) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doGetGroupNameFromGroupId operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "doGetGroupNameFromGroupId operation is not implemented in: " + this.getClass());
+    }
+
+    /**
+     * This method is responsible for calling the relevant methods when there is a failure while pre-trying to get the
+     * group by id.
+     *
+     * @param errorCode          Error Code.
+     * @param errorMessage       Error Message.
+     * @param groupId            Group unique id.
+     * @param requiredAttributes Requested Claims.
+     * @throws UserStoreException Exception that will be thrown by relevant listener methods.
+     */
+    private void handlePreGetGroupByIdFailure(String errorCode, String errorMessage, String groupId,
+                                              List<String> requiredAttributes)
+            throws UserStoreException {
+
+        for (GroupManagementErrorEventListener listener : UMListenerServiceComponent
+                .getGroupManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
+                    && !listener.onPreGetGroupByIdFailure(errorCode, errorMessage, groupId,
+                    requiredAttributes, this)) {
+                diagnosticLog.error("'onPreGetGroupByIdFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
+                return;
+            }
+        }
+    }
+
+    /**
+     * This method is responsible for calling the relevant methods when there is a failure while pre-trying to get the
+     * group by group name.
+     *
+     * @param errorCode          Error Code.
+     * @param errorMessage       Error Message.
+     * @param groupName          Group name.
+     * @param requiredAttributes Requested Claims.
+     * @throws UserStoreException Exception that will be thrown by relevant listener methods.
+     */
+    private void handlePreGetGroupByNameFailure(String errorCode, String errorMessage, String groupName,
+                                                List<String> requiredAttributes)
+            throws UserStoreException {
+
+        for (GroupManagementErrorEventListener listener : UMListenerServiceComponent
+                .getGroupManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
+                    && !listener.onPreGetGroupByNameFailure(errorCode, errorMessage, groupName,
+                    requiredAttributes, this)) {
+                diagnosticLog.error("'onPreGetGroupByNameFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
+                return;
+            }
+        }
+    }
+
+    /**
+     * This method is responsible for calling the relevant methods when there is a failure while pre-trying to get the
+     * group id by group name.
+     *
+     * @param errorCode    Error Code.
+     * @param errorMessage Error Message.
+     * @param groupName    Group name.
+     * @throws UserStoreException Exception that will be thrown by relevant listener methods.
+     */
+    private void handlePreGetGroupIdByNameFailure(String errorCode, String errorMessage, String groupName)
+            throws UserStoreException {
+
+        for (GroupManagementErrorEventListener listener : UMListenerServiceComponent
+                .getGroupManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
+                    && !listener.onPreGetGroupIdByNameFailure(errorCode, errorMessage, groupName, this)) {
+                diagnosticLog.error("'onPreGetGroupIdByNameFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
+                return;
+            }
+        }
+    }
+
+    /**
+     * This method is responsible for calling the relevant methods when there is a failure while pre-trying to get the
+     * group name by group id.
+     *
+     * @param errorCode    Error Code.
+     * @param errorMessage Error Message.
+     * @param groupId      Group id.
+     * @throws UserStoreException Exception that will be thrown by relevant listener methods.
+     */
+    private void handlePreGetGroupNameByIdFailure(String errorCode, String errorMessage, String groupId)
+            throws UserStoreException {
+
+        for (GroupManagementErrorEventListener listener : UMListenerServiceComponent
+                .getGroupManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
+                    && !listener.onPreGetGroupNameByIdFailure(errorCode, errorMessage, groupId, this)) {
+                diagnosticLog.error("'handlePreGetGroupNameByIdFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
+                return;
+            }
+        }
+    }
+
+    /**
+     * This method is responsible for calling the relevant methods when there is a failure while pre-trying to get the
+     * groups list by user id.
+     *
+     * @param errorCode    Error Code.
+     * @param errorMessage Error Message.
+     * @param userId       User id.
+     * @throws UserStoreException Exception that will be thrown by relevant listener methods.
+     */
+    private void handlePreGetGroupsListByUserIdFailure(String errorCode, String errorMessage, String userId)
+            throws UserStoreException {
+
+        for (GroupManagementErrorEventListener listener : UMListenerServiceComponent
+                .getGroupManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
+                    && !listener.onPreGetGroupsListByUserIdFailure(errorCode, errorMessage,
+                    userId, this)) {
+                diagnosticLog.error("'onPreGetGroupsListByUserIdFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
+                return;
+            }
+        }
+    }
+
+    /**
+     * This method is responsible for calling the relevant methods when there is a failure while pre-trying to get
+     * the groups list.
+     *
+     * @param errorCode        Error Code.
+     * @param errorMessage     Error Message.
+     * @param condition        Conditional filter.
+     * @param limit            Number of search results.
+     * @param offset           Start index of the user search.
+     * @param domain           Userstore domain.
+     * @param sortBy           Sorted by.
+     * @param sortOrder        Sorted order.
+     * @param userStoreManager Userstore manager.
+     * @return True if the handling succeeded.
+     * @throws UserStoreException Exception that will be thrown by relevant listener methods.
+     */
+    private void handlePreListGroupsFailure(String errorCode, String errorMessage, Condition condition, int limit,
+                                            int offset, String domain, String sortBy, String sortOrder,
+                                            UserStoreManager userStoreManager) throws UserStoreException {
+
+        for (GroupManagementErrorEventListener listener : UMListenerServiceComponent
+                .getGroupManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
+                    && !listener.onPreListGroupsFailure(errorCode, errorMessage, condition, limit, offset, domain,
+                    sortBy, sortOrder, userStoreManager)) {
+                diagnosticLog.error("'handlePreListGroupsFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
+                return;
+            }
+        }
+    }
+
+    /**
+     * This method is responsible for calling the relevant methods when there is a failure while post-trying to get the
+     * groups list by user id.
+     *
+     * @param errorCode    Error Code.
+     * @param errorMessage Error Message.
+     * @param userId       User id.
+     * @throws UserStoreException Exception that will be thrown by relevant listener methods.
+     */
+    private void handlePostGetGroupsListByUserIdFailure(String errorCode, String errorMessage, String userId)
+            throws UserStoreException {
+
+        for (GroupManagementErrorEventListener listener : UMListenerServiceComponent
+                .getGroupManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
+                    && !listener.onPostGetGroupsListByUserIdFailure(errorCode, errorMessage,
+                    userId, this)) {
+                diagnosticLog.error("'onPostGetGroupsListByUserIdFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
+                return;
+            }
+        }
+    }
+
+    /**
+     * This method is responsible for calling the relevant methods when there is a failure while post-trying to get the
+     * group with id.
+     *
+     * @param errorCode          Error Code.
+     * @param errorMessage       Error Message.
+     * @param groupId            Group unique id.
+     * @param requiredAttributes Requested Claims.
+     * @throws UserStoreException Exception that will be thrown by relevant listener methods.
+     */
+    private void handlePostGetGroupByIdFailure(String errorCode, String errorMessage, String groupId,
+                                               List<String> requiredAttributes)
+            throws UserStoreException {
+
+        for (GroupManagementErrorEventListener listener : UMListenerServiceComponent
+                .getGroupManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
+                    && !listener.onPostGetGroupByIdFailure(errorCode, errorMessage, groupId,
+                    requiredAttributes, this)) {
+                diagnosticLog.error("'handlePostGetGroupWithIdFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
+                return;
+            }
+        }
+    }
+
+    /**
+     * This method is responsible for calling the relevant methods when there is a failure while post-trying to get the
+     * group with group name.
+     *
+     * @param errorCode          Error Code.
+     * @param errorMessage       Error Message.
+     * @param groupName          Group name.
+     * @param requiredAttributes Requested Claims.
+     * @throws UserStoreException Exception that will be thrown by relevant listener methods.
+     */
+    private void handlePostGetGroupByNameFailure(String errorCode, String errorMessage, String groupName,
+                                                 List<String> requiredAttributes)
+            throws UserStoreException {
+
+        for (GroupManagementErrorEventListener listener : UMListenerServiceComponent
+                .getGroupManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
+                    && !listener.onPostGetGroupByNameFailure(errorCode, errorMessage, groupName,
+                    requiredAttributes, this)) {
+                diagnosticLog.error("'onPostGetGroupByNameFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
+                return;
+            }
+        }
+    }
+
+    /**
+     * This method is responsible for calling the relevant methods when there is a failure while post-trying to get the
+     * group id with group name.
+     *
+     * @param errorCode    Error Code.
+     * @param errorMessage Error Message.
+     * @param groupName    Group name.
+     * @throws UserStoreException Exception that will be thrown by relevant listener methods.
+     */
+    private void handlePostGetGroupIdByNameFailure(String errorCode, String errorMessage, String groupName)
+            throws UserStoreException {
+
+        for (GroupManagementErrorEventListener listener : UMListenerServiceComponent
+                .getGroupManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
+                    && !listener.onPostGetGroupIdByNameFailure(errorCode, errorMessage, groupName,
+                    this)) {
+                diagnosticLog.error("'onPostGetGroupIdByNameFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
+                return;
+            }
+        }
+    }
+
+    /**
+     * This method is responsible for calling the relevant methods when there is a failure while post-trying to get the
+     * group name with group id.
+     *
+     * @param errorCode    Error Code.
+     * @param errorMessage Error Message.
+     * @param groupId      Group id.
+     * @throws UserStoreException Exception that will be thrown by relevant listener methods.
+     */
+    private void handlePostGetGroupNameByIdFailure(String errorCode, String errorMessage, String groupId)
+            throws UserStoreException {
+
+        for (GroupManagementErrorEventListener listener : UMListenerServiceComponent
+                .getGroupManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
+                    && !listener.onPostGetGroupNameByIdFailure(errorCode, errorMessage, groupId,
+                    this)) {
+                diagnosticLog.error("'onPostGetGroupNameByIdFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
+                return;
+            }
+        }
+    }
+
+    /**
+     * This method is responsible for calling the relevant methods when there is a failure while post-trying to get
+     * the groups list.
+     *
+     * @param errorCode        Error Code.
+     * @param errorMessage     Error Message.
+     * @param condition        Conditional filter.
+     * @param limit            Number of search results.
+     * @param offset           Start index of the user search.
+     * @param domain           Userstore domain.
+     * @param sortBy           Sorted by.
+     * @param sortOrder        Sorted order.
+     * @param userStoreManager Userstore manager.
+     * @return True if the handling succeeded.
+     * @throws UserStoreException Exception that will be thrown by relevant listener methods.
+     */
+    private void handlePostListGroupsFailure(String errorCode, String errorMessage, Condition condition, int limit,
+                                            int offset, String domain, String sortBy, String sortOrder,
+                                            UserStoreManager userStoreManager) throws UserStoreException {
+
+        for (GroupManagementErrorEventListener listener : UMListenerServiceComponent
+                .getGroupManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
+                    && !listener.onPostListGroupsFailure(errorCode, errorMessage, condition, limit, offset, domain,
+                    sortBy, sortOrder, userStoreManager)) {
+                diagnosticLog.error("'handlePostListGroupsFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
+                return;
+            }
+        }
+    }
+
+    /**
+     * This method is responsible for calling the relevant methods when there is a failure while getting the
+     * groups list by user id.
+     *
+     * @param errorCode    Error Code.
+     * @param errorMessage Error Message.
+     * @param userId       User id.
+     * @throws UserStoreException Exception that will be thrown by relevant listener methods.
+     */
+    private void handleGetGroupsListByUserIdFailure(String errorCode, String errorMessage, String userId)
+            throws UserStoreException {
+
+        for (GroupManagementErrorEventListener listener : UMListenerServiceComponent
+                .getGroupManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
+                    && !listener.onGetGroupsListByUserIdFailure(errorCode, errorMessage,
+                    userId, this)) {
+                diagnosticLog.error("'onGetGroupsListByUserIdFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
+                return;
+            }
+        }
+    }
+
+    /**
+     * This method is responsible for calling the relevant methods when there is a failure while trying to get the
+     * group with id.
+     *
+     * @param errorCode          Error Code.
+     * @param errorMessage       Error Message.
+     * @param groupId            Group unique id.
+     * @param requiredAttributes Requested Claims.
+     * @throws UserStoreException Exception that will be thrown by relevant listener methods.
+     */
+    private void handleGetGroupByIdFailure(String errorCode, String errorMessage, String groupId,
+                                           List<String> requiredAttributes) throws UserStoreException {
+
+        for (GroupManagementErrorEventListener listener : UMListenerServiceComponent
+                .getGroupManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
+                    && !listener.onGetGroupByIdFailure(errorCode,
+                    errorMessage, groupId, requiredAttributes, this)) {
+                diagnosticLog.error("'onGetGroupWithIdFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
+                return;
+            }
+        }
+    }
+
+    /**
+     * This method is responsible for calling the relevant methods when there is a failure while trying to get the
+     * group with id.
+     *
+     * @param errorCode          Error Code.
+     * @param errorMessage       Error Message.
+     * @param groupName          Group name.
+     * @param requiredAttributes Requested Claims.
+     * @throws UserStoreException Exception that will be thrown by relevant listener methods.
+     */
+    private void handleGetGroupByNameFailure(String errorCode, String errorMessage, String groupName,
+                                             List<String> requiredAttributes) throws UserStoreException {
+
+        for (GroupManagementErrorEventListener listener : UMListenerServiceComponent
+                .getGroupManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
+                    && !listener.onGetGroupByNameFailure(errorCode,
+                    errorMessage, groupName, requiredAttributes, this)) {
+                diagnosticLog.error("'onGetGroupWithIdFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
+                return;
+            }
+        }
+    }
+
+    /**
+     * This method is responsible for calling the relevant methods when there is a failure while trying to get the
+     * group id with id.
+     *
+     * @param errorCode    Error Code.
+     * @param errorMessage Error Message.
+     * @param groupName    Group name.
+     * @throws UserStoreException Exception that will be thrown by relevant listener methods.
+     */
+    private void handleGetGroupIdByNameFailure(String errorCode, String errorMessage, String groupName)
+            throws UserStoreException {
+
+        for (GroupManagementErrorEventListener listener : UMListenerServiceComponent
+                .getGroupManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
+                    && !listener.onGetGroupIdByNameFailure(errorCode, errorMessage, groupName, this)) {
+                diagnosticLog.error("'onGetGroupIdByNameFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
+                return;
+            }
+        }
+    }
+
+    /**
+     * This method is responsible for calling the relevant methods when there is a failure while trying to get the
+     * group id with id.
+     *
+     * @param errorCode    Error Code.
+     * @param errorMessage Error Message.
+     * @param groupId      Group id.
+     * @throws UserStoreException Exception that will be thrown by relevant listener methods.
+     */
+    private void handleGetGroupNameByIdFailure(String errorCode, String errorMessage, String groupId)
+            throws UserStoreException {
+
+        for (GroupManagementErrorEventListener listener : UMListenerServiceComponent
+                .getGroupManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
+                    && !listener.onGetGroupIdByNameFailure(errorCode, errorMessage, groupId, this)) {
+                diagnosticLog.error("'handleGetGroupNameByIdFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
+                return;
+            }
+        }
+    }
+
+    /**
+     * This method is responsible for calling the relevant methods when there is a failure while trying to get
+     * the groups list.
+     *
+     * @param errorCode        Error Code.
+     * @param errorMessage     Error Message.
+     * @param condition        Conditional filter.
+     * @param limit            Number of search results.
+     * @param offset           Start index of the user search.
+     * @param domain           Userstore domain.
+     * @param sortBy           Sorted by.
+     * @param sortOrder        Sorted order.
+     * @param userStoreManager Userstore manager.
+     * @return True if the handling succeeded.
+     * @throws UserStoreException Exception that will be thrown by relevant listener methods.
+     */
+    private void handleListGroupsFailure(String errorCode, String errorMessage, Condition condition, int limit,
+                                             int offset, String domain, String sortBy, String sortOrder,
+                                             UserStoreManager userStoreManager) throws UserStoreException {
+
+        for (GroupManagementErrorEventListener listener : UMListenerServiceComponent
+                .getGroupManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
+                    && !listener.onListGroupsFailure(errorCode, errorMessage, condition, limit, offset, domain,
+                    sortBy, sortOrder, userStoreManager)) {
+                diagnosticLog.error("'handleListGroupsFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
+                return;
+            }
+        }
+    }
+
+    /**
+     * Resolve the given user list limit with the max configs defined for the userstore.
+     *
+     * @param givenLimit Given user list limit.
+     * @return Resolved user list limit.
+     */
+    private int resolveUserListLimit(int givenLimit) {
+
+        int definedMax;
+        try {
+            definedMax = Integer
+                    .parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST));
+        } catch (NumberFormatException e) {
+            definedMax = UserCoreConstants.MAX_USER_ROLE_LIST;
+        }
+        if (givenLimit < 0 || givenLimit > definedMax) {
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Using the userstore defined max user list limit: %s instead " +
+                        "of given limit: %s ", definedMax, givenLimit));
+            }
+            return definedMax;
+        }
+        return givenLimit;
+    }
+
+    /**
+     * Resolve the given group list limit with the max configs defined for the userstore.
+     *
+     * @param givenLimit Given user list limit.
+     * @return Resolved group list limit.
+     */
+    private int resolveGroupListLimit(int givenLimit) {
+
+        int definedMax;
+        try {
+            definedMax = Integer
+                    .parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_ROLE_LIST));
+        } catch (NumberFormatException e) {
+            definedMax = UserCoreConstants.MAX_USER_ROLE_LIST;
+        }
+        if (givenLimit < 0 || givenLimit > definedMax) {
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Using the userstore defined max group list limit: %s instead " +
+                        "of given limit: %s ", definedMax, givenLimit));
+            }
+            return definedMax;
+        }
+        return givenLimit;
     }
 }

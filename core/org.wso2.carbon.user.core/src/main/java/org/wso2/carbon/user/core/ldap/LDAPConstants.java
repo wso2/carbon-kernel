@@ -102,4 +102,16 @@ public class LDAPConstants {
     public static final String USER_CACHE_EXPIRY_MILLISECONDS = "UserCacheExpiryMilliseconds";
     public static final String USER_DN_CACHE_ENABLED = "UserDNCacheEnabled";
 
+    // Group id related userstore default attribute values.
+    public static final String DEFAULT_GROUP_ID_ATTRIBUTE = "entryUUID";
+    public static final String DEFAULT_GROUP_CREATED_DATE_ATTRIBUTE = "createTimestamp";
+    public static final String DEFAULT_GROUP_LAST_MODIFIED_DATE_ATTRIBUTE = "modifyTimestamp";
+
+    // This is the default LDAP timestamp format(199412161032Z or 199412160532-0500).
+    public static final String ZULU_TIME = "Zulu-Time";
+    /*
+     * 18-digit Active Directory timestamps, also named 'Windows NT time format', 'Win32 FILETIME or SYSTEMTIME' or
+     * NTFS file time.
+     */
+    public static final String WINDOWS_NT_TIME = "Windows-NT-Time";
 }

@@ -23,6 +23,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.directory.api.util.DateUtils;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.caching.impl.CachingConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -36,6 +37,7 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AuthenticationResult;
 import org.wso2.carbon.user.core.common.FailureReason;
+import org.wso2.carbon.user.core.common.Group;
 import org.wso2.carbon.user.core.common.LoginIdentifier;
 import org.wso2.carbon.user.core.common.PaginatedSearchResult;
 import org.wso2.carbon.user.core.common.RoleContext;
@@ -54,9 +56,12 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.text.MessageFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -89,7 +94,18 @@ import javax.naming.ldap.LdapName;
 import javax.naming.ldap.PagedResultsControl;
 import javax.naming.ldap.SortControl;
 
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_ID_ATTRIBUTE;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.USERSTORE_TIME_FORMAT;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_ID;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_NAME;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_WHILE_BUILDING_GROUP_RESPONSE;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_WHILE_GETTING_GROUP_BY_ID;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_WHILE_GETTING_GROUP_BY_NAME;
 import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID;
+import static org.wso2.carbon.user.core.ldap.LDAPConstants.WINDOWS_NT_TIME;
+import static org.wso2.carbon.user.core.ldap.LDAPConstants.ZULU_TIME;
 
 public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager {
 
@@ -1521,8 +1537,111 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     }
 
     @Override
+    public String doGetGroupNameFromGroupId(String groupId) throws UserStoreException {
+
+        Group group = doGetGroupFromGroupId(groupId, Collections.singletonList(realmConfig.getUserStoreProperty(
+                realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE))));
+        if (group == null) {
+            if (log.isDebugEnabled()) {
+                log.error(String.format("No group found with id: %s in userstore: %s in tenant: %s", groupId,
+                        getMyDomainName(), tenantId));
+            }
+            return null;
+        }
+        return group.getGroupName();
+    }
+
+    @Override
+    public Group doGetGroupFromGroupId(String groupId, List<String> requiredAttributes)
+            throws UserStoreException {
+
+        if (StringUtils.isBlank(groupId)) {
+            throw new UserStoreException(ERROR_EMPTY_GROUP_ID.getMessage(), ERROR_EMPTY_GROUP_ID.getCode());
+        }
+        LDAPRoleContext roleContext = (LDAPRoleContext) createRoleContext(groupId);
+        String groupIdProperty = roleContext.getGroupIdProperty();
+        String groupFilter = buildGroupFilter(roleContext.getListFilter(), groupIdProperty, groupId);
+        String[] responseAttributes = resolveGroupAttributes(Arrays.asList(groupIdProperty,
+                roleContext.getRoleNameProperty()), requiredAttributes, roleContext);
+
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("Performing LDAP group search using group search bases for group name: %s in " +
+                    "userstore: %s in tenant: %s with filter: %s", groupId, getMyDomainName(), tenantId, groupFilter));
+        }
+        Attributes attributesByLDAPSearch = getGroupAttributesBySearchBase(groupId, groupFilter,
+                roleContext.getSearchBase(), responseAttributes, false);
+        if (attributesByLDAPSearch == null) {
+            if (log.isDebugEnabled()) {
+                log.error(String.format("No group found with id: %s in userstore: %s in tenant: %s", groupId,
+                        getMyDomainName(), tenantId));
+            }
+            return null;
+        }
+        return buildGroupFromAttributes(responseAttributes, attributesByLDAPSearch);
+    }
+
+    @Override
+    public String doGetGroupIdFromGroupName(String groupName) throws UserStoreException {
+
+        Group group = doGetGroupFromGroupId(groupName, Collections.singletonList(realmConfig.getUserStoreProperty(
+                realmConfig.getUserStoreProperty(GROUP_ID_ATTRIBUTE))));
+        if (group == null) {
+            if (log.isDebugEnabled()) {
+                log.error(String.format("No group found with name: %s in userstore: %s in tenant: %s", groupName,
+                        getMyDomainName(), tenantId));
+            }
+            return null;
+        }
+        return group.getGroupID();
+    }
+
+    @Override
+    public Group doGetGroupFromGroupName(String groupName, List<String> requiredAttributes)
+            throws UserStoreException {
+
+        if (StringUtils.isBlank(groupName)) {
+            throw new UserStoreException(ERROR_EMPTY_GROUP_NAME.getMessage(), ERROR_EMPTY_GROUP_NAME.getCode());
+        }
+        LDAPRoleContext roleContext = (LDAPRoleContext) createRoleContext(groupName);
+        // TODO if role Name with Shared Role?
+        String groupNameProperty = roleContext.getRoleNameProperty();
+        String groupFilter = buildGroupFilter(roleContext.getListFilter(), groupNameProperty, groupName);
+        String[] responseAttributes = resolveGroupAttributes(Arrays.asList(groupNameProperty,
+                roleContext.getGroupIdProperty()), requiredAttributes, roleContext);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Using search filter: " + groupFilter);
+        }
+
+        Attributes attributesByLDAPSearch;
+        if (roleContext.getRoleDNPatterns().size() > 0) {
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Performing LDAP group search with DN patterns for group name: %s in " +
+                        "userstore: %s in tenant: %s", groupName, getMyDomainName(), tenantId));
+            }
+            attributesByLDAPSearch = getGroupAttributesByDNPatterns(groupName, groupFilter,
+                    roleContext.getRoleDNPatterns(), responseAttributes);
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Performing LDAP group search using group search bases for group name: %s in " +
+                        "userstore: %s in tenant: %s", groupName, getMyDomainName(), tenantId));
+            }
+            attributesByLDAPSearch = getGroupAttributesBySearchBase(groupName, groupFilter,
+                    roleContext.getSearchBase(), responseAttributes, true);
+        }
+        if (attributesByLDAPSearch == null) {
+            if (log.isDebugEnabled()) {
+                log.error(String.format("No group found with name: %s in userstore: %s in tenant: %s", groupName,
+                        getMyDomainName(), tenantId));
+            }
+            return null;
+        }
+        return buildGroupFromAttributes(responseAttributes, attributesByLDAPSearch);
+    }
+
+    @Override
     protected PaginatedSearchResult doGetUserList(Condition condition, String profileName, int limit, int offset,
-            String sortBy, String sortOrder) throws UserStoreException {
+                                                  String sortBy, String sortOrder) throws UserStoreException {
 
         throw new UserStoreException("Operation is not supported.");
     }
@@ -1940,7 +2059,6 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 UserStoreConfigConstants.maxUserNameListLengthDescription);
         setAdvancedProperty(UserStoreConfigConstants.maxRoleNameListLength, "Maximum Role List Length", "100",
                 UserStoreConfigConstants.maxRoleNameListLengthDescription);
-
         setAdvancedProperty(UserStoreConfigConstants.userRolesCacheEnabled, "Enable User Role Cache", "true",
                 UserStoreConfigConstants.userRolesCacheEnabledDescription);
 
@@ -2816,5 +2934,287 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         }
         tempUserList.retainAll(claimSearchUserList);
         return tempUserList;
+    }
+
+    /**
+     * Get LDAP group attributes by searching through the LDAP group search bases.
+     *
+     * @param groupIdentifier       Group identifier.
+     * @param groupFilter           Group filter.
+     * @param searchBases           Group search base.
+     * @param responseAttributes    Attributes required in the response.
+     * @param isGroupNameIdentifier Whether the passed group identifier is a group name.
+     * @return LDAP group attributes.
+     * @throws UserStoreException If an error occurred while getting groups.
+     */
+    private Attributes getGroupAttributesBySearchBase(String groupIdentifier, String groupFilter, String searchBases,
+                                                      String[] responseAttributes, boolean isGroupNameIdentifier)
+            throws UserStoreException {
+
+        Attributes attributes = null;
+        NamingEnumeration<SearchResult> answer = null;
+        String[] roleSearchBaseArray = searchBases.split("#");
+
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        searchControls.setReturningAttributes(responseAttributes);
+        searchControls.setTimeLimit(getSearchTime());
+
+        for (String searchBase : roleSearchBaseArray) {
+            DirContext dirContext = null;
+            try {
+                dirContext = connectionSource.getContext();
+                answer = dirContext.search(escapeDNForSearch(searchBase), groupFilter, searchControls);
+                if (answer != null && answer.hasMoreElements()) {
+                    SearchResult searchResult = answer.next();
+                    if (searchResult != null) {
+                        attributes = searchResult.getAttributes();
+                        break;
+                    }
+                }
+            } catch (NamingException e) {
+                // We need to throw different exception if the identifier is group name.
+                if (isGroupNameIdentifier) {
+                    throw new UserStoreException(String.format(ERROR_WHILE_GETTING_GROUP_BY_NAME.getMessage(),
+                            groupIdentifier, getMyDomainName(), tenantId),
+                            ERROR_WHILE_GETTING_GROUP_BY_NAME.getCode(), e);
+                }
+                throw new UserStoreException(String.format(ERROR_WHILE_GETTING_GROUP_BY_ID.getMessage(),
+                        groupIdentifier, getMyDomainName(), tenantId), ERROR_WHILE_GETTING_GROUP_BY_ID.getCode(), e);
+            } finally {
+                JNDIUtil.closeNamingEnumeration(answer);
+                JNDIUtil.closeContext(dirContext);
+            }
+        }
+        return attributes;
+    }
+
+    /**
+     * Get LDAP group attributes using DN patterns.
+     *
+     * @param groupName          Name of the group.
+     * @param groupFilter        Group filter.
+     * @param roleDNPatterns     Role DN patterns.
+     * @param responseAttributes Attributes required in the response.
+     * @return LDAP group attributes.
+     * @throws UserStoreException If an error occurred while getting groups.
+     */
+    private Attributes getGroupAttributesByDNPatterns(String groupName, String groupFilter, List<String> roleDNPatterns,
+                                                      String[] responseAttributes) throws UserStoreException {
+
+        Attributes attributes = null;
+        NamingEnumeration<SearchResult> answer = null;
+
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        searchControls.setReturningAttributes(responseAttributes);
+        searchControls.setTimeLimit(getSearchTime());
+
+        for (String pattern : roleDNPatterns) {
+            if (log.isDebugEnabled()) {
+                log.debug("Using pattern: " + pattern);
+            }
+            pattern = MessageFormat.format(pattern.trim(), escapeSpecialCharactersForDN(groupName));
+            DirContext dirContext = null;
+            try {
+                dirContext = connectionSource.getContext();
+                answer = dirContext.search(escapeDNForSearch(pattern), groupFilter, searchControls);
+                if (answer != null && answer.hasMoreElements()) {
+                    SearchResult searchResult = answer.next();
+                    if (searchResult != null) {
+                        attributes = searchResult.getAttributes();
+                        break;
+                    }
+                }
+            } catch (NamingException e) {
+                throw new UserStoreException(String.format(ERROR_WHILE_GETTING_GROUP_BY_NAME.getMessage(),
+                        groupName, getMyDomainName(), tenantId), ERROR_WHILE_GETTING_GROUP_BY_NAME.getCode(), e);
+            } finally {
+                JNDIUtil.closeNamingEnumeration(answer);
+                JNDIUtil.closeContext(dirContext);
+            }
+        }
+        return attributes;
+    }
+
+    /**
+     * Build Groups response object from the ldap search results.
+     *
+     * @param responseAttributes     Required attributes in the groups response object.
+     * @param attributesByLDAPSearch LDAP search attribute values.
+     * @return Group response object.
+     */
+    private Group buildGroupFromAttributes(String[] responseAttributes, Attributes attributesByLDAPSearch)
+            throws UserStoreException {
+
+        Group group = new Group();
+        try {
+            for (String attributeId : responseAttributes) {
+                Attribute attributeValue = attributesByLDAPSearch.get(attributeId);
+                if (attributeValue == null) {
+                    continue;
+                }
+                // In active directory, we don't get a String, we get a byte[]. Therefore, we need to resolve that.
+                String value = resolveLdapAttributeValue(attributeValue.get());
+                if (realmConfig.getUserStoreProperty(GROUP_ID_ATTRIBUTE).equals(attributeId)) {
+                    group.setGroupID(value);
+                } else if (realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE).equals(attributeId)) {
+                    // If this is not th primary userstore, we need to add the domain name to the group name.
+                    String groupName = value;
+                    if (!realmConfig.isPrimary()) {
+                        groupName = StringUtils.isBlank(groupName) ? null :
+                                getMyDomainName() + UserCoreConstants.DOMAIN_SEPARATOR + groupName;
+                    }
+                    group.setGroupName(groupName);
+                } else if (realmConfig.getUserStoreProperty(GROUP_CREATED_DATE_ATTRIBUTE).equals(attributeId)) {
+                    group.setCreatedDate(convertToStandardTimeFormat(value));
+                } else if (realmConfig.getUserStoreProperty(GROUP_LAST_MODIFIED_DATE_ATTRIBUTE).equals(attributeId)) {
+                    group.setLastModifiedDate(convertToStandardTimeFormat(value));
+                } else {
+                    log.error("Unsupported group attribute: when building the group response object" + attributeId);
+                }
+            }
+        } catch (NamingException e) {
+            throw new UserStoreException(String.format(ERROR_WHILE_BUILDING_GROUP_RESPONSE.getMessage(),
+                    getMyDomainName(), tenantId), ERROR_WHILE_BUILDING_GROUP_RESPONSE.getCode(), e);
+        }
+        group.setUserStoreDomain(getMyDomainName());
+        group.setTenantDomain(tenantDomain);
+        if (StringUtils.isBlank(group.getLastModifiedDate())) {
+            // This means the group is not modified after creating it.
+            group.setLastModifiedDate(group.getCreatedDate());
+        }
+        return group;
+    }
+
+    /**
+     * Covert the LDAP timestamp format (Zulutime) to the generic timestamp supported by the identity server.
+     * Refer to the "Generalized Time" section in the spec: https://www.ietf.org/rfc/rfc4517.txt.
+     *
+     * @param dateTimestamp Ldap timestamp.
+     * @return Given timestamp in the standard format.
+     * @throws UserStoreException If an error occurred while converting timestamp or if unsupported timestamp
+     *                            configured in the userstore.
+     */
+    private String convertToStandardTimeFormat(String dateTimestamp) throws UserStoreException {
+
+        if (StringUtils.isBlank(dateTimestamp)) {
+            return dateTimestamp;
+        }
+        String userstoreTimestampFormat = realmConfig.getUserStoreProperty(USERSTORE_TIME_FORMAT);
+        if (ZULU_TIME.equals(userstoreTimestampFormat)) {
+            return DateUtils.getDate(dateTimestamp).toInstant().toString();
+        } else if (WINDOWS_NT_TIME.equals(userstoreTimestampFormat)) {
+            try {
+                return DateUtils.convertIntervalDate(dateTimestamp).toInstant().toString();
+            } catch (ParseException e) {
+                throw new UserStoreException("Error occurred while calculating date from timestamp: " + dateTimestamp +
+                        "using Windows NT time format");
+            }
+        }
+        throw new UserStoreException(String.format("Unsupported timestamp format %s in userstore: %s in tenant with " +
+                "id : %s", userstoreTimestampFormat, getMyDomainName(), tenantId));
+    }
+
+    /**
+     * Build the group filter by transforming the filtering value to the appropriate format.
+     *
+     * @param groupListFilter Groups list filter.
+     * @param property        Property name.
+     * @param value           Value bound to the property.
+     * @return Group filter.
+     */
+    private String buildGroupFilter(String groupListFilter, String property, String value) {
+
+        if (OBJECT_GUID.equalsIgnoreCase(property) && (isGUIDValue(value) || StringUtils.equals(value, "*"))) {
+            String transformObjectGuidToUuidProperty = realmConfig.getUserStoreProperty(TRANSFORM_OBJECTGUID_TO_UUID);
+            boolean transformObjectGuidToUuid = StringUtils.isEmpty(transformObjectGuidToUuidProperty) ||
+                    Boolean.parseBoolean(transformObjectGuidToUuidProperty);
+            String convertedValue;
+            if (StringUtils.equals(value, "*")) {
+                convertedValue = value;
+            } else if (transformObjectGuidToUuid) {
+                convertedValue = transformUUIDToObjectGUID(value);
+            } else {
+                byte[] bytes = Base64.decodeBase64(value.getBytes());
+                convertedValue = convertBytesToHexString(bytes);
+            }
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Uuid: %s transformed to objectGUID: %s", value, convertedValue));
+            }
+            return "(&" + groupListFilter + "(" + property + "=" + convertedValue + "))";
+        }
+        return "(&" + groupListFilter + "(" + property + "=" + escapeSpecialCharactersForFilter(value) + "))";
+    }
+
+    /**
+     * Resolve list of returned group attributes for group operation.
+     *
+     * @param mandatoryAttributes Attributes that should be returned.
+     * @param requestedAttributes Other attributes that needs to be returned.
+     * @param ldapRoleContext     LDAPRoleContext.
+     * @return List of required list of attributes.
+     */
+    private String[] resolveGroupAttributes(List<String> mandatoryAttributes,
+                                            List<String> requestedAttributes,
+                                            LDAPRoleContext ldapRoleContext) {
+
+        Map<String, String> attributes = new HashMap<>();
+        if (CollectionUtils.isEmpty(requestedAttributes)) {
+            // This means we need to return all available attributes.
+            addNotNullAttributeToMap(ldapRoleContext.getGroupIdProperty(), attributes);
+            addNotNullAttributeToMap(ldapRoleContext.getRoleNameProperty(), attributes);
+            addNotNullAttributeToMap(ldapRoleContext.getGroupCreatedDayProperty(), attributes);
+            addNotNullAttributeToMap(ldapRoleContext.getGroupLastModifiedProperty(), attributes);
+            return attributes.keySet().toArray(new String[0]);
+        }
+        // Adding to a map will not allow any duplicates.
+        for (String attribute : mandatoryAttributes) {
+            attributes.put(attribute, attribute);
+        }
+        for (String requestedAttribute : requestedAttributes) {
+            if (StringUtils.isBlank(requestedAttribute)) {
+                continue;
+            }
+            switch (requestedAttribute) {
+                case GROUP_ID_ATTRIBUTE:
+                    addNotNullAttributeToMap(ldapRoleContext.getGroupIdProperty(), attributes);
+                    break;
+                case LDAPConstants.GROUP_NAME_ATTRIBUTE:
+                    addNotNullAttributeToMap(ldapRoleContext.getRoleNameProperty(), attributes);
+                    break;
+                case GROUP_CREATED_DATE_ATTRIBUTE:
+                    addNotNullAttributeToMap(ldapRoleContext.getGroupCreatedDayProperty(), attributes);
+                    break;
+                case GROUP_LAST_MODIFIED_DATE_ATTRIBUTE:
+                    addNotNullAttributeToMap(ldapRoleContext.getGroupLastModifiedProperty(), attributes);
+                    break;
+                default:
+                    log.error("Unsupported group attribute: " + requestedAttribute);
+                    break;
+            }
+        }
+        return attributes.keySet().toArray(new String[0]);
+    }
+
+    private void addNotNullAttributeToMap(String attribute, Map<String, String> attributes) {
+
+        // We only need to escape null an empty values.
+        if (StringUtils.isEmpty(attribute)) {
+            return;
+        }
+        attributes.put(attribute, attribute);
+    }
+
+    private int getSearchTime() {
+
+        int searchTime;
+        try {
+            searchTime = Integer.parseInt(realmConfig.getUserStoreProperty(
+                    UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
+        } catch (NumberFormatException e) {
+            searchTime = UserCoreConstants.MAX_SEARCH_TIME;
+        }
+        return searchTime;
     }
 }
