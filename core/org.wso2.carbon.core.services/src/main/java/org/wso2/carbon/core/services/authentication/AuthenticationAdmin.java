@@ -48,7 +48,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import static org.wso2.carbon.CarbonConstants.DISABLE_LEGACY_LOGS;
+import static org.wso2.carbon.utils.CarbonUtils.isLegacyAuditLogsDisabled;
 
 /**
  * This is not an AdminService, but we are retainig the name for historical reasons.
@@ -240,14 +240,14 @@ public class AuthenticationAdmin implements CarbonServerAuthenticator {
             if (delegatedBy == null && loggedInUser != null) {
                 String logMsg = "'" + loggedInUser + "@" + tenantDomain + " [" + tenantId + "]' logged out at " + date.format(currentTime);
                 log.info(logMsg);
-                if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                if (!isLegacyAuditLogsDisabled()) {
                     audit.info(logMsg);
                 }
             } else if (loggedInUser != null) {
                 String logMsg = "'" + loggedInUser + "@" + tenantDomain + " [" + tenantId + "]' logged out at " + date.format(currentTime)
                         + " delegated by " + delegatedBy;
                 log.info(logMsg);
-                if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                if (!isLegacyAuditLogsDisabled()) {
                     audit.info(logMsg);
                 }
             }
