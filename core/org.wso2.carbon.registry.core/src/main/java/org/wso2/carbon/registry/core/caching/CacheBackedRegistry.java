@@ -53,7 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.wso2.carbon.CarbonConstants.DISABLE_LEGACY_LOGS;
+import static org.wso2.carbon.utils.CarbonUtils.isLegacyAuditLogsDisabled;
 
 /**
  * CacheBackedRegistry has wrapped from original Registry interface to support caching
@@ -193,7 +193,7 @@ public class CacheBackedRegistry implements Registry {
         if (!AuthorizationUtils.authorize(path, ActionConstants.GET)) {
             String msg = "User " + CurrentSession.getUser() + " is not authorized to " +
                     "read the resource " + path + ".";
-            if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+            if (!isLegacyAuditLogsDisabled()) {
                 audit.warn(msg);
             }
             throw new AuthorizationFailedException(msg);
@@ -326,7 +326,7 @@ public class CacheBackedRegistry implements Registry {
         if (!AuthorizationUtils.authorize(path, ActionConstants.GET)) {
             String msg = "User " + CurrentSession.getUser() + " is not authorized to " +
                     "read the resource " + path + ".";
-            if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+            if (!isLegacyAuditLogsDisabled()) {
                 audit.warn(msg);
             }
             throw new AuthorizationFailedException(msg);

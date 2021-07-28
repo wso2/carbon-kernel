@@ -34,7 +34,7 @@ import javax.management.remote.JMXPrincipal;
 import javax.security.auth.Subject;
 import java.util.Collections;
 
-import static org.wso2.carbon.CarbonConstants.DISABLE_LEGACY_LOGS;
+import static org.wso2.carbon.utils.CarbonUtils.isLegacyAuditLogsDisabled;
 
 /**
  * JMX Authenticator for WSAS
@@ -111,7 +111,7 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
                 int tenantId = tenantManager.getTenantId(tenantDomain);
                 carbonContext.setTenantId(tenantId);
                 carbonContext.setTenantDomain(tenantDomain);
-                if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                if (!isLegacyAuditLogsDisabled()) {
                     audit.info("User " + userName + " successfully authenticated to perform JMX operations.");
                 }
                 return new Subject(true, Collections.singleton(new JMXPrincipal(authorize(userName))),
@@ -123,7 +123,7 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
         } catch (SecurityException se) {
 
             String msg = "Unauthorized access attempt to JMX operation. ";
-            if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+            if (!isLegacyAuditLogsDisabled()) {
                 audit.warn(msg, se);
             }
             throw new SecurityException(msg, se);
@@ -148,7 +148,7 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
                 roleName = JMX_MONITOR_ROLE;
             }
             if (roleName != null) {
-                if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                if (!isLegacyAuditLogsDisabled()) {
                     audit.info("User: " + userName + " successfully authorized as " +
                             roleName + " to perform JMX operations.");
                 }

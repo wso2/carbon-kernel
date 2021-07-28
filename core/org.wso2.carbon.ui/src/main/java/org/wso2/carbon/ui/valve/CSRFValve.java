@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-import static org.wso2.carbon.CarbonConstants.DISABLE_LEGACY_LOGS;
+import static org.wso2.carbon.utils.CarbonUtils.isLegacyAuditLogsDisabled;
 
 public class CSRFValve extends ValveBase {
     private static final Log log = LogFactory.getLog(CSRFValve.class);
@@ -143,7 +143,7 @@ public class CSRFValve extends ValveBase {
             if (!allow) {
                 String msg = "Possible CSRF attack. Refer header : " + refererHeader;
                 log.warn(msg);
-                if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                if (!isLegacyAuditLogsDisabled()) {
                     audit.warn(msg);
                 }
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -157,7 +157,7 @@ public class CSRFValve extends ValveBase {
                     currentSession.invalidate();
                     String msg = "Possible CSRF attack. Request to '" + requestURI + "' does not have a Referer header";
                     log.warn(msg);
-                    if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                    if (!isLegacyAuditLogsDisabled()) {
                         audit.warn(msg);
                     }
                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);

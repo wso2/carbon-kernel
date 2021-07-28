@@ -38,7 +38,7 @@ import javax.servlet.http.HttpSession;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static org.wso2.carbon.CarbonConstants.DISABLE_LEGACY_LOGS;
+import static org.wso2.carbon.utils.CarbonUtils.isLegacyAuditLogsDisabled;
 
 /**
  *
@@ -88,7 +88,7 @@ public class AuthenticationHandler extends AbstractHandler {
                         && !userTenantDomain.equals(currentTenantDomain)) {
                     String msg = "Access Denied. A user " + userName + "@" + userTenantDomain +
                             " is trying to access services in domain " + currentTenantDomain;
-                    if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                    if (!isLegacyAuditLogsDisabled()) {
                         audit.error(msg);
                     }
                     throw new AxisFault(msg, ServerConstants.AUTHENTICATION_FAULT_CODE);
@@ -190,7 +190,7 @@ public class AuthenticationHandler extends AbstractHandler {
                     String msg = "Illegal access attempt at " + date.format(new Date()) + " from IP address "
                             + remoteIP + " while trying to authenticate access to service " + serviceName;
                     log.warn(msg);
-                    if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                    if (!isLegacyAuditLogsDisabled()) {
                         audit.error(msg);
                     }
                     throw e;
@@ -212,7 +212,7 @@ public class AuthenticationHandler extends AbstractHandler {
                     String msg = "Illegal access attempt at " + date.format(new Date()) + " from IP address "
                                + remoteIP + " : Service is " + serviceName;
                     log.warn(msg);
-                    if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+                    if (!isLegacyAuditLogsDisabled()) {
                         audit.warn(msg);
                     }
                 }

@@ -38,7 +38,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import static org.wso2.carbon.CarbonConstants.DISABLE_LEGACY_LOGS;
+import static org.wso2.carbon.utils.CarbonUtils.isLegacyAuditLogsDisabled;
 
 /**
  * This Axis2 handler checks whether the caller is authorized to invoke the
@@ -68,7 +68,7 @@ public class AuthorizationHandler extends AbstractHandler {
 
         Parameter actionParam = operation.getParameter("AuthorizationAction");
         if (actionParam == null) {
-            if (!Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_LOGS))) {
+            if (!isLegacyAuditLogsDisabled()) {
                 audit.warn("Unauthorized call by tenant " + carbonCtx.getTenantDomain() +
                         ",user " + carbonCtx.getUsername() + " to service:" + service.getName() +
                         ",operation:" + opName);
