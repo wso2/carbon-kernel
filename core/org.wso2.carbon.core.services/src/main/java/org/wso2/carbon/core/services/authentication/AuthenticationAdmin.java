@@ -48,6 +48,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import static org.wso2.carbon.utils.CarbonUtils.isLegacyAuditLogsDisabled;
+
 /**
  * This is not an AdminService, but we are retainig the name for historical reasons.
  * This service will have to be eventually removed
@@ -238,12 +240,16 @@ public class AuthenticationAdmin implements CarbonServerAuthenticator {
             if (delegatedBy == null && loggedInUser != null) {
                 String logMsg = "'" + loggedInUser + "@" + tenantDomain + " [" + tenantId + "]' logged out at " + date.format(currentTime);
                 log.info(logMsg);
-                audit.info(logMsg);
+                if (!isLegacyAuditLogsDisabled()) {
+                    audit.info(logMsg);
+                }
             } else if (loggedInUser != null) {
                 String logMsg = "'" + loggedInUser + "@" + tenantDomain + " [" + tenantId + "]' logged out at " + date.format(currentTime)
                         + " delegated by " + delegatedBy;
                 log.info(logMsg);
-                audit.info(logMsg);
+                if (!isLegacyAuditLogsDisabled()) {
+                    audit.info(logMsg);
+                }
             }
             //We should not invalidate the session if the system is running on local transport
             if (!isRequestedFromLocalTransport()) {

@@ -38,6 +38,8 @@ import javax.servlet.http.HttpSession;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static org.wso2.carbon.utils.CarbonUtils.isLegacyAuditLogsDisabled;
+
 /**
  *
  */
@@ -86,7 +88,9 @@ public class AuthenticationHandler extends AbstractHandler {
                         && !userTenantDomain.equals(currentTenantDomain)) {
                     String msg = "Access Denied. A user " + userName + "@" + userTenantDomain +
                             " is trying to access services in domain " + currentTenantDomain;
-                    audit.error(msg);
+                    if (!isLegacyAuditLogsDisabled()) {
+                        audit.error(msg);
+                    }
                     throw new AxisFault(msg, ServerConstants.AUTHENTICATION_FAULT_CODE);
                 }
                 msgContext.setProperty(MultitenantConstants.TENANT_DOMAIN, userTenantDomain);
@@ -184,9 +188,11 @@ public class AuthenticationHandler extends AbstractHandler {
                     invalidateSession(msgContext);
                     String serviceName = getServiceName(msgContext);
                     String msg = "Illegal access attempt at " + date.format(new Date()) + " from IP address "
-                                 + remoteIP + " while trying to authenticate access to service " + serviceName;
+                            + remoteIP + " while trying to authenticate access to service " + serviceName;
                     log.warn(msg);
-                    audit.error(msg);
+                    if (!isLegacyAuditLogsDisabled()) {
+                        audit.error(msg);
+                    }
                     throw e;
                 }
             }
@@ -206,7 +212,9 @@ public class AuthenticationHandler extends AbstractHandler {
                     String msg = "Illegal access attempt at " + date.format(new Date()) + " from IP address "
                                + remoteIP + " : Service is " + serviceName;
                     log.warn(msg);
-                    audit.warn(msg);
+                    if (!isLegacyAuditLogsDisabled()) {
+                        audit.warn(msg);
+                    }
                 }
             }
         }

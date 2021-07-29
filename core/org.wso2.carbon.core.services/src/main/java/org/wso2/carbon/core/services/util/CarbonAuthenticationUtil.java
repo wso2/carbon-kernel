@@ -27,7 +27,6 @@ import org.wso2.carbon.core.services.authentication.stats.LoginAttempt;
 import org.wso2.carbon.core.services.authentication.stats.LoginStatDatabase;
 import org.wso2.carbon.core.services.callback.LoginSubscriptionManagerServiceImpl;
 import org.wso2.carbon.core.services.internal.CarbonServicesServiceComponent;
-import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ThriftSession;
 import org.wso2.carbon.registry.core.RegistryConstants;
@@ -40,6 +39,8 @@ import javax.servlet.http.HttpSession;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+
+import static org.wso2.carbon.utils.CarbonUtils.isLegacyAuditLogsDisabled;
 
 public class CarbonAuthenticationUtil {
 
@@ -75,8 +76,9 @@ public class CarbonAuthenticationUtil {
            msg +=  " from IP address " + remoteAddress;
         }
         log.warn(msg);
-        audit.warn(msg);
-
+        if (!isLegacyAuditLogsDisabled()) {
+            audit.warn(msg);
+        }
         if (httpSess != null) {
             httpSess.invalidate();
         }
@@ -100,8 +102,9 @@ public class CarbonAuthenticationUtil {
             msg +=  " from IP address " + remoteAddress;
         }
         log.info(msg);
-        audit.info(msg);
-
+        if (!isLegacyAuditLogsDisabled()) {
+            audit.info(msg);
+        }
         // trigger the callbacks subscribe to the login event
         LoginSubscriptionManagerServiceImpl loginSubscriptionManagerServiceImpl = CarbonServicesServiceComponent
                 .getLoginSubscriptionManagerServiceImpl();
@@ -159,7 +162,9 @@ public class CarbonAuthenticationUtil {
                     httpSession.setAttribute(MultitenantConstants.IS_SUPER_TENANT, "true");
                 }
             } else {
-                audit.info("User with null domain tried to login.");
+                if (!isLegacyAuditLogsDisabled()) {
+                    audit.info("User with null domain tried to login.");
+                }
                 return;
             }
 
@@ -205,7 +210,9 @@ public class CarbonAuthenticationUtil {
             if (tenantDomain != null) {
                 thriftSession.setAttribute(MultitenantConstants.TENANT_DOMAIN, tenantDomain);
             } else {
-            	audit.info("User with null domain tried to login.");
+                if (!isLegacyAuditLogsDisabled()) {
+                    audit.info("User with null domain tried to login.");
+                }
             	return;
             }
             thriftSession.setAttribute(RegistryConstants.ROOT_REGISTRY_INSTANCE, registryService
@@ -232,8 +239,9 @@ public class CarbonAuthenticationUtil {
         String msg = "\'" + username + "@" + tenantDomain + " [" + tenantId + "]\' logged in at " +
                    date.format(currentTime) + " from IP address " + remoteAddress;
         log.info(msg);
-        audit.info(msg);
-       
+        if (!isLegacyAuditLogsDisabled()) {
+            audit.info(msg);
+        }
 
         // trigger the callbacks subscribe to the login event
         LoginSubscriptionManagerServiceImpl loginSubscriptionManagerServiceImpl = CarbonServicesServiceComponent

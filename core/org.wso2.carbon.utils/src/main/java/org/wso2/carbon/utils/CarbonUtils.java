@@ -87,6 +87,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static org.wso2.carbon.CarbonConstants.DISABLE_LEGACY_AUDIT_LOGS;
+
 /**
  * A collection of useful utility methods
  */
@@ -1345,5 +1347,15 @@ public class CarbonUtils {
         dbf.setAttribute(org.apache.xerces.impl.Constants.XERCES_PROPERTY_PREFIX +
                 org.apache.xerces.impl.Constants.SECURITY_MANAGER_PROPERTY, securityManager);
         return dbf;
+    }
+
+    /**
+     * Check whether the legacy audit logs are disabled.
+     *
+     * @return Whether legacy audit logs are disabled.
+     */
+    public static boolean isLegacyAuditLogsDisabled() {
+
+        return Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_AUDIT_LOGS));
     }
 }

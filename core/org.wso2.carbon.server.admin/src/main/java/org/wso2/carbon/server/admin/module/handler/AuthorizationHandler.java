@@ -38,6 +38,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import static org.wso2.carbon.utils.CarbonUtils.isLegacyAuditLogsDisabled;
+
 /**
  * This Axis2 handler checks whether the caller is authorized to invoke the
  * admin service.
@@ -66,9 +68,11 @@ public class AuthorizationHandler extends AbstractHandler {
 
         Parameter actionParam = operation.getParameter("AuthorizationAction");
         if (actionParam == null) {
-            audit.warn("Unauthorized call by tenant " + carbonCtx.getTenantDomain() +
-                       ",user " + carbonCtx.getUsername() + " to service:" + service.getName() +
-                       ",operation:" + opName);
+            if (!isLegacyAuditLogsDisabled()) {
+                audit.warn("Unauthorized call by tenant " + carbonCtx.getTenantDomain() +
+                        ",user " + carbonCtx.getUsername() + " to service:" + service.getName() +
+                        ",operation:" + opName);
+            }
             throw new AxisFault("Unauthorized call!. AuthorizationAction has not been specified for service:" +
                                 service.getName() + ", operation:" + opName);
         }

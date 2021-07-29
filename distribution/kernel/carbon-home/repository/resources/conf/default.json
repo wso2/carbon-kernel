@@ -176,7 +176,7 @@
   "tasks.resolver_class": "org.wso2.carbon.ntask.core.impl.RoundRobinTaskLocationResolver",
   "server.base_path" : "${carbon.protocol}://${carbon.host}:${carbon.management.port}",
   "system.parameter.\u0027org.wso2.CipherTransformation\u0027": "RSA/ECB/OAEPwithSHA1andMGF1Padding",
-
+  "system.parameter.disableLegacyAuditLogs": false,
   "admin_service.wsdl.enable": false,
   "monitoring.jmx.rmi_registry_port": "9999",
   "monitoring.jmx.rmi_server_port": "11111",

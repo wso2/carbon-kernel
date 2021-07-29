@@ -31,6 +31,7 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import static org.wso2.carbon.utils.CarbonUtils.isLegacyAuditLogsDisabled;
 
 /**
  * This handler will restrict super tenant services from non super tenant services..
@@ -60,8 +61,9 @@ public class TenantAuthorizationHandler extends AbstractHandler {
                     .append(". Tenant domain - ")
                     .append(PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain(false))
                     .append(", tenant id - ").append(tenantId);
-
-            audit.warn(message.toString());
+            if (!isLegacyAuditLogsDisabled()) {
+                audit.warn(message.toString());
+            }
 
             // for non tenantId = 0 access throw an exception
             String errorMsg = "Denied accessing super tenant service.";

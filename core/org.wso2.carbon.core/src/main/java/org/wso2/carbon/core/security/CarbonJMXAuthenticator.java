@@ -34,6 +34,8 @@ import javax.management.remote.JMXPrincipal;
 import javax.security.auth.Subject;
 import java.util.Collections;
 
+import static org.wso2.carbon.utils.CarbonUtils.isLegacyAuditLogsDisabled;
+
 /**
  * JMX Authenticator for WSAS
  */
@@ -109,8 +111,9 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
                 int tenantId = tenantManager.getTenantId(tenantDomain);
                 carbonContext.setTenantId(tenantId);
                 carbonContext.setTenantDomain(tenantDomain);
-
-                audit.info("User " + userName + " successfully authenticated to perform JMX operations.");
+                if (!isLegacyAuditLogsDisabled()) {
+                    audit.info("User " + userName + " successfully authenticated to perform JMX operations.");
+                }
                 return new Subject(true, Collections.singleton(new JMXPrincipal(authorize(userName))),
                         Collections.EMPTY_SET, Collections.EMPTY_SET);
 
@@ -120,7 +123,9 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
         } catch (SecurityException se) {
 
             String msg = "Unauthorized access attempt to JMX operation. ";
-            audit.warn(msg, se);
+            if (!isLegacyAuditLogsDisabled()) {
+                audit.warn(msg, se);
+            }
             throw new SecurityException(msg, se);
 
         } catch (Exception e) {
@@ -143,8 +148,10 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
                 roleName = JMX_MONITOR_ROLE;
             }
             if (roleName != null) {
-                audit.info("User: " + userName + " successfully authorized as " +
-                        roleName + " to perform JMX operations.");
+                if (!isLegacyAuditLogsDisabled()) {
+                    audit.info("User: " + userName + " successfully authorized as " +
+                            roleName + " to perform JMX operations.");
+                }
                 return roleName;
 
             } else {
