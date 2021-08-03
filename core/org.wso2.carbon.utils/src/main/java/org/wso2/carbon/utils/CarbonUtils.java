@@ -1412,7 +1412,7 @@ public class CarbonUtils {
     public static Instant parseDateTime(String dateTimeString) {
 
         Instant localDateTime = null;
-        if (!StringUtils.isNotEmpty(dateTimeString)) {
+        if (StringUtils.isEmpty(dateTimeString)) {
             return null;
         }
         try {

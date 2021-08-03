@@ -430,7 +430,11 @@ public final class CarbonConstants {
     // parameter to indicate whether HTTP access to Admin Console is enabled
     public static final String ENABLE_HTTP_ADMIN_CONSOLE = "EnableHTTPAdminConsole";
 
+    /**
+     * Constants for Logging events.
+     */
     public static class LogEventConstants {
+
         // Common keys for both audit/diagnostic logs.
         public static final String LOG_ID = "id";
         public static final String RECORDED_AT = "recordedAt";
