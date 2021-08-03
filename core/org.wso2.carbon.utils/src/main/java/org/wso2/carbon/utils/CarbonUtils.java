@@ -34,6 +34,7 @@ import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.util.JavaUtils;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.MDC;
@@ -82,6 +83,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
+import java.time.DateTimeException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -1363,10 +1369,15 @@ public class CarbonUtils {
         return Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_AUDIT_LOGS));
     }
 
+    /**
+     * Publish audit logs to the audit log file.
+     *
+     * @param auditLogData Audit log event data required for lpg.
+     */
     public static void publishAuditLogs(Map<String, Object> auditLogData) {
 
         String id = UUID.randomUUID().toString();
-        String recordedAt = "";
+        String recordedAt = String.valueOf(parseDateTime(Instant.now().toString()));
         String clientComponent = auditLogData.get(CarbonConstants.LogEventConstants.CLIENT_COMPONENT) != null ?
                 auditLogData.get(CarbonConstants.LogEventConstants.CLIENT_COMPONENT).toString() : "null";
         String correlationId = MDC.get(CORRELATION_ID_MDC) != null ? MDC.get(CORRELATION_ID_MDC).toString() : "null";
@@ -1387,8 +1398,33 @@ public class CarbonUtils {
         String dataChange = auditLogData.get(CarbonConstants.LogEventConstants.DATA_CHANGE) != null ?
                 auditLogData.get(CarbonConstants.LogEventConstants.DATA_CHANGE).toString() : null;
         String auditLog = String.format(CarbonConstants.AUDIT_LOG_MESSAGE_TEMPLATE, id, recordedAt, clientComponent,
-                correlationId,
-                initiatorId, initiatorName, initiatorType, eventType, targetId, targetName, targetType, dataChange);
+                correlationId, initiatorId, initiatorName, initiatorType, eventType, targetId, targetName, targetType,
+                dataChange);
         audit.warn(auditLog);
     }
+
+    /**
+     * Parse Date Time into UTC format.
+     *
+     * @param dateTimeString Date time.
+     * @return Date time in ISO_OFFSET_DATE_TIME format.
+     */
+    public static Instant parseDateTime(String dateTimeString) {
+
+        Instant localDateTime = null;
+        if (!StringUtils.isNotEmpty(dateTimeString)) {
+            return null;
+        }
+        try {
+            localDateTime = LocalDateTime.parse(dateTimeString).toInstant(ZoneOffset.UTC);
+        } catch (DateTimeException e) {
+            try {
+                return OffsetDateTime.parse(dateTimeString).toInstant();
+            } catch (DateTimeException dte) {
+                log.error("Error in parsing date time. Date time should adhere to ISO_OFFSET_DATE_TIME format", e);
+            }
+        }
+        return localDateTime;
+    }
+
 }
