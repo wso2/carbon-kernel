@@ -1392,11 +1392,11 @@ public class CarbonUtils {
         String targetId = auditLogData.get(CarbonConstants.LogEventConstants.TARGET_ID) != null ?
                 auditLogData.get(CarbonConstants.LogEventConstants.TARGET_ID).toString() : "null";
         String targetName = auditLogData.get(CarbonConstants.LogEventConstants.TARGET_NAME) != null ?
-                auditLogData.get(CarbonConstants.LogEventConstants.TARGET_NAME).toString() : null;
+                auditLogData.get(CarbonConstants.LogEventConstants.TARGET_NAME).toString() : "null";
         String targetType = auditLogData.get(CarbonConstants.LogEventConstants.TARGET_TYPE) != null ?
-                auditLogData.get(CarbonConstants.LogEventConstants.TARGET_TYPE).toString() : null;
+                auditLogData.get(CarbonConstants.LogEventConstants.TARGET_TYPE).toString() : "null";
         String dataChange = auditLogData.get(CarbonConstants.LogEventConstants.DATA_CHANGE) != null ?
-                auditLogData.get(CarbonConstants.LogEventConstants.DATA_CHANGE).toString() : null;
+                auditLogData.get(CarbonConstants.LogEventConstants.DATA_CHANGE).toString() : "null";
         String auditLog = String.format(CarbonConstants.AUDIT_LOG_MESSAGE_TEMPLATE, id, recordedAt, clientComponent,
                 correlationId, initiatorId, initiatorName, initiatorType, eventType, targetId, targetName, targetType,
                 dataChange);
