@@ -301,7 +301,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon Kernel Related Versions-->
-        <carbon.kernel.version>4.7.9-SNAPSHOT</carbon.kernel.version>
+        <carbon.kernel.version>4.7.0-SNAPSHOT</carbon.kernel.version>
         <carbon.kernel.exp.pkg.version>${carbon.kernel.version}</carbon.kernel.exp.pkg.version>
         <carbon.kernel.imp.pkg.version>[${carbon.kernel.version}, 4.7.0)</carbon.kernel.imp.pkg.version>
 
