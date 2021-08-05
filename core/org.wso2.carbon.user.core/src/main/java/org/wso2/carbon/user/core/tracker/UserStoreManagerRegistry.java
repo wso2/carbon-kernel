@@ -17,11 +17,13 @@
  */
 package org.wso2.carbon.user.core.tracker;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 import org.wso2.carbon.user.api.Properties;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 
@@ -110,5 +112,40 @@ public class UserStoreManagerRegistry extends UserStoreMgtDSComponent {
         Properties properties;
         properties = getUserStoreManagers().get(className);
         return properties;
+    }
+
+    /**
+     * Get if the user store is local or not.
+     *
+     * @param className User store name.
+     * @return boolean true if user store is a local.
+     */
+    public static boolean isLocalUserStore(String className) throws UserStoreException {
+
+        Object[] userStoreManagers = userStoreManagerTracker.getServices();
+        for (Object userStoreManagerObj : userStoreManagers) {
+            UserStoreManager userStoreManager = (UserStoreManager) userStoreManagerObj;
+            if (StringUtils.equals(className, userStoreManager.getClass().getName())) {
+                return userStoreManager.isLocalUserStore();
+            }
+        }
+        throw new UserStoreException(String.format("User store manager is not found for the given className: %s",
+                className));
+    }
+
+    /**
+     * Get all the available user store manager names and their type (local user store or not).
+     *
+     * @return Map<String, Boolean> Map of user store manager name and boolean indicating local or not.
+     */
+    public static Map<String, Boolean> getUserStoreManagersType() {
+
+        Map<String, Boolean> userStoreManagersType = new HashMap<>();
+        Object[] userStoreManagers = userStoreManagerTracker.getServices();
+        for (Object userStoreManagerObj : userStoreManagers) {
+            boolean isLocalUserStore = ((UserStoreManager) userStoreManagerObj).isLocalUserStore();
+            userStoreManagersType.put(userStoreManagerObj.getClass().getName(), isLocalUserStore);
+        }
+        return userStoreManagersType;
     }
 }
