@@ -33,6 +33,7 @@ import org.apache.axis2.description.TransportOutDescription;
 import org.apache.axis2.description.WSDL2Constants;
 import org.apache.axis2.engine.AxisEngine;
 import org.apache.axis2.handlers.AbstractHandler;
+import org.apache.axis2.transport.OutTransportInfo;
 import org.apache.axis2.transport.RequestResponseTransport;
 import org.apache.axis2.transport.TransportSender;
 import org.apache.axis2.transport.http.HTTPConstants;
@@ -150,6 +151,13 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
                 msgContext.getProperty(Constants.Configuration.CONTENT_TYPE);
         superTenantOutMessageContext.setProperty(
                 Constants.Configuration.CONTENT_TYPE, contentTypeProperty);
+
+        OutTransportInfo transportInfo =
+                (OutTransportInfo) msgContext.getProperty(Constants.OUT_TRANSPORT_INFO);
+
+        if (transportInfo != null) {
+            transportInfo.setContentType(msgTypeProperty);
+        }
 
         superTenantOutMessageContext.setDoingMTOM(msgContext.isDoingMTOM());
 
