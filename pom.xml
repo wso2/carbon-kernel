@@ -67,6 +67,7 @@
         <module>components/cors-mgt</module>
         <module>components/multi-attribute-login</module>
         <module>components/secret-mgt</module>
+        <module>components/central-logger</module>
         <module>features/security-mgt</module>
         <module>features/claim-mgt</module>
         <module>features/identity-core</module>
@@ -94,6 +95,7 @@
         <module>features/user-store</module>
         <module>features/secret-mgt</module>
         <module>components/central-logger</module>
+        <module>features/central-logger</module>
     </modules>
 
 
