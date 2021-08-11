@@ -51,7 +51,7 @@ public class TenantConstants {
     public static final String LIST_TENANTS_DB2_TAIL = "(ORDER BY %s) AS rn,UM_TENANT.* FROM UM_TENANT)" +
             "WHERE rn BETWEEN ? AND ?";
     public static final String LIST_TENANTS_MSSQL_TAIL = "ORDER BY %s OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-    public static final String LIST_TENANTS_ORACLE_TAIL = "ORDER BY %s) rownum <= ?) WHERE rnum > ?";
+    public static final String LIST_TENANTS_ORACLE_TAIL = "ORDER BY %s) WHERE rownum <= ?) WHERE rnum > ?";
     public static final String GET_DOMAIN_SQL = "SELECT UM_DOMAIN_NAME FROM UM_TENANT WHERE UM_ID=?";
     public static final String GET_TENANT_ID_SQL = "SELECT UM_ID FROM UM_TENANT WHERE UM_DOMAIN_NAME=?";
     public static final String ACTIVATE_SQL = "UPDATE UM_TENANT SET UM_ACTIVE='1' WHERE UM_ID=?";
