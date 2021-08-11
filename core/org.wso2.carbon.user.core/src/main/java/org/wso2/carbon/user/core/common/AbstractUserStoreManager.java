@@ -5202,10 +5202,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
             if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
                 hybridRoleManager.updateUserListOfHybridRole(userStore.getDomainFreeName(), deletedUsers, newUsers);
-                handleDoPostUpdateUserListOfRole(roleName, deletedUsers, newUsers, true);
+                handleDoPostUpdateUserListOfRole(roleName, deletedUsers, newUsers, false);
             } else {
                 hybridRoleManager.updateUserListOfHybridRole(userStore.getDomainAwareName(), deletedUsers, newUsers);
-                handleDoPostUpdateUserListOfRole(roleName, deletedUsers, newUsers, true);
+                handleDoPostUpdateUserListOfRole(roleName, deletedUsers, newUsers, false);
             }
             clearUserRolesCacheByTenant(this.tenantId);
             return;
