@@ -77,10 +77,6 @@ public class ReadOnlyLDAPUserStoreConstants {
                 UserStoreConfigConstants.userIdSearchFilterAttributeName, "(&(objectClass=person)(uid=?))",
                 UserStoreConfigConstants.userIdSearchFilterDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.USERSTORE_TIME_FORMAT,
-                UserStoreConfigConstants.USERSTORE_TIME_FORMAT_DISPLAY_NAME, LDAPConstants.ZULU_TIME,
-                UserStoreConfigConstants.USERSTORE_TIME_FORMAT_DESCRIPTION, false,
-                new Property[]{GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty()});
 
         // Group Id Related Userstore Configurations - By default this will be disabled.
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.GROUP_ID_ENABLED,
@@ -150,8 +146,9 @@ public class ReadOnlyLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.lDAPInitialContextFactory, "LDAP Initial Context Factory",
                 "com.sun.jndi.ldap.LdapCtxFactory", UserStoreConfigConstants.lDAPInitialContextFactoryDescription,
                 new Property[] { CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty() });
-        setProperty(UserStoreConfigConstants.dateAndTimePattern, "", UserStoreConfigConstants
-                .dateAndTimePatternDisplayName, UserStoreConfigConstants.dateAndTimePatternDescription, new Property[]{CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty()});
+        setProperty(UserStoreConfigConstants.dateAndTimePattern, UserStoreConfigConstants.dateAndTimePatternDisplayName,
+                "", UserStoreConfigConstants.dateAndTimePatternDescription,
+                new Property[]{CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty()});
         setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "true",
                 UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION,
                 new Property[] { USER.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });

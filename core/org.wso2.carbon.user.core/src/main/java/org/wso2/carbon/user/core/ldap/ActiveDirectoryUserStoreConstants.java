@@ -205,11 +205,6 @@ public class ActiveDirectoryUserStoreConstants {
                 "com.sun.jndi.ldap.LdapCtxFactory", UserStoreConfigConstants.lDAPInitialContextFactoryDescription,
                 new Property[] { CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty() });
 
-        setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.USERSTORE_TIME_FORMAT,
-                UserStoreConfigConstants.USERSTORE_TIME_FORMAT_DISPLAY_NAME, LDAPConstants.WINDOWS_NT_TIME,
-                UserStoreConfigConstants.USERSTORE_TIME_FORMAT_DESCRIPTION, false,
-                new Property[]{GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty()});
-
         // Group Id Related Userstore Configurations - By default this will be disabled.
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.GROUP_ID_ENABLED,
                 UserStoreConfigConstants.GROUP_ID_ENABLED_DISPLAY_NAME, Boolean.toString(false),
@@ -227,8 +222,9 @@ public class ActiveDirectoryUserStoreConstants {
                 UserStoreConfigConstants.userIdSearchFilterAttributeName, "(&(objectClass=person)(uid=?))",
                 UserStoreConfigConstants.userIdSearchFilterDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        setProperty(UserStoreConfigConstants.dateAndTimePattern, "", UserStoreConfigConstants
-                .dateAndTimePatternDisplayName, UserStoreConfigConstants.dateAndTimePatternDescription, new Property[]{CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty()});
+        setProperty(UserStoreConfigConstants.dateAndTimePattern, UserStoreConfigConstants.dateAndTimePatternDisplayName,
+                "", UserStoreConfigConstants.dateAndTimePatternDescription,
+                new Property[]{CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty()});
     }
 
     private static void setMandatoryProperty(String name, String displayName, String value, String description,

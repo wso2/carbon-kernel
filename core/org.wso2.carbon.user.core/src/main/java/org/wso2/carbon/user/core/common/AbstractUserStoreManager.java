@@ -15901,14 +15901,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public List<Group> listGroups(Condition condition, int limit, int offset, String domain, String sortBy,
                                   String sortOrder) throws UserStoreException {
 
-        diagnosticLog.info("Fetching groups list of userstore domain: " + domain);
         validateCondition(condition);
         if (StringUtils.isNotBlank(sortBy) && StringUtils.isNotBlank(sortOrder)) {
             throw new UserStoreException(ERROR_SORTING_NOT_SUPPORTED.getMessage(),
                     ERROR_SORTING_NOT_SUPPORTED.getCode());
         }
         if (StringUtils.isBlank(domain)) {
-            diagnosticLog.info("domain parameter is empty. Setting 'Primary' as the default domain.");
+            if (log.isDebugEnabled()) {
+                log.debug("domain parameter is empty. Setting 'Primary' as the default domain.");
+            }
             domain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
         }
         UserStoreManager userManager = this;
@@ -16950,7 +16951,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
                     && !listener.onPreGetGroupByIdFailure(errorCode, errorMessage, groupId,
                     requiredAttributes, this)) {
-                diagnosticLog.error("'onPreGetGroupByIdFailure' event invocation failed for listener: " +
+                log.error("'onPreGetGroupByIdFailure' event invocation failed for listener: " +
                         listener.getClass().getName());
                 return;
             }
@@ -16976,7 +16977,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
                     && !listener.onPreGetGroupByNameFailure(errorCode, errorMessage, groupName,
                     requiredAttributes, this)) {
-                diagnosticLog.error("'onPreGetGroupByNameFailure' event invocation failed for listener: " +
+                log.error("'onPreGetGroupByNameFailure' event invocation failed for listener: " +
                         listener.getClass().getName());
                 return;
             }
@@ -16999,7 +17000,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getGroupManagementErrorEventListeners()) {
             if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
                     && !listener.onPreGetGroupIdByNameFailure(errorCode, errorMessage, groupName, this)) {
-                diagnosticLog.error("'onPreGetGroupIdByNameFailure' event invocation failed for listener: " +
+                log.error("'onPreGetGroupIdByNameFailure' event invocation failed for listener: " +
                         listener.getClass().getName());
                 return;
             }
@@ -17022,7 +17023,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getGroupManagementErrorEventListeners()) {
             if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
                     && !listener.onPreGetGroupNameByIdFailure(errorCode, errorMessage, groupId, this)) {
-                diagnosticLog.error("'handlePreGetGroupNameByIdFailure' event invocation failed for listener: " +
+                log.error("'handlePreGetGroupNameByIdFailure' event invocation failed for listener: " +
                         listener.getClass().getName());
                 return;
             }
@@ -17046,7 +17047,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
                     && !listener.onPreGetGroupsListByUserIdFailure(errorCode, errorMessage,
                     userId, this)) {
-                diagnosticLog.error("'onPreGetGroupsListByUserIdFailure' event invocation failed for listener: " +
+                log.error("'onPreGetGroupsListByUserIdFailure' event invocation failed for listener: " +
                         listener.getClass().getName());
                 return;
             }
@@ -17078,7 +17079,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
                     && !listener.onPreListGroupsFailure(errorCode, errorMessage, condition, limit, offset, domain,
                     sortBy, sortOrder, userStoreManager)) {
-                diagnosticLog.error("'handlePreListGroupsFailure' event invocation failed for listener: " +
+                log.error("'handlePreListGroupsFailure' event invocation failed for listener: " +
                         listener.getClass().getName());
                 return;
             }
@@ -17102,7 +17103,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
                     && !listener.onPostGetGroupsListByUserIdFailure(errorCode, errorMessage,
                     userId, this)) {
-                diagnosticLog.error("'onPostGetGroupsListByUserIdFailure' event invocation failed for listener: " +
+                log.error("'onPostGetGroupsListByUserIdFailure' event invocation failed for listener: " +
                         listener.getClass().getName());
                 return;
             }
@@ -17128,7 +17129,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
                     && !listener.onPostGetGroupByIdFailure(errorCode, errorMessage, groupId,
                     requiredAttributes, this)) {
-                diagnosticLog.error("'handlePostGetGroupWithIdFailure' event invocation failed for listener: " +
+                log.error("'handlePostGetGroupWithIdFailure' event invocation failed for listener: " +
                         listener.getClass().getName());
                 return;
             }
@@ -17154,7 +17155,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
                     && !listener.onPostGetGroupByNameFailure(errorCode, errorMessage, groupName,
                     requiredAttributes, this)) {
-                diagnosticLog.error("'onPostGetGroupByNameFailure' event invocation failed for listener: " +
+                log.error("'onPostGetGroupByNameFailure' event invocation failed for listener: " +
                         listener.getClass().getName());
                 return;
             }
@@ -17178,7 +17179,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
                     && !listener.onPostGetGroupIdByNameFailure(errorCode, errorMessage, groupName,
                     this)) {
-                diagnosticLog.error("'onPostGetGroupIdByNameFailure' event invocation failed for listener: " +
+                log.error("'onPostGetGroupIdByNameFailure' event invocation failed for listener: " +
                         listener.getClass().getName());
                 return;
             }
@@ -17202,7 +17203,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
                     && !listener.onPostGetGroupNameByIdFailure(errorCode, errorMessage, groupId,
                     this)) {
-                diagnosticLog.error("'onPostGetGroupNameByIdFailure' event invocation failed for listener: " +
+                log.error("'onPostGetGroupNameByIdFailure' event invocation failed for listener: " +
                         listener.getClass().getName());
                 return;
             }
@@ -17234,7 +17235,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
                     && !listener.onPostListGroupsFailure(errorCode, errorMessage, condition, limit, offset, domain,
                     sortBy, sortOrder, userStoreManager)) {
-                diagnosticLog.error("'handlePostListGroupsFailure' event invocation failed for listener: " +
+                log.error("'handlePostListGroupsFailure' event invocation failed for listener: " +
                         listener.getClass().getName());
                 return;
             }
@@ -17258,7 +17259,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
                     && !listener.onGetGroupsListByUserIdFailure(errorCode, errorMessage,
                     userId, this)) {
-                diagnosticLog.error("'onGetGroupsListByUserIdFailure' event invocation failed for listener: " +
+                log.error("'onGetGroupsListByUserIdFailure' event invocation failed for listener: " +
                         listener.getClass().getName());
                 return;
             }
@@ -17283,7 +17284,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
                     && !listener.onGetGroupByIdFailure(errorCode,
                     errorMessage, groupId, requiredAttributes, this)) {
-                diagnosticLog.error("'onGetGroupWithIdFailure' event invocation failed for listener: " +
+                log.error("'onGetGroupWithIdFailure' event invocation failed for listener: " +
                         listener.getClass().getName());
                 return;
             }
@@ -17308,7 +17309,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
                     && !listener.onGetGroupByNameFailure(errorCode,
                     errorMessage, groupName, requiredAttributes, this)) {
-                diagnosticLog.error("'onGetGroupWithIdFailure' event invocation failed for listener: " +
+                log.error("'onGetGroupWithIdFailure' event invocation failed for listener: " +
                         listener.getClass().getName());
                 return;
             }
@@ -17331,7 +17332,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getGroupManagementErrorEventListeners()) {
             if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
                     && !listener.onGetGroupIdByNameFailure(errorCode, errorMessage, groupName, this)) {
-                diagnosticLog.error("'onGetGroupIdByNameFailure' event invocation failed for listener: " +
+                log.error("'onGetGroupIdByNameFailure' event invocation failed for listener: " +
                         listener.getClass().getName());
                 return;
             }
@@ -17354,7 +17355,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 .getGroupManagementErrorEventListeners()) {
             if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
                     && !listener.onGetGroupIdByNameFailure(errorCode, errorMessage, groupId, this)) {
-                diagnosticLog.error("'handleGetGroupNameByIdFailure' event invocation failed for listener: " +
+                log.error("'handleGetGroupNameByIdFailure' event invocation failed for listener: " +
                         listener.getClass().getName());
                 return;
             }
@@ -17386,7 +17387,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
                     && !listener.onListGroupsFailure(errorCode, errorMessage, condition, limit, offset, domain,
                     sortBy, sortOrder, userStoreManager)) {
-                diagnosticLog.error("'handleListGroupsFailure' event invocation failed for listener: " +
+                log.error("'handleListGroupsFailure' event invocation failed for listener: " +
                         listener.getClass().getName());
                 return;
             }
@@ -17435,8 +17436,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
         if (givenLimit < 0 || givenLimit > definedMax) {
             if (log.isDebugEnabled()) {
-                log.debug(String.format("Using the userstore defined max group list limit: %s instead " +
-                        "of given limit: %s ", definedMax, givenLimit));
+                log.debug(String.format("Using the userstore defined max group list limit: %s instead of given " +
+                        "limit: %s ", definedMax, givenLimit));
             }
             return definedMax;
         }

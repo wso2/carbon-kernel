@@ -23,7 +23,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.directory.api.util.DateUtils;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.caching.impl.CachingConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -56,7 +55,8 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.text.MessageFormat;
-import java.text.ParseException;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -97,15 +97,13 @@ import javax.naming.ldap.SortControl;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_ID_ATTRIBUTE;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE;
-import static org.wso2.carbon.user.core.UserStoreConfigConstants.USERSTORE_TIME_FORMAT;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.dateAndTimePattern;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_ID;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_NAME;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_WHILE_BUILDING_GROUP_RESPONSE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_WHILE_GETTING_GROUP_BY_ID;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_WHILE_GETTING_GROUP_BY_NAME;
 import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID;
-import static org.wso2.carbon.user.core.ldap.LDAPConstants.WINDOWS_NT_TIME;
-import static org.wso2.carbon.user.core.ldap.LDAPConstants.ZULU_TIME;
 
 public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager {
 
@@ -138,7 +136,8 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                     + "Values  {0: expire immediately, -1: never expire, '': i.e. empty, system default}.";
     protected static final String USER_DN_CACHE_ENABLED_ATTRIBUTE_DESCRIPTION =
             "Enables the user cache. Default true," + " Unless set to false. Empty value is interpreted as true.";
-    //Authenticating to LDAP via Anonymous Bind
+
+    // Authenticating to LDAP via Anonymous Bind.
     private static final String USE_ANONYMOUS_BIND = "AnonymousBind";
     protected static final int MEMBERSHIP_ATTRIBUTE_RANGE_VALUE = 0;
     private static final int MAX_ITEM_LIMIT_UNLIMITED = -1;
@@ -148,6 +147,13 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     private CacheBuilder userDnCacheBuilder = null; //Use cache manager if not null to get cache
     private String userDnCacheName;
     private boolean userDnCacheEnabled = true;
+
+    /*
+     * The following pattern includes datatime formats like `20090813145607.0Z`, `20210806093122.833Z`, `
+     * 199412161032Z`, 20090813145607-0200.
+     */
+    private static final String LDAP_TIME_FORMATS_PATTERN = "[uuuuMMddHHmmss[,SSS][.SSS]X]" +
+            "[uuuuMMddHHmmss[,S][.S]X][uuuuMMddHHmm[,S][.S]X]";
 
     static {
         setAdvancedProperties();
@@ -3067,9 +3073,9 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                     }
                     group.setGroupName(groupName);
                 } else if (realmConfig.getUserStoreProperty(GROUP_CREATED_DATE_ATTRIBUTE).equals(attributeId)) {
-                    group.setCreatedDate(convertToStandardTimeFormat(value));
+                    group.setCreatedDate(this.convertToStandardTimeFormat(value));
                 } else if (realmConfig.getUserStoreProperty(GROUP_LAST_MODIFIED_DATE_ATTRIBUTE).equals(attributeId)) {
-                    group.setLastModifiedDate(convertToStandardTimeFormat(value));
+                    group.setLastModifiedDate(this.convertToStandardTimeFormat(value));
                 } else {
                     log.error("Unsupported group attribute: when building the group response object" + attributeId);
                 }
@@ -3101,19 +3107,13 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         if (StringUtils.isBlank(dateTimestamp)) {
             return dateTimestamp;
         }
-        String userstoreTimestampFormat = realmConfig.getUserStoreProperty(USERSTORE_TIME_FORMAT);
-        if (ZULU_TIME.equals(userstoreTimestampFormat)) {
-            return DateUtils.getDate(dateTimestamp).toInstant().toString();
-        } else if (WINDOWS_NT_TIME.equals(userstoreTimestampFormat)) {
-            try {
-                return DateUtils.convertIntervalDate(dateTimestamp).toInstant().toString();
-            } catch (ParseException e) {
-                throw new UserStoreException("Error occurred while calculating date from timestamp: " + dateTimestamp +
-                        "using Windows NT time format");
-            }
+        String userstoreTimestampFormat = realmConfig.getUserStoreProperty(dateAndTimePattern);
+        if (StringUtils.isBlank(userstoreTimestampFormat)) {
+            userstoreTimestampFormat = LDAP_TIME_FORMATS_PATTERN;
         }
-        throw new UserStoreException(String.format("Unsupported timestamp format %s in userstore: %s in tenant with " +
-                "id : %s", userstoreTimestampFormat, getMyDomainName(), tenantId));
+        DateTimeFormatter f = DateTimeFormatter.ofPattern(userstoreTimestampFormat);
+        OffsetDateTime odt = OffsetDateTime.parse(dateTimestamp, f);
+        return  (odt.toInstant()).toString();
     }
 
     /**
