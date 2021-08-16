@@ -104,6 +104,7 @@ import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMe
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_WHILE_GETTING_GROUP_BY_ID;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_WHILE_GETTING_GROUP_BY_NAME;
 import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID;
+import static org.wso2.carbon.user.core.ldap.LDAPConstants.DEFAULT_LDAP_TIME_FORMATS_PATTERN;
 
 public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager {
 
@@ -147,13 +148,6 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     private CacheBuilder userDnCacheBuilder = null; //Use cache manager if not null to get cache
     private String userDnCacheName;
     private boolean userDnCacheEnabled = true;
-
-    /*
-     * The following pattern includes datatime formats like `20090813145607.0Z`, `20210806093122.833Z`, `
-     * 199412161032Z`, 20090813145607-0200.
-     */
-    private static final String LDAP_TIME_FORMATS_PATTERN = "[uuuuMMddHHmmss[,SSS][.SSS]X]" +
-            "[uuuuMMddHHmmss[,S][.S]X][uuuuMMddHHmm[,S][.S]X]";
 
     static {
         setAdvancedProperties();
@@ -3109,7 +3103,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         }
         String userstoreTimestampFormat = realmConfig.getUserStoreProperty(dateAndTimePattern);
         if (StringUtils.isBlank(userstoreTimestampFormat)) {
-            userstoreTimestampFormat = LDAP_TIME_FORMATS_PATTERN;
+            userstoreTimestampFormat = DEFAULT_LDAP_TIME_FORMATS_PATTERN;
         }
         DateTimeFormatter f = DateTimeFormatter.ofPattern(userstoreTimestampFormat);
         OffsetDateTime odt = OffsetDateTime.parse(dateTimestamp, f);

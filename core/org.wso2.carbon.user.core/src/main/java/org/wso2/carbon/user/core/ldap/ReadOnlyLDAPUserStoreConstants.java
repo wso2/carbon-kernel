@@ -29,6 +29,7 @@ import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataImpor
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.BOOLEAN;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.PASSWORD;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.STRING;
+import static org.wso2.carbon.user.core.ldap.LDAPConstants.DEFAULT_LDAP_TIME_FORMATS_PATTERN;
 
 public class ReadOnlyLDAPUserStoreConstants {
 
@@ -147,7 +148,7 @@ public class ReadOnlyLDAPUserStoreConstants {
                 "com.sun.jndi.ldap.LdapCtxFactory", UserStoreConfigConstants.lDAPInitialContextFactoryDescription,
                 new Property[] { CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty() });
         setProperty(UserStoreConfigConstants.dateAndTimePattern, UserStoreConfigConstants.dateAndTimePatternDisplayName,
-                "", UserStoreConfigConstants.dateAndTimePatternDescription,
+                DEFAULT_LDAP_TIME_FORMATS_PATTERN, UserStoreConfigConstants.dateAndTimePatternDescription,
                 new Property[]{CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty()});
         setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "true",
                 UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION,

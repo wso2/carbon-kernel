@@ -29,6 +29,7 @@ import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataImpor
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.BOOLEAN;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.PASSWORD;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.STRING;
+import static org.wso2.carbon.user.core.ldap.LDAPConstants.DEFAULT_LDAP_TIME_FORMATS_PATTERN;
 
 public class ActiveDirectoryUserStoreConstants {
 
@@ -223,7 +224,7 @@ public class ActiveDirectoryUserStoreConstants {
                 UserStoreConfigConstants.userIdSearchFilterDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setProperty(UserStoreConfigConstants.dateAndTimePattern, UserStoreConfigConstants.dateAndTimePatternDisplayName,
-                "", UserStoreConfigConstants.dateAndTimePatternDescription,
+                DEFAULT_LDAP_TIME_FORMATS_PATTERN, UserStoreConfigConstants.dateAndTimePatternDescription,
                 new Property[]{CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty()});
     }
 
