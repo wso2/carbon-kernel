@@ -92,6 +92,7 @@
         <module>features/cors-mgt</module>
         <module>features/multi-attribute-login</module>
         <module>features/user-store</module>
+        <module>features/secret-mgt</module>
     </modules>
 
 
@@ -790,6 +791,17 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.identity.application.mgt.ui.feature</artifactId>
+                <version>${project.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.secret.mgt.core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.secret.mgt.core.server.feature</artifactId>
                 <version>${project.version}</version>
                 <type>zip</type>
             </dependency>
