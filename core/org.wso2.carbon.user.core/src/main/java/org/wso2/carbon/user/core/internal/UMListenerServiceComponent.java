@@ -24,7 +24,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.user.core.listener.AuthorizationManagerListener;
 import org.wso2.carbon.user.core.listener.ClaimManagerListener;
-import org.wso2.carbon.user.core.listener.GroupDomainResolverListener;
+import org.wso2.carbon.user.core.listener.GroupResolver;
 import org.wso2.carbon.user.core.listener.GroupManagementErrorEventListener;
 import org.wso2.carbon.user.core.listener.GroupOperationEventListener;
 import org.wso2.carbon.user.core.listener.UserManagementErrorEventListener;
@@ -44,14 +44,14 @@ public class UMListenerServiceComponent {
     private static Map<Integer, UserStoreManagerListener> userStoreManagerListeners;
     private static Map<Integer, UserOperationEventListener> userOperationEventListeners;
     private static Map<Integer, GroupOperationEventListener> groupOperationEventListeners;
-    private static Map<Integer, GroupDomainResolverListener> groupDomainResolverListeners;
+    private static Map<Integer, GroupResolver> groupResolvers;
     private static Map<Integer, GroupManagementErrorEventListener> groupManagementErrorEventListeners;
     private static Map<Integer, ClaimManagerListener> claimManagerListeners;
     private static Map<Integer, UserManagementErrorEventListener> userManagementErrorEventListeners;
     private static Collection<AuthorizationManagerListener> authorizationManagerListenerCollection;
     private static Collection<UserStoreManagerListener> userStoreManagerListenerCollection;
     private static Collection<GroupOperationEventListener> groupOperationEventListenerCollection = null;
-    private static Collection<GroupDomainResolverListener> groupDomainResolverListenerCollection = null;
+    private static Collection<GroupResolver> groupResolverCollection = null;
     private static Collection<GroupManagementErrorEventListener> groupManagementErrorEventListenerCollection = null;
     private static Collection<UserOperationEventListener> userOperationEventListenerCollection;
     private static Collection<ClaimManagerListener> claimManagerListenerCollection;
@@ -190,25 +190,24 @@ public class UMListenerServiceComponent {
             name = "group.domain.resolver.listener.service",
             cardinality = ReferenceCardinality.MULTIPLE,
             policy = ReferencePolicy.DYNAMIC,
-            unbind = "unsetGroupDomainResolverListenerService")
-    protected synchronized void setGroupDomainResolverListenerService(
-            GroupDomainResolverListener groupDomainResolverListener) {
+            unbind = "unsetGroupResolverService")
+    protected synchronized void setGroupResolverService(GroupResolver groupResolver) {
 
-        groupDomainResolverListenerCollection = null;
-        if (groupDomainResolverListeners == null) {
-            groupDomainResolverListeners = new TreeMap<>();
+        groupResolverCollection = null;
+        if (groupResolvers == null) {
+            groupResolvers = new TreeMap<>();
         }
-        groupDomainResolverListeners.put(groupDomainResolverListener.getExecutionOrderId(),
-                groupDomainResolverListener);
+        groupResolvers.put(groupResolver.getExecutionOrderId(),
+                groupResolver);
     }
 
-    protected synchronized void unsetGroupDomainResolverListenerService(
-            GroupDomainResolverListener groupDomainResolverListener) {
+    protected synchronized void unsetGroupResolverService(
+            GroupResolver groupResolver) {
 
-        if (groupDomainResolverListener != null && groupDomainResolverListeners != null) {
-            groupDomainResolverListeners.remove(groupDomainResolverListener.getExecutionOrderId());
-            if (groupDomainResolverListenerCollection != null) {
-                groupDomainResolverListenerCollection.remove(groupDomainResolverListener);
+        if (groupResolver != null && groupResolvers != null) {
+            groupResolvers.remove(groupResolver.getExecutionOrderId());
+            if (groupResolverCollection != null) {
+                groupResolverCollection.remove(groupResolver);
             }
         }
     }
@@ -359,19 +358,19 @@ public class UMListenerServiceComponent {
     }
 
     /**
-     * Get all available GroupDomainResolverListener.
+     * Get all available GroupResolvers.
      *
-     * @return Available GroupDomainResolverListener.
+     * @return Available GroupResolver.
      */
-    public static synchronized Collection<GroupDomainResolverListener> getGroupDomainResolverListeners() {
+    public static synchronized Collection<GroupResolver> getGroupResolvers() {
 
-        if (groupDomainResolverListeners == null) {
-            groupDomainResolverListeners = new TreeMap<>();
+        if (groupResolvers == null) {
+            groupResolvers = new TreeMap<>();
         }
-        if (groupDomainResolverListenerCollection == null) {
-            groupDomainResolverListenerCollection = groupDomainResolverListeners.values();
+        if (groupResolverCollection == null) {
+            groupResolverCollection = groupResolvers.values();
         }
-        return groupDomainResolverListenerCollection;
+        return groupResolverCollection;
     }
 
     public static synchronized Collection<ClaimManagerListener> getClaimManagerListeners() {

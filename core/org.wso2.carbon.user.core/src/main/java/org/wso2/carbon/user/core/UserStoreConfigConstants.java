@@ -117,7 +117,7 @@ public class UserStoreConfigConstants {
 
     // Group id related userstore config property values.
     public static final String GROUP_ID_ENABLED = "GroupIDEnabled";
-    public static final String GROUP_ID_ENABLED_DISPLAY_NAME = "Enable group unique id";
+    public static final String GROUP_ID_ENABLED_DISPLAY_NAME = "Enable Group Unique Id";
     public static final String GROUP_ID_ENABLED_DESCRIPTION = "Enable userstore managed groups";
     public static final String GROUP_ID_ATTRIBUTE = "GroupIdAttribute";
     public static final String GROUP_ID_ATTRIBUTE_DISPLAY_NAME = "Group Id Attribute";

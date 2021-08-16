@@ -52,8 +52,7 @@ import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.ldap.LDAPConstants;
 import org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager;
-import org.wso2.carbon.user.core.ldap.UniqueIDReadWriteLDAPUserStoreManager;
-import org.wso2.carbon.user.core.listener.GroupDomainResolverListener;
+import org.wso2.carbon.user.core.listener.GroupResolver;
 import org.wso2.carbon.user.core.listener.GroupManagementErrorEventListener;
 import org.wso2.carbon.user.core.listener.GroupOperationEventListener;
 import org.wso2.carbon.user.core.listener.SecretHandleableListener;
@@ -7500,8 +7499,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (log.isDebugEnabled()) {
                 log.debug("Iterating though scim2 tables tenant: " + tenantId);
             }
-            // Trigger handler to get domain name from the scim tables to maintain backward compatibility.
-            domainName = resolveDomainFromPreResolveDomainListeners(groupId, tenantId);
+            // Trigger group resolvers to get domain name from the scim tables to maintain backward compatibility.
+            domainName = resolveDomainFromGroupResolvers(groupId, tenantId);
             /*
              * This means the domain name is not in our side. We need to iterate through all userstores until we
              * encounter a matching userstore.
@@ -7548,29 +7547,29 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
-     * Invoke the domain resolving listeners and resolve the domain.
+     * Invoke the GroupResolver listeners and resolve the domain.
      *
      * @param groupId  Group id.
      * @param tenantId Tenant id.
      * @return Resolved domain name.
      */
-    private String resolveDomainFromPreResolveDomainListeners(String groupId, int tenantId) throws UserStoreException {
+    private String resolveDomainFromGroupResolvers(String groupId, int tenantId) throws UserStoreException {
 
         Group group = new Group(groupId);
-        for (GroupDomainResolverListener listener : UMListenerServiceComponent.getGroupDomainResolverListeners()) {
-            if (listener.isEnable()) {
-                listener.preResolveGroupDomainByGroupId(group, tenantId);
+        for (GroupResolver groupResolver : UMListenerServiceComponent.getGroupResolvers()) {
+            if (groupResolver.isEnable()) {
+                groupResolver.resolveGroupDomainByGroupId(group, tenantId);
             }
         }
         String resolvedDomain = group.getUserStoreDomain();
         if (StringUtils.isBlank(resolvedDomain)) {
             /*
-             * This means the group info cannot be resolved from listeners (Mainly from SCIM).
+             * This means the group info cannot be resolved from GroupResolver listeners (Mainly from SCIM).
              * This might be due to an invalid group id or the userstore does not support resolving group domain name
              * from listeners.
              */
             if (log.isDebugEnabled()) {
-                log.debug(String.format("Domain not resolved by GroupDomainResolverListeners for group: %s " +
+                log.debug(String.format("Domain not resolved by GroupResolvers for group with id: %s " +
                         "in tenant: %s", groupId, tenantId));
             }
             return null;
@@ -15942,6 +15941,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isUniqueGroupIdEnabled(userManager)) {
             groupsList = ((AbstractUserStoreManager)userManager).doListGroups(condition, limit, offset,
                     sortBy, sortOrder);
+        } else {
+            // Invoking group resolvers to get data from the legacy approach.
+            for (GroupResolver groupResolver : UMListenerServiceComponent.getGroupResolvers()) {
+                if (groupResolver.isEnable()) {
+                    groupResolver.listGroups(condition, limit, offset, domain, sortBy, sortOrder, groupsList,
+                            userManager);
+                }
+            }
         }
 
         // #################### Invoking post-listeners ####################
@@ -16068,10 +16075,18 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 groupNames = paginateGroupsList(offset, limit, groupNames);
                 groupsList = new ArrayList<>();
                 if (CollectionUtils.isNotEmpty(groupNames)) {
-                    // We need to create a list of Groups with group name only since other details will be added by the
-                    // post listeners.
+                    /*
+                     * We need to create a list of Groups with group name only since other details will be added by the
+                     * Group resolvers.
+                     */
                     for (String groupName : groupNames) {
                         groupsList.add(new Group(null, groupName));
+                    }
+                    // Invoking group resolvers to get data from the legacy approach.
+                    for (GroupResolver groupResolver : UMListenerServiceComponent.getGroupResolvers()) {
+                        if (groupResolver.isEnable()) {
+                            groupResolver.getGroupsListOfUserByUserId(userId, groupsList, this);
+                        }
                     }
                 }
             }
@@ -16368,6 +16383,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             String groupName = this.doGetGroupNameFromGroupId(groupId);
             group.setGroupName(groupName);
             group.setUserStoreDomain(getMyDomainName());
+        } else {
+            // Invoking group resolvers to get data from the legacy approach.
+            for (GroupResolver groupResolver : UMListenerServiceComponent.getGroupResolvers()) {
+                if (groupResolver.isEnable()) {
+                    groupResolver.getGroupNameById(groupId, group, this);
+                }
+            }
         }
 
         // #################### Invoking post-listeners ####################
@@ -16436,6 +16458,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             String groupId = this.doGetGroupIdFromGroupName(groupName);
             group.setGroupID(groupId);
             group.setUserStoreDomain(getMyDomainName());
+        } else {
+            // Invoking group resolvers to get data from the legacy approach.
+            for (GroupResolver groupResolver : UMListenerServiceComponent.getGroupResolvers()) {
+                if (groupResolver.isEnable()) {
+                    groupResolver.getGroupIdByName(groupName, group, this);
+                }
+            }
         }
 
         // #################### Invoking post-listeners ####################
@@ -16509,6 +16538,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         Group group = new Group(null, groupName);
         if (isUniqueGroupIdEnabled(this)) {
             group = this.doGetGroupFromGroupName(groupName, requiredAttributes);
+        } else {
+            // Invoking group resolvers to get data from the legacy approach.
+            for (GroupResolver groupResolver : UMListenerServiceComponent.getGroupResolvers()) {
+                if (groupResolver.isEnable()) {
+                    groupResolver.getGroupByName(groupName, requiredAttributes, group, this);
+                }
+            }
         }
 
         // #################### Invoking post-listeners ####################
@@ -16584,6 +16620,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         Group group = new Group(groupID);
         if (isUniqueGroupIdEnabled(this)) {
             group = this.doGetGroupFromGroupId(groupID, requiredAttributes);
+        } else {
+            // Invoking group resolvers to get data from the legacy approach.
+            for (GroupResolver groupResolver : UMListenerServiceComponent.getGroupResolvers()) {
+                if (groupResolver.isEnable()) {
+                    groupResolver.getGroupById(groupID, requiredAttributes, group, this);
+                }
+            }
         }
         // #################### Invoking post-listeners ####################
         try {
