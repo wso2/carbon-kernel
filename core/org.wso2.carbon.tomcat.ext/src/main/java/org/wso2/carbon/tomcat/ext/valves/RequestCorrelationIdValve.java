@@ -28,6 +28,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.logging.log4j.ThreadContext;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Deactivate;
+import org.wso2.carbon.tomcat.ext.internal.HTTPCorrelationConfigDataHolder;
 
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -72,10 +76,8 @@ public class RequestCorrelationIdValve extends ValveBase {
     private static final String CORRELATION_LOG_REQUEST_START = "HTTP-In-Request";
     private static final String CORRELATION_LOG_SEPARATOR = "|";
     private static final String CORRELATION_LOG_REQUEST_END = "HTTP-In-Response";
-    private static final String CORRELATION_LOG_SYSTEM_PROPERTY = "enableCorrelationLogs";
     private static final String PADDING_CHAR = "=";
     private static final String SPLITTING_CHAR = "&";
-    private boolean isEnableCorrelationLogs;
 
     @Override
     protected void initInternal() throws LifecycleException {
@@ -98,8 +100,6 @@ public class RequestCorrelationIdValve extends ValveBase {
         if (StringUtils.isNotEmpty(responseCorrelationIdHeader)) {
             traceIdMdc = this.responseCorrelationIdHeader;
         }
-
-        isEnableCorrelationLogs = Boolean.parseBoolean(System.getProperty(CORRELATION_LOG_SYSTEM_PROPERTY));
     }
 
 
@@ -127,7 +127,7 @@ public class RequestCorrelationIdValve extends ValveBase {
             // Associates the generated Correlation ID Mapping to the request so that,
             // it will be available for any other asynchronous flows or threads spawned for this request
             request.setAttribute(CORRELATION_ID_MDC_REQUEST_ATTRIBUTE_NAME, associateToThreadMap);
-            if (isEnableCorrelationLogs) {
+            if (HTTPCorrelationConfigDataHolder.isEnable()) {
                 long currentTime = System.currentTimeMillis();
                 long timeTaken = currentTime - requestStartTime;
                 logRequestDetails(currentTime, timeTaken, CORRELATION_LOG_REQUEST_START, request);
@@ -137,7 +137,7 @@ public class RequestCorrelationIdValve extends ValveBase {
                 getNext().invoke(request, response);
             }
         } finally {
-            if (isEnableCorrelationLogs) {
+            if (HTTPCorrelationConfigDataHolder.isEnable()) {
                 long currentTime = System.currentTimeMillis();
                 long timeTaken = currentTime - requestStartTime;
                 logRequestDetails(currentTime, timeTaken, CORRELATION_LOG_REQUEST_END, request);
@@ -160,6 +160,14 @@ public class RequestCorrelationIdValve extends ValveBase {
                 response.setHeader(traceIdMdc, entry.getValue());
             }
         }
+    }
+
+    @Activate
+    protected void activate(ComponentContext context) {
+    }
+
+    @Deactivate
+    protected void deactivate(ComponentContext context) {
     }
 
     /**
