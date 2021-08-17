@@ -21,6 +21,13 @@ package org.wso2.carbon.ndatasource.rdbms;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.jdbc.pool.interceptor.AbstractQueryReport;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.wso2.carbon.logging.correlation.CorrelationLogService;
+import org.wso2.carbon.logging.correlation.utils.CorrelationLogConstants;
+import org.wso2.carbon.logging.correlation.utils.CorrelationLogUtil;
 import org.wso2.carbon.utils.xml.StringUtils;
 
 import java.lang.reflect.Constructor;
@@ -32,39 +39,26 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Time-Logging interceptor for JDBC pool.
  * Logs the time taken to execute the query in each pool-ed connection.
  */
-public class CorrelationLogInterceptor extends AbstractQueryReport {
+@Component(
+        immediate = true,
+        service = CorrelationLogService.class
+)
+public class CorrelationLogInterceptor extends AbstractQueryReport implements CorrelationLogService {
 
     private static final Log correlationLog = LogFactory.getLog("correlation");
     private static final Log log = LogFactory.getLog(CorrelationLogInterceptor.class);
-
     private static final String CORRELATION_LOG_CALL_TYPE_VALUE = "jdbc";
     private static final String CORRELATION_LOG_SEPARATOR = "|";
-    private static final String CORRELATION_LOG_SYSTEM_PROPERTY = "enableCorrelationLogs";
-    private static final String BLACKLISTED_THREADS_SYSTEM_PROPERTY =
-            "org.wso2.CorrelationLogInterceptor.BlacklistedThreads";
     private static final String[] DEFAULT_BLACKLISTED_THREADS = {"MessageDeliveryTaskThreadPool", "HumanTaskServer" ,
             "BPELServer", "CarbonDeploymentSchedulerThread"};
-    private List<String> blacklistedThreadList = new ArrayList<>();
-    private boolean isEnableCorrelationLogs;
-
-    public CorrelationLogInterceptor() {
-        String blacklistedThreadNames = System.getProperty(BLACKLISTED_THREADS_SYSTEM_PROPERTY);
-
-        if (blacklistedThreadNames == null) {
-            blacklistedThreadList.addAll(Arrays.asList(DEFAULT_BLACKLISTED_THREADS));
-        }
-
-        if (!StringUtils.isEmpty(blacklistedThreadNames)) {
-            blacklistedThreadList.addAll(Arrays.asList(StringUtils.split(blacklistedThreadNames, ',')));
-        }
-
-        isEnableCorrelationLogs = Boolean.parseBoolean(System.getProperty(CORRELATION_LOG_SYSTEM_PROPERTY));
-    }
+    private static List<String> blacklistedThreadList = new ArrayList<>();
+    private static boolean isEnableCorrelationLogs;
 
     @Override
     public void closeInvoked() {
@@ -118,7 +112,37 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
         }
     }
 
+    @Activate
+    protected void activate(ComponentContext context) {
+    }
+
+    @Deactivate
+    protected void deactivate(ComponentContext context) {
+    }
+
+    @Override
+    public String getName() {
+        return "jdbc";
+    }
+
+    @Override
+    public void reconfigure(Map<String, Object> properties) {
+        String blacklistedThreadNames = (String) properties.get(CorrelationLogConstants.BLACKLISTED_THREADS);
+        if (blacklistedThreadNames == null) {
+            blacklistedThreadList.addAll(Arrays.asList(DEFAULT_BLACKLISTED_THREADS));
+        }
+
+        if (!StringUtils.isEmpty(blacklistedThreadNames)) {
+            blacklistedThreadList.addAll(Arrays.asList(StringUtils.split(blacklistedThreadNames, ',')));
+        }
+
+        isEnableCorrelationLogs =  (Boolean) properties.get(CorrelationLogConstants.ENABLE) &&
+                CorrelationLogUtil.isComponentWhitelisted(this.getName(),
+                        (String) properties.get(CorrelationLogConstants.COMPONENTS));
+    }
+
     /**
+     *
      * Proxy Class that is used to calculate and log the time taken for queries
      */
     protected class StatementProxy implements InvocationHandler {
