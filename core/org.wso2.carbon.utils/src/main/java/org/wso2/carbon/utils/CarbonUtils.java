@@ -1379,7 +1379,7 @@ public class CarbonUtils {
         String id = UUID.randomUUID().toString();
         String recordedAt = String.valueOf(parseDateTime(Instant.now().toString()));
         String clientComponent = auditLogData.get(CarbonConstants.LogEventConstants.CLIENT_COMPONENT) != null ?
-                auditLogData.get(CarbonConstants.LogEventConstants.CLIENT_COMPONENT).toString() : "null";
+                auditLogData.get(CarbonConstants.LogEventConstants.CLIENT_COMPONENT).toString() : "SOAP API";
         String correlationId = MDC.get(CORRELATION_ID_MDC) != null ? MDC.get(CORRELATION_ID_MDC).toString() : "null";
         String initiatorId = auditLogData.get(CarbonConstants.LogEventConstants.INITIATOR_ID) != null ?
                 auditLogData.get(CarbonConstants.LogEventConstants.INITIATOR_ID).toString() : "null";
