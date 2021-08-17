@@ -21,7 +21,7 @@ package org.wso2.carbon.ndatasource.rdbms;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.jdbc.pool.interceptor.AbstractQueryReport;
-import org.wso2.carbon.utils.xml.StringUtils;
+import org.wso2.carbon.ndatasource.rdbms.internal.JDBCCorrelationConfigDataHolder;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
@@ -32,7 +32,6 @@ import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -43,30 +42,8 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
 
     private static final Log correlationLog = LogFactory.getLog("correlation");
     private static final Log log = LogFactory.getLog(CorrelationLogInterceptor.class);
-
     private static final String CORRELATION_LOG_CALL_TYPE_VALUE = "jdbc";
     private static final String CORRELATION_LOG_SEPARATOR = "|";
-    private static final String CORRELATION_LOG_SYSTEM_PROPERTY = "enableCorrelationLogs";
-    private static final String BLACKLISTED_THREADS_SYSTEM_PROPERTY =
-            "org.wso2.CorrelationLogInterceptor.BlacklistedThreads";
-    private static final String[] DEFAULT_BLACKLISTED_THREADS = {"MessageDeliveryTaskThreadPool", "HumanTaskServer" ,
-            "BPELServer", "CarbonDeploymentSchedulerThread"};
-    private List<String> blacklistedThreadList = new ArrayList<>();
-    private boolean isEnableCorrelationLogs;
-
-    public CorrelationLogInterceptor() {
-        String blacklistedThreadNames = System.getProperty(BLACKLISTED_THREADS_SYSTEM_PROPERTY);
-
-        if (blacklistedThreadNames == null) {
-            blacklistedThreadList.addAll(Arrays.asList(DEFAULT_BLACKLISTED_THREADS));
-        }
-
-        if (!StringUtils.isEmpty(blacklistedThreadNames)) {
-            blacklistedThreadList.addAll(Arrays.asList(StringUtils.split(blacklistedThreadNames, ',')));
-        }
-
-        isEnableCorrelationLogs = Boolean.parseBoolean(System.getProperty(CORRELATION_LOG_SYSTEM_PROPERTY));
-    }
 
     @Override
     public void closeInvoked() {
@@ -86,7 +63,7 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
     @Override
     public Object createStatement(Object proxy, Method method, Object[] args, Object statement, long time) {
         try {
-            if (isEnableCorrelationLogs) {
+            if (JDBCCorrelationConfigDataHolder.isEnable()) {
                 return invokeProxy(method, args, statement, time);
             } else {
                 return statement;
@@ -125,6 +102,7 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
     }
 
     /**
+     *
      * Proxy Class that is used to calculate and log the time taken for queries
      */
     protected class StatementProxy implements InvocationHandler {
@@ -225,7 +203,7 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
         private boolean isCurrentThreadBlacklisted() {
             String threadName = Thread.currentThread().getName();
 
-            for (String thread : blacklistedThreadList) {
+            for (String thread : JDBCCorrelationConfigDataHolder.getDeniedThreads()) {
                 if (threadName.startsWith(thread)) {
                     return true;
                 }

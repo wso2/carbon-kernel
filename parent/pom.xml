@@ -1633,6 +1633,11 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.logging.correlation</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
                 <artifactId>SecVerifier</artifactId>
                 <version>${carbon.kernel.version}</version>
                 <type>aar</type>
