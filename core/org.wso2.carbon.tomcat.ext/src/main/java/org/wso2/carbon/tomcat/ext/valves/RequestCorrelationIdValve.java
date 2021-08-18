@@ -28,6 +28,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.MDC;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.wso2.carbon.logging.correlation.CorrelationLogService;
+import org.wso2.carbon.logging.correlation.utils.CorrelationLogConstants;
+import org.wso2.carbon.logging.correlation.utils.CorrelationLogUtil;
 
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -53,7 +60,11 @@ import javax.servlet.http.HttpServletRequest;
  * queryToCorrelationIdMapping={'RelayState':'Correlation-ID'}
  * </code>
  */
-public class RequestCorrelationIdValve extends ValveBase {
+@Component(
+        immediate = true,
+        service = CorrelationLogService.class
+)
+public class RequestCorrelationIdValve extends ValveBase implements CorrelationLogService {
 
     private static final Log correlationLog = LogFactory.getLog("correlation");
     private static final String CORRELATION_ID_MDC = "Correlation-ID";
@@ -69,10 +80,9 @@ public class RequestCorrelationIdValve extends ValveBase {
     private static final String CORRELATION_LOG_REQUEST_START = "HTTP-In-Request";
     private static final String CORRELATION_LOG_SEPARATOR = "|";
     private static final String CORRELATION_LOG_REQUEST_END = "HTTP-In-Response";
-    private static final String CORRELATION_LOG_SYSTEM_PROPERTY = "enableCorrelationLogs";
     private static final String PADDING_CHAR = "=";
     private static final String SPLITTING_CHAR = "&";
-    private boolean isEnableCorrelationLogs;
+    private static boolean isEnableCorrelationLogs;
 
     @Override
     protected void initInternal() throws LifecycleException {
@@ -91,8 +101,6 @@ public class RequestCorrelationIdValve extends ValveBase {
         if (StringUtils.isNotEmpty(configuredCorrelationIdMdc)) {
             correlationIdMdc = configuredCorrelationIdMdc;
         }
-
-        isEnableCorrelationLogs = Boolean.parseBoolean(System.getProperty(CORRELATION_LOG_SYSTEM_PROPERTY));
     }
 
     @Override
@@ -134,6 +142,14 @@ public class RequestCorrelationIdValve extends ValveBase {
             disAssociateFromThread();
             MDC.remove(correlationIdMdc);
         }
+    }
+
+    @Activate
+    protected void activate(ComponentContext context) {
+    }
+
+    @Deactivate
+    protected void deactivate(ComponentContext context) {
     }
 
     /**
@@ -350,5 +366,17 @@ public class RequestCorrelationIdValve extends ValveBase {
 
     public void setConfiguredCorrelationIdMdc(String configuredCorrelationIdMdc) {
         this.configuredCorrelationIdMdc = configuredCorrelationIdMdc;
+    }
+
+    @Override
+    public String getName() {
+        return "http";
+    }
+
+    @Override
+    public void reconfigure(Map<String, Object> properties) {
+        isEnableCorrelationLogs = (boolean) properties.get(CorrelationLogConstants.ENABLE) &&
+                CorrelationLogUtil.isComponentWhitelisted(this.getName(),
+                        (String) properties.get(CorrelationLogConstants.COMPONENTS));
     }
 }
