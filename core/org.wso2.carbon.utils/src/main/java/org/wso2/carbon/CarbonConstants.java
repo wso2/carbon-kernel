@@ -457,5 +457,40 @@ public final class CarbonConstants {
 
         // keys for data change details in audit logs.
         public static final String DATA_CHANGE = "data.change";
+
+        public enum EventCatalog {
+
+            CREATE_APPLICATION("CREATE APPLICATION", "Create Application"),
+            UPDATE_APPLICATION("UPDATE APPLICATION", "Update Application"),
+            DELETE_APPLICATION("DELETE APPLICATION", "Delete Application"),
+            CREATE_IDP("CREATE IDP", "Create Identity Provider"),
+            UPDATE_IDP("UPDATE IDP", "Update Identity Provider"),
+            DELETE_IDP("DELETE IDP", "Delete Identity Provider"),
+            ;
+
+            private final String eventId;
+            private final String eventDescription;
+
+            EventCatalog(String eventId, String eventDescription) {
+                this.eventId = eventId;
+                this.eventDescription = eventDescription;
+            }
+
+            public String getEventId() {
+
+                return eventId;
+            }
+
+            public String getEventDescription() {
+
+                return eventDescription;
+            }
+
+            @Override
+            public String toString() {
+
+                return "EventCatalog{ 'eventId='" + eventId + " , eventDescription='" + eventDescription + "'}";
+            }
+        }
     }
 }
