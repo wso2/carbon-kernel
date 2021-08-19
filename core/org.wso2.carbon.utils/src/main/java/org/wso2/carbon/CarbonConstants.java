@@ -35,8 +35,9 @@ public final class CarbonConstants {
     public static final String AUDIT_MESSAGE = "Initiator : %s | Action : %s | Target : %s | Data : { %s } | Result : %s ";
     public static final String DISABLE_LEGACY_AUDIT_LOGS = "disableLegacyAuditLogs";
     public static final String AUDIT_LOG_MESSAGE_TEMPLATE =
-            "{id : %s, recordedAt : %s, clientComponent : %s, correlationId : %s, initiator.id : %s, initiator.name : %s, initiator.type : %s, event.type : %s, target.id : %s, target.name : %s, target.type : %s, data.change : { %s }}";
-
+            "{id : %s, recordedAt : %s, clientComponent : %s, correlationId : %s, " +
+                    "initiator.id : %s, initiator.name : %s, initiator.type : %s, event.type : %s, target.id : %s, " +
+                    "target.name : %s, target.type : %s, data.change : %s }";
     /**
      * This is used to get root context within CarbonJNDIContext when we need to operate
      * with LDAP.
