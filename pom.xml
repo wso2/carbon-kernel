@@ -94,7 +94,6 @@
         <module>features/multi-attribute-login</module>
         <module>features/user-store</module>
         <module>features/secret-mgt</module>
-        <module>components/central-logger</module>
         <module>features/central-logger</module>
     </modules>
 
