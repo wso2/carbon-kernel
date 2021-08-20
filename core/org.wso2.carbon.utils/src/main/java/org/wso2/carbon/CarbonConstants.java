@@ -466,6 +466,18 @@ public final class CarbonConstants {
             CREATE_IDP("CREATE IDP", "Create Identity Provider"),
             UPDATE_IDP("UPDATE IDP", "Update Identity Provider"),
             DELETE_IDP("DELETE IDP", "Delete Identity Provider"),
+            CREATE_USER("CREATE USER", "Create User"),
+            UPDATE_USER("UPDATE USER", "Update User"),
+            DELETE_USER("DELETE USER", "Delete User"),
+            CREATE_GROUP("CREATE GROUP", "Create Group"),
+            UPDATE_GROUP("UPDATE GROUP", "Update Group"),
+            DELETE_GROUP("DELETE GROUP", "Delete Group"),
+            CREATE_ROLE("CREATE ROLE", "Create Role"),
+            UPDATE_ROLE("UPDATE ROLE", "Update Role"),
+            DELETE_ROLE("DELETE ROLE", "Delete Role"),
+            CREATE_ATTRIBUTE("CREATE ATTRIBUTE", "Create Attribute"),
+            UPDATE_ATTRIBUTE("UPDATE ATTRIBUTE", "Update Attribute"),
+            DELETE_ATTRIBUTE("DELETE ATTRIBUTE", "Delete Attribute"),
             ;
 
             private final String eventId;
