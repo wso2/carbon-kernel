@@ -23,5 +23,11 @@ public class CorrelationLogConstants {
     public static final String ENABLE = "ENABLE";
     public static final String COMPONENTS = "COMPONENTS";
     public static final String BLACKLISTED_THREADS = "BLACKLISTED_THREADS";
+    public static final String LOG_ALL_METHODS = "LOG_ALL_METHODS";
+
+    public static final String CONFIG_ENABLE = "CorrelationLogs.enable";
+    public static final String CONFIG_COMPONENTS = "CorrelationLogs.components";
+    public static final String CONFIG_BLACKLISTED_THREADS = "CorrelationLogs.blacklistedThreads";
+    public static final String CONFIG_LOG_ALL_METHODS = "CorrelationLogs.logAllMethods";
 
 }

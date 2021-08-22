@@ -26,6 +26,7 @@ public class CorrelationLogConfig implements CorrelationLogConfigMBean {
     private boolean enable;
     private String components;
     private String blacklistedThreads;
+    private String logAllMethods;
     private Notifiable notifiable;
 
     @Override
@@ -59,6 +60,15 @@ public class CorrelationLogConfig implements CorrelationLogConfigMBean {
     public void setBlacklistedThreads(String blacklistedThreads) {
         this.blacklistedThreads = blacklistedThreads;
         this.notifiable.notify(CorrelationLogConstants.BLACKLISTED_THREADS, this.blacklistedThreads);
+    }
+
+    public String getLogAllMethods() {
+        return logAllMethods;
+    }
+
+    public void setLogAllMethods(String logAllMethods) {
+        this.logAllMethods = logAllMethods;
+        this.notifiable.notify(CorrelationLogConstants.LOG_ALL_METHODS, this.logAllMethods);
     }
 
     public void registerNotifier(Notifiable notifiable) {

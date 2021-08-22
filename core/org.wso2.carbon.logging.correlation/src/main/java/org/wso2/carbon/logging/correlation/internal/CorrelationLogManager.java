@@ -25,11 +25,13 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.logging.correlation.mgt.CorrelationLogConfig;
 import org.wso2.carbon.logging.correlation.utils.CorrelationLogConstants;
 import org.wso2.carbon.logging.correlation.CorrelationLogService;
 import org.wso2.carbon.logging.correlation.Notifiable;
 import org.wso2.carbon.utils.MBeanRegistrar;
+import org.wso2.carbon.utils.xml.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,18 +39,22 @@ import java.util.Map;
 @Component(immediate = true)
 public class CorrelationLogManager implements Notifiable {
 
-    Map<String, CorrelationLogService> serviceMap;
-    Map<String, Object> logProperties;
-    org.wso2.carbon.logging.correlation.mgt.CorrelationLogConfig logConfig;
+    private Map<String, CorrelationLogService> serviceMap = new HashMap<>();
+    private Map<String, Object> properties;
+    private CorrelationLogConfig mbeanConfig;
+    private boolean isDefaultLoaded = false;
+
+    private ServerConfigurationService serverConfigurationService;
+
+    public CorrelationLogManager() {
+        // Register the MBean required for JMX. The notifier will be invoked once each field updated via JMX.
+        mbeanConfig = new CorrelationLogConfig();
+        mbeanConfig.registerNotifier(this);
+        MBeanRegistrar.registerMBean(mbeanConfig);
+    }
 
     @Activate
     protected void activate(ComponentContext context) {
-        serviceMap = new HashMap<>();
-        logProperties = initProperties();
-
-        logConfig = new CorrelationLogConfig();
-        logConfig.registerNotifier(this);
-        MBeanRegistrar.registerMBean(logConfig);
     }
 
     @Deactivate
@@ -63,31 +69,65 @@ public class CorrelationLogManager implements Notifiable {
     )
     protected void setCorrelationLogService(CorrelationLogService service) {
         serviceMap.put(service.getName(), service);
-        service.reconfigure(logProperties);
+        // If the defaults are already loaded, configure the current implementation with configs. If not they will be
+        // configured once the defaults are loaded.
+        if (isDefaultLoaded) {
+            service.reconfigure(properties);
+        }
     }
 
     protected void unsetCorrelationLogService(CorrelationLogService service) {
         serviceMap.remove(service.getName());
     }
 
-    @Override
-    public void notify(String key, Object value) {
-        logProperties.put(key, value);
-        reconfigure();
+    @Reference(
+            policy = ReferencePolicy.DYNAMIC,
+            cardinality = ReferenceCardinality.MANDATORY,
+            unbind = "unsetServerConfigurationService"
+    )
+    protected void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        this.serverConfigurationService = serverConfigurationService;
+        loadDefaults();
+        // Configure all referenced service implementations with the defaults.
+        configureServiceImpls();
     }
 
-    private void reconfigure() {
-        for (Map.Entry<String, CorrelationLogService> entry : serviceMap.entrySet()) {
-            entry.getValue().reconfigure(logProperties);
+    protected void unsetServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        this.serverConfigurationService = null;
+    }
+
+    @Override
+    public void notify(String key, Object value) {
+        // Update the properties map and configure each service implementation with updated values.
+        properties.put(key, value);
+        configureServiceImpls();
+    }
+
+    private void configureServiceImpls() {
+        // Notify each service implementation with configurations.
+        for (Map.Entry<String, CorrelationLogService> serviceEntry : serviceMap.entrySet()) {
+            serviceEntry.getValue().reconfigure(properties);
         }
     }
 
-    private Map<String, Object> initProperties() {
-        // TODO: Read default properties from the deployment.toml file
-        Map<String, Object> properties = new HashMap<>();
-        properties.put(CorrelationLogConstants.ENABLE, false);
-        properties.put(CorrelationLogConstants.COMPONENTS, "");
-        properties.put(CorrelationLogConstants.BLACKLISTED_THREADS, "");
-        return properties;
+    private void loadDefaults() {
+        properties = new HashMap<>();
+        // Enable
+        String enabled = this.serverConfigurationService.getFirstProperty(CorrelationLogConstants.CONFIG_ENABLE);
+        properties.put(CorrelationLogConstants.ENABLE, !StringUtils.isEmpty(enabled) && Boolean.parseBoolean(enabled));
+        // Components
+        String components = this.serverConfigurationService.getFirstProperty(CorrelationLogConstants.CONFIG_COMPONENTS);
+        properties.put(CorrelationLogConstants.COMPONENTS, !StringUtils.isEmpty(components) ? components : "");
+        // Blacklisted threads
+        String blacklistedThreads = this.serverConfigurationService
+                .getFirstProperty(CorrelationLogConstants.CONFIG_BLACKLISTED_THREADS);
+        properties.put(CorrelationLogConstants.BLACKLISTED_THREADS,
+                !StringUtils.isEmpty(blacklistedThreads) ? blacklistedThreads : "");
+        // Log all methods
+        String logAllMethods = this.serverConfigurationService
+                .getFirstProperty(CorrelationLogConstants.CONFIG_LOG_ALL_METHODS);
+        properties.put(CorrelationLogConstants.LOG_ALL_METHODS,
+                !StringUtils.isEmpty(logAllMethods) && Boolean.parseBoolean(logAllMethods));
+        isDefaultLoaded = true;
     }
 }
