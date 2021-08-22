@@ -20,8 +20,21 @@ package org.wso2.carbon.logging.correlation;
 
 import java.util.Map;
 
+/**
+ * The correlation log service class definition.
+ */
 public interface CorrelationLogService {
+    /**
+     * Returns the name of the service implementation.
+     *
+     * @return
+     */
     String getName();
 
+    /**
+     * Accepts the modified configurations via the properties map.
+     *
+     * @param properties Map of configurations
+     */
     void reconfigure(Map<String, Object> properties);
 }

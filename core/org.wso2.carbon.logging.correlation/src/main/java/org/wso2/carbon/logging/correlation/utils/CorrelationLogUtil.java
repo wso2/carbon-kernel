@@ -20,14 +20,30 @@ package org.wso2.carbon.logging.correlation.utils;
 
 import java.util.Arrays;
 
+/**
+ * Correlation log utility class.
+ */
 public class CorrelationLogUtil {
 
+    /**
+     * Convert comma separated component list into an array.
+     *
+     * @param componentList Comma separated list
+     * @return Array of components
+     */
     public static String[] toComponentArray(String componentList) {
         return componentList.split("\\s*,\\s*");
     }
 
+    /**
+     * Check whether the given component exists in the provided component list.
+     *
+     * @param component Component name
+     * @param componentList Comma separated list of components
+     * @return
+     */
     public static boolean isComponentWhitelisted(String component, String componentList) {
-        return componentList.equals("") ||
+        return "".equals(componentList) ||
                 Arrays.stream(toComponentArray(componentList)).anyMatch(s -> s.equals(component));
     }
 }

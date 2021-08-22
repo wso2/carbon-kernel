@@ -120,11 +120,21 @@ public class CorrelationLogInterceptor extends AbstractQueryReport implements Co
     protected void deactivate(ComponentContext context) {
     }
 
+    /**
+     * Returns the name of the service component as "jdbc".
+     *
+     * @return
+     */
     @Override
     public String getName() {
         return "jdbc";
     }
 
+    /**
+     * Reconfigure the interceptor based on the configurations received.
+     *
+     * @param properties Map of configurations
+     */
     @Override
     public void reconfigure(Map<String, Object> properties) {
         String blacklistedThreadNames = (String) properties.get(CorrelationLogConstants.BLACKLISTED_THREADS);
