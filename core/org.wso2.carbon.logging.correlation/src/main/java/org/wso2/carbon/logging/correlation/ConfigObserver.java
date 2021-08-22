@@ -18,7 +18,15 @@
 
 package org.wso2.carbon.logging.correlation;
 
-public interface Notifiable {
-
+/**
+ * The config observer interface. This needs to be implemented to retrieve config changes done via the JMX endpoint.
+ */
+public interface ConfigObserver {
+    /**
+     * Returns the modified field name with the new value.
+     *
+     * @param key Field name
+     * @param value New value
+     */
     void notify(String key, Object value);
 }

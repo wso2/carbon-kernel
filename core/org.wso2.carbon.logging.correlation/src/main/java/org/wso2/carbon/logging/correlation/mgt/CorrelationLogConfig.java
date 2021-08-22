@@ -19,15 +19,18 @@
 package org.wso2.carbon.logging.correlation.mgt;
 
 
-import org.wso2.carbon.logging.correlation.Notifiable;
+import org.wso2.carbon.logging.correlation.ConfigObserver;
 import org.wso2.carbon.logging.correlation.utils.CorrelationLogConstants;
 
+/**
+ * The implementation of the Correlation log MBean.
+ */
 public class CorrelationLogConfig implements CorrelationLogConfigMBean {
     private boolean enable;
     private String components;
     private String blacklistedThreads;
     private String logAllMethods;
-    private Notifiable notifiable;
+    private ConfigObserver configObserver;
 
     @Override
     public boolean isEnable() {
@@ -37,7 +40,7 @@ public class CorrelationLogConfig implements CorrelationLogConfigMBean {
     @Override
     public void setEnable(boolean enable) {
         this.enable = enable;
-        this.notifiable.notify(CorrelationLogConstants.ENABLE, this.enable);
+        this.configObserver.notify(CorrelationLogConstants.ENABLE, this.enable);
     }
 
     @Override
@@ -48,7 +51,7 @@ public class CorrelationLogConfig implements CorrelationLogConfigMBean {
     @Override
     public void setComponents(String components) {
         this.components = components;
-        this.notifiable.notify(CorrelationLogConstants.COMPONENTS, this.components);
+        this.configObserver.notify(CorrelationLogConstants.COMPONENTS, this.components);
     }
 
     @Override
@@ -59,19 +62,26 @@ public class CorrelationLogConfig implements CorrelationLogConfigMBean {
     @Override
     public void setBlacklistedThreads(String blacklistedThreads) {
         this.blacklistedThreads = blacklistedThreads;
-        this.notifiable.notify(CorrelationLogConstants.BLACKLISTED_THREADS, this.blacklistedThreads);
+        this.configObserver.notify(CorrelationLogConstants.BLACKLISTED_THREADS, this.blacklistedThreads);
     }
 
+    @Override
     public String getLogAllMethods() {
         return logAllMethods;
     }
 
+    @Override
     public void setLogAllMethods(String logAllMethods) {
         this.logAllMethods = logAllMethods;
-        this.notifiable.notify(CorrelationLogConstants.LOG_ALL_METHODS, this.logAllMethods);
+        this.configObserver.notify(CorrelationLogConstants.LOG_ALL_METHODS, this.logAllMethods);
     }
 
-    public void registerNotifier(Notifiable notifiable) {
-        this.notifiable = notifiable;
+    /**
+     * Register observer to be notified when all the field changes,
+     *
+     * @param configObserver
+     */
+    public void registerObserver(ConfigObserver configObserver) {
+        this.configObserver = configObserver;
     }
 }

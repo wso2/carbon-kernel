@@ -368,11 +368,21 @@ public class RequestCorrelationIdValve extends ValveBase implements CorrelationL
         this.configuredCorrelationIdMdc = configuredCorrelationIdMdc;
     }
 
+    /**
+     * Returns the name of the service component as "http".
+     *
+     * @return
+     */
     @Override
     public String getName() {
         return "http";
     }
 
+    /**
+     * Reconfigure the interceptor based on the configurations received.
+     *
+     * @param properties Map of configurations
+     */
     @Override
     public void reconfigure(Map<String, Object> properties) {
         isEnableCorrelationLogs = (boolean) properties.get(CorrelationLogConstants.ENABLE) &&

@@ -29,28 +29,31 @@ import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.logging.correlation.mgt.CorrelationLogConfig;
 import org.wso2.carbon.logging.correlation.utils.CorrelationLogConstants;
 import org.wso2.carbon.logging.correlation.CorrelationLogService;
-import org.wso2.carbon.logging.correlation.Notifiable;
+import org.wso2.carbon.logging.correlation.ConfigObserver;
 import org.wso2.carbon.utils.MBeanRegistrar;
 import org.wso2.carbon.utils.xml.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The correlation log manager class. This class reads configs from the Carbon.xml and the JMX endpoint and manage all
+ * service implementation with current configurations.
+ */
 @Component(immediate = true)
-public class CorrelationLogManager implements Notifiable {
-
+public class CorrelationLogManager implements ConfigObserver {
     private Map<String, CorrelationLogService> serviceMap = new HashMap<>();
     private Map<String, Object> properties;
-    private CorrelationLogConfig mbeanConfig;
+    private CorrelationLogConfig config;
     private boolean isDefaultLoaded = false;
 
     private ServerConfigurationService serverConfigurationService;
 
     public CorrelationLogManager() {
         // Register the MBean required for JMX. The notifier will be invoked once each field updated via JMX.
-        mbeanConfig = new CorrelationLogConfig();
-        mbeanConfig.registerNotifier(this);
-        MBeanRegistrar.registerMBean(mbeanConfig);
+        config = new CorrelationLogConfig();
+        config.registerObserver(this);
+        MBeanRegistrar.registerMBean(config);
     }
 
     @Activate
@@ -62,6 +65,11 @@ public class CorrelationLogManager implements Notifiable {
         serviceMap = null;
     }
 
+    /**
+     * Get references of the correlation log server implementations.
+     *
+     * @param service
+     */
     @Reference(
             policy = ReferencePolicy.DYNAMIC,
             cardinality = ReferenceCardinality.MULTIPLE,
@@ -80,6 +88,11 @@ public class CorrelationLogManager implements Notifiable {
         serviceMap.remove(service.getName());
     }
 
+    /**
+     * Get the reference of the server configuration service.
+     *
+     * @param serverConfigurationService
+     */
     @Reference(
             policy = ReferencePolicy.DYNAMIC,
             cardinality = ReferenceCardinality.MANDATORY,
@@ -96,6 +109,12 @@ public class CorrelationLogManager implements Notifiable {
         this.serverConfigurationService = null;
     }
 
+    /**
+     * Accepts the field name and the new value on all the configuration changes via the JMX endpoint.
+     *
+     * @param key Field name
+     * @param value New value
+     */
     @Override
     public void notify(String key, Object value) {
         // Update the properties map and configure each service implementation with updated values.
@@ -103,6 +122,9 @@ public class CorrelationLogManager implements Notifiable {
         configureServiceImpls();
     }
 
+    /**
+     * Iterate and configure all the referenced service implementations.
+     */
     private void configureServiceImpls() {
         // Notify each service implementation with configurations.
         for (Map.Entry<String, CorrelationLogService> serviceEntry : serviceMap.entrySet()) {
@@ -110,6 +132,9 @@ public class CorrelationLogManager implements Notifiable {
         }
     }
 
+    /**
+     * Load default configurations from the Carbon.xml file.
+     */
     private void loadDefaults() {
         properties = new HashMap<>();
         // Enable
