@@ -78,6 +78,7 @@
                         <!--<Bundle-Activator>org.wso2.carbon.logging.appenders.internal.CarbonLoggingActivator-->
                         <!--</Bundle-Activator>-->
                         <Export-Package>
+                            !org.wso2.carbon.logging.correlation.internal.*,
                             org.wso2.carbon.logging.correlation.*,
                         </Export-Package>
                         <Import-Package>

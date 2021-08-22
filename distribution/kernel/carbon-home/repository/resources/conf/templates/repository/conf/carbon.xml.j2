@@ -821,4 +821,19 @@
         <disableRestart>{{server.disable_restart_from_ui | default('false')}}</disableRestart>
      </disableShutdownRestartFromUI>
 
+     {% if correlation_logs is defined %}
+     <!-- Configure correlation logs -->
+     <CorrelationLogs>
+         <!-- Enable/disable correlation logs -->
+         <enable>{{correlation_logs.enable}}</enable>
+         <!-- Comma seperated list of components which correlation logs need to be enabled. Possible values are
+         jdbc, http, gw, apimgt, keymgt and tokenmgt -->
+         <components>{{correlation_logs.components}}</components>
+         <!-- Comma seperated list of threads, which correlation logging should ignore. This applies only for HTTP.  -->
+         <blacklistedThreads>{{correlation_logs.blacklistedThreads}}</blacklistedThreads>
+         <!-- Log all methods -->
+         <logAllMethods>{{correlation_logs.logAllMethods}}</logAllMethods>
+     </CorrelationLogs>
+     {% endif %}
+
 </Server>

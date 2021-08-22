@@ -31,4 +31,8 @@ public interface CorrelationLogConfigMBean {
     String getBlacklistedThreads();
 
     void setBlacklistedThreads(String blacklistedThreads);
+
+    String getLogAllMethods();
+
+    void setLogAllMethods(String logAllMethods);
 }
