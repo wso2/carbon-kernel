@@ -295,6 +295,10 @@
             <InvokeOnDelete>false</InvokeOnDelete>
             {% endif %}
         </ListenerInvocationPolicy>
+        {% if tenant_mgt.enable_tenant_theme_mgt is defined %}
+        <!--   Flag to enable or disable tenant theming for the management console    -->
+        <EnableTenantThemeManagement>{{tenant_mgt.enable_tenant_theme_mgt}}</EnableTenantThemeManagement>
+        {% endif %}
     </Tenant>
 
     <!--

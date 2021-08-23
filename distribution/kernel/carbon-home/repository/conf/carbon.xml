@@ -275,6 +275,8 @@
             <!-- Flag to enable or disable listener invocation on tenant delete. This is disabled by default-->
             <InvokeOnDelete>false</InvokeOnDelete>
         </ListenerInvocationPolicy>
+        <!--   Flag to enable or disable tenant theming for the management console    -->
+        <EnableTenantThemeManagement>true</EnableTenantThemeManagement>
     </Tenant>
 
     <!--
