@@ -35,7 +35,7 @@ public final class CarbonConstants {
     public static final String AUDIT_MESSAGE = "Initiator : %s | Action : %s | Target : %s | Data : { %s } | Result : %s ";
     public static final String DISABLE_LEGACY_AUDIT_LOGS = "disableLegacyAuditLogs";
     public static final String AUDIT_LOG_MESSAGE_TEMPLATE =
-            "{id : %s, recordedAt : %s, clientComponent : %s, correlationId : %s, " +
+            "{id : %s, recordedAt : %s, clientComponent : %s, requestId : %s, " +
                     "initiator.id : %s, initiator.name : %s, initiator.type : %s, event.type : %s, target.id : %s, " +
                     "target.name : %s, target.type : %s, data.change : %s }";
     /**
@@ -435,6 +435,9 @@ public final class CarbonConstants {
      * Constants for Logging events.
      */
     public static class LogEventConstants {
+
+        // Key for the auditLog object property in audit log event.
+        public static final String AUDIT_LOG = "auditLog";
 
         // Common keys for both audit/diagnostic logs.
         public static final String LOG_ID = "id";
