@@ -2940,6 +2940,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return false;
         }
         // todo implement group uuid support for following UserStoreManagers.
+        //  https://github.com/wso2/product-is/issues/7914
         if (userManager instanceof JDBCUserStoreManager) {
             return false;
         }

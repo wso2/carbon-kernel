@@ -1541,7 +1541,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
 
         Group group = doGetGroupFromGroupId(groupId, Collections.singletonList(realmConfig.getUserStoreProperty(
                 realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE))));
-        if (group == null) {
+        if (group == null || StringUtils.isBlank(group.getGroupName())) {
             if (log.isDebugEnabled()) {
                 log.error(String.format("No group found with id: %s in userstore: %s in tenant: %s", groupId,
                         getMyDomainName(), tenantId));
@@ -1585,7 +1585,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
 
         Group group = doGetGroupFromGroupId(groupName, Collections.singletonList(realmConfig.getUserStoreProperty(
                 realmConfig.getUserStoreProperty(GROUP_ID_ATTRIBUTE))));
-        if (group == null) {
+        if (group == null || StringUtils.isBlank(group.getGroupID())) {
             if (log.isDebugEnabled()) {
                 log.error(String.format("No group found with name: %s in userstore: %s in tenant: %s", groupName,
                         getMyDomainName(), tenantId));
