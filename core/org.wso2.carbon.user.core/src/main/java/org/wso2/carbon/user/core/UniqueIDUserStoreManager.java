@@ -474,16 +474,16 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * Retrieves list of groups evaluating the condition.
      *
      * @param condition Conditional filter.
+     * @param domain    Userstore domain.
      * @param limit     Number of search results. If the given value is greater than the system configured max limit
      *                  it will be reset to the system configured max limit.
      * @param offset    Start index of the user search.
-     * @param domain    Userstore domain.
      * @param sortBy    Sorted by.
      * @param sortOrder Sorted order.
      * @return List of Group objects.
      * @throws UserStoreException If an error occurs while listing groups.
      */
-    default List<Group> listGroups(Condition condition, int limit, int offset, String domain, String sortBy,
+    default List<Group> listGroups(Condition condition, String domain, int limit, int offset, String sortBy,
                                    String sortOrder) throws UserStoreException {
 
         return null;

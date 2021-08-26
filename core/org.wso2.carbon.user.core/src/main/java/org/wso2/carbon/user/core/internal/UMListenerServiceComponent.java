@@ -44,14 +44,12 @@ public class UMListenerServiceComponent {
     private static Map<Integer, UserStoreManagerListener> userStoreManagerListeners;
     private static Map<Integer, UserOperationEventListener> userOperationEventListeners;
     private static Map<Integer, GroupOperationEventListener> groupOperationEventListeners;
-    private static Map<Integer, GroupResolver> groupResolvers;
     private static Map<Integer, GroupManagementErrorEventListener> groupManagementErrorEventListeners;
     private static Map<Integer, ClaimManagerListener> claimManagerListeners;
     private static Map<Integer, UserManagementErrorEventListener> userManagementErrorEventListeners;
     private static Collection<AuthorizationManagerListener> authorizationManagerListenerCollection;
     private static Collection<UserStoreManagerListener> userStoreManagerListenerCollection;
     private static Collection<GroupOperationEventListener> groupOperationEventListenerCollection = null;
-    private static Collection<GroupResolver> groupResolverCollection = null;
     private static Collection<GroupManagementErrorEventListener> groupManagementErrorEventListenerCollection = null;
     private static Collection<UserOperationEventListener> userOperationEventListenerCollection;
     private static Collection<ClaimManagerListener> claimManagerListenerCollection;
@@ -182,32 +180,6 @@ public class UMListenerServiceComponent {
             groupOperationEventListeners.remove(groupOperationEventListener.getExecutionOrderId());
             if (groupOperationEventListenerCollection != null) {
                 groupOperationEventListenerCollection.remove(groupOperationEventListener);
-            }
-        }
-    }
-
-    @Reference(
-            name = "group.domain.resolver.listener.service",
-            cardinality = ReferenceCardinality.MULTIPLE,
-            policy = ReferencePolicy.DYNAMIC,
-            unbind = "unsetGroupResolverService")
-    protected synchronized void setGroupResolverService(GroupResolver groupResolver) {
-
-        groupResolverCollection = null;
-        if (groupResolvers == null) {
-            groupResolvers = new TreeMap<>();
-        }
-        groupResolvers.put(groupResolver.getExecutionOrderId(),
-                groupResolver);
-    }
-
-    protected synchronized void unsetGroupResolverService(
-            GroupResolver groupResolver) {
-
-        if (groupResolver != null && groupResolvers != null) {
-            groupResolvers.remove(groupResolver.getExecutionOrderId());
-            if (groupResolverCollection != null) {
-                groupResolverCollection.remove(groupResolver);
             }
         }
     }
@@ -355,22 +327,6 @@ public class UMListenerServiceComponent {
             groupManagementErrorEventListenerCollection = groupManagementErrorEventListeners.values();
         }
         return groupManagementErrorEventListenerCollection;
-    }
-
-    /**
-     * Get all available GroupResolvers.
-     *
-     * @return Available GroupResolver.
-     */
-    public static synchronized Collection<GroupResolver> getGroupResolvers() {
-
-        if (groupResolvers == null) {
-            groupResolvers = new TreeMap<>();
-        }
-        if (groupResolverCollection == null) {
-            groupResolverCollection = groupResolvers.values();
-        }
-        return groupResolverCollection;
     }
 
     public static synchronized Collection<ClaimManagerListener> getClaimManagerListeners() {

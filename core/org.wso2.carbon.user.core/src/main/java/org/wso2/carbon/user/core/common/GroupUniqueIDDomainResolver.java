@@ -121,12 +121,14 @@ public class GroupUniqueIDDomainResolver {
     /**
      * Set the domain for the group id. This will update the domain name if there is already a record available.
      *
-     * @param groupId         Group unique id.
-     * @param userstoreDomain Userstore domain name.
-     * @param tenantId        Tenant id.
+     * @param groupId            Group unique id.
+     * @param userstoreDomain    Userstore domain name.
+     * @param tenantId           Tenant id.
+     * @param persistToCacheOnly Whether to persist the mapping only in the cache. This needs to be set to true if
+     *                           the userstore manager does not support group uuid.
      * @throws UserStoreException If an error occurred while setting the domain name for the group id.
      */
-    public void setDomainForGroupId(String groupId, String userstoreDomain, int tenantId) throws UserStoreException {
+    public void setDomainForGroupId(String groupId, String userstoreDomain, int tenantId, boolean persistToCacheOnly) throws UserStoreException {
 
         try {
             if (StringUtils.isEmpty(groupId) || StringUtils.isEmpty(userstoreDomain)) {
@@ -142,8 +144,10 @@ public class GroupUniqueIDDomainResolver {
             if (log.isDebugEnabled()) {
                 log.debug(String.format("Persisting group id: %s against domain: %s", groupId, userstoreDomain));
             }
-            // Persist the domain in the DB.
-            persistDomainAgainstGroupId(groupId, userstoreDomain, tenantId);
+            // Persist the domain in the DB domain mapper only if specified.
+            if (!persistToCacheOnly) {
+                persistDomainAgainstGroupId(groupId, userstoreDomain, tenantId);
+            }
             // Add to the cache.
             uniqueIdDomainCache.put(groupId, userstoreDomain);
             if (log.isDebugEnabled()) {
