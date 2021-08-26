@@ -34,8 +34,10 @@ import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.util.JavaUtils;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.MDC;
 import org.apache.xerces.util.SecurityManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -81,6 +83,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
+import java.time.DateTimeException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -103,6 +110,7 @@ public class CarbonUtils {
     private static final String SECURITY_MANAGER_PROPERTY = org.apache.xerces.impl.Constants.XERCES_PROPERTY_PREFIX +
             org.apache.xerces.impl.Constants.SECURITY_MANAGER_PROPERTY;
     private static boolean isServerConfigInitialized;
+    private static Log audit = CarbonConstants.AUDIT_LOG;
 
     public static boolean isAdminConsoleEnabled() {
         boolean enableAdminConsole = false;
@@ -1357,5 +1365,24 @@ public class CarbonUtils {
     public static boolean isLegacyAuditLogsDisabled() {
 
         return Boolean.parseBoolean(System.getProperty(DISABLE_LEGACY_AUDIT_LOGS));
+    }
+
+    /**
+     * Publish audit logs to the audit log file.
+     *
+     * @param auditLogData Audit log event data required for log.
+     */
+    public static void publishAuditLogs(Map<String, Object> auditLogData) {
+
+        Object auditLogObject = auditLogData.get(CarbonConstants.LogEventConstants.AUDIT_LOG);
+        if (auditLogObject instanceof AuditLog) {
+            AuditLog auditLog = (AuditLog) auditLogObject;
+            String auditLogString = String.format(CarbonConstants.AUDIT_LOG_MESSAGE_TEMPLATE, auditLog.getLogId(),
+                    auditLog.getRecordedAt(), auditLog.getClientComponent(), auditLog.getCorrelationId(),
+                    auditLog.getInitiatorId(), auditLog.getInitiatorName(), auditLog.getInitiatorType(),
+                    auditLog.getEventType(), auditLog.getTargetId(), auditLog.getTargetName(), auditLog.getTargetType(),
+                    auditLog.getDataChange());
+            audit.warn(auditLogString);
+        }
     }
 }

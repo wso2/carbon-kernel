@@ -34,7 +34,10 @@ public final class CarbonConstants {
     public static final Log AUDIT_LOG = LogFactory.getLog("AUDIT_LOG");
     public static final String AUDIT_MESSAGE = "Initiator : %s | Action : %s | Target : %s | Data : { %s } | Result : %s ";
     public static final String DISABLE_LEGACY_AUDIT_LOGS = "disableLegacyAuditLogs";
-
+    public static final String AUDIT_LOG_MESSAGE_TEMPLATE =
+            "{ id : %s, recordedAt : %s, clientComponent : %s, requestId : %s, " +
+                    "initiator.id : %s, initiator.name : %s, initiator.type : %s, event.type : %s, target.id : %s, " +
+                    "target.name : %s, target.type : %s, data.change : %s }";
     /**
      * This is used to get root context within CarbonJNDIContext when we need to operate
      * with LDAP.
@@ -428,4 +431,81 @@ public final class CarbonConstants {
     // parameter to indicate whether HTTP access to Admin Console is enabled
     public static final String ENABLE_HTTP_ADMIN_CONSOLE = "EnableHTTPAdminConsole";
 
+    /**
+     * Constants for Logging events.
+     */
+    public static class LogEventConstants {
+
+        // Key for the auditLog object property in audit log event.
+        public static final String AUDIT_LOG = "auditLog";
+
+        // Common keys for both audit/diagnostic logs.
+        public static final String LOG_ID = "id";
+        public static final String RECORDED_AT = "recordedAt";
+        public static final String CLIENT_COMPONENT = "clientComponent";
+        public static final String CORRELATION_ID = "correlationId";
+
+        // keys for initiator details in audit logs.
+        public static final String INITIATOR_ID = "initiator.id";
+        public static final String INITIATOR_NAME = "initiator.name";
+        public static final String INITIATOR_TYPE = "initiator.type";
+
+        // keys for event details in audit logs.
+        public static final String EVENT_TYPE = "event.type";
+
+        // keys for target details in audit logs.
+        public static final String TARGET_ID = "target.id";
+        public static final String TARGET_NAME = "target.name";
+        public static final String TARGET_TYPE = "target.type";
+
+        // keys for data change details in audit logs.
+        public static final String DATA_CHANGE = "data.change";
+
+        public enum EventCatalog {
+
+            CREATE_APPLICATION("CREATE APPLICATION", "Create Application"),
+            UPDATE_APPLICATION("UPDATE APPLICATION", "Update Application"),
+            DELETE_APPLICATION("DELETE APPLICATION", "Delete Application"),
+            CREATE_IDP("CREATE IDP", "Create Identity Provider"),
+            UPDATE_IDP("UPDATE IDP", "Update Identity Provider"),
+            DELETE_IDP("DELETE IDP", "Delete Identity Provider"),
+            CREATE_USER("CREATE USER", "Create User"),
+            UPDATE_USER("UPDATE USER", "Update User"),
+            DELETE_USER("DELETE USER", "Delete User"),
+            CREATE_GROUP("CREATE GROUP", "Create Group"),
+            UPDATE_GROUP("UPDATE GROUP", "Update Group"),
+            DELETE_GROUP("DELETE GROUP", "Delete Group"),
+            CREATE_ROLE("CREATE ROLE", "Create Role"),
+            UPDATE_ROLE("UPDATE ROLE", "Update Role"),
+            DELETE_ROLE("DELETE ROLE", "Delete Role"),
+            CREATE_ATTRIBUTE("CREATE ATTRIBUTE", "Create Attribute"),
+            UPDATE_ATTRIBUTE("UPDATE ATTRIBUTE", "Update Attribute"),
+            DELETE_ATTRIBUTE("DELETE ATTRIBUTE", "Delete Attribute"),
+            ;
+
+            private final String eventId;
+            private final String eventDescription;
+
+            EventCatalog(String eventId, String eventDescription) {
+                this.eventId = eventId;
+                this.eventDescription = eventDescription;
+            }
+
+            public String getEventId() {
+
+                return eventId;
+            }
+
+            public String getEventDescription() {
+
+                return eventDescription;
+            }
+
+            @Override
+            public String toString() {
+
+                return "EventCatalog{ 'eventId='" + eventId + " , eventDescription='" + eventDescription + "'}";
+            }
+        }
+    }
 }
