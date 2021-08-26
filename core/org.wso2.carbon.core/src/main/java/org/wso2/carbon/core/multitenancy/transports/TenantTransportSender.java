@@ -152,10 +152,10 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
         superTenantOutMessageContext.setProperty(
                 Constants.Configuration.CONTENT_TYPE, contentTypeProperty);
 
-        OutTransportInfo transportInfo =
-                (OutTransportInfo) msgContext.getProperty(Constants.OUT_TRANSPORT_INFO);
+        Object outTransportInfo = msgContext.getProperty(Constants.OUT_TRANSPORT_INFO);
 
-        if (transportInfo != null) {
+        if (outTransportInfo instanceof OutTransportInfo)  {
+            OutTransportInfo transportInfo = (OutTransportInfo) outTransportInfo;
             transportInfo.setContentType(msgTypeProperty);
         }
 
