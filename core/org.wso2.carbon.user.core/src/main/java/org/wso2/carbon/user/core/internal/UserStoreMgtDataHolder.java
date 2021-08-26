@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.crypto.api.CryptoService;
 import org.wso2.carbon.user.core.hash.HashProviderFactory;
+import org.wso2.carbon.user.core.listener.GroupResolver;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +33,27 @@ public class UserStoreMgtDataHolder {
     private static final Log log = LogFactory.getLog(UserStoreMgtDataHolder.class);
     private CryptoService cryptoService;
     private Map<String, HashProviderFactory> hashProviderFactoryMap;
+    private GroupResolver groupResolver = null;
+
+    /**
+     * Get GroupResolver instance.
+     *
+     * @return GroupResolver instance.
+     */
+    public GroupResolver getGroupResolver() {
+
+        return groupResolver;
+    }
+
+    /**
+     * Set GroupResolver instance.
+     *
+     * @param groupResolver GroupResolver instance.
+     */
+    public void setGroupResolver(GroupResolver groupResolver) {
+
+        this.groupResolver = groupResolver;
+    }
 
     public static UserStoreMgtDataHolder getInstance() {
 

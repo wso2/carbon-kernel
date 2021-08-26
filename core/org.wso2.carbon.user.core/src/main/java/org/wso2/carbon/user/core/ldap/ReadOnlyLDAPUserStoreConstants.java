@@ -29,6 +29,7 @@ import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataImpor
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.BOOLEAN;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.PASSWORD;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.STRING;
+import static org.wso2.carbon.user.core.ldap.LDAPConstants.DEFAULT_LDAP_TIME_FORMATS_PATTERN;
 
 public class ReadOnlyLDAPUserStoreConstants {
 
@@ -63,7 +64,6 @@ public class ReadOnlyLDAPUserStoreConstants {
         setMandatoryProperty(UserStoreConfigConstants.userNameAttribute, "Username Attribute", "uid",
                 UserStoreConfigConstants.userNameAttributeDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-
         setMandatoryProperty(UserStoreConfigConstants.usernameSearchFilter, "User Search Filter",
                 "(&(objectClass=person)(uid=?))", UserStoreConfigConstants.usernameSearchFilterDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
@@ -78,6 +78,16 @@ public class ReadOnlyLDAPUserStoreConstants {
                 UserStoreConfigConstants.userIdSearchFilterAttributeName, "(&(objectClass=person)(uid=?))",
                 UserStoreConfigConstants.userIdSearchFilterDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
+
+        // Group Id Related Userstore Configurations - By default this will be disabled.
+        setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.GROUP_ID_ENABLED,
+                UserStoreConfigConstants.GROUP_ID_ENABLED_DISPLAY_NAME, Boolean.toString(false),
+                UserStoreConfigConstants.GROUP_ID_ENABLED_DESCRIPTION, false,
+                new Property[]{GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty()});
+        setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_DISPLAY_NAME, LDAPConstants.DEFAULT_GROUP_ID_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_DESCRIPTION, false,
+                new Property[]{GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty()});
 
         setProperty(UserStoreConfigConstants.userDNPattern, "User DN Pattern", "",
                 UserStoreConfigConstants.userDNPatternDescription,
@@ -101,6 +111,16 @@ public class ReadOnlyLDAPUserStoreConstants {
                 new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setProperty(UserStoreConfigConstants.groupNameListFilter, "Group List Filter", "(objectClass=groupOfNames)",
                 UserStoreConfigConstants.groupNameListFilterDescription,
+                new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
+        setProperty(UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE_DISPLAY_NAME,
+                LDAPConstants.DEFAULT_GROUP_CREATED_DATE_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE_DESCRIPTION,
+                new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
+        setProperty(UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE_DISPLAY_NAME,
+                LDAPConstants.DEFAULT_GROUP_LAST_MODIFIED_DATE_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE_DESCRIPTION,
                 new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
 
         setProperty(roleDNPattern, "Group DN Pattern", "", roleDNPatternDescription,
@@ -127,8 +147,9 @@ public class ReadOnlyLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.lDAPInitialContextFactory, "LDAP Initial Context Factory",
                 "com.sun.jndi.ldap.LdapCtxFactory", UserStoreConfigConstants.lDAPInitialContextFactoryDescription,
                 new Property[] { CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty() });
-        setProperty(UserStoreConfigConstants.dateAndTimePattern, "", UserStoreConfigConstants
-                .dateAndTimePatternDisplayName, UserStoreConfigConstants.dateAndTimePatternDescription, new Property[]{CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty()});
+        setProperty(UserStoreConfigConstants.dateAndTimePattern, UserStoreConfigConstants.dateAndTimePatternDisplayName,
+                DEFAULT_LDAP_TIME_FORMATS_PATTERN, UserStoreConfigConstants.dateAndTimePatternDescription,
+                new Property[]{CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty()});
         setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "true",
                 UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION,
                 new Property[] { USER.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });

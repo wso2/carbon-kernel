@@ -28,6 +28,9 @@ public class UserStoreConfigConstants {
     public static final String RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME = "user_name_from_user_id_cache";
     public static final String RESOLVE_USER_UNIQUE_ID_FROM_USER_NAME_CACHE_NAME = "user_unique_id_from_user_name_cache";
     public static final String RESOLVE_USER_NAME_FROM_UNIQUE_USER_ID_CACHE_NAME = "user_name_from_unique_user_id_cache";
+
+    public static final String RESOLVE_GROUP_NAME_FROM_USER_ID_CACHE_NAME = "group_name_from_user_id_cache";
+
     //Define datasource property for JDBC
     public static final String dataSource = "dataSource";
     public static final String dataSourceDescription = "Connection name to user store";
@@ -58,8 +61,8 @@ public class UserStoreConfigConstants {
     public static final String timestampAttributesDescription = "Comma-separated list of user store attributes " +
             "having the data type of Timestamp and may require a conversion when reading from/writing to user store";
     public static final String dateAndTimePattern = "DateAndTimePattern";
-    public static final String dateAndTimePatternDescription = "Pattern of Date and Time values are stored, if not " +
-            "specified default timestamp representation is used.";
+    public static final String dateAndTimePatternDescription = "Patterns of Date and Time values are stored in the " +
+            "userstore separated by brackets";
     public static final String dateAndTimePatternDisplayName = "Date And Time Pattern";
     public static final String timestampAttributesDisplayName = "Timestamp Attributes";
 
@@ -111,6 +114,23 @@ public class UserStoreConfigConstants {
     public static final String userIdSearchFilterAttributeName = "User ID Search Filter";
     public static final String userIdSearchFilterDescription = "Filtering criteria for searching a particular user " +
             "entry";
+
+    // Group id related userstore config property values.
+    public static final String GROUP_ID_ENABLED = "GroupIDEnabled";
+    public static final String GROUP_ID_ENABLED_DISPLAY_NAME = "Enable Group Unique Id";
+    public static final String GROUP_ID_ENABLED_DESCRIPTION = "Enable userstore managed groups";
+    public static final String GROUP_ID_ATTRIBUTE = "GroupIdAttribute";
+    public static final String GROUP_ID_ATTRIBUTE_DISPLAY_NAME = "Group Id Attribute";
+    public static final String GROUP_ID_ATTRIBUTE_DESCRIPTION = "Attribute used to uniquely identify group";
+    public static final String GROUP_CREATED_DATE_ATTRIBUTE = "GroupCreatedDateAttribute";
+    public static final String GROUP_CREATED_DATE_ATTRIBUTE_DISPLAY_NAME = "Group Created Date Attribute";
+    public static final String GROUP_CREATED_DATE_ATTRIBUTE_DESCRIPTION = "Attribute used to store created date of " +
+            "the group";
+    public static final String GROUP_LAST_MODIFIED_DATE_ATTRIBUTE = "GroupLastModifiedDateAttribute";
+    public static final String GROUP_LAST_MODIFIED_DATE_ATTRIBUTE_DISPLAY_NAME = "Group Last Modified Date Attribute";
+    public static final String GROUP_LAST_MODIFIED_DATE_ATTRIBUTE_DESCRIPTION = "Attribute used to store the last " +
+            "modified date of the group";
+
     public static final String userNameAttribute = "UserNameAttribute";
     public static final String userNameAttributeDescription = "Attribute used for uniquely identifying a user entry. Users can be authenticated using their email address, uid and etc";
     public static final String userIdAttribute = "UserIDAttribute";

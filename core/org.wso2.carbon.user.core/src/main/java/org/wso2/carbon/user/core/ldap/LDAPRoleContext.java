@@ -40,11 +40,77 @@ public class LDAPRoleContext extends RoleContext {
     // used for shared roles
     private String tenantDomain;
 
+    private String groupIdProperty;
+    private String groupCreatedDayProperty;
+    private String groupLastModifiedProperty;
+
+    /**
+     * Get the name of the LDAP attribute which holds created date of the group.
+     *
+     * @return LDAP attribute which holds created date of the group.
+     */
+    public String getGroupCreatedDayProperty() {
+
+        return groupCreatedDayProperty;
+    }
+
+    /**
+     * Set the name of the LDAP attribute which holds created date of the group.
+     *
+     * @param groupCreatedDayProperty LDAP attribute which holds created date of the group.
+     */
+    public void setGroupCreatedDayProperty(String groupCreatedDayProperty) {
+
+        this.groupCreatedDayProperty = groupCreatedDayProperty;
+    }
+
+    /**
+     * Get the name of the LDAP attribute which holds last modified date of the group.
+     *
+     * @return LDAP attribute which holds last modified date of the group.
+     */
+    public String getGroupLastModifiedProperty() {
+
+        return groupLastModifiedProperty;
+    }
+
+    /**
+     * Set the name of the LDAP attribute which holds last modified date of the group.
+     *
+     * @param groupLastModifiedProperty LDAP attribute which holds last modified date of the group.
+     */
+    public void setGroupLastModifiedProperty(String groupLastModifiedProperty) {
+
+        this.groupLastModifiedProperty = groupLastModifiedProperty;
+    }
+
+    /**
+     * Get the name of the LDAP attribute which holds unique id of the group.
+     *
+     * @return LDAP attribute which holds unique id of the group.
+     */
+    public String getGroupIdProperty() {
+
+        return groupIdProperty;
+    }
+
+    /**
+     * Set the name of the LDAP attribute which holds unique id of the group.
+     *
+     * @param groupIdProperty LDAP attribute which holds unique id of the group.
+     */
+    public void setGroupIdProperty(String groupIdProperty) {
+
+        this.groupIdProperty = groupIdProperty;
+    }
+
     public String getSearchBase() {
+
         return searchBase;
     }
 
     public void setSearchBase(String searchBase) {
+
         this.searchBase = searchBase;
     }
 

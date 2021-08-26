@@ -22,6 +22,51 @@ public class UserStore {
 
     private boolean systemStore;
 
+    private String domainAwareGroupId;
+    private String domainFreeGroupId;
+    private String domainAwareGroupName;
+
+    public String getDomainAwareGroupName() {
+
+        return domainAwareGroupName;
+    }
+
+    public void setDomainAwareGroupName(String domainAwareGroupName) {
+
+        this.domainAwareGroupName = domainAwareGroupName;
+    }
+
+    public String getDomainFreeGroupName() {
+
+        return domainFreeGroupName;
+    }
+
+    public void setDomainFreeGroupName(String domainFreeGroupName) {
+
+        this.domainFreeGroupName = domainFreeGroupName;
+    }
+
+    private String domainFreeGroupName;
+
+    public String getDomainAwareGroupId() {
+
+        return domainAwareGroupId;
+    }
+
+    public void setDomainAwareGroupId(String domainAwareGroupId) {
+
+        this.domainAwareGroupId = domainAwareGroupId;
+    }
+
+    public String getDomainFreeGroupId() {
+
+        return domainFreeGroupId;
+    }
+
+    public void setDomainFreeGroupId(String domainFreeGroupId) {
+
+        this.domainFreeGroupId = domainFreeGroupId;
+    }
 
     public boolean isHybridRole() {
         return hybridRole;

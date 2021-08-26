@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2005-2009, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) (2005-2021), WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -24,6 +24,9 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.user.core.listener.AuthorizationManagerListener;
 import org.wso2.carbon.user.core.listener.ClaimManagerListener;
+import org.wso2.carbon.user.core.listener.GroupResolver;
+import org.wso2.carbon.user.core.listener.GroupManagementErrorEventListener;
+import org.wso2.carbon.user.core.listener.GroupOperationEventListener;
 import org.wso2.carbon.user.core.listener.UserManagementErrorEventListener;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.listener.UserStoreManagerListener;
@@ -40,19 +43,24 @@ public class UMListenerServiceComponent {
     private static Map<Integer, AuthorizationManagerListener> authorizationManagerListeners;
     private static Map<Integer, UserStoreManagerListener> userStoreManagerListeners;
     private static Map<Integer, UserOperationEventListener> userOperationEventListeners;
+    private static Map<Integer, GroupOperationEventListener> groupOperationEventListeners;
+    private static Map<Integer, GroupManagementErrorEventListener> groupManagementErrorEventListeners;
     private static Map<Integer, ClaimManagerListener> claimManagerListeners;
     private static Map<Integer, UserManagementErrorEventListener> userManagementErrorEventListeners;
     private static Collection<AuthorizationManagerListener> authorizationManagerListenerCollection;
     private static Collection<UserStoreManagerListener> userStoreManagerListenerCollection;
+    private static Collection<GroupOperationEventListener> groupOperationEventListenerCollection = null;
+    private static Collection<GroupManagementErrorEventListener> groupManagementErrorEventListenerCollection = null;
     private static Collection<UserOperationEventListener> userOperationEventListenerCollection;
     private static Collection<ClaimManagerListener> claimManagerListenerCollection;
     private static Map<Integer, LDAPTenantManager> tenantManagers;
     private static Collection<UserManagementErrorEventListener> userManagementErrorEventListenerCollection;
 
-    @Reference(name = "authorization.manager.listener.service", cardinality = ReferenceCardinality.MULTIPLE, 
+    @Reference(name = "authorization.manager.listener.service", cardinality = ReferenceCardinality.MULTIPLE,
             policy = ReferencePolicy.DYNAMIC, unbind = "unsetAuthorizationManagerListenerService")
     protected synchronized void setAuthorizationManagerListenerService(
             AuthorizationManagerListener authorizationManagerListenerService) {
+
         authorizationManagerListenerCollection = null;
         if (authorizationManagerListeners == null) {
             authorizationManagerListeners =
@@ -142,17 +150,73 @@ public class UMListenerServiceComponent {
 
     protected synchronized void unsetUserOperationEventListenerService(
             UserOperationEventListener userOperationEventListenerService) {
-        if (userOperationEventListenerService != null &&
-                userOperationEventListeners != null) {
+
+        if (userOperationEventListenerService != null && userOperationEventListeners != null) {
             userOperationEventListeners.remove(userOperationEventListenerService.getExecutionOrderId());
             userOperationEventListenerCollection = null;
         }
     }
 
-    @Reference(name = "claim.manager.listener.service", cardinality = ReferenceCardinality.MULTIPLE, 
+    @Reference(
+            name = "group.operation.event.listener.service",
+            cardinality = ReferenceCardinality.MULTIPLE,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetGroupOperationEventListenerService")
+    protected synchronized void setGroupOperationEventListenerService(
+            GroupOperationEventListener groupOperationEventListener) {
+
+        groupOperationEventListenerCollection = null;
+        if (groupOperationEventListeners == null) {
+            groupOperationEventListeners = new TreeMap<>();
+        }
+        groupOperationEventListeners.put(groupOperationEventListener.getExecutionOrderId(),
+                groupOperationEventListener);
+    }
+
+    protected synchronized void unsetGroupOperationEventListenerService(
+            GroupOperationEventListener groupOperationEventListener) {
+
+        if (groupOperationEventListener != null && groupOperationEventListeners != null) {
+            groupOperationEventListeners.remove(groupOperationEventListener.getExecutionOrderId());
+            if (groupOperationEventListenerCollection != null) {
+                groupOperationEventListenerCollection.remove(groupOperationEventListener);
+            }
+        }
+    }
+
+    @Reference(
+            name = "group.management.error.event.listener.service",
+            cardinality = ReferenceCardinality.MULTIPLE,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetGroupManagementErrorEventListenerService")
+    protected synchronized void setGroupManagementErrorEventListenerService(
+            GroupManagementErrorEventListener groupManagementErrorEventListener) {
+
+        groupManagementErrorEventListenerCollection = null;
+        if (groupManagementErrorEventListeners == null) {
+            groupManagementErrorEventListeners = new TreeMap<>();
+        }
+        groupManagementErrorEventListeners.put(groupManagementErrorEventListener.getExecutionOrderId(),
+                groupManagementErrorEventListener);
+    }
+
+    protected synchronized void unsetGroupManagementErrorEventListenerService(
+            GroupManagementErrorEventListener groupManagementErrorEventListener) {
+
+        if (groupManagementErrorEventListener != null &&
+                groupManagementErrorEventListeners != null) {
+            groupManagementErrorEventListeners.remove(groupManagementErrorEventListener.getExecutionOrderId());
+            if (groupManagementErrorEventListenerCollection != null) {
+                groupManagementErrorEventListenerCollection.remove(groupManagementErrorEventListener);
+            }
+        }
+    }
+
+    @Reference(name = "claim.manager.listener.service", cardinality = ReferenceCardinality.MULTIPLE,
             policy = ReferencePolicy.DYNAMIC, unbind = "unsetClaimManagerListenerService")
     protected synchronized void setClaimManagerListenerService(
             ClaimManagerListener claimManagerListenerService) {
+
         claimManagerListenerCollection = null;
         if (claimManagerListeners == null) {
             claimManagerListeners = new TreeMap<Integer, ClaimManagerListener>();
@@ -222,6 +286,7 @@ public class UMListenerServiceComponent {
     }*/
 
     public static synchronized Collection<UserOperationEventListener> getUserOperationEventListeners() {
+
         if (userOperationEventListeners == null) {
             userOperationEventListeners = new TreeMap<Integer, UserOperationEventListener>();
         }
@@ -232,7 +297,40 @@ public class UMListenerServiceComponent {
         return userOperationEventListenerCollection;
     }
 
+    /**
+     * Get all available GroupOperationEventListeners.
+     *
+     * @return Available GroupOperationEventListeners.
+     */
+    public static synchronized Collection<GroupOperationEventListener> getGroupOperationEventListeners() {
+
+        if (groupOperationEventListeners == null) {
+            groupOperationEventListeners = new TreeMap<>();
+        }
+        if (groupOperationEventListenerCollection == null) {
+            groupOperationEventListenerCollection = groupOperationEventListeners.values();
+        }
+        return groupOperationEventListenerCollection;
+    }
+
+    /**
+     * Get all available GroupManagementErrorEventListeners.
+     *
+     * @return Available GroupManagementErrorEventListeners.
+     */
+    public static synchronized Collection<GroupManagementErrorEventListener> getGroupManagementErrorEventListeners() {
+
+        if (groupManagementErrorEventListeners == null) {
+            groupManagementErrorEventListeners = new TreeMap<>();
+        }
+        if (groupManagementErrorEventListenerCollection == null) {
+            groupManagementErrorEventListenerCollection = groupManagementErrorEventListeners.values();
+        }
+        return groupManagementErrorEventListenerCollection;
+    }
+
     public static synchronized Collection<ClaimManagerListener> getClaimManagerListeners() {
+
         if (claimManagerListeners == null) {
             claimManagerListeners = new TreeMap<Integer, ClaimManagerListener>();
         }

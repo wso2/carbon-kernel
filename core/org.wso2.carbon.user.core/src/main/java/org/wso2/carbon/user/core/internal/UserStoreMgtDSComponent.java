@@ -43,6 +43,7 @@ import org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager;
 import org.wso2.carbon.user.core.ldap.UniqueIDActiveDirectoryUserStoreManager;
 import org.wso2.carbon.user.core.ldap.UniqueIDReadOnlyLDAPUserStoreManager;
 import org.wso2.carbon.user.core.ldap.UniqueIDReadWriteLDAPUserStoreManager;
+import org.wso2.carbon.user.core.listener.GroupResolver;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tracker.UserStoreManagerRegistry;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -199,6 +200,21 @@ public class UserStoreMgtDSComponent {
 
     protected void unsetCarbonCryptoService(CryptoService cryptoService){
         userStoreMgtDataHolder.setCryptoService(null);
+    }
+
+    @Reference(
+            name = "group.domain.resolver.listener.service",
+            cardinality = ReferenceCardinality.OPTIONAL,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetGroupResolverService")
+    protected synchronized void setGroupResolverService(GroupResolver groupResolver) {
+
+        userStoreMgtDataHolder.setGroupResolver(groupResolver);
+    }
+
+    protected synchronized void unsetGroupResolverService(GroupResolver groupResolver) {
+
+        userStoreMgtDataHolder.setGroupResolver(null);
     }
 
     protected void unsetClaimManagerFactory(ClaimManagerFactory claimManagerFactory) {

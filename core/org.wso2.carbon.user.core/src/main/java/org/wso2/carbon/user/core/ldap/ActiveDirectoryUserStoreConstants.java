@@ -29,6 +29,7 @@ import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataImpor
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.BOOLEAN;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.PASSWORD;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.STRING;
+import static org.wso2.carbon.user.core.ldap.LDAPConstants.DEFAULT_LDAP_TIME_FORMATS_PATTERN;
 
 public class ActiveDirectoryUserStoreConstants {
 
@@ -133,7 +134,14 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty(UserStoreConfigConstants.groupSearchBase, "Group Search Base", "CN=Users,DC=WSO2,DC=Com",
                 UserStoreConfigConstants.groupSearchBaseDescription,
                 new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-
+        setProperty(UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE_DISPLAY_NAME, "whenCreated",
+                UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE_DESCRIPTION,
+                new Property[] { GROUP.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
+        setProperty(UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE_DISPLAY_NAME, "whenChanged",
+                UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE_DESCRIPTION,
+                new Property[] { GROUP.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
         setProperty(UserStoreConfigConstants.groupEntryObjectClass, "Group Entry Object Class", "group",
                 UserStoreConfigConstants.groupEntryObjectClassDescription,
                 new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
@@ -197,6 +205,16 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty(UserStoreConfigConstants.lDAPInitialContextFactory, "LDAP Initial Context Factory",
                 "com.sun.jndi.ldap.LdapCtxFactory", UserStoreConfigConstants.lDAPInitialContextFactoryDescription,
                 new Property[] { CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty() });
+
+        // Group Id Related Userstore Configurations - By default this will be disabled.
+        setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.GROUP_ID_ENABLED,
+                UserStoreConfigConstants.GROUP_ID_ENABLED_DISPLAY_NAME, Boolean.toString(false),
+                UserStoreConfigConstants.GROUP_ID_ENABLED_DESCRIPTION, false,
+                new Property[]{GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty()});
+        setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_DISPLAY_NAME, "objectGuid",
+                UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_DESCRIPTION, false,
+                new Property[]{GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty()});
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdAttribute,
                 UserStoreConfigConstants.userIdAttributeName, UserStoreConfigConstants.OBJECT_GUID,
                 UserStoreConfigConstants.userIdAttributeDescription, false,
@@ -205,8 +223,9 @@ public class ActiveDirectoryUserStoreConstants {
                 UserStoreConfigConstants.userIdSearchFilterAttributeName, "(&(objectClass=person)(uid=?))",
                 UserStoreConfigConstants.userIdSearchFilterDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        setProperty(UserStoreConfigConstants.dateAndTimePattern, "", UserStoreConfigConstants
-                .dateAndTimePatternDisplayName, UserStoreConfigConstants.dateAndTimePatternDescription, new Property[]{CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty()});
+        setProperty(UserStoreConfigConstants.dateAndTimePattern, UserStoreConfigConstants.dateAndTimePatternDisplayName,
+                DEFAULT_LDAP_TIME_FORMATS_PATTERN, UserStoreConfigConstants.dateAndTimePatternDescription,
+                new Property[]{CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty()});
     }
 
     private static void setMandatoryProperty(String name, String displayName, String value, String description,

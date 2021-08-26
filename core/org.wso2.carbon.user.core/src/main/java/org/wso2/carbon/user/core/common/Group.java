@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) (2020-2021), WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -26,6 +26,17 @@ import java.util.List;
 public class Group extends Entity {
 
     private static final long serialVersionUID = -6157030956831929121L;
+    private String createdDate;
+    private String lastModifiedDate;
+    private String location;
+
+    /**
+     * Represents the constructor.
+     */
+    public Group() {
+
+        super();
+    }
 
     /**
      * Represents the constructor.
@@ -102,5 +113,65 @@ public class Group extends Entity {
     public void setGroupName(String groupName) {
 
         super.setName(groupName);
+    }
+
+    /**
+     * Get group created date.
+     *
+     * @return Group created date.
+     */
+    public String getCreatedDate() {
+
+        return createdDate;
+    }
+
+    /**
+     * Set group created date.
+     *
+     * @param createdDate Group created date.
+     */
+    public void setCreatedDate(String createdDate) {
+
+        this.createdDate = createdDate;
+    }
+
+    /**
+     * Get group last modified date.
+     *
+     * @return Group last modified date.
+     */
+    public String getLastModifiedDate() {
+
+        return lastModifiedDate;
+    }
+
+    /**
+     * Set group last modified date.
+     *
+     * @param lastModifiedDate Group last modified date.
+     */
+    public void setLastModifiedDate(String lastModifiedDate) {
+
+        this.lastModifiedDate = lastModifiedDate;
+    }
+
+    /**
+     * Get group location.
+     *
+     * @return Group location.
+     */
+    public String getLocation() {
+
+        return location;
+    }
+
+    /**
+     * Set group location.
+     *
+     * @param location Group location.
+     */
+    public void setLocation(String location) {
+
+        this.location = location;
     }
 }

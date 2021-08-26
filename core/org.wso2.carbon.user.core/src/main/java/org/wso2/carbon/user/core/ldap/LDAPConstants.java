@@ -102,4 +102,14 @@ public class LDAPConstants {
     public static final String USER_CACHE_EXPIRY_MILLISECONDS = "UserCacheExpiryMilliseconds";
     public static final String USER_DN_CACHE_ENABLED = "UserDNCacheEnabled";
 
+    // Group id related userstore default attribute values.
+    public static final String DEFAULT_GROUP_ID_ATTRIBUTE = "entryUUID";
+    public static final String DEFAULT_GROUP_CREATED_DATE_ATTRIBUTE = "createTimestamp";
+    public static final String DEFAULT_GROUP_LAST_MODIFIED_DATE_ATTRIBUTE = "modifyTimestamp";
+    /*
+     * The following pattern includes datatime formats like `20090813145607.0Z`, `20210806093122.833Z`, `
+     * 199412161032Z`, 20090813145607-0200.
+     */
+    public static final String DEFAULT_LDAP_TIME_FORMATS_PATTERN = "[uuuuMMddHHmmss[,SSS][.SSS]X]" +
+            "[uuuuMMddHHmmss[,S][.S]X][uuuuMMddHHmm[,S][.S]X]";
 }

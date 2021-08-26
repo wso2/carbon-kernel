@@ -221,12 +221,53 @@ public class UserCoreErrorConstants {
         ERROR_CODE_ERROR_WHILE_UPDATING_PERMISSIONS_OF_ROLE("32101", "Un-expected error while updating permissions of  "
                 + "updating role,  %s"),
         ERROR_CODE_USERNAME_CANNOT_BE_EMPTY("32102", "Username %s is not valid. User name cannot be empty."),
-        ERROR_CODE_INVALID_DOMAIN_NAME("32103", "Domain name: %s, is not valid");
+        ERROR_CODE_INVALID_DOMAIN_NAME("32103", "Domain name: %s, is not valid"),
+
+        // Client error codes related to group operations.
+        ERROR_EMPTY_GROUP_ID("60001", "Group id cannot be empty"),
+        ERROR_EMPTY_GROUP_NAME("60002", "Group name cannot be empty"),
+        ERROR_NO_GROUP_FOUND_WITH_NAME("60003", "No group found with the name: %s in tenant: %s"),
+        ERROR_SORTING_NOT_SUPPORTED("60004", "Sorting is not supported"),
+        ERROR_NO_GROUP_FOUND_WITH_ID("60005", "No group found with the id: %s in tenant: %s"),
+        ERROR_EMPTY_USER_ID("60006", "User id cannot be empty"),
+
+        // Server error codes related to group operations.
+        ERROR_DURING_PRE_GET_GROUP_BY_ID("65001",
+                "Un-expected error during pre get group by group id, %s"),
+        ERROR_DURING_POST_GET_GROUP_BY_ID("65002",
+                "Un-expected error during post get group by group id, %s"),
+        ERROR_DURING_PRE_GET_GROUP_BY_NAME("65003",
+                "Un-expected error during pre get group by group name, %s"),
+        ERROR_DURING_POST_GET_GROUP_BY_NAME("65004",
+                "Un-expected error during post get group by group name, %s"),
+        ERROR_DURING_PRE_GET_GROUP_ID_BY_NAME("65005",
+                "Un-expected error during pre get group id by group name, %s"),
+        ERROR_DURING_POST_GET_GROUP_ID_BY_NAME("65006",
+                "Un-expected error during post get group id by group name, %s"),
+        ERROR_DURING_PRE_GET_GROUP_NAME_BY_ID("65007",
+                "Un-expected error during pre get group name by group id, %s"),
+        ERROR_DURING_POST_GET_GROUP_NAME_BY_ID("65008",
+                "Un-expected error during post get group name by group id, %s"),
+        ERROR_DURING_PRE_GET_GROUPS_LIST_BY_USER_ID("65009",
+                "Un-expected error during pre get groups list by user id, %s"),
+        ERROR_DURING_POST_GET_GROUPS_LIST_BY_USER_ID("65010",
+                "Un-expected error during post get groups list by user id: %s"),
+        ERROR_DURING_PRE_GET_GROUP("65011",
+                "Un-expected error during pre list groups with condition, %s"),
+        ERROR_DURING_POST_GET_GROUP("65012",
+                "Un-expected error during post list groups with condition, %s"),
+        ERROR_WHILE_GETTING_GROUP_BY_NAME("65013", "Error occurred while getting the group: %s " +
+                "in userstore: %s in tenant: %s"),
+        ERROR_WHILE_GETTING_GROUP_BY_ID("65013", "Error occurred while getting the group id: %s " +
+                "in userstore: %s in tenant: %s"),
+        ERROR_WHILE_BUILDING_GROUP_RESPONSE("65014", "Error occurred while building the group " +
+                "response in userstore: %s in tenant: %s");
 
         private final String code;
         private final String message;
 
         ErrorMessages(String code, String message) {
+
             this.code = code;
             this.message = message;
         }

@@ -162,8 +162,9 @@ public class ReadWriteLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.lDAPInitialContextFactory, "LDAP Initial Context Factory",
                 "com.sun.jndi.ldap.LdapCtxFactory", UserStoreConfigConstants.lDAPInitialContextFactoryDescription,
                 new Property[] { CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty() });
-        setProperty(UserStoreConfigConstants.dateAndTimePattern, "", UserStoreConfigConstants
-                .dateAndTimePatternDisplayName, UserStoreConfigConstants.dateAndTimePatternDescription, new Property[]{CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty()});
+        setProperty(UserStoreConfigConstants.dateAndTimePattern, UserStoreConfigConstants.dateAndTimePatternDisplayName,
+                "", UserStoreConfigConstants.dateAndTimePatternDescription,
+                new Property[]{CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty()});
         setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "true",
                 UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION,
                 new Property[] { USER.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
