@@ -28,7 +28,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.MDC;
-import org.wso2.carbon.CarbonConstants;
 
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -134,7 +133,6 @@ public class RequestCorrelationIdValve extends ValveBase {
             }
             disAssociateFromThread();
             MDC.remove(correlationIdMdc);
-            MDC.remove(CarbonConstants.LogEventConstants.CLIENT_COMPONENT);
         }
     }
 
