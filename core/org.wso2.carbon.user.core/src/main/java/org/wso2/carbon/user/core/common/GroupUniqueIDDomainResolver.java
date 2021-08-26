@@ -37,8 +37,6 @@ import javax.sql.DataSource;
  * Purpose of this class is to keep a mapping between group unique id and the domain of that group to reduce the
  * userstore lookups by resolving the correct domain when the group id is provided. This is will act as persisted
  * cache.
- *
- * @since 4.6.3
  */
 public class GroupUniqueIDDomainResolver {
 
