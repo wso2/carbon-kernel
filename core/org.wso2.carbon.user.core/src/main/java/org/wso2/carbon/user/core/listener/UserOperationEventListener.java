@@ -488,6 +488,21 @@ public interface UserOperationEventListener {
             throws UserStoreException;
 
     /**
+     * Defines any additional actions after updating the user list of an internal role.
+     *
+     * @param roleName Name of the internal role.
+     * @param deletedUsers deleted user array.
+     * @param newUsers newly added user array.
+     * @param userStoreManager user store manager.
+     * @throws UserStoreException UserStoreException.
+     */
+    default boolean doPostUpdateUserListOfInternalRole(String roleName, String deletedUsers[],
+                                                      String[] newUsers, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    /**
      * Define any additional actions before updating role list of user.
      *
      * @param userName
