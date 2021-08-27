@@ -111,5 +111,5 @@ public class LDAPConstants {
      * 199412161032Z`, 20090813145607-0200.
      */
     public static final String DEFAULT_LDAP_TIME_FORMATS_PATTERN = "[uuuuMMddHHmmss[,SSS][.SSS]X]" +
-            "[uuuuMMddHHmmss[,S][.S]X][uuuuMMddHHmm[,S][.S]X]";
+            "[uuuuMMddHHmmss[,SS][.SS]X][uuuuMMddHHmm[,S][.S]X]";
 }

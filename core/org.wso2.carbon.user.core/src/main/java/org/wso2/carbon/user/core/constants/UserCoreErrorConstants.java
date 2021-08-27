@@ -230,6 +230,8 @@ public class UserCoreErrorConstants {
         ERROR_SORTING_NOT_SUPPORTED("60004", "Sorting is not supported"),
         ERROR_NO_GROUP_FOUND_WITH_ID("60005", "No group found with the id: %s in tenant: %s"),
         ERROR_EMPTY_USER_ID("60006", "User id cannot be empty"),
+        ERROR_NO_USER_WITH_USERNAME("60007", "No user found with username: %s in " +
+                "userstore domain: %s"),
 
         // Server error codes related to group operations.
         ERROR_DURING_PRE_GET_GROUP_BY_ID("65001",
@@ -258,10 +260,13 @@ public class UserCoreErrorConstants {
                 "Un-expected error during post list groups with condition, %s"),
         ERROR_WHILE_GETTING_GROUP_BY_NAME("65013", "Error occurred while getting the group: %s " +
                 "in userstore: %s in tenant: %s"),
-        ERROR_WHILE_GETTING_GROUP_BY_ID("65013", "Error occurred while getting the group id: %s " +
+        ERROR_WHILE_GETTING_GROUP_BY_ID("65014", "Error occurred while getting the group id: %s " +
                 "in userstore: %s in tenant: %s"),
-        ERROR_WHILE_BUILDING_GROUP_RESPONSE("65014", "Error occurred while building the group " +
-                "response in userstore: %s in tenant: %s");
+        ERROR_WHILE_BUILDING_GROUP_RESPONSE("65015", "Error occurred while building the group " +
+                "response in userstore: %s in tenant: %s"),
+        ERROR_WHILE_GETTING_GROUPS("65016", "Error occurred while getting the groups"),
+        ERROR_WHILE_PERFORMING_PAGINATED_SEARCH("65017", "Error occurred while performing the " +
+                "paginated search");
 
         private final String code;
         private final String message;

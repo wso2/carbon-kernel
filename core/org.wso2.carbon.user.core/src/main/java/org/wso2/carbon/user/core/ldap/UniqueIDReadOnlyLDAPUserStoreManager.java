@@ -23,6 +23,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.caching.impl.CachingConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -31,6 +32,7 @@ import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.UserStoreClientException;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
@@ -50,6 +52,7 @@ import org.wso2.carbon.user.core.model.ExpressionOperation;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.JNDIUtil;
+import org.wso2.carbon.user.core.util.LDAPUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.io.IOException;
@@ -61,6 +64,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -92,6 +96,7 @@ import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.PagedResultsControl;
+import javax.naming.ldap.Rdn;
 import javax.naming.ldap.SortControl;
 
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE;
@@ -100,9 +105,13 @@ import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_LAST_MODI
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.dateAndTimePattern;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_ID;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_NAME;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_NO_USER_WITH_USERNAME;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_SORTING_NOT_SUPPORTED;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_WHILE_BUILDING_GROUP_RESPONSE;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_WHILE_GETTING_GROUPS;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_WHILE_GETTING_GROUP_BY_ID;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_WHILE_GETTING_GROUP_BY_NAME;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_WHILE_PERFORMING_PAGINATED_SEARCH;
 import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID;
 import static org.wso2.carbon.user.core.ldap.LDAPConstants.DEFAULT_LDAP_TIME_FORMATS_PATTERN;
 
@@ -1274,7 +1283,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     // ****************************************************
 
     protected List<String> getAttributeListOfOneElement(String searchBases, String searchFilter,
-            SearchControls searchCtls) throws UserStoreException {
+                                                        SearchControls searchCtls) throws UserStoreException {
 
         List<String> list = new ArrayList<>();
         DirContext dirContext = null;
@@ -1637,6 +1646,560 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             return null;
         }
         return buildGroupFromAttributes(responseAttributes, attributesByLDAPSearch);
+    }
+
+    @Override
+    public List<Group> doGetGroupListOfUser(String userId, int limit, int offset, String sortBy, String sortOrder)
+            throws UserStoreException {
+
+        if (StringUtils.isNotBlank(sortBy) && StringUtils.isNotBlank(sortOrder)) {
+            throw new UserStoreClientException(ERROR_SORTING_NOT_SUPPORTED.getMessage(),
+                    ERROR_SORTING_NOT_SUPPORTED.getCode());
+        }
+        String username = this.doGetUserNameFromUserIDWithID(userId);
+        if (StringUtils.isBlank(username)) {
+            String errorMsg = String.format(ERROR_NO_USER_WITH_USERNAME.getMessage(), username, getMyDomainName());
+            throw new UserStoreException(errorMsg, ERROR_NO_USER_WITH_USERNAME.getCode());
+        }
+        int resolvedLimit = resolveGroupListLimit(limit);
+        if (resolvedLimit == 0) {
+            return new ArrayList<>();
+        }
+        int resolvedOffset = resolveListOffset(offset);
+        List<Group> groupsList = new ArrayList<>();
+        /*
+         * Do not search REGISTRY_ANONYMOUS_USERNAME or REGISTRY_SYSTEM_USERNAME in LDAP because it
+         * causes warn logs printed from embedded-ldap.
+         */
+        boolean isRegistryAnonymousUser = UserCoreUtil.isRegistryAnnonymousUser(username);
+        boolean isRegistrySystemUser = UserCoreUtil.isRegistrySystemUser(username);
+        if (readGroupsEnabled && !isRegistryAnonymousUser && !isRegistrySystemUser) {
+            // Check for a memberOfProperty and get groups accordingly.
+            String memberOfProperty = realmConfig.getUserStoreProperty(LDAPConstants.MEMBEROF_ATTRIBUTE);
+            if (StringUtils.isNotEmpty(memberOfProperty)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Reading groups with the memberOfProperty for the " +
+                            "userstore: " + getMyDomainName());
+                }
+                groupsList = getGroupsFromMemberOfProperty(username, memberOfProperty, resolvedLimit, resolvedOffset);
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Getting the groups list from the memebership attribute for the " +
+                            "userstore: " + getMyDomainName());
+                }
+                groupsList = getGroupsFromMembership(username, resolvedLimit, resolvedOffset);
+            }
+        } else if (isRegistrySystemUser) {
+            // Returning a REGISTRY_ANONYMOUS_ROLE_NAME for REGISTRY_ANONYMOUS_USERNAME.
+            Group group = new Group(null, CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME);
+            groupsList.add(group);
+        }
+        return groupsList;
+    }
+
+    /**
+     * Get the groups list when the memberOf property is enabled in the userstore.
+     *
+     * @param username         Username.
+     * @param memberOfProperty Member of property value.
+     * @param limit            Limit.
+     * @param offset           Offset.
+     * @return List of groups.
+     * @throws UserStoreException If an error occurred while getting the groups list.
+     */
+    private List<Group> getGroupsFromMemberOfProperty(String username, String memberOfProperty, int limit, int offset)
+            throws UserStoreException {
+
+        String userNameProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+        String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+        String searchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(username));
+        String binaryAttribute = realmConfig.getUserStoreProperty(LDAPConstants.LDAP_ATTRIBUTES_BINARY);
+        String primaryGroupIdAttribute = realmConfig.getUserStoreProperty(LDAPConstants.PRIMARY_GROUP_ID);
+        if (log.isDebugEnabled()) {
+            log.debug("Reading groups with the memberOfProperty Property: " + memberOfProperty);
+        }
+        List<Group> groupList = new ArrayList<>();
+        if (binaryAttribute != null && primaryGroupIdAttribute != null) {
+            String[] requiredAttributes = resolveReturnedAttributes(memberOfProperty, binaryAttribute,
+                    primaryGroupIdAttribute);
+            List<String> groupNames = getListOfGroupNamesWithPrimaryGroup(
+                    realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE), searchFilter, binaryAttribute,
+                    primaryGroupIdAttribute,userNameProperty, memberOfProperty, requiredAttributes);
+            /*
+             * We have to do a manual pagination since we cannot limit the returning attributes for memberOf
+             * attribute filtering.
+             */
+            groupNames = paginateList(groupNames, offset, limit);
+            for (String groupName : groupNames) {
+                groupList.add(doGetGroupFromGroupName(groupName, null));
+            }
+        } else {
+            String searchBase = resolveSearchBase(username);
+            // We cannot do pagination from the filter to the returning attributes.
+            List<String> groupDNs = getListOfNames(searchBase, searchFilter, memberOfProperty);
+            if (CollectionUtils.isEmpty(groupDNs)) {
+                if (log.isDebugEnabled()) {
+                    log.debug(String.format("No groups found for the user: %s in userstore: %s for given " +
+                            "limit: %s and offset: %s", username, getMyDomainName(), limit, offset));
+                }
+                return new ArrayList<>();
+            }
+            List<LdapName> paginatedGroups = paginateLDAPNameList(buildLDAPNamingList(groupDNs), offset, limit);
+            groupList = getGroupFromGroupDNs(paginatedGroups);
+        }
+        return groupList;
+    }
+
+    /**
+     * Paginate a given list.
+     *
+     * @param groupsList List of objects.
+     * @param offset     Offset.
+     * @param limit      Limit.
+     * @param <T>        Non primitive object type.
+     * @return Paginated list of objects.
+     */
+    private <T> List<T> paginateList(List<T> groupsList, int offset, int limit) {
+
+        if (CollectionUtils.isEmpty(groupsList)) {
+            groupsList = new ArrayList<>();
+        }
+        int numberOfResults = groupsList.size();
+
+        // We cannot return more than the available results. Therefore, max would be the available results.
+        if (numberOfResults < limit) {
+            limit = numberOfResults;
+        }
+        // We need to subtract 1 since indexes are starting from 0.
+        int lastIndexOfTheResultsList = numberOfResults - 1;
+        // When the offset is larger the available results
+        if (lastIndexOfTheResultsList < offset) {
+            return new ArrayList<>();
+        }
+        if (lastIndexOfTheResultsList == offset) {
+            return groupsList.subList(lastIndexOfTheResultsList, lastIndexOfTheResultsList + 1);
+        }
+        int endIndex = limit + offset - 1;
+        if (lastIndexOfTheResultsList <= endIndex) {
+            // Return from the start to the end of the list.
+            return groupsList.subList(offset, lastIndexOfTheResultsList + 1);
+        }
+        return groupsList.subList(offset, endIndex + 1);
+    }
+
+    /**
+     * Paginate the list of LDAP group names while checking for existence in the group search base.
+     *
+     * @param groups List of groups with their LDAP names.
+     * @param offset Offset.
+     * @param limit  Limit.
+     * @return Paginated list.
+     * @throws UserStoreException If a naming error occurred while checking with the search base.
+     */
+    private List<LdapName> paginateLDAPNameList(List<LdapName> groups, int offset, int limit)
+            throws UserStoreException {
+
+        List<LdapName> paginatedGroups = new ArrayList<>();
+        int calculatedOffset = 0;
+        try {
+            for (LdapName group : groups) {
+                if (!isInSearchBase(group, new LdapName(groupSearchBase))) {
+                    continue;
+                }
+                // When reached here, the group belong to the current userbase.
+                if (paginatedGroups.size() >= limit) {
+                    return paginatedGroups;
+                }
+                if (calculatedOffset < offset) {
+                    calculatedOffset++;
+                    continue;
+                }
+                paginatedGroups.add(group);
+            }
+        } catch (NamingException e) {
+            throw new UserStoreException(ERROR_WHILE_PERFORMING_PAGINATED_SEARCH.getMessage(),
+                    ERROR_WHILE_PERFORMING_PAGINATED_SEARCH.getCode(), e);
+        }
+        return paginatedGroups;
+    }
+
+    /**
+     * Resolve the search base from the username.
+     *
+     * @param username Username.
+     * @return User search base.
+     */
+    private String resolveSearchBase(String username) {
+
+        String searchBase = null;
+        LdapName ldn = getFromUserCache(username);
+        if (ldn != null) {
+            searchBase = ldn.toString();
+        } else {
+            // Create DN directly but there is no way when multiple DNs are used. Need to improve later.
+            String userDNPattern = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
+            if (StringUtils.isNotEmpty(userDNPattern) && !userDNPattern.contains("#")) {
+                searchBase = MessageFormat.format(userDNPattern, escapeSpecialCharactersForDN(username));
+            }
+        }
+        if (StringUtils.isBlank(searchBase)) {
+            return this.getEffectiveSearchBase(false);
+        }
+        return searchBase;
+    }
+
+    /**
+     * Get groups by username if membership attribute is enabled in the LDAP.
+     *
+     * @param username Username.
+     * @param limit    Limit.
+     * @param offset   Offset.
+     * @return List of groups.
+     * @throws UserStoreException If an error occurred while getting the groups list.
+     */
+    private List<Group> getGroupsFromMembership(String username, int limit, int offset) throws UserStoreException {
+
+        String membershipProperty = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
+        if (StringUtils.isBlank(membershipProperty)) {
+            throw new UserStoreException("MembershipAttribute is not in the userstore properties");
+        }
+        String userDNPattern = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
+        String nameInSpace;
+        if (StringUtils.isNotBlank(userDNPattern) && !userDNPattern.contains("#")) {
+            nameInSpace = MessageFormat.format(userDNPattern, escapeSpecialCharactersForDN(username));
+        } else {
+            nameInSpace = this.getNameInSpaceForUserName(username);
+        }
+        if (StringUtils.isBlank(nameInSpace)) {
+            if (log.isDebugEnabled()) {
+                log.debug("No name space found for " + username + "Hence, returning an empty groups list");
+            }
+            return new ArrayList<>();
+        }
+        String membershipValue;
+        try {
+            LdapName ldn = new LdapName(nameInSpace);
+            if (MEMBER_UID.equals(realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE))) {
+                // Membership value of posixGroup is not DN of the user.
+                List<Rdn> rdns = ldn.getRdns();
+                membershipValue = (rdns.get(rdns.size() - 1)).getValue().toString();
+            } else {
+                membershipValue = escapeLdapNameForFilter(ldn);
+            }
+        } catch (InvalidNameException e) {
+            log.error("Error while creating LDAP name from: " + nameInSpace);
+            throw new UserStoreException("Invalid naming exception for : " + nameInSpace, e);
+        }
+        String[] returnedAttributes = getMandatoryGroupsAttributesList().toArray(new String[0]);
+        String groupNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
+        String groupFilter =
+                buildGroupFilter(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_LIST_FILTER),
+                        membershipProperty, membershipValue);
+        return getListOfGroups(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE),
+                groupFilter, limit, offset, groupNameAttribute, returnedAttributes);
+    }
+
+    /**
+     * Get list of groups with pagination.
+     *
+     * @param searchBases        Groups search base.
+     * @param groupFilter        Groups list filter.
+     * @param limit              Limit.
+     * @param offset             Offset.
+     * @param sortingProperty    Property to sort the results.
+     * @param responseAttributes Attributes in the response.
+     * @return List of groups.
+     * @throws UserStoreException If an error occurred while getting the groups list.
+     */
+    private List<Group> getListOfGroups(String searchBases, String groupFilter, int limit, int offset,
+                                        String sortingProperty, String[] responseAttributes) throws UserStoreException {
+
+        byte[] cookie;
+        int pageIndex = -1;
+        List<Group> groups = new ArrayList<>();
+        DirContext dirContext = null;
+        NamingEnumeration<SearchResult> answer = null;
+        int pageSize = limit;
+
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        searchControls.setReturningAttributes(responseAttributes);
+        searchControls.setTimeLimit(getSearchTime());
+        try {
+            dirContext = connectionSource.getContext();
+            LdapContext ldapContext = (LdapContext) dirContext;
+            ldapContext.setRequestControls(new Control[]{new PagedResultsControl(pageSize, Control.CRITICAL),
+                    new SortControl(sortingProperty, Control.NONCRITICAL)});
+
+            // Handle multiple search bases.
+            String[] searchBaseArray = searchBases.split("#");
+            for (String searchBase : searchBaseArray) {
+                do {
+                    List<Group> tempGroupsList = new ArrayList<>();
+                    answer = dirContext.search(escapeDNForSearch(searchBase), groupFilter, searchControls);
+                    while (answer != null && answer.hasMoreElements()) {
+                        SearchResult searchResult = answer.next();
+                        if (searchResult != null) {
+                            Attributes attributes = searchResult.getAttributes();
+                            tempGroupsList.add(buildGroupFromAttributes(responseAttributes, attributes));
+                        }
+                    }
+                    pageIndex++;
+                    generatePaginatedGroupsList(pageIndex, offset, pageSize, tempGroupsList, groups);
+                    int needMore = pageSize - groups.size();
+                    if (needMore == 0) {
+                        break;
+                    }
+                    cookie = parseControls(ldapContext.getResponseControls());
+                    ldapContext.setRequestControls(new Control[]{new PagedResultsControl(pageSize, cookie,
+                            Control.CRITICAL), new SortControl(sortingProperty, Control.NONCRITICAL)});
+                } while ((cookie != null) && (cookie.length != 0));
+            }
+        } catch (NamingException e) {
+            if (log.isDebugEnabled()) {
+                log.error("Error occurred while performing paginated search", e);
+            }
+            throw new UserStoreException(ERROR_WHILE_GETTING_GROUPS.getMessage(),
+                    ERROR_WHILE_GETTING_GROUPS.getCode(), e);
+        } catch (IOException e) {
+            if (log.isDebugEnabled()) {
+                log.error("Error occurred while setting paged results controls for paginated search", e);
+            }
+            throw new UserStoreException(ERROR_WHILE_GETTING_GROUPS.getMessage(),
+                    ERROR_WHILE_GETTING_GROUPS.getCode(), e);
+        } finally {
+            JNDIUtil.closeNamingEnumeration(answer);
+            JNDIUtil.closeContext(dirContext);
+        }
+        return groups;
+    }
+
+    /**
+     * Search the LDAP and return the list of values for the given property.
+     *
+     * @param searchBases  Search base.
+     * @param searchFilter Search filter.
+     * @param property     Required attribute in the list.
+     * @return List of results for the given property.
+     * @throws UserStoreException If an error occurred.
+     */
+    private List<String> getListOfNames(String searchBases, String searchFilter, String property)
+            throws UserStoreException {
+
+        List<String> names = new ArrayList<>();
+        DirContext dirContext = null;
+        NamingEnumeration<SearchResult> answer = null;
+
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        searchControls.setReturningAttributes(new String[]{property});
+        searchControls.setTimeLimit(getSearchTime());
+
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("Result for searchBase: %s searchFilter: %s property: %s", searchBases,
+                    searchFilter, property));
+        }
+        try {
+            dirContext = connectionSource.getContext();
+            // Handle multiple search bases.
+            String[] searchBaseArray = searchBases.split("#");
+            for (String searchBase : searchBaseArray) {
+                answer = dirContext.search(escapeDNForSearch(searchBase), searchFilter, searchControls);
+                while (answer.hasMoreElements()) {
+                    SearchResult sr = answer.next();
+                    if (sr.getAttributes() == null) {
+                        continue;
+                    }
+                    Attribute attr = sr.getAttributes().get(property);
+                    if (attr == null) {
+                        continue;
+                    }
+                    for (Enumeration values = attr.getAll(); values.hasMoreElements(); ) {
+                        String name = (String) values.nextElement();
+                        names.add(name);
+                    }
+                }
+            }
+            return names;
+        } catch (NamingException e) {
+            if (log.isDebugEnabled()) {
+                log.error("Error occurred while performing paginated search", e);
+            }
+            throw new UserStoreException(ERROR_WHILE_PERFORMING_PAGINATED_SEARCH.getMessage(),
+                    ERROR_WHILE_PERFORMING_PAGINATED_SEARCH.getCode(), e);
+        } finally {
+            JNDIUtil.closeNamingEnumeration(answer);
+            JNDIUtil.closeContext(dirContext);
+        }
+    }
+
+    /**
+     * Get the groups list from the given list of group DNs.
+     *
+     * @param groups List of groups DNs.
+     * @return List of groups which has the given DNs.
+     * @throws UserStoreException If an error occurred while getting the groups.
+     */
+    private List<Group> getGroupFromGroupDNs(List<LdapName> groups) throws UserStoreException {
+
+        if (CollectionUtils.isEmpty(groups)) {
+            return new ArrayList<>();
+        }
+        String[] responseAttributes = getMandatoryGroupsAttributesList().toArray(new String[0]);
+        List<Group> groupsList = new ArrayList<>();
+        DirContext dirContext = null;
+        try {
+            dirContext = this.connectionSource.getContext();
+            // Assume all the groups are in the groupSearchBase since previous steps should verify this.
+            for (LdapName group : groups) {
+                Attributes attributes = dirContext.getAttributes(group, responseAttributes);
+                if (attributes != null) {
+                    groupsList.add(buildGroupFromAttributes(responseAttributes, attributes));
+                }
+            }
+        } catch (UserStoreException | NamingException e) {
+            throw new UserStoreException(ERROR_WHILE_GETTING_GROUPS.getMessage(),
+                    ERROR_WHILE_GETTING_GROUPS.getCode(), e);
+        } finally {
+            JNDIUtil.closeContext(dirContext);
+        }
+        return groupsList;
+    }
+
+    private List<LdapName> buildLDAPNamingList(List<String> groupDNs) {
+
+        List<LdapName> groups = new ArrayList<>();
+        for (String groupDN : groupDNs) {
+            try {
+                groups.add(new LdapName(groupDN));
+            } catch (InvalidNameException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("LDAP Name error for dn: " + groupDN, e);
+                }
+            }
+        }
+        return groups;
+    }
+
+    private boolean isInSearchBase(LdapName name, LdapName searchBase) {
+
+        List<Rdn> baseRDNs = searchBase.getRdns();
+        return name.startsWith(baseRDNs);
+    }
+
+    /**
+     * Resolve the returned attributes from the LDAP groups filter.
+     *
+     * @param memberOfProperty        Member of property attribute.
+     * @param binaryAttribute         Binary attribute.
+     * @param primaryGroupIdAttribute Primary group id attribute.
+     * @return Resolved returning attributes.
+     */
+    private String[] resolveReturnedAttributes(String memberOfProperty, String binaryAttribute,
+                                               String primaryGroupIdAttribute) {
+
+        List<String> attributesList = new ArrayList<>();
+        if (StringUtils.isNotBlank(binaryAttribute) && StringUtils.isNotBlank(primaryGroupIdAttribute)) {
+            attributesList.add(memberOfProperty);
+            attributesList.add(binaryAttribute);
+            attributesList.add(primaryGroupIdAttribute);
+        }
+        attributesList.addAll(getMandatoryGroupsAttributesList());
+        return attributesList.toArray(new String[0]);
+    }
+
+    /**
+     * Get the mandatory list of attributes for a group.
+     *
+     * @return List of mandatory attributes.
+     */
+    private List<String> getMandatoryGroupsAttributesList() {
+
+        List<String> attributesList = new ArrayList<>();
+        attributesList.add(realmConfig.getUserStoreProperty(GROUP_ID_ATTRIBUTE));
+        attributesList.add(realmConfig.getUserStoreProperty(GROUP_CREATED_DATE_ATTRIBUTE));
+        attributesList.add(realmConfig.getUserStoreProperty(GROUP_LAST_MODIFIED_DATE_ATTRIBUTE));
+        attributesList.add(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE));
+        return attributesList;
+    }
+
+    /**
+     * This method escapes the special characters in a LDAP name according to the ldap filter escaping standards
+     *
+     * @param ldn LDAP name.
+     * @return special characters escaped in the given LDAP name.
+     */
+    private String escapeLdapNameForFilter(LdapName ldn) {
+
+        if (ldn == null) {
+            return null;
+        }
+        boolean replaceEscapeCharacters = true;
+
+        String replaceEscapeCharactersAtUserLoginString = realmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
+        if (replaceEscapeCharactersAtUserLoginString != null) {
+            replaceEscapeCharacters = Boolean.parseBoolean(replaceEscapeCharactersAtUserLoginString);
+            if (log.isDebugEnabled()) {
+                log.debug("Replace escape characters configured to: " + replaceEscapeCharactersAtUserLoginString);
+            }
+        }
+
+        if (replaceEscapeCharacters) {
+            StringBuilder escapedDN = new StringBuilder();
+            for (int i = ldn.size() - 1; i > -1; i--) {
+                // Escaping the rdns separately and re-constructing the DN.
+                escapedDN.append(escapeSpecialCharactersForFilterWithStarAsRegex(ldn.get(i)));
+                if (i != 0) {
+                    escapedDN.append(",");
+                }
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Escaped DN value for filter : " + escapedDN);
+            }
+            return escapedDN.toString();
+        }
+        return ldn.toString();
+    }
+
+    /**
+     * Calculate the array offset needed to pagination.
+     *
+     * @param givenOffset Given offset value.
+     * @return Resolved offset value.
+     */
+    private int resolveListOffset(int givenOffset) {
+
+        if (givenOffset <= 1) {
+            return 0;
+        }
+        // We need to subtract 1 since indexes are starting from 0.
+        return givenOffset - 1;
+    }
+
+    /**
+     * Resolve the given group list limit with the max configs defined for the userstore.
+     *
+     * @param givenLimit Given user list limit.
+     * @return Resolved group list limit.
+     */
+    private int resolveGroupListLimit(int givenLimit) {
+
+        int definedMax;
+        try {
+            definedMax = Integer
+                    .parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_ROLE_LIST));
+        } catch (NumberFormatException e) {
+            definedMax = UserCoreConstants.MAX_USER_ROLE_LIST;
+        }
+        if (givenLimit < 0 || givenLimit > definedMax) {
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Using the userstore defined max group list limit: %s instead of given " +
+                        "limit: %s ", definedMax, givenLimit));
+            }
+            return definedMax;
+        }
+        return givenLimit;
     }
 
     @Override
@@ -3210,5 +3773,104 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             searchTime = UserCoreConstants.MAX_SEARCH_TIME;
         }
         return searchTime;
+    }
+
+    /**
+     * Generate paginated groups list since LDAP doesn't support pagination with start index. This processes the page
+     * results according to the requested start index.
+     *
+     * @param pageIndex      Index of the paginated page.
+     * @param offset         Start index.
+     * @param pageSize       Number of results per page which is equal to count/limit.
+     * @param tempGroupsList Groups in the particular indexed page.
+     * @param groups         Final paginated groups list.
+     */
+    protected void generatePaginatedGroupsList(int pageIndex, int offset, int pageSize, List<Group> tempGroupsList,
+                                               List<Group> groups) {
+
+        int needMore;
+        // Handle pagination depends on given offset, i.e. start index.
+        if (pageIndex == (offset / pageSize)) {
+            int startPosition = (offset % pageSize);
+            if (startPosition < tempGroupsList.size() - 1) {
+                groups.addAll(tempGroupsList.subList(startPosition, tempGroupsList.size()));
+            } else if (startPosition == tempGroupsList.size() - 1) {
+                groups.add(tempGroupsList.get(tempGroupsList.size() - 1));
+            }
+        } else if (pageIndex == (offset / pageSize) + 1) {
+            needMore = pageSize - groups.size();
+            if (tempGroupsList.size() >= needMore) {
+                groups.addAll(tempGroupsList.subList(0, needMore));
+            } else {
+                groups.addAll(tempGroupsList);
+            }
+        }
+    }
+
+    /**
+     * Get the list of group names of a user including the primary group.
+     *
+     * @param searchBase         User search base.
+     * @param searchFilter       Search filter.
+     * @param objectSid          Object sid.
+     * @param primaryGroupID     Primary group attribute.
+     * @param userAttributeId    User identifier attribute.
+     * @param groupAttributeName Group name attribute.
+     * @param responseAttributes Attributes required in in the response.
+     * @return List of groups.
+     * @throws UserStoreException If an error occurred while getting the group names.
+     */
+    private List<String> getListOfGroupNamesWithPrimaryGroup(String searchBase, String searchFilter, String objectSid,
+                                                             String primaryGroupID, String userAttributeId,
+                                                             String groupAttributeName, String[] responseAttributes)
+            throws UserStoreException {
+
+        List<String> list = new ArrayList();
+        DirContext dirContext = null;
+        NamingEnumeration<SearchResult> answer = null;
+
+        try {
+            SearchControls searchControls = new SearchControls();
+            searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            searchControls.setReturningAttributes(responseAttributes);
+            searchControls.setTimeLimit(getSearchTime());
+
+            dirContext = connectionSource.getContext();
+            answer = dirContext.search(escapeDNForSearch(searchBase), searchFilter, searchControls);
+            int count = 0;
+            // DirContext.search never returns null.
+            while (answer.hasMore()) {
+                if (count > 0) {
+                    log.error("More than element user exist with name");
+                    throw new UserStoreException("More than element user exist with name");
+                }
+                SearchResult sr = answer.next();
+                count++;
+                list = parseSearchResult(sr, groupAttributeName);
+
+                String primaryGroupSID = LDAPUtil.getPrimaryGroupSID(sr, objectSid, primaryGroupID);
+                String primaryGroupName = LDAPUtil.findGroupBySID(dirContext, searchBase,
+                        primaryGroupSID, userAttributeId);
+                if (primaryGroupName != null) {
+                    list.add(primaryGroupName);
+                }
+            }
+        } catch (PartialResultException e) {
+            // Can be due to referrals in AD. So just ignore error.
+            String errorMessage = String.format("Error occurred while getGroupsFromObjectSID. SearchBase: %s " +
+                    "SearchFilter: %s", searchBase, searchFilter);
+            if (isIgnorePartialResultException()) {
+                log.error(errorMessage, e);
+            } else {
+                throw new UserStoreException(errorMessage, e);
+            }
+        } catch (NamingException e) {
+            throw new UserStoreException(ERROR_WHILE_GETTING_GROUPS.getMessage(),
+                    ERROR_WHILE_GETTING_GROUPS.getCode(), e);
+        } finally {
+            JNDIUtil.closeNamingEnumeration(answer);
+            JNDIUtil.closeContext(dirContext);
+        }
+        return list;
     }
 }
