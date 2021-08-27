@@ -22,6 +22,8 @@ import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.MDC;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.registry.api.RegistryService;
@@ -58,6 +60,7 @@ public class CarbonContextCreatorValve extends ValveBase {
         } catch (Exception e) {
             log.error("Could not handle request: " + request.getRequestURI(), e);
         } finally {
+            MDC.remove(CarbonConstants.LogEventConstants.CLIENT_COMPONENT);
             // This will destroy the carbon context holder on the current thread after
             // invoking subsequent valves.
             PrivilegedCarbonContext.destroyCurrentContext();

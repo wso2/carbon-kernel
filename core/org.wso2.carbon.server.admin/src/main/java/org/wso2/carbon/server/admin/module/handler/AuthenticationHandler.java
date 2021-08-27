@@ -26,6 +26,7 @@ import org.apache.axis2.handlers.AbstractHandler;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.slf4j.MDC;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.services.authentication.*;
@@ -100,7 +101,7 @@ public class AuthenticationHandler extends AbstractHandler {
                 PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(userName);
             }
         }
-
+        MDC.put(CarbonConstants.LogEventConstants.CLIENT_COMPONENT, "SOAP API");
         return InvocationResponse.CONTINUE;
     }
 
