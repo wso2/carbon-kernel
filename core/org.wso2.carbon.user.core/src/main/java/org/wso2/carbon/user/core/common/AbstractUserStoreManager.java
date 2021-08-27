@@ -5261,10 +5261,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
             if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
                 hybridRoleManager.updateUserListOfHybridRole(userStore.getDomainFreeName(), deletedUsers, newUsers);
-                handleDoPostUpdateUserListOfRole(roleName, deletedUsers, newUsers, true);
+                handleDoPostUpdateUserListOfRole(roleName, deletedUsers, newUsers, false, true);
             } else {
                 hybridRoleManager.updateUserListOfHybridRole(userStore.getDomainAwareName(), deletedUsers, newUsers);
-                handleDoPostUpdateUserListOfRole(roleName, deletedUsers, newUsers, true);
+                handleDoPostUpdateUserListOfRole(roleName, deletedUsers, newUsers, false, true);
             }
             clearUserRolesCacheByTenant(this.tenantId);
             return;
@@ -5274,7 +5274,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             systemUserRoleManager.updateUserListOfSystemRole(userStore.getDomainFreeName(),
                     UserCoreUtil.removeDomainFromNames(deletedUsers),
                     UserCoreUtil.removeDomainFromNames(newUsers));
-            handleDoPostUpdateUserListOfRole(roleName, deletedUsers, newUsers, true);
+            handleDoPostUpdateUserListOfRole(roleName, deletedUsers, newUsers, true, false);
             return;
         }
 
@@ -5332,7 +5332,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         clearUserRolesCacheByTenant(this.tenantId);
 
         // Call relevant listeners after updating user list of role.
-        handleDoPostUpdateUserListOfRole(roleName, deletedUsers, newUsers, false);
+        handleDoPostUpdateUserListOfRole(roleName, deletedUsers, newUsers, false, false);
     }
 
     /**
@@ -5345,7 +5345,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @throws UserStoreException Exception that will be thrown by relevant listeners.
      */
     private void handleDoPostUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers,
-            boolean isAuditLogOnly) throws UserStoreException {
+                                                  boolean isAuditLogOnly, boolean isInternalRole) throws UserStoreException {
 
         try {
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
@@ -5353,7 +5353,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
                     continue;
                 }
-                if (!listener.doPostUpdateUserListOfRole(roleName, deletedUsers, newUsers, this)) {
+                boolean success;
+                if (isInternalRole) {
+                    success = listener.doPostUpdateUserListOfInternalRole(
+                            roleName, deletedUsers, newUsers, this);
+                } else {
+                    success = listener.doPostUpdateUserListOfRole(roleName, deletedUsers, newUsers, this);
+                }
+
+                if (!success) {
                     return;
                 }
             }
@@ -5375,7 +5383,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @throws UserStoreException Exception that will be thrown by relevant listeners.
      */
     private void handleDoPostUpdateUserListOfRoleWithID(String roleName, String[] deletedUserIDs, String[] newUserIDs,
-            boolean isAuditLogOnly) throws UserStoreException {
+                                                        boolean isAuditLogOnly, boolean isInternalRole)
+            throws UserStoreException {
 
         try {
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
@@ -5383,8 +5392,18 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
                     continue;
                 }
-                if (!((AbstractUserOperationEventListener) listener)
-                        .doPostUpdateUserListOfRoleWithID(roleName, deletedUserIDs, newUserIDs, this)) {
+                boolean success = true;
+                if (listener instanceof AbstractUserOperationEventListener) {
+                    if (isInternalRole) {
+                        success = ((AbstractUserOperationEventListener) listener).
+                                doPostUpdateUserListOfInternalRoleWithID(
+                                        roleName, deletedUserIDs, newUserIDs, this);
+                    } else {
+                        success = ((AbstractUserOperationEventListener) listener).
+                                doPostUpdateUserListOfRoleWithID(roleName, deletedUserIDs, newUserIDs, this);
+                    }
+                }
+                if (!success) {
                     return;
                 }
             }
@@ -14407,11 +14426,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
                 hybridRoleManager.updateUserListOfHybridRole(userStore.getDomainFreeName(), deletedUsernames,
                         newUsernames);
-                handleDoPostUpdateUserListOfRoleWithID(roleName, deletedUserIDs, newUserIDs, true);
+                handleDoPostUpdateUserListOfRoleWithID(roleName, deletedUserIDs, newUserIDs, false, true);
             } else {
                 hybridRoleManager.updateUserListOfHybridRole(userStore.getDomainAwareName(), deletedUsernames,
                         newUsernames);
-                handleDoPostUpdateUserListOfRoleWithID(roleName, deletedUserIDs, newUserIDs, true);
+                handleDoPostUpdateUserListOfRoleWithID(roleName, deletedUserIDs, newUserIDs, false, true);
             }
             clearUserRolesCacheByTenant(this.tenantId);
             return;
@@ -14421,7 +14440,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             systemUserRoleManager.updateUserListOfSystemRole(userStore.getDomainFreeName(),
                     UserCoreUtil.removeDomainFromNames(deletedUsernames),
                     UserCoreUtil.removeDomainFromNames(newUsernames));
-            handleDoPostUpdateUserListOfRoleWithID(roleName, deletedUserIDs, newUserIDs, true);
+            handleDoPostUpdateUserListOfRoleWithID(roleName, deletedUserIDs, newUserIDs, true,
+                    true);
             return;
         }
 
@@ -14476,7 +14496,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         clearUserRolesCacheByTenant(this.tenantId);
 
         // Call relevant listeners after updating user list of role.
-        handleDoPostUpdateUserListOfRoleWithID(roleName, deletedUserIDs, newUserIDs, false);
+        handleDoPostUpdateUserListOfRoleWithID(roleName, deletedUserIDs, newUserIDs, false, false);
     }
 
     @Override
