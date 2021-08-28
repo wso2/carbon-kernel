@@ -25,6 +25,7 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.wso2.carbon.logging.correlation.CorrelationLogConfigAttribute;
 import org.wso2.carbon.logging.correlation.CorrelationLogService;
 import org.wso2.carbon.logging.correlation.utils.CorrelationLogConstants;
 import org.wso2.carbon.logging.correlation.utils.CorrelationLogUtil;
@@ -55,9 +56,8 @@ public class CorrelationLogInterceptor extends AbstractQueryReport implements Co
     private static final Log log = LogFactory.getLog(CorrelationLogInterceptor.class);
     private static final String CORRELATION_LOG_CALL_TYPE_VALUE = "jdbc";
     private static final String CORRELATION_LOG_SEPARATOR = "|";
-    private static final String[] DEFAULT_BLACKLISTED_THREADS = {"MessageDeliveryTaskThreadPool", "HumanTaskServer" ,
-            "BPELServer", "CarbonDeploymentSchedulerThread"};
-    private static List<String> blacklistedThreadList = new ArrayList<>();
+    public static final String DENIED_THREADS = "deniedThreads";
+    private static List<String> deniedThreadList = new ArrayList<>();
     private static boolean isEnableCorrelationLogs;
 
     @Override
@@ -137,18 +137,18 @@ public class CorrelationLogInterceptor extends AbstractQueryReport implements Co
      */
     @Override
     public void reconfigure(Map<String, Object> properties) {
-        String blacklistedThreadNames = (String) properties.get(CorrelationLogConstants.BLACKLISTED_THREADS);
-        if (blacklistedThreadNames == null) {
-            blacklistedThreadList.addAll(Arrays.asList(DEFAULT_BLACKLISTED_THREADS));
-        }
-
-        if (!StringUtils.isEmpty(blacklistedThreadNames)) {
-            blacklistedThreadList.addAll(Arrays.asList(StringUtils.split(blacklistedThreadNames, ',')));
-        }
+        String deniedThreadNames = (String) properties.get(DENIED_THREADS);
+        deniedThreadList.clear();
+        deniedThreadList.addAll(Arrays.asList(StringUtils.split(deniedThreadNames, ',')));
 
         isEnableCorrelationLogs =  (Boolean) properties.get(CorrelationLogConstants.ENABLE) &&
-                CorrelationLogUtil.isComponentWhitelisted(this.getName(),
+                CorrelationLogUtil.isComponentAllowed(this.getName(),
                         (String) properties.get(CorrelationLogConstants.COMPONENTS));
+    }
+
+    @Override
+    public CorrelationLogConfigAttribute[] getConfigDescriptor() {
+        return null;
     }
 
     /**
@@ -241,7 +241,7 @@ public class CorrelationLogInterceptor extends AbstractQueryReport implements Co
         private boolean isCurrentThreadBlacklisted() {
             String threadName = Thread.currentThread().getName();
 
-            for (String thread : blacklistedThreadList) {
+            for (String thread : deniedThreadList) {
                 if (threadName.startsWith(thread)) {
                     return true;
                 }

@@ -28,5 +28,7 @@ public interface ConfigObserver {
      * @param key Field name
      * @param value New value
      */
-    void notify(String key, Object value);
+//    void configUpdated(String key, Object value);
+
+    void configUpdated(String component, String key, Object value);
 }

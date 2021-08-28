@@ -822,17 +822,29 @@
      </disableShutdownRestartFromUI>
 
      {% if correlation_logs is defined %}
-     <!-- Configure correlation logs -->
      <CorrelationLogs>
-         <!-- Enable/disable correlation logs -->
          <enable>{{correlation_logs.enable}}</enable>
-         <!-- Comma seperated list of components which correlation logs need to be enabled. Possible values are
-         jdbc, http, gw, apimgt, keymgt and tokenmgt -->
-         <components>{{correlation_logs.components}}</components>
-         <!-- Comma seperated list of threads, which correlation logging should ignore. This applies only for HTTP.  -->
-         <blacklistedThreads>{{correlation_logs.blacklistedThreads}}</blacklistedThreads>
-         <!-- Log all methods -->
-         <logAllMethods>{{correlation_logs.logAllMethods}}</logAllMethods>
+         <components>{% for component in correlation_logs.components %}{{component}}{{"," if not loop.last}}{% endfor%}</components>
+         {% if correlation_logs.denied_threads is defined %}
+         <deniedThreads>{% for thread in correlation_logs.denied_threads %}{{thread}}{{"," if not loop.last}}{% endfor %}</deniedThreads>
+         {% endif %}
+         {% if correlation_logs.component_configs is defined %}
+         <componentConfigs>
+             {% for component in correlation_logs.component_configs %}
+             <{{component.type}}>
+                 {% for k, v in component.items() %}
+                 {% if k != "type" %}
+                 {% if v is sequence and v is not string and v is not mapping %}
+                 <{{k}}>{% for p in v %}{{p}}{{"," if not loop.last}}{% endfor %}</{{k}}>
+                 {% else %}
+                 <{{k}}>{{v}}</{{k}}>
+                 {% endif %}
+                 {% endif %}
+                 {% endfor %}
+             </{{component.type}}>
+             {% endfor %}
+         </componentConfigs>
+         {% endif %}
      </CorrelationLogs>
      {% endif %}
 

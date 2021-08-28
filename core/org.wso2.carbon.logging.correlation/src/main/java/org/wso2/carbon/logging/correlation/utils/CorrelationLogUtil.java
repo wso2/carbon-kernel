@@ -42,7 +42,7 @@ public class CorrelationLogUtil {
      * @param componentList Comma separated list of components
      * @return
      */
-    public static boolean isComponentWhitelisted(String component, String componentList) {
+    public static boolean isComponentAllowed(String component, String componentList) {
         return "".equals(componentList) ||
                 Arrays.stream(toComponentArray(componentList)).anyMatch(s -> s.equals(component));
     }
