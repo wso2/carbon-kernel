@@ -37,4 +37,11 @@ public interface CorrelationLogService {
      * @param properties Map of configurations
      */
     void reconfigure(Map<String, Object> properties);
+
+    /**
+     * Returns the descriptor for the MBean. This contains all the properties solely required for the component.
+     *
+     * @return Array
+     */
+    CorrelationLogConfigAttribute[] getConfigDescriptor();
 }

@@ -32,6 +32,7 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.wso2.carbon.logging.correlation.CorrelationLogConfigAttribute;
 import org.wso2.carbon.logging.correlation.CorrelationLogService;
 import org.wso2.carbon.logging.correlation.utils.CorrelationLogConstants;
 import org.wso2.carbon.logging.correlation.utils.CorrelationLogUtil;
@@ -386,7 +387,12 @@ public class RequestCorrelationIdValve extends ValveBase implements CorrelationL
     @Override
     public void reconfigure(Map<String, Object> properties) {
         isEnableCorrelationLogs = (boolean) properties.get(CorrelationLogConstants.ENABLE) &&
-                CorrelationLogUtil.isComponentWhitelisted(this.getName(),
+                CorrelationLogUtil.isComponentAllowed(this.getName(),
                         (String) properties.get(CorrelationLogConstants.COMPONENTS));
+    }
+
+    @Override
+    public CorrelationLogConfigAttribute[] getConfigDescriptor() {
+        return null;
     }
 }

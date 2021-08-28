@@ -24,15 +24,19 @@ package org.wso2.carbon.logging.correlation.utils;
 public class CorrelationLogConstants {
 
     // Configuration field names
-    public static final String ENABLE = "ENABLE";
-    public static final String COMPONENTS = "COMPONENTS";
-    public static final String BLACKLISTED_THREADS = "BLACKLISTED_THREADS";
-    public static final String LOG_ALL_METHODS = "LOG_ALL_METHODS";
+    public static final String ENABLE = "enable";
+    public static final String COMPONENTS = "components";
+    public static final String LOG_ALL_METHODS = "logAllMethods";
+    public static final String DENIED_THREADS = "deniedThreads";
 
     // Config paths in Carbon.xml file
-    public static final String CONFIG_ENABLE = "CorrelationLogs.enable";
-    public static final String CONFIG_COMPONENTS = "CorrelationLogs.components";
-    public static final String CONFIG_BLACKLISTED_THREADS = "CorrelationLogs.blacklistedThreads";
-    public static final String CONFIG_LOG_ALL_METHODS = "CorrelationLogs.logAllMethods";
+    public static final String CONFIG_ROOT = "CorrelationLogs";
 
+    // Defaults
+    public static final String[] DEFAULT_DENIED_THREADS = {
+            "MessageDeliveryTaskThreadPool",
+            "HumanTaskServer" ,
+            "BPELServer",
+            "CarbonDeploymentSchedulerThread"
+    };
 }
