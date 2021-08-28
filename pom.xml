@@ -67,6 +67,7 @@
         <module>components/cors-mgt</module>
         <module>components/multi-attribute-login</module>
         <module>components/secret-mgt</module>
+        <module>components/central-logger</module>
         <module>features/security-mgt</module>
         <module>features/claim-mgt</module>
         <module>features/identity-core</module>
@@ -93,6 +94,7 @@
         <module>features/multi-attribute-login</module>
         <module>features/user-store</module>
         <module>features/secret-mgt</module>
+        <module>features/central-logger</module>
     </modules>
 
 
@@ -1696,6 +1698,11 @@
                 <artifactId>spring-web</artifactId>
                 <version>${springframework.spring-web.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.central.log.mgt</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
 
     </dependencyManagement>
@@ -1719,7 +1726,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon kernel version -->
-        <carbon.kernel.version>4.6.3-m5</carbon.kernel.version>
+        <carbon.kernel.version>4.7.0-m2</carbon.kernel.version>
         <carbon.kernel.feature.version>4.6.0</carbon.kernel.feature.version>
         <carbon.kernel.package.import.version.range>[4.5.0, 5.0.0)</carbon.kernel.package.import.version.range>
         <carbon.kernel.registry.imp.pkg.version>[1.0.1, 2.0.0)</carbon.kernel.registry.imp.pkg.version>
