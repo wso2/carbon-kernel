@@ -101,7 +101,7 @@ public class CarbonStuckThreadDetectionValve extends ValveBase {
                 "stuckThreadDetectionValve.notifyStuckThreadDetected",
                 monitoredThread.getThread().getName(), activeTime,
                 monitoredThread.getStartTime(), numStuckThreads,
-                monitoredThread.getRequestUri(), threshold);
+                monitoredThread.getMethod() + " " + monitoredThread.getRequestUri(), threshold);
        msg += ", tenantDomain=" + monitoredThread.getTenantDomain();
        // msg += "\n" + getStackTraceAsString(trace);
        Throwable th = new Throwable();
@@ -138,6 +138,7 @@ public class CarbonStuckThreadDetectionValve extends ValveBase {
         String tenantDomain = Utils.getTenantDomain(request);
         MonitoredThread monitoredThread = new MonitoredThread(Thread.currentThread(),
                                                               requestUrl.toString(),
+                                                              request.getMethod(),
                                                               tenantDomain);
         activeThreads.put(key, monitoredThread);
 
@@ -173,15 +174,21 @@ public class CarbonStuckThreadDetectionValve extends ValveBase {
          */
         private final Thread thread;
         private final String requestUri;
+        private final String method;
         private final long   start;
         private       String tenantDomain;
         private final AtomicInteger state = new AtomicInteger(
             MonitoredThreadState.RUNNING.ordinal());
 
         public MonitoredThread(Thread thread, String requestUri, String tenantDomain) {
+            this(thread, requestUri, null, tenantDomain);
+        }
+
+        public MonitoredThread(Thread thread, String requestUri, String method, String tenantDomain) {
             this.thread = thread;
             this.requestUri = requestUri;
             this.tenantDomain = tenantDomain;
+            this.method = method;
             this.start = System.currentTimeMillis();
         }
 
@@ -191,6 +198,10 @@ public class CarbonStuckThreadDetectionValve extends ValveBase {
 
         public String getRequestUri() {
             return requestUri;
+        }
+
+        public String getMethod() {
+            return method;
         }
 
         public long getActiveTimeInMillis() {
