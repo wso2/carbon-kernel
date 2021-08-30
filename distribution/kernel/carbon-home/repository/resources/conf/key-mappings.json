@@ -49,6 +49,7 @@
   "user_store.back_links_enabled":"user_store.properties.BackLinksEnabled",
   "user_store.scim_enabled":"user_store.properties.SCIMEnabled",
   "user_store.password_hash_method":"user_store.properties.PasswordHashMethod",
+  "user_store.password_digest":"user_store.properties.PasswordDigest",
   "user_store.multi_attribute_separator":"user_store.properties.MultiAttributeSeparator",
   "user_store.max_user_name_list_length":"user_store.properties.MaxUserNameListLength",
   "user_store.max_role_name_list_length":"user_store.properties.MaxRoleNameListLength",
