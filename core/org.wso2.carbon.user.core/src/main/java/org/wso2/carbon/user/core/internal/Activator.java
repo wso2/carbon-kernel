@@ -25,6 +25,7 @@ import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.api.UserRealmService;
 import org.wso2.carbon.user.core.common.DefaultRealmService;
+import org.wso2.carbon.user.core.hash.HashProviderFactory;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
@@ -69,6 +70,11 @@ public class Activator extends BundleCheckActivator {
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
+
+            HashProviderFactory hashProvider = bundleContext.getService(
+                    bundleContext.getServiceReference(org.wso2.carbon.user.core.hash.HashProviderFactory.class));
+            UserStoreMgtDataHolder.getInstance().setHashProviderFactory(hashProvider);
+
             RealmService realmService = new DefaultRealmService(bundleContext);
             bundleContext.registerService(new String[]{RealmService.class.getName(), UserRealmService.class.getName()},
                     realmService, null);
