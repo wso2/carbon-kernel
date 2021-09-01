@@ -151,12 +151,11 @@ public class UserStoreConfigXMLProcessor {
     }
 
     /**
-     * To build a User store Realm Configuration from a given User Store Element.
+     * To build an Userstore Realm Configuration from a given Userstore Element.
      *
-     * @param userStoreElement user store element
-     *
-     * @return RealmConfiguration for successful build or
-     *         null if any required user store properties are missing in UserStoreManagerRegistry.
+     * @param userStoreElement  Userstore element.
+     * @return RealmConfiguration for successful build or null if any required userstore property is missing in
+     * the UserStoreManagerRegistry.
      */
     public RealmConfiguration buildUserStoreConfiguration(OMElement userStoreElement) throws org.wso2.carbon.user.api.UserStoreException {
 
