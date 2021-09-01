@@ -150,6 +150,14 @@ public class UserStoreConfigXMLProcessor {
 
     }
 
+    /**
+     * To build a User store Realm Configuration from a given User Store Element.
+     *
+     * @param userStoreElement user store element
+     *
+     * @return RealmConfiguration for successful build or
+     *         null if any required user store properties are missing in UserStoreManagerRegistry.
+     */
     public RealmConfiguration buildUserStoreConfiguration(OMElement userStoreElement) throws org.wso2.carbon.user.api.UserStoreException {
 
         RealmConfiguration realmConfig = null;
@@ -176,7 +184,6 @@ public class UserStoreConfigXMLProcessor {
 //        }
 
         if (UserStoreManagerRegistry.getUserStoreProperties(userStoreClass) == null) {
-            log.error(userStoreClass + " not found in the user store manager registry");
             return null;
         }
         if (!xmlProcessorUtils.isMandatoryFieldsProvided(userStoreProperties, UserStoreManagerRegistry.getUserStoreProperties(userStoreClass).getMandatoryProperties())) {
