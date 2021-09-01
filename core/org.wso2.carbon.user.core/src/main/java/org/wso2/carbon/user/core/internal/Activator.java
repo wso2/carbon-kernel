@@ -20,6 +20,7 @@ package org.wso2.carbon.user.core.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -31,6 +32,7 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.io.File;
 import java.lang.management.ManagementPermission;
+import java.util.Collection;
 
 /**
  * This is one of the first bundles that start in Carbon.
@@ -71,9 +73,13 @@ public class Activator extends BundleCheckActivator {
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
 
-            HashProviderFactory hashProvider = bundleContext.getService(
-                    bundleContext.getServiceReference(org.wso2.carbon.user.core.hash.HashProviderFactory.class));
-            UserStoreMgtDataHolder.getInstance().setHashProviderFactory(hashProvider);
+            Collection<ServiceReference<HashProviderFactory>> hashProviderFactoryServiceReferences =
+                    bundleContext.getServiceReferences(HashProviderFactory.class, null);
+            for (ServiceReference<HashProviderFactory> hashProviderFactoryServiceReference :
+                    hashProviderFactoryServiceReferences) {
+                HashProviderFactory hashProviderFactory = bundleContext.getService(hashProviderFactoryServiceReference);
+                UserStoreMgtDataHolder.getInstance().setHashProviderFactory(hashProviderFactory);
+            }
 
             RealmService realmService = new DefaultRealmService(bundleContext);
             bundleContext.registerService(new String[]{RealmService.class.getName(), UserRealmService.class.getName()},
