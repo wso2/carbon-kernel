@@ -20,6 +20,7 @@ package org.wso2.carbon.user.core.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.ServerConfiguration;
@@ -73,13 +74,7 @@ public class Activator extends BundleCheckActivator {
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
 
-            Collection<ServiceReference<HashProviderFactory>> hashProviderFactoryServiceReferences =
-                    bundleContext.getServiceReferences(HashProviderFactory.class, null);
-            for (ServiceReference<HashProviderFactory> hashProviderFactoryServiceReference :
-                    hashProviderFactoryServiceReferences) {
-                HashProviderFactory hashProviderFactory = bundleContext.getService(hashProviderFactoryServiceReference);
-                UserStoreMgtDataHolder.getInstance().setHashProviderFactory(hashProviderFactory);
-            }
+            setHashProviderFactories(bundleContext);
 
             RealmService realmService = new DefaultRealmService(bundleContext);
             bundleContext.registerService(new String[]{RealmService.class.getName(), UserRealmService.class.getName()},
@@ -98,6 +93,23 @@ public class Activator extends BundleCheckActivator {
 
     public void stop(BundleContext bundleContext) throws Exception {
 
+    }
+
+    /**
+     * Set each HashProviderFactory to the HashProviderFactory collection.
+     *
+     * @param bundleContext The OSGi bundle context.
+     * @throws InvalidSyntaxException The exception thrown when the service reference cannot be obtained.
+     */
+    private void setHashProviderFactories(BundleContext bundleContext) throws InvalidSyntaxException {
+
+        Collection<ServiceReference<HashProviderFactory>> hashProviderFactoryServiceReferences =
+                bundleContext.getServiceReferences(HashProviderFactory.class, null);
+        for (ServiceReference<HashProviderFactory> hashProviderFactoryServiceReference :
+                hashProviderFactoryServiceReferences) {
+            HashProviderFactory hashProviderFactory = bundleContext.getService(hashProviderFactoryServiceReference);
+            UserStoreMgtDataHolder.getInstance().setHashProviderFactory(hashProviderFactory);
+        }
     }
 
 }
