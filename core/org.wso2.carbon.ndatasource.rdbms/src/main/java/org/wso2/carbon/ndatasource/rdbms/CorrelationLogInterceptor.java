@@ -21,15 +21,6 @@ package org.wso2.carbon.ndatasource.rdbms;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.jdbc.pool.interceptor.AbstractQueryReport;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.wso2.carbon.logging.correlation.CorrelationLogConfigAttribute;
-import org.wso2.carbon.logging.correlation.CorrelationLogService;
-import org.wso2.carbon.logging.correlation.utils.CorrelationLogConstants;
-import org.wso2.carbon.logging.correlation.utils.CorrelationLogUtil;
-import org.wso2.carbon.utils.xml.StringUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
@@ -38,27 +29,18 @@ import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Time-Logging interceptor for JDBC pool.
  * Logs the time taken to execute the query in each pool-ed connection.
  */
-@Component(
-        immediate = true,
-        service = CorrelationLogService.class
-)
-public class CorrelationLogInterceptor extends AbstractQueryReport implements CorrelationLogService {
+public class CorrelationLogInterceptor extends AbstractQueryReport {
 
     private static final Log correlationLog = LogFactory.getLog("correlation");
     private static final Log log = LogFactory.getLog(CorrelationLogInterceptor.class);
     private static final String CORRELATION_LOG_CALL_TYPE_VALUE = "jdbc";
     private static final String CORRELATION_LOG_SEPARATOR = "|";
-    public static final String DENIED_THREADS = "deniedThreads";
-    private static List<String> deniedThreadList = new ArrayList<>();
-    private static boolean isEnableCorrelationLogs;
 
     @Override
     public void closeInvoked() {
@@ -78,7 +60,7 @@ public class CorrelationLogInterceptor extends AbstractQueryReport implements Co
     @Override
     public Object createStatement(Object proxy, Method method, Object[] args, Object statement, long time) {
         try {
-            if (isEnableCorrelationLogs) {
+            if (ConfigurableCorrelationLogService.isEnable()) {
                 return invokeProxy(method, args, statement, time);
             } else {
                 return statement;
@@ -110,45 +92,6 @@ public class CorrelationLogInterceptor extends AbstractQueryReport implements Co
         } else {
             return null;
         }
-    }
-
-    @Activate
-    protected void activate(ComponentContext context) {
-    }
-
-    @Deactivate
-    protected void deactivate(ComponentContext context) {
-    }
-
-    /**
-     * Returns the name of the service component as "jdbc".
-     *
-     * @return
-     */
-    @Override
-    public String getName() {
-        return "jdbc";
-    }
-
-    /**
-     * Reconfigure the interceptor based on the configurations received.
-     *
-     * @param properties Map of configurations
-     */
-    @Override
-    public void reconfigure(Map<String, Object> properties) {
-        String deniedThreadNames = (String) properties.get(DENIED_THREADS);
-        deniedThreadList.clear();
-        deniedThreadList.addAll(Arrays.asList(StringUtils.split(deniedThreadNames, ',')));
-
-        isEnableCorrelationLogs =  (Boolean) properties.get(CorrelationLogConstants.ENABLE) &&
-                CorrelationLogUtil.isComponentAllowed(this.getName(),
-                        (String) properties.get(CorrelationLogConstants.COMPONENTS));
-    }
-
-    @Override
-    public CorrelationLogConfigAttribute[] getConfigDescriptor() {
-        return null;
     }
 
     /**
@@ -241,7 +184,7 @@ public class CorrelationLogInterceptor extends AbstractQueryReport implements Co
         private boolean isCurrentThreadBlacklisted() {
             String threadName = Thread.currentThread().getName();
 
-            for (String thread : deniedThreadList) {
+            for (String thread : ConfigurableCorrelationLogService.getDeniedThreads()) {
                 if (threadName.startsWith(thread)) {
                     return true;
                 }

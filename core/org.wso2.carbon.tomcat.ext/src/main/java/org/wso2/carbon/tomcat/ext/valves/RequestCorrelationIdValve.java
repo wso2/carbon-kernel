@@ -30,13 +30,12 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.MDC;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
-import org.wso2.carbon.logging.correlation.CorrelationLogConfigAttribute;
-import org.wso2.carbon.logging.correlation.CorrelationLogService;
-import org.wso2.carbon.logging.correlation.utils.CorrelationLogConstants;
-import org.wso2.carbon.logging.correlation.utils.CorrelationLogUtil;
+import org.wso2.carbon.tomcat.ext.service.ConfigurableCorrelationLogService;
 
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -45,9 +44,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Tomcat valve which adds MDC from a header value received.
@@ -61,11 +57,7 @@ import javax.servlet.http.HttpServletRequest;
  * queryToCorrelationIdMapping={'RelayState':'Correlation-ID'}
  * </code>
  */
-@Component(
-        immediate = true,
-        service = CorrelationLogService.class
-)
-public class RequestCorrelationIdValve extends ValveBase implements CorrelationLogService {
+public class RequestCorrelationIdValve extends ValveBase {
 
     private static final Log correlationLog = LogFactory.getLog("correlation");
     private static final String CORRELATION_ID_MDC = "Correlation-ID";
@@ -83,7 +75,6 @@ public class RequestCorrelationIdValve extends ValveBase implements CorrelationL
     private static final String CORRELATION_LOG_REQUEST_END = "HTTP-In-Response";
     private static final String PADDING_CHAR = "=";
     private static final String SPLITTING_CHAR = "&";
-    private static boolean isEnableCorrelationLogs;
 
     @Override
     protected void initInternal() throws LifecycleException {
@@ -125,7 +116,7 @@ public class RequestCorrelationIdValve extends ValveBase implements CorrelationL
             // Associates the generated Correlation ID Mapping to the request so that,
             // it will be available for any other asynchronous flows or threads spawned for this request
             request.setAttribute(CORRELATION_ID_MDC_REQUEST_ATTRIBUTE_NAME, associateToThreadMap);
-            if (isEnableCorrelationLogs) {
+            if (ConfigurableCorrelationLogService.isEnable()) {
                 long currentTime = System.currentTimeMillis();
                 long timeTaken = currentTime - requestStartTime;
                 logRequestDetails(currentTime, timeTaken, CORRELATION_LOG_REQUEST_START, request);
@@ -135,7 +126,7 @@ public class RequestCorrelationIdValve extends ValveBase implements CorrelationL
                 getNext().invoke(request, response);
             }
         } finally {
-            if (isEnableCorrelationLogs) {
+            if (ConfigurableCorrelationLogService.isEnable()) {
                 long currentTime = System.currentTimeMillis();
                 long timeTaken = currentTime - requestStartTime;
                 logRequestDetails(currentTime, timeTaken, CORRELATION_LOG_REQUEST_END, request);
@@ -367,32 +358,5 @@ public class RequestCorrelationIdValve extends ValveBase implements CorrelationL
 
     public void setConfiguredCorrelationIdMdc(String configuredCorrelationIdMdc) {
         this.configuredCorrelationIdMdc = configuredCorrelationIdMdc;
-    }
-
-    /**
-     * Returns the name of the service component as "http".
-     *
-     * @return
-     */
-    @Override
-    public String getName() {
-        return "http";
-    }
-
-    /**
-     * Reconfigure the interceptor based on the configurations received.
-     *
-     * @param properties Map of configurations
-     */
-    @Override
-    public void reconfigure(Map<String, Object> properties) {
-        isEnableCorrelationLogs = (boolean) properties.get(CorrelationLogConstants.ENABLE) &&
-                CorrelationLogUtil.isComponentAllowed(this.getName(),
-                        (String) properties.get(CorrelationLogConstants.COMPONENTS));
-    }
-
-    @Override
-    public CorrelationLogConfigAttribute[] getConfigDescriptor() {
-        return null;
     }
 }
