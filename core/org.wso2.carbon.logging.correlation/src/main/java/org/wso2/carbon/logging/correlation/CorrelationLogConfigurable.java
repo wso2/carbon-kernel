@@ -18,17 +18,25 @@
 
 package org.wso2.carbon.logging.correlation;
 
-/**
- * The config observer interface. This needs to be implemented to retrieve config changes done via the JMX endpoint.
- */
-public interface ConfigObserver {
-    /**
-     * Returns the modified field name with the new value.
-     *
-     * @param key Field name
-     * @param value New value
-     */
-//    void configUpdated(String key, Object value);
+import org.wso2.carbon.logging.correlation.bean.ImmutableCorrelationLogConfig;
 
-    void configUpdated(String component, String key, Object value);
+/**
+ * The class definition of the correlation log service class which needs to be implemented in each component.
+ */
+public interface CorrelationLogConfigurable {
+
+    /**
+     * Returns name of the implementation.
+     *
+     * @return
+     */
+    String getName();
+
+    /**
+     * Receives an instance of <code>ImmutableCorrelationLogConfig</code> class which holds the component-specific
+     * configuration.
+     *
+     * @param config
+     */
+    void configurationReceived(ImmutableCorrelationLogConfig config);
 }

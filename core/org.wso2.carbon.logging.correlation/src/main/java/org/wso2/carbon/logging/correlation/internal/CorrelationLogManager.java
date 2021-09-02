@@ -28,56 +28,43 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.logging.correlation.ConfigObserver;
-import org.wso2.carbon.logging.correlation.CorrelationLogConfigAttribute;
-import org.wso2.carbon.logging.correlation.CorrelationLogService;
-import org.wso2.carbon.logging.correlation.mgt.ConfigMapHolder;
-import org.wso2.carbon.logging.correlation.mgt.CorrelationLogConfig;
+import org.wso2.carbon.logging.correlation.CorrelationLogConfigModifiable;
+import org.wso2.carbon.logging.correlation.CorrelationLogConfigurable;
+import org.wso2.carbon.logging.correlation.bean.CorrelationLogComponentConfig;
+import org.wso2.carbon.logging.correlation.bean.ImmutableCorrelationLogConfig;
+import org.wso2.carbon.logging.correlation.bean.CorrelationLogConfig;
 import org.wso2.carbon.logging.correlation.utils.CorrelationLogConstants;
-import org.wso2.carbon.utils.MBeanRegistrar;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.wso2.carbon.logging.correlation.utils.CorrelationLogUtil;
 
 /**
  * The correlation log manager class. This class reads correlation log configurations from the Carbon.xml file and the
  * JMX endpoint and manage all service implementation by dispatching the configurations..
  */
-@Component(immediate = true)
-public class CorrelationLogManager implements ConfigObserver {
+@Component(
+        immediate = true,
+        service = CorrelationLogConfigModifiable.class)
+public class CorrelationLogManager implements CorrelationLogConfigModifiable {
     private static Log log = LogFactory.getLog(CorrelationLogManager.class);
 
-    private Map<String, CorrelationLogService> serviceMap = new HashMap<>();
-    private String objectName = null;
+    private CorrelationLogConfig config;
 
     public CorrelationLogManager() {
-        // Initializes the root configurations. These are shared/common for all the service implementations.
-        CorrelationLogConfigAttribute[] attributes = new CorrelationLogConfigAttribute[] {
-                new CorrelationLogConfigAttribute(
-                        CorrelationLogConstants.ENABLE,
-                        "Enable correlation logs", Boolean.class.getName(), false),
-                new CorrelationLogConfigAttribute(CorrelationLogConstants.COMPONENTS,
-                        "Components to enable logs", String.class.getName(), ""),
-                new CorrelationLogConfigAttribute(CorrelationLogConstants.DENIED_THREADS,
-                        "Threads which are ignored from correlation logs", String.class.getName(),
-                        String.join(",", CorrelationLogConstants.DEFAULT_DENIED_THREADS))
-        };
-
-        ConfigMapHolder.getInstance().onConfigUpdated(this);
-        createAndRegisterMBean(null, attributes);
+        // Load root configurations from the carbon.xml file.
+        this.config = loadRootConfigurations();
     }
 
     @Activate
     protected void activate(ComponentContext context) {
+        log.debug("CorrelationLogManager component activated.");
     }
 
     @Deactivate
     protected void deactivate(ComponentContext context) {
-        serviceMap = null;
+        log.debug("CorrelationLogManager component deactivated.");
     }
 
     /**
-     * Get references of the correlation log server implementations.
+     * This invokes when a new service implementation is loaded into the runtime.
      *
      * @param service
      */
@@ -86,118 +73,85 @@ public class CorrelationLogManager implements ConfigObserver {
             cardinality = ReferenceCardinality.MULTIPLE,
             unbind = "unsetCorrelationLogService"
     )
-    protected void setCorrelationLogService(CorrelationLogService service) {
-        log.debug("Correlation log service '" + service + "' loaded.");
-        serviceMap.put(service.getName(), service);
-        if (service.getConfigDescriptor() != null) {
-            createAndRegisterMBean(service.getName(), service.getConfigDescriptor());
-        }
-        // Assumption: The each service component only based on the root configs and its own configs.
-        updateComponentConfig(service);
+    protected void setCorrelationLogService(CorrelationLogConfigurable service) {
+        log.debug("Get reference of service implementation '" + service.getName() + "'");
+        // Load component-specific configurations from the carbon.xml file.
+        config.getComponentConfigs()
+                .put(service.getName(), loadComponentSpecificConfigs(service.getName()));
+        // Create an immutable configuration object and send it to the service.
+        service.configurationReceived(getComponentSpecificConfiguration(service.getName()));
     }
 
-    protected void unsetCorrelationLogService(CorrelationLogService service) {
-        serviceMap.remove(service.getName());
+    protected void unsetCorrelationLogService(CorrelationLogConfigurable service) {
+        // Remove configuration of the service.
+        config.getComponentConfigs().remove(service.getName());
     }
 
     /**
-     * Notifies each service implementation once a configuration is changed in the config map.
+     * Returns a clone of the <code>CorrelationLogConfig</code> object.
      *
-     * @param component Component name
-     * @param key Field name
-     * @param value New value
+     * @return
      */
     @Override
-    public void configUpdated(String component, String key, Object value) {
-        for (Map.Entry<String, CorrelationLogService> entry : serviceMap.entrySet()) {
-            updateComponentConfig(entry.getValue());
-        }
+    public CorrelationLogConfig getConfiguration() {
+        return config.clone();
     }
 
     /**
-     * Merges the root config with the component specific configs and notifies the service component.
+     * Override the current <code>CorrelationLogConfig</code> object with new configurations.
      *
-     * @param service
+     * @param correlationLogConfig
      */
-    private void updateComponentConfig(CorrelationLogService service) {
-        // Get root config, append component-wise configs on top of that and invoke the components.
-        Map<String, Object> componentSpecificConfigMap = new HashMap<>();
-        for (String component : new String[] { null, service.getName() }) {
-            Map<String, Object> map = ConfigMapHolder.getInstance().getConfigMap(component);
-            if (map != null) {
-                componentSpecificConfigMap.putAll(map);
-            }
-        }
-        service.reconfigure(componentSpecificConfigMap);
+    @Override
+    public void updateConfiguration(CorrelationLogConfig correlationLogConfig) {
+        log.debug("Correlation log configurations are modified.");
+        this.config = correlationLogConfig;
     }
 
     /**
-     * Create a dynamic MBean based on the given attributes and register it. These MBeans are created for the root
-     * component as well as other service service components.
+     * Returns root configuration from carbon.xml file.
      *
-     * @param componentName Name of the component
-     * @param attributes Attribute list
+     * @return
      */
-    private void createAndRegisterMBean(String componentName, CorrelationLogConfigAttribute[] attributes) {
-        // Create dynamic MBean via the given attributes. This will copy the defaults to the config map.
-        CorrelationLogConfig mbean = new CorrelationLogConfig(componentName, attributes);
-        // Override the defaults from the configs defined in the carbon.xml file.
-        overrideConfigsFromFile(componentName, attributes);
+    private CorrelationLogConfig loadRootConfigurations() {
+        boolean enable = Boolean.parseBoolean(
+                ServerConfiguration.getInstance().getFirstProperty(CorrelationLogConstants.CONFIG_PATH_ENABLE));
+        String[] components = CorrelationLogUtil.toArray(
+                ServerConfiguration.getInstance().getFirstProperty(CorrelationLogConstants.CONFIG_PATH_COMPONENTS));
+        String deniedThreadsList =
+                ServerConfiguration.getInstance().getFirstProperty(CorrelationLogConstants.CONFIG_PATH_DENIED_THREADS);
+        String[] deniedThreads = deniedThreadsList != null ?
+                CorrelationLogUtil.toArray(deniedThreadsList) : CorrelationLogConstants.DEFAULT_DENIED_THREADS;
 
-        // Register MBean.
-        try {
-            String objectName = getObjectName();
-            if (componentName != null) {
-                objectName += ",name=" + componentName;
-            }
-            MBeanRegistrar.registerMBean(mbean, objectName);
-            log.debug("Registered correlation log MBean for " + componentName + " component.");
-        } catch (Exception e) {
-            String msg = "Could not register Correlation Log " + componentName + " MBean";
-            log.error(msg, e);
-            throw new RuntimeException(msg, e);
-        }
+        log.debug("Correlation log configurations are loaded from the carbon.xml file.");
+        return new CorrelationLogConfig(enable, components, deniedThreads);
     }
 
     /**
-     * Load default configurations from the Carbon.xml file.
-     */
-    private void overrideConfigsFromFile(String componentName, CorrelationLogConfigAttribute[] attributes) {
-        log.debug("Overriding configurations from the carbon.xml file.");
-        boolean isRootConfig = componentName == null;
-        for (CorrelationLogConfigAttribute attr : attributes) {
-            String path = CorrelationLogConstants.CONFIG_ROOT
-                    + (isRootConfig ? "." : ".componentConfigs." + componentName + ".")
-                    + attr.getName();
-            String value = ServerConfiguration.getInstance().getFirstProperty(path);
-            if (value != null) {
-                // If value is null default will be effective.
-                if (Boolean.class.getName().equals(attr.getType())) {
-                    ConfigMapHolder.getInstance().setConfig(componentName, attr.getName(), Boolean.parseBoolean(value));
-                } else {
-                    ConfigMapHolder.getInstance().setConfig(componentName, attr.getName(), value);
-                }
-            }
-        }
-    }
-
-    /**
-     * Get object name for the MBean.
+     * Returns component-specific configuration from the carbon.xml file.
      *
-     * @return The object name
+     * @param componentName Component name
+     * @return
      */
-    private String getObjectName() {
-        if (objectName == null) {
-            String serverPackage = ServerConfiguration.getInstance().getFirstProperty("Package");
-            if (serverPackage == null) {
-                serverPackage = "wso2";
-            }
-            String className = CorrelationLogConfig.class.getName();
-            if (className.indexOf('.') != -1) {
-                className = className.substring(className.lastIndexOf('.') + 1);
-            }
-            objectName = serverPackage + ":type=" + className;
-        }
-        return objectName;
+    private CorrelationLogComponentConfig loadComponentSpecificConfigs(String componentName) {
+        String path = CorrelationLogConstants.CONFIG_PATH_COMPONENT_CONFIGS + "." + componentName + ".logAllMethods";
+        boolean logAllMethods = Boolean.parseBoolean(ServerConfiguration.getInstance().getFirstProperty(path));
+        log.debug("Component-specific configurations for '" + componentName + "' loaded from the carbon.xml file.");
+        return new CorrelationLogComponentConfig(logAllMethods);
     }
+
+    /**
+     * Returns component-specific configuration from the configuration object.
+     * @param componentName
+     * @return
+     */
+    private ImmutableCorrelationLogConfig getComponentSpecificConfiguration(String componentName) {
+        // Build component specific immutable configuration object
+        return new ImmutableCorrelationLogConfig(
+                config.isEnable() && CorrelationLogUtil.isComponentAllowed(componentName, config.getComponents()),
+                config.getDeniedThreads(),
+                config.getComponentConfigs().get(componentName).isLogAllMethods());
+    }
+
+
 }

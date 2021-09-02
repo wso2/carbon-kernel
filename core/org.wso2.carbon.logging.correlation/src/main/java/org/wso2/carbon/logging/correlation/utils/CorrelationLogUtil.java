@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.logging.correlation.utils;
 
+import org.wso2.carbon.utils.xml.StringUtils;
+
 import java.util.Arrays;
 
 /**
@@ -26,24 +28,30 @@ import java.util.Arrays;
 public class CorrelationLogUtil {
 
     /**
-     * Convert comma separated component list into an array.
+     * Convert comma-separated string into an array.
      *
-     * @param componentList Comma separated list
-     * @return Array of components
+     * @param string Comma-separated string
+     * @return
      */
-    public static String[] toComponentArray(String componentList) {
-        return componentList.split("\\s*,\\s*");
+    public static String[] toArray(String string) {
+        if (StringUtils.isEmpty(string)) {
+            return new String[0];
+        }
+        String[] arr = string.split(",");
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = arr[i].trim();
+        }
+        return arr;
     }
 
     /**
-     * Check whether the given component exists in the provided component list.
+     * Check if the given component is existing is the components array.
      *
      * @param component Component name
-     * @param componentList Comma separated list of components
+     * @param components Components array
      * @return
      */
-    public static boolean isComponentAllowed(String component, String componentList) {
-        return "".equals(componentList) ||
-                Arrays.stream(toComponentArray(componentList)).anyMatch(s -> s.equals(component));
+    public static boolean isComponentAllowed(String component, String[] components) {
+        return Arrays.stream(components).anyMatch(s -> s.equals(component));
     }
 }

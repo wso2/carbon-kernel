@@ -1,4 +1,5 @@
 /*
+ *
  * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
@@ -18,30 +19,26 @@
 
 package org.wso2.carbon.logging.correlation;
 
-import java.util.Map;
+import org.wso2.carbon.logging.correlation.bean.CorrelationLogConfig;
 
 /**
- * The correlation log service class definition.
+ * The class definition which needs to be implemented to override correlation log configurations dynamically in the
+ * runtime.
  */
-public interface CorrelationLogService {
+public interface CorrelationLogConfigModifiable {
+
     /**
-     * Returns the name of the service implementation.
+     * Returns an instance of the <code>CorrelationLogConfig</code> class which represents effective entire
+     * configuration related to correlation logs..
      *
      * @return
      */
-    String getName();
+    CorrelationLogConfig getConfiguration();
 
     /**
-     * Accepts the modified configurations via the properties map.
+     * Set the entire configuration related to correlation logs.
      *
-     * @param properties Map of configurations
+     * @param correlationLogConfig
      */
-    void reconfigure(Map<String, Object> properties);
-
-    /**
-     * Returns the descriptor for the MBean. This contains all the properties solely required for the component.
-     *
-     * @return Array
-     */
-    CorrelationLogConfigAttribute[] getConfigDescriptor();
+    void updateConfiguration(CorrelationLogConfig correlationLogConfig);
 }
