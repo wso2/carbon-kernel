@@ -130,6 +130,7 @@ public class UserStoreConfigConstants {
     public static final String GROUP_LAST_MODIFIED_DATE_ATTRIBUTE_DISPLAY_NAME = "Group Last Modified Date Attribute";
     public static final String GROUP_LAST_MODIFIED_DATE_ATTRIBUTE_DESCRIPTION = "Attribute used to store the last " +
             "modified date of the group";
+    public static final String GROUP_LOCATION_URI_ATTRIBUTE = "GroupLocation";
 
     public static final String userNameAttribute = "UserNameAttribute";
     public static final String userNameAttributeDescription = "Attribute used for uniquely identifying a user entry. Users can be authenticated using their email address, uid and etc";
