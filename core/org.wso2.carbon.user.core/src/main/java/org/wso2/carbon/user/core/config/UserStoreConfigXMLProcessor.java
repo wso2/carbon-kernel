@@ -150,7 +150,15 @@ public class UserStoreConfigXMLProcessor {
 
     }
 
+    /**
+     * To build an Userstore Realm Configuration from a given Userstore Element.
+     *
+     * @param userStoreElement  Userstore element.
+     * @return RealmConfiguration for successful build or null if any required userstore property is missing in
+     * the UserStoreManagerRegistry.
+     */
     public RealmConfiguration buildUserStoreConfiguration(OMElement userStoreElement) throws org.wso2.carbon.user.api.UserStoreException {
+
         RealmConfiguration realmConfig = null;
         String userStoreClass = null;
         Map<String, String> userStoreProperties = null;
@@ -174,6 +182,9 @@ public class UserStoreConfigXMLProcessor {
 //            throw new UserStoreException("Invalid domain name provided");
 //        }
 
+        if (UserStoreManagerRegistry.getUserStoreProperties(userStoreClass) == null) {
+            return null;
+        }
         if (!xmlProcessorUtils.isMandatoryFieldsProvided(userStoreProperties, UserStoreManagerRegistry.getUserStoreProperties(userStoreClass).getMandatoryProperties())) {
             throw new UserStoreException("A required mandatory field is missing.");
         }
