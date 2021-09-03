@@ -210,7 +210,13 @@ public class MultitenantMessageReceiver implements MessageReceiver {
 
         if (tenantDelimiterIndex != -1) {
             tenantDomain = MultitenantUtils.getTenantDomainFromUrl(to);
-            serviceAndOperation = to.substring(tenantDelimiterIndex + tenantDomain.length() + 4);
+            try {
+                serviceAndOperation = to.substring(tenantDelimiterIndex + tenantDomain.length() + 4);
+            } catch (StringIndexOutOfBoundsException ex) {
+                // Throw an AxisFault: Invalid URL
+                handleException(mainInMsgContext, new AxisFault("Invalid URL"));
+                return;
+            }
         } else {
             // in this case tenant detail is not with the url but user may have send it
             // with a soap header or an http header.
