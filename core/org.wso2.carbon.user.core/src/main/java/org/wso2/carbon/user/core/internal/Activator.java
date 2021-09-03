@@ -20,16 +20,21 @@ package org.wso2.carbon.user.core.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.api.UserRealmService;
 import org.wso2.carbon.user.core.common.DefaultRealmService;
+import org.wso2.carbon.user.core.exceptions.HashProviderServerException;
+import org.wso2.carbon.user.core.hash.HashProviderFactory;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.io.File;
 import java.lang.management.ManagementPermission;
+import java.util.Collection;
 
 /**
  * This is one of the first bundles that start in Carbon.
@@ -69,6 +74,9 @@ public class Activator extends BundleCheckActivator {
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
+
+            setHashProviderFactories(bundleContext);
+
             RealmService realmService = new DefaultRealmService(bundleContext);
             bundleContext.registerService(new String[]{RealmService.class.getName(), UserRealmService.class.getName()},
                     realmService, null);
@@ -86,6 +94,29 @@ public class Activator extends BundleCheckActivator {
 
     public void stop(BundleContext bundleContext) throws Exception {
 
+    }
+
+    /**
+     * Set each HashProviderFactory to the HashProviderFactory collection.
+     *
+     * @param bundleContext The OSGi bundle context.
+     * @throws HashProviderServerException The exception thrown when the service reference cannot be obtained for
+     *                                     HashProviderFactory due to an invalid filter syntax.
+     */
+    private void setHashProviderFactories(BundleContext bundleContext) throws HashProviderServerException {
+
+        Collection<ServiceReference<HashProviderFactory>> hashProviderFactoryServiceReferences;
+        try {
+            hashProviderFactoryServiceReferences = bundleContext.getServiceReferences(HashProviderFactory.class, null);
+            for (ServiceReference<HashProviderFactory> hashProviderFactoryServiceReference :
+                    hashProviderFactoryServiceReferences) {
+                HashProviderFactory hashProviderFactory = bundleContext.getService(hashProviderFactoryServiceReference);
+                UserStoreMgtDataHolder.getInstance().setHashProviderFactory(hashProviderFactory);
+            }
+        } catch (InvalidSyntaxException e) {
+            throw new HashProviderServerException("Error occurred while obtaining the HashProviderFactory service" +
+                    " references due to an invalid filter syntax.", e);
+        }
     }
 
 }
