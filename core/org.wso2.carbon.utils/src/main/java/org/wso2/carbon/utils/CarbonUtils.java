@@ -16,7 +16,6 @@
 
 package org.wso2.carbon.utils;
 
-
 import org.apache.axiom.util.base64.Base64Utils;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
@@ -37,7 +36,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.MDC;
 import org.apache.xerces.util.SecurityManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -55,19 +53,6 @@ import org.wso2.carbon.utils.component.xml.config.DeployerConfig;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.resolver.CarbonEntityResolver;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpSession;
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -83,16 +68,25 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
-import java.time.DateTimeException;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpSession;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import static org.wso2.carbon.CarbonConstants.DISABLE_LEGACY_AUDIT_LOGS;
 
@@ -106,6 +100,7 @@ public class CarbonUtils {
             "org.wso2.carbon.tomcat.ext.transport.ServletTransportManager";
 	private static final String TRUE = "true";
 	private static Log log = LogFactory.getLog(CarbonUtils.class);
+	private static Log diagnosticLog = LogFactory.getLog("diagnostics");
     private static final int ENTITY_EXPANSION_LIMIT = 0;
     private static final String SECURITY_MANAGER_PROPERTY = org.apache.xerces.impl.Constants.XERCES_PROPERTY_PREFIX +
             org.apache.xerces.impl.Constants.SECURITY_MANAGER_PROPERTY;
@@ -1384,5 +1379,107 @@ public class CarbonUtils {
                     auditLog.getDataChange());
             audit.warn(auditLogString);
         }
+    }
+
+    /**
+     * Get the diagnostic log mode for the tenant.
+     *
+     * @param tenantId  Tenant ID.
+     * @return Diagnostic log mode.
+     */
+    private static CarbonConstants.DiagnosticLogMode getDiagnosticLogMode(int tenantId) {
+
+        //TODO: implement the logic to read a tenant-wise config.
+        String diagnosticLogMode = readDiagnosticLogMode();
+        try {
+            if (StringUtils.isNotEmpty(diagnosticLogMode)) {
+                return CarbonConstants.DiagnosticLogMode.valueOf(diagnosticLogMode.toUpperCase());
+            }
+        } catch (IllegalArgumentException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Invalid value in 'DiagnosticLogMode' configuration in carbon.xml", e);
+            }
+        }
+        return CarbonConstants.DiagnosticLogMode.NONE;
+    }
+
+    /**
+     * Enable/disable diagnostic logs for a tenant.
+     *
+     * @param tenantId Tenant ID.
+     * @param mode  Diagnostic Log Mode.
+     */
+    private static void setDiagnosticLogMode(int tenantId, CarbonConstants.DiagnosticLogMode mode) {
+
+        //TODO: implement the logic to set a tenant-wise config.
+    }
+
+    /**
+     * Retrieves the 'DiagnosticLogMode' from the ServerConfiguration and process it before returning.
+     *
+     * @return the DiagnosticLogMode.
+     */
+    private static String readDiagnosticLogMode() {
+
+        String diagnosticLogMode = ServerConfiguration.getInstance().getFirstProperty("DiagnosticLogMode");
+        if (StringUtils.isNotEmpty(diagnosticLogMode)) {
+            diagnosticLogMode = diagnosticLogMode.trim();
+        }
+        return diagnosticLogMode;
+    }
+
+    /**
+     * Publish diagnostic log to the diagnostic log file.
+     *
+     * @param diagnosticLogData Diagnostic log event data required for log.
+     */
+    public static void publishDiagnosticLog(Map<String, Object> diagnosticLogData) {
+
+        int tenantId = -1;
+        Object tenantIdObj = diagnosticLogData.get(CarbonConstants.LogEventConstants.TENANT_ID);
+        if (tenantIdObj instanceof String) {
+            tenantId = Integer.parseInt((String) tenantIdObj);
+        }
+
+        if (CarbonConstants.DiagnosticLogMode.NONE.equals(getDiagnosticLogMode(tenantId))) {
+            // Diagnostic logs are disabled for the tenant.
+            return;
+        }
+
+        Object diagnosticLogObj = diagnosticLogData.get(CarbonConstants.LogEventConstants.DIAGNOSTIC_LOG);
+        if (diagnosticLogObj instanceof DiagnosticLog) {
+            DiagnosticLog log = (DiagnosticLog) diagnosticLogObj;
+            String logStr = String.format(CarbonConstants.DIAGNOSTIC_LOG_TEMPLATE, log.getLogId(),
+                    log.getRecordedAt(), log.getRequestId(), log.getFlowId(), log.getComponentId(), log.getActionId(),
+                    getMapDataAsString(log.getInput()), getMapDataAsString(log.getConfigurations()),
+                    log.getResultStatus(), log.getResultMessage());
+            diagnosticLog.info(logStr);
+        }
+    }
+
+    private static String getMapDataAsString(Map<String, Object> data) {
+
+        if (data == null || data.isEmpty()) {
+            return "{}";
+        }
+        StringBuilder builder = new StringBuilder("{ ");
+        List<String> inputs = new ArrayList<>();
+        data.forEach((key, values) -> {
+            StringBuilder input = new StringBuilder();
+            if (values instanceof List && !((List<?>) values).isEmpty()) {
+                input.append(key).append(" : [");
+                List<String> filteredValues =
+                        (List<String>)((List<?>) values).stream().filter(value -> value instanceof String)
+                                .collect(Collectors.toList());
+                input.append(StringUtils.join(filteredValues.iterator(), ", "));
+                input.append(key).append(" ]");
+                inputs.add(input.toString());
+            } else if (values instanceof String) {
+                input.append(key).append(" : ").append(values);
+                inputs.add(input.toString());
+            }
+        });
+        builder.append(StringUtils.join(inputs.iterator(), ", ")).append(" }");
+        return builder.toString();
     }
 }
