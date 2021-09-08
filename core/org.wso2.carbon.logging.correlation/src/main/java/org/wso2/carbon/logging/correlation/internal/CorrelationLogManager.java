@@ -28,7 +28,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.logging.correlation.CorrelationLogConfigModifiable;
+import org.wso2.carbon.logging.correlation.CorrelationLogConfigurator;
 import org.wso2.carbon.logging.correlation.CorrelationLogConfigurable;
 import org.wso2.carbon.logging.correlation.bean.CorrelationLogComponentConfig;
 import org.wso2.carbon.logging.correlation.bean.ImmutableCorrelationLogConfig;
@@ -42,8 +42,8 @@ import org.wso2.carbon.logging.correlation.utils.CorrelationLogUtil;
  */
 @Component(
         immediate = true,
-        service = CorrelationLogConfigModifiable.class)
-public class CorrelationLogManager implements CorrelationLogConfigModifiable {
+        service = CorrelationLogConfigurator.class)
+public class CorrelationLogManager implements CorrelationLogConfigurator {
     private static Log log = LogFactory.getLog(CorrelationLogManager.class);
 
     private CorrelationLogConfig config;
@@ -152,6 +152,4 @@ public class CorrelationLogManager implements CorrelationLogConfigModifiable {
                 config.getDeniedThreads(),
                 config.getComponentConfigs().get(componentName).isLogAllMethods());
     }
-
-
 }

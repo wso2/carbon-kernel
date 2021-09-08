@@ -75,8 +75,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
-                        <!--<Bundle-Activator>org.wso2.carbon.logging.appenders.internal.CarbonLoggingActivator-->
-                        <!--</Bundle-Activator>-->
                         <Export-Package>
                             !org.wso2.carbon.logging.correlation.internal.*,
                             org.wso2.carbon.logging.correlation.*,
@@ -84,18 +82,6 @@
                         <Import-Package>
                             *;resolution:=optional,
                         </Import-Package>
-                        <!--<Export-Package>-->
-                            <!--org.apache.log4j.*;-split-package:=merge-last,-->
-                            <!--org.apache.commons.logging.*; version="${version.commons.logging}",-->
-                            <!--!org.wso2.carbon.logging.appenders.internal,-->
-                            <!--org.wso2.carbon.logging.*,-->
-                        <!--</Export-Package>-->
-                        <!--<Import-Package>-->
-                            <!--!org.apache.log4j.*,-->
-                            <!--!org.apache.commons.logging.*,-->
-                            <!--!org.wso2.carbon.logging.*,-->
-                            <!--*;resolution:=optional-->
-                        <!--</Import-Package>-->
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
