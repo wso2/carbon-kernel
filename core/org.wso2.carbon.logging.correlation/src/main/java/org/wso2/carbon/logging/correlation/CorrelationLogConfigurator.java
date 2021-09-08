@@ -25,7 +25,7 @@ import org.wso2.carbon.logging.correlation.bean.CorrelationLogConfig;
  * The class definition which needs to be implemented to override correlation log configurations dynamically in the
  * runtime.
  */
-public interface CorrelationLogConfigModifiable {
+public interface CorrelationLogConfigurator {
 
     /**
      * Returns an instance of the <code>CorrelationLogConfig</code> class which represents effective entire
