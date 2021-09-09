@@ -38,5 +38,5 @@ public interface CorrelationLogConfigurable {
      *
      * @param config
      */
-    void configurationReceived(ImmutableCorrelationLogConfig config);
+    void onConfigure(ImmutableCorrelationLogConfig config);
 }
