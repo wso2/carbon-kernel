@@ -12621,7 +12621,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (userName == null) {
             userName = getUserNameFromUserID(userID);
         }
-        if (userName.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+        if (StringUtils.isNotEmpty(userName) && userName.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
             domain = UserCoreUtil.extractDomainFromName(userName);
             userName = UserCoreUtil.removeDomainFromName(userName);
         }
@@ -12783,6 +12783,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         String userName = getFromUserNameCache(userID);
         if (StringUtils.isEmpty(userName)) {
             userName = doGetUserNameFromUserIDWithID(userID);
+            if (StringUtils.isEmpty(userName)) {
+                return null;
+            }
             addToUserNameCache(userID, userName, userStore);
             addToUserIDCache(userID, userName, userStore);
         }
@@ -15822,6 +15825,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (!userIDs.isEmpty()) {
             for (String userID : userIDs) {
                 User user = getUser(userID, null);
+                if (user == null || StringUtils.isBlank(user.getUsername())) {
+                    if (log.isDebugEnabled()) {
+                        log.debug(String.format("Continue the iteration since user with userid %s is not available " +
+                                "database of tenant domain", userID));
+                    }
+                    continue;
+                }
                 String domainName = user.getUserStoreDomain();
                 List<String> users = domainAwareUsers.get(domainName);
                 if (users == null) {
