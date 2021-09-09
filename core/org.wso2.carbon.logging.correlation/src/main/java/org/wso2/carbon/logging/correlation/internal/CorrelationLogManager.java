@@ -79,7 +79,7 @@ public class CorrelationLogManager implements CorrelationLogConfigurator {
         config.getComponentConfigs()
                 .put(service.getName(), loadComponentSpecificConfigs(service.getName()));
         // Create an immutable configuration object and send it to the service.
-        service.configurationReceived(getComponentSpecificConfiguration(service.getName()));
+        service.onConfigure(getComponentSpecificConfiguration(service.getName()));
     }
 
     protected void unsetCorrelationLogService(CorrelationLogConfigurable service) {

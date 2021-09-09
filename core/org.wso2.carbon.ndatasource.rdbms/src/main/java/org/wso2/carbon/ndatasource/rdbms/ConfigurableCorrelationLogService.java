@@ -36,7 +36,7 @@ public class ConfigurableCorrelationLogService implements CorrelationLogConfigur
     }
 
     @Override
-    public void configurationReceived(ImmutableCorrelationLogConfig config) {
+    public void onConfigure(ImmutableCorrelationLogConfig config) {
         enable = config.isEnable();
         deniedThreads = config.getDeniedThreads();
     }
