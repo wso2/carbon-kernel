@@ -15825,13 +15825,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (!userIDs.isEmpty()) {
             for (String userID : userIDs) {
                 User user = getUser(userID, null);
-                if (user == null || StringUtils.isBlank(user.getUsername())) {
-                    if (log.isDebugEnabled()) {
-                        log.debug(String.format("Continue the iteration since user with userid %s is not available " +
-                                "database of tenant domain", userID));
-                    }
-                    continue;
-                }
                 String domainName = user.getUserStoreDomain();
                 List<String> users = domainAwareUsers.get(domainName);
                 if (users == null) {
