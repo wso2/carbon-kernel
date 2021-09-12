@@ -181,5 +181,5 @@ public class UserStoreConfigConstants {
 
     // Property to bypass account locking for the userstore.
     public static final String BYPASS_ACCOUNT_LOCK = "BypassAccountLock";
-    public static final String BYPASS_ACCOUNT_LOCK_DESCRIPTION = "Enable account lock by pass for the userstore.";
+    public static final String BYPASS_ACCOUNT_LOCK_DESCRIPTION = "Enable bypass account locking for the userstore";
 }
