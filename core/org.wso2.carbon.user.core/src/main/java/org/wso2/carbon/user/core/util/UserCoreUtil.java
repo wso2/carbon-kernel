@@ -582,6 +582,9 @@ public final class UserCoreUtil {
      */
     public static String addDomainToName(String name, String domainName) {
 
+        if (StringUtils.isEmpty(name)) {
+            return null;
+        }
         if ((name.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)) < 0 &&
                 !UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equalsIgnoreCase(domainName)) {
             // domain name is not already appended, and if exist in user-mgt.xml, append it..
