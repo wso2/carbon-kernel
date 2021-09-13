@@ -12621,7 +12621,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (userName == null) {
             userName = getUserNameFromUserID(userID);
         }
-        if (StringUtils.isNotEmpty(userName) && userName.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+        if (userName.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
             domain = UserCoreUtil.extractDomainFromName(userName);
             userName = UserCoreUtil.removeDomainFromName(userName);
         }
@@ -12783,13 +12783,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         String userName = getFromUserNameCache(userID);
         if (StringUtils.isEmpty(userName)) {
             userName = doGetUserNameFromUserIDWithID(userID);
-            if (StringUtils.isEmpty(userName)) {
-                // This is possible when over lapping delete calls with get calls.
-                if (log.isDebugEnabled()) {
-                    log.debug(String.format("User with userid %s is not available in cache or database.", userID));
-                }
-                return null;
-            }
             addToUserNameCache(userID, userName, userStore);
             addToUserIDCache(userID, userName, userStore);
         }
