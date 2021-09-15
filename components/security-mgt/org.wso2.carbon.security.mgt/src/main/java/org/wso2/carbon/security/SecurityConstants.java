@@ -156,6 +156,8 @@ public class SecurityConstants {
                     "Unable to delete certificate with alias: %s"),
             ERROR_CODE_VALIDATE_CERTIFICATE("KSS-65008", "Error occurred while validating the " +
                     "certificate."),
+            ERROR_CODE_INITIALIZE_REGISTRY("KSS-65009",
+                    "Unable to initialize the registry for the tenant: %s."),
             /**
              * Client error.
              */
