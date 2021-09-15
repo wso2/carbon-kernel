@@ -21,6 +21,7 @@ package org.wso2.carbon.ndatasource.rdbms;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.jdbc.pool.interceptor.AbstractQueryReport;
+import org.wso2.carbon.ndatasource.rdbms.internal.CorrelationConfigDataHolder;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
@@ -60,7 +61,7 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
     @Override
     public Object createStatement(Object proxy, Method method, Object[] args, Object statement, long time) {
         try {
-            if (ConfigurableCorrelationLogService.isEnable()) {
+            if (CorrelationConfigDataHolder.isEnable()) {
                 return invokeProxy(method, args, statement, time);
             } else {
                 return statement;
@@ -184,7 +185,7 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
         private boolean isCurrentThreadBlacklisted() {
             String threadName = Thread.currentThread().getName();
 
-            for (String thread : ConfigurableCorrelationLogService.getDeniedThreads()) {
+            for (String thread : CorrelationConfigDataHolder.getDeniedThreads()) {
                 if (threadName.startsWith(thread)) {
                     return true;
                 }
