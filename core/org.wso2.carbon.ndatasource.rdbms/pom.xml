@@ -87,6 +87,7 @@
                             *;resolution:=optional
                         </Import-Package>
                         <Export-Package>
+                            !org.wso2.carbon.ndatasource.rdbms.internal.*,
                             org.wso2.carbon.ndatasource.rdbms.*
                         </Export-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>

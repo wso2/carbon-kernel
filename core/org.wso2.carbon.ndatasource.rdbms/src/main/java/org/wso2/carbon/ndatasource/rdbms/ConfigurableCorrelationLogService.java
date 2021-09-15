@@ -21,14 +21,13 @@ package org.wso2.carbon.ndatasource.rdbms;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.logging.correlation.CorrelationLogConfigurable;
 import org.wso2.carbon.logging.correlation.bean.ImmutableCorrelationLogConfig;
+import org.wso2.carbon.ndatasource.rdbms.internal.CorrelationConfigDataHolder;
 
 @Component(
         immediate = true,
         service = CorrelationLogConfigurable.class
 )
 public class ConfigurableCorrelationLogService implements CorrelationLogConfigurable {
-    private static boolean enable;
-    private static String[] deniedThreads;
 
     @Override
     public String getName() {
@@ -37,15 +36,7 @@ public class ConfigurableCorrelationLogService implements CorrelationLogConfigur
 
     @Override
     public void onConfigure(ImmutableCorrelationLogConfig config) {
-        enable = config.isEnable();
-        deniedThreads = config.getDeniedThreads();
-    }
-
-    public static boolean isEnable() {
-        return enable;
-    }
-
-    public static String[] getDeniedThreads() {
-        return deniedThreads;
+        CorrelationConfigDataHolder.setEnable(config.isEnable());
+        CorrelationConfigDataHolder.setDeniedThreads(config.getDeniedThreads());
     }
 }

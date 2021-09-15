@@ -21,14 +21,13 @@ package org.wso2.carbon.tomcat.ext.service;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.logging.correlation.CorrelationLogConfigurable;
 import org.wso2.carbon.logging.correlation.bean.ImmutableCorrelationLogConfig;
+import org.wso2.carbon.tomcat.ext.internal.CorrelationConfigDataHolder;
 
 @Component(
         immediate = true,
         service = CorrelationLogConfigurable.class
 )
 public class ConfigurableCorrelationLogService implements CorrelationLogConfigurable {
-    private static boolean enable;
-
     @Override
     public String getName() {
         return "http";
@@ -36,10 +35,6 @@ public class ConfigurableCorrelationLogService implements CorrelationLogConfigur
 
     @Override
     public void onConfigure(ImmutableCorrelationLogConfig config) {
-        enable = config.isEnable();
-    }
-
-    public static boolean isEnable() {
-        return enable;
+        CorrelationConfigDataHolder.setEnable(config.isEnable());
     }
 }
