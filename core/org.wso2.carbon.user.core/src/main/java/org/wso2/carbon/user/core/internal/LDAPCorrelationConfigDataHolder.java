@@ -16,12 +16,12 @@
  * under the License.
  */
 
-package org.wso2.carbon.tomcat.ext.internal;
+package org.wso2.carbon.user.core.internal;
 
-public class CorrelationConfigDataHolder {
+public class LDAPCorrelationConfigDataHolder {
     private static boolean enable;
 
-    private CorrelationConfigDataHolder() {
+    private LDAPCorrelationConfigDataHolder() {
     }
 
     public static boolean isEnable() {
@@ -29,6 +29,6 @@ public class CorrelationConfigDataHolder {
     }
 
     public static void setEnable(boolean enable) {
-        CorrelationConfigDataHolder.enable = enable;
+        LDAPCorrelationConfigDataHolder.enable = enable;
     }
 }

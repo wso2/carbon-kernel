@@ -31,8 +31,7 @@ import org.apache.log4j.MDC;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Deactivate;
-import org.wso2.carbon.tomcat.ext.internal.CorrelationConfigDataHolder;
-import org.wso2.carbon.tomcat.ext.service.ConfigurableCorrelationLogService;
+import org.wso2.carbon.tomcat.ext.internal.HTTPCorrelationConfigDataHolder;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -117,7 +116,7 @@ public class RequestCorrelationIdValve extends ValveBase {
             // Associates the generated Correlation ID Mapping to the request so that,
             // it will be available for any other asynchronous flows or threads spawned for this request
             request.setAttribute(CORRELATION_ID_MDC_REQUEST_ATTRIBUTE_NAME, associateToThreadMap);
-            if (CorrelationConfigDataHolder.isEnable()) {
+            if (HTTPCorrelationConfigDataHolder.isEnable()) {
                 long currentTime = System.currentTimeMillis();
                 long timeTaken = currentTime - requestStartTime;
                 logRequestDetails(currentTime, timeTaken, CORRELATION_LOG_REQUEST_START, request);
@@ -127,7 +126,7 @@ public class RequestCorrelationIdValve extends ValveBase {
                 getNext().invoke(request, response);
             }
         } finally {
-            if (CorrelationConfigDataHolder.isEnable()) {
+            if (HTTPCorrelationConfigDataHolder.isEnable()) {
                 long currentTime = System.currentTimeMillis();
                 long timeTaken = currentTime - requestStartTime;
                 logRequestDetails(currentTime, timeTaken, CORRELATION_LOG_REQUEST_END, request);

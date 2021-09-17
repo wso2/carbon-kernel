@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
@@ -17,25 +16,27 @@
  * under the License.
  */
 
-package org.wso2.carbon.user.core.ldap;
+package org.wso2.carbon.ndatasource.rdbms;
 
 import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.logging.correlation.CorrelationLogConfigurable;
 import org.wso2.carbon.logging.correlation.bean.ImmutableCorrelationLogConfig;
-import org.wso2.carbon.user.core.internal.CorrelationConfigDataHolder;
+import org.wso2.carbon.ndatasource.rdbms.internal.JDBCCorrelationConfigDataHolder;
 
 @Component(
         immediate = true,
         service = CorrelationLogConfigurable.class
 )
-public class ConfigurableCorrelationLogService implements CorrelationLogConfigurable {
+public class JDBCConfigurableCorrelationLogService implements CorrelationLogConfigurable {
+
     @Override
     public String getName() {
-        return "ldap";
+        return "jdbc";
     }
 
     @Override
     public void onConfigure(ImmutableCorrelationLogConfig config) {
-        CorrelationConfigDataHolder.setEnable(config.isEnable());
+        JDBCCorrelationConfigDataHolder.setEnable(config.isEnable());
+        JDBCCorrelationConfigDataHolder.setDeniedThreads(config.getDeniedThreads());
     }
 }

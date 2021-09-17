@@ -21,13 +21,13 @@ package org.wso2.carbon.tomcat.ext.service;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.logging.correlation.CorrelationLogConfigurable;
 import org.wso2.carbon.logging.correlation.bean.ImmutableCorrelationLogConfig;
-import org.wso2.carbon.tomcat.ext.internal.CorrelationConfigDataHolder;
+import org.wso2.carbon.tomcat.ext.internal.HTTPCorrelationConfigDataHolder;
 
 @Component(
         immediate = true,
         service = CorrelationLogConfigurable.class
 )
-public class ConfigurableCorrelationLogService implements CorrelationLogConfigurable {
+public class HTTPConfigurableCorrelationLogService implements CorrelationLogConfigurable {
     @Override
     public String getName() {
         return "http";
@@ -35,6 +35,6 @@ public class ConfigurableCorrelationLogService implements CorrelationLogConfigur
 
     @Override
     public void onConfigure(ImmutableCorrelationLogConfig config) {
-        CorrelationConfigDataHolder.setEnable(config.isEnable());
+        HTTPCorrelationConfigDataHolder.setEnable(config.isEnable());
     }
 }
