@@ -16,13 +16,12 @@
  * under the License.
  */
 
-package org.wso2.carbon.ndatasource.rdbms.internal;
+package org.wso2.carbon.tomcat.ext.internal;
 
-public class CorrelationConfigDataHolder {
+public class HTTPCorrelationConfigDataHolder {
     private static boolean enable;
-    private static String[] deniedThreads;
 
-    private CorrelationConfigDataHolder() {
+    private HTTPCorrelationConfigDataHolder() {
     }
 
     public static boolean isEnable() {
@@ -30,14 +29,6 @@ public class CorrelationConfigDataHolder {
     }
 
     public static void setEnable(boolean enable) {
-        CorrelationConfigDataHolder.enable = enable;
-    }
-
-    public static String[] getDeniedThreads() {
-        return deniedThreads;
-    }
-
-    public static void setDeniedThreads(String[] deniedThreads) {
-        CorrelationConfigDataHolder.deniedThreads = deniedThreads;
+        HTTPCorrelationConfigDataHolder.enable = enable;
     }
 }

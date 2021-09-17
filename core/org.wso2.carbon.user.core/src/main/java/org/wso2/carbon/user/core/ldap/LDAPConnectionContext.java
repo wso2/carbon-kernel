@@ -26,7 +26,7 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.dto.CorrelationLogDTO;
-import org.wso2.carbon.user.core.internal.CorrelationConfigDataHolder;
+import org.wso2.carbon.user.core.internal.LDAPCorrelationConfigDataHolder;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
@@ -640,7 +640,7 @@ public class LDAPConnectionContext {
      * @throws NamingException
      */
     private DirContext getDirContext(Hashtable<?, ?> environment) throws NamingException {
-        if (CorrelationConfigDataHolder.isEnable()) {
+        if (LDAPCorrelationConfigDataHolder.isEnable()) {
             final Class[] proxyInterfaces = new Class[]{DirContext.class};
             long start = System.currentTimeMillis();
 
@@ -676,7 +676,7 @@ public class LDAPConnectionContext {
      */
     private LdapContext getLdapContext(Hashtable<?, ?> environment, Control[] connectionControls)
             throws NamingException, UserStoreException {
-        if (CorrelationConfigDataHolder.isEnable()) {
+        if (LDAPCorrelationConfigDataHolder.isEnable()) {
             final Class[] proxyInterfaces = new Class[]{LdapContext.class};
             long start = System.currentTimeMillis();
 

@@ -16,12 +16,13 @@
  * under the License.
  */
 
-package org.wso2.carbon.user.core.internal;
+package org.wso2.carbon.ndatasource.rdbms.internal;
 
-public class CorrelationConfigDataHolder {
+public class JDBCCorrelationConfigDataHolder {
     private static boolean enable;
+    private static String[] deniedThreads;
 
-    private CorrelationConfigDataHolder() {
+    private JDBCCorrelationConfigDataHolder() {
     }
 
     public static boolean isEnable() {
@@ -29,6 +30,14 @@ public class CorrelationConfigDataHolder {
     }
 
     public static void setEnable(boolean enable) {
-        CorrelationConfigDataHolder.enable = enable;
+        JDBCCorrelationConfigDataHolder.enable = enable;
+    }
+
+    public static String[] getDeniedThreads() {
+        return deniedThreads;
+    }
+
+    public static void setDeniedThreads(String[] deniedThreads) {
+        JDBCCorrelationConfigDataHolder.deniedThreads = deniedThreads;
     }
 }
