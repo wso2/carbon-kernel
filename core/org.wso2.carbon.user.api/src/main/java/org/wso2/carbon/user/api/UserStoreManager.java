@@ -438,9 +438,9 @@ public interface UserStoreManager {
     Properties getDefaultUserStoreProperties();
 
     /**
-     * Get if the user store is a local user store or not. By default,  this returns true.
+     * Get whether the userstore is a local userstore. By default, returns true.
      *
-     * @return boolean - Is user store local or not.
+     * @return true if the userstore is a local userstore.
      */
     default boolean isLocalUserStore() {
 
