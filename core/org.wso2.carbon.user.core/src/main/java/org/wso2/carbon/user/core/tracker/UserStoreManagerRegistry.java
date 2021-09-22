@@ -115,10 +115,11 @@ public class UserStoreManagerRegistry extends UserStoreMgtDSComponent {
     }
 
     /**
-     * Get if the user store is local or not.
+     * Get whether the userstore is a local userstore.
      *
-     * @param className User store name.
-     * @return boolean true if user store is a local.
+     * @param className Userstore class name.
+     * @return true if the userstore is a local userstore.
+     * @throws UserStoreException If an error occurred while getting whether the userstore is a local userstore.
      */
     public static boolean isLocalUserStore(String className) throws UserStoreException {
 
