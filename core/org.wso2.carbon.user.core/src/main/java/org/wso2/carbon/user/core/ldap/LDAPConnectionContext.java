@@ -211,14 +211,20 @@ public class LDAPConnectionContext {
 
         // Set socket factory for not verifying SSL certificate.
         boolean isSSLCertificateValidationEnabled = true;
-        String valueForSSLCertificateValidationEnabled = realmConfig.getUserStoreProperty(UserStoreConfigConstants.
-                SSLCertificateValidationEnabled);
-        if (StringUtils.isNotEmpty(valueForSSLCertificateValidationEnabled)) {
-            isSSLCertificateValidationEnabled = Boolean.parseBoolean(valueForSSLCertificateValidationEnabled);
+        boolean isSecuredLDAP = false;
+        if (connectionURL != null) {
+            isSecuredLDAP = connectionURL.startsWith("ldaps:");
         }
+        if (isSecuredLDAP) {
+            String valueForSSLCertificateValidationEnabled = realmConfig.getUserStoreProperty(UserStoreConfigConstants.
+                    SSLCertificateValidationEnabled);
+            if (StringUtils.isNotEmpty(valueForSSLCertificateValidationEnabled)) {
+                isSSLCertificateValidationEnabled = Boolean.parseBoolean(valueForSSLCertificateValidationEnabled);
+            }
 
-        if (!isSSLCertificateValidationEnabled) {
-            environment.put("java.naming.ldap.factory.socket", NonVerifyingSSLSocketFactory.class.getName());
+            if (!isSSLCertificateValidationEnabled) {
+                environment.put("java.naming.ldap.factory.socket", NonVerifyingSSLSocketFactory.class.getName());
+            }
         }
 
         // Set StartTLS option if provided in the configuration. Otherwise normal connection.
