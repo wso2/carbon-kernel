@@ -213,7 +213,7 @@ public class LDAPConnectionContext {
         boolean isSSLCertificateValidationEnabled = true;
         boolean isSecuredLDAP = false;
         if (connectionURL != null) {
-            isSecuredLDAP = connectionURL.startsWith("ldaps:");
+            isSecuredLDAP = connectionURL.matches("^(?i)(ldaps)://.*$");
         }
         if (isSecuredLDAP) {
             String valueForSSLCertificateValidationEnabled = realmConfig.getUserStoreProperty(UserStoreConfigConstants.
