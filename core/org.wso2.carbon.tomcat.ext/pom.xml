@@ -118,6 +118,10 @@
             <artifactId>org.osgi.compendium</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.logging.correlation</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
