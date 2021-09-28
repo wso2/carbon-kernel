@@ -38,10 +38,10 @@
     </scm>
 
     <modules>
-     <!--   <module>test-utils/org.wso2.carbon.identity.testutil</module>
-        <module>service-stubs/identity</module>-->
+        <module>test-utils/org.wso2.carbon.identity.testutil</module>
+        <module>service-stubs/identity</module>
         <module>components/authentication-framework</module>
-        <!--<module>components/entitlement</module>
+        <module>components/entitlement</module>
         <module>components/identity-core</module>
         <module>components/application-mgt</module>
         <module>components/user-mgt</module>
@@ -94,7 +94,7 @@
         <module>features/multi-attribute-login</module>
         <module>features/user-store</module>
         <module>features/secret-mgt</module>
-        <module>features/central-logger</module>-->
+        <module>features/central-logger</module>
     </modules>
 
 
