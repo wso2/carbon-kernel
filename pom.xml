@@ -38,10 +38,10 @@
     </scm>
 
     <modules>
-        <module>test-utils/org.wso2.carbon.identity.testutil</module>
-        <module>service-stubs/identity</module>
+     <!--   <module>test-utils/org.wso2.carbon.identity.testutil</module>
+        <module>service-stubs/identity</module>-->
         <module>components/authentication-framework</module>
-        <module>components/entitlement</module>
+        <!--<module>components/entitlement</module>
         <module>components/identity-core</module>
         <module>components/application-mgt</module>
         <module>components/user-mgt</module>
@@ -94,7 +94,7 @@
         <module>features/multi-attribute-login</module>
         <module>features/user-store</module>
         <module>features/secret-mgt</module>
-        <module>features/central-logger</module>
+        <module>features/central-logger</module>-->
     </modules>
 
 
@@ -346,6 +346,11 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId> org.wso2.carbon.claim.mgt</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.security.mgt.feature</artifactId>
                 <version>${project.version}</version>
                 <type>zip</type>
@@ -384,6 +389,11 @@
                 <artifactId>org.wso2.carbon.claim.mgt.ui.feature</artifactId>
                 <version>${project.version}</version>
                 <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.inbound.auth.oauth2</groupId>
+                <artifactId>org.wso2.carbon.identity.oauth</artifactId>
+                <version>${identity.inbound.auth.oauth.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.securevault</groupId>
@@ -1759,6 +1769,9 @@
         <!--Carbon component version-->
         <carbon.user.api.imp.pkg.version.range>[1.0.1, 2.0.0)</carbon.user.api.imp.pkg.version.range>
         <carbon.base.imp.pkg.version.range>[1.0.0, 2.0.0)</carbon.base.imp.pkg.version.range>
+
+        <!-- Identity Inbound Versions   -->
+        <identity.inbound.auth.oauth.version>6.7.47</identity.inbound.auth.oauth.version>
 
         <!-- Axis2 Version -->
         <axis2.wso2.version>1.6.1-wso2v40</axis2.wso2.version>
