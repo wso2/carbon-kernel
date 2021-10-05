@@ -4394,8 +4394,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isReadOnly() && !claims.isEmpty()) {
             handleSetUserClaimValuesFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
                     ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), userName, claims, profileName);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(),
-                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode());
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
         }
 
         // set claim values if user store is not read only.
