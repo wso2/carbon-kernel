@@ -12428,9 +12428,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             Claim claim = new Claim();
             claim.setValue(entry.getValue());
             claim.setClaimUri(entry.getKey());
-            String displayTag;
+            String displayTag = null;
             try {
-                displayTag = claimManager.getClaim(entry.getKey()).getDisplayTag();
+                if (entry.getKey() != null && claimManager.getClaim(entry.getKey()) != null) {
+                    displayTag = claimManager.getClaim(entry.getKey()).getDisplayTag();
+                }
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
                 throw new UserStoreException(e);
             }
