@@ -752,7 +752,7 @@ public class DatabaseUtil {
                     if (param == null) {
                         throw new UserStoreException("Null data provided.");
                     } else if (param instanceof String) {
-                        prepStmt.setString(i + 1, ((String) param).toUpperCase());
+                        prepStmt.setString(i + 1, (String) param);
                     } else if (param instanceof Integer) {
                         prepStmt.setInt(i + 1, (Integer) param);
                     }
