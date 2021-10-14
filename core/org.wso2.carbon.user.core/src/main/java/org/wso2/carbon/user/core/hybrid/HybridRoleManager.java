@@ -276,9 +276,9 @@ public class HybridRoleManager {
 
             byte increment = 0;
             if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
-                prepStmt.setString(++increment, UserCoreUtil.removeDomainFromName(filter).toUpperCase());
+                prepStmt.setString(++increment, UserCoreUtil.removeDomainFromName(filter));
             } else {
-                prepStmt.setString(++increment, filter.toUpperCase());
+                prepStmt.setString(++increment, filter);
             }
 
             if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
