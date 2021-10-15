@@ -3505,10 +3505,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                                 "INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
             } else if (ORACLE.equals(dbType)) {
                 sqlStatement = new StringBuilder(
-                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT UM_USER_NAME, rownum AS rnum "
-                                + "FROM (SELECT UM_USER_NAME FROM UM_USER U INNER JOIN UM_USER_ATTRIBUTE UA ON U"
-                                + ".UM_ID = "
-                                + "UA.UM_USER_ID");
+                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, rownum AS rnum FROM "
+                                + "(SELECT U.UM_USER_ID, UM_USER_NAME FROM UM_USER U INNER JOIN UM_USER_ATTRIBUTE UA "
+                                + "ON U.UM_ID = UA.UM_USER_ID");
             } else {
                 sqlStatement = new StringBuilder(
                         "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_USER U INNER JOIN "
