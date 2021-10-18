@@ -17,9 +17,9 @@
     </parent>
 
     <scm>
-        <url>https://github.com/wso2-support/carbon-kernel</url>
-        <developerConnection>scm:git:https://github.com/wso2-support/carbon-kernel</developerConnection>
-        <connection>scm:git:https://github.com/wso2-support/carbon-kernel</connection>
+        <url>https://github.com/wso2-support/carbon-kernel.git</url>
+        <developerConnection>scm:git:https://github.com/wso2-support/carbon-kernel.git</developerConnection>
+        <connection>scm:git:https://github.com/wso2-support/carbon-kernel.git</connection>
         
     </scm>
 
