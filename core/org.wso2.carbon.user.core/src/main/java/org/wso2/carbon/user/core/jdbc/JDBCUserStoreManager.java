@@ -630,12 +630,20 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 throw new UserStoreException("null connection");
             }
 
-            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_ROLE_LIST); // TODO
+            if (filter.contains("_")) {
+                filter = filter.replaceAll("_", "\\\\_");
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_ROLE_LIST_WITH_ESCAPE);
+            } else {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_ROLE_LIST);
+            }
 
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             //prepStmt.setString(1, filter);
             byte count = 0;
             prepStmt.setString(++count, filter);
+            if (sqlStmt.toUpperCase().contains(UserCoreConstants.SQL_ESCAPE_KEYWORD)) {
+                prepStmt.setString(++count, SQL_FILTER_CHAR_ESCAPE);
+            }
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                 prepStmt.setInt(++count, tenantId);
             }
@@ -873,8 +881,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
 
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                names =
-                        getStringValuesFromDatabaseWithConstraints(sqlStmt, maxItemLimit, queryTimeout, filter,
+                names = getStringValuesFromDatabaseWithConstraints(sqlStmt, maxItemLimit, queryTimeout, filter,
                                 roleName, tenantId, tenantId, tenantId);
             } else {
                 names = getStringValuesFromDatabaseWithConstraints(sqlStmt, maxItemLimit, queryTimeout, filter,
@@ -3095,16 +3102,27 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
 
+        if (value.contains("_")) {
+            value = value.replaceAll("_", "\\\\_");
+            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_FOR_PROP_WITH_ESCAPE);
+        } else {
+            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_FOR_PROP);
+        }
+
         List<String> list = new ArrayList<String>();
         try {
             dbConnection = getDBConnection();
             prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setString(1, property);
-            prepStmt.setString(2, value);
-            prepStmt.setString(3, profileName);
+            int count = 0;
+            prepStmt.setString(++count, property);
+            prepStmt.setString(++count, value);
+            if (sqlStmt.toUpperCase().contains(UserCoreConstants.SQL_ESCAPE_KEYWORD)) {
+                prepStmt.setString(++count, SQL_FILTER_CHAR_ESCAPE);
+            }
+            prepStmt.setString(++count, profileName);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                prepStmt.setInt(4, tenantId);
-                prepStmt.setInt(5, tenantId);
+                prepStmt.setInt(++count, tenantId);
+                prepStmt.setInt(++count, tenantId);
             }
 
             int givenMax;
