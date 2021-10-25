@@ -39,7 +39,8 @@
       allow="{% for ip in web_app.control_access.allow %}{{ip}}{{ "|" if not loop.last}}{% endfor %}"/>
     {% endif %}
 
-    <!-- Listener for WS-Discovery -->
-    <!--<Listener className="org.wso2.carbon.discovery.cxf.listeners.TomcatCxfDiscoveryListener" />-->
+    {% if web_app.listener.class_name is defined %}
+    <Listener className="{{web_app.listener.class_name}}" />
+    {% endif %}
 
 </Context>
