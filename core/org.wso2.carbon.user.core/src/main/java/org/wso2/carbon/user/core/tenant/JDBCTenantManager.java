@@ -1327,7 +1327,7 @@ public class JDBCTenantManager implements TenantManager {
             if (dbType.equalsIgnoreCase("MySQL") || dbType.equalsIgnoreCase("MariaDB") || dbType.equalsIgnoreCase("H2") ||
                     dbType.equalsIgnoreCase("PostgreSQL")) {
                 sql = TenantConstants.IS_TENANT_UUID_COLUMN_EXISTS_MYSQL;
-            } else if (dbType.equalsIgnoreCase("db2")) {
+            } else if (dbType.toLowerCase().startsWith("db2")) {
                 sql = TenantConstants.IS_TENANT_UUID_COLUMN_EXISTS_DB2;
             } else if (dbType.equalsIgnoreCase("MS SQL") ||
                     connection.getMetaData().getDriverName().contains("Microsoft")) {
