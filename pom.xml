@@ -20,7 +20,7 @@
         <url>https://github.com/wso2/carbon4-kernel.git</url>
         <developerConnection>scm:git:https://github.com/wso2/carbon4-kernel.git</developerConnection>
         <connection>scm:git:https://github.com/wso2/carbon4-kernel.git</connection>
-        <tag>v4.6.2</tag>
+        <tag>v4.6.3</tag>
     </scm>
 
     <!--Moved the modules out of default profile  and disabled all the profiles-->
