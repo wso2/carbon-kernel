@@ -60,6 +60,10 @@ public class DatabaseUtil {
     private static final long DEFAULT_VALIDATION_INTERVAL = 30000;
     private static final String SQL_STATEMENT_PARAMETER_PLACEHOLDER = "?";
     private static final String DISABLED = "Disabled";
+    public static final String JDBC_INTERCEPTOR_SEPARATOR = ";";
+    private static final String DEFAULT_CORRELATION_LOG_INTERCEPTOR = "org.wso2.carbon.ndatasource.rdbms"
+            + ".CorrelationLogInterceptor";
+    private static final String CORRELATION_LOG_SYSTEM_PROPERTY = "enableCorrelationLogs";
 
     /**
      * Gets a database pooling connection. If a pool is not created this will create a connection pool.
@@ -268,6 +272,11 @@ public class DatabaseUtil {
         if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.JDBC_INTERCEPTORS)) &&
                 !realmConfig.getUserStoreProperty(JDBCRealmConstants.JDBC_INTERCEPTORS).trim().isEmpty()) {
             poolProperties.setJdbcInterceptors(realmConfig.getUserStoreProperty(JDBCRealmConstants.JDBC_INTERCEPTORS));
+        }
+        // Correlation log interceptor is added to the interceptor chain.
+        if (Boolean.parseBoolean(System.getProperty(CORRELATION_LOG_SYSTEM_PROPERTY))) {
+            setCorrelationLogInterceptor(poolProperties,
+                    realmConfig.getUserStoreProperty(JDBCRealmConstants.JDBC_INTERCEPTORS));
         }
 
         if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.JMX_ENABLED)) &&
@@ -1227,5 +1236,20 @@ public class DatabaseUtil {
         user.setUserStoreDomain(domainName);
         user.setTenantDomain(getTenantDomain(userStoreManager.getTenantId()));
         return user;
+    }
+
+    private static void setCorrelationLogInterceptor(PoolProperties poolProperties, String jdbcInterceptors) {
+
+        if (StringUtils.isBlank(jdbcInterceptors)) {
+            jdbcInterceptors = "";
+        } else if (jdbcInterceptors.contains(DEFAULT_CORRELATION_LOG_INTERCEPTOR)) {
+            return;
+        }
+        if (StringUtils.isEmpty(jdbcInterceptors) || jdbcInterceptors.endsWith(JDBC_INTERCEPTOR_SEPARATOR)) {
+            jdbcInterceptors = jdbcInterceptors + DEFAULT_CORRELATION_LOG_INTERCEPTOR;
+        } else {
+            jdbcInterceptors = jdbcInterceptors + JDBC_INTERCEPTOR_SEPARATOR + DEFAULT_CORRELATION_LOG_INTERCEPTOR;
+        }
+        poolProperties.setJdbcInterceptors(jdbcInterceptors);
     }
 }
