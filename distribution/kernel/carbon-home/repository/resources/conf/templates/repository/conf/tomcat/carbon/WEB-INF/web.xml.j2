@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- ~ Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ ~ Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  ~
  ~ WSO2 Inc. licenses this file to you under the Apache License,
  ~ Version 2.0 (the "License"); you may not use this file except
@@ -81,11 +81,11 @@
  <filter-class>org.apache.catalina.filters.HttpHeaderSecurityFilter</filter-class>
  <init-param>
  <param-name>hstsEnabled</param-name>
- <param-value>false</param-value>
+ <param-value>{{http_header_security_filter.hsts.enabled}}</param-value>
  </init-param>
  <init-param>
  <param-name>antiClickJackingEnabled</param-name>
- <param-value>false</param-value>
+ <param-value>{{http_header_security_filter.anti_click_jacking.enabled}}</param-value>
  </init-param>
  </filter>
 
@@ -94,15 +94,15 @@
  <filter-class>org.apache.catalina.filters.HttpHeaderSecurityFilter</filter-class>
  <init-param>
  <param-name>hstsEnabled</param-name>
- <param-value>false</param-value>
+ <param-value>{{http_header_security_filter.anti_click_jacking.hsts.enabled}}</param-value>
  </init-param>
  <init-param>
  <param-name>blockContentTypeSniffingEnabled</param-name>
- <param-value>false</param-value>
+ <param-value>{{http_header_security_filter.anti_click_jacking.block_content_type_sniffing.enabled}}</param-value>
 </init-param>
 <init-param>
 <param-name>xssProtectionEnabled</param-name>
-<param-value>false</param-value>
+<param-value>{{http_header_security_filter.anti_click_jacking.xss_protection.enabled}}}</param-value>
 </init-param>
 </filter>
 
@@ -118,23 +118,15 @@
 
  <filter-mapping>
  <filter-name>HttpHeaderSecurityFilter_EnableAntiClickJacking</filter-name>
- <url-pattern>/carbon/*</url-pattern>
- <url-pattern>/services/*</url-pattern>
- <url-pattern>/samlsso/*</url-pattern>
- <url-pattern>/openid/*</url-pattern>
- <url-pattern>/openidserver/*</url-pattern>
- <url-pattern>/passivests/*</url-pattern>
- <url-pattern>/acs/*</url-pattern>
- <url-pattern>/iwa/*</url-pattern>
- <url-pattern>/identity/*</url-pattern>
- <url-pattern>/thriftAuthenticator/*</url-pattern>
+ {% for url in http_header_security_filter.anti_click_jacking.urls %}
+ <url-pattern>{{url}}</url-pattern>
+ {% endfor %}
  </filter-mapping>
 
  <filter-mapping>
  <filter-name>CSRFGuard</filter-name>
  <url-pattern>/*</url-pattern>
  </filter-mapping>
-
 
     <!-- OWASP CSRFGuard context listener used to read CSRF configuration -->
     <listener>
@@ -151,58 +143,67 @@
  <session-config>
         <session-timeout>{{tomcat.management_console.session_timeout}}</session-timeout>
         <cookie-config>
-            <secure>true</secure>
+            <secure>{{tomcat.session_config.cookie_config.secure}}</secure>
         </cookie-config>
-        <tracking-mode>COOKIE</tracking-mode>
+        <tracking-mode>{{tomcat.session_config.tracking_mode}}</tracking-mode>
     </session-config>
 
     <!-- custom error pages -->
+    {% for error_page in tomcat.session_config.custom_error_pages %}
+    <error-page>
+        {% if error_page.code is defined %}
+        <error-code>{{error_page.code}}</error-code>
+        {% endif %}
+        <location>{{error_page.location}}</location>
+    </error-page>
+    {% endfor %}
+
     <error-page>
         <error-code>400</error-code>
-        <location>/carbon/errors/error_400.html</location>
+        <location>{{tomcat.session_config.error_page.error_400}}</location>
     </error-page>
     <error-page>
         <error-code>401</error-code>
-        <location>/carbon/errors/error_401.html</location>
+        <location>{{tomcat.session_config.error_page.error_401}}</location>
     </error-page>
     <error-page>
         <error-code>403</error-code>
-        <location>/carbon/errors/error_403.html</location>
+        <location>{{tomcat.session_config.error_page.error_403}}</location>
     </error-page>
     <error-page>
         <error-code>404</error-code>
-        <location>/carbon/errors/error_404.html</location>
+        <location>{{tomcat.session_config.error_page.error_404}}</location>
     </error-page>
     <error-page>
         <error-code>405</error-code>
-        <location>/carbon/errors/error_405.html</location>
+        <location>{{tomcat.session_config.error_page.error_405}}</location>
     </error-page>
     <error-page>
         <error-code>408</error-code>
-        <location>/carbon/errors/error_408.html</location>
+        <location>{{tomcat.session_config.error_page.error_408}}</location>
     </error-page>
     <error-page>
         <error-code>410</error-code>
-        <location>/carbon/errors/error_410.html</location>
+        <location>{{tomcat.session_config.error_page.error_410}}</location>
     </error-page>
     <error-page>
         <error-code>500</error-code>
-        <location>/carbon/errors/error_500.html</location>
+        <location>{{tomcat.session_config.error_page.error_500}}</location>
     </error-page>
     <error-page>
         <error-code>502</error-code>
-        <location>/carbon/errors/error_502.html</location>
+        <location>{{tomcat.session_config.error_page.error_502}}</location>
     </error-page>
     <error-page>
         <error-code>503</error-code>
-        <location>/carbon/errors/error_503.html</location>
+        <location>{{tomcat.session_config.error_page.error_503}}</location>
     </error-page>
     <error-page>
         <error-code>504</error-code>
-        <location>/carbon/errors/error_504.html</location>
+        <location>{{tomcat.session_config.error_page.error_504}}</location>
     </error-page>
 
     <error-page>
-        <location>/carbon/errors/error.html</location>
+        <location>{{tomcat.session_config.error_page.error_default}}</location>
     </error-page>
 </web-app>
