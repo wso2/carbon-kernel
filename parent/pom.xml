@@ -656,6 +656,7 @@
         <config.mapper.version>1.0.13</config.mapper.version>
         <version.stax.ex>1.8.3</version.stax.ex>
         <version.saaj.impl>1.5.0</version.saaj.impl>
+        <carbon.deployment.version>4.11.1</carbon.deployment.version>
     </properties>
 
     <dependencyManagement>
@@ -1901,6 +1902,11 @@
                 <groupId>org.jvnet.staxex</groupId>
                 <artifactId>stax-ex</artifactId>
                 <version>${version.stax.ex}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.deployment</groupId>
+                <artifactId>org.wso2.carbon.webapp.mgt.stub</artifactId>
+                <version>${carbon.deployment.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
