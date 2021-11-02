@@ -665,6 +665,7 @@
         <maven.felix.scr.plugin.version>1.25.0</maven.felix.scr.plugin.version>
         <import.package.version.commons.logging>[1.2.0,2.0.0)</import.package.version.commons.logging>
         <config.mapper.version>1.0.18</config.mapper.version>
+        <carbon.deployment.version>4.11.1</carbon.deployment.version>
     </properties>
 
     <dependencyManagement>
@@ -1895,6 +1896,11 @@
                 <artifactId>log4j-jcl</artifactId>
                 <version>${version.log4j.core}</version>
                 <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.deployment</groupId>
+                <artifactId>org.wso2.carbon.webapp.mgt.stub</artifactId>
+                <version>${carbon.deployment.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

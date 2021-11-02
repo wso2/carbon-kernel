@@ -153,6 +153,10 @@
             <groupId>org.wso2.orbit.sun.xml.ws</groupId>
             <artifactId>jaxws-ri</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.deployment</groupId>
+            <artifactId>org.wso2.carbon.webapp.mgt.stub</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
