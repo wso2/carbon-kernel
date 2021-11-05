@@ -108,6 +108,10 @@
     <ProxyContextPath>{{server.proxy_context_path}}</ProxyContextPath>
     {% endif %}
 
+    {% if server.diagnostic_log_mode is defined %}
+    <DiagnosticLogMode>{{server.diagnostic_log_mode}}</DiagnosticLogMode>
+    {% endif %}
+
     <!-- In-order to  get the registry http Port from the back-end when the default http transport is not the same-->
     <!--RegistryHttpPort>9763</RegistryHttpPort-->
 

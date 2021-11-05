@@ -38,6 +38,15 @@ public final class CarbonConstants {
             "{ id : %s, recordedAt : %s, clientComponent : %s, requestId : %s, " +
                     "initiator.id : %s, initiator.name : %s, initiator.type : %s, event.type : %s, target.id : %s, " +
                     "target.name : %s, target.type : %s, data.change : %s }";
+    public static final String DIAGNOSTIC_LOG_TEMPLATE =
+            "{ id : %s, recordedAt : %s, requestId : %s, flowId : %s, " +
+                    "component.id : %s, action.id : %s, input : %s, configurations : %s, result.status : %s, " +
+                    "result.message : %s }";
+    public enum DiagnosticLogMode {
+        FULL,
+        NONE
+    }
+
     /**
      * This is used to get root context within CarbonJNDIContext when we need to operate
      * with LDAP.
@@ -438,6 +447,10 @@ public final class CarbonConstants {
 
         // Key for the auditLog object property in audit log event.
         public static final String AUDIT_LOG = "auditLog";
+        // Key for the diagnosticLog object property in diagnostic log event.
+        public static final String DIAGNOSTIC_LOG = "diagnosticLog";
+        // Key for the tenantId object property in diagnostic/audit log event.
+        public static final String TENANT_ID = "tenantId";
 
         // Common keys for both audit/diagnostic logs.
         public static final String LOG_ID = "id";
