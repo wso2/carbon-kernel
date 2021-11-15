@@ -96,6 +96,7 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
+import static org.wso2.carbon.user.core.UserCoreConstants.ClaimTypeURIs.IDENTITY_CLAIM_URI;
 import static org.wso2.carbon.user.core.UserCoreConstants.DOMAIN_SEPARATOR;
 import static org.wso2.carbon.user.core.UserCoreConstants.INTERNAL_DOMAIN;
 import static org.wso2.carbon.user.core.UserCoreConstants.INTERNAL_SYSTEM_ROLE_PREFIX;
@@ -3107,7 +3108,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             log.debug("Post listener user list: " + filteredUserList.stream().map(User::getUsername)
                     .collect(Collectors.toList()) + " for domain: " + extractedDomain);
         }
-
+        for (org.wso2.carbon.user.core.common.User  user:filteredUserList) {
+            if (StringUtils.isBlank(user.getUserStoreDomain())) {
+                user.setUserStoreDomain(UserCoreUtil.extractDomainFromName(user.getUsername()));
+            }
+        }
         return filteredUserList;
     }
 
@@ -15056,13 +15061,163 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         handlePreGetUserListWithID(condition, domain, profileName, limit, offset, sortBy, sortOrder);
-
         if (log.isDebugEnabled()) {
             log.debug("Pre listener get conditional  user list for domain: " + domain);
         }
 
+        UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(domain);
+        List<User> identityClaimFilteredUsers = new ArrayList<>();
+        List<String> identityClaimFilteredUserNames = new ArrayList<>();
         List<User> filteredUsers = new ArrayList<>();
-        UserStoreManager secManager = getSecondaryUserStoreManager(domain);
+        boolean hasNonIdentityClaimFilterConditions = false;
+        boolean isIdentityClaimsInIdentityStore = false;
+        boolean isIdentityClaimFilterExistInPostCondition;
+        List<ExpressionCondition> expressionConditions = new ArrayList<>();
+
+        /* Duplicating condition object to ensure that nullifying the conditions in the flow does not affect the
+        validation in the next iteration of flow when the domain name is not in query params.*/
+        Condition duplicateCondition = getDuplicateCondition(condition);
+        getExpressionConditions(duplicateCondition, expressionConditions);
+
+        // Check whether the request has IdentityClaims in filters.
+        boolean identityClaimsExistsInInitialCondition = hasIdentityClaimInitially(expressionConditions);
+
+        if (identityClaimsExistsInInitialCondition) {
+            if (expressionConditions.size() != countIdentityClaims(expressionConditions)) {
+                hasNonIdentityClaimFilterConditions = true;
+            }
+
+            // Call the listeners to get the filtered users from relevant identity store.
+            if (secondaryUserStoreManager != null) {
+                handlePreGetUserListWithIdentityClaims(duplicateCondition, domain, profileName, limit, offset, sortBy,
+                        sortOrder, secondaryUserStoreManager, identityClaimFilteredUserNames,
+                        hasNonIdentityClaimFilterConditions);
+            }
+
+            // Check whether the request has IdentityClaims in filters after trying to filter at Identity Data Store.
+            expressionConditions = new ArrayList<>();
+            getExpressionConditions(duplicateCondition, expressionConditions);
+            isIdentityClaimFilterExistInPostCondition = containsIdentityClaims(expressionConditions);
+
+            // Means the identity claims are identity store based. (Else it is user store based)
+            if (!isIdentityClaimFilterExistInPostCondition) {
+                isIdentityClaimsInIdentityStore = true;
+            } else {
+                updateCondition(duplicateCondition, domain);
+            }
+
+            /* If identity claims are in JDBCIdentityDataStore, and filtering in JDBCIdentityDataStore returned an empty
+         list, we can skip filtering in user store.*/
+            if (isIdentityClaimsInIdentityStore && identityClaimFilteredUserNames.isEmpty()) {
+                return filteredUsers;
+            }
+
+            for (String username : identityClaimFilteredUserNames) {
+                User user = new User();
+                user.setUsername(username);
+                user.setUserID(getUserIDFromUserName(username));
+                user.setUserStoreDomain(UserCoreUtil.extractDomainFromName(user.getUsername()));
+                identityClaimFilteredUsers.add(user);
+            }
+
+            // After filtering based on identity claims, if there are no other filters can return the list.
+            if (expressionConditions.isEmpty()) {
+                return identityClaimFilteredUsers;
+            }
+        }
+
+        if (identityClaimsExistsInInitialCondition && isIdentityClaimsInIdentityStore) {
+            // The identity claims are not user store based.
+            List<User> tempFilteredUsers;
+            List<User> aggregateUserList = new ArrayList<>();
+            int offsetCounter = 0;
+            int paginationLimit;
+
+            if (offset <= 0) {
+                paginationLimit = limit;
+            } else {
+                paginationLimit = (offset - 1) + limit;
+            }
+
+            Set<User> prevIterationFilteredUsers = new HashSet<>();
+            while (aggregateUserList.size() < paginationLimit) {
+                tempFilteredUsers = getFilteredUsers(duplicateCondition, profileName, limit, offsetCounter, sortBy,
+                        sortOrder, secondaryUserStoreManager);
+
+                if (tempFilteredUsers.isEmpty()) {
+                    // Means no users has been filtered in this particular iteration and hence can exit the flow.
+                    break;
+                }
+
+                // Prevent same set of users being returned and break the loop if so.
+                if (isExactSameFilteredUsers(tempFilteredUsers, prevIterationFilteredUsers)) {
+                    break;
+                }
+
+                prevIterationFilteredUsers.clear();
+                prevIterationFilteredUsers.addAll(tempFilteredUsers);
+
+                // For next iteration consider the offset from last fetched size of users.
+                offsetCounter += limit;
+
+                // Taking the interception of the user list.
+                tempFilteredUsers.retainAll(identityClaimFilteredUsers);
+                aggregateUserList.addAll(tempFilteredUsers);
+            }
+
+            // Removing duplicates.
+            aggregateUserList = aggregateUserList.stream().distinct().collect(Collectors.toList());
+
+            // Pagination
+            if (offset <= 0) {
+                offset = 0;
+            } else {
+                offset = offset - 1;
+            }
+
+            if (aggregateUserList.isEmpty()) {
+                filteredUsers = aggregateUserList;
+            } else if (offset > aggregateUserList.size()) {
+                filteredUsers = new ArrayList<>();
+            } else if (aggregateUserList.size() < paginationLimit) {
+                filteredUsers = aggregateUserList.subList(offset, aggregateUserList.size());
+            } else {
+                filteredUsers = aggregateUserList.subList(offset, paginationLimit);
+            }
+        } else {
+            /* When the filters has only the non-identity claims or if Identity claims are persisted in User store
+            based Identity Data store.*/
+            filteredUsers = getFilteredUsers(duplicateCondition, profileName, limit, offset, sortBy, sortOrder,
+                    secondaryUserStoreManager);
+        }
+
+        handlePostGetUserListWithID(condition, domain, profileName, limit, offset, sortBy, sortOrder, filteredUsers,
+                false);
+
+        if (log.isDebugEnabled()) {
+            log.debug("post listener get conditional  user list for domain: " + domain);
+        }
+        return filteredUsers;
+    }
+
+    private boolean isExactSameFilteredUsers(List<User> tempFilteredUsers, Set<User> prevIterationFilteredUsers) {
+
+        if (prevIterationFilteredUsers.size() == tempFilteredUsers.size()) {
+            for (User user : tempFilteredUsers) {
+                if (!prevIterationFilteredUsers.contains(user)) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private List<User> getFilteredUsers(Condition condition, String profileName, int limit, int offset, String sortBy,
+                                        String sortOrder, UserStoreManager secManager) throws UserStoreException {
+
+        List<User> filteredUsers = new ArrayList<>();
         if (secManager != null) {
             if (secManager instanceof AbstractUserStoreManager) {
                 if (isUniqueUserIdEnabled(secManager)) {
@@ -15077,17 +15232,230 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     filteredUsers = userUniqueIDManger.listUsers(users.getUsers(), this);
                 }
             }
-        } else if (secManager == null && StringUtils.isNotEmpty(domain)) {
-            throw new UserStoreClientException("Invalid Domain Name.");
-        }
-
-        handlePostGetUserListWithID(condition, domain, profileName, limit, offset, sortBy, sortOrder, filteredUsers,
-                false);
-
-        if (log.isDebugEnabled()) {
-            log.debug("post listener get conditional  user list for domain: " + domain);
         }
         return filteredUsers;
+    }
+
+    /**
+     * Get duplicate condition object.
+     *
+     * @param condition Condition.
+     * @throws UserStoreException User store exception.
+     */
+    private Condition getDuplicateCondition(Condition condition) {
+
+        Condition duplicateCondition;
+        if (condition instanceof ExpressionCondition) {
+            duplicateCondition = new ExpressionCondition(condition.getOperation(),
+                    ((ExpressionCondition) condition).getAttributeName(),
+                    ((ExpressionCondition) condition).getAttributeValue());
+        } else if (condition instanceof OperationalCondition) {
+            duplicateCondition = new OperationalCondition(condition.getOperation(),
+                    ((OperationalCondition) condition).getLeftCondition(),
+                    ((OperationalCondition) condition).getRightCondition());
+        } else {
+            /* Have not duplicated the remaining condition objects.
+             If it is essential to duplicate, handle it with an if-else.*/
+            duplicateCondition = condition;
+            if (log.isDebugEnabled()) {
+                log.debug(" Condition object is not duplicated. This might end up in failures when domain names are " +
+                        "not provided in the request as the flows nullify the conditions in due process.");
+            }
+        }
+        return duplicateCondition;
+    }
+
+    /**
+     * Pre listener for getting user list with identity claim filters.
+     *
+     * @param condition                  Condition.
+     * @param domain                     Domain name.
+     * @param limit                      Limit for the result.
+     * @param offset                     Off set for the result.
+     * @param secManager                 Secondary user store manager.
+     * @param hasNonIdentityClaimFilters Count of non-identity claim filters.
+     * @throws UserStoreException User store exception.
+     */
+    private void handlePreGetUserListWithIdentityClaims(Condition condition, String domain, String profileName,
+                                                        int limit, int offset, String sortBy, String sortOrder,
+                                                        UserStoreManager secManager,
+                                                        List<String> identityClaimFilteredUserNames,
+                                                        boolean hasNonIdentityClaimFilters) throws UserStoreException {
+
+        try {
+            for (UserOperationEventListener listener : UMListenerServiceComponent
+                    .getUserOperationEventListeners()) {
+                if (listener instanceof AbstractUserOperationEventListener) {
+                    AbstractUserOperationEventListener newListener =
+                            (AbstractUserOperationEventListener) listener;
+
+                    if (!hasNonIdentityClaimFilters) {
+                        // In this case, can filter with Identity claim filters and paginate at DB level.
+                        if (!newListener.doPreGetPaginatedUserList(condition, identityClaimFilteredUserNames,
+                                domain, secManager, limit, offset)) {
+                            handleGetUserListFailure(
+                                    ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_PAGINATED_USER_LIST.getCode(),
+                                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_PAGINATED_USER_LIST
+                                                    .getMessage(),
+                                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE),
+                                    condition, domain, profileName, limit, offset, sortBy, sortOrder);
+                            break;
+                        }
+                    } else {
+                        // In this case, can filter with Identity claim filters and fetch whole filtered list.
+                        if (!newListener.doPreGetUserList(condition, identityClaimFilteredUserNames,
+                                secManager, domain)) {
+                            handleGetUserListFailure(
+                                    ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET__CONDITIONAL_USER_LIST.getCode(),
+                                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_GET__CONDITIONAL_USER_LIST
+                                                    .getMessage(),
+                                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE),
+                                    condition, domain, profileName, limit, offset, sortBy, sortOrder);
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            throw new UserStoreException("Error occurred while retrieving users for Identity Claim Filters " +
+                    "with pagination parameters.", ex);
+        }
+    }
+
+    /**
+     * If the condition contains expressions with identity claims, the claims are in the form of local claim dialect
+     * URIs. Hence, they are converted to the mapped attribute.
+     *
+     * @param condition Condition.
+     * @param domain    Domain name.
+     * @throws UserStoreException
+     */
+    private void updateCondition(Condition condition, String domain) throws UserStoreException {
+
+        if (condition instanceof ExpressionCondition) {
+            ExpressionCondition expressionCondition = (ExpressionCondition) condition;
+            if (expressionCondition.getAttributeName().
+                    contains(IDENTITY_CLAIM_URI)) {
+                String claimUri = expressionCondition.getAttributeName();
+                try {
+                    ClaimMapping mapping = (ClaimMapping) claimManager.getClaimMapping(claimUri);
+                    String attribute = mapping.getMappedAttribute(domain);
+                    expressionCondition.setAttributeName(attribute);
+                } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                    throw new UserStoreException(e);
+                }
+            }
+        } else if (condition instanceof OperationalCondition) {
+            Condition leftCondition = ((OperationalCondition) condition).getLeftCondition();
+            updateCondition(leftCondition, domain);
+            Condition rightCondition = ((OperationalCondition) condition).getRightCondition();
+            updateCondition(rightCondition, domain);
+        }
+    }
+
+    /**
+     * Extract filter expressions form the condition as a list.
+     *
+     * @param condition            condition.
+     * @param expressionConditions list of expression conditions.
+     */
+    private void getExpressionConditions(Condition condition, List<ExpressionCondition> expressionConditions) {
+
+        if (condition instanceof ExpressionCondition) {
+            ExpressionCondition expressionCondition = (ExpressionCondition) condition;
+            if (isConditionExist(expressionCondition)) {
+                expressionConditions.add(expressionCondition);
+            }
+        } else if (condition instanceof OperationalCondition) {
+            Condition leftCondition = ((OperationalCondition) condition).getLeftCondition();
+            getExpressionConditions(leftCondition, expressionConditions);
+            Condition rightCondition = ((OperationalCondition) condition).getRightCondition();
+            getExpressionConditions(rightCondition, expressionConditions);
+        }
+    }
+
+    private boolean isConditionExist(ExpressionCondition expressionCondition) {
+
+        if (StringUtils.isNotEmpty(expressionCondition.getAttributeName()) ||
+                StringUtils.isNotEmpty(expressionCondition.getAttributeValue()) ||
+                StringUtils.isNotEmpty(expressionCondition.getOperation())) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check if the conditions have identity claim as filters.
+     *
+     * @param expressionConditions List of expression conditions.
+     * @throws UserStoreException
+     */
+    private boolean hasIdentityClaimInitially(List<ExpressionCondition> expressionConditions)
+            throws UserStoreException {
+
+        boolean hasIdentityClaims = false;
+        try {
+            org.wso2.carbon.user.api.ClaimMapping[] claimMapping = claimManager.getAllClaimMappings();
+
+            for (ExpressionCondition expressionCondition : expressionConditions) {
+                List<org.wso2.carbon.user.api.ClaimMapping> mappedClaim =
+                        Arrays.stream(claimMapping).filter(mapping -> mapping.getMappedAttribute() ==
+                                expressionCondition.getAttributeName()).collect(Collectors.toList());
+
+                //Obtaining relevant URI for the mapped attribute.
+                if (mappedClaim.size() == 1) {
+                    String tempClaimURI = mappedClaim.get(0).getClaim().getClaimUri();
+                    //Check if the claimURI are of type 'identity claims'.
+                    if (tempClaimURI.contains(IDENTITY_CLAIM_URI)) {
+                        hasIdentityClaims = true;
+                        expressionCondition.setAttributeName(tempClaimURI);
+                        if (log.isDebugEnabled()) {
+                            log.debug("Obtained the ClaimURI " + tempClaimURI + " from the map for the attribute : "
+                                    + expressionCondition.getAttributeName());
+                        }
+                    }
+                }
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException("Error occurred while checking the existence of identity claim filters " +
+                    "from the expression nodes.", e);
+        }
+        return hasIdentityClaims;
+    }
+
+    /**
+     * Check if the expression list contains identity claims.
+     *
+     * @param expressionConditions list of expression conditions.
+     * @return true if contains identity claims, false otherwise.
+     */
+    private boolean containsIdentityClaims(List<ExpressionCondition> expressionConditions) {
+
+        for (ExpressionCondition expressionCondition : expressionConditions) {
+            if (expressionCondition.getAttributeName() != null &&
+                    expressionCondition.getAttributeName().contains(IDENTITY_CLAIM_URI)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Count the no. of identity claims.
+     *
+     * @param expressionConditions List of expression conditions.
+     * @return true if contains identity claims, false otherwise.
+     */
+    private int countIdentityClaims(List<ExpressionCondition> expressionConditions) {
+
+        int identityClaimsCount = 0;
+        for (ExpressionCondition expressionCondition : expressionConditions) {
+            if (expressionCondition.getAttributeName() != null &&
+                    expressionCondition.getAttributeName().contains(IDENTITY_CLAIM_URI)) {
+                identityClaimsCount += 1;
+            }
+        }
+        return identityClaimsCount;
     }
 
     private List<User> doGetUserListWithID(String claim, String claimValue, String profileName, int limit, int offset,
