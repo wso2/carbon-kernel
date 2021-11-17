@@ -16,36 +16,31 @@
 package org.wso2.carbon.log4j2.plugins;
 
 import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.impl.Log4jLogEvent;
 import org.apache.logging.log4j.message.Message;
 import org.apache.logging.log4j.message.SimpleMessage;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.wso2.carbon.utils.ServerConstants;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 /**
  * Tests TenantIdConverter class.
  */
 public class TenantIdConverterTest {
+
     private TenantIdConverter tenantIdConverter;
     private LogEvent logEvent;
+    private static final String TENANT_ID = "tenantId";
 
     /**
      * Creates a log event to test appending the tenantId.
      */
     @BeforeMethod
-    public void setUp() throws Exception {
+    public void setUp() {
+
         tenantIdConverter = TenantIdConverter.newInstance(null);
         Message msg = new SimpleMessage("Test logging");
         logEvent = Log4jLogEvent.newBuilder()
@@ -56,27 +51,20 @@ public class TenantIdConverterTest {
 
     /**
      * Tests appending the tenantId into the log message.
-     *
-     * @throws IOException for failed or interrupted file creation
      */
     @Test
-    public void testFormat() throws IOException {
-        Path carbonHome = Files.createTempDirectory("carbonHome");
-        File repository = new File(carbonHome.toFile(), "repository");
-        repository.mkdir();
-        File conf = new File(repository, "conf");
-        conf.mkdir();
-        ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource("carbon.xml").getFile());
-
-        Path src = file.toPath();
-        Path dest = Paths.get(conf.getAbsolutePath() + File.separator + file.getName());
-        Files.copy(src, dest, StandardCopyOption.REPLACE_EXISTING);
-        assertTrue(dest.toFile().exists());
-        System.setProperty(ServerConstants.CARBON_HOME, carbonHome.toString());
+    public void testFormat() {
 
         final StringBuilder sb = new StringBuilder();
-        tenantIdConverter.format(logEvent, sb);
-        assertEquals("-1", sb.toString());
+        String tenantId = "-1";
+        ThreadContext.put(TENANT_ID, tenantId);
+        LogEvent event = Log4jLogEvent.newBuilder()
+                .setLoggerName("TenantIdTestLogger")
+                .setLevel(Level.INFO)
+                .setMessage(null).build();
+
+        tenantIdConverter.format(event, sb);
+        assertEquals(tenantId, sb.toString());
+        ThreadContext.remove(TENANT_ID);
     }
 }
