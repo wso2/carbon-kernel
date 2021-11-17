@@ -22,6 +22,8 @@ import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.ThreadContext;
+import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.registry.api.RegistryService;
@@ -31,7 +33,6 @@ import org.wso2.carbon.tomcat.ext.internal.Utils;
 import org.wso2.carbon.tomcat.ext.utils.URLMappingHolder;
 import org.wso2.carbon.user.api.TenantManager;
 import org.wso2.carbon.user.api.UserRealmService;
-import org.wso2.carbon.utils.ServerConstants;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
@@ -58,6 +59,9 @@ public class CarbonContextCreatorValve extends ValveBase {
         } catch (Exception e) {
             log.error("Could not handle request: " + request.getRequestURI(), e);
         } finally {
+            ThreadContext.remove(MultitenantConstants.TENANT_ID);
+            ThreadContext.remove(MultitenantConstants.TENANT_DOMAIN);
+            ThreadContext.remove("appName");
             // This will destroy the carbon context holder on the current thread after
             // invoking subsequent valves.
             PrivilegedCarbonContext.destroyCurrentContext();
@@ -90,6 +94,8 @@ public class CarbonContextCreatorValve extends ValveBase {
             TenantManager tenantManager = userRealmService.getTenantManager();
             int tenantId = tenantManager.getTenantId(tenantDomain);
             carbonContext.setTenantId(tenantId);
+            ThreadContext.put(MultitenantConstants.TENANT_ID, String.valueOf(tenantId));
+            ThreadContext.put(MultitenantConstants.TENANT_DOMAIN, tenantDomain);
             //carbonContext.setUserRealm(userRealmService.getTenantUserRealm(tenantId));
 
             RegistryService registryService = CarbonRealmServiceHolder.getRegistryService();
@@ -99,6 +105,10 @@ public class CarbonContextCreatorValve extends ValveBase {
             carbonContext.setRegistry(RegistryType.SYSTEM_GOVERNANCE,
                     new GhostRegistry(registryService, tenantId,
                             RegistryType.SYSTEM_GOVERNANCE));
+        }
+
+        if (appName != null) {
+            ThreadContext.put("appName", appName);
         }
     }
 }

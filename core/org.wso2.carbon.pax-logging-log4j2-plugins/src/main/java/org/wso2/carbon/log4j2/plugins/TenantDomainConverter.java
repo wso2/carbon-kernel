@@ -22,10 +22,9 @@ import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.pattern.ConverterKeys;
 import org.apache.logging.log4j.core.pattern.LogEventPatternConverter;
-import org.wso2.carbon.context.CarbonContext;
-
-import java.security.AccessController;
-import java.security.PrivilegedAction;
+import org.apache.logging.log4j.util.ReadOnlyStringMap;
+import org.apache.logging.log4j.util.StringBuilders;
+import org.wso2.carbon.base.MultitenantConstants;
 
 /**
  * This Converter is used to register the tenantDomain as a parameter in the log message.
@@ -64,24 +63,13 @@ public class TenantDomainConverter extends LogEventPatternConverter {
 
     @Override
     public void format(LogEvent event, StringBuilder toAppendTo) {
-        String tenantDomain = getTenantDomain();
-        if (tenantDomain != null) {
-            toAppendTo.append(tenantDomain);
-        }
-    }
 
-    /**
-     * Obtains the tenantDomain from CarbonContext.
-     *
-     * @return tenantDomain of ThreadLocalCarbonContext
-     */
-    public String getTenantDomain() {
-        String tenantDomain = String.valueOf(AccessController.doPrivileged(new PrivilegedAction<String>() {
-            public String run() {
-                return CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        ReadOnlyStringMap contextData = event.getContextData();
+        if (contextData != null && contextData.size() != 0) {
+            Object value = contextData.getValue(MultitenantConstants.TENANT_DOMAIN);
+            if (value != null) {
+                StringBuilders.appendValue(toAppendTo, value);
             }
-        }));
-
-        return tenantDomain;
+        }
     }
 }
