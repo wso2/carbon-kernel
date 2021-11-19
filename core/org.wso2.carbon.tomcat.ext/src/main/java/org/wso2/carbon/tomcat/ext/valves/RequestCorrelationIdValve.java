@@ -28,6 +28,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.MDC;
+import org.wso2.carbon.tomcat.ext.config.TraceIdConfiguration;
 
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -57,15 +58,18 @@ public class RequestCorrelationIdValve extends ValveBase {
 
     private static final Log correlationLog = LogFactory.getLog("correlation");
     private static final String CORRELATION_ID_MDC = "Correlation-ID";
+    private static final String TRACE_ID_MDC = "X-WSO2-TraceId";
     /* package private */ static final String CORRELATION_ID_MDC_REQUEST_ATTRIBUTE_NAME =
             "org.wso2.request.correlation.MDC";
     private Map<String, String> headerToIdMapping;
     private Map<String, String> queryToIdMapping;
     private static List<String> toRemoveFromThread = new ArrayList<>();
     private String correlationIdMdc = CORRELATION_ID_MDC;
+    private String traceIdMdc = TRACE_ID_MDC;
     private String headerToCorrelationIdMapping;
     private String queryToCorrelationIdMapping;
     private String configuredCorrelationIdMdc;
+    private String configuredTraceId;
     private static final String CORRELATION_LOG_REQUEST_START = "HTTP-In-Request";
     private static final String CORRELATION_LOG_SEPARATOR = "|";
     private static final String CORRELATION_LOG_REQUEST_END = "HTTP-In-Response";
@@ -73,6 +77,7 @@ public class RequestCorrelationIdValve extends ValveBase {
     private static final String PADDING_CHAR = "=";
     private static final String SPLITTING_CHAR = "&";
     private boolean isEnableCorrelationLogs;
+    private TraceIdConfiguration traceIdConfiguration;
 
     @Override
     protected void initInternal() throws LifecycleException {
@@ -92,7 +97,18 @@ public class RequestCorrelationIdValve extends ValveBase {
             correlationIdMdc = configuredCorrelationIdMdc;
         }
 
+        traceIdConfiguration = TraceIdConfiguration.getInstance();
+        configuredTraceId = traceIdConfiguration.getTraceId();
+        if (StringUtils.isNotEmpty(configuredTraceId)) {
+            traceIdMdc = configuredTraceId;
+        }
+
         isEnableCorrelationLogs = Boolean.parseBoolean(System.getProperty(CORRELATION_LOG_SYSTEM_PROPERTY));
+    }
+
+    private String getTraceIdMdcName() {
+
+        return traceIdMdc;
     }
 
     @Override
@@ -109,6 +125,9 @@ public class RequestCorrelationIdValve extends ValveBase {
                 // Put the default generated correlation ID.
                 associateToThreadMap.put(correlationIdMdc, UUID.randomUUID().toString());
             }
+
+            // TraceId has to be added response header.
+            addTraceIdToResponseHeader(associateToThreadMap,response);
 
             associateToThread(associateToThreadMap);
 
@@ -133,6 +152,21 @@ public class RequestCorrelationIdValve extends ValveBase {
             }
             disAssociateFromThread();
             MDC.remove(correlationIdMdc);
+        }
+    }
+
+    /**
+     * Adds traceId to Response Header.
+     *
+     * @param associateToThreadMap ThreadMap that will be provide traceId value.
+     * @param response             Response
+     */
+    private void addTraceIdToResponseHeader(Map<String, String> associateToThreadMap, Response response) {
+
+        for (Map.Entry<String, String> entry : associateToThreadMap.entrySet()) {
+            if (entry.getKey().equals(correlationIdMdc)) {
+                response.setHeader(getTraceIdMdcName(),entry.getValue());
+            }
         }
     }
 
