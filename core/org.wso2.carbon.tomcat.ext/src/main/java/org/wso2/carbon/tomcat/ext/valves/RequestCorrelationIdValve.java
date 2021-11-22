@@ -68,8 +68,8 @@ public class RequestCorrelationIdValve extends ValveBase {
     private String traceIdMdc = TRACE_ID_MDC;
     private String headerToCorrelationIdMapping;
     private String queryToCorrelationIdMapping;
+    private String responseCorrelationIdHeader;
     private String configuredCorrelationIdMdc;
-    private String configuredTraceId;
     private static final String CORRELATION_LOG_REQUEST_START = "HTTP-In-Request";
     private static final String CORRELATION_LOG_SEPARATOR = "|";
     private static final String CORRELATION_LOG_REQUEST_END = "HTTP-In-Response";
@@ -97,19 +97,13 @@ public class RequestCorrelationIdValve extends ValveBase {
             correlationIdMdc = configuredCorrelationIdMdc;
         }
 
-        traceIdConfiguration = TraceIdConfiguration.getInstance();
-        configuredTraceId = traceIdConfiguration.getTraceId();
-        if (StringUtils.isNotEmpty(configuredTraceId)) {
-            traceIdMdc = configuredTraceId;
+        if (StringUtils.isNotEmpty(responseCorrelationIdHeader)) {
+            traceIdMdc = this.responseCorrelationIdHeader;
         }
 
         isEnableCorrelationLogs = Boolean.parseBoolean(System.getProperty(CORRELATION_LOG_SYSTEM_PROPERTY));
     }
 
-    private String getTraceIdMdcName() {
-
-        return traceIdMdc;
-    }
 
     @Override
     public void invoke(Request request, Response response) throws IOException, ServletException {
@@ -165,7 +159,7 @@ public class RequestCorrelationIdValve extends ValveBase {
 
         for (Map.Entry<String, String> entry : associateToThreadMap.entrySet()) {
             if (entry.getKey().equals(correlationIdMdc)) {
-                response.setHeader(getTraceIdMdcName(),entry.getValue());
+                response.setHeader(traceIdMdc, entry.getValue());
             }
         }
     }
@@ -384,5 +378,9 @@ public class RequestCorrelationIdValve extends ValveBase {
 
     public void setConfiguredCorrelationIdMdc(String configuredCorrelationIdMdc) {
         this.configuredCorrelationIdMdc = configuredCorrelationIdMdc;
+    }
+
+    public void setResponseCorrelationIdHeader(String responseCorrelationIdHeader) {
+        this.responseCorrelationIdHeader = responseCorrelationIdHeader;
     }
 }

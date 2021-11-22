@@ -24,7 +24,9 @@ import org.apache.catalina.Valve;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.log4j.MDC;
+import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.testng.annotations.Test;
 import java.io.IOException;
@@ -42,6 +44,7 @@ import static org.testng.Assert.assertNotNull;
 /**
  * Test the scenarios for adding the correlation id from the valve to be used in correlationLogs
  */
+@RunWith(MockitoJUnitRunner.class)
 public class RequestCorrelationIdValveTest {
 
     private static final String HEADER_TO_ID_MAPPING_CONFIG = "{'activityid':'Correlation-ID'}";
