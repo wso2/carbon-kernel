@@ -27,6 +27,7 @@ public final class JDBCRealmConstants {
     public static final String SELECT_USER_NAME_FROM_USER_ID = "SelectUserNameFromUserIDSQL";
     public static final String SELECT_USER_ID = "SelectUserIDSQL";
     public static final String GET_ROLE_LIST = "GetRoleListSQL";
+    public static final String GET_ROLE_LIST_WITH_ESCAPE = "GetRoleListSQLWithEscape";
     public static final String GET_SHARED_ROLE_LIST = "GetSharedRoleListSQL";
     public static final String GET_USER_FILTER = "UserFilterSQL";
     public static final String GET_USER_FILTER_WITH_ID = "UserFilterWithIDSQL";
@@ -63,6 +64,7 @@ public final class JDBCRealmConstants {
     public static final String GET_PROP_FOR_PROFILE = "GetUserPropertyForProfileSQL";
     public static final String GET_PROP_FOR_PROFILE_WITH_ID = "GetUserPropertyForProfileWithIDSQL";
     public static final String GET_USERS_FOR_PROP = "GetUserLisForPropertySQL";
+    public static final String GET_USERS_FOR_PROP_WITH_ESCAPE = "GetUserListForPropertySQLWithEscape";
     public static final String GET_USERS_FOR_CLAIM_VALUE = "GetUserListForClaimValueSQL";
     public static final String GET_USERS_FOR_PROP_WITH_ID = "GetUserLisForPropertyWithIDSQL";
     public static final String GET_USERS_FOR_CLAIM_VALUE_WITH_ID = "GetUserListForClaimValueWithIDSQL";
@@ -151,6 +153,9 @@ public final class JDBCRealmConstants {
     public static final String SELECT_USER_NAME_FROM_USER_ID_SQL = "SELECT UM_USER_NAME FROM UM_USER WHERE "
             + "UM_USER_ID=? AND UM_TENANT_ID=?";
     public static final String GET_ROLE_LIST_SQL = "SELECT UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE ='0' ORDER BY UM_ROLE_NAME";
+    public static final String GET_ROLE_LIST_SQL_WITH_ESCAPE = "SELECT UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE " +
+            "FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? ESCAPE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE ='0' ORDER BY " +
+            "UM_ROLE_NAME";
     public static final String GET_SHARED_ROLE_LIST_SQL = "SELECT UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? AND UM_SHARED_ROLE ='1' ORDER BY UM_ROLE_NAME";
     public static final String GET_USER_FILTER_SQL = "SELECT UM_USER_NAME FROM UM_USER WHERE UM_USER_NAME LIKE ? AND UM_TENANT_ID=? ORDER BY UM_USER_NAME";
     public static final String GET_USER_FILTER_WITH_ID_SQL = "SELECT UM_USER_ID, UM_USER_NAME FROM UM_USER WHERE "
@@ -278,8 +283,12 @@ public final class JDBCRealmConstants {
             "WHERE UM_USER_ATTRIBUTE.UM_USER_ID = UM_USER.UM_ID AND UM_USER_ATTRIBUTE.UM_ATTR_NAME =? " +
             "AND UM_USER_ATTRIBUTE.UM_ATTR_VALUE LIKE ? AND UM_USER_ATTRIBUTE.UM_PROFILE_ID=? " +
             "AND UM_USER_ATTRIBUTE.UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?";
-    public static final String GET_USERS_FOR_CLAIM_VALUE_SQL = "SELECT DISTINCT UM_USER_NAME FROM UM_USER, UM_USER_ATTRIBUTE " +
-            "WHERE UM_USER_ATTRIBUTE.UM_USER_ID = UM_USER.UM_ID AND UM_USER_ATTRIBUTE.UM_ATTR_NAME =? " +
+    public static final String GET_USERS_FOR_PROP_SQL_WITH_ESCAPE = "SELECT DISTINCT UM_USER_NAME FROM UM_USER, " +
+            "UM_USER_ATTRIBUTE WHERE UM_USER_ATTRIBUTE.UM_USER_ID = UM_USER.UM_ID AND UM_USER_ATTRIBUTE.UM_ATTR_NAME =? " +
+            "AND UM_USER_ATTRIBUTE.UM_ATTR_VALUE LIKE ? ESCAPE ? AND UM_USER_ATTRIBUTE.UM_PROFILE_ID=? " +
+            "AND UM_USER_ATTRIBUTE.UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?";
+    public static final String GET_USERS_FOR_CLAIM_VALUE_SQL = "SELECT DISTINCT UM_USER_NAME FROM UM_USER, " +
+            "UM_USER_ATTRIBUTE WHERE UM_USER_ATTRIBUTE.UM_USER_ID = UM_USER.UM_ID AND UM_USER_ATTRIBUTE.UM_ATTR_NAME =? " +
             "AND UM_USER_ATTRIBUTE.UM_ATTR_VALUE =? AND UM_USER_ATTRIBUTE.UM_PROFILE_ID=? " +
             "AND UM_USER_ATTRIBUTE.UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?";
     public static final String GET_USERS_FOR_PROP_WITH_ID_SQL = "SELECT DISTINCT UM_USER.UM_USER_ID FROM UM_USER, "

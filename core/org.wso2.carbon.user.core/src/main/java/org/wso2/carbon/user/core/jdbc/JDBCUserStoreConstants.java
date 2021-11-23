@@ -437,6 +437,9 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(JDBCRealmConstants.GET_USERS_FOR_PROP, "Get User List for Property SQL",
                 JDBCRealmConstants.GET_USERS_FOR_PROP_SQL, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCRealmConstants.GET_USERS_FOR_PROP_WITH_ESCAPE, "Get User List for Property SQL With " +
+                "Escape", JDBCRealmConstants.GET_USERS_FOR_PROP_SQL, "",
+                new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCRealmConstants.GET_USERS_FOR_CLAIM_VALUE, "Get User List for Claim Value SQL",
                 JDBCRealmConstants.GET_USERS_FOR_CLAIM_VALUE_SQL, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
