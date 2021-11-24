@@ -121,7 +121,7 @@ public class RequestCorrelationIdValve extends ValveBase {
             }
 
             // TraceId has to be added response header.
-            addTraceIdToResponseHeader(associateToThreadMap,response);
+            addTraceIdToResponseHeader(associateToThreadMap, response);
 
             associateToThread(associateToThreadMap);
 
