@@ -63,18 +63,13 @@
             <Host name="localhost" unpackWARs="true" deployOnStartup="false" autoDeploy="false"
                   appBase="${carbon.home}/repository/deployment/server/webapps/">
                 <Valve className="org.wso2.carbon.tomcat.ext.valves.RequestEncodingValve" encoding="UTF-8"/>
-                {% if correlation.response.header is defined %}
                 <Valve className="org.wso2.carbon.tomcat.ext.valves.RequestCorrelationIdValve"
-                       responseCorrelationIdHeader= "{{correlation.response.header}}"
                        headerToCorrelationIdMapping="{'activityid':'Correlation-ID'}"
                        queryToCorrelationIdMapping="{'RelayState':'Correlation-ID'}"
+                        {% if correlation.response.header is defined %}
+                            responseCorrelationIdHeader= "{{correlation.response.header}}"
+                        {% endif %}
                        />
-                {% else %}
-                <Valve className="org.wso2.carbon.tomcat.ext.valves.RequestCorrelationIdValve"
-                                       headerToCorrelationIdMapping="{'activityid':'Correlation-ID'}"
-                                       queryToCorrelationIdMapping="{'RelayState':'Correlation-ID'}"
-                                       />
-                {% endif %}
                 <Valve className="org.wso2.carbon.tomcat.ext.valves.CarbonContextCreatorValve"/>
                 {% if http_access_log.useLogger is sameas true %}
                 <Valve className="org.wso2.carbon.tomcat.ext.valves.ConfigurableLoggerAccessLogValve"

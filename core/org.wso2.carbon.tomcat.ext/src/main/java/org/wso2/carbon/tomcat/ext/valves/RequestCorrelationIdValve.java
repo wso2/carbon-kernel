@@ -28,7 +28,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.MDC;
-import org.wso2.carbon.tomcat.ext.config.TraceIdConfiguration;
 
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -77,7 +76,6 @@ public class RequestCorrelationIdValve extends ValveBase {
     private static final String PADDING_CHAR = "=";
     private static final String SPLITTING_CHAR = "&";
     private boolean isEnableCorrelationLogs;
-    private TraceIdConfiguration traceIdConfiguration;
 
     @Override
     protected void initInternal() throws LifecycleException {
