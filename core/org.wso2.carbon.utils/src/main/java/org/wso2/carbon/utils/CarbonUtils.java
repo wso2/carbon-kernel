@@ -1404,7 +1404,7 @@ public class CarbonUtils {
      * @param tenantId Tenant ID.
      * @return Diagnostic log mode.
      */
-    private static CarbonConstants.DiagnosticLogMode getDiagnosticLogMode(int tenantId) {
+    public static CarbonConstants.DiagnosticLogMode getDiagnosticLogMode(int tenantId) {
 
         //TODO: implement the logic to read a tenant-wise config.
         String diagnosticLogMode = readDiagnosticLogMode();
