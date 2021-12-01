@@ -19,6 +19,8 @@ package org.wso2.carbon.user.core.authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.AuthorizationManager;
 import org.wso2.carbon.user.core.UserCoreConstants;
@@ -65,6 +67,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     private UserRealm userRealm = null;
     private RealmConfiguration realmConfig = null;
     private boolean caseInSensitiveAuthorizationRules;
+    private boolean skipAuthzCheckForSuperAdmin = true;
     private boolean preserveCaseForResources = true;
     private boolean verifyByRetrievingAllUserRoles;
     private boolean isRoleAndGroupSeparationEnabled;
@@ -73,6 +76,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     private String isCascadeDeleteEnabled;
     private static final String DELETE_ROLE_PERMISSIONS = "DeleteRolePermissions";
     private static final String DELETE_USER_PERMISSIONS = "DeleteUserPermissions";
+    private static final String SKIP_AUTHZ_CHECK_FOR_SUPER_ADMIN = "SkipAuthzCheckForSuperAdmin";
     private static final String DELETE_ROLE_PERMISSIONS_MYSQL = "DeleteRolePermissions-mysql";
     private static final String DELETE_USER_PERMISSIONS_MYSQL = "DeleteUserPermissions-mysql";
 
@@ -105,6 +109,10 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         if (Boolean.parseBoolean(realmConfig.getAuthorizationManagerProperty(
                 UserCoreConstants.RealmConfig.PROPERTY_GROUP_AND_ROLE_SEPARATION_ENABLED))) {
             isRoleAndGroupSeparationEnabled = true;
+        }
+
+        if ("false".equals(realmConfig.getAuthorizationManagerProperty(SKIP_AUTHZ_CHECK_FOR_SUPER_ADMIN))) {
+            skipAuthzCheckForSuperAdmin = false;
         }
 
         if (!realmConfig.getAuthzProperties().containsKey(DELETE_ROLE_PERMISSIONS)) {
@@ -210,6 +218,21 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
         if (CarbonConstants.REGISTRY_SYSTEM_USERNAME.equals(userName)) {
             return true;
+        }
+
+        if (skipAuthzCheckForSuperAdmin) {
+            if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.
+                    equals(CarbonContext.getThreadLocalCarbonContext().getTenantDomain())) {
+                if (caseInSensitiveAuthorizationRules) {
+                    if (realmConfig.getAdminUserName().equalsIgnoreCase(userName)) {
+                        return true;
+                    }
+                } else {
+                    if (realmConfig.getAdminUserName().equals(userName)) {
+                        return true;
+                    }
+                }
+            }
         }
 
         for (AuthorizationManagerListener listener : UMListenerServiceComponent
