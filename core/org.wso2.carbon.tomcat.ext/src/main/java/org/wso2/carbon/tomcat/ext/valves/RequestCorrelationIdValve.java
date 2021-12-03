@@ -57,14 +57,17 @@ public class RequestCorrelationIdValve extends ValveBase {
 
     private static final Log correlationLog = LogFactory.getLog("correlation");
     private static final String CORRELATION_ID_MDC = "Correlation-ID";
+    private static final String TRACE_ID_MDC = "X-WSO2-TraceId";
     /* package private */ static final String CORRELATION_ID_MDC_REQUEST_ATTRIBUTE_NAME =
             "org.wso2.request.correlation.MDC";
     private Map<String, String> headerToIdMapping;
     private Map<String, String> queryToIdMapping;
     private static List<String> toRemoveFromThread = new ArrayList<>();
     private String correlationIdMdc = CORRELATION_ID_MDC;
+    private String traceIdMdc = TRACE_ID_MDC;
     private String headerToCorrelationIdMapping;
     private String queryToCorrelationIdMapping;
+    private String responseCorrelationIdHeader;
     private String configuredCorrelationIdMdc;
     private static final String CORRELATION_LOG_REQUEST_START = "HTTP-In-Request";
     private static final String CORRELATION_LOG_SEPARATOR = "|";
@@ -92,8 +95,13 @@ public class RequestCorrelationIdValve extends ValveBase {
             correlationIdMdc = configuredCorrelationIdMdc;
         }
 
+        if (StringUtils.isNotEmpty(responseCorrelationIdHeader)) {
+            traceIdMdc = this.responseCorrelationIdHeader;
+        }
+
         isEnableCorrelationLogs = Boolean.parseBoolean(System.getProperty(CORRELATION_LOG_SYSTEM_PROPERTY));
     }
+
 
     @Override
     public void invoke(Request request, Response response) throws IOException, ServletException {
@@ -109,6 +117,9 @@ public class RequestCorrelationIdValve extends ValveBase {
                 // Put the default generated correlation ID.
                 associateToThreadMap.put(correlationIdMdc, UUID.randomUUID().toString());
             }
+
+            // TraceId has to be added response header.
+            addTraceIdToResponseHeader(associateToThreadMap, response);
 
             associateToThread(associateToThreadMap);
 
@@ -133,6 +144,21 @@ public class RequestCorrelationIdValve extends ValveBase {
             }
             disAssociateFromThread();
             MDC.remove(correlationIdMdc);
+        }
+    }
+
+    /**
+     * Adds traceId to Response Header.
+     *
+     * @param associateToThreadMap ThreadMap that will be provide traceId value.
+     * @param response             Response
+     */
+    private void addTraceIdToResponseHeader(Map<String, String> associateToThreadMap, Response response) {
+
+        for (Map.Entry<String, String> entry : associateToThreadMap.entrySet()) {
+            if (entry.getKey().equals(correlationIdMdc)) {
+                response.setHeader(traceIdMdc, entry.getValue());
+            }
         }
     }
 
@@ -350,5 +376,9 @@ public class RequestCorrelationIdValve extends ValveBase {
 
     public void setConfiguredCorrelationIdMdc(String configuredCorrelationIdMdc) {
         this.configuredCorrelationIdMdc = configuredCorrelationIdMdc;
+    }
+
+    public void setResponseCorrelationIdHeader(String responseCorrelationIdHeader) {
+        this.responseCorrelationIdHeader = responseCorrelationIdHeader;
     }
 }
