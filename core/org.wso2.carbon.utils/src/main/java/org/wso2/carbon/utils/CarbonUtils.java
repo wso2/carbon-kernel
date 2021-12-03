@@ -74,6 +74,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import javax.xml.XMLConstants;
@@ -1382,12 +1383,28 @@ public class CarbonUtils {
     }
 
     /**
+     * Checks whether diagnostic logs are enabled.
+     *
+     * @return false if DiagnosticLogMode is NONE, true otherwise.
+     */
+    public static boolean isDiagnosticLogsEnabled() {
+
+        int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
+        CarbonConstants.DiagnosticLogMode diagnosticLogMode = CarbonUtils.getDiagnosticLogMode(tenantId);
+
+        if (CarbonConstants.DiagnosticLogMode.NONE.equals(diagnosticLogMode)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Get the diagnostic log mode for the tenant.
      *
-     * @param tenantId  Tenant ID.
+     * @param tenantId Tenant ID.
      * @return Diagnostic log mode.
      */
-    private static CarbonConstants.DiagnosticLogMode getDiagnosticLogMode(int tenantId) {
+    public static CarbonConstants.DiagnosticLogMode getDiagnosticLogMode(int tenantId) {
 
         //TODO: implement the logic to read a tenant-wise config.
         String diagnosticLogMode = readDiagnosticLogMode();
