@@ -19,11 +19,8 @@ import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.pattern.ConverterKeys;
 import org.apache.logging.log4j.core.pattern.LogEventPatternConverter;
-import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.utils.logging.handler.TenantDomainSetter;
-
-import java.security.AccessController;
-import java.security.PrivilegedAction;
+import org.apache.logging.log4j.util.ReadOnlyStringMap;
+import org.apache.logging.log4j.util.StringBuilders;
 
 /**
  * This Converter is used to append the appName as a parameter in the log message.
@@ -62,21 +59,13 @@ public class AppNameConverter extends LogEventPatternConverter {
 
     @Override
     public void format(LogEvent event, StringBuilder toAppendTo) {
-        if (getAppName() != null) {
-            toAppendTo.append(getAppName());
-        }
-    }
 
-    /**
-     * Obtains the application name.
-     *
-     * @return application name in type String
-     */
-    private String getAppName() {
-        String appName = CarbonContext.getThreadLocalCarbonContext().getApplicationName();
-        if (appName == null) {
-            appName = TenantDomainSetter.getServiceName();
+        ReadOnlyStringMap contextData = event.getContextData();
+        if (contextData != null && contextData.size() != 0) {
+            Object value = contextData.getValue("appName");
+            if (value != null) {
+                StringBuilders.appendValue(toAppendTo, value);
+            }
         }
-        return appName;
     }
 }

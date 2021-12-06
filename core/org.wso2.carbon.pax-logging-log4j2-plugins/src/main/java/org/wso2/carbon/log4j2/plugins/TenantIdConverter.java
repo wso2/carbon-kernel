@@ -19,10 +19,9 @@ import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.pattern.ConverterKeys;
 import org.apache.logging.log4j.core.pattern.LogEventPatternConverter;
-import org.wso2.carbon.context.CarbonContext;
-
-import java.security.AccessController;
-import java.security.PrivilegedAction;
+import org.apache.logging.log4j.util.ReadOnlyStringMap;
+import org.apache.logging.log4j.util.StringBuilders;
+import org.wso2.carbon.base.MultitenantConstants;
 
 /**
  * This Converter is used to register the tenantId as a parameter in the log message.
@@ -59,24 +58,15 @@ public class TenantIdConverter extends LogEventPatternConverter {
         return INSTANCE;
     }
 
-    @Override public void format(LogEvent event, StringBuilder toAppendTo) {
-        if (getTenantID() != null) {
-            toAppendTo.append(getTenantID());
-        }
-    }
+    @Override
+    public void format(LogEvent event, StringBuilder toAppendTo) {
 
-    /**
-     * Obtains the tenantId from CarbonContext.
-     *
-     * @return tenantId tenantId of ThreadLocalCarbonContext
-     */
-    public String getTenantID() {
-        String tenantId = String.valueOf(AccessController.doPrivileged(new PrivilegedAction<Integer>() {
-            public Integer run() {
-                return CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        ReadOnlyStringMap contextData = event.getContextData();
+        if (contextData != null && contextData.size() != 0) {
+            Object value = contextData.getValue(MultitenantConstants.TENANT_ID);
+            if (value != null) {
+                StringBuilders.appendValue(toAppendTo, value);
             }
-        }));
-
-        return tenantId;
+        }
     }
 }
