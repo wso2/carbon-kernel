@@ -428,7 +428,7 @@
         <version.ant.contrib>1.0b3</version.ant.contrib>
 
         <!-- Apache xmlbeans -->
-        <version.xmlbeans>2.3.0.wso2v1</version.xmlbeans>
+        <version.xmlbeans>3.1.0.wso2v1</version.xmlbeans>
 
         <!-- Apache woden-->
         <version.woden>1.0.0.M9-wso2v1</version.woden>
@@ -1085,7 +1085,7 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>org.apache.xmlbeans.wso2</groupId>
+                <groupId>org.wso2.orbit.org.apache.xmlbeans</groupId>
                 <artifactId>xmlbeans</artifactId>
                 <version>${version.xmlbeans}</version>
             </dependency>
