@@ -80,6 +80,11 @@ public final class UserCoreUtil {
             ThreadLocal<UserMgtContext>();
 
     /**
+     * This thread local is used to keep track whether Ask Password option is enabled during the user addition flow.
+     */
+    private static ThreadLocal<Boolean> skipPasswordPatternValidationThreadLocal = new ThreadLocal<>();
+
+    /**
      * @param arr1
      * @param arr2
      * @return
@@ -480,6 +485,25 @@ public final class UserCoreUtil {
     public static void removeUserMgtContextInThreadLocal() {
 
         threadLocalToSetUserMgtContext.remove();
+    }
+
+    public static void setSkipPasswordPatternValidationThreadLocal(Boolean askPasswordEnabled) {
+
+        skipPasswordPatternValidationThreadLocal.set(askPasswordEnabled);
+    }
+
+    public static boolean getSkipPasswordPatternValidationThreadLocal() {
+
+        if (skipPasswordPatternValidationThreadLocal.get() != null) {
+            return skipPasswordPatternValidationThreadLocal.get().booleanValue();
+        } else {
+            return false;
+        }
+    }
+
+    public static void removeSkipPasswordPatternValidationThreadLocal() {
+
+        skipPasswordPatternValidationThreadLocal.remove();
     }
 
     /**
