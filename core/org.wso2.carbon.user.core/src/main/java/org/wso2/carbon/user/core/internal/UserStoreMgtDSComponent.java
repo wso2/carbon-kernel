@@ -34,6 +34,7 @@ import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.claim.ClaimManager;
+import org.wso2.carbon.user.core.common.FileBasedUserStoreConfigurationListener;
 import org.wso2.carbon.user.core.hash.HashProviderFactory;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.jdbc.UniqueIDJDBCUserStoreManager;
@@ -44,6 +45,7 @@ import org.wso2.carbon.user.core.ldap.UniqueIDActiveDirectoryUserStoreManager;
 import org.wso2.carbon.user.core.ldap.UniqueIDReadOnlyLDAPUserStoreManager;
 import org.wso2.carbon.user.core.ldap.UniqueIDReadWriteLDAPUserStoreManager;
 import org.wso2.carbon.user.core.listener.GroupResolver;
+import org.wso2.carbon.user.core.listener.UserStoreConfigurationListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tracker.UserStoreManagerRegistry;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -133,6 +135,11 @@ public class UserStoreMgtDSComponent {
 
             UserStoreManager uniqueIDactiveDirectoryUserStoreManager = new UniqueIDActiveDirectoryUserStoreManager();
             ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), uniqueIDactiveDirectoryUserStoreManager, null);
+
+            UserStoreConfigurationListener abstractUserStoreConfigurationListener =
+                    new FileBasedUserStoreConfigurationListener();
+            ctxt.getBundleContext().registerService(UserStoreConfigurationListener.class.getName(),
+                    abstractUserStoreConfigurationListener, null);
 
             UserStoreManagerRegistry.init(ctxt.getBundleContext());
 

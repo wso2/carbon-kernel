@@ -52,6 +52,7 @@ public class RealmConfiguration {
     protected boolean isPrimary = false;
     protected RealmConfiguration secondaryRealmConfig;
     protected Map<String, Map<String, String>> multipleCredentialProps = new HashMap<String, Map<String, String>>();
+    protected String repositoryClassName = null;
 
     public RealmConfiguration() {
         tenantId = MultitenantConstants.SUPER_TENANT_ID;
@@ -334,5 +335,13 @@ public class RealmConfiguration {
 
     public void setIsOverrideUsernameClaimFromInternalUsername(String isOverrideUsernameClaimFromInternalUsername) {
         this.isOverrideUsernameClaimFromInternalUsername = isOverrideUsernameClaimFromInternalUsername;
+    }
+
+    public String getRepositoryClassName() {
+        return repositoryClassName;
+    }
+
+    public void setRepositoryClassName(String repositoryClassName) {
+        this.repositoryClassName = repositoryClassName;
     }
 }

@@ -22,14 +22,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
-import org.wso2.carbon.user.core.listener.AuthorizationManagerListener;
-import org.wso2.carbon.user.core.listener.ClaimManagerListener;
-import org.wso2.carbon.user.core.listener.GroupResolver;
-import org.wso2.carbon.user.core.listener.GroupManagementErrorEventListener;
-import org.wso2.carbon.user.core.listener.GroupOperationEventListener;
-import org.wso2.carbon.user.core.listener.UserManagementErrorEventListener;
-import org.wso2.carbon.user.core.listener.UserOperationEventListener;
-import org.wso2.carbon.user.core.listener.UserStoreManagerListener;
+import org.wso2.carbon.user.core.listener.*;
 import org.wso2.carbon.user.core.tenant.LDAPTenantManager;
 
 import java.util.Collection;
@@ -47,6 +40,7 @@ public class UMListenerServiceComponent {
     private static Map<Integer, GroupManagementErrorEventListener> groupManagementErrorEventListeners;
     private static Map<Integer, ClaimManagerListener> claimManagerListeners;
     private static Map<Integer, UserManagementErrorEventListener> userManagementErrorEventListeners;
+    private static Map<Integer, UserStoreConfigurationListener> userStoreConfigurationListeners;
     private static Collection<AuthorizationManagerListener> authorizationManagerListenerCollection;
     private static Collection<UserStoreManagerListener> userStoreManagerListenerCollection;
     private static Collection<GroupOperationEventListener> groupOperationEventListenerCollection = null;
@@ -55,6 +49,7 @@ public class UMListenerServiceComponent {
     private static Collection<ClaimManagerListener> claimManagerListenerCollection;
     private static Map<Integer, LDAPTenantManager> tenantManagers;
     private static Collection<UserManagementErrorEventListener> userManagementErrorEventListenerCollection;
+    private static Collection<UserStoreConfigurationListener> userStoreConfigurationListenerCollection;
 
     @Reference(name = "authorization.manager.listener.service", cardinality = ReferenceCardinality.MULTIPLE,
             policy = ReferencePolicy.DYNAMIC, unbind = "unsetAuthorizationManagerListenerService")
@@ -234,6 +229,33 @@ public class UMListenerServiceComponent {
         }
     }
 
+    @Reference(
+            name = "user.store.configuration.listener.service",
+            cardinality = ReferenceCardinality.MULTIPLE,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetUserStoreConfigurationListenerService"
+    )
+    protected synchronized void setUserStoreConfigurationListenerService(
+            UserStoreConfigurationListener userStoreConfigurationListener) {
+
+        userStoreConfigurationListenerCollection = null;
+        if (userStoreConfigurationListeners == null) {
+            userStoreConfigurationListeners = new TreeMap<>();
+        }
+        userStoreConfigurationListeners.put(userStoreConfigurationListener.getExecutionOrderId(),
+                userStoreConfigurationListener);
+    }
+
+    protected synchronized void unsetUserStoreConfigurationListenerService(
+            UserStoreConfigurationListener userStoreConfigurationListener) {
+
+        if (userStoreConfigurationListener != null &&
+                userStoreConfigurationListeners != null) {
+            userStoreConfigurationListeners.remove(userStoreConfigurationListener.getExecutionOrderId());
+            userStoreConfigurationListenerCollection = null;
+        }
+    }
+
 
     public static synchronized Collection<AuthorizationManagerListener> getAuthorizationManagerListeners() {
         if (authorizationManagerListeners == null) {
@@ -381,5 +403,14 @@ public class UMListenerServiceComponent {
         return tenantManagers;
     }
 
-
+    public static synchronized Collection<UserStoreConfigurationListener> getUserStoreConfigurationListeners() {
+        if (userStoreConfigurationListeners == null) {
+            userStoreConfigurationListeners = new TreeMap<>();
+        }
+        if (userStoreConfigurationListenerCollection == null) {
+            userStoreConfigurationListenerCollection =
+                    userStoreConfigurationListeners.values();
+        }
+        return userStoreConfigurationListenerCollection;
+    }
 }

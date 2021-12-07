@@ -36,8 +36,11 @@ import org.wso2.carbon.user.core.common.UserStoreDeploymentManager;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
 import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.user.core.hybrid.HybridJDBCConstants;
+import org.wso2.carbon.user.core.internal.UMListenerServiceComponent;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
+import org.wso2.carbon.user.core.listener.ClaimManagerListener;
+import org.wso2.carbon.user.core.listener.UserStoreConfigurationListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -1102,29 +1105,14 @@ public class JDBCTenantManager implements TenantManager {
                 lastRealm = lastRealm.getSecondaryRealmConfig();
             }
 
-            String configPath = CarbonUtils.getCarbonTenantsDirPath() +
-                    File.separator + tenantId + File.separator + "userstores";
-            File userStores = new File(configPath);
-            UserStoreDeploymentManager userStoreDeploymentManager = new UserStoreDeploymentManager();
-
-            File[] files = userStores.listFiles(new FilenameFilter() {
-                public boolean accept(File userStores, String name) {
-                    return name.toLowerCase().endsWith(".xml");
-                }
-            });
-            if (files != null) {
-                for (File file : files) {
-                    try {
-                        RealmConfiguration newRealmConfig = userStoreDeploymentManager.
-                                getUserStoreConfiguration(file.getAbsolutePath());
-                        if (newRealmConfig != null) {
-                            lastRealm.setSecondaryRealmConfig(newRealmConfig);
+            for (UserStoreConfigurationListener listener : UMListenerServiceComponent.getUserStoreConfigurationListeners()) {
+                if (listener.canExecutable()) {
+                    RealmConfiguration[] realmConfigurations = listener.getSecondaryUserStoreRealmConfigurations(tenantId);
+                    if (realmConfigurations != null) {
+                        for (RealmConfiguration newRealm : realmConfigurations) {
+                            lastRealm.setSecondaryRealmConfig(newRealm);
                             lastRealm = lastRealm.getSecondaryRealmConfig();
-                        } else {
-                            log.error("Error while creating realm configuration from file " + file.getAbsolutePath());
                         }
-                    } catch (UserStoreException e) {
-                        log.error("Error while creating realm configuration from file " + file.getAbsolutePath(), e);
                     }
                 }
             }
