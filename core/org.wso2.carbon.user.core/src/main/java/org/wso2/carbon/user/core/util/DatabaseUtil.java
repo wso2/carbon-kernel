@@ -288,7 +288,7 @@ public class DatabaseUtil {
         }
 
         if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_AGE)) &&
-                StringUtils.isNumeric(JDBCRealmConstants.MAX_AGE)) {
+                StringUtils.isNumeric(realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_AGE))) {
             poolProperties.setMaxAge(Integer.parseInt(realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_AGE)));
         }
 
