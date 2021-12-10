@@ -92,7 +92,7 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
 
     <script type="text/javascript">
         jQuery(document).ready(function() {
-            CARBON.showWarningDialog('<fmt:message key="<%=errorCode%>"/>');
+            CARBON.showWarningDialog('<fmt:message key="<%=Encode.forJavaScript(errorCode)%>"/>');
         });
     </script>
     <%
@@ -105,7 +105,7 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
      %>
     <script type="text/javascript">
         jQuery(document).ready(function() {
-            CARBON.showWarningDialog('<fmt:message key="<%=errorCode%>"/>');
+            CARBON.showWarningDialog('<fmt:message key="<%=Encode.forJavaScript(errorCode)%>"/>');
         });
     </script>
     <%
