@@ -1530,6 +1530,11 @@
                 <artifactId>commons-collections</artifactId>
                 <version>${apache.common.collection.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>${apache.common.collections4.version}</version>
+            </dependency>
 
             <!--Dependencies requires for rest client-->
 
@@ -1818,9 +1823,10 @@
         <orbit.version.h2.engine>1.4.199.wso2v1</orbit.version.h2.engine>
         <version.org.wso2.orbit.javax.xml.bind>2.3.1.wso2v1</version.org.wso2.orbit.javax.xml.bind>
         <version.org.wso2.orbit.javax.activation>1.1.1.wso2v1</version.org.wso2.orbit.javax.activation>
-        <ua_parser.version>1.3.0.wso2v2</ua_parser.version>
+        <ua_parser.version>1.5.2.wso2v1</ua_parser.version>
         <ua_parser.version.range>[1.3.0, 2.0.0)</ua_parser.version.range>
         <apache.common.collection.version>3.2.0.wso2v1</apache.common.collection.version>
+        <apache.common.collections4.version>4.4.wso2v1</apache.common.collections4.version>
 
         <!-- Abdera -->
         <version.abdera>1.0-wso2v2</version.abdera>
@@ -1870,6 +1876,7 @@
         <commons-pool.wso2.osgi.version.range>[1.5.6,2.0.0)</commons-pool.wso2.osgi.version.range>
         <commons-codec.wso2.osgi.version.range>[1.4.0,2.0.0)</commons-codec.wso2.osgi.version.range>
         <commons-collections.wso2.osgi.version.range>[3.2.0,4.0.0)</commons-collections.wso2.osgi.version.range>
+        <commons-collections4.wso2.osgi.version.range>[4.1.0,5.0.0)</commons-collections4.wso2.osgi.version.range>
         <import.package.version.commons.logging>[1.2.0,2.0.0)</import.package.version.commons.logging>
 
         <neethi.osgi.version>2.0.4.wso2v5</neethi.osgi.version>
