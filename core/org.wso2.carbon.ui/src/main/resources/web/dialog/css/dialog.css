@@ -6,9 +6,7 @@ div#messagebox {
     padding-left: 75px;
     padding-right: 15px;
     padding-top: 15px;
-    padding-bottom: 15px;
-    width: 360px;
-    height: 68px;
+    padding-bottom: 35px;
     _height: 150px;
     overflow: auto;
 }
@@ -31,9 +29,7 @@ div#messagebox-warning {
     padding-left: 75px;
     padding-right: 15px;
     padding-top: 15px;
-    padding-bottom: 15px;
-    width: 360px;
-    height: 68px;
+    padding-bottom: 35px;
     _height: 150px;
     overflow: auto;
 }
@@ -51,9 +47,7 @@ div#messagebox-error {
 	background-image: url(../img/error.gif); 
 	background-position: 15px 15px; 
 	background-repeat: no-repeat; 
-	background-attachment: scroll; 
-	height: 108px;
-	width: 400px; 
+	background-attachment: scroll;
 	padding: 15px 15px 15px 75px;
     overflow:auto;
 }
@@ -75,10 +69,8 @@ div#messagebox-info {
     padding-left: 75px;
     padding-right: 15px;
     padding-top: 15px;
-    padding-bottom: 15px;
-    height: 68px;
+    padding-bottom: 35px;
     _height: 150px;
-    width: 360px;
     overflow: auto;
 }
 
@@ -99,9 +91,7 @@ div#messagebox-confirm {
     padding-left: 75px;
     padding-right: 15px;
     padding-top: 15px;
-    padding-bottom: 15px;
-    width: 360px;
-    height: 68px;
+    padding-bottom: 35px;
     _height: 150px;
     overflow:auto;
 }
