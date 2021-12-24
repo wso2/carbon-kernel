@@ -1430,15 +1430,15 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             rs = prepStmt.executeQuery();
 
             if (rs.next() == true) {
-                String storedPassword = rs.getString(3);
+                String storedPassword = rs.getString(4);
                 String saltValue = null;
                 if ("true".equalsIgnoreCase(realmConfig
                         .getUserStoreProperty(JDBCRealmConstants.STORE_SALTED_PASSWORDS))) {
-                    saltValue = rs.getString(4);
+                    saltValue = rs.getString(5);
                 }
 
-                boolean requireChange = rs.getBoolean(5);
-                Timestamp changedTime = rs.getTimestamp(6);
+                boolean requireChange = rs.getBoolean(6);
+                Timestamp changedTime = rs.getTimestamp(7);
 
                 GregorianCalendar gc = new GregorianCalendar();
                 gc.add(GregorianCalendar.HOUR, -24);
