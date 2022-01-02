@@ -13330,20 +13330,23 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throw ex;
         }
 
-        try {
+        // If the non-identity claim is stored in the identity store, skip the deletion from userstore.
+        if (!UserCoreUtil.getSkipClaimDeletionFromUserstoreThreadLocal()) {
+            try {
 
-            // If unique id feature is not enabled, we have to call the legacy methods.
-            if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-                doDeleteUserClaimValue(user.getUsername(), claimURI, profileName);
-            } else {
-                doDeleteUserClaimValueWithID(userID, claimURI, profileName);
+                // If unique id feature is not enabled, we have to call the legacy methods.
+                if (!isUniqueUserIdEnabledInUserStore(userStore)) {
+                    doDeleteUserClaimValue(user.getUsername(), claimURI, profileName);
+                } else {
+                    doDeleteUserClaimValueWithID(userID, claimURI, profileName);
+                }
+            } catch (UserStoreException ex) {
+                handleDeleteUserClaimValueFailureWithID(
+                        ErrorMessages.ERROR_CODE_ERROR_WHILE_DELETING_USER_CLAIM_VALUE.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_DELETING_USER_CLAIM_VALUE.getMessage(),
+                                ex.getMessage()), userID, claimURI, profileName);
+                throw ex;
             }
-        } catch (UserStoreException ex) {
-            handleDeleteUserClaimValueFailureWithID(
-                    ErrorMessages.ERROR_CODE_ERROR_WHILE_DELETING_USER_CLAIM_VALUE.getCode(),
-                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_DELETING_USER_CLAIM_VALUE.getMessage(),
-                            ex.getMessage()), userID, claimURI, profileName);
-            throw ex;
         }
 
         // #################### <Listeners> #####################################################
@@ -13364,6 +13367,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_DELETE_USER_CLAIM_VALUE.getMessage(),
                             ex.getMessage()), userID, claimURI, profileName);
             throw ex;
+        } finally {
+            UserCoreUtil.removeSkipClaimDeletionFromUserstoreThreadLocal();
         }
         // #################### </Listeners> #####################################################
     }
