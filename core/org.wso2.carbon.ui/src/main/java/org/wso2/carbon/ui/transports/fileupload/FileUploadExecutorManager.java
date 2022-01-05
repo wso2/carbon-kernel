@@ -57,9 +57,7 @@ import java.util.Map;
  * </ol>
  * </p>
  * <p>
- * If a FileUploadExecutor cannot be found in the above 3 collections, as a final resort,
- * we will finally try to upload the file using an {@link AnyFileUploadExecutor}, if it has been
- * registered in the carbon.xml file. Searching for an FileUploadExecutor in the above 3 types of
+ * Searching for an FileUploadExecutor in the above 3 types of
  * items is done using the chain of execution pattern. As soon as a FileUploadExecutor which can
  * handle the uploaded file type is found, execution of the chain is terminated.
  * </p>
@@ -121,9 +119,6 @@ public class FileUploadExecutorManager {
         OSGiFileUploadExecHandler osgiExecHandler =
                 new OSGiFileUploadExecHandler(request, response);
         execHandlerManager.addExecHandler(osgiExecHandler);
-        AnyFileUploadExecHandler anyFileExecHandler =
-                new AnyFileUploadExecHandler(request, response);
-        execHandlerManager.addExecHandler(anyFileExecHandler);
         execHandlerManager.startExec();
         return true;
     }
@@ -339,29 +334,6 @@ public class FileUploadExecutorManager {
         }
     }
 
-    /**
-     * Represents upload execution chain of {@link AnyFileUploadExecutor}
-     */
-    private class AnyFileUploadExecHandler extends FileUploadExecutionHandler {
-        private HttpServletRequest request;
-        private HttpServletResponse response;
-
-        private AnyFileUploadExecHandler(HttpServletRequest request, HttpServletResponse response) {
-            this.request = request;
-            this.response = response;
-        }
-
-        @Override
-        public void execute() throws IOException {
-            Object obj = executorMap.get("*");
-            if (obj == null) {
-                log.warn("Reached 'All' section but Could not find the Implementation Class");
-                return;
-            }
-            AnyFileUploadExecutor executor = (AnyFileUploadExecutor) obj;
-            executor.executeGeneric(request, response, configContext);
-        }
-    }
 
     /**
      * Represents upload execution chain of UploadExecutors registered as OSGi services
@@ -410,8 +382,7 @@ public class FileUploadExecutorManager {
     }
 
     /**
-     * Represents upload execution chain of UploadExecutors registered in carbon.xml, except for
-     * {@link AnyFileUploadExecutor}
+     * Represents upload execution chain of UploadExecutors registered in carbon.xml
      */
     private class CarbonXmlFileUploadExecHandler extends FileUploadExecutionHandler {
 

@@ -492,36 +492,9 @@
 
         <Mapping>
             <Actions>
-                <Action>keystore</Action>
-                <Action>certificate</Action>
-                <Action>*</Action>
-            </Actions>
-            <Class>org.wso2.carbon.ui.transports.fileupload.AnyFileUploadExecutor</Class>
-        </Mapping>
-
-        <Mapping>
-            <Actions>
-                <Action>jarZip</Action>
-            </Actions>
-            <Class>org.wso2.carbon.ui.transports.fileupload.JarZipUploadExecutor</Class>
-        </Mapping>
-        <Mapping>
-            <Actions>
                 <Action>dbs</Action>
             </Actions>
             <Class>org.wso2.carbon.ui.transports.fileupload.DBSFileUploadExecutor</Class>
-        </Mapping>
-        <Mapping>
-            <Actions>
-                <Action>tools</Action>
-            </Actions>
-            <Class>org.wso2.carbon.ui.transports.fileupload.ToolsFileUploadExecutor</Class>
-        </Mapping>
-        <Mapping>
-            <Actions>
-                <Action>toolsAny</Action>
-            </Actions>
-            <Class>org.wso2.carbon.ui.transports.fileupload.ToolsAnyFileUploadExecutor</Class>
         </Mapping>
     </FileUploadConfig>
 
