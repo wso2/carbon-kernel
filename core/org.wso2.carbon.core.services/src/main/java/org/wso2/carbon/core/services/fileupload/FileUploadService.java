@@ -24,12 +24,17 @@ import org.wso2.carbon.utils.ServerConstants;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class FileUploadService extends AbstractAdmin implements IFileUpload {
+
+    private static final char UNIX_SEPARATOR = '/';
+    private static final char WINDOWS_SEPARATOR = '\\';
+
     public String[] uploadFiles(UploadedFileItem[] uploadedFileItems) throws Exception {
 
         try {
@@ -53,9 +58,9 @@ public class FileUploadService extends AbstractAdmin implements IFileUpload {
                 if (!dirs.exists()) {
                     dirs.mkdirs();
                 }
-                File uploadedFile = new File(extraFileLocation,
-                                             getFileName(fileItem.getFileName()));
-                String fileName = fileItem.getFileName();
+                String fileName = getFileName(fileItem.getFileName());
+                verifyCanonicalDestination(extraFileLocation, dirs, fileName);
+                File uploadedFile = new File(extraFileLocation, fileName);
                 if ((fileName == null || fileName.length() == 0) && multiItems) {
                     continue;
                 }
@@ -64,8 +69,7 @@ public class FileUploadService extends AbstractAdmin implements IFileUpload {
                 }
                 if (fileResourceMap == null) {
                     fileResourceMap = new HashMap();
-                    configurationContext.setProperty(ServerConstants.FILE_RESOURCE_MAP,
-                                                     fileResourceMap);
+                    configurationContext.setProperty(ServerConstants.FILE_RESOURCE_MAP, fileResourceMap);
                 }
                 fileResourceMap.put(uuid, uploadedFile.getAbsolutePath());
                 uuidList.add(uuid);
@@ -79,15 +83,42 @@ public class FileUploadService extends AbstractAdmin implements IFileUpload {
         }
     }
 
-    private String getFileName(String fileName) {
-        String fileNameOnly;
-        if (fileName.indexOf("\\") < 0) {
-            fileNameOnly = fileName.substring(fileName.lastIndexOf('/') + 1,
-                                              fileName.length());
-        } else {
-            fileNameOnly = fileName.substring(fileName.lastIndexOf("\\") + 1,
-                                              fileName.length());
+    private void verifyCanonicalDestination(String extraFileLocation, File dirs, String fileName) throws IOException {
+
+        String canonicalDestinationDirPath = dirs.getCanonicalPath();
+        File destinationFile = new File(extraFileLocation, fileName);
+        String canonicalDestinationFile = destinationFile.getCanonicalPath();
+
+        if (!canonicalDestinationFile.startsWith(canonicalDestinationDirPath + File.separator)) {
+            throw new AxisFault(String.format("File path of %s is outside the allowed upload directory", fileName));
         }
-        return fileNameOnly;
+    }
+
+    private String getFileName(String fileName) {
+
+        if (fileName == null) {
+            return null;
+        }
+        return requireNonNullChars(fileName).substring(indexOfLastSeparator(fileName) + 1);
+    }
+
+    private int indexOfLastSeparator(final String fileName) {
+
+        if (fileName == null) {
+            return -1;
+        }
+        final int lastUnixPos = fileName.lastIndexOf(UNIX_SEPARATOR);
+        final int lastWindowsPos = fileName.lastIndexOf(WINDOWS_SEPARATOR);
+        return Math.max(lastUnixPos, lastWindowsPos);
+    }
+
+    private String requireNonNullChars(final String path) {
+
+        if (path.indexOf(0) >= 0) {
+            throw new IllegalArgumentException(
+                    "Null byte present in file/path name. There are no known legitimate use cases for such data, " +
+                            "but several injection attacks may use it");
+        }
+        return path;
     }
 }
