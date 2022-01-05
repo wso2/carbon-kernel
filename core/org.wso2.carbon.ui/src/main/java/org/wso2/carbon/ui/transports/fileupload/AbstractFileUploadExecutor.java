@@ -71,10 +71,11 @@ public abstract class AbstractFileUploadExecutor {
             new ThreadLocal<Map<String, ArrayList<String>>>();
     
     private static final int DEFAULT_TOTAL_FILE_SIZE_LIMIT_IN_MB = 100;
+    private static final char UNIX_SEPARATOR = '/';
+    private static final char WINDOWS_SEPARATOR = '\\';
 
-    public abstract boolean execute(HttpServletRequest request,
-                                    HttpServletResponse response) throws CarbonException,
-                                                                         IOException;
+    public abstract boolean execute(HttpServletRequest request, HttpServletResponse response)
+            throws CarbonException, IOException;
 
     /**
      * Total allowed file upload size in bytes
@@ -200,15 +201,31 @@ public abstract class AbstractFileUploadExecutor {
     }
 
     protected String getFileName(String fileName) {
-        String fileNameOnly;
-        if (fileName.indexOf("\\") < 0) {
-            fileNameOnly = fileName.substring(fileName.lastIndexOf('/') + 1,
-                                              fileName.length());
-        } else {
-            fileNameOnly = fileName.substring(fileName.lastIndexOf("\\") + 1,
-                                              fileName.length());
+
+        if (fileName == null) {
+            return null;
         }
-        return fileNameOnly;
+        return requireNonNullChars(fileName).substring(indexOfLastSeparator(fileName) + 1);
+    }
+
+    private int indexOfLastSeparator(final String fileName) {
+
+        if (fileName == null) {
+            return -1;
+        }
+        final int lastUnixPos = fileName.lastIndexOf(UNIX_SEPARATOR);
+        final int lastWindowsPos = fileName.lastIndexOf(WINDOWS_SEPARATOR);
+        return Math.max(lastUnixPos, lastWindowsPos);
+    }
+
+    private String requireNonNullChars(final String path) {
+
+        if (path.indexOf(0) >= 0) {
+            throw new IllegalArgumentException(
+                    "Null byte present in file/path name. There are no known legitimate use cases for such data, " +
+                            "but several injection attacks may use it");
+        }
+        return path;
     }
 
     protected List parseRequest(ServletRequestContext requestContext) throws FileUploadException {

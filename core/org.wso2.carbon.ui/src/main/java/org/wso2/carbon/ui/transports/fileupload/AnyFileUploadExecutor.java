@@ -16,26 +16,22 @@
 
 package org.wso2.carbon.ui.transports.fileupload;
 
-import org.apache.commons.fileupload.FileUploadException;
 import org.wso2.carbon.CarbonException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 
 /*
- * 
+ *
  */
 public class AnyFileUploadExecutor extends AbstractFileUploadExecutor {
 
     public boolean execute(HttpServletRequest request, HttpServletResponse response)
             throws CarbonException, IOException {
 
-        try {
-            return super.executeCommon(request, response);
-        } catch (FileUploadException e) {
-            e.printStackTrace();  //Todo: change body of catch statement use File | Settings | File Templates.
-        }
+        log.warn("AnyFileUpload method is not supported");
         return false;
     }
 }
