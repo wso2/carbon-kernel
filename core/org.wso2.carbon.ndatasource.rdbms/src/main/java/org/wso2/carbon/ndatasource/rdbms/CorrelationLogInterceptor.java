@@ -164,7 +164,11 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
                         // wrapped in an UndeclaredThrowableException. The Method.invoke wraps all exceptions in an
                         // InvocationTargetException. By re-throwing the InvocationTargetHandler’s cause, the client
                         // code will be able to see the real cause of the exception.
-                        throw e.getCause();
+                        if (e.getCause() != null) {
+                            throw e.getCause();
+                        } else {
+                            throw e;
+                        }
                     }
                 }
 
