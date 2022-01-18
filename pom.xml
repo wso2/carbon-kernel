@@ -1980,7 +1980,7 @@
         <pax.logging.log4j2.version>1.10.1</pax.logging.log4j2.version>
 
         <!-- Log4j -->
-        <log4j.api.version>2.12.0</log4j.api.version>
+        <log4j.api.version>2.16.0</log4j.api.version>
         <log4j.core.version>2.16.0</log4j.core.version>
 
         <!-- Unit test versions -->
