@@ -244,6 +244,11 @@
                 <artifactId>xmlsec</artifactId>
                 <version>${xmlsec.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.jsr105</groupId>
+                <artifactId>jsr105</artifactId>
+                <version>${jsr105.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.wso2.balana</groupId>
@@ -1791,8 +1796,9 @@
         <derby.version>10.4.2.0</derby.version>
         <activation.version>1.1</activation.version>
         <javamail.version>1.4</javamail.version>
-        <xmlsec.version>1.5.6</xmlsec.version>
-        <xmlsec.version.imp.pkg.version.range>[1.4.4,2.0.0)</xmlsec.version.imp.pkg.version.range>
+        <xmlsec.version>2.1.7</xmlsec.version>
+        <jsr105.version>1.0.1.wso2v1</jsr105.version>
+        <xmlsec.version.imp.pkg.version.range>[1.4.4,2.2.0)</xmlsec.version.imp.pkg.version.range>
         <wsdl4j.wso2.version>1.6.2.wso2v4</wsdl4j.wso2.version>
         <jetty.version>6.1.5</jetty.version>
         <xml.apis.version>1.4.01</xml.apis.version>
