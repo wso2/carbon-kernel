@@ -25,6 +25,7 @@ import org.wso2.carbon.utils.xml.StringUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.CallableStatement;
 import java.sql.DatabaseMetaData;
@@ -156,7 +157,15 @@ public class CorrelationLogInterceptor extends AbstractQueryReport {
                 Object result = null;
 
                 if (this.delegate != null) {
-                    result = method.invoke(this.delegate, args);
+                    try {
+                        result = method.invoke(this.delegate, args);
+                    } catch (InvocationTargetException e) {
+                        // Since the exception is checked and not declared by the proxied interface, it will first be
+                        // wrapped in an UndeclaredThrowableException. The Method.invoke wraps all exceptions in an
+                        // InvocationTargetException. By re-throwing the InvocationTargetHandler’s cause, the client
+                        // code will be able to see the real cause of the exception.
+                        throw e.getCause();
+                    }
                 }
 
                 //If the query is an execute type of query the time taken is calculated and logged
