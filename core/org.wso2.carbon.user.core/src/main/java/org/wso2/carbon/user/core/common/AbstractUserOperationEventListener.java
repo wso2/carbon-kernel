@@ -407,6 +407,21 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
         return true;
     }
 
+    /**
+     * Pre listener for the get paginated conditional user list method.
+     *
+     * @param condition             Condition.
+     * @param returnUsernameList    List of user names that this listener will return.
+     * @param userStoreManager      UserStoreManager.
+     * @param domain                User store domain.
+     * @throws UserStoreException   UserStoreException
+     */
+    public boolean doPreGetUserList(Condition condition, List<String> returnUsernameList,
+                                    UserStoreManager userStoreManager, String domain) throws UserStoreException {
+
+        return true;
+    }
+
     @Override
     public boolean doPostGetUserListWithID(String claimUri, String claimValue, final List<User> returnValues,
             UserStoreManager userStoreManager) throws UserStoreException {

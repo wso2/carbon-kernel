@@ -3059,9 +3059,13 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         if (condition instanceof ExpressionCondition) {
             ExpressionCondition expressionCondition = (ExpressionCondition) condition;
-            expressionCondition.setAttributeValue(
-                    escapeSpecialCharactersForFilterWithStarAsRegex(expressionCondition.getAttributeValue()));
-            expressionConditions.add(expressionCondition);
+            if (StringUtils.isNotEmpty(expressionCondition.getAttributeName()) ||
+                    StringUtils.isNotEmpty(expressionCondition.getAttributeValue()) ||
+                    StringUtils.isNotEmpty(expressionCondition.getOperation())) {
+                expressionCondition.setAttributeValue(
+                        escapeSpecialCharactersForFilterWithStarAsRegex(expressionCondition.getAttributeValue()));
+                expressionConditions.add(expressionCondition);
+            }
         } else if (condition instanceof OperationalCondition) {
             Condition leftCondition = ((OperationalCondition) condition).getLeftCondition();
             getExpressionConditionsAsList(leftCondition, expressionConditions);
