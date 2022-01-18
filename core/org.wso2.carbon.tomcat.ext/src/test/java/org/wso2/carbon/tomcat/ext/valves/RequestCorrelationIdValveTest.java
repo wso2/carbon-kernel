@@ -23,7 +23,7 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.Valve;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
-import org.apache.log4j.MDC;
+import org.apache.logging.log4j.ThreadContext;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.testng.annotations.Test;
@@ -70,7 +70,7 @@ public class RequestCorrelationIdValveTest {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
 
-                assertNotNull(MDC.get(CORRELATION_ID_MDC));
+                assertNotNull(ThreadContext.get(CORRELATION_ID_MDC));
                 return null;
             }
         }).when(nextValve).invoke(any(Request.class), any(Response.class));
@@ -93,7 +93,7 @@ public class RequestCorrelationIdValveTest {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
 
-                assertNotNull(MDC.get(CORRELATION_ID_MDC));
+                assertNotNull(ThreadContext.get(CORRELATION_ID_MDC));
                 return null;
             }
         }).when(nextValve).invoke(any(Request.class), any(Response.class));
@@ -116,7 +116,7 @@ public class RequestCorrelationIdValveTest {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
 
-                assertNotNull(MDC.get(CORRELATION_ID_MDC));
+                assertNotNull(ThreadContext.get(CORRELATION_ID_MDC));
                 return null;
             }
         }).when(nextValve).invoke(any(Request.class), any(Response.class));
