@@ -20,7 +20,6 @@ package org.wso2.carbon.server;
 import org.apache.commons.lang3.StringUtils;
 import org.wso2.carbon.server.extensions.*;
 import org.wso2.carbon.server.util.Utils;
-import org.apache.log4j.Logger;
 import org.wso2.config.mapper.ConfigParser;
 import org.wso2.config.mapper.ConfigParserException;
 
