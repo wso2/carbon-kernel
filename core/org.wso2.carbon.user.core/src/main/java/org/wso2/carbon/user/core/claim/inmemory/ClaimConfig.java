@@ -42,6 +42,8 @@ public class ClaimConfig {
      */
     private Map<ClaimKey, Map<String, String>> propertyHolder;
 
+    private Map<String, String> claimUriRegex;
+
     public ClaimConfig() {
 
     }
@@ -159,5 +161,15 @@ public class ClaimConfig {
      */
     public void setPropertyHolderMap(Map<ClaimKey, Map<String, String>> propertyHolder) {
         this.propertyHolder = propertyHolder;
+    }
+
+    public String getClaimUriRegex(String claimDialectUri) {
+
+        return claimUriRegex.get(claimDialectUri);
+    }
+
+    public void setClaimUriRegex(Map<String, String> claimUriRegex) {
+
+        this.claimUriRegex = claimUriRegex;
     }
 }
