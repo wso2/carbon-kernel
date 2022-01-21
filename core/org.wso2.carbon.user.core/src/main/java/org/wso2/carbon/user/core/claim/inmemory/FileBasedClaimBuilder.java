@@ -103,7 +103,9 @@ public class FileBasedClaimBuilder {
                 OMElement dialect = (OMElement) dialectIterator.next();
                 dialectUri = dialect.getAttributeValue(new QName(ATTR_DIALECT_URI));
                 claimUriRegex = dialect.getAttributeValue(new QName(ATTR_CLAIM_URI_REGEX));
-                if (claimUriRegex != null) claimDialectRegex.put(dialectUri, claimUriRegex);
+                if (claimUriRegex != null) {
+                    claimDialectRegex.put(dialectUri, claimUriRegex);
+                }
                 Iterator claimsIterator = dialect.getChildrenWithName(new QName(LOCAL_NAME_CLAIM));
 
                 //Go through Claims
