@@ -35,6 +35,7 @@ public class LDAPFilterQueryBuilder {
     private static final String GREATER_THAN_SIGN = ">";
     private static final String LESS_THAN_SIGN = "<";
     private static final String ANY_STRING = "*";
+    private static final String NOT_SIGN = "!";
 
     private StringBuilder searchFilter;
     private StringBuilder membershipMultiGroupFilters;
@@ -86,6 +87,10 @@ public class LDAPFilterQueryBuilder {
             queryBuilder.append(greaterThanOrEqualFilterBuilder(property, value));
         } else if (ExpressionOperation.LE.toString().equals(operation)) {
             queryBuilder.append(lessThanOrEqualFilterBuilder(property, value));
+        } else if (ExpressionOperation.GT.toString().equals(operation)) {
+            queryBuilder.append(greaterThanFilterBuilder(property, value));
+        } else if (ExpressionOperation.LT.toString().equals(operation)) {
+            queryBuilder.append(lessThanFilterBuilder(property, value));
         }
     }
 
@@ -174,6 +179,38 @@ public class LDAPFilterQueryBuilder {
 
         StringBuilder filter = new StringBuilder();
         filter.append(OPEN_PARENTHESIS).append(property).append(GREATER_THAN_SIGN).append(EQUALS_SIGN).append(value).
+                append(CLOSE_PARENTHESIS);
+        return filter.toString();
+    }
+
+    /**
+     * Generate "GT" filter.
+     *
+     * @param property Attribute name.
+     * @param value    Attribute value.
+     * @return Filter query with greater than filter.
+     */
+    private String greaterThanFilterBuilder(String property, String value) {
+
+        StringBuilder filter = new StringBuilder();
+        filter.append(OPEN_PARENTHESIS).append(NOT_SIGN).append(OPEN_PARENTHESIS).append(property).
+                append(LESS_THAN_SIGN).append(EQUALS_SIGN).append(value).append(CLOSE_PARENTHESIS).
+                append(CLOSE_PARENTHESIS);
+        return filter.toString();
+    }
+
+    /**
+     * Generate "LT" filter.
+     *
+     * @param property Attribute name.
+     * @param value    Attribute value.
+     * @return Filter query with less than filter.
+     */
+    private String lessThanFilterBuilder(String property, String value) {
+
+        StringBuilder filter = new StringBuilder();
+        filter.append(OPEN_PARENTHESIS).append(NOT_SIGN).append(OPEN_PARENTHESIS).append(property).
+                append(GREATER_THAN_SIGN).append(EQUALS_SIGN).append(value).append(CLOSE_PARENTHESIS).
                 append(CLOSE_PARENTHESIS);
         return filter.toString();
     }
