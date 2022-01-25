@@ -47,6 +47,7 @@ import org.apache.axis2.util.Utils;
 import org.apache.axis2.wsdl.WSDLConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.ThreadContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.internal.MultitenantMsgContextDataHolder;
 import org.wso2.carbon.core.multitenancy.utils.TenantAxisUtils;
@@ -229,7 +230,9 @@ public class MultitenantMessageReceiver implements MessageReceiver {
         try {
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-            privilegedCarbonContext.setTenantDomain(tenantDomain, true);            
+            privilegedCarbonContext.setTenantDomain(tenantDomain, true);
+            ThreadContext.put(MultitenantConstants.TENANT_ID, String.valueOf(privilegedCarbonContext.getTenantId()));
+            ThreadContext.put(MultitenantConstants.TENANT_DOMAIN, tenantDomain);
             // this is to prevent non-blocking transports from sending 202
             mainInMsgContext.getOperationContext().setProperty(Constants.RESPONSE_WRITTEN, "SKIP");
 
@@ -250,6 +253,8 @@ public class MultitenantMessageReceiver implements MessageReceiver {
             }
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
+            ThreadContext.remove(org.wso2.carbon.base.MultitenantConstants.TENANT_ID);
+            ThreadContext.remove(org.wso2.carbon.base.MultitenantConstants.TENANT_DOMAIN);
         }
     }
 
