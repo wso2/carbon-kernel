@@ -45,6 +45,7 @@
                             org.wso2.carbon.registry.server.*;version=1.0.1,
                         </Export-Package>
                         <Import-Package>
+                            org.osgi.service.component.*; version="${import.osgi.service.component.version.range}",
                             *;resolution:=optional
                         </Import-Package>
                     </instructions>
