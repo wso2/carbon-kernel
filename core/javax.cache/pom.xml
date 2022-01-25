@@ -119,6 +119,7 @@
                         </Private-Package>
                         <Import-Package>
                             javax.transaction.*,
+                            org.osgi.service.component.*; version="${import.osgi.service.component.version.range}",
                             *;resolution:=optional
                         </Import-Package>
                     </instructions>
