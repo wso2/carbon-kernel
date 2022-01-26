@@ -643,8 +643,8 @@
         <version.jinjava>2.4.14</version.jinjava>
         <version.cava-toml>0.5.0</version.cava-toml>
         <version.checkstyle>7.8.2</version.checkstyle>
-        <version.jackson>2.9.8</version.jackson>
-        <version.jackson.databind>2.9.9.2</version.jackson.databind>
+        <version.jackson>2.13.1</version.jackson>
+        <version.jackson.databind>2.13.1</version.jackson.databind>
         <version.guava>27.0.1-jre</version.guava>
         <version.ciphertool>1.1.0</version.ciphertool>
         <xml.unit.verions>2.6.2</xml.unit.verions>
