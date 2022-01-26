@@ -559,7 +559,7 @@
         <version.drools>5.1.1</version.drools>
         <version.jsr94>1.1</version.jsr94>
 
-        <version.log4j.core>2.13.3</version.log4j.core>
+        <version.log4j.core>2.17.1</version.log4j.core>
         <version.log4j.jul>2.13.3</version.log4j.jul>
         <version.commons.logging>1.2</version.commons.logging>
         <version.xmlunit>1.1</version.xmlunit>
