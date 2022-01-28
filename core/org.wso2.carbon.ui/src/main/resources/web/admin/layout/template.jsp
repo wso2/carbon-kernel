@@ -121,7 +121,8 @@
     <%
         }
     %>
-    <script type="text/javascript" src="../admin/js/jquery-1.6.3.min.js"></script>
+    <script type="text/javascript" src="../admin/js/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../admin/js/jquery-migrate-3.3.2.js"></script>
     <script type="text/javascript" src="../admin/js/jquery.form.js"></script>
     <script type="text/javascript" src="../dialog/js/jqueryui/jquery-ui.min.js"></script>
     <script type="text/javascript" src="../admin/js/jquery.validate.js"></script>    
