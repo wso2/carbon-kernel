@@ -50,6 +50,7 @@ public class FileBasedClaimBuilder {
     public static final String LOCAL_NAME_DESCRIPTION = "Description";
     public static final String LOCAL_NAME_ATTR_ID = "AttributeID";
     public static final String ATTR_DIALECT_URI = "dialectURI";
+    public static final String ATTR_CLAIM_URI_REGEX = "claimURIRegex";
     private static final String CLAIM_CONFIG = "claim-config.xml";
 
     private static Log log = LogFactory.getLog(FileBasedClaimBuilder.class);
@@ -80,8 +81,10 @@ public class FileBasedClaimBuilder {
         OMElement dom;
         Map<ClaimKey, ClaimMapping> claims = new HashMap<>();
         Map<ClaimKey, Map<String, String>> propertyHolder = new HashMap<>();
+        Map<String, String> claimDialectRegex = new HashMap<>();
 
         String dialectUri;
+        String claimUriRegex;
 
         Claim claim;
         ClaimMapping claimMapping;
@@ -99,6 +102,10 @@ public class FileBasedClaimBuilder {
             while (dialectIterator.hasNext()) {
                 OMElement dialect = (OMElement) dialectIterator.next();
                 dialectUri = dialect.getAttributeValue(new QName(ATTR_DIALECT_URI));
+                claimUriRegex = dialect.getAttributeValue(new QName(ATTR_CLAIM_URI_REGEX));
+                if (claimUriRegex != null) {
+                    claimDialectRegex.put(dialectUri, claimUriRegex);
+                }
                 Iterator claimsIterator = dialect.getChildrenWithName(new QName(LOCAL_NAME_CLAIM));
 
                 //Go through Claims
@@ -145,6 +152,7 @@ public class FileBasedClaimBuilder {
         claimConfig = new ClaimConfig();
         claimConfig.setClaimMap(claims);
         claimConfig.setPropertyHolderMap(propertyHolder);
+        claimConfig.setClaimUriRegex(claimDialectRegex);
         return claimConfig;
     }
 
