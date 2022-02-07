@@ -163,7 +163,7 @@
                                     <directory>src/test/resources</directory>
                                     <includes>
                                         <include>**/user-mgt-clear.xml</include>
-                                        <include>**/WSO2CARBON_DB_CLEAR.h2.db</include>
+                                        <include>**/WSO2CARBON_DB_CLEAR.mv.db</include>
                                     </includes>
                                 </resource>
                             </resources>

@@ -321,8 +321,11 @@ public class JDBCUserStoreConstants {
                 "SELECT UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE FROM UM_ROLE WHERE "
                         + "UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE ='0' ORDER BY UM_ROLE_NAME", "",
                 new Property[] { GROUP.getProperty(), SQL.getProperty(), FALSE.getProperty() });
-        setAdvancedProperty(JDBCRealmConstants.GET_SHARED_ROLE_LIST, "Get Shared Group List SQP",
+        setAdvancedProperty(JDBCRealmConstants.GET_SHARED_ROLE_LIST, "Get Shared Group List SQL",
                 JDBCRealmConstants.GET_SHARED_ROLE_LIST_SQL, "",
+                new Property[] { GROUP.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCRealmConstants.GET_SHARED_ROLE_LIST_H2, "Get Shared Group List SQL from H2",
+                JDBCRealmConstants.GET_SHARED_ROLE_LIST_SQL_H2, "",
                 new Property[] { GROUP.getProperty(), SQL.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCRealmConstants.GET_USER_FILTER, "User Filter SQL",
                 JDBCRealmConstants.GET_USER_FILTER_SQL, "",
