@@ -507,7 +507,7 @@
         <hibernate.orbit.version>3.2.5.ga-wso2v1</hibernate.orbit.version>
 
         <!-- bouncycastle -->
-        <bouncycastle.version>1.68.0.wso2v1</bouncycastle.version>
+        <bouncycastle.version>1.70.0.wso2v1</bouncycastle.version>
         <imp.pkg.version.bcp>[1.52.0, 2.0.0)</imp.pkg.version.bcp>
 
         <!--BPS specific-->
