@@ -24,7 +24,7 @@ import org.apache.catalina.valves.AbstractAccessLogValve;
 import org.apache.catalina.valves.AccessLogValve;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.MDC;
+import org.apache.logging.log4j.ThreadContext;;
 
 import java.io.CharArrayWriter;
 import java.util.Map;
@@ -83,7 +83,7 @@ public class ConfigurableLoggerAccessLogValve extends AbstractAccessLogValve {
 
         if (toAssociateMdc != null) {
             for (Map.Entry<String, String> entry : toAssociateMdc.entrySet()) {
-                MDC.remove(entry.getKey());
+                ThreadContext.remove(entry.getKey());
             }
         }
     }
@@ -99,7 +99,7 @@ public class ConfigurableLoggerAccessLogValve extends AbstractAccessLogValve {
 
         if (toAssociateMdc != null) {
             for (Map.Entry<String, String> entry : toAssociateMdc.entrySet()) {
-                MDC.put(entry.getKey(), entry.getValue());
+                ThreadContext.put(entry.getKey(), entry.getValue());
             }
         }
     }
