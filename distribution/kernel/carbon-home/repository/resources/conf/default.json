@@ -186,6 +186,21 @@
   "versioning_configuration.enable_versioning_tags": false,
   "versioning_configuration.enable_versioning_ratings": false,
   "versioning_configuration.enable_version_resources_on_change" : false,
-  "sts.callback_handler" : "org.wso2.carbon.identity.sts.common.identity.provider.AttributeCallbackHandler"
+  "sts.callback_handler" : "org.wso2.carbon.identity.sts.common.identity.provider.AttributeCallbackHandler",
+  
+  "axis2.transport_sender.local.name": "local",
+  "axis2.transport_sender.local.class": "org.apache.axis2.transport.local.LocalTransportSender",
+  "axis2.transport_sender.http.name": "http",
+  "axis2.transport_sender.http.class": "org.apache.axis2.transport.http.CommonsHTTPTransportSender",
+  "axis2.transport_sender.http.parameters.PROTOCOL": "HTTP/1.1",
+  "axis2.transport_sender.http.parameters.Transfer-Encoding": "chunked",
+  "axis2.transport_sender.http.parameters.SO_TIMEOUT": "60000",
+  "axis2.transport_sender.http.parameters.CONNECTION_TIMEOUT": "60000",
+  "axis2.transport_sender.https.name": "https",
+  "axis2.transport_sender.https.class": "org.apache.axis2.transport.http.CommonsHTTPTransportSender",
+  "axis2.transport_sender.https.parameters.PROTOCOL": "HTTP/1.1",
+  "axis2.transport_sender.https.parameters.Transfer-Encoding": "chunked",
+  "axis2.transport_sender.https.parameters.SO_TIMEOUT": "60000",
+  "axis2.transport_sender.https.parameters.CONNECTION_TIMEOUT": "60000"
 
 }
