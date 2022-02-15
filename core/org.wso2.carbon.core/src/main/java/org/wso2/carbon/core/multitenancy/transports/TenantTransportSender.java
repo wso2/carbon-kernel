@@ -143,6 +143,11 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
         superTenantOutMessageContext.setProperty(
                 Constants.Configuration.MESSAGE_TYPE, msgTypeProperty);
 
+        String msgCharsetProperty = (String)
+                msgContext.getProperty(MultitenantConstants.SET_CHARACTER_ENCODING);
+        superTenantOutMessageContext.setProperty(
+                MultitenantConstants.SET_CHARACTER_ENCODING, msgCharsetProperty);
+
         String contentTypeProperty = (String)
                 msgContext.getProperty(Constants.Configuration.CONTENT_TYPE);
         superTenantOutMessageContext.setProperty(

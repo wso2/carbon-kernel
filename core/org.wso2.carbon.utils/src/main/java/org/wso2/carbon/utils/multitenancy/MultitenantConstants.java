@@ -77,6 +77,8 @@ public class MultitenantConstants {
     
     public static final String CONTENT_TYPE = "ContentType";
 
+    public static final String SET_CHARACTER_ENCODING ="setCharacterEncoding";
+
     public static final String USER_INFO_HANDLER = "UserInfoHandler";
 
     public static final String REST_GET_DELETE_INVOKE= "rest_get_delete_invoke";
