@@ -27,7 +27,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.MDC;
+import org.apache.logging.log4j.ThreadContext;
 
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -143,7 +143,7 @@ public class RequestCorrelationIdValve extends ValveBase {
                 logRequestDetails(currentTime, timeTaken, CORRELATION_LOG_REQUEST_END, request);
             }
             disAssociateFromThread();
-            MDC.remove(correlationIdMdc);
+            ThreadContext.remove(correlationIdMdc);
         }
     }
 
@@ -209,7 +209,7 @@ public class RequestCorrelationIdValve extends ValveBase {
      */
     private void associateToThread(Map<String, String> toAssociate) {
         for (Map.Entry<String, String> entry : toAssociate.entrySet()) {
-            MDC.put(entry.getKey(), entry.getValue());
+            ThreadContext.put(entry.getKey(), entry.getValue());
         }
     }
 
@@ -219,7 +219,7 @@ public class RequestCorrelationIdValve extends ValveBase {
     private void disAssociateFromThread() {
         if (toRemoveFromThread != null) {
             for (String correlationIdName : toRemoveFromThread) {
-                MDC.remove(correlationIdName);
+                ThreadContext.remove(correlationIdName);
             }
         }
     }
