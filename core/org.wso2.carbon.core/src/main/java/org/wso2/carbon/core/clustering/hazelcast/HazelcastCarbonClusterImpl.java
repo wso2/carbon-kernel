@@ -18,8 +18,8 @@
 package org.wso2.carbon.core.clustering.hazelcast;
 
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.ITopic;
-import com.hazelcast.core.Member;
+import com.hazelcast.topic.ITopic;
+import com.hazelcast.cluster.Member;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.core.clustering.api.CarbonCluster;

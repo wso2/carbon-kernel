@@ -21,10 +21,9 @@ import com.hazelcast.config.AwsConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.Member;
-import com.hazelcast.core.MembershipEvent;
-import com.hazelcast.core.MemberAttributeEvent;
-import com.hazelcast.core.MembershipListener;
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MembershipEvent;
+import com.hazelcast.cluster.MembershipListener;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.clustering.ClusteringFault;
 import org.apache.axis2.clustering.ClusteringMessage;
@@ -119,42 +118,42 @@ public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
             if (secretResolver != null) {
                 String resolvedValue = MiscellaneousUtil.resolve(accessKey.getParameterElement(), secretResolver);
                 if (!StringUtils.isEmpty(resolvedValue)) {
-                    awsConfig.setAccessKey(resolvedValue);
+                    awsConfig.setProperty(AWSConstants.ACCESS_KEY, resolvedValue);
                 }
             } else {
-                awsConfig.setAccessKey(((String) accessKey.getValue()).trim());
+                awsConfig.setProperty(AWSConstants.ACCESS_KEY, ((String) accessKey.getValue()).trim());
             }
         }
         if (secretKey != null) {
             if (secretResolver != null) {
                 String resolvedValue = MiscellaneousUtil.resolve(secretKey.getParameterElement(), secretResolver);
                 if (!StringUtils.isEmpty(resolvedValue)) {
-                    awsConfig.setSecretKey(resolvedValue);
+                    awsConfig.setProperty(AWSConstants.SECRET_KEY, resolvedValue);
                 }
             } else {
-                awsConfig.setSecretKey(((String) secretKey.getValue()).trim());
+                awsConfig.setProperty(AWSConstants.SECRET_KEY, ((String) secretKey.getValue()).trim());
             }
         }
         if (iamRole != null) {
-            awsConfig.setIamRole(((String) iamRole.getValue()).trim());
+            awsConfig.setProperty(AWSConstants.IAM_ROLE, ((String) iamRole.getValue()).trim());
         }
         if (securityGroup != null) {
-            awsConfig.setSecurityGroupName(((String) securityGroup.getValue()).trim());
+            awsConfig.setProperty(AWSConstants.SECURITY_GROUP, ((String) securityGroup.getValue()).trim());
         }
         if (connTimeout != null) {
-            awsConfig.setConnectionTimeoutSeconds(Integer.parseInt(((String) connTimeout.getValue()).trim()));
+            awsConfig.setProperty(AWSConstants.CONNECTION_TIMEOUT, ((String) connTimeout.getValue()).trim());
         }
         if (hostHeader != null) {
-            awsConfig.setHostHeader(((String) hostHeader.getValue()).trim());
+            awsConfig.setProperty(AWSConstants.HOST_HEADER, ((String) hostHeader.getValue()).trim());
         }
         if (region != null) {
-            awsConfig.setRegion(((String) region.getValue()).trim());
+            awsConfig.setProperty(AWSConstants.REGION, ((String) region.getValue()).trim());
         }
         if (tagKey != null) {
-            awsConfig.setTagKey(((String) tagKey.getValue()).trim());
+            awsConfig.setProperty(AWSConstants.TAG_KEY, ((String) tagKey.getValue()).trim());
         }
         if (tagValue != null) {
-            awsConfig.setTagValue(((String) tagValue.getValue()).trim());
+            awsConfig.setProperty(AWSConstants.TAG_VALUE, ((String) tagValue.getValue()).trim());
         }
 
     }
@@ -222,7 +221,7 @@ public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
 
             // send all cluster messages
             carbonCluster.memberAdded(member);
-            log.info("Member joined [" + member.getUuid() + "]: " + member.getInetSocketAddress().toString());
+            log.info("Member joined [" + member.getUuid() + "]: " + member.getSocketAddress().toString());
             // Wait for sometime for the member to completely join before replaying messages
             try {
                 Thread.sleep(5000);
@@ -235,10 +234,7 @@ public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
         public void memberRemoved(MembershipEvent membershipEvent) {
             Member member = membershipEvent.getMember();
             carbonCluster.memberRemoved(member);
-            log.info("Member left [" + member.getUuid() + "]: " + member.getInetSocketAddress().toString());
-        }
-
-        public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
+            log.info("Member left [" + member.getUuid() + "]: " + member.getSocketAddress().toString());
         }
 
     }

@@ -23,11 +23,10 @@ import com.hazelcast.config.TcpIpConfig;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.MapEvent;
-import com.hazelcast.core.MembershipEvent;
-import com.hazelcast.core.MemberAttributeEvent;
-import com.hazelcast.core.MembershipListener;
+import com.hazelcast.map.IMap;
+import com.hazelcast.map.MapEvent;
+import com.hazelcast.cluster.MembershipEvent;
+import com.hazelcast.cluster.MembershipListener;
 import org.apache.axis2.clustering.ClusteringFault;
 import org.apache.axis2.clustering.ClusteringMessage;
 import org.apache.axis2.clustering.Member;
@@ -57,7 +56,7 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
 
     private IMap<String, Member> allMembers;
     private volatile HazelcastInstance primaryHazelcastInstance;
-    private com.hazelcast.core.Member localMember;
+    private com.hazelcast.cluster.Member localMember;
     private HazelcastCarbonClusterImpl carbonCluster;
 
     public void setPrimaryHazelcastInstance(HazelcastInstance primaryHazelcastInstance) {
@@ -70,7 +69,7 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
     }
 
     @Override
-    public void setLocalMember(com.hazelcast.core.Member localMember) {
+    public void setLocalMember(com.hazelcast.cluster.Member localMember) {
         this.localMember = localMember;
     }
 
@@ -125,7 +124,7 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
 
         // Add the rest of the members
         for (Member member : allMembers.values()) {
-            InetSocketAddress inetSocketAddress = localMember.getInetSocketAddress();
+            InetSocketAddress inetSocketAddress = localMember.getSocketAddress();
             if (!member.getHostName().equals(inetSocketAddress.getHostName()) &&
                 member.getPort() != inetSocketAddress.getPort()) {  // Don't add the local member
                 MemberUtils.addMember(member, nwConfig.getJoin().getTcpIpConfig());
@@ -137,22 +136,22 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
 
         @Override
         public void memberAdded(MembershipEvent membershipEvent) {
-            com.hazelcast.core.Member member = membershipEvent.getMember();
+            com.hazelcast.cluster.Member member = membershipEvent.getMember();
             if (primaryHazelcastInstance.getCluster().getLocalMember().equals(member)) {
                 return;
             }
             carbonCluster.memberAdded(member);
             HazelcastUtil.sendMessagesToMember(messageBuffer, member, carbonCluster);
             log.info("Member joined [" + member.getUuid() + "]: " +
-                     member.getInetSocketAddress().toString());
+                     member.getSocketAddress().toString());
         }
 
         @Override
         public void memberRemoved(MembershipEvent membershipEvent) {
-            com.hazelcast.core.Member hazelcastMember = membershipEvent.getMember();
-            String uuid = hazelcastMember.getUuid();
+            com.hazelcast.cluster.Member hazelcastMember = membershipEvent.getMember();
+            String uuid = hazelcastMember.getUuid().toString();
             log.info("Member left [" + uuid + "]: " +
-                     hazelcastMember.getInetSocketAddress().toString());
+                     hazelcastMember.getSocketAddress().toString());
 
             // If the member who left is a WKA member, try to keep reconnecting to it
             Member member = allMembers.get(membershipEvent.getMember().getUuid());
@@ -172,10 +171,6 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
             if (!isWKAMember) {
                 allMembers.remove(uuid);
             }
-        }
-
-        @Override
-        public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
         }
 
     }
@@ -211,6 +206,11 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
 
         @Override
         public void mapCleared(MapEvent mapEvent) {
+            // Nothing to do
+        }
+
+        @Override
+        public void entryExpired(EntryEvent<String, Member> entryEvent) {
             // Nothing to do
         }
     }

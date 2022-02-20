@@ -1,5 +1,8 @@
 package org.wso2.carbon.core.clustering.hazelcast.general;
 
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MembershipEvent;
+import com.hazelcast.cluster.MembershipListener;
 import com.hazelcast.core.*;
 import org.apache.axis2.clustering.ClusteringFault;
 import org.apache.axis2.clustering.ClusteringMessage;
@@ -69,7 +72,7 @@ public class GeneralMembershipScheme implements HazelcastMembershipScheme {
 
             // send all cluster messages
             carbonCluster.memberAdded(member);
-            log.info("Member joined [" + member.getUuid() + "]: " + member.getInetSocketAddress().toString());
+            log.info("Member joined [" + member.getUuid() + "]: " + member.getSocketAddress().toString());
             // Wait for sometime for the member to completely join before replaying messages
             try {
                 Thread.sleep(5000);
@@ -82,12 +85,8 @@ public class GeneralMembershipScheme implements HazelcastMembershipScheme {
         public void memberRemoved(MembershipEvent membershipEvent) {
             Member member = membershipEvent.getMember();
             carbonCluster.memberRemoved(member);
-            log.info("Member left [" + member.getUuid() + "]: " + member.getInetSocketAddress().toString());
+            log.info("Member left [" + member.getUuid() + "]: " + member.getSocketAddress().toString());
             members.remove(member.getUuid());
-        }
-
-        @Override
-        public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
         }
 
     }
