@@ -21,8 +21,8 @@ import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastException;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.MapEvent;
+import com.hazelcast.map.IMap;
+import com.hazelcast.map.MapEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.caching.impl.DistributedMapProvider;
@@ -56,7 +56,7 @@ public class HazelcastDistributedMapProvider implements DistributedMapProvider {
         DistMap map = maps.get(mapName);
         try {
             if(map != null) {
-                hazelcastInstance.getMap(mapName).removeEntryListener(map.getListenerId());
+                hazelcastInstance.getMap(mapName).removeEntryListener(UUID.fromString(map.getListenerId()));
             }
             maps.remove(mapName);
         } catch (HazelcastException e) {
@@ -66,13 +66,17 @@ public class HazelcastDistributedMapProvider implements DistributedMapProvider {
 
     private class DistMap<K, V> implements Map<K, V> {
         private IMap<K, V> map;
-        private String listenerId;
+        private UUID listenerId;
 
         public DistMap(String mapName, final MapEntryListener entryListener) {
             try {
                 this.map = hazelcastInstance.getMap(mapName);
                 if (entryListener != null) {
                     listenerId = map.addEntryListener(new EntryListener<K, V>() {
+                        @Override
+                        public void entryExpired(EntryEvent<K, V> entryEvent) {
+                        }
+
                         @Override
                         public void entryAdded(EntryEvent<K, V> kvEntryEvent) {
                             if (!kvEntryEvent.getMember().equals(hazelcastInstance.getCluster().getLocalMember())) {
@@ -259,7 +263,7 @@ public class HazelcastDistributedMapProvider implements DistributedMapProvider {
         }
 
         public String getListenerId() {
-            return listenerId;
+            return listenerId.toString();
         }
     }
 }

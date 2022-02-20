@@ -22,14 +22,14 @@ package org.wso2.carbon.core.clustering.hazelcast.aws;
  */
 public class AWSConstants {
 
-    public static final String ACCESS_KEY = "accessKey";
-    public static final String SECRET_KEY = "secretKey";
-    public static final String SECURITY_GROUP = "securityGroup" ;
-    public static final String CONNECTION_TIMEOUT ="connTimeout" ;
-    public static final String HOST_HEADER = "hostHeader";
+    public static final String ACCESS_KEY = "access-key";
+    public static final String SECRET_KEY = "secret-key";
+    public static final String SECURITY_GROUP = "security-group-name" ;
+    public static final String CONNECTION_TIMEOUT ="connection-timeout-seconds" ;
+    public static final String HOST_HEADER = "host-header";
     public static final String REGION = "region";
-    public static final String TAG_KEY = "tagKey";
-    public static final String TAG_VALUE = "tagValue";
-    public static final String IAM_ROLE = "iamRole";
+    public static final String TAG_KEY = "tag-key";
+    public static final String TAG_VALUE = "tag-value";
+    public static final String IAM_ROLE = "iam-role";
     public static final String NETWORK_INTERFACE = "networkInterface";
 }

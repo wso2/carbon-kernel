@@ -18,7 +18,7 @@
 package org.wso2.carbon.core.clustering.hazelcast;
 
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.Member;
+import com.hazelcast.cluster.Member;
 import org.apache.axis2.clustering.MembershipScheme;
 
 /**

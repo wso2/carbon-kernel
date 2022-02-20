@@ -19,7 +19,6 @@ package org.wso2.carbon.core.clustering.hazelcast;
 
 import com.hazelcast.config.AwsConfig;
 import com.hazelcast.config.Config;
-import com.hazelcast.config.GroupConfig;
 import com.hazelcast.config.MulticastConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.config.TcpIpConfig;
@@ -27,14 +26,11 @@ import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.ITopic;
-import com.hazelcast.core.MapEvent;
-import com.hazelcast.core.MembershipEvent;
-import com.hazelcast.core.MemberAttributeEvent;
-import com.hazelcast.core.MembershipListener;
-import com.hazelcast.core.Message;
-import com.hazelcast.core.MessageListener;
+import com.hazelcast.map.IMap;
+import com.hazelcast.topic.ITopic;
+import com.hazelcast.map.MapEvent;
+import com.hazelcast.cluster.MembershipEvent;
+import com.hazelcast.cluster.MembershipListener;
 import org.apache.axis2.clustering.ClusteringFault;
 import org.apache.axis2.clustering.ClusteringMessage;
 import org.apache.axis2.clustering.Member;
@@ -43,6 +39,7 @@ import org.apache.axis2.clustering.management.GroupManagementCommand;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.core.clustering.hazelcast.aws.AWSConstants;
 import org.wso2.carbon.core.clustering.hazelcast.util.MemberUtils;
 
 import java.io.IOException;
@@ -102,14 +99,14 @@ public class HazelcastGroupManagementAgent implements GroupManagementAgent {
             groupMulticastConfig.setMulticastTimeoutSeconds(primaryMulticastConfig.getMulticastTimeoutSeconds());
             groupMulticastConfig.setMulticastTimeToLive(primaryMulticastConfig.getMulticastTimeToLive());
         } else if (groupNwConfig.getJoin().getAwsConfig().isEnabled()) {
-            groupAwsConfig.setAccessKey(primaryAwsConfig.getAccessKey());
-            groupAwsConfig.setSecretKey(primaryAwsConfig.getSecretKey());
-            groupAwsConfig.setTagKey(primaryAwsConfig.getTagKey());
-            groupAwsConfig.setTagValue(primaryAwsConfig.getTagValue());
-            groupAwsConfig.setRegion(primaryAwsConfig.getRegion());
-            groupAwsConfig.setHostHeader(primaryAwsConfig.getHostHeader());
+            groupAwsConfig.setProperty(AWSConstants.ACCESS_KEY, primaryAwsConfig.getProperty(AWSConstants.ACCESS_KEY));
+            groupAwsConfig.setProperty(AWSConstants.SECRET_KEY, primaryAwsConfig.getProperty(AWSConstants.SECRET_KEY));
+            groupAwsConfig.setProperty(AWSConstants.TAG_KEY, primaryAwsConfig.getProperty(AWSConstants.TAG_KEY));
+            groupAwsConfig.setProperty(AWSConstants.TAG_VALUE, primaryAwsConfig.getProperty(AWSConstants.TAG_VALUE));
+            groupAwsConfig.setProperty(AWSConstants.REGION, primaryAwsConfig.getProperty(AWSConstants.REGION));
+            groupAwsConfig.setProperty(AWSConstants.HOST_HEADER, primaryAwsConfig.getProperty(AWSConstants.HOST_HEADER));
 //            groupAwsConfig.setSecurityGroupName(primaryAwsConfig.getSecurityGroupName()); //TODO: Find a way to set security group
-            groupAwsConfig.setConnectionTimeoutSeconds(primaryAwsConfig.getConnectionTimeoutSeconds());
+            groupAwsConfig.setProperty(AWSConstants.SECURITY_GROUP, primaryAwsConfig.getProperty(AWSConstants.SECURITY_GROUP));
         } else if (groupNwConfig.getJoin().getTcpIpConfig().isEnabled()) {
             tcpIpConfig.setConnectionTimeoutSeconds(primaryNwConfig.getJoin().getTcpIpConfig().getConnectionTimeoutSeconds());
             for (Member wkaMember : wkaMembers) {
@@ -117,15 +114,14 @@ public class HazelcastGroupManagementAgent implements GroupManagementAgent {
             }
         }
 
-        GroupConfig groupConfig = config.getGroupConfig();
-        groupConfig.setName(domain);
+        config.setClusterName(domain);
         config.setProperties(primaryHazelcastConfig.getProperties());
         HazelcastInstance hazelcastInstance = Hazelcast.getHazelcastInstanceByName(domain);
         if (hazelcastInstance == null) {
             hazelcastInstance = Hazelcast.newHazelcastInstance(config);
         }
         hazelcastInstance.getCluster().addMembershipListener(new GroupMembershipListener());
-        localMemberUUID = hazelcastInstance.getCluster().getLocalMember().getUuid();
+        localMemberUUID = hazelcastInstance.getCluster().getLocalMember().getUuid().toString();
         Member localMember =
                 MemberUtils.getLocalMember(domain, groupNwConfig.getPublicAddress(),
                                            groupMgtPort);
@@ -191,19 +187,16 @@ public class HazelcastGroupManagementAgent implements GroupManagementAgent {
 
         @Override
         public void memberAdded(MembershipEvent membershipEvent) {
-            com.hazelcast.core.Member member = membershipEvent.getMember();
-            log.info("Member joined [" + member.getUuid() + "]: " + member.getInetSocketAddress().toString());
+            com.hazelcast.cluster.Member member = membershipEvent.getMember();
+            log.info("Member joined [" + member.getUuid() + "]: " + member.getSocketAddress().toString());
         }
 
         @Override
         public void memberRemoved(MembershipEvent membershipEvent) {
-            com.hazelcast.core.Member member = membershipEvent.getMember();
-            log.info("Member left [" + member.getUuid() + "]: " + member.getInetSocketAddress().toString());
+            com.hazelcast.cluster.Member member = membershipEvent.getMember();
+            log.info("Member left [" + member.getUuid() + "]: " + member.getSocketAddress().toString());
             Member removed = members.remove(membershipEvent.getMember().getUuid());
             connectedMembers.remove(removed);
-        }
-
-        public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
         }
     }
 
@@ -249,6 +242,10 @@ public class HazelcastGroupManagementAgent implements GroupManagementAgent {
         @Override
         public void mapCleared(MapEvent mapEvent) {
             // Nothing to do
+        }
+
+        @Override
+        public void entryExpired(EntryEvent<String, Member> entryEvent) {
         }
     }
 
