@@ -498,7 +498,7 @@
         <orbit.version.tomcat.el.api>${version.tomcat}.wso2v1</orbit.version.tomcat.el.api>
         <orbit.version.tomcat.ha>${version.tomcat}.wso2v1</orbit.version.tomcat.ha>
 
-        <version.eclipse.ecj>4.4.2</version.eclipse.ecj>
+        <version.eclipse.ecj>3.28.0</version.eclipse.ecj>
 
         <orbit.version.hazelcast>3.12.2.wso2v1</orbit.version.hazelcast>
         <version.apacheds.shared.ldap>0.9.18</version.apacheds.shared.ldap>
@@ -898,7 +898,7 @@
             </dependency>
 
             <dependency>
-                <groupId>org.eclipse.jdt.core.compiler</groupId>
+                <groupId>org.eclipse.jdt</groupId>
                 <artifactId>ecj</artifactId>
                 <version>${version.eclipse.ecj}</version>
             </dependency>
