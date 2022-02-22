@@ -91,6 +91,8 @@ public class LDAPFilterQueryBuilder {
             queryBuilder.append(greaterThanFilterBuilder(property, value));
         } else if (ExpressionOperation.LT.toString().equals(operation)) {
             queryBuilder.append(lessThanFilterBuilder(property, value));
+        } else if (ExpressionOperation.NE.toString().equals(operation)) {
+            queryBuilder.append(notEqualFilterBuilder(property, value));
         }
     }
 
@@ -193,9 +195,11 @@ public class LDAPFilterQueryBuilder {
     private String greaterThanFilterBuilder(String property, String value) {
 
         StringBuilder filter = new StringBuilder();
-        filter.append(OPEN_PARENTHESIS).append(NOT_SIGN).append(OPEN_PARENTHESIS).append(property).
-                append(LESS_THAN_SIGN).append(EQUALS_SIGN).append(value).append(CLOSE_PARENTHESIS).
-                append(CLOSE_PARENTHESIS);
+        filter.append(OPEN_PARENTHESIS).append(NOT_SIGN).append(OPEN_PARENTHESIS).append(OR_OPERATION).
+                append(OPEN_PARENTHESIS).append(NOT_SIGN).append(OPEN_PARENTHESIS).append(property).
+                append(GREATER_THAN_SIGN).append(EQUALS_SIGN).append(value).append(CLOSE_PARENTHESIS).
+                append(CLOSE_PARENTHESIS).append(OPEN_PARENTHESIS).append(property).append(EQUALS_SIGN).append(value).
+                append(CLOSE_PARENTHESIS).append(CLOSE_PARENTHESIS).append(CLOSE_PARENTHESIS);
         return filter.toString();
     }
 
@@ -212,6 +216,21 @@ public class LDAPFilterQueryBuilder {
         filter.append(OPEN_PARENTHESIS).append(NOT_SIGN).append(OPEN_PARENTHESIS).append(property).
                 append(GREATER_THAN_SIGN).append(EQUALS_SIGN).append(value).append(CLOSE_PARENTHESIS).
                 append(CLOSE_PARENTHESIS);
+        return filter.toString();
+    }
+
+    /**
+     * Generate "NE" filter.
+     *
+     * @param property Attribute name.
+     * @param value    Attribute value.
+     * @return Search Filter query with not equal filter.
+     */
+    private String notEqualFilterBuilder(String property, String value) {
+
+        StringBuilder filter = new StringBuilder();
+        filter.append(OPEN_PARENTHESIS).append(NOT_SIGN).append(OPEN_PARENTHESIS).append(property).append(EQUALS_SIGN).
+                append(value).append(CLOSE_PARENTHESIS);
         return filter.toString();
     }
 
