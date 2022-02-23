@@ -1821,7 +1821,6 @@
         <!-- Orbits -->
         <orbit.version.xmlschema>1.4.7.wso2v3</orbit.version.xmlschema>
         <orbit.version.infinispan>5.1.2.wso2v1</orbit.version.infinispan>
-        <orbit.version.h2.engine>2.1.210.wso2v1</orbit.version.h2.engine>
         <version.org.wso2.orbit.javax.xml.bind>2.3.1.wso2v1</version.org.wso2.orbit.javax.xml.bind>
         <version.org.wso2.orbit.javax.activation>1.1.1.wso2v1</version.org.wso2.orbit.javax.activation>
         <ua_parser.version>1.5.2.wso2v1</ua_parser.version>
