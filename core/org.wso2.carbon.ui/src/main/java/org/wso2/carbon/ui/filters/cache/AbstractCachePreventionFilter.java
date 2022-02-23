@@ -134,12 +134,13 @@ public abstract class AbstractCachePreventionFilter implements Filter {
 
         String patternsParam = filterConfig.getInitParameter(PARAM_NAME_PATTERNS);
 
-        //If a filtering pattern is available split the pattern using carriage return and line feed  characters and put into an array.
+        //If a filtering pattern is available split the pattern using carriage return and line feed characters and put into an array.
         if (!StringUtils.isBlank(patternsParam)) {
             String[] patternsArray = patternsParam.split(DELIMITER_MULTI_VALUE);
 
             // Iterate through the filtering patterns array and put into an arrayList.
             for (String pattern : patternsArray) {
+                pattern = pattern.replace("\"", ""); // to remove additional double quotes.
                 patternsList.add(Pattern.compile(pattern.trim()));
             }
         }
