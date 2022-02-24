@@ -12,7 +12,7 @@ this directory.
 	Open a console/shell and run the script from "$CARBON_HOME/bin" directory.
 
 	Usage:
-	# chpasswd.bat/sh --db-url jdbc:h2:/$CARBON_HOME/repository/database/WSO2CARBON_DB
+	# chpasswd.bat/sh --db-url jdbc:h2:async:/$CARBON_HOME/repository/database/WSO2CARBON_DB
 
 	If the administrator wants to use other databases, he should configure the datasource in the "master-datasources.xml", which is in 
 	"$CARBON_HOME/repository/conf/datasources" directory. This datasource is looked up in "registry.xml" and "user-mgt.xml" as a JNDI resource.
