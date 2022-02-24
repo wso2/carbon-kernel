@@ -188,7 +188,7 @@ public class PasswordUpdater {
     private void printUsage() {
         System.out.println("Usage: chpasswd --db-url DB_URL [OPTIONS]\n");
         System.out.println(USAGE_MSG_INDENT_SPACES + DB_URL + " : The JDBC database URL. " +
-                           "e.g. jdbc:h2:/home/carbon/database/WSO2CARBON_DB\n");
+                           "e.g. jdbc:h2:async:/home/carbon/database/WSO2CARBON_DB\n");
         System.out.println("Options");
         System.out.println(USAGE_MSG_INDENT_SPACES + DB_DRIVER + "    : The database driver class. " +
                            "e.g. org.h2.Driver");
