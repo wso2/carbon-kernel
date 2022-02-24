@@ -1827,7 +1827,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         String sqlStmt;
         try (Connection dbConnection = getDBConnection()) {
             if (dbConnection == null) {
-                throw new UserStoreException("null connection");
+                throw new UserStoreException("Error due to null connection for domain : " + domain);
             }
              sqlStmt = isH2DB(dbConnection) ? realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_ROLE_LIST_H2) :
                     realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_ROLE_LIST);

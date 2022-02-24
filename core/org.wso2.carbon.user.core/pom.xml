@@ -59,7 +59,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.orbit.com.h2database</groupId>
-            <artifactId>h2</artifactId>
+            <artifactId>h2-engine</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
