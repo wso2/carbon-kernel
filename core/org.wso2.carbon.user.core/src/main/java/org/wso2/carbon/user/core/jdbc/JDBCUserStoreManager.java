@@ -104,6 +104,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     protected int maximumUserNameListLength = -1;
     protected int queryTimeout = -1;
 
+    private static final String H2 = "h2";
     private static final String DB2 = "db2";
     private static final String MSSQL = "mssql";
     private static final String ORACLE = "oracle";
@@ -533,7 +534,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         String[] roles = new String[0];
         Connection dbConnection = null;
-        String sqlStmt = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
 
@@ -559,7 +559,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 throw new UserStoreException("null connection");
             }
 
-            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_ROLE_LIST); // TODO
+            String sqlStmt = isH2DB(dbConnection) ?
+                    realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_ROLE_LIST_H2) :
+                    realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_ROLE_LIST);
 
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             //prepStmt.setString(1, filter);
@@ -607,11 +609,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         } catch (SQLException e) {
             String msg = "Error occurred while retrieving role names for filter : " + filter + " & max item limit : " +
-                         maxItemLimit;
+                    maxItemLimit;
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
             }
             throw new UserStoreException(msg, e);
+        } catch (Exception e) {
+            throw new UserStoreException("Error while retrieving the DB type. ", e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
@@ -658,7 +662,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             throws UserStoreException {
         String[] roles = new String[0];
         Connection dbConnection = null;
-        String sqlStmt = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
 
@@ -688,7 +691,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 throw new UserStoreException("null connection");
             }
 
-            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_SHARED_ROLE_LIST);
+            String sqlStmt = isH2DB(dbConnection) ?
+                    realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_SHARED_ROLE_LIST_H2) :
+                    realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_SHARED_ROLE_LIST);
 
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             byte count = 0;
@@ -731,11 +736,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         } catch (SQLException e) {
             String errorMessage =
                     "Error while retrieving roles from JDBC user store for tenant domain : " + tenantDomain +
-                    " & filter : " + filter + "& max item limit : " + maxItemLimit;
+                            " & filter : " + filter + "& max item limit : " + maxItemLimit;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+        } catch (Exception e) {
+            throw new UserStoreException("Error while retrieving the DB type for tenant domain: " + tenantDomain, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
@@ -1737,7 +1744,21 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         String domain = realmConfig
                 .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
 
-        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_ROLE_LIST);
+        String sqlStmt;
+        try (Connection dbConnection = getDBConnection()) {
+            if (dbConnection == null) {
+                throw new UserStoreException("null connection");
+            }
+            sqlStmt = isH2DB(dbConnection) ? realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_ROLE_LIST_H2) :
+                    realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_ROLE_LIST);
+        } catch (Exception e) {
+            String errorMessage =
+                    "Error in retrieving role list from JDBC user store for domain : " + domain;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        }
         if (sqlStmt == null) {
             throw new UserStoreException("The sql statement for retrieving role name is null");
         }
@@ -4689,5 +4710,16 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     public boolean isUniqueUserIdEnabled() {
 
         return false;
+    }
+
+    /**
+     * Check if the DB is H2.
+     *
+     * @return true if H2, false otherwise.
+     * @throws Exception if error occurred while getting database type.
+     */
+    private boolean isH2DB(Connection dbConnection) throws Exception {
+
+        return H2.equalsIgnoreCase(DatabaseCreator.getDatabaseType(dbConnection));
     }
 }
