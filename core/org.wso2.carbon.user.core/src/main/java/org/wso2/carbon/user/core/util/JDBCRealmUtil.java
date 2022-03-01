@@ -62,13 +62,26 @@ public class JDBCRealmUtil {
             properties.put(JDBCRealmConstants.GET_ROLE_LIST, JDBCRealmConstants.GET_ROLE_LIST_SQL);
         }
 
+        if (!properties.containsKey(JDBCRealmConstants.GET_ROLE_LIST_H2)) {
+            properties.put(JDBCRealmConstants.GET_ROLE_LIST_H2, JDBCRealmConstants.GET_ROLE_LIST_SQL_H2);
+        }
+
         if (!properties.containsKey(JDBCRealmConstants.GET_ROLE_LIST_WITH_ESCAPE)) {
             properties.put(JDBCRealmConstants.GET_ROLE_LIST_WITH_ESCAPE,
                     JDBCRealmConstants.GET_ROLE_LIST_SQL_WITH_ESCAPE);
         }
 
+        if (!properties.containsKey(JDBCRealmConstants.GET_ROLE_LIST_WITH_ESCAPE_H2)) {
+            properties.put(JDBCRealmConstants.GET_ROLE_LIST_WITH_ESCAPE_H2,
+                    JDBCRealmConstants.GET_ROLE_LIST_SQL_WITH_ESCAPE_H2);
+        }
+
         if (!properties.containsKey(JDBCRealmConstants.GET_SHARED_ROLE_LIST)) {
             properties.put(JDBCRealmConstants.GET_SHARED_ROLE_LIST, JDBCRealmConstants.GET_SHARED_ROLE_LIST_SQL);
+        }
+
+        if (!properties.containsKey(JDBCRealmConstants.GET_SHARED_ROLE_LIST_H2)) {
+            properties.put(JDBCRealmConstants.GET_SHARED_ROLE_LIST_H2, JDBCRealmConstants.GET_SHARED_ROLE_LIST_SQL_H2);
         }
 
         if (!properties.containsKey(JDBCRealmConstants.GET_USER_ROLE)) {
