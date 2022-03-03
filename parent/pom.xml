@@ -487,7 +487,6 @@
         <orbit.version.geronimo-jms_1.1_spec>1.1.1.wso2v1</orbit.version.geronimo-jms_1.1_spec>
 
         <version.jakarta.taglib>1.1.2.wso2v1</version.jakarta.taglib>
-        <version.sourceforge.ajaxtags>1.3.0.beta-rc7-wso2v1</version.sourceforge.ajaxtags>
         <version.synapse>2.1.0-wso2v5</version.synapse>
         <version.lucene.core>2.3.2</version.lucene.core>
 
@@ -547,7 +546,7 @@
         <version.ehcache>1.5.0.wso2v2</version.ehcache>
         <version.opencsv>1.8.wso2v1</version.opencsv>
 
-        <orbit.version.httpcore>4.3.3.wso2v1</orbit.version.httpcore>
+        <orbit.version.httpcore>4.4.14.wso2v1</orbit.version.httpcore>
         <orbit.version.wsdl4j>1.6.2.wso2v4</orbit.version.wsdl4j>
         <orbit.version.commons.httpclient>3.1.0.wso2v6</orbit.version.commons.httpclient>
         <orbit.version.commons.pool>1.5.6.wso2v1</orbit.version.commons.pool>
@@ -1012,11 +1011,6 @@
                 <groupId>org.wso2.orbit.org.apache.tomcat</groupId>
                 <artifactId>tomcat-servlet-api</artifactId>
                 <version>${orbit.version.tomcat.servlet.api}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ajaxtags.wso2</groupId>
-                <artifactId>ajaxtags</artifactId>
-                <version>${version.sourceforge.ajaxtags}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.orbit.sun.xml.ws</groupId>
