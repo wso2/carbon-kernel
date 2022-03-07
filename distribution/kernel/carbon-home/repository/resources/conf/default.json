@@ -8,6 +8,8 @@
   "server.file_upload.file_size_limit": "100",
   "server.default_items_per_page": "15",
   "server.max_items_per_page": "100",
+  "server.disable_shutdown_from_api": true,
+  "server.disable_restart_from_api": true,
   "user_store.type": "database",
   "super_admin.admin_role": "admin",
   "everyone.rolename": "everyone",
