@@ -61,6 +61,12 @@ public final class ServerConstants {
 
     public static final String PASSWORD_EXPIRATION = "passwordExpires";
     public static final String SERVICE_TYPE = "serviceType";
+	
+    /**
+     * System property to disable/ enable server shutdown or restart remotely using APIs.
+     */
+    public static final String DISABLE_REMOTE_RESTART = "disableShutdownRestartFromAPI.disableRestart";
+    public static final String DISABLE_REMOTE_SHUTDOWN = "disableShutdownRestartFromAPI.disableShutdown";
 
     /**
      * This is the key of the System property which indicates whether the server is running
