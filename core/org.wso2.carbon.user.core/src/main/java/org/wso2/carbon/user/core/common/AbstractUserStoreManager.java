@@ -5861,10 +5861,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         userStoreNew.getDomainAwareName());
             }
 
-            // This is a special case. We need to pass roles with domains.
-            userRealm.getAuthorizationManager().resetPermissionOnUpdateRole(
-                    userStore.getDomainAwareName(), userStoreNew.getDomainAwareName());
-
             // To make sure to maintain the back-ward compatibility, only audit log listener will be called.
             handlePostUpdateRoleName(roleName, newRoleName, false);
             // Need to update user role cache upon update of role names

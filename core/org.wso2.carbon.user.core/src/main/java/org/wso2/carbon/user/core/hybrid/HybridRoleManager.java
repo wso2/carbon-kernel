@@ -939,8 +939,14 @@ public class HybridRoleManager {
                 DatabaseUtil.updateDatabase(dbConnection, sqlStmt, newRoleName, roleName);
             }
             dbConnection.commit();
-            this.userRealm.getAuthorizationManager().resetPermissionOnUpdateRole(roleName,
-                    newRoleName);
+            if (roleName.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+                this.userRealm.getAuthorizationManager().resetPermissionOnUpdateRole(roleName,
+                        newRoleName);
+            } else {
+                String domainNamePrefix = UserCoreConstants.INTERNAL_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR;
+                this.userRealm.getAuthorizationManager().resetPermissionOnUpdateRole(domainNamePrefix
+                        + roleName, domainNamePrefix + newRoleName);
+            }
         } catch (SQLException e) {
             String errorMessage =
                     "Error occurred while updating hybrid role : " + roleName + " to new role : " + newRoleName;
