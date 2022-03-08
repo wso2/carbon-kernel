@@ -180,7 +180,7 @@ public class ServerAdmin extends AbstractAdmin implements ServerAdminMBean, ISer
             if (log.isDebugEnabled()) {
                 log.debug("Server restart through API is disabled.");
             }
-            return true;
+            return false;
         }
 //        checkStandaloneMode();
         Thread thread = Thread.currentThread();
@@ -218,7 +218,7 @@ public class ServerAdmin extends AbstractAdmin implements ServerAdminMBean, ISer
             if (log.isDebugEnabled()) {
                 log.debug("Server restart through API is disabled.");
             }
-            return true;
+            return false;
         }
 //        checkStandaloneMode();
         Thread thread = Thread.currentThread();
@@ -255,7 +255,7 @@ public class ServerAdmin extends AbstractAdmin implements ServerAdminMBean, ISer
             if (log.isDebugEnabled()) {
                 log.debug("Server shutdown through API is disabled.");
             }
-            return true;
+            return false;
         }
 //        checkStandaloneMode();
         Thread thread = Thread.currentThread();
@@ -292,7 +292,7 @@ public class ServerAdmin extends AbstractAdmin implements ServerAdminMBean, ISer
             if (log.isDebugEnabled()) {
                 log.debug("Server shutdown through API is disabled.");
             }
-            return true;
+            return false;
         }
 //        checkStandaloneMode();
         Thread thread = Thread.currentThread();
