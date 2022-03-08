@@ -763,4 +763,11 @@
         <disableRestart>{{server.disable_restart_from_ui | default('false')}}</disableRestart>
      </disableShutdownRestartFromUI>
 
+    <!-- Configure disable/enable server shutdown and restart from API -->
+
+     <disableShutdownRestartFromAPI>
+        <disableShutdown>{{server.disable_shutdown_from_api}}</disableShutdown>
+        <disableRestart>{{server.disable_restart_from_api}}</disableRestart>
+     </disableShutdownRestartFromAPI>
+
 </Server>
