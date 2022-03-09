@@ -710,9 +710,9 @@
 
     <!-- Configure disable/enable server shutdown and restart from API -->
 
-    <disableShutdownRestartFromAPI>
-        <disableShutdown>true</disableShutdown>
-        <disableRestart>true</disableRestart>
-    </disableShutdownRestartFromAPI>
+    <enableShutdownRestartFromAPI>
+        <enableShutdown>false</enableShutdown>
+        <enableRestart>false</enableRestart>
+    </enableShutdownRestartFromAPI>
 
 </Server>
