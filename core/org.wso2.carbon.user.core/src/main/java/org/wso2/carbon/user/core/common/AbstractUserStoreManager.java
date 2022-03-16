@@ -8086,14 +8086,20 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return false;
         }
 
-        Secret credentialObj;
+        Secret credentialObj = null;
+        boolean isValidCredentials;
         try {
             credentialObj = Secret.getSecret(credential);
+            isValidCredentials = credentialObj.getChars().length >= 1;
         } catch (UnsupportedSecretTypeException e) {
             throw new UserStoreException("Unsupported credential type", e);
+        } finally {
+            if (credentialObj != null) {
+                credentialObj.clear();
+            }
         }
 
-        return credentialObj.getChars().length >= 1;
+        return isValidCredentials;
     }
 
     /**
