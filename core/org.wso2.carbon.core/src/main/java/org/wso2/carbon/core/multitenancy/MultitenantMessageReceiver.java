@@ -122,6 +122,8 @@ public class MultitenantMessageReceiver implements MessageReceiver {
                     PrivilegedCarbonContext privilegedCarbonContext = 
                             PrivilegedCarbonContext.getThreadLocalCarbonContext();
                     privilegedCarbonContext.setTenantDomain(tenantDomain, true);
+                    ThreadContext.put(MultitenantConstants.TENANT_ID, String.valueOf(privilegedCarbonContext.getTenantId()));
+                    ThreadContext.put(MultitenantConstants.TENANT_DOMAIN, tenantDomain);
                     if (tenantResponseMsgCtx == null) {
                         tenantResponseMsgCtx = new MessageContext();
                         tenantResponseMsgCtx.setOperationContext(tenantRequestMsgCtx.getOperationContext());
@@ -190,6 +192,8 @@ public class MultitenantMessageReceiver implements MessageReceiver {
                     AxisEngine.receive(tenantResponseMsgCtx);
                 } finally {
                     PrivilegedCarbonContext.endTenantFlow();
+                    ThreadContext.remove(org.wso2.carbon.base.MultitenantConstants.TENANT_ID);
+                    ThreadContext.remove(org.wso2.carbon.base.MultitenantConstants.TENANT_DOMAIN);
                 }
             }
         }
