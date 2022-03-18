@@ -69,6 +69,8 @@ public class TenantDomainConverter extends LogEventPatternConverter {
             Object value = contextData.getValue(MultitenantConstants.TENANT_DOMAIN);
             if (value != null) {
                 StringBuilders.appendValue(toAppendTo, value);
+            } else {
+                StringBuilders.appendValue(toAppendTo, MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             }
         }
     }
