@@ -175,8 +175,18 @@ public class ServerAdmin extends AbstractAdmin implements ServerAdminMBean, ISer
 
     public boolean restart() throws Exception {
 
-        if (!Boolean.parseBoolean(
-                ServerConfiguration.getInstance().getFirstProperty(ServerConstants.ENABLE_REMOTE_RESTART))) {
+        boolean enableRestart;
+        if (System.getProperty(ServerConstants.ENABLE_REMOTE_SHUTDOWN_AND_RESTART)
+                .equalsIgnoreCase(String.valueOf(true))) {
+            enableRestart = true;
+        } else if (System.getProperty(ServerConstants.ENABLE_REMOTE_SHUTDOWN_AND_RESTART)
+                .equalsIgnoreCase(String.valueOf(false))) {
+            enableRestart = false;
+        } else {
+            enableRestart = Boolean.parseBoolean(
+                    ServerConfiguration.getInstance().getFirstProperty(ServerConstants.ENABLE_REMOTE_RESTART));
+        }
+        if (!enableRestart) {
             if (log.isDebugEnabled()) {
                 log.debug("Server restart through API is disabled.");
             }
@@ -213,8 +223,18 @@ public class ServerAdmin extends AbstractAdmin implements ServerAdminMBean, ISer
 
     public boolean restartGracefully() throws Exception {
 
-        if (!Boolean.parseBoolean(
-                ServerConfiguration.getInstance().getFirstProperty(ServerConstants.ENABLE_REMOTE_RESTART))) {
+        boolean enableRestart;
+        if (System.getProperty(ServerConstants.ENABLE_REMOTE_SHUTDOWN_AND_RESTART)
+                .equalsIgnoreCase(String.valueOf(true))) {
+            enableRestart = true;
+        } else if (System.getProperty(ServerConstants.ENABLE_REMOTE_SHUTDOWN_AND_RESTART)
+                .equalsIgnoreCase(String.valueOf(false))) {
+            enableRestart = false;
+        } else {
+            enableRestart = Boolean.parseBoolean(
+                    ServerConfiguration.getInstance().getFirstProperty(ServerConstants.ENABLE_REMOTE_RESTART));
+        }
+        if (!enableRestart) {
             if (log.isDebugEnabled()) {
                 log.debug("Server restart through API is disabled.");
             }
@@ -249,9 +269,19 @@ public class ServerAdmin extends AbstractAdmin implements ServerAdminMBean, ISer
     }
 
     public boolean shutdown() throws AxisFault {
-
-        if (!Boolean.parseBoolean(
-                ServerConfiguration.getInstance().getFirstProperty(ServerConstants.ENABLE_REMOTE_SHUTDOWN))) {
+        
+        boolean enableShutdown;
+        if (System.getProperty(ServerConstants.ENABLE_REMOTE_SHUTDOWN_AND_RESTART)
+                .equalsIgnoreCase(String.valueOf(true))) {
+            enableShutdown = true;
+        } else if (System.getProperty(ServerConstants.ENABLE_REMOTE_SHUTDOWN_AND_RESTART)
+                .equalsIgnoreCase(String.valueOf(false))) {
+            enableShutdown = false;
+        } else {
+            enableShutdown = Boolean.parseBoolean(
+                    ServerConfiguration.getInstance().getFirstProperty(ServerConstants.ENABLE_REMOTE_SHUTDOWN));
+        }
+        if (!enableShutdown) {
             if (log.isDebugEnabled()) {
                 log.debug("Server shutdown through API is disabled.");
             }
@@ -287,8 +317,18 @@ public class ServerAdmin extends AbstractAdmin implements ServerAdminMBean, ISer
 
     public boolean shutdownGracefully() throws AxisFault {
 
-        if (!Boolean.parseBoolean(
-                ServerConfiguration.getInstance().getFirstProperty(ServerConstants.ENABLE_REMOTE_SHUTDOWN))) {
+        boolean enableShutdown;
+        if (System.getProperty(ServerConstants.ENABLE_REMOTE_SHUTDOWN_AND_RESTART)
+                .equalsIgnoreCase(String.valueOf(true))) {
+            enableShutdown = true;
+        } else if (System.getProperty(ServerConstants.ENABLE_REMOTE_SHUTDOWN_AND_RESTART)
+                .equalsIgnoreCase(String.valueOf(false))) {
+            enableShutdown = false;
+        } else {
+            enableShutdown = Boolean.parseBoolean(
+                    ServerConfiguration.getInstance().getFirstProperty(ServerConstants.ENABLE_REMOTE_SHUTDOWN));
+        }
+        if (!enableShutdown) {
             if (log.isDebugEnabled()) {
                 log.debug("Server shutdown through API is disabled.");
             }
