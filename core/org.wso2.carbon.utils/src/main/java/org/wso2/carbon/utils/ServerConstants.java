@@ -63,10 +63,14 @@ public final class ServerConstants {
     public static final String SERVICE_TYPE = "serviceType";
 	
     /**
+     * Config to disable/ enable server shutdown or restart remotely using APIs.
+     */
+    public static final String ENABLE_REMOTE_RESTART = "enableShutdownRestartFromAPI.enableRestart";
+    public static final String ENABLE_REMOTE_SHUTDOWN = "enableShutdownRestartFromAPI.enableShutdown";
+    /**
      * System property to disable/ enable server shutdown or restart remotely using APIs.
      */
-    public static final String DISABLE_REMOTE_RESTART = "disableShutdownRestartFromAPI.disableRestart";
-    public static final String DISABLE_REMOTE_SHUTDOWN = "disableShutdownRestartFromAPI.disableShutdown";
+    public static final String ENABLE_REMOTE_SHUTDOWN_AND_RESTART = "enableRemoteShutdownAndRestart";
 
     /**
      * This is the key of the System property which indicates whether the server is running
