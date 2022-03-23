@@ -176,11 +176,11 @@ public class ServerAdmin extends AbstractAdmin implements ServerAdminMBean, ISer
     public boolean restart() throws Exception {
 
         boolean enableRestart;
-        if (String.valueOf(true)
-                .equalsIgnoreCase(System.getProperty(ServerConstants.ENABLE_REMOTE_SHUTDOWN_AND_RESTART))) {
+        String enableShutdownAndRestartSystemProperty =
+                System.getProperty(ServerConstants.ENABLE_REMOTE_SHUTDOWN_AND_RESTART);
+        if (Boolean.TRUE.toString().equalsIgnoreCase(enableShutdownAndRestartSystemProperty)) {
             enableRestart = true;
-        } else if (String.valueOf(false)
-                .equalsIgnoreCase(System.getProperty(ServerConstants.ENABLE_REMOTE_SHUTDOWN_AND_RESTART))) {
+        } else if (Boolean.FALSE.toString().equalsIgnoreCase(enableShutdownAndRestartSystemProperty)) {
             enableRestart = false;
         } else {
             enableRestart = Boolean.parseBoolean(
@@ -224,11 +224,11 @@ public class ServerAdmin extends AbstractAdmin implements ServerAdminMBean, ISer
     public boolean restartGracefully() throws Exception {
 
         boolean enableRestart;
-        if (String.valueOf(true)
-                .equalsIgnoreCase(System.getProperty(ServerConstants.ENABLE_REMOTE_SHUTDOWN_AND_RESTART))) {
+        String enableShutdownAndRestartSystemProperty =
+                System.getProperty(ServerConstants.ENABLE_REMOTE_SHUTDOWN_AND_RESTART);
+        if (Boolean.TRUE.toString().equalsIgnoreCase(enableShutdownAndRestartSystemProperty)) {
             enableRestart = true;
-        } else if (String.valueOf(false)
-                .equalsIgnoreCase(System.getProperty(ServerConstants.ENABLE_REMOTE_SHUTDOWN_AND_RESTART))) {
+        } else if (Boolean.FALSE.toString().equalsIgnoreCase(enableShutdownAndRestartSystemProperty)) {
             enableRestart = false;
         } else {
             enableRestart = Boolean.parseBoolean(
@@ -271,11 +271,11 @@ public class ServerAdmin extends AbstractAdmin implements ServerAdminMBean, ISer
     public boolean shutdown() throws AxisFault {
         
         boolean enableShutdown;
-        if (String.valueOf(true)
-                .equalsIgnoreCase(System.getProperty(ServerConstants.ENABLE_REMOTE_SHUTDOWN_AND_RESTART))) {
+        String enableShutdownAndRestartSystemProperty =
+                System.getProperty(ServerConstants.ENABLE_REMOTE_SHUTDOWN_AND_RESTART);
+        if (Boolean.TRUE.toString().equalsIgnoreCase(enableShutdownAndRestartSystemProperty)) {
             enableShutdown = true;
-        } else if (String.valueOf(false)
-                .equalsIgnoreCase(System.getProperty(ServerConstants.ENABLE_REMOTE_SHUTDOWN_AND_RESTART))) {
+        } else if (Boolean.FALSE.toString().equalsIgnoreCase(enableShutdownAndRestartSystemProperty)) {
             enableShutdown = false;
         } else {
             enableShutdown = Boolean.parseBoolean(
@@ -318,11 +318,11 @@ public class ServerAdmin extends AbstractAdmin implements ServerAdminMBean, ISer
     public boolean shutdownGracefully() throws AxisFault {
 
         boolean enableShutdown;
-        if (String.valueOf(true)
-                .equalsIgnoreCase(System.getProperty(ServerConstants.ENABLE_REMOTE_SHUTDOWN_AND_RESTART))) {
+        String enableShutdownAndRestartSystemProperty =
+                System.getProperty(ServerConstants.ENABLE_REMOTE_SHUTDOWN_AND_RESTART);
+        if (Boolean.TRUE.toString().equalsIgnoreCase(enableShutdownAndRestartSystemProperty)) {
             enableShutdown = true;
-        } else if (String.valueOf(false)
-                .equalsIgnoreCase(System.getProperty(ServerConstants.ENABLE_REMOTE_SHUTDOWN_AND_RESTART))) {
+        } else if (Boolean.FALSE.toString().equalsIgnoreCase(enableShutdownAndRestartSystemProperty)) {
             enableShutdown = false;
         } else {
             enableShutdown = Boolean.parseBoolean(
