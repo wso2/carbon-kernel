@@ -15575,9 +15575,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
 
             for (String username : identityClaimFilteredUserNames) {
-                User user = new User();
-                user.setUsername(username);
-                user.setUserID(getUserIDFromUserName(username));
+                User user = getUser(getUserIDFromUserName(username), username);
                 user.setUserStoreDomain(UserCoreUtil.extractDomainFromName(user.getUsername()));
                 identityClaimFilteredUsers.add(user);
             }
