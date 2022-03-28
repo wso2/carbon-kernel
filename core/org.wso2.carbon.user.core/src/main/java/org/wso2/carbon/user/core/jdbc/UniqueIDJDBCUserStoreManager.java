@@ -84,7 +84,7 @@ import static org.wso2.carbon.user.core.util.DatabaseUtil.getLoggableSqlString;
 
 public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
-    private static Log log = LogFactory.getLog(UniqueIDJDBCUserStoreManager.class);
+    private static final Log log = LogFactory.getLog(UniqueIDJDBCUserStoreManager.class);
 
     private static final String QUERY_FILTER_STRING_ANY = "*";
     private static final String SQL_FILTER_STRING_ANY = "%";

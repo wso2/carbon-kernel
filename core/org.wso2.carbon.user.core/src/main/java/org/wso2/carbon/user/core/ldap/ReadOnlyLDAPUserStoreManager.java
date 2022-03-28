@@ -123,7 +123,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     protected static final String MEMBERSHIP_ATTRIBUTE_RANGE_DISPLAY_NAME = "Membership Attribute Range";
     private static final String USER_CACHE_NAME_PREFIX = CachingConstants.LOCAL_CACHE_PREFIX + "UserCache-";
     private static final String USER_CACHE_MANAGER = "UserCacheManager";
-    private static Log log = LogFactory.getLog(ReadOnlyLDAPUserStoreManager.class);
+    private static final Log log = LogFactory.getLog(ReadOnlyLDAPUserStoreManager.class);
     protected static final int MAX_USER_CACHE = 200;
     private static final String PROPERTY_REFERRAL_IGNORE = "ignore";
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
@@ -149,7 +149,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     private static final String USE_ANONYMOUS_BIND = "AnonymousBind";
     protected static final int MEMBERSHIP_ATTRIBUTE_RANGE_VALUE = 0;
     private static final int MAX_ITEM_LIMIT_UNLIMITED = -1;
-    private static Log logger = LogFactory.getLog(ReadOnlyLDAPUserStoreManager.class);
 
     private String cacheExpiryTimeAttribute = ""; //Default: expire with default system wide cache expiry
     private long userDnCacheExpiryTime = 0; //Default: No cache
@@ -254,7 +253,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             // Skipped to throw a UserStoreException and log the error message in-order to successfully initiate and
             // create the user-store object.
             log.error("Cannot create connection to LDAP server. Connection URL: " + realmConfig
-                    .getUserStoreProperty(LDAPConstants.CONNECTION_URL) + " Error message: " + e.getMessage());
+                    .getUserStoreProperty(LDAPConstants.CONNECTION_URL) + " Error message: " + e.getMessage(), e);
         } finally {
             JNDIUtil.closeContext(dirContext);
         }
@@ -456,7 +455,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         try {
             credentialObj = Secret.getSecret(credential);
         } catch (UnsupportedSecretTypeException e) {
-            throw new UserStoreException("Unsupported credential type", e);
+            String msg = "Unsupported credential type.";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
         }
 
         if (userName.equals("") || credentialObj.isEmpty()) {
@@ -830,7 +833,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         answer = dirContext.search(escapeDNForSearch(pattern), searchFilter, searchCtls);
                     } catch (NamingException e) {
                         if (log.isDebugEnabled()) {
-                            log.debug(e);
+                            log.debug("An error occurred while extracting the answer.", e);
                         }
                         // ignore
                     }
@@ -854,7 +857,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     }
                 } catch (NamingException e) {
                     if (log.isDebugEnabled()) {
-                        log.debug(e);
+                        log.debug("An error occurred while extracting the answer.", e);
                     }
                     // ignore
                 }
@@ -1347,7 +1350,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             // we avoid throwing an exception here since we throw that exception
             // in a one level above this.
             if (debug) {
-                log.debug("Authentication failed " + e);
+                log.debug("Authentication failed " + e, e);
             }
 
         } finally {
@@ -1426,8 +1429,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             // we avoid throwing an exception here since we throw that exception
             // in a one level above this.
             if (debug) {
-                log.debug("Authentication failed " + e);
-                log.debug("Clearing cache for DN: " + dn);
+                log.debug("Authentication failed " + e, e);
+                log.debug("Clearing cache for DN: " + dn, e);
             }
             if (userName != null) {
                 removeFromUserCache(userName);
@@ -1984,7 +1987,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         } catch (NamingException e) {
                             // ignore
                             if (log.isDebugEnabled()) {
-                                log.debug(e);
+                                log.debug("An error occurred while extracting the answer.", e);
                             }
                         }
                     }
@@ -2017,7 +2020,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         } catch (NamingException e) {
                             // ignore
                             if (log.isDebugEnabled()) {
-                                log.debug(e);
+                                log.debug("An error occurred while extracting the answer.", e);
                             }
                         }
                     }
@@ -2349,7 +2352,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                             membershipValue = escapeLdapNameForFilter(ldn);
                         }
                     } catch (InvalidNameException e) {
-                        log.error("Error while creating LDAP name from: " + nameInSpace);
+                        log.error("Error while creating LDAP name from: " + nameInSpace, e);
                         throw new UserStoreException("Invalid naming exception for : " + nameInSpace, e);
                     }
                 } else {
@@ -2682,7 +2685,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 } catch (NamingException e) {
                     //ignore
                     if (log.isDebugEnabled()) {
-                        log.debug(e);
+                        log.debug("An error occurred while extracting the answer.", e);
                     }
                 }
             }
@@ -2746,7 +2749,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 } catch (NamingException e) {
                     // ignore
                     if (log.isDebugEnabled()) {
-                        log.debug(e);
+                        log.debug("An error occurred while extracting the answer.", e);
                     }
                 }
 
@@ -2960,11 +2963,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             result.setUsers(ldapUsers.toArray(new String[0]));
             return result;
         } catch (NamingException e) {
-            log.error(String.format("Error occurred while performing paginated search, %s", e.getMessage()));
+            log.error(String.format("Error occurred while performing paginated search, %s", e.getMessage()), e);
             throw new UserStoreException(e.getMessage(), e);
         } catch (IOException e) {
             log.error(String.format("Error occurred while setting paged results controls for paginated search, %s",
-                    e.getMessage()));
+                    e.getMessage()), e);
             throw new UserStoreException(e.getMessage(), e);
         } finally {
             JNDIUtil.closeContext(dirContext);
@@ -3149,18 +3152,19 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             // Can be due to referrals in AD. So just ignore error.
             if (isIgnorePartialResultException()) {
                 if (log.isDebugEnabled()) {
-                    log.debug(String.format("Error occurred while searching for user(s) for filter: %s", searchFilter));
+                    log.debug(String.format("Error occurred while searching for user(s) for filter: %s", searchFilter),
+                            e);
                 }
             } else {
-                log.error(String.format("Error occurred while searching for user(s) for filter: %s", searchFilter));
+                log.error(String.format("Error occurred while searching for user(s) for filter: %s", searchFilter), e);
                 throw new UserStoreException(e.getMessage(), e);
             }
         } catch (NamingException e) {
             log.error(String.format("Error occurred while searching for user(s) for filter: %s, %s",
-                    searchFilter, e.getMessage()));
+                    searchFilter, e.getMessage()), e);
             throw new UserStoreException(e.getMessage(), e);
         } catch (IOException e) {
-            log.error(String.format("Error occurred while doing paginated search, %s", e.getMessage()));
+            log.error(String.format("Error occurred while doing paginated search, %s", e.getMessage()), e);
             throw new UserStoreException(e.getMessage(), e);
         } finally {
             JNDIUtil.closeNamingEnumeration(answer);
@@ -3274,7 +3278,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 }
             }
         } catch (NamingException e) {
-            log.error(String.format("Error occurred while getting user list from group filter %s", e.getMessage()));
+            log.error(String.format("Error occurred while getting user list from group filter %s", e.getMessage()), e);
             throw new UserStoreException(e.getMessage(), e);
         } finally {
             JNDIUtil.closeNamingEnumeration(attrs);
@@ -3338,7 +3342,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 }
             } catch (NamingException e) {
                 log.error(String.format("Error in reading user information in the user store for the user %s, %s",
-                        user, e.getMessage()));
+                        user, e.getMessage()), e);
                 throw new UserStoreException(e.getMessage(), e);
             }
         }
@@ -3404,7 +3408,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 }
             }
         } catch (NamingException e) {
-            log.error(String.format("Error occurred while getting user list from non group filter %s", e.getMessage()));
+            log.error(String.format("Error occurred while getting user list from non group filter %s", e.getMessage()),
+                    e);
             throw new UserStoreException(e.getMessage(), e);
         } finally {
             // Close the naming enumeration and free up resources
@@ -3567,7 +3572,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             }
         } catch (NamingException e) {
             log.error(String.format("Error occurred while doing claim filtering for user(s) with filter: %s, %s",
-                    claimSearch.getSearchFilterQuery(), e.getMessage()));
+                    claimSearch.getSearchFilterQuery(), e.getMessage()), e);
             throw new UserStoreException(e.getMessage(), e);
         } finally {
             JNDIUtil.closeContext(claimSearchDirContext);
@@ -3738,7 +3743,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     LdapName ldn = new LdapName(nameInSpace);
                     membershipValue = escapeLdapNameForFilter(ldn);
                 } catch (InvalidNameException e) {
-                    log.error("Error while creating LDAP name from: " + nameInSpace);
+                    log.error("Error while creating LDAP name from: " + nameInSpace, e);
                     throw new UserStoreException("Invalid naming exception for : " + nameInSpace, e);
                 }
             } else {
@@ -3772,7 +3777,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                             answer = dirContext.search(escapeDNForSearch(searchBases), searchFilter, searchCtls);
                         } catch (NamingException e) {
                             if (log.isDebugEnabled()) {
-                                log.debug(e);
+                                log.debug("An error occurred while extracting the answer.", e);
                             }
                             //ignore
                         }
@@ -4031,7 +4036,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 return jdbcUserStore.isExistingRememberMeToken(userName, token);
             }
         } catch (Exception e) {
-            log.error("Validating remember me token failed for" + userName);
+            log.error("Validating remember me token failed for" + userName, e);
                        /*
                         * not throwing exception. because we need to seamlessly direct them
                         * to login uis
@@ -4089,13 +4094,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     }
                 }
             }
-        } catch (UserStoreException e) {
-            String errorMessage = "Error in getting group name attribute values of groups";
-            if (log.isDebugEnabled()) {
-                log.debug(errorMessage, e);
-            }
-            throw new UserStoreException(errorMessage, e);
-        } catch (NamingException e) {
+        } catch (UserStoreException | NamingException e) {
             String errorMessage = "Error in getting group name attribute values of groups";
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
@@ -4792,13 +4791,13 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         String[] timestampAttributes = StringUtils.split(timestampAttributesProperty, ",");
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Read only user store  timestamp attributes: " + Arrays.toString(timestampAttributes));
+        if (log.isDebugEnabled()) {
+            log.debug("Read only user store  timestamp attributes: " + Arrays.toString(timestampAttributes));
         }
 
         if (ArrayUtils.isNotEmpty(timestampAttributes)) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Retrieved user store properties before type conversions: " + userStorePropertyValues);
+            if (log.isDebugEnabled()) {
+                log.debug("Retrieved user store properties before type conversions: " + userStorePropertyValues);
             }
 
             Map<String, String> convertedTimestampAttributeValues = Arrays.stream(timestampAttributes)
@@ -4807,14 +4806,14 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     .collect(Collectors.toMap(Function.identity(),
                             attribute -> convertDateFormatFromLDAP(userStorePropertyValues.get(attribute))));
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Converted timestamp attribute values: " + convertedTimestampAttributeValues);
+            if (log.isDebugEnabled()) {
+                log.debug("Converted timestamp attribute values: " + convertedTimestampAttributeValues);
             }
 
             userStorePropertyValues.putAll(convertedTimestampAttributeValues);
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Retrieved user store properties after type conversions: " + userStorePropertyValues);
+            if (log.isDebugEnabled()) {
+                log.debug("Retrieved user store properties after type conversions: " + userStorePropertyValues);
             }
         }
     }

@@ -73,7 +73,7 @@ import javax.naming.directory.SearchResult;
  */
 public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManager {
 
-    private static Log logger = LogFactory.getLog(ActiveDirectoryUserStoreManager.class);
+    private static final Log logger = LogFactory.getLog(ActiveDirectoryUserStoreManager.class);
     private boolean isADLDSRole = false;
     private boolean isSSLConnection = false;
     private String userAccountControl = "512";
@@ -171,7 +171,11 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         try {
             credentialObj = Secret.getSecret(credential);
         } catch (UnsupportedSecretTypeException e) {
-            throw new UserStoreException("Unsupported credential type", e);
+            String msg = "Unsupported credential type.";
+            if (logger.isDebugEnabled()) {
+                logger.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
         }
 
         Name compoundName = null;
@@ -212,10 +216,16 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                     dirContext.unbind(compoundName);
                 } catch (NamingException e1) {
                     errorMessage = "Error while accessing the Active Directory for user : " + userName;
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(errorMessage, e);
+                    }
                     throw new UserStoreException(errorMessage, e);
                 }
                 errorMessage = "Error while enabling the user account. Please check password policy at DC for user : " +
                                userName;
+                if (logger.isDebugEnabled()) {
+                    logger.debug(errorMessage, e);
+                }
             }
             throw new UserStoreException(errorMessage, e);
         } finally {
@@ -255,6 +265,9 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                     attributeName = getClaimAtrribute(claimURI, userName, null);
                 } catch (org.wso2.carbon.user.api.UserStoreException e) {
                     String errorMessage = "Error in obtaining claim mapping.";
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(errorMessage, e);
+                    }
                     throw new UserStoreException(errorMessage, e);
                 }
 
@@ -318,7 +331,11 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         try {
             credentialObj = Secret.getSecret(newCredential);
         } catch (UnsupportedSecretTypeException e) {
-            throw new UserStoreException("Unsupported credential type", e);
+            String errorMessage = "Unsupported credential type.";
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         }
 
         if (logger.isDebugEnabled()) {
@@ -647,7 +664,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         } catch (NumberFormatException e) {
             if (debug) {
                 logger.debug("Error occurred while reading user store property: "
-                        + UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST + " : " + e);
+                        + UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST + " : " + e, e);
             }
             givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
         }
@@ -658,7 +675,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         } catch (NumberFormatException e) {
             if (debug) {
                 logger.debug("Error occurred while reading user store property: "
-                        + UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME + " : " + e);
+                        + UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME + " : " + e, e);
             }
             searchTime = UserCoreConstants.MAX_SEARCH_TIME;
         }
@@ -810,6 +827,11 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                 logger.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+        } else {
+            String errorMessage = "Error while performing the operation with the user : " + userName + ".";
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
         }
     }
 
