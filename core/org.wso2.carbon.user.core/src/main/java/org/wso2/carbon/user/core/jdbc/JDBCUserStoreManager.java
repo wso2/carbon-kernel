@@ -495,7 +495,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 prepStmt.setQueryTimeout(searchTime);
             } catch (Exception e) {
                 // this can be ignored since timeout method is not implemented
-                log.debug(e);
+                log.debug(JDBCUserStoreConstants.SET_QUERY_TIMEOUT_ERROR_MSG, e);
             }
 
             try {
@@ -697,7 +697,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
             throw new UserStoreException(msg, e);
         } catch (Exception e) {
-            throw new UserStoreException("Error while retrieving the DB type. ", e);
+            String msg = "Error while retrieving the DB type.";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
@@ -734,7 +738,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             ps.setQueryTimeout(searchTime);
         } catch (Exception e) {
             // this can be ignored since timeout method is not implemented
-            log.debug(e);
+            log.debug(JDBCUserStoreConstants.SET_QUERY_TIMEOUT_ERROR_MSG, e);
         }
     }
 
@@ -824,7 +828,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
             throw new UserStoreException(errorMessage, e);
         } catch (Exception e) {
-            throw new UserStoreException("Error while retrieving the DB type for tenant domain: " + tenantDomain, e);
+            String msg = "Error while retrieving the DB type for tenant domain: " + tenantDomain + ".";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
@@ -1247,6 +1255,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     .getStringValuesFromDatabaseWithConstraints(dbConnection, sqlStmt, maxRows, queryTimeout, params);
         } catch (SQLException e) {
             String msg = "Error occurred while accessing the database connection.";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
             throw new UserStoreException(msg, e);
         }
         return values;
@@ -1528,7 +1539,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         try {
             credentialObj = Secret.getSecret(credential);
         } catch (UnsupportedSecretTypeException e) {
-            throw new UserStoreException("Unsupported credential type", e);
+            String msg = "Unsupported credential type.";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
         }
 
         try {
@@ -1791,7 +1806,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             try {
                 tenantId = Integer.parseInt(postfix[1]);
             } catch (NumberFormatException e) {
-                log.error(e);
+                log.error("An error occurred while parsing the tenant id to an integer.", e);
                 tenantId = MultitenantConstants.SUPER_TENANT_ID;
             }
         }
@@ -2648,7 +2663,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             secureRandom.nextBytes(bytes);
             saltValue = Base64.encode(bytes);
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("SHA1PRNG algorithm could not be found.");
+            String msg = "SHA1PRNG algorithm could not be found.";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new RuntimeException(msg, e);
         }
         return saltValue;
     }
@@ -2920,7 +2939,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         try {
             credentialObj = Secret.getSecret(password);
         } catch (UnsupportedSecretTypeException e) {
-            throw new UserStoreException("Unsupported credential type", e);
+            String msg = "Unsupported credential type.";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
         }
         String digestFunction = realmConfig.getUserStoreProperties().get(JDBCRealmConstants.DIGEST_FUNCTION);
         if (digestFunction != null) {
@@ -3088,7 +3111,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 return isExistingRememberMeToken(userName, token);
             }
         } catch (Exception e) {
-            log.error("Validating remember me token failed for" + userName);
+            log.error("Validating remember me token failed for" + userName + ".", e);
             // not throwing exception.
             // because we need to seamlessly direct them to login uis
         }
@@ -3171,7 +3194,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 prepStmt.setQueryTimeout(searchTime);
             } catch (Exception e) {
                 // this can be ignored since timeout method is not implemented
-                log.debug(e);
+                log.debug(JDBCUserStoreConstants.SET_QUERY_TIMEOUT_ERROR_MSG, e);
             }
             rs = prepStmt.executeQuery();
             while (rs.next()) {
@@ -3328,6 +3351,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             String errorMessage = "Error Occurred while getting property values";
             if (log.isDebugEnabled()) {
                 errorMessage = errorMessage + ": " + users;
+                log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
         } finally {
@@ -3406,6 +3430,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             String errorMessage = "Error Occurred while getting role lists of users";
             if (log.isDebugEnabled()) {
                 errorMessage = errorMessage + ": " + userNames;
+                log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
         } finally {
@@ -3848,7 +3873,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 prepStmt.setQueryTimeout(searchTime);
             } catch (Exception e) {
                 // this can be ignored since timeout method is not implemented
-                log.debug(e);
+                log.debug(JDBCUserStoreConstants.SET_QUERY_TIMEOUT_ERROR_MSG, e);
             }
 
             try {
@@ -3964,10 +3989,15 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         } catch (SQLException e) {
             String msg = "Error while executing the SQL " + sqlStmt;
             if (log.isDebugEnabled()) {
-                log.debug(msg + sqlStmt);
+                log.debug(msg + sqlStmt, e);
             }
             throw new UserStoreException(msg, e);
         } catch (UserStoreException ex) {
+            String msg = UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_COUNT_USERS
+                    .getMessage();
+            if (log.isDebugEnabled()) {
+                log.debug(msg, ex);
+            }
             handleGetUserCountFailure(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_COUNT_USERS
                             .getCode(),
                     String.format(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_COUNT_USERS
@@ -3975,8 +4005,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                             ex.getMessage()), claimUri, value);
             throw ex;
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            String ErrorMsg = "Error while getting attribute name from " + claimUri ;
-            throw new UserStoreException(ErrorMsg, e);
+            String msg = "Error while getting attribute name from " + claimUri + ".";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
         }
     }
 
@@ -4037,6 +4070,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             throw new UserStoreException(msg, e);
 
         } catch (UserStoreException ex) {
+            String msg = UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_ROLES_COUNT
+                    .getMessage();
+            if (log.isDebugEnabled()) {
+                log.debug(msg, ex);
+            }
             handleGetUserCountFailure(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_ROLES_COUNT
                             .getCode(),
                     String.format(UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_ROLES_COUNT

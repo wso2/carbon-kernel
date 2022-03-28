@@ -208,7 +208,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             } catch (Exception e) {
                 // this can be ignored since timeout method is not implemented
                 if (log.isDebugEnabled()) {
-                    log.debug(e);
+                    log.debug(JDBCUserStoreConstants.SET_QUERY_TIMEOUT_ERROR_MSG, e);
                 }
             }
 
@@ -541,6 +541,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                             params);
         } catch (SQLException e) {
             String msg = "Error occurred while accessing the database connection.";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
             throw new UserStoreException(msg, e);
         }
         return values;
@@ -725,6 +728,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                             user.setTenantDomain(getTenantDomain(tenantId));
                             user.setUserStoreDomain(UserCoreUtil.getDomainName(realmConfig));
                         } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                            if (log.isDebugEnabled()) {
+                                log.debug("An error occurred while setting either the user's tenant or users store" +
+                                        " domain.", e);
+                            }
                             throw new UserStoreException(e);
                         }
                         authenticationResult = new AuthenticationResult(
@@ -1137,7 +1144,11 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         try {
             credentialObj = Secret.getSecret(credential);
         } catch (UnsupportedSecretTypeException e) {
-            throw new UserStoreException("Unsupported credential type.", e);
+            String msg = "Unsupported credential type.";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
         }
 
         try {
@@ -1333,6 +1344,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 return userIds.get(0);
             }
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("An error occurred while extracting the user id from properties.", e);
+            }
             throw new UserStoreException(
                     "Error occurred while retrieving the userId of domain : " + getMyDomainName() + " and " + "claim"
                             + claimURI + " value: " + claimValue, e);
@@ -2122,7 +2136,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             secureRandom.nextBytes(bytes);
             saltValue = Base64.encode(bytes);
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("SHA1PRNG algorithm could not be found.");
+            throw new RuntimeException("SHA1PRNG algorithm could not be found.", e);
         }
         return saltValue;
     }
@@ -2381,7 +2395,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             } catch (SQLException e) {
                 // If SQL exception occurred here, we can ignore cause timeout method is not implemented.
                 if (log.isDebugEnabled()) {
-                    log.debug(e);
+                    log.debug(JDBCUserStoreConstants.SET_QUERY_TIMEOUT_ERROR_MSG, e);
                 }
             }
             rs = prepStmt.executeQuery();
@@ -2985,7 +2999,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 prepStmt.setQueryTimeout(searchTime);
             } catch (Exception e) {
                 // this can be ignored since timeout method is not implemented
-                log.debug(e);
+                log.debug(JDBCUserStoreConstants.SET_QUERY_TIMEOUT_ERROR_MSG, e);
             }
 
             try {
