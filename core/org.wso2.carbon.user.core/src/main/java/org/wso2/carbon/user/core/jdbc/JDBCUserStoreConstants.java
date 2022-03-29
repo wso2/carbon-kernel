@@ -52,6 +52,7 @@ public class JDBCUserStoreConstants {
     private static final String DISPLAY_NAME_ATTRIBUTE_DESCRIPTION = "This is the attribute name to display as the Display Name";
     public static final String DISPLAY_NAME_ATTRIBUTE = "DisplayNameAttribute";
     public static final String SET_QUERY_TIMEOUT_ERROR_MSG = "Error while setting the query timeout value.";
+    public static final String UNSUPPORTED_CREDENTIAL_TYPE_ERROR_MSG = "Unsupported credential type.";
 
     static {
 

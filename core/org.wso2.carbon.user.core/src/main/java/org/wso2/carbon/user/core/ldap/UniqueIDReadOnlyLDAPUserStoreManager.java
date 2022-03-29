@@ -145,6 +145,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                     + "Values  {0: expire immediately, -1: never expire, '': i.e. empty, system default}.";
     protected static final String USER_DN_CACHE_ENABLED_ATTRIBUTE_DESCRIPTION =
             "Enables the user cache. Default true," + " Unless set to false. Empty value is interpreted as true.";
+    private static final String EXTRACTING_ANSWER_ERROR_MSG = "An error occurred while extracting the answer.";
 
     // Authenticating to LDAP via Anonymous Bind.
     private static final String USE_ANONYMOUS_BIND = "AnonymousBind";
@@ -1009,7 +1010,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                         } catch (NamingException e) {
                             // ignore
                             if (log.isDebugEnabled()) {
-                                log.debug("An error occurred while extracting the answer.", e);
+                                log.debug(EXTRACTING_ANSWER_ERROR_MSG, e);
                             }
                         }
                     }
@@ -1042,7 +1043,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                         } catch (NamingException e) {
                             // ignore
                             if (log.isDebugEnabled()) {
-                                log.debug("An error occurred while extracting the answer.", e);
+                                log.debug(EXTRACTING_ANSWER_ERROR_MSG, e);
                             }
                         }
                     }
@@ -1314,7 +1315,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 } catch (NamingException e) {
                     //ignore
                     if (log.isDebugEnabled()) {
-                        log.debug("An error occurred while extracting the answer.", e);
+                        log.debug(EXTRACTING_ANSWER_ERROR_MSG, e);
                     }
                 }
             }

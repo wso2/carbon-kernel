@@ -1539,11 +1539,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         try {
             credentialObj = Secret.getSecret(credential);
         } catch (UnsupportedSecretTypeException e) {
-            String msg = "Unsupported credential type.";
             if (log.isDebugEnabled()) {
-                log.debug(msg, e);
+                log.debug(JDBCUserStoreConstants.UNSUPPORTED_CREDENTIAL_TYPE_ERROR_MSG, e);
             }
-            throw new UserStoreException(msg, e);
+            throw new UserStoreException(JDBCUserStoreConstants.UNSUPPORTED_CREDENTIAL_TYPE_ERROR_MSG, e);
         }
 
         try {
@@ -2939,11 +2938,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         try {
             credentialObj = Secret.getSecret(password);
         } catch (UnsupportedSecretTypeException e) {
-            String msg = "Unsupported credential type.";
             if (log.isDebugEnabled()) {
-                log.debug(msg, e);
+                log.debug(JDBCUserStoreConstants.UNSUPPORTED_CREDENTIAL_TYPE_ERROR_MSG, e);
             }
-            throw new UserStoreException(msg, e);
+            throw new UserStoreException(JDBCUserStoreConstants.UNSUPPORTED_CREDENTIAL_TYPE_ERROR_MSG, e);
         }
         String digestFunction = realmConfig.getUserStoreProperties().get(JDBCRealmConstants.DIGEST_FUNCTION);
         if (digestFunction != null) {

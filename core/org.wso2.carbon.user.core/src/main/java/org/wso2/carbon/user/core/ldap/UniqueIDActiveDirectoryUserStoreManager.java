@@ -99,6 +99,8 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
     // For AD's this value is 1500 by default, hence overriding the default value.
     protected static final int MEMBERSHIP_ATTRIBUTE_RANGE_VALUE = 1500;
 
+    private static final String UNSUPPORTED_CREDENTIAL_TYPE_ERROR_MSG = "Unsupported credential type.";
+
     static {
         setAdvancedProperties();
     }
@@ -208,11 +210,10 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
         try {
             credentialObj = Secret.getSecret(credential);
         } catch (UnsupportedSecretTypeException e) {
-            String msg = "Unsupported credential type.";
             if (logger.isDebugEnabled()) {
-                logger.debug(msg, e);
+                logger.debug(UNSUPPORTED_CREDENTIAL_TYPE_ERROR_MSG, e);
             }
-            throw new UserStoreException(msg, e);
+            throw new UserStoreException(UNSUPPORTED_CREDENTIAL_TYPE_ERROR_MSG, e);
         }
 
         Name compoundName = null;
@@ -519,11 +520,10 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
         try {
             credentialObj = Secret.getSecret(newCredential);
         } catch (UnsupportedSecretTypeException e) {
-            String msg = "Unsupported credential type.";
             if (logger.isDebugEnabled()) {
-                logger.debug(msg, e);
+                logger.debug(UNSUPPORTED_CREDENTIAL_TYPE_ERROR_MSG, e);
             }
-            throw new UserStoreException(msg, e);
+            throw new UserStoreException(UNSUPPORTED_CREDENTIAL_TYPE_ERROR_MSG, e);
         }
 
         if (logger.isDebugEnabled()) {
@@ -645,11 +645,10 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
                 try {
                     credentialObj = Secret.getSecret(newCredential);
                 } catch (UnsupportedSecretTypeException e) {
-                    String msg = "Unsupported credential type.";
                     if (logger.isDebugEnabled()) {
-                        logger.debug(msg, e);
+                        logger.debug(UNSUPPORTED_CREDENTIAL_TYPE_ERROR_MSG, e);
                     }
-                    throw new UserStoreException(msg, e);
+                    throw new UserStoreException(UNSUPPORTED_CREDENTIAL_TYPE_ERROR_MSG, e);
                 }
 
                 try {

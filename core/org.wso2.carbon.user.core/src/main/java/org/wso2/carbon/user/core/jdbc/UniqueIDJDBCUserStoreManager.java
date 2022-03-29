@@ -1144,11 +1144,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         try {
             credentialObj = Secret.getSecret(credential);
         } catch (UnsupportedSecretTypeException e) {
-            String msg = "Unsupported credential type.";
             if (log.isDebugEnabled()) {
-                log.debug(msg, e);
+                log.debug(JDBCUserStoreConstants.UNSUPPORTED_CREDENTIAL_TYPE_ERROR_MSG, e);
             }
-            throw new UserStoreException(msg, e);
+            throw new UserStoreException(JDBCUserStoreConstants.UNSUPPORTED_CREDENTIAL_TYPE_ERROR_MSG, e);
         }
 
         try {
