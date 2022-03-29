@@ -75,7 +75,7 @@
                                 {{property}}="{{value}}"
                             {% endfor %}
                         />
-                        {% endif %}
+                {% endif %}
                 <Valve className="org.wso2.carbon.tomcat.ext.valves.RequestEncodingValve" encoding="UTF-8"/>
                 <Valve className="org.wso2.carbon.tomcat.ext.valves.RequestCorrelationIdValve"
                        headerToCorrelationIdMapping="{'activityid':'Correlation-ID'}"
