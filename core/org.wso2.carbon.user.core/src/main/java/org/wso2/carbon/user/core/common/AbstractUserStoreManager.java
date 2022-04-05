@@ -16977,7 +16977,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     groupName, requiredAttributes);
             throw ex;
         }
-        if (StringUtils.isBlank(group.getGroupID())) {
+        if (isUniqueGroupIdEnabled() && StringUtils.isBlank(group.getGroupID())) {
             throw new UserStoreClientException(String.format(ERROR_NO_GROUP_FOUND_WITH_NAME.getMessage(), groupName,
                     tenantId), ERROR_NO_GROUP_FOUND_WITH_NAME.getCode());
         }
