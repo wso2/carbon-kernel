@@ -43,6 +43,7 @@ public class CarbonTestServerManager {
         try {
             testServerInstance = new TestServerManager(new AutomationContext("CARBON", TestUserMode.SUPER_TENANT_ADMIN));
             testServerInstance.getCommands().put("-Dsetup", "");
+            testServerInstance.getCommands().put("-DenableRemoteShutdownAndRestart", String.valueOf(true));
         } catch (XPathExpressionException e) {
             log.error(e);
         }
@@ -54,6 +55,7 @@ public class CarbonTestServerManager {
         }
         deleteDatabases();
         testServerInstance.getCommands().put("-DportOffset", String.valueOf(portOffset));
+        testServerInstance.getCommands().put("-DenableRemoteShutdownAndRestart", String.valueOf(true));
         testServerInstance.startServer();
         isServerRunning = true;
     }
@@ -65,6 +67,7 @@ public class CarbonTestServerManager {
         deleteDatabases();
         testServerInstance.getCommands().clear();
         testServerInstance.getCommands().put("-Dsetup", "");
+        testServerInstance.getCommands().put("-DenableRemoteShutdownAndRestart", String.valueOf(true));
         testServerInstance.getCommands().putAll(serverPropertyMap);
         testServerInstance.startServer();
         isServerRunning = true;
