@@ -85,8 +85,8 @@
                     <skip>true</skip>
 
                     <classpathDependencyExcludes>
-                        <classpathDependencyExclude>org.wso2.org.ops4j.pax.logging:pax-logging-api</classpathDependencyExclude>
-                        <classpathDependencyExclude>org.wso2.org.ops4j.pax.logging:pax-logging-log4j2</classpathDependencyExclude>
+                        <classpathDependencyExclude>org.ops4j.pax.logging:pax-logging-api</classpathDependencyExclude>
+                        <classpathDependencyExclude>org.ops4j.pax.logging:pax-logging-log4j2</classpathDependencyExclude>
                     </classpathDependencyExcludes>
                     <systemPropertyVariables>
                         <java.util.logging.manager>org.apache.logging.log4j.jul.LogManager</java.util.logging.manager>
@@ -459,7 +459,7 @@
             <artifactId>abdera</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.org.ops4j.pax.logging</groupId>
+            <groupId>org.ops4j.pax.logging</groupId>
             <artifactId>pax-logging-api</artifactId>
         </dependency>
         <dependency>

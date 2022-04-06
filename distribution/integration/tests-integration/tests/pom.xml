@@ -72,8 +72,8 @@
                         <axis2.sample.service.dir>${basedir}/target/axis2-sample-service/</axis2.sample.service.dir>
                     </systemProperties>
                     <classpathDependencyExcludes>
-                        <classpathDependencyExclude>org.wso2.org.ops4j.pax.logging:pax-logging-api</classpathDependencyExclude>
-                        <classpathDependencyExclude>org.wso2.org.ops4j.pax.logging:pax-logging-log4j2</classpathDependencyExclude>
+                        <classpathDependencyExclude>org.ops4j.pax.logging:pax-logging-api</classpathDependencyExclude>
+                        <classpathDependencyExclude>org.ops4j.pax.logging:pax-logging-log4j2</classpathDependencyExclude>
                     </classpathDependencyExcludes>
                     <systemPropertyVariables>
                         <java.util.logging.manager>org.apache.logging.log4j.jul.LogManager</java.util.logging.manager>

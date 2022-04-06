@@ -68,7 +68,7 @@
                 <inherited>true</inherited>
                 <configuration>
                     <classpathDependencyExcludes>
-                        <classpathDependencyExclude>org.wso2.org.ops4j.pax.logging:pax-logging-api</classpathDependencyExclude>
+                        <classpathDependencyExclude>org.ops4j.pax.logging:pax-logging-api</classpathDependencyExclude>
                     </classpathDependencyExcludes>
                     <systemPropertyVariables>
                         <java.util.logging.manager>org.apache.logging.log4j.jul.LogManager</java.util.logging.manager>
@@ -93,7 +93,7 @@
             <artifactId>axiom</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.org.ops4j.pax.logging</groupId>
+            <groupId>org.ops4j.pax.logging</groupId>
             <artifactId>pax-logging-api</artifactId>
         </dependency>
         <dependency>
