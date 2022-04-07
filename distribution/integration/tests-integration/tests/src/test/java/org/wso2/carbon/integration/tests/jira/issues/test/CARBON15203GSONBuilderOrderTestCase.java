@@ -55,6 +55,8 @@ public class CARBON15203GSONBuilderOrderTestCase extends CarbonIntegrationBaseTe
     public void initialize() throws Exception {
         HashMap<String, String> startUpParameterMap = new HashMap<String, String>();
         startUpParameterMap.put("-DportOffset", String.valueOf(portOffset));
+        startUpParameterMap.put("-DenableRemoteShutdownAndRestart", String.valueOf(true));
+
         context = new AutomationContext();
         serverManager = new TestServerManager(context, System.getProperty("carbon.zip"), startUpParameterMap);
         serverManager.startServer();

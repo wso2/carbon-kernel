@@ -70,6 +70,7 @@ public class LoggingWithUUIDTestCase extends CarbonIntegrationBaseTest {
 
         Map<String, String> startupOptions = new HashMap<>();
         startupOptions.put("-DportOffset", String.valueOf(portOffset));
+        startupOptions.put("-DenableRemoteShutdownAndRestart", String.valueOf(true));
 
         carbonServerManager.startServerUsingCarbonHome(carbonHome, startupOptions);
     }
