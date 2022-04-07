@@ -47,9 +47,11 @@ public class MultipleCarbonInstancesTestCase {
         AutomationContext context = new AutomationContext();
 
         startupParameterMapOne.put("-DportOffset", "10");
+        startupParameterMapOne.put("-DenableRemoteShutdownAndRestart", String.valueOf(true));
         TestServerManager server1 = new TestServerManager(context, System.getProperty("carbon.zip"),
                 startupParameterMapOne);
         startupParameterMapTwo.put("-DportOffset", "20");
+        startupParameterMapTwo.put("-DenableRemoteShutdownAndRestart", String.valueOf(true));
         TestServerManager server2 = new TestServerManager(context, System.getProperty("carbon.zip"),
                 startupParameterMapTwo);
         manager.startServers(server1, server2);
