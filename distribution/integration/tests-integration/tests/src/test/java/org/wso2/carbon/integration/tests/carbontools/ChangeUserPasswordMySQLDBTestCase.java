@@ -82,6 +82,7 @@ public class ChangeUserPasswordMySQLDBTestCase extends CarbonIntegrationBaseTest
     public void testMysqlPasswordChangeScript() throws Exception {
 
         serverPropertyMap.put("-DportOffset", Integer.toString(portOffset));
+        serverPropertyMap.put("-DenableRemoteShutdownAndRestart", String.valueOf(true));
 
         TestServerManager carbonServer =
                 new TestServerManager(automationContext, System.getProperty("carbon.zip"),

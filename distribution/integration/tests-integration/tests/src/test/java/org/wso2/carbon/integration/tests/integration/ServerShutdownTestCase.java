@@ -97,7 +97,8 @@ public class ServerShutdownTestCase extends CarbonIntegrationBaseTest {
         int portOffset = 37;
         HashMap<String, String> startUpParameterMap = new HashMap<String, String>();
         startUpParameterMap.put("-DportOffset", String.valueOf(portOffset));
-
+        startUpParameterMap.put("-DenableRemoteShutdownAndRestart", String.valueOf(true));
+        
         try {
             CarbonTestServerManager.start(startUpParameterMap);
 
