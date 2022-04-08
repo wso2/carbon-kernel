@@ -61,14 +61,18 @@ public class CarbonContextCreatorValve extends ValveBase {
         } catch (Exception e) {
             log.error("Could not handle request: " + request.getRequestURI(), e);
         } finally {
-            MDC.remove(CarbonConstants.LogEventConstants.CLIENT_COMPONENT);
-            MDC.remove(MultitenantConstants.TENANT_ID);
-            MDC.remove(MultitenantConstants.TENANT_DOMAIN);
-            MDC.remove("appName");
+            unsetMDCThreadLocals();
             // This will destroy the carbon context holder on the current thread after
             // invoking subsequent valves.
             PrivilegedCarbonContext.destroyCurrentContext();
         }
+    }
+
+    private void unsetMDCThreadLocals(){
+
+        MDC.remove(MultitenantConstants.TENANT_ID);
+        MDC.remove(MultitenantConstants.TENANT_DOMAIN);
+        MDC.remove("appName");
     }
 
     public void initCarbonContext(Request request) throws Exception {
