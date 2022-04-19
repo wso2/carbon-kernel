@@ -4937,7 +4937,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // #################### </Pre-Listeners> #####################################################
 
             // Validate the username against provided regular expressions.
-            if (!checkUserNameValid(userStore.getDomainFreeName())) {
+            if (!checkUserNameValid(userStore.getDomainFreeName()) &&
+                    !UserCoreUtil.getSkipUsernamePatternValidationThreadLocal()) {
                 String regEx = realmConfig
                         .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
                 // Inorder to support both UsernameJavaRegEx and UserNameJavaRegEx.
@@ -5079,6 +5080,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // #################### </Post-Listeners> #####################################################
         } finally {
             UserCoreUtil.removeSkipPasswordPatternValidationThreadLocal();
+            UserCoreUtil.removeSkipUsernamePatternValidationThreadLocal();
             credentialObj.clear();
         }
 
