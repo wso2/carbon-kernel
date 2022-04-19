@@ -84,6 +84,12 @@ public final class UserCoreUtil {
     private static ThreadLocal<Boolean> skipPasswordPatternValidationThreadLocal = new ThreadLocal<>();
 
     /**
+     * This thread local is used to keep track whether username policy validation is skipped
+     * during the user addition flow.
+     */
+    private static ThreadLocal<Boolean> skipUsernamePatternValidationThreadLocal = new ThreadLocal<>();
+
+    /**
      * @param arr1
      * @param arr2
      * @return
@@ -503,6 +509,25 @@ public final class UserCoreUtil {
     public static void removeSkipPasswordPatternValidationThreadLocal() {
 
         skipPasswordPatternValidationThreadLocal.remove();
+    }
+
+    public static void setSkipUsernamePatternValidationThreadLocal(Boolean askPasswordEnabled) {
+
+        skipUsernamePatternValidationThreadLocal.set(askPasswordEnabled);
+    }
+
+    public static boolean getSkipUsernamePatternValidationThreadLocal() {
+
+        if (skipUsernamePatternValidationThreadLocal.get() != null) {
+            return skipUsernamePatternValidationThreadLocal.get().booleanValue();
+        } else {
+            return false;
+        }
+    }
+
+    public static void removeSkipUsernamePatternValidationThreadLocal() {
+
+        skipUsernamePatternValidationThreadLocal.remove();
     }
 
     /**
