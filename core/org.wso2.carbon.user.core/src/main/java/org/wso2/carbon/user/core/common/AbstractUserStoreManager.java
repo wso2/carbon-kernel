@@ -5897,6 +5897,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (!isReadOnly() && writeGroupsEnabled) {
             try {
                 doUpdateRoleName(userStore.getDomainFreeName(), userStoreNew.getDomainFreeName());
+                if (hybridRoleManager.isGroupNameExistInHybridGroupRoleTable(roleName)) {
+                    String internalSystemRole = UserCoreConstants.INTERNAL_SYSTEM_ROLE_PREFIX +
+                            UserCoreUtil.extractDomainFromName(newRoleName)
+                                    .toLowerCase() + "_" + UserCoreUtil.removeDomainFromName(newRoleName);
+                    hybridRoleManager.updateGroupListOfHybridRole(internalSystemRole, new String[]{roleName},
+                            new String[]{newRoleName});
+                }
             } catch (UserStoreException ex) {
                 handleUpdateRoleNameFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_ROLE_NAME.getCode(),
                         String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_ROLE_NAME.getMessage(),
