@@ -1989,6 +1989,8 @@
         <jmockit.version>1.44</jmockit.version>
         <maven.surefire.plugin.version>2.22.0</maven.surefire.plugin.version>
         <org.powermock.version>1.7.4</org.powermock.version>
+        <mockito.version>2.23.4</mockito.version>
+        <powermock.version>2.0.2</powermock.version>
 
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
         <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>
