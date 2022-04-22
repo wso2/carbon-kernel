@@ -20,6 +20,7 @@ package org.wso2.carbon.tomcat.ext.valves;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.slf4j.MDC;
@@ -110,7 +111,7 @@ public class CarbonContextCreatorValve extends ValveBase {
                             RegistryType.SYSTEM_GOVERNANCE));
         }
 
-        if (appName != null) {
+        if (StringUtils.isNotEmpty(appName)) {
             MDC.put("appName", appName);
         }
     }
