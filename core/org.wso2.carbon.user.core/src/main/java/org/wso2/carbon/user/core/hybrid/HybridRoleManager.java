@@ -172,48 +172,44 @@ public class HybridRoleManager {
     }
 
     /**
-     * @param roleName name of the role.
-     * @return true if the role exist.
-     * @throws UserStoreException if there is an error occurred.
+     * @param roleName
+     * @return
+     * @throws UserStoreException
      */
     public boolean isExistingRole(String roleName) throws UserStoreException {
 
-        return isValueExisting(HybridJDBCConstants.GET_ROLE_ID, roleName, tenantId);
-    }
-
-    /**
-     * Check whether the group exists in the UM_HYBRID_GROUP_ROLE table.
-     * @param roleName name of the role.
-     * @return true if the group exist.
-     * @throws UserStoreException UserStoreException.
-     */
-    public boolean isGroupNameExistInHybridGroupRoleTable(String roleName) throws UserStoreException {
-
-        String sqlStmt = HybridJDBCConstants.GET_IS_GROUP_EXISTING_IN_UM_HYBRID_GROUP_ROLE_SQL;
-        String domainName = getMyDomainName();
-        return isValueExisting(sqlStmt, roleName, tenantId, domainName, tenantId);
-
-    }
-
-    private boolean isValueExisting(String sqlStmt, Object... params)
-            throws UserStoreException {
-
         Connection dbConnection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
         boolean isExisting = false;
+
         try {
+
+            // ########### Domain-less Roles and Domain-aware Users from here onwards #############
+
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
-            if (DatabaseUtil.getIntegerValueFromDatabase(dbConnection, sqlStmt, params) > -1) {
-                isExisting = true;
+            prepStmt = dbConnection.prepareStatement(HybridJDBCConstants.GET_ROLE_ID);
+            prepStmt.setString(1, roleName);
+            prepStmt.setInt(2, tenantId);
+            rs = prepStmt.executeQuery();
+            if (rs.next()) {
+                int value = rs.getInt(1);
+                if (value > -1) {
+                    isExisting = true;
+                }
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Is roleName: " + roleName + " Exist: " + isExisting + " TenantId: " + tenantId);
             }
             return isExisting;
         } catch (SQLException e) {
-            String msg = "Error occurred while checking existence of values.";
+            String errorMessage = "Error occurred while checking is existing role for role name : " + roleName;
             if (log.isDebugEnabled()) {
-                log.debug(msg, e);
+                log.debug(errorMessage, e);
             }
-            throw new UserStoreException(msg, e);
+            throw new UserStoreException(errorMessage, e);
         } finally {
-            DatabaseUtil.closeAllConnections(dbConnection);
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
     }
 
