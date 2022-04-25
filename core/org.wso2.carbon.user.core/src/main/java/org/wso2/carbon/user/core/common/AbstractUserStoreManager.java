@@ -7157,16 +7157,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         try {
             boolean internalRole = isAnInternalRole(roleName);
-            String internalSystemRolePrefix = INTERNAL_DOMAIN + DOMAIN_SEPARATOR + INTERNAL_SYSTEM_ROLE_PREFIX;
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
                 if (isAuditLogOnly && !listener.getClass().getName()
                         .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
                     continue;
                 }
                 boolean success;
-                if (internalRole && roleName.startsWith(internalSystemRolePrefix)) {
-                    success = true;
-                } else if (internalRole && listener instanceof AbstractUserOperationEventListener) {
+                if (internalRole && listener instanceof AbstractUserOperationEventListener) {
                     success = ((AbstractUserOperationEventListener) listener).doPreDeleteInternalRole(roleName, this);
                 } else if (internalRole) {
                     success = true;
