@@ -31,6 +31,7 @@
     import java.util.ArrayList;
     import java.util.List;
     import java.util.Map;
+    import java.util.Objects;
     import java.util.Properties;
     import java.util.regex.Matcher;
     import java.util.regex.Pattern;
@@ -45,9 +46,12 @@
 
         private static final LogMaskConverter INSTANCE = new LogMaskConverter();
         private static final String DEFAULT_MASKING_PATTERNS_FILE_NAME = "wso2-log-masking.properties";
-        private static final String REPLACEMENT_STRING = "*****";
+        private static final String MASK_PATTERN = "mm";
+        private static final String REPLACE_PATTERN = ".replace_pattern";
+        private static final String REPLACER = ".replacer";
 
-        private final List<Pattern> logMaskingPatterns;
+        private List<LogMaskInfoProvider> logMaskInfoProvider;
+        private boolean isMaskAvailable = false;
 
         public static LogMaskConverter newInstance(String[] options) {
 
@@ -56,8 +60,8 @@
 
         protected LogMaskConverter() {
 
-            super("mm", "mm");
-            logMaskingPatterns = new ArrayList<>();
+            super(MASK_PATTERN, MASK_PATTERN);
+            logMaskInfoProvider = new ArrayList<>();
             loadMaskingPatterns();
         }
 
@@ -67,15 +71,25 @@
             String message = logEvent.getMessage().getFormat();
 
             // Check whether there are any masking patterns defined.
-            if (!logMaskingPatterns.isEmpty()) {
+            if (this.isMaskAvailable) {
                 Matcher matcher;
+                Matcher replaceMatcher;
 
-                for (Pattern pattern : logMaskingPatterns) {
+                for (LogMaskInfoProvider maskingInfo : logMaskInfoProvider) {
+                    Pattern pattern = maskingInfo.logMaskingPattern;
                     matcher = pattern.matcher(message);
                     StringBuffer stringBuffer = new StringBuffer();
+                    Pattern replacementPattern = maskingInfo.logReplacementPattern;
 
                     while (matcher.find()) {
-                        matcher.appendReplacement(stringBuffer, REPLACEMENT_STRING);
+                        if (Objects.isNull(replacementPattern)) {
+                            matcher.appendReplacement(stringBuffer, maskingInfo.logReplacementString);
+                        } else {
+                            String subStringToMask = message.substring(matcher.start(), matcher.end());
+                            replaceMatcher = replacementPattern.matcher(subStringToMask);
+                            subStringToMask = replaceMatcher.replaceAll(maskingInfo.logReplacementString);
+                            matcher.appendReplacement(stringBuffer, subStringToMask);
+                        }
                     }
                     matcher.appendTail(stringBuffer);
                     message = stringBuffer.toString();
@@ -100,12 +114,19 @@
                 // If the masking file is not configured, load the configs from the default file.
                 if (Files.exists(Paths.get(defaultFile))) {
                     propsStream = new FileInputStream(defaultFile);
-                }
-                properties.load(propsStream);
+                    properties.load(propsStream);
 
-                for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-                    Pattern maskingPattern = Pattern.compile((String) entry.getValue());
-                    logMaskingPatterns.add(maskingPattern);
+                    for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+                        if (((String) entry.getKey()).endsWith(REPLACE_PATTERN) || ((String) entry.getKey()).endsWith(
+                                REPLACER)) {
+                            continue;
+                        }
+                        String pattern = (String) entry.getValue();
+                        String replacePattern = properties.getProperty(entry.getKey() + REPLACE_PATTERN);
+                        String replacerPattern = properties.getProperty(entry.getKey() + REPLACER);
+                        logMaskInfoProvider.add(new LogMaskInfoProvider(pattern, replacePattern, replacerPattern));
+                        this.isMaskAvailable = true;
+                    }
                 }
             } catch (IOException e) {
                 // If the masking patterns cannot be loaded print an error message.
@@ -120,4 +141,23 @@
             }
         }
 
+        /**
+         * This class represents the masking information.
+         */
+        public class LogMaskInfoProvider {
+
+            private Pattern logMaskingPattern;
+            private Pattern logReplacementPattern;
+            private String logReplacementString = "*****";
+
+            LogMaskInfoProvider(String logMaskingPattern, String logReplacementPattern, String logReplacementString) {
+                this.logMaskingPattern = Pattern.compile(logMaskingPattern);
+                if (Objects.nonNull(logReplacementPattern)) {
+                    this.logReplacementPattern = Pattern.compile(logReplacementPattern);
+                }
+                if (Objects.nonNull(logReplacementString)) {
+                    this.logReplacementString = logReplacementString;
+                }
+            }
+        }
     }
