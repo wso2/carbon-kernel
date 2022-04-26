@@ -980,9 +980,9 @@
                 <version>${saml.common.util.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-log4j12</artifactId>
-                <version>${org.slf4j.verison}</version>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j-impl</artifactId>
+                <version>${log4j.slf4j.version}</version>
             </dependency>
 
             <dependency>
@@ -1981,6 +1981,7 @@
         <!-- Log4j -->
         <log4j.api.version>2.17.1</log4j.api.version>
         <log4j.core.version>2.17.1</log4j.core.version>
+        <log4j.slf4j.version>2.17.1</log4j.slf4j.version>
 
         <!-- Unit test versions -->
         <testng.version>6.9.10</testng.version>
