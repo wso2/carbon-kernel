@@ -519,7 +519,7 @@
         <version.wso2.derby>10.3.2.1wso2v1</version.wso2.derby>
 
         <!-- slf4j -->
-        <slf4j.version>1.5.10</slf4j.version>
+        <slf4j.version>1.7.21</slf4j.version>
         <!--<slf4j.wso2.version>1.5.10.wso2v1</slf4j.wso2.version>-->
 
         <!-- findbugs -->
@@ -558,8 +558,7 @@
         <version.drools>5.1.1</version.drools>
         <version.jsr94>1.1</version.jsr94>
 
-        <version.log4j.core>2.17.1</version.log4j.core>
-        <version.log4j.jul>2.17.1</version.log4j.jul>
+        <version.log4j2>2.17.2</version.log4j2>
         <version.commons.logging>1.2</version.commons.logging>
         <version.xmlunit>1.1</version.xmlunit>
         <version.jaxen>1.1.1</version.jaxen>
@@ -608,7 +607,6 @@
         <jdbc-pool.version>9.0.56.wso2v1</jdbc-pool.version>
 
         <!-- Test integration -->
-        <slf4j.version>1.5.10</slf4j.version>
         <woden.api.version>1.0M9</woden.api.version>
         <maven.clean.plugin.version>2.4.1</maven.clean.plugin.version>
         <version.com.google.code.gson>2.8.5</version.com.google.code.gson>
@@ -1447,11 +1445,6 @@
                 <version>${javasysmon.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-log4j12</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.zookeeper.wso2</groupId>
                 <artifactId>apache-zookeeper</artifactId>
                 <version>${zookeeper.version}</version>
@@ -1871,13 +1864,19 @@
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-core</artifactId>
-                <version>${version.log4j.core}</version>
+                <version>${version.log4j2}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j-impl</artifactId>
+                <version>${version.log4j2}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-jul</artifactId>
-                <version>${version.log4j.jul}</version>
+                <version>${version.log4j2}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -1889,14 +1888,19 @@
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-api</artifactId>
-                <version>${version.log4j.core}</version>
+                <version>${version.log4j2}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-jcl</artifactId>
-                <version>${version.log4j.core}</version>
+                <version>${version.log4j2}</version>
                 <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.xml.messaging.saaj</groupId>
