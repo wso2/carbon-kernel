@@ -402,6 +402,22 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
             String sortBy, String sortOrder) throws UserStoreException;
 
     /**
+     * Retrieves a list of paginated usernames conditionally (using cursor pagination).
+     *
+     * @param condition   Conditional filter.
+     * @param domain      User Store Domain.
+     * @param profileName User profile name.
+     * @param limit       No of search results. If the given value is greater than the system configured max limit.
+     *                    it will be reset to the system configured max limit.
+     * @param cursor      Starting cursor value of the user search.
+     * @param direction   Pagination direction.
+     * @return An array of usernames.
+     * @throws UserStoreException User Store Exception.
+     */
+    List<User> getUserListWithID(Condition condition, String domain, String profileName, int limit, String cursor,
+                                 String direction, String sortBy, String sortOrder) throws UserStoreException;
+
+    /**
      * Get claim values of users.
      *
      * @param userIDs User IDs.

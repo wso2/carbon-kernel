@@ -134,7 +134,7 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
             UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
-     * Pre listener for the get paginated  conditional user list method.
+     * Pre listener for the get offset paginated conditional user list method.
      *
      * @param condition        condition.
      * @param domain           user store domain.

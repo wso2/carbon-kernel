@@ -21,5 +21,5 @@ package org.wso2.carbon.user.core.model;
  * This represents expression operations.
  */
 public enum ExpressionOperation {
-    EQ, SW, EW, CO, GE, LE
+    EQ, SW, EW, CO, GE, LE, GT, LT, NE
 }
