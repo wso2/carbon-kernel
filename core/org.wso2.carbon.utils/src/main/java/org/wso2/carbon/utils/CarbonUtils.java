@@ -16,6 +16,8 @@
 
 package org.wso2.carbon.utils;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.axiom.util.base64.Base64Utils;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
@@ -1465,12 +1467,10 @@ public class CarbonUtils {
 
         Object diagnosticLogObj = diagnosticLogData.get(CarbonConstants.LogEventConstants.DIAGNOSTIC_LOG);
         if (diagnosticLogObj instanceof DiagnosticLog) {
-            DiagnosticLog log = (DiagnosticLog) diagnosticLogObj;
-            String logStr = String.format(CarbonConstants.DIAGNOSTIC_LOG_TEMPLATE, log.getLogId(),
-                    log.getRecordedAt(), log.getRequestId(), log.getFlowId(), log.getComponentId(), log.getActionId(),
-                    getMapDataAsString(log.getInput()), getMapDataAsString(log.getConfigurations()),
-                    log.getResultStatus(), log.getResultMessage());
-            diagnosticLog.info(logStr);
+            DiagnosticLog diagnosticLog = (DiagnosticLog) diagnosticLogObj;
+            GsonBuilder builder = new GsonBuilder();
+            builder.serializeNulls();
+            CarbonUtils.diagnosticLog.info(builder.create().toJson(diagnosticLog));
         }
     }
 
