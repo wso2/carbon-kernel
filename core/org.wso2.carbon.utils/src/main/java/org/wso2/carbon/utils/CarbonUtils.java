@@ -1373,12 +1373,7 @@ public class CarbonUtils {
         Object auditLogObject = auditLogData.get(CarbonConstants.LogEventConstants.AUDIT_LOG);
         if (auditLogObject instanceof AuditLog) {
             AuditLog auditLog = (AuditLog) auditLogObject;
-            String auditLogString = String.format(CarbonConstants.AUDIT_LOG_MESSAGE_TEMPLATE, auditLog.getLogId(),
-                    auditLog.getRecordedAt(), auditLog.getClientComponent(), auditLog.getCorrelationId(),
-                    auditLog.getInitiatorId(), auditLog.getInitiatorName(), auditLog.getInitiatorType(),
-                    auditLog.getEventType(), auditLog.getTargetId(), auditLog.getTargetName(), auditLog.getTargetType(),
-                    auditLog.getDataChange());
-            audit.warn(auditLogString);
+            audit.warn(new Gson().toJson(auditLog));
         }
     }
 
