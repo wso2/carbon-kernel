@@ -25,8 +25,8 @@ import org.apache.catalina.valves.ValveBase;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.logging.log4j.ThreadContext;
 import org.apache.tomcat.util.res.StringManager;
+import org.slf4j.MDC;
 import org.wso2.carbon.tomcat.ext.internal.Utils;
 
 import java.io.IOException;
@@ -186,6 +186,9 @@ public class CarbonStuckThreadDetectionValve extends ValveBase {
         private final AtomicInteger state = new AtomicInteger(
             MonitoredThreadState.RUNNING.ordinal());
 
+        /**
+         * @deprecated to use {@link #MonitoredThread(Thread, String, String, String}
+         */
         @Deprecated
         public MonitoredThread(Thread thread, String requestUri, String tenantDomain) {
 
@@ -242,7 +245,7 @@ public class CarbonStuckThreadDetectionValve extends ValveBase {
      */
     public static boolean isCorrelationIDPresent() {
 
-        return ThreadContext.get(CORRELATION_ID_MDC) != null;
+        return MDC.get(CORRELATION_ID_MDC) != null;
     }
 
     /**
@@ -254,7 +257,7 @@ public class CarbonStuckThreadDetectionValve extends ValveBase {
 
         String ref = null;
         if (isCorrelationIDPresent()) {
-            ref = ThreadContext.get(CORRELATION_ID_MDC);
+            ref = MDC.get(CORRELATION_ID_MDC);
         }
         return ref;
     }
