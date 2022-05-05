@@ -107,6 +107,7 @@ public class CarbonUtils {
             org.apache.xerces.impl.Constants.SECURITY_MANAGER_PROPERTY;
     private static boolean isServerConfigInitialized;
     private static Log audit = CarbonConstants.AUDIT_LOG;
+    private static Gson gson = new Gson();
 
     public static boolean isAdminConsoleEnabled() {
         boolean enableAdminConsole = false;
@@ -1373,7 +1374,7 @@ public class CarbonUtils {
         Object auditLogObject = auditLogData.get(CarbonConstants.LogEventConstants.AUDIT_LOG);
         if (auditLogObject instanceof AuditLog) {
             AuditLog auditLog = (AuditLog) auditLogObject;
-            audit.warn(new Gson().toJson(auditLog));
+            audit.warn(gson.toJson(auditLog));
         }
     }
 
@@ -1461,7 +1462,7 @@ public class CarbonUtils {
         Object diagnosticLogObj = diagnosticLogData.get(CarbonConstants.LogEventConstants.DIAGNOSTIC_LOG);
         if (diagnosticLogObj instanceof DiagnosticLog) {
             DiagnosticLog log = (DiagnosticLog) diagnosticLogObj;
-            diagnosticLog.info(new Gson().toJson(log));
+            diagnosticLog.info(gson.toJson(log));
         }
     }
 
