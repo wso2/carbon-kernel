@@ -34,14 +34,6 @@ public final class CarbonConstants {
     public static final Log AUDIT_LOG = LogFactory.getLog("AUDIT_LOG");
     public static final String AUDIT_MESSAGE = "Initiator : %s | Action : %s | Target : %s | Data : { %s } | Result : %s ";
     public static final String DISABLE_LEGACY_AUDIT_LOGS = "disableLegacyAuditLogs";
-    public static final String AUDIT_LOG_MESSAGE_TEMPLATE =
-            "{ id : %s, recordedAt : %s, clientComponent : %s, requestId : %s, " +
-                    "initiator.id : %s, initiator.name : %s, initiator.type : %s, event.type : %s, target.id : %s, " +
-                    "target.name : %s, target.type : %s, data.change : %s }";
-    public static final String DIAGNOSTIC_LOG_TEMPLATE =
-            "{ id : %s, recordedAt : %s, requestId : %s, flowId : %s, " +
-                    "component.id : %s, action.id : %s, input : %s, configurations : %s, result.status : %s, " +
-                    "result.message : %s }";
     public enum DiagnosticLogMode {
         FULL,
         NONE

@@ -16,6 +16,7 @@
 
 package org.wso2.carbon.utils;
 
+import com.google.gson.Gson;
 import org.apache.axiom.util.base64.Base64Utils;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
@@ -74,7 +75,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import javax.xml.XMLConstants;
@@ -107,6 +107,7 @@ public class CarbonUtils {
             org.apache.xerces.impl.Constants.SECURITY_MANAGER_PROPERTY;
     private static boolean isServerConfigInitialized;
     private static Log audit = CarbonConstants.AUDIT_LOG;
+    private static Gson gson = new Gson();
 
     public static boolean isAdminConsoleEnabled() {
         boolean enableAdminConsole = false;
@@ -1373,12 +1374,7 @@ public class CarbonUtils {
         Object auditLogObject = auditLogData.get(CarbonConstants.LogEventConstants.AUDIT_LOG);
         if (auditLogObject instanceof AuditLog) {
             AuditLog auditLog = (AuditLog) auditLogObject;
-            String auditLogString = String.format(CarbonConstants.AUDIT_LOG_MESSAGE_TEMPLATE, auditLog.getLogId(),
-                    auditLog.getRecordedAt(), auditLog.getClientComponent(), auditLog.getCorrelationId(),
-                    auditLog.getInitiatorId(), auditLog.getInitiatorName(), auditLog.getInitiatorType(),
-                    auditLog.getEventType(), auditLog.getTargetId(), auditLog.getTargetName(), auditLog.getTargetType(),
-                    auditLog.getDataChange());
-            audit.warn(auditLogString);
+            audit.warn(gson.toJson(auditLog));
         }
     }
 
@@ -1466,11 +1462,7 @@ public class CarbonUtils {
         Object diagnosticLogObj = diagnosticLogData.get(CarbonConstants.LogEventConstants.DIAGNOSTIC_LOG);
         if (diagnosticLogObj instanceof DiagnosticLog) {
             DiagnosticLog log = (DiagnosticLog) diagnosticLogObj;
-            String logStr = String.format(CarbonConstants.DIAGNOSTIC_LOG_TEMPLATE, log.getLogId(),
-                    log.getRecordedAt(), log.getRequestId(), log.getFlowId(), log.getComponentId(), log.getActionId(),
-                    getMapDataAsString(log.getInput()), getMapDataAsString(log.getConfigurations()),
-                    log.getResultStatus(), log.getResultMessage());
-            diagnosticLog.info(logStr);
+            diagnosticLog.info(gson.toJson(log));
         }
     }
 
