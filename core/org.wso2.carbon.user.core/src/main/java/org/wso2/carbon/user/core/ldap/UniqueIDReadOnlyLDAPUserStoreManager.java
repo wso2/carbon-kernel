@@ -1549,7 +1549,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                     ldapContext.setRequestControls(new Control[] { new PagedResultsControl(pageSize, Control.CRITICAL),
                             new SortControl(userNameAttribute, Control.NONCRITICAL) });
                 } else {
-                    SortKey sortKey = new SortKey(userNameAttribute, Control.NONCRITICAL, null);
+                    SortKey sortKey = new SortKey(userNameAttribute, LDAPConstants.DESCENDING, null);
                     SortKey[] sortKeyArray = new SortKey[1];
                     sortKeyArray[0] = sortKey;
                     ldapContext.setRequestControls(new Control[] { new PagedResultsControl(pageSize, Control.CRITICAL),
