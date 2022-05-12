@@ -53,6 +53,7 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -396,13 +397,17 @@ public class JDBCTenantManager implements TenantManager {
             prepStmt.setInt(1, tenantId);
 
             result = prepStmt.executeQuery();
+            boolean tenantUUIDColumnExists = hasColumn(result, COLUMN_NAME_UM_TENANT_UUID);
 
             if (result.next()) {
                 id = result.getInt(COLUMN_NAME_UM_ID);
                 String domain = result.getString(COLUMN_NAME_UM_DOMAIN_NAME);
                 String email = result.getString(COLUMN_NAME_UM_EMAIL);
                 boolean active = result.getBoolean(COLUMN_NAME_UM_ACTIVE);
-                String uniqueId = result.getString(COLUMN_NAME_UM_TENANT_UUID);
+                String uniqueId = null;
+                if (tenantUUIDColumnExists) {
+                    uniqueId = result.getString(COLUMN_NAME_UM_TENANT_UUID);
+                }
                 Date createdDate = new Date(result.getTimestamp(
                         COLUMN_NAME_UM_CREATED_DATE).getTime());
                 InputStream is = result.getBinaryStream(COLUMN_NAME_UM_USER_CONFIG);
@@ -420,7 +425,9 @@ public class JDBCTenantManager implements TenantManager {
                 tenant.setRealmConfig(realmConfig);
                 setSecondaryUserStoreConfig(realmConfig, tenantId);
                 tenant.setAdminName(realmConfig.getAdminUserName());
-                tenant.setTenantUniqueID(uniqueId);
+                if (tenantUUIDColumnExists) {
+                    tenant.setTenantUniqueID(uniqueId);
+                }
 
                 if (log.isDebugEnabled()) {
                     log.debug("Obtained tenant from database for the given tenant ID: " + tenantId
@@ -1377,5 +1384,24 @@ public class JDBCTenantManager implements TenantManager {
             log.error(errMsg, e);
             throw e;
         }
+    }
+
+    /**
+     * Method for checking whether a column exists in a ResultSet.
+     * @param rs            ResultSet.
+     * @param columnName    Required column.
+     * @return              True if column exists in the ResultSet.
+     * @throws SQLException Error when reading ResultSetMetadata.
+     */
+    private static boolean hasColumn(ResultSet rs, String columnName) throws SQLException {
+
+        ResultSetMetaData rsMetadata = rs.getMetaData();
+        int columnCount = rsMetadata.getColumnCount();
+        for (int i = 1; i <= columnCount; i++) {
+            if (rsMetadata.getColumnName(i).equalsIgnoreCase(columnName)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
