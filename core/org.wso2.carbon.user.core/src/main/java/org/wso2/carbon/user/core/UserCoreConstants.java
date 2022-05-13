@@ -121,6 +121,10 @@ public class UserCoreConstants {
     public static final String USER_LOCKED = "true";
     public static final String USER_UNLOCKED = "false";
 
+    // Properties used for cursor pagination
+    public static final String PREVIOUS = "prev";
+    public static final String NEXT = "next";
+
     public static final class RealmConfig {
         public static final String LOCAL_NAME_USER_MANAGER = "UserManager";
         public static final String LOCAL_NAME_REALM = "Realm";

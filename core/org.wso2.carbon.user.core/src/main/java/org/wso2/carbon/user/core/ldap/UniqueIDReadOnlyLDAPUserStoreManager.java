@@ -1518,11 +1518,11 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         UniqueIDPaginatedSearchResult result = new UniqueIDPaginatedSearchResult();
         List<ExpressionCondition> expressionConditions = getExpressionConditions(condition);
         if (cursor != null && (!cursor.equals(""))) {
-            if (direction.equals("next")) {
+            if (UserCoreConstants.NEXT.equals(direction)) {
                 ExpressionCondition cursorCondition = new ExpressionCondition(ExpressionOperation.GT.toString(),
                         ExpressionAttribute.USERNAME.toString(), cursor);
                 expressionConditions.add(cursorCondition);
-            } else if (direction.equals("prev")) {
+            } else if (UserCoreConstants.PREVIOUS.equals(direction)) {
                 ExpressionCondition cursorCondition = new ExpressionCondition(ExpressionOperation.LT.toString(),
                         ExpressionAttribute.USERNAME.toString(), cursor);
                 expressionConditions.add(cursorCondition);
@@ -1545,7 +1545,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
         try {
             if (cursor != null) {
-                if (direction.equals("next")) {
+                if (UserCoreConstants.NEXT.equals(direction)) {
                     ldapContext.setRequestControls(new Control[] { new PagedResultsControl(pageSize, Control.CRITICAL),
                             new SortControl(userNameAttribute, Control.NONCRITICAL) });
                 } else {
@@ -1555,15 +1555,12 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                     ldapContext.setRequestControls(new Control[] { new PagedResultsControl(pageSize, Control.CRITICAL),
                             new SortControl(sortKeyArray, Control.CRITICAL) });
                 }
+                users = performCursorLDAPSearch(ldapContext, ldapSearchSpecification, pageSize,
+                        expressionConditions, direction);
             } else {
                 ldapContext.setRequestControls(new Control[] { new PagedResultsControl(pageSize, Control.CRITICAL),
                         new SortControl(userNameAttribute, Control.NONCRITICAL) });
-            }
-            if (cursor == null) {
                 users = performLDAPSearch(ldapContext, ldapSearchSpecification, pageSize, offset, expressionConditions);
-            } else {
-                users = performCursorLDAPSearch(ldapContext, ldapSearchSpecification, pageSize,
-                        expressionConditions, direction);
             }
             result.setUsers(users);
             return result;
@@ -3126,11 +3123,11 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                         tempUsersList = getUserListFromSearch(isGroupFiltering, returnedAttributes, answer,
                                 isSingleAttributeFilterOperation(expressionConditions));
                     }
-                    if (direction.equals("prev")) {
+                    if (UserCoreConstants.PREVIOUS.equals(direction)) {
                         for (int i = tempUsersList.size() - 1; i >= 0; i--) {
                             users.add(tempUsersList.get(i));
                         }
-                    } else if (direction.equals("next")) {
+                    } else if (UserCoreConstants.NEXT.equals(direction)) {
                         for (int i = 0; i < tempUsersList.size(); i++) {
                             users.add(tempUsersList.get(i));
                         }

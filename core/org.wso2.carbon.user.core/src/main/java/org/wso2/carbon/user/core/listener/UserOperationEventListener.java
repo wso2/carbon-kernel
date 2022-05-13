@@ -868,7 +868,7 @@ public interface UserOperationEventListener {
     }
 
     /**
-     * Pre listener for getting paginated user list for certain claim and value.
+     * Pre listener for getting paginated user list for certain claim and value - Offset pagination.
      *
      * @param condition        Conditions with filters.
      * @param domain           User store domain name.
@@ -879,6 +879,25 @@ public interface UserOperationEventListener {
      */
     default boolean doPreGetPaginatedUserList(Condition condition, List<String> userNames, String domain,
                                               UserStoreManager userStoreManager, int limit, int offset)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    /**
+     * Pre listener for getting paginated user list for certain claim and value - Cursor Pagination.
+     *
+     * @param condition        Conditions with filters.
+     * @param domain           User store domain name.
+     * @param userStoreManager User store manager.
+     * @param limit            Pagination parameter for the size of the page.
+     * @param cursor           Cursor value to paginate based off.
+     * @param direction        Direction of pagination.
+     * @throws UserStoreException UserStoreException
+     */
+    default boolean doPreGetPaginatedUserList(Condition condition, List<String> userNames, String domain,
+                                              UserStoreManager userStoreManager, int limit, String cursor,
+                                              String direction)
             throws UserStoreException {
 
         return true;

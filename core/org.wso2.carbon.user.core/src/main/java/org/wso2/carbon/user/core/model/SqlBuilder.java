@@ -172,6 +172,17 @@ public class SqlBuilder {
         this.sql.append(append);
     }
 
+    /**
+     * Set sql to the beginning of the statement.
+     *
+     * @param prepend   SQL string value to prepend to the current SQL statement.
+     */
+    public void prependSql(String prepend) {
+
+        this.sql = new StringBuilder(prepend +" "+ this.sql.toString());
+
+    }
+
     public void updateSqlWithOROperation(String expr, Object value) {
 
         appendList(sql, wheres);

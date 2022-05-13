@@ -86,17 +86,7 @@ import java.nio.CharBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -104,14 +94,8 @@ import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
+import static org.wso2.carbon.user.core.UserCoreConstants.*;
 import static org.wso2.carbon.user.core.UserCoreConstants.ClaimTypeURIs.IDENTITY_CLAIM_URI;
-import static org.wso2.carbon.user.core.UserCoreConstants.DOMAIN_SEPARATOR;
-import static org.wso2.carbon.user.core.UserCoreConstants.INTERNAL_DOMAIN;
-import static org.wso2.carbon.user.core.UserCoreConstants.INTERNAL_SYSTEM_ROLE_PREFIX;
-import static org.wso2.carbon.user.core.UserCoreConstants.INTERNAL_ROLES_CLAIM;
-import static org.wso2.carbon.user.core.UserCoreConstants.ROLE_CLAIM;
-import static org.wso2.carbon.user.core.UserCoreConstants.SYSTEM_DOMAIN_NAME;
-import static org.wso2.carbon.user.core.UserCoreConstants.USER_STORE_GROUPS_CLAIM;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_GROUP_NAME_FROM_USER_ID_CACHE_NAME;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_UNIQUE_USER_ID_CACHE_NAME;
@@ -2326,6 +2310,20 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     && !listener
                     .onGetUserListFailure(errorCode, errorMassage, condition, domain, profileName, limit, offset,
                             sortBy, sortOrder, this)) {
+                return;
+            }
+        }
+    }
+
+    private void handleCursorGetUserListFailure(String errorCode, String errorMassage, Condition condition,
+            String domain, String profileName, int limit, String cursor, String direction, String sortBy,
+            String sortOrder) throws UserStoreException {
+
+        for (UserManagementErrorEventListener listener : UMListenerServiceComponent
+                .getUserManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractUserManagementErrorListener && !listener
+                    .onGetUserListFailure(errorCode, errorMassage, condition, domain, profileName, limit, cursor,
+                            direction, sortBy, sortOrder, this)) {
                 return;
             }
         }
@@ -10260,7 +10258,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return new PaginatedSearchResult();
     }
 
-    //TODO - This method is required for a few other methods to use (found under getUserList and etc)
     protected UniqueIDPaginatedSearchResult doGetUserListWithID(Condition condition, String profileName, int limit,
             int offset, String sortBy, String sortOrder) throws UserStoreException {
 
@@ -10270,8 +10267,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         throw new NotImplementedException("doGetUserListWithID operation is not implemented in: " + this.getClass());
     }
 
-    //TODO - If the LDAP method also implements cursor like the JDBC one, then the above method can be removed
-    // (Edit: it cannot be removed)
     protected UniqueIDPaginatedSearchResult doGetUserListWithID(Condition condition, String profileName, int limit,
               Integer offset, String cursor, String direction, String sortBy, String sortOrder)
             throws UserStoreException {
@@ -15570,8 +15565,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             // Call the listeners to get the filtered users from relevant identity store.
             if (secondaryUserStoreManager != null) {
-                handlePreGetUserListWithIdentityClaims(duplicateCondition, domain, profileName, limit, offset, sortBy,
-                        sortOrder, secondaryUserStoreManager, identityClaimFilteredUserNames,
+                handlePreGetUserListWithIdentityClaims(duplicateCondition, domain, profileName, limit, offset, cursor,
+                        direction, sortBy, sortOrder, secondaryUserStoreManager, identityClaimFilteredUserNames,
                         hasNonIdentityClaimFilterConditions);
             }
 
@@ -15731,9 +15726,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
 
             // Call the listeners to get the filtered users from relevant identity store.
-            if (secondaryUserStoreManager != null) { //TODO - changes need to be made.
-                handlePreGetUserListWithIdentityClaims(duplicateCondition, domain, profileName, limit, offset, sortBy,
-                        sortOrder, secondaryUserStoreManager, identityClaimFilteredUserNames,
+            if (secondaryUserStoreManager != null) {
+                handlePreGetUserListWithIdentityClaims(duplicateCondition, domain, profileName, limit, offset, cursor, direction,
+                        sortBy, sortOrder, secondaryUserStoreManager, identityClaimFilteredUserNames,
                         hasNonIdentityClaimFilterConditions);
             }
 
@@ -15773,61 +15768,67 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // The identity claims are not user store based.
             List<User> tempFilteredUsers;
             List<User> aggregateUserList = new ArrayList<>();
-            int offsetCounter = 0;
-            int paginationLimit;
+            String cursorCounter = new String(cursor);
 
-            if (offset != null) {
-                if (offset <= 0) {
-                    paginationLimit = limit;
-                } else {
-                    paginationLimit = (offset - 1) + limit;
+            Set<User> prevIterationFilteredUsers = new HashSet<>();
+            while (aggregateUserList.size() < limit) {
+                tempFilteredUsers = getFilteredUsers(duplicateCondition, profileName, limit, offset, cursorCounter,
+                        direction, sortBy, sortOrder, secondaryUserStoreManager);
+
+                if (tempFilteredUsers.isEmpty()) {
+                    // Means no users has been filtered in this particular iteration and hence can exit the flow.
+                    break;
                 }
 
-                Set<User> prevIterationFilteredUsers = new HashSet<>();
-                while (aggregateUserList.size() < paginationLimit) { //TODO - Changes need to be made.
-                    tempFilteredUsers = getFilteredUsers(duplicateCondition, profileName, limit, offsetCounter, cursor,
-                            direction, sortBy, sortOrder, secondaryUserStoreManager);
+                // Prevent same set of users being returned and break the loop if so.
+                if (isExactSameFilteredUsers(tempFilteredUsers, prevIterationFilteredUsers)) {
+                    break;
+                }
 
-                    if (tempFilteredUsers.isEmpty()) {
-                        // Means no users has been filtered in this particular iteration and hence can exit the flow.
-                        break;
+                prevIterationFilteredUsers.clear();
+                prevIterationFilteredUsers.addAll(tempFilteredUsers);
+
+                // For next iteration consider the offset from last fetched size of users.
+                if (!(tempFilteredUsers.size() < limit)) {
+                    if (UserCoreConstants.PREVIOUS.equals(direction)) {
+                        cursorCounter = tempFilteredUsers.get(0).getPreferredUsername();
+                    } else {
+                        cursorCounter = tempFilteredUsers.get(tempFilteredUsers.size()-1).getPreferredUsername();
                     }
-
-                    // Prevent same set of users being returned and break the loop if so.
-                    if (isExactSameFilteredUsers(tempFilteredUsers, prevIterationFilteredUsers)) {
-                        break;
-                    }
-
-                    prevIterationFilteredUsers.clear();
-                    prevIterationFilteredUsers.addAll(tempFilteredUsers);
-
-                    // For next iteration consider the offset from last fetched size of users.
-                    offsetCounter += limit;
-
                     // Taking the interception of the user list.
                     tempFilteredUsers.retainAll(identityClaimFilteredUsers);
                     aggregateUserList.addAll(tempFilteredUsers);
-                }
-
-                // Removing duplicates.
-                aggregateUserList = aggregateUserList.stream().distinct().collect(Collectors.toList());
-
-                // Pagination
-                if (offset <= 0) {
-                    offset = 0;
                 } else {
-                    offset = offset - 1;
+                    // Taking the interception of the user list.
+                    tempFilteredUsers.retainAll(identityClaimFilteredUsers);
+                    aggregateUserList.addAll(tempFilteredUsers);
+                    break;
                 }
+            }
 
-                if (aggregateUserList.isEmpty()) {
-                    filteredUsers = aggregateUserList;
-                } else if (offset > aggregateUserList.size()) {
-                    filteredUsers = new ArrayList<>();
-                } else if (aggregateUserList.size() < paginationLimit) {
-                    filteredUsers = aggregateUserList.subList(offset, aggregateUserList.size());
-                } else {
-                    filteredUsers = aggregateUserList.subList(offset, paginationLimit);
-                }
+            // Removing duplicates.
+            aggregateUserList = aggregateUserList.stream().distinct().collect(Collectors.toList());
+
+            if (UserCoreConstants.PREVIOUS.equals(direction)) {
+                aggregateUserList.sort(new Comparator<User>() {
+                    @Override
+                    public int compare(User user1, User user2) {
+
+                        //For Ascending Order
+                        return user1.getUsername().compareTo(user2.getUsername());
+
+                        //For Descending Order
+                        //return user2.getUsername().compareTo(user1.getUsername());
+                    }
+                });
+            }
+
+            if (aggregateUserList.isEmpty()) {
+                filteredUsers = aggregateUserList;
+            } else if (aggregateUserList.size() < limit) {
+                    filteredUsers = aggregateUserList.subList(0, aggregateUserList.size());
+            } else {
+                    filteredUsers = aggregateUserList.subList(0, limit);
             }
         } else {
             /* When the filters has only the non-identity claims or if Identity claims are persisted in User store
@@ -15927,8 +15928,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @throws UserStoreException User store exception.
      */
     private void handlePreGetUserListWithIdentityClaims(Condition condition, String domain, String profileName,
-                                                        int limit, Integer offset, String sortBy, String sortOrder,
-                                                        UserStoreManager secManager,
+                                                        int limit, Integer offset, String cursor, String direction,
+                                                        String sortBy, String sortOrder, UserStoreManager secManager,
                                                         List<String> identityClaimFilteredUserNames,
                                                         boolean hasNonIdentityClaimFilters) throws UserStoreException {
 
@@ -15940,16 +15941,30 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             (AbstractUserOperationEventListener) listener;
 
                     if (!hasNonIdentityClaimFilters) {
-                        // In this case, can filter with Identity claim filters and paginate at DB level.
-                        if (!newListener.doPreGetPaginatedUserList(condition, identityClaimFilteredUserNames,
-                                domain, secManager, limit, offset)) {
-                            handleGetUserListFailure(
-                                    ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_PAGINATED_USER_LIST.getCode(),
-                                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_PAGINATED_USER_LIST
-                                                    .getMessage(),
-                                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE),
-                                    condition, domain, profileName, limit, offset, sortBy, sortOrder);
-                            break;
+                        if (cursor == null) {
+                            // In this case, can filter with Identity claim filters and paginate at DB level.
+                            if (!newListener.doPreGetPaginatedUserList(condition, identityClaimFilteredUserNames,
+                                    domain, secManager, limit, offset)) {
+                                handleGetUserListFailure(
+                                        ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_PAGINATED_USER_LIST.getCode(),
+                                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_PAGINATED_USER_LIST
+                                        .getMessage(), UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE),
+                                        condition, domain, profileName, limit, offset, sortBy, sortOrder);
+                                break;
+                            }
+                        } else {
+                            // In this case, can filter with Identity claim filters and paginate at DB level.
+                            if (!newListener.doPreGetPaginatedUserList(condition, identityClaimFilteredUserNames,
+                                    domain, secManager, limit, cursor, direction)) {
+                                //Introduced a new method because there may be more instances where this
+                                // method is called in other repos.
+                                handleCursorGetUserListFailure(
+                                        ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_PAGINATED_USER_LIST.getCode(),
+                                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_PAGINATED_USER_LIST
+                                        .getMessage(), UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE),
+                                        condition, domain, profileName, limit, cursor, direction, sortBy, sortOrder);
+                                break;
+                            }
                         }
                     } else {
                         // In this case, can filter with Identity claim filters and fetch whole filtered list.
