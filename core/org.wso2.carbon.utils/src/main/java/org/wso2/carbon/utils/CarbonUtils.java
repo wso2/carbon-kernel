@@ -31,11 +31,12 @@ import org.apache.axis2.description.TransportInDescription;
 import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.util.JavaUtils;
-import org.apache.commons.httpclient.Header;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.Header;
+import org.apache.http.message.BasicHeader;
 import org.apache.xerces.util.SecurityManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -982,11 +983,11 @@ public class CarbonUtils {
 
         List<Header> headers = new ArrayList<Header>();
 
-        Header authHeader = new Header("Authorization", authorizationHeader);
+        Header authHeader = new BasicHeader("Authorization", authorizationHeader);
         headers.add(authHeader);
 
         if (rememberMe) {
-            Header rememberMeHeader = new Header("RememberMe", TRUE);
+            Header rememberMeHeader = new BasicHeader("RememberMe", TRUE);
             headers.add(rememberMeHeader);
         }
       
@@ -1013,11 +1014,11 @@ public class CarbonUtils {
 
         List<Header> headers = new ArrayList<Header>();
 
-        Header authHeader = new Header("Authorization", authorizationHeader);
+        Header authHeader = new BasicHeader("Authorization", authorizationHeader);
         headers.add(authHeader);
 
         if (rememberMe) {
-            Header rememberMeHeader = new Header("RememberMe", TRUE);
+            Header rememberMeHeader = new BasicHeader("RememberMe", TRUE);
             headers.add(rememberMeHeader);
         }
 

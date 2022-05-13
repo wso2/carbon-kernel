@@ -108,8 +108,17 @@
             <artifactId>javax.servlet</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.orbit.commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
+            <scope>Test</scope>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>

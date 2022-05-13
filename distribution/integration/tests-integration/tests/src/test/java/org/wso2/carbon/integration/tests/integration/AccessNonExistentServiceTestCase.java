@@ -17,7 +17,7 @@
 */
 package org.wso2.carbon.integration.tests.integration;
 
-import org.apache.commons.httpclient.HttpStatus;
+import org.apache.http.HttpStatus;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.test.utils.http.client.HttpRequestUtil;

@@ -26,7 +26,8 @@ import javax.servlet.http.Cookie;
 
 import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.commons.httpclient.Header;
+import org.apache.http.Header;
+import org.apache.http.message.BasicHeader;
 
 public class CarbonUIAuthenticationUtil {
 
@@ -39,7 +40,7 @@ public class CarbonUIAuthenticationUtil {
     public static void setCookieHeaders(Cookie cookie, ServiceClient serviceClient) {
 
         List<Header> headers = new ArrayList<Header>();
-        Header rememberMeHeader = new Header("RememberMeCookieData", cookie.getValue());
+        Header rememberMeHeader = new BasicHeader("RememberMeCookieData", cookie.getValue());
         headers.add(rememberMeHeader);
 
         serviceClient.getOptions().setProperty(HTTPConstants.HTTP_HEADERS, headers);

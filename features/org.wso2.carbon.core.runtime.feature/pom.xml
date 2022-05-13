@@ -31,6 +31,13 @@
     <url>http://wso2.org</url>
     <description>This feature contains the carbon core runtime features</description>
 
+    <repositories>
+        <repository>
+            <id>Jabylon</id>
+            <name>Jabylon Repository</name>
+            <url>https://www.jabylon.org/maven/</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -247,7 +254,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.ecf.provider.filetransfer</groupId>
-            <artifactId>httpclient</artifactId>
+            <artifactId>httpclient4</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.eclipse.osgi</groupId>
@@ -330,7 +337,7 @@
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.publisher.eclipse</bundleDef>
                                 <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.launcher.gtk.linux.x86</bundleDef>
                                 <bundleDef>org.eclipse.osgi:org.eclipse.equinox.p2.transport.ecf</bundleDef>
-                                <bundleDef>org.eclipse.ecf.provider.filetransfer:httpclient</bundleDef>
+                                <bundleDef>org.eclipse.ecf.provider.filetransfer:httpclient4</bundleDef>
                                 <bundleDef>org.wso2.eclipse.osgi:org.eclipse.osgi.compatibility.state</bundleDef>
                             </bundles>
                         </configuration>

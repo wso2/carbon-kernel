@@ -43,7 +43,6 @@
                 <include name="XmlSchema*.jar"/>
                 <include name="neethi*.jar"/>
                 <include name="backport-util-concurrent*.jar"/>
-                <include name="commons-httpclient*.jar"/>
                 <include name="commons-codec*.jar"/>
                 <include name="commons-fileupload*.jar"/>
                 <include name="httpcore*.jar"/>

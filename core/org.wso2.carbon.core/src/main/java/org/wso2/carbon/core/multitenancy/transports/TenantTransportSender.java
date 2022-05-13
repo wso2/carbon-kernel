@@ -38,7 +38,7 @@ import org.apache.axis2.transport.TransportSender;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.util.JavaUtils;
 import org.apache.axis2.wsdl.WSDLConstants;
-import org.apache.commons.httpclient.HttpMethod;
+import org.apache.http.client.methods.HttpOptions;
 import org.wso2.carbon.core.internal.MultitenantMsgContextDataHolder;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.apache.commons.logging.Log;
@@ -317,9 +317,9 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
     }
 
     public void cleanup(MessageContext msgContext) throws AxisFault {
-        HttpMethod httpMethod = (HttpMethod) msgContext.getProperty(HTTPConstants.HTTP_METHOD);
-        if (httpMethod != null) {
-            httpMethod.releaseConnection();
+        HttpOptions httpOption = (HttpOptions) msgContext.getProperty(HTTPConstants.HTTP_METHOD);
+        if (httpOption != null) {
+            httpOption.releaseConnection();
             msgContext.removeProperty(HTTPConstants.HTTP_METHOD); // guard against multiple calls
         }
     }

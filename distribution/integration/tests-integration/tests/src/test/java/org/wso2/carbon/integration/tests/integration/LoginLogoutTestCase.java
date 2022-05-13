@@ -22,7 +22,7 @@ import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.context.OperationContext;
 import org.apache.axis2.description.WSDL2Constants;
-import org.apache.commons.httpclient.auth.AuthenticationException;
+import org.apache.http.auth.AuthenticationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.BeforeClass;

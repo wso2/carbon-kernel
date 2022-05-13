@@ -31,7 +31,8 @@ import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.Parameter;
 import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.commons.httpclient.Header;
+import org.apache.http.Header;
+import org.apache.http.message.BasicHeader;
 import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -379,7 +380,23 @@ public class CarbonUtilsTest extends BaseTest {
         CarbonUtils.setBasicAccessSecurityHeaders("user", "pass", true, serviceClient);
         List<Header> headers = (List<Header>) serviceClient.getOptions().getProperty(HTTPConstants.HTTP_HEADERS);
         assert headers != null;
-        Assert.assertTrue(headers.contains(new Header("Authorization", "Basic " + encodedString)));
+        Assert.assertTrue(headers.contains(createBasicHeaderForTest("Authorization", "Basic " + encodedString)));
+    }
+
+    private BasicHeader createBasicHeaderForTest(String name, String value) {
+        return new BasicHeader(name, value){
+            @Override
+            public boolean equals(Object anObject) {
+                if (this == anObject) {
+                    return true;
+                }
+                if (anObject instanceof BasicHeader) {
+                    BasicHeader header = (BasicHeader) anObject;
+                    return header.getValue().equals(this.getValue()) && header.getName().equals(this.getName());
+                }
+                return false;
+            }
+        };
     }
 
     @Test(groups = {"org.wso2.carbon.utils.base"},
@@ -393,7 +410,7 @@ public class CarbonUtilsTest extends BaseTest {
         CarbonUtils.setBasicAccessSecurityHeaders("user", "pass", true, messageContext);
         List<Header> headers = (List<Header>) messageContext.getOptions().getProperty(HTTPConstants.HTTP_HEADERS);
         assert headers != null;
-        Assert.assertTrue(headers.contains(new Header("Authorization", "Basic " + encodedString)));
+        Assert.assertTrue(headers.contains(createBasicHeaderForTest("Authorization", "Basic " + encodedString)));
     }
 
     @Test(groups = {"org.wso2.carbon.utils.base"},

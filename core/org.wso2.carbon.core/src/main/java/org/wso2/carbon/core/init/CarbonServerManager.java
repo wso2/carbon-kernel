@@ -31,10 +31,9 @@ import org.apache.axis2.transport.base.threads.ThreadCleanupContainer;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.collections.BidiMap;
 import org.apache.commons.collections.bidimap.TreeBidiMap;
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
-import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.eclipse.core.runtime.adaptor.EclipseStarter;
 import org.eclipse.equinox.http.helper.FilterServletAdaptor;
 import org.osgi.framework.Bundle;
@@ -587,8 +586,7 @@ public final class CarbonServerManager implements Controllable {
         ConfigurationContext clientConfigContextToReturn =
                 ConfigurationContextFactory.createConfigurationContextFromFileSystem(
                         clientRepositoryLocation, clientAxis2XmlLocationn);
-        MultiThreadedHttpConnectionManager httpConnectionManager = new MultiThreadedHttpConnectionManager();
-        HttpConnectionManagerParams params = new HttpConnectionManagerParams();
+        PoolingHttpClientConnectionManager httpConnectionManager = new PoolingHttpClientConnectionManager();
 
         // Set the default max connections per host
         int defaultMaxConnPerHost = 500;
@@ -597,7 +595,7 @@ public final class CarbonServerManager implements Controllable {
         if(defaultMaxConnPerHostParam != null){
             defaultMaxConnPerHost = Integer.parseInt((String)defaultMaxConnPerHostParam.getValue());
         }
-        params.setDefaultMaxConnectionsPerHost(defaultMaxConnPerHost);
+        httpConnectionManager.setDefaultMaxPerRoute(defaultMaxConnPerHost);
 
         // Set the max total connections
         int maxTotalConnections = 15000;
@@ -606,12 +604,9 @@ public final class CarbonServerManager implements Controllable {
         if(maxTotalConnectionsParam != null){
             maxTotalConnections = Integer.parseInt((String)maxTotalConnectionsParam.getValue());
         }
-        params.setMaxTotalConnections(maxTotalConnections);
+        httpConnectionManager.setMaxTotal(maxTotalConnections);
 
-        params.setSoTimeout(600000);
-        params.setConnectionTimeout(600000);
-
-        httpConnectionManager.setParams(params);
+        httpConnectionManager.setValidateAfterInactivity(600000);
         clientConfigContextToReturn.setProperty(HTTPConstants.MULTITHREAD_HTTP_CONNECTION_MANAGER,
                                         httpConnectionManager);
         registerHouseKeepingTask(clientConfigContextToReturn);
