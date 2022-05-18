@@ -22,9 +22,11 @@ import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.Constants;
 import org.apache.catalina.valves.ValveBase;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.util.res.StringManager;
+import org.slf4j.MDC;
 import org.wso2.carbon.tomcat.ext.internal.Utils;
 
 import java.io.IOException;
@@ -49,6 +51,8 @@ public class CarbonStuckThreadDetectionValve extends ValveBase {
      */
     private static final StringManager sm =
         StringManager.getManager(Constants.Package);
+
+    private static final String CORRELATION_ID_MDC = "Correlation-ID";
 
     /**
      * Keeps count of the number of stuck threads detected
@@ -103,6 +107,9 @@ public class CarbonStuckThreadDetectionValve extends ValveBase {
                 monitoredThread.getStartTime(), numStuckThreads,
                 monitoredThread.getRequestUri(), threshold);
        msg += ", tenantDomain=" + monitoredThread.getTenantDomain();
+       if (StringUtils.isNotEmpty(monitoredThread.getCorrelationId())) {
+           msg += ", correlation-id=" + monitoredThread.getCorrelationId();
+       }
        // msg += "\n" + getStackTraceAsString(trace);
        Throwable th = new Throwable();
        th.setStackTrace(monitoredThread.getThread().getStackTrace());
@@ -138,7 +145,7 @@ public class CarbonStuckThreadDetectionValve extends ValveBase {
         String tenantDomain = Utils.getTenantDomain(request);
         MonitoredThread monitoredThread = new MonitoredThread(Thread.currentThread(),
                                                               requestUrl.toString(),
-                                                              tenantDomain);
+                                                              tenantDomain, getCorrelation());
         activeThreads.put(key, monitoredThread);
 
         try {
@@ -174,15 +181,26 @@ public class CarbonStuckThreadDetectionValve extends ValveBase {
         private final Thread thread;
         private final String requestUri;
         private final long   start;
-        private       String tenantDomain;
+        private final String tenantDomain;
+        private final String correlationId;
         private final AtomicInteger state = new AtomicInteger(
             MonitoredThreadState.RUNNING.ordinal());
 
+        /**
+         * @deprecated to use {@link #MonitoredThread(Thread, String, String, String}
+         */
+        @Deprecated
         public MonitoredThread(Thread thread, String requestUri, String tenantDomain) {
+
+            this(thread, requestUri, tenantDomain, null);
+        }
+
+        public MonitoredThread(Thread thread, String requestUri, String tenantDomain, String correlationId) {
             this.thread = thread;
             this.requestUri = requestUri;
             this.tenantDomain = tenantDomain;
             this.start = System.currentTimeMillis();
+            this.correlationId = correlationId;
         }
 
         public Thread getThread() {
@@ -205,6 +223,11 @@ public class CarbonStuckThreadDetectionValve extends ValveBase {
             return tenantDomain;
         }
 
+        public String getCorrelationId() {
+
+            return correlationId;
+        }
+
         public boolean markAsStuckIfStillRunning() {
             return this.state.compareAndSet(MonitoredThreadState.RUNNING.ordinal(),
                                             MonitoredThreadState.STUCK.ordinal());
@@ -213,5 +236,29 @@ public class CarbonStuckThreadDetectionValve extends ValveBase {
 
     private enum MonitoredThreadState {
         RUNNING, STUCK;
+    }
+
+    /**
+     * Check whether correlation id present in the log MDC.
+     *
+     * @return whether the correlation id is present
+     */
+    public static boolean isCorrelationIDPresent() {
+
+        return MDC.get(CORRELATION_ID_MDC) != null;
+    }
+
+    /**
+     * Get correlation id of current thread.
+     *
+     * @return correlation-id
+     */
+    public static String getCorrelation() {
+
+        String ref = null;
+        if (isCorrelationIDPresent()) {
+            ref = MDC.get(CORRELATION_ID_MDC);
+        }
+        return ref;
     }
 }
