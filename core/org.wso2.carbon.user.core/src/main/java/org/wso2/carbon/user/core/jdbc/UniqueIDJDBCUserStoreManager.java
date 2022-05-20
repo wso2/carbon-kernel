@@ -3600,7 +3600,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             } else if (groupFilterCount > 0) {
                 sqlBuilder.updateSql(" HAVING COUNT(DISTINCT R.UM_ROLE_NAME) = " + groupFilterCount);
             } else if (claimFilterCount > 0) {
-                sqlBuilder.updateSql(" HAVING COUNT(DISTINCT UA.UM_ATTR_VALUE) = " + claimFilterCount);
+                sqlBuilder.updateSql(" HAVING COUNT(DISTINCT UA.UM_ATTR_NAME) = " + claimFilterCount);
             }
         }
 
