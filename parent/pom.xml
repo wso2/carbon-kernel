@@ -1231,7 +1231,7 @@
             <dependency>
                 <groupId>xmlunit</groupId>
                 <artifactId>xmlunit</artifactId>
-                <version>${xmlunit}</version>
+                <version>${version.xmlunit}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.axis2</groupId>
