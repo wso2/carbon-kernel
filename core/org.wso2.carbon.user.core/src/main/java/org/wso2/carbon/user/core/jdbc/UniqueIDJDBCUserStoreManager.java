@@ -26,7 +26,12 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
-import org.wso2.carbon.user.core.*;
+import org.wso2.carbon.user.core.NotImplementedException;
+import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.UserStoreClientException;
+import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AuthenticationResult;
 import org.wso2.carbon.user.core.common.FailureReason;
@@ -3322,19 +3327,13 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     limit = initialOffset + 1;
                 }
 
-                sqlBuilder = getQueryString(isGroupFiltering, isUsernameFiltering, isClaimFiltering,
-                        expressionConditions, limit, offset, sortBy, sortOrder, profileName, type,
-                        totalMultiGroupFilters, totalMultiClaimFilters);
+                sqlBuilder = getQueryStringCursor(isGroupFiltering, isUsernameFiltering, isClaimFiltering,
+                        expressionConditions, limit, offset, null, null, sortBy, sortOrder, profileName,
+                        type, totalMultiGroupFilters, totalMultiClaimFilters);
             } else {
-//                if (cursor.equals("") || direction.equals("next")) {
-                    sqlBuilder = getQueryStringCursor(isGroupFiltering, isUsernameFiltering, isClaimFiltering,
-                            expressionConditions, limit, cursor, direction, sortBy, sortOrder, profileName, type,
-                            totalMultiGroupFilters, totalMultiClaimFilters);
-//                } else if (direction.equals("prev")) {
-//                    sqlBuilder = getQueryStringCursorPrev(isGroupFiltering, isUsernameFiltering, isClaimFiltering,
-//                            expressionConditions, limit, cursor, sortBy, sortOrder, profileName, type,
-//                            totalMultiGroupFilters, totalMultiClaimFilters);
-//                }
+                sqlBuilder = getQueryStringCursor(isGroupFiltering, isUsernameFiltering, isClaimFiltering,
+                        expressionConditions, limit, null, cursor, direction, sortBy, sortOrder, profileName,
+                        type, totalMultiGroupFilters, totalMultiClaimFilters);
             }
 
             if ((MYSQL.equals(type) || MARIADB.equals(type)) && totalMultiGroupFilters > 1
@@ -3423,9 +3422,225 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
     }
 
-    protected SqlBuilder getQueryString(boolean isGroupFiltering, boolean isUsernameFiltering, boolean isClaimFiltering,
-            List<ExpressionCondition> expressionConditions, int limit, int offset, String sortBy, String sortOrder,
-            String profileName, String dbType, int totalMultiGroupFilters, int totalMultiClaimFilters)
+//    protected SqlBuilder getQueryString(boolean isGroupFiltering, boolean isUsernameFiltering, boolean isClaimFiltering,
+//            List<ExpressionCondition> expressionConditions, int limit, int offset, String sortBy, String sortOrder,
+//            String profileName, String dbType, int totalMultiGroupFilters, int totalMultiClaimFilters)
+//            throws UserStoreException {
+//
+//        StringBuilder sqlStatement;
+//        SqlBuilder sqlBuilder;
+//        boolean hitGroupFilter = false;
+//        boolean hitClaimFilter = false;
+//        int groupFilterCount = 0;
+//        int claimFilterCount = 0;
+//
+//        if (isGroupFiltering && isUsernameFiltering && isClaimFiltering || isGroupFiltering && isClaimFiltering) {
+//
+//            if (DB2.equals(dbType)) {
+//                sqlStatement = new StringBuilder("SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT "
+//                        + "ROW_NUMBER() OVER (ORDER BY UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_NAME  "
+//                        + "FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U "
+//                        + "ON UR.UM_USER_ID =U.UM_ID INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
+//            } else if (MSSQL.equals(dbType)) {
+//                sqlStatement = new StringBuilder(
+//                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() OVER "
+//                                + "(ORDER BY UM_USER_NAME) AS RowNum FROM (SELECT DISTINCT U.UM_USER_ID, " +
+//                                "UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID " +
+//                                "INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID INNER JOIN UM_USER_ATTRIBUTE UA ON" +
+//                                " U.UM_ID = UA.UM_USER_ID");
+//            } else if (ORACLE.equals(dbType)) {
+//                sqlStatement = new StringBuilder(
+//                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT UM_USER_NAME, rownum AS rnum "
+//                                + "FROM (SELECT  UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR"
+//                                + ".UM_ROLE_ID INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID INNER JOIN "
+//                                + "UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
+//            } else if (POSTGRE_SQL.equals(dbType)) {
+//                sqlStatement = new StringBuilder(
+//                        "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN " +
+//                                "UM_USER_ROLE UR ON R.UM_ID =  UR.UM_ROLE_ID INNER JOIN" +
+//                                " UM_USER U ON UR.UM_USER_ID =U.UM_ID INNER JOIN " +
+//                                "UM_USER_ATTRIBUTE UA ON  U.UM_ID = UA.UM_USER_ID");
+//            } else {
+//                sqlStatement = new StringBuilder(
+//                        "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN "
+//                                + "UM_USER_ROLE UR INNER JOIN UM_USER U INNER JOIN UM_USER_ATTRIBUTE UA ON R.UM_ID = "
+//                                + "UR.UM_ROLE_ID AND UR.UM_USER_ID =" + " U.UM_ID AND U.UM_ID = UA.UM_USER_ID");
+//            }
+//            sqlBuilder = new SqlBuilder(sqlStatement).where("R.UM_TENANT_ID = ?", tenantId)
+//                    .where("U.UM_TENANT_ID = ?", tenantId).where("UR.UM_TENANT_ID = ?", tenantId)
+//                    .where("UA.UM_TENANT_ID = ?", tenantId).where("UA.UM_PROFILE_ID = ?", profileName);
+//        } else if (isGroupFiltering && isUsernameFiltering || isGroupFiltering) {
+//            if (DB2.equals(dbType)) {
+//                sqlStatement = new StringBuilder(
+//                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
+//                                + "UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_NAME  FROM UM_ROLE R INNER"
+//                                + " JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U ON UR"
+//                                + ".UM_USER_ID "
+//                                + "=U.UM_ID ");
+//            } else if (MSSQL.equals(dbType)) {
+//                sqlStatement = new StringBuilder(
+//                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() OVER "
+//                                + "(ORDER BY UM_USER_NAME) AS RowNum FROM (SELECT DISTINCT U.UM_USER_ID, " +
+//                                "UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID " +
+//                                "INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID");
+//            } else if (ORACLE.equals(dbType)) {
+//                sqlStatement = new StringBuilder(
+//                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT UM_USER_NAME, rownum AS rnum "
+//                                + "FROM (SELECT  UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR"
+//                                + ".UM_ROLE_ID INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID");
+//            } else if (POSTGRE_SQL.equals(dbType)) {
+//                sqlStatement = new StringBuilder(
+//                        "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN " +
+//                                "UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN " +
+//                                "UM_USER U ON UR.UM_USER_ID=U.UM_ID");
+//            } else {
+//                sqlStatement = new StringBuilder(
+//                        "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN "
+//                                + "UM_USER_ROLE UR INNER JOIN UM_USER U ON R.UM_ID = UR.UM_ROLE_ID AND UR.UM_USER_ID "
+//                                + "=U.UM_ID");
+//            }
+//
+//            sqlBuilder = new SqlBuilder(sqlStatement).where("R.UM_TENANT_ID = ?", tenantId)
+//                    .where("U.UM_TENANT_ID = ?", tenantId).where("UR.UM_TENANT_ID = ?", tenantId);
+//        } else if (isUsernameFiltering && isClaimFiltering || isClaimFiltering) {
+//            if (DB2.equals(dbType)) {
+//                sqlStatement = new StringBuilder(
+//                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
+//                                + "UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_NAME  FROM  UM_USER U "
+//                                + "INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
+//            } else if (MSSQL.equals(dbType)) {
+//                sqlStatement = new StringBuilder(
+//                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() OVER " +
+//                                "(ORDER BY UM_USER_NAME) AS RowNum FROM " +
+//                                "(SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_USER U " +
+//                                "INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
+//            } else if (ORACLE.equals(dbType)) {
+//                sqlStatement = new StringBuilder(
+//                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, rownum AS rnum FROM "
+//                                + "(SELECT U.UM_USER_ID, UM_USER_NAME FROM UM_USER U INNER JOIN UM_USER_ATTRIBUTE UA "
+//                                + "ON U.UM_ID = UA.UM_USER_ID");
+//            } else {
+//                sqlStatement = new StringBuilder(
+//                        "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_USER U INNER JOIN "
+//                                + "UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
+//            }
+//            sqlBuilder = new SqlBuilder(sqlStatement).where("U.UM_TENANT_ID = ?", tenantId)
+//                    .where("UA.UM_TENANT_ID = ?", tenantId).where("UA.UM_PROFILE_ID = ?", profileName);
+//        } else if (isUsernameFiltering) {
+//            if (DB2.equals(dbType)) {
+//                sqlStatement = new StringBuilder(
+//                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
+//                                + "UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_ID, UM_USER_NAME  FROM " +
+//                                "UM_USER U");
+//            } else if (MSSQL.equals(dbType)) {
+//                sqlStatement = new StringBuilder(
+//                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() OVER "
+//                                + "(ORDER BY UM_USER_NAME) AS RowNum FROM (SELECT DISTINCT UM_USER_NAME, UM_USER_ID" +
+//                                " FROM UM_USER U");
+//            } else if (ORACLE.equals(dbType)) {
+//                sqlStatement = new StringBuilder(
+//                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, rownum AS rnum "
+//                                + "FROM (SELECT UM_USER_ID, UM_USER_NAME FROM UM_USER U");
+//            } else {
+//                sqlStatement = new StringBuilder("SELECT U.UM_USER_ID, U.UM_USER_NAME FROM UM_USER U");
+//            }
+//
+//            sqlBuilder = new SqlBuilder(sqlStatement).where("U.UM_TENANT_ID = ?", tenantId);
+//        } else {
+//            throw new UserStoreException("Condition is not valid.");
+//        }
+//
+//        SqlBuilder header = new SqlBuilder(new StringBuilder(sqlBuilder.getSql()));
+//        addingWheres(sqlBuilder, header);
+//
+//        for (ExpressionCondition expressionCondition : expressionConditions) {
+//            if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName())) {
+//                if (!(MYSQL.equals(dbType) || MARIADB.equals(dbType)) || totalMultiGroupFilters > 1
+//                        && totalMultiClaimFilters > 1) {
+//                    multiGroupQueryBuilder(sqlBuilder, header, hitGroupFilter, expressionCondition);
+//                    hitGroupFilter = true;
+//                } else {
+//                    multiGroupMySqlQueryBuilder(sqlBuilder, groupFilterCount, expressionCondition);
+//                    groupFilterCount++;
+//                }
+//            } else if (ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation())
+//                    && ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
+//                if (isCaseSensitiveUsername()) {
+//                    sqlBuilder.where("U.UM_USER_NAME = ?", expressionCondition.getAttributeValue());
+//                } else {
+//                    sqlBuilder.where("U.UM_USER_NAME = LOWER(?)", expressionCondition.getAttributeValue());
+//                }
+//            } else if (ExpressionOperation.CO.toString().equals(expressionCondition.getOperation())
+//                    && ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
+//                if (isCaseSensitiveUsername()) {
+//                    sqlBuilder.where("U.UM_USER_NAME LIKE ?", "%" + expressionCondition.getAttributeValue() + "%");
+//                } else {
+//                    sqlBuilder
+//                            .where("U.UM_USER_NAME LIKE LOWER(?)", "%" + expressionCondition.getAttributeValue() + "%");
+//                }
+//            } else if (ExpressionOperation.EW.toString().equals(expressionCondition.getOperation())
+//                    && ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
+//                if (isCaseSensitiveUsername()) {
+//                    sqlBuilder.where("U.UM_USER_NAME LIKE ?", "%" + expressionCondition.getAttributeValue());
+//                } else {
+//                    sqlBuilder.where("U.UM_USER_NAME LIKE LOWER(?)", "%" + expressionCondition.getAttributeValue());
+//                }
+//            } else if (ExpressionOperation.SW.toString().equals(expressionCondition.getOperation())
+//                    && ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
+//                if (isCaseSensitiveUsername()) {
+//                    sqlBuilder.where("U.UM_USER_NAME LIKE ?", expressionCondition.getAttributeValue() + "%");
+//                } else {
+//                    sqlBuilder.where("U.UM_USER_NAME LIKE LOWER(?)", expressionCondition.getAttributeValue() + "%");
+//                }
+//            } else {
+//                // Claim filtering
+//                if (!(MYSQL.equals(dbType) || MARIADB.equals(dbType)) || totalMultiGroupFilters > 1
+//                        && totalMultiClaimFilters > 1) {
+//                    multiClaimQueryBuilder(sqlBuilder, header, hitClaimFilter, expressionCondition);
+//                    hitClaimFilter = true;
+//                } else {
+//                    multiClaimMySqlQueryBuilder(sqlBuilder, claimFilterCount, expressionCondition);
+//                    claimFilterCount++;
+//                }
+//            }
+//        }
+//
+//        if (MYSQL.equals(dbType) || MARIADB.equals(dbType)) {
+//            sqlBuilder.updateSql(" GROUP BY U.UM_USER_NAME, U.UM_USER_ID ");
+//            if (groupFilterCount > 0 && claimFilterCount > 0) {
+//                sqlBuilder.updateSql(" HAVING (COUNT(DISTINCT R.UM_ROLE_NAME) = " + groupFilterCount +
+//                        " AND COUNT(DISTINCT UA.UM_ATTR_VALUE) = " + claimFilterCount + ")");
+//            } else if (groupFilterCount > 0) {
+//                sqlBuilder.updateSql(" HAVING COUNT(DISTINCT R.UM_ROLE_NAME) = " + groupFilterCount);
+//            } else if (claimFilterCount > 0) {
+//                sqlBuilder.updateSql(" HAVING COUNT(DISTINCT UA.UM_ATTR_VALUE) = " + claimFilterCount);
+//            }
+//        }
+//
+//        if (!((MYSQL.equals(dbType) || MARIADB.equals(dbType)) && totalMultiGroupFilters > 1
+//                && totalMultiClaimFilters > 1)) {
+//            if (DB2.equals(dbType)) {
+//                sqlBuilder.setTail(") AS p) WHERE rn BETWEEN ? AND ?", limit, offset);
+//            } else if (MSSQL.equals(dbType)) {
+//                if (isClaimFiltering && !isGroupFiltering && totalMultiClaimFilters > 1) {
+//                    // Handle multi attribute filtering without group filtering.
+//                    sqlBuilder.setTail(") AS Q) AS S) AS R) AS P WHERE P.RowNum BETWEEN ? AND ?", limit, offset);
+//                } else {
+//                    sqlBuilder.setTail(") AS R) AS P WHERE P.RowNum BETWEEN ? AND ?", limit, offset);
+//                }
+//            } else if (ORACLE.equals(dbType)) {
+//                sqlBuilder.setTail(" ORDER BY UM_USER_NAME) where rownum <= ?) WHERE  rnum > ?", limit, offset);
+//            } else {
+//                sqlBuilder.setTail(" ORDER BY UM_USER_NAME ASC LIMIT ? OFFSET ?", limit, offset);
+//            }
+//        }
+//        return sqlBuilder;
+//    }
+
+    protected SqlBuilder getQueryStringCursor(boolean isGroupFiltering, boolean isUsernameFiltering,
+                         boolean isClaimFiltering, List<ExpressionCondition> expressionConditions, int limit,
+                         Integer offset, String cursor, String direction, String sortBy, String sortOrder,
+                         String profileName, String dbType, int totalMultiGroupFilters, int totalMultiClaimFilters)
             throws UserStoreException {
 
         StringBuilder sqlStatement;
@@ -3563,6 +3778,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             throw new UserStoreException("Condition is not valid.");
         }
 
+        if (cursor != null && UserCoreConstants.PREVIOUS.equals(direction)) {
+            sqlBuilder.prependSql("WITH this_set AS(");
+        }
         SqlBuilder header = new SqlBuilder(new StringBuilder(sqlBuilder.getSql()));
         addingWheres(sqlBuilder, header);
 
@@ -3615,6 +3833,14 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     multiClaimMySqlQueryBuilder(sqlBuilder, claimFilterCount, expressionCondition);
                     claimFilterCount++;
                 }
+            }
+        }
+
+        if (cursor != null) {
+            if (UserCoreConstants.PREVIOUS.equals(direction)) {
+                sqlBuilder.where("U.UM_USER_NAME < ?", cursor);
+            } else if (UserCoreConstants.NEXT.equals(direction)) {
+                sqlBuilder.where("U.UM_USER_NAME > ?", cursor);
             }
         }
 
@@ -3630,515 +3856,143 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
         }
 
-        if (!((MYSQL.equals(dbType) || MARIADB.equals(dbType)) && totalMultiGroupFilters > 1
-                && totalMultiClaimFilters > 1)) {
-            if (DB2.equals(dbType)) {
-                if (isClaimFiltering && !isGroupFiltering && totalMultiClaimFilters > 1) {
-                    // Handle multi attribute filtering without group filtering.
-                    sqlBuilder.setTail(") AS Q) AS S) AS R) AS p WHERE p.rn BETWEEN ? AND ?", limit, offset);
-                } else {
-                    sqlBuilder.setTail(") AS p) WHERE rn BETWEEN ? AND ?", limit, offset);
-                }
-            } else if (MSSQL.equals(dbType)) {
-                if (isClaimFiltering && !isGroupFiltering && totalMultiClaimFilters > 1) {
-                    // Handle multi attribute filtering without group filtering.
-                    sqlBuilder.setTail(") AS Q) AS S) AS R) AS P WHERE P.RowNum BETWEEN ? AND ?", limit, offset);
-                } else {
-                    sqlBuilder.setTail(") AS R) AS P WHERE P.RowNum BETWEEN ? AND ?", limit, offset);
-                }
-            } else if (ORACLE.equals(dbType)) {
-                if (isClaimFiltering && !isGroupFiltering && totalMultiClaimFilters > 1) {
-                    StringBuilder brackets = new StringBuilder(")");
-                    /*
-                     * x is used to count the number of brackets
-                     * (totalMultiClaimFilters * 2) --> totalMultiClaims are multiplied by 2 as 2 new opening
-                     * brackets are created for every new claim, which needs to be closed at the right position.
-                     * (totalMultiClaimFilters * 2) - 4 is deducted as there are 2 opening brackets in the SQL query
-                     *  and 2 closing brackets in the setTail section below.
-                     */
-                    for (int x = 0; x <= (totalMultiClaimFilters * 2) - 4; x++) {
-                        brackets = brackets.append(" )");
+        if (cursor != null) {
+            if (!((MYSQL.equals(dbType) || MARIADB.equals(dbType)) && totalMultiGroupFilters > 1
+                    && totalMultiClaimFilters > 1)) {
+                if (DB2.equals(dbType)) {
+                    if (UserCoreConstants.PaginationDirection.NEXT == direction) {
+                        if ((isClaimFiltering && totalMultiClaimFilters > 1) ||
+                                (isGroupFiltering && totalMultiGroupFilters > 1)) {
+                            // Handle multi attribute filtering.
+                            StringBuilder brackets = new StringBuilder(") AS R");
+                            /*
+                             * x is used to count the number of brackets
+                             * (totalFilters * 2) --> totalFilters are multiplied by 2 as 2 new opening
+                             * brackets are created for every new filter, which needs to be closed at the right position
+                             * (totalMultiClaimFilters * 2) - 3 is deducted as there are 2 opening brackets in the SQL
+                             * query and 1 closing brackets in the setTail section below.
+                             */
+                            for (int x = 0; x <= (totalFilters * 2) - 3; x++) {
+                                brackets.append(" ) AS R");
+                            }
+                            sqlBuilder.setTail(brackets.toString().concat(") AS p WHERE p.rn BETWEEN 1 AND ?"),
+                                    limit);
+                        } else {
+                            sqlBuilder.setTail(") AS p) WHERE rn BETWEEN 1 and ?", limit);
+                        }
+                    } else if (UserCoreConstants.PaginationDirection.PREVIOUS == direction) {
+                        if ((isClaimFiltering && totalMultiClaimFilters > 1) ||
+                                (isGroupFiltering && totalMultiGroupFilters > 1)) {
+                            // Handle multi attribute filtering.
+                            StringBuilder brackets = new StringBuilder(") AS R");
+                            // - 3 due to 2 opening brackets and the remainder of the query within setTail() includes
+                            // a single )
+                            for (int x = 0; x <= (totalFilters * 2) - 3; x++) {
+                                brackets.append(" ) AS R");
+                            }
+                            sqlBuilder.setTail(brackets.toString().concat(") AS p WHERE p.rn BETWEEN 1 AND ? " +
+                                    "ORDER BY UM_USER_NAME ASC"), limit);
+                        } else {
+                            sqlBuilder.setTail(") AS p) WHERE p.rn BETWEEN 1 and ? " +
+                                    "ORDER BY UM_USER_NAME ASC", limit);
+                        }
                     }
-                    // Handle multi attribute filtering without group filtering.
-                    sqlBuilder.setTail(brackets.toString()
-                            .concat("ORDER BY UM_USER_NAME ) where rownum <= ?) WHERE  rnum > ?"), limit, offset);
-                } else {
-                    sqlBuilder.setTail(" ORDER BY UM_USER_NAME) where rownum <= ?) WHERE  rnum > ?", limit, offset);
-                }
-            } else {
-                sqlBuilder.setTail(" ORDER BY UM_USER_NAME ASC LIMIT ? OFFSET ?", limit, offset);
-            }
-        }
-        return sqlBuilder;
-    }
-
-    protected SqlBuilder getQueryStringCursor(boolean isGroupFiltering, boolean isUsernameFiltering,
-                         boolean isClaimFiltering, List<ExpressionCondition> expressionConditions, int limit,
-                         String cursor, String direction, String sortBy, String sortOrder, String profileName, String dbType,
-                         int totalMultiGroupFilters, int totalMultiClaimFilters) throws UserStoreException {
-
-        StringBuilder sqlStatement;
-        SqlBuilder sqlBuilder;
-        boolean hitGroupFilter = false;
-        boolean hitClaimFilter = false;
-        int groupFilterCount = 0;
-        int claimFilterCount = 0;
-
-        if (isGroupFiltering && isUsernameFiltering && isClaimFiltering || isGroupFiltering && isClaimFiltering) {
-
-            if (DB2.equals(dbType)) {
-                sqlStatement = new StringBuilder("SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT "
-                        + "ROW_NUMBER() OVER (ORDER BY UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_NAME  "
-                        + "FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U "
-                        + "ON UR.UM_USER_ID =U.UM_ID INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
-            } else if (MSSQL.equals(dbType)) {
-                sqlStatement = new StringBuilder(
-                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() OVER "
-                                + "(ORDER BY UM_USER_NAME) AS RowNum FROM (SELECT DISTINCT U.UM_USER_ID, " +
-                                "UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID " +
-                                "INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID INNER JOIN UM_USER_ATTRIBUTE UA ON" +
-                                " U.UM_ID = UA.UM_USER_ID");
-            } else if (ORACLE.equals(dbType)) {
-                sqlStatement = new StringBuilder(
-                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT UM_USER_NAME, rownum AS rnum "
-                                + "FROM (SELECT  UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR"
-                                + ".UM_ROLE_ID INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID INNER JOIN "
-                                + "UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
-            } else if (POSTGRE_SQL.equals(dbType)) {
-                sqlStatement = new StringBuilder(
-                        "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN " +
-                                "UM_USER_ROLE UR ON R.UM_ID =  UR.UM_ROLE_ID INNER JOIN" +
-                                " UM_USER U ON UR.UM_USER_ID =U.UM_ID INNER JOIN " +
-                                "UM_USER_ATTRIBUTE UA ON  U.UM_ID = UA.UM_USER_ID");
-            } else {
-                sqlStatement = new StringBuilder(
-                        "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN "
-                                + "UM_USER_ROLE UR INNER JOIN UM_USER U INNER JOIN UM_USER_ATTRIBUTE UA ON R.UM_ID = "
-                                + "UR.UM_ROLE_ID AND UR.UM_USER_ID =" + " U.UM_ID AND U.UM_ID = UA.UM_USER_ID");
-            }
-            sqlBuilder = new SqlBuilder(sqlStatement).where("R.UM_TENANT_ID = ?", tenantId)
-                    .where("U.UM_TENANT_ID = ?", tenantId).where("UR.UM_TENANT_ID = ?", tenantId)
-                    .where("UA.UM_TENANT_ID = ?", tenantId).where("UA.UM_PROFILE_ID = ?", profileName);
-        } else if (isGroupFiltering && isUsernameFiltering || isGroupFiltering) {
-            if (DB2.equals(dbType)) {
-                sqlStatement = new StringBuilder(
-                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
-                                + "UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_NAME  FROM UM_ROLE R INNER"
-                                + " JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U ON UR"
-                                + ".UM_USER_ID "
-                                + "=U.UM_ID ");
-            } else if (MSSQL.equals(dbType)) {
-                sqlStatement = new StringBuilder(
-                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() OVER "
-                                + "(ORDER BY UM_USER_NAME) AS RowNum FROM (SELECT DISTINCT U.UM_USER_ID, " +
-                                "UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID " +
-                                "INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID");
-            } else if (ORACLE.equals(dbType)) {
-                sqlStatement = new StringBuilder(
-                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT UM_USER_NAME, rownum AS rnum "
-                                + "FROM (SELECT  UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR"
-                                + ".UM_ROLE_ID INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID");
-            } else if (POSTGRE_SQL.equals(dbType)) {
-                sqlStatement = new StringBuilder(
-                        "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN " +
-                                "UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN " +
-                                "UM_USER U ON UR.UM_USER_ID=U.UM_ID");
-            } else {
-                sqlStatement = new StringBuilder(
-                        "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN "
-                                + "UM_USER_ROLE UR INNER JOIN UM_USER U ON R.UM_ID = UR.UM_ROLE_ID AND UR.UM_USER_ID "
-                                + "=U.UM_ID");
-            }
-
-            sqlBuilder = new SqlBuilder(sqlStatement).where("R.UM_TENANT_ID = ?", tenantId)
-                    .where("U.UM_TENANT_ID = ?", tenantId).where("UR.UM_TENANT_ID = ?", tenantId);
-        } else if (isUsernameFiltering && isClaimFiltering || isClaimFiltering) {
-            if (DB2.equals(dbType)) {
-                sqlStatement = new StringBuilder(
-                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
-                                + "UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_NAME  FROM  UM_USER U "
-                                + "INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
-            } else if (MSSQL.equals(dbType)) {
-                sqlStatement = new StringBuilder(
-                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() OVER " +
-                                "(ORDER BY UM_USER_NAME) AS RowNum FROM " +
-                                "(SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_USER U " +
-                                "INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
-            } else if (ORACLE.equals(dbType)) {
-                sqlStatement = new StringBuilder(
-                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, rownum AS rnum FROM "
-                                + "(SELECT U.UM_USER_ID, UM_USER_NAME FROM UM_USER U INNER JOIN UM_USER_ATTRIBUTE UA "
-                                + "ON U.UM_ID = UA.UM_USER_ID");
-            } else {
-                sqlStatement = new StringBuilder(
-                        "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_USER U INNER JOIN "
-                                + "UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
-            }
-            sqlBuilder = new SqlBuilder(sqlStatement).where("U.UM_TENANT_ID = ?", tenantId)
-                    .where("UA.UM_TENANT_ID = ?", tenantId).where("UA.UM_PROFILE_ID = ?", profileName);
-        } else if (isUsernameFiltering) {
-
-            if (UserCoreConstants.PREVIOUS.equals(direction)) {
-                sqlStatement = new StringBuilder("WITH this_set AS(");
-
-                if (DB2.equals(dbType)) {
-                    sqlStatement.append(
-                            "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
-                                    + "UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_ID, UM_USER_NAME  FROM " +
-                                    "UM_USER U");
                 } else if (MSSQL.equals(dbType)) {
-                    sqlStatement.append(
-                            "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() OVER "
-                                    + "(ORDER BY UM_USER_NAME) AS RowNum FROM (SELECT DISTINCT UM_USER_NAME, UM_USER_ID" +
-                                    " FROM UM_USER U");
+                    if (UserCoreConstants.PaginationDirection.NEXT == direction) {
+                        if ((isClaimFiltering && totalMultiClaimFilters > 1) ||
+                                (isGroupFiltering && totalMultiGroupFilters > 1)) {
+                            // Handle multi attribute filtering.
+                            StringBuilder brackets = new StringBuilder(") AS R");
+                            // - 3 due to 2 opening brackets and the remainder of the query within setTail() includes
+                            // a single )
+                            for (int x = 0; x <= (totalFilters * 2) - 3; x++) {
+                                brackets.append(" ) AS R");
+                            }
+                            sqlBuilder.setTail(brackets.toString().concat(") AS P WHERE P.RowNum BETWEEN 1 AND ?"),
+                                    limit);
+                        } else {
+                            sqlBuilder.setTail(") AS R) AS P WHERE P.RowNum BETWEEN 1 AND ?", limit);
+                        }
+                    } else if (UserCoreConstants.PaginationDirection.PREVIOUS == direction) {
+                        if ((isClaimFiltering && totalMultiClaimFilters > 1) ||
+                                (isGroupFiltering && totalMultiGroupFilters > 1)) {
+                            // - 3 due to 2 opening brackets and the remainder of the query within setTail() includes
+                            // a single )
+                            StringBuilder brackets = new StringBuilder(") AS R");
+                            for (int x = 0; x <= (totalFilters * 2) - 3; x++) {
+                                brackets.append(" ) AS R");
+                            }
+                            sqlBuilder.setTail(brackets.toString().concat(") AS P WHERE P.RowNum " +
+                                    "BETWEEN 1 AND ? ORDER BY UM_USER_NAME ASC"), limit);
+                        } else {
+                            sqlBuilder.setTail(") AS R) AS P WHERE P.RowNum BETWEEN 1 AND ? " +
+                                    "ORDER BY UM_USER_NAME ASC", limit);
+                        }
+                    }
                 } else if (ORACLE.equals(dbType)) {
-                    sqlStatement.append(
-                            "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, rownum AS rnum "
-                                    + "FROM (SELECT UM_USER_ID, UM_USER_NAME FROM UM_USER U");
+                    if (UserCoreConstants.PaginationDirection.NEXT == direction) {
+                        if ((isClaimFiltering && totalMultiClaimFilters > 1) ||
+                                (isGroupFiltering && totalMultiGroupFilters > 1)) {
+                            StringBuilder brackets = new StringBuilder(")");
+                            // - 3 due to 2 opening brackets and the remainder of the query within setTail() includes
+                            // 2 closing brackets.
+                            for (int x = 0; x <= (totalFilters * 2) - 4; x++) {
+                                brackets.append(" )");
+                            }
+                            // Handle multi attribute filtering.
+                            sqlBuilder.setTail(brackets.toString().concat(" ORDER BY UM_USER_NAME ) " +
+                                    "where rownum <= ?)"), limit);
+                        } else {
+                            sqlBuilder.setTail(" ORDER BY UM_USER_NAME) where rownum <= ?)", limit);
+                        }
+                    } else if (UserCoreConstants.PaginationDirection.PREVIOUS == direction) {
+                        if ((isClaimFiltering && totalMultiClaimFilters > 1) ||
+                                (isGroupFiltering && totalMultiGroupFilters > 1)) {
+                            StringBuilder brackets = new StringBuilder(")");
+                            // Still - 4 because this is a query to get results in the previous direction which has
+                            // an additional opening ( in the SQL and an additional ) in the setTail section.
+                            for (int x = 0; x <= (totalFilters * 2) - 4; x++) {
+                                brackets.append(" )");
+                            }
+                            // Handle multi attribute filtering.
+                            sqlBuilder.setTail(brackets.toString().concat("ORDER BY UM_USER_NAME DESC) where " +
+                                    "rownum <= ?)) Select * from this_set ORDER BY UM_USER_NAME ASC"), limit);
+                        } else {
+                            sqlBuilder.setTail(" ORDER BY UM_USER_NAME DESC) where rownum <= ?))" +
+                                    " Select * from this_set ORDER BY UM_USER_NAME ASC", limit);
+                        }
+                    }
                 } else {
-                    sqlStatement.append("SELECT U.UM_USER_ID, U.UM_USER_NAME FROM UM_USER U");
-                }
-            } else {
-                if (DB2.equals(dbType)) {
-                    sqlStatement = new StringBuilder(
-                            "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
-                                    + "UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_ID, UM_USER_NAME  FROM " +
-                                    "UM_USER U");
-                } else if (MSSQL.equals(dbType)) {
-                    sqlStatement = new StringBuilder(
-                            "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() OVER "
-                                    + "(ORDER BY UM_USER_NAME) AS RowNum FROM (SELECT DISTINCT UM_USER_NAME, UM_USER_ID" +
-                                    " FROM UM_USER U");
-                } else if (ORACLE.equals(dbType)) {
-                    sqlStatement = new StringBuilder(
-                            "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, rownum AS rnum "
-                                    + "FROM (SELECT UM_USER_ID, UM_USER_NAME FROM UM_USER U");
-                } else {
-                    sqlStatement = new StringBuilder("SELECT U.UM_USER_ID, U.UM_USER_NAME FROM UM_USER U");
+                    if (UserCoreConstants.PaginationDirection.PREVIOUS == direction) {
+                        sqlBuilder.setTail(" ORDER BY UM_USER_NAME DESC LIMIT ? )SELECT * " +
+                                "from this_set ORDER BY UM_USER_NAME ASC", limit);
+                    } else if (UserCoreConstants.PaginationDirection.NEXT == direction) {
+                        sqlBuilder.setTail(" ORDER BY UM_USER_NAME ASC LIMIT ?", limit);
+                    }
                 }
             }
-
-            sqlBuilder = new SqlBuilder(sqlStatement).where("U.UM_TENANT_ID = ?", tenantId);
         } else {
-            throw new UserStoreException("Condition is not valid.");
-        }
-
-        SqlBuilder header = new SqlBuilder(new StringBuilder(sqlBuilder.getSql()));
-        addingWheres(sqlBuilder, header);
-
-        for (ExpressionCondition expressionCondition : expressionConditions) {
-            if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName())) {
-                if (!(MYSQL.equals(dbType) || MARIADB.equals(dbType)) || totalMultiGroupFilters > 1
-                        && totalMultiClaimFilters > 1) {
-                    multiGroupQueryBuilder(sqlBuilder, header, hitGroupFilter, expressionCondition);
-                    hitGroupFilter = true;
+            if (!((MYSQL.equals(dbType) || MARIADB.equals(dbType)) && totalMultiGroupFilters > 1 &&
+                    totalMultiClaimFilters > 1)) {
+                if (DB2.equals(dbType)) {
+                    sqlBuilder.setTail(") AS p) WHERE rn BETWEEN ? AND ?", limit, offset);
+                } else if (MSSQL.equals(dbType)) {
+                    if (isClaimFiltering && !isGroupFiltering && totalMultiClaimFilters > 1) {
+                        // Handle multi attribute filtering without group filtering.
+                        sqlBuilder.setTail(") AS Q) AS S) AS R) AS P WHERE P.RowNum BETWEEN ? AND ?", limit,
+                                offset);
+                    } else {
+                        sqlBuilder.setTail(") AS R) AS P WHERE P.RowNum BETWEEN ? AND ?", limit, offset);
+                    }
+                } else if (ORACLE.equals(dbType)) {
+                    sqlBuilder.setTail(" ORDER BY UM_USER_NAME) where rownum <= ?) WHERE  rnum > ?", limit, offset);
                 } else {
-                    multiGroupMySqlQueryBuilder(sqlBuilder, groupFilterCount, expressionCondition);
-                    groupFilterCount++;
-                }
-            } else if (ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation())
-                    && ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
-                if (isCaseSensitiveUsername()) {
-                    sqlBuilder.where("U.UM_USER_NAME = ?", expressionCondition.getAttributeValue());
-                } else {
-                    sqlBuilder.where("U.UM_USER_NAME = LOWER(?)", expressionCondition.getAttributeValue());
-                }
-            } else if (ExpressionOperation.CO.toString().equals(expressionCondition.getOperation())
-                    && ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
-                if (isCaseSensitiveUsername()) {
-                    sqlBuilder.where("U.UM_USER_NAME LIKE ?", "%" + expressionCondition.getAttributeValue() + "%");
-                } else {
-                    sqlBuilder
-                            .where("U.UM_USER_NAME LIKE LOWER(?)", "%" + expressionCondition.getAttributeValue() + "%");
-                }
-            } else if (ExpressionOperation.EW.toString().equals(expressionCondition.getOperation())
-                    && ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
-                if (isCaseSensitiveUsername()) {
-                    sqlBuilder.where("U.UM_USER_NAME LIKE ?", "%" + expressionCondition.getAttributeValue());
-                } else {
-                    sqlBuilder.where("U.UM_USER_NAME LIKE LOWER(?)", "%" + expressionCondition.getAttributeValue());
-                }
-            } else if (ExpressionOperation.SW.toString().equals(expressionCondition.getOperation())
-                    && ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
-                if (isCaseSensitiveUsername()) {
-                    sqlBuilder.where("U.UM_USER_NAME LIKE ?", expressionCondition.getAttributeValue() + "%");
-                } else {
-                    sqlBuilder.where("U.UM_USER_NAME LIKE LOWER(?)", expressionCondition.getAttributeValue() + "%");
-                }
-            } else {
-                // Claim filtering
-                if (!(MYSQL.equals(dbType) || MARIADB.equals(dbType)) || totalMultiGroupFilters > 1
-                        && totalMultiClaimFilters > 1) {
-                    multiClaimQueryBuilder(sqlBuilder, header, hitClaimFilter, expressionCondition);
-                    hitClaimFilter = true;
-                } else {
-                    multiClaimMySqlQueryBuilder(sqlBuilder, claimFilterCount, expressionCondition);
-                    claimFilterCount++;
-                }
-            }
-        }
-
-        if (UserCoreConstants.PREVIOUS.equals(direction)) {
-            sqlBuilder.where("U.UM_USER_NAME < ?", cursor);
-        } else if (UserCoreConstants.NEXT.equals(direction)) {
-            sqlBuilder.where("U.UM_USER_NAME > ?", cursor);
-        }
-
-        if (MYSQL.equals(dbType) || MARIADB.equals(dbType)) {
-            sqlBuilder.updateSql(" GROUP BY U.UM_USER_NAME, U.UM_USER_ID ");
-            if (groupFilterCount > 0 && claimFilterCount > 0) {
-                sqlBuilder.updateSql(" HAVING (COUNT(DISTINCT R.UM_ROLE_NAME) = " + groupFilterCount +
-                        " AND COUNT(DISTINCT UA.UM_ATTR_VALUE) = " + claimFilterCount + ")");
-            } else if (groupFilterCount > 0) {
-                sqlBuilder.updateSql(" HAVING COUNT(DISTINCT R.UM_ROLE_NAME) = " + groupFilterCount);
-            } else if (claimFilterCount > 0) {
-                sqlBuilder.updateSql(" HAVING COUNT(DISTINCT UA.UM_ATTR_VALUE) = " + claimFilterCount);
-            }
-        }
-
-        if (!((MYSQL.equals(dbType) || MARIADB.equals(dbType)) && totalMultiGroupFilters > 1
-                && totalMultiClaimFilters > 1)) {
-            if (DB2.equals(dbType)) {
-                sqlBuilder.setTail(") AS p) WHERE rn BETWEEN ?", limit);
-            } else if (MSSQL.equals(dbType)) {
-                if (isClaimFiltering && !isGroupFiltering && totalMultiClaimFilters > 1) {
-                    // Handle multi attribute filtering without group filtering.
-                    sqlBuilder.setTail(") AS Q) AS S) AS R) AS P WHERE P.RowNum BETWEEN ?", limit);
-                } else {
-                    sqlBuilder.setTail(") AS R) AS P WHERE P.RowNum BETWEEN ?", limit);
-                }
-            } else if (ORACLE.equals(dbType)) {
-                sqlBuilder.setTail(" ORDER BY UM_USER_NAME) where rownum <= ?)", limit);
-            } else {
-                if (UserCoreConstants.PREVIOUS.equals(direction)) {
-                    sqlBuilder.setTail(" ORDER BY UM_USER_NAME DESC LIMIT ? )SELECT * " +
-                            "from this_set ORDER BY UM_USER_NAME ASC;", limit);
-                } else if (UserCoreConstants.NEXT.equals(direction)) {
-                    sqlBuilder.setTail(" ORDER BY UM_USER_NAME ASC LIMIT ?", limit);
+                    sqlBuilder.setTail(" ORDER BY UM_USER_NAME ASC LIMIT ? OFFSET ?", limit, offset);
                 }
             }
         }
         return sqlBuilder;
     }
-
-//    protected SqlBuilder getQueryStringCursorPrev(boolean isGroupFiltering, boolean isUsernameFiltering,
-//                         boolean isClaimFiltering, List<ExpressionCondition> expressionConditions, int limit,
-//                         String cursor, String sortBy, String sortOrder, String profileName, String dbType,
-//                         int totalMultiGroupFilters, int totalMultiClaimFilters)
-//            throws UserStoreException {
-//
-//        StringBuilder sqlStatement;
-//        SqlBuilder sqlBuilder;
-//        boolean hitGroupFilter = false;
-//        boolean hitClaimFilter = false;
-//        int groupFilterCount = 0;
-//        int claimFilterCount = 0;
-//
-//        if (isGroupFiltering && isUsernameFiltering && isClaimFiltering || isGroupFiltering && isClaimFiltering) {
-//
-//            if (DB2.equals(dbType)) {
-//                sqlStatement = new StringBuilder("SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT "
-//                        + "ROW_NUMBER() OVER (ORDER BY UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_NAME  "
-//                        + "FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U "
-//                        + "ON UR.UM_USER_ID =U.UM_ID INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
-//            } else if (MSSQL.equals(dbType)) {
-//                sqlStatement = new StringBuilder(
-//                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() OVER "
-//                                + "(ORDER BY UM_USER_NAME) AS RowNum FROM (SELECT DISTINCT U.UM_USER_ID, " +
-//                                "UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID " +
-//                                "INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID INNER JOIN UM_USER_ATTRIBUTE UA ON" +
-//                                " U.UM_ID = UA.UM_USER_ID");
-//            } else if (ORACLE.equals(dbType)) {
-//                sqlStatement = new StringBuilder(
-//                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT UM_USER_NAME, rownum AS rnum "
-//                                + "FROM (SELECT  UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR"
-//                                + ".UM_ROLE_ID INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID INNER JOIN "
-//                                + "UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
-//            } else if (POSTGRE_SQL.equals(dbType)) {
-//                sqlStatement = new StringBuilder(
-//                        "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN " +
-//                                "UM_USER_ROLE UR ON R.UM_ID =  UR.UM_ROLE_ID INNER JOIN" +
-//                                " UM_USER U ON UR.UM_USER_ID =U.UM_ID INNER JOIN " +
-//                                "UM_USER_ATTRIBUTE UA ON  U.UM_ID = UA.UM_USER_ID");
-//            } else {
-//                sqlStatement = new StringBuilder(
-//                        "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN "
-//                                + "UM_USER_ROLE UR INNER JOIN UM_USER U INNER JOIN UM_USER_ATTRIBUTE UA ON R.UM_ID = "
-//                                + "UR.UM_ROLE_ID AND UR.UM_USER_ID =" + " U.UM_ID AND U.UM_ID = UA.UM_USER_ID");
-//            }
-//            sqlBuilder = new SqlBuilder(sqlStatement).where("R.UM_TENANT_ID = ?", tenantId)
-//                    .where("U.UM_TENANT_ID = ?", tenantId).where("UR.UM_TENANT_ID = ?", tenantId)
-//                    .where("UA.UM_TENANT_ID = ?", tenantId).where("UA.UM_PROFILE_ID = ?", profileName);
-//        } else if (isGroupFiltering && isUsernameFiltering || isGroupFiltering) {
-//            if (DB2.equals(dbType)) {
-//                sqlStatement = new StringBuilder(
-//                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
-//                                + "UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_NAME  FROM UM_ROLE R INNER"
-//                                + " JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U ON UR"
-//                                + ".UM_USER_ID "
-//                                + "=U.UM_ID ");
-//            } else if (MSSQL.equals(dbType)) {
-//                sqlStatement = new StringBuilder(
-//                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() OVER "
-//                                + "(ORDER BY UM_USER_NAME) AS RowNum FROM (SELECT DISTINCT U.UM_USER_ID, " +
-//                                "UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID " +
-//                                "INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID");
-//            } else if (ORACLE.equals(dbType)) {
-//                sqlStatement = new StringBuilder(
-//                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT UM_USER_NAME, rownum AS rnum "
-//                                + "FROM (SELECT  UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR"
-//                                + ".UM_ROLE_ID INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID");
-//            } else if (POSTGRE_SQL.equals(dbType)) {
-//                sqlStatement = new StringBuilder(
-//                        "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN " +
-//                                "UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN " +
-//                                "UM_USER U ON UR.UM_USER_ID=U.UM_ID");
-//            } else {
-//                sqlStatement = new StringBuilder(
-//                        "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN "
-//                                + "UM_USER_ROLE UR INNER JOIN UM_USER U ON R.UM_ID = UR.UM_ROLE_ID AND UR.UM_USER_ID "
-//                                + "=U.UM_ID");
-//            }
-//
-//            sqlBuilder = new SqlBuilder(sqlStatement).where("R.UM_TENANT_ID = ?", tenantId)
-//                    .where("U.UM_TENANT_ID = ?", tenantId).where("UR.UM_TENANT_ID = ?", tenantId);
-//        } else if (isUsernameFiltering && isClaimFiltering || isClaimFiltering) {
-//            if (DB2.equals(dbType)) {
-//                sqlStatement = new StringBuilder(
-//                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
-//                                + "UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_NAME  FROM  UM_USER U "
-//                                + "INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
-//            } else if (MSSQL.equals(dbType)) {
-//                sqlStatement = new StringBuilder(
-//                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() OVER " +
-//                                "(ORDER BY UM_USER_NAME) AS RowNum FROM " +
-//                                "(SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_USER U " +
-//                                "INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
-//            } else if (ORACLE.equals(dbType)) {
-//                sqlStatement = new StringBuilder(
-//                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, rownum AS rnum FROM "
-//                                + "(SELECT U.UM_USER_ID, UM_USER_NAME FROM UM_USER U INNER JOIN UM_USER_ATTRIBUTE UA "
-//                                + "ON U.UM_ID = UA.UM_USER_ID");
-//            } else {
-//                sqlStatement = new StringBuilder(
-//                        "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_USER U INNER JOIN "
-//                                + "UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
-//            }
-//            sqlBuilder = new SqlBuilder(sqlStatement).where("U.UM_TENANT_ID = ?", tenantId)
-//                    .where("UA.UM_TENANT_ID = ?", tenantId).where("UA.UM_PROFILE_ID = ?", profileName);
-//        } else if (isUsernameFiltering) {
-//            if (DB2.equals(dbType)) {
-//                sqlStatement = new StringBuilder(
-//                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
-//                                + "UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_ID, UM_USER_NAME  FROM " +
-//                                "UM_USER U");
-//            } else if (MSSQL.equals(dbType)) {
-//                sqlStatement = new StringBuilder(
-//                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() OVER "
-//                                + "(ORDER BY UM_USER_NAME) AS RowNum FROM (SELECT DISTINCT UM_USER_NAME, UM_USER_ID" +
-//                                " FROM UM_USER U");
-//            } else if (ORACLE.equals(dbType)) {
-//                sqlStatement = new StringBuilder(
-//                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, rownum AS rnum "
-//                                + "FROM (SELECT UM_USER_ID, UM_USER_NAME FROM UM_USER U");
-//            } else {
-//                sqlStatement = new StringBuilder("WITH this_set AS(\n" +
-//                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM UM_USER U");
-//            }
-//
-//            sqlBuilder = new SqlBuilder(sqlStatement).where("U.UM_TENANT_ID = ?", tenantId);
-//        } else {
-//            throw new UserStoreException("Condition is not valid.");
-//        }
-//
-//        SqlBuilder header = new SqlBuilder(new StringBuilder(sqlBuilder.getSql()));
-//        addingWheres(sqlBuilder, header);
-//
-//        for (ExpressionCondition expressionCondition : expressionConditions) {
-//            if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName())) {
-//                if (!(MYSQL.equals(dbType) || MARIADB.equals(dbType)) || totalMultiGroupFilters > 1
-//                        && totalMultiClaimFilters > 1) {
-//                    multiGroupQueryBuilder(sqlBuilder, header, hitGroupFilter, expressionCondition);
-//                    hitGroupFilter = true;
-//                } else {
-//                    multiGroupMySqlQueryBuilder(sqlBuilder, groupFilterCount, expressionCondition);
-//                    groupFilterCount++;
-//                }
-//            } else if (ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation())
-//                    && ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
-//                if (isCaseSensitiveUsername()) {
-//                    sqlBuilder.where("U.UM_USER_NAME = ?", expressionCondition.getAttributeValue());
-//                } else {
-//                    sqlBuilder.where("U.UM_USER_NAME = LOWER(?)", expressionCondition.getAttributeValue());
-//                }
-//            } else if (ExpressionOperation.CO.toString().equals(expressionCondition.getOperation())
-//                    && ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
-//                if (isCaseSensitiveUsername()) {
-//                    sqlBuilder.where("U.UM_USER_NAME LIKE ?", "%" + expressionCondition.getAttributeValue() + "%");
-//                } else {
-//                    sqlBuilder
-//                            .where("U.UM_USER_NAME LIKE LOWER(?)", "%" + expressionCondition.getAttributeValue() + "%");
-//                }
-//            } else if (ExpressionOperation.EW.toString().equals(expressionCondition.getOperation())
-//                    && ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
-//                if (isCaseSensitiveUsername()) {
-//                    sqlBuilder.where("U.UM_USER_NAME LIKE ?", "%" + expressionCondition.getAttributeValue());
-//                } else {
-//                    sqlBuilder.where("U.UM_USER_NAME LIKE LOWER(?)", "%" + expressionCondition.getAttributeValue());
-//                }
-//            } else if (ExpressionOperation.SW.toString().equals(expressionCondition.getOperation())
-//                    && ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
-//                if (isCaseSensitiveUsername()) {
-//                    sqlBuilder.where("U.UM_USER_NAME LIKE ?", expressionCondition.getAttributeValue() + "%");
-//                } else {
-//                    sqlBuilder.where("U.UM_USER_NAME LIKE LOWER(?)", expressionCondition.getAttributeValue() + "%");
-//                }
-//            } else {
-//                // Claim filtering
-//                if (!(MYSQL.equals(dbType) || MARIADB.equals(dbType)) || totalMultiGroupFilters > 1
-//                        && totalMultiClaimFilters > 1) {
-//                    multiClaimQueryBuilder(sqlBuilder, header, hitClaimFilter, expressionCondition);
-//                    hitClaimFilter = true;
-//                } else {
-//                    multiClaimMySqlQueryBuilder(sqlBuilder, claimFilterCount, expressionCondition);
-//                    claimFilterCount++;
-//                }
-//            }
-//        }
-//        sqlBuilder.where("U.UM_USER_NAME < ?", cursor);
-//
-//        if (MYSQL.equals(dbType) || MARIADB.equals(dbType)) {
-//            sqlBuilder.updateSql(" GROUP BY U.UM_USER_NAME, U.UM_USER_ID ");
-//            if (groupFilterCount > 0 && claimFilterCount > 0) {
-//                sqlBuilder.updateSql(" HAVING (COUNT(DISTINCT R.UM_ROLE_NAME) = " + groupFilterCount +
-//                        " AND COUNT(DISTINCT UA.UM_ATTR_VALUE) = " + claimFilterCount + ")");
-//            } else if (groupFilterCount > 0) {
-//                sqlBuilder.updateSql(" HAVING COUNT(DISTINCT R.UM_ROLE_NAME) = " + groupFilterCount);
-//            } else if (claimFilterCount > 0) {
-//                sqlBuilder.updateSql(" HAVING COUNT(DISTINCT UA.UM_ATTR_VALUE) = " + claimFilterCount);
-//            }
-//        }
-//
-//        if (!((MYSQL.equals(dbType) || MARIADB.equals(dbType)) && totalMultiGroupFilters > 1
-//                && totalMultiClaimFilters > 1)) {
-//            if (DB2.equals(dbType)) {
-//                sqlBuilder.setTail(") AS p) WHERE rn BETWEEN ?", limit);
-//            } else if (MSSQL.equals(dbType)) {
-//                if (isClaimFiltering && !isGroupFiltering && totalMultiClaimFilters > 1) {
-//                    // Handle multi attribute filtering without group filtering.
-//                    sqlBuilder.setTail(") AS Q) AS S) AS R) AS P WHERE P.RowNum BETWEEN ?", limit);
-//                } else {
-//                    sqlBuilder.setTail(") AS R) AS P WHERE P.RowNum BETWEEN ?", limit);
-//                }
-//            } else if (ORACLE.equals(dbType)) {
-//                sqlBuilder.setTail(" ORDER BY UM_USER_NAME) where rownum <= ?)", limit);
-//            } else {
-//                sqlBuilder.setTail(" ORDER BY UM_USER_NAME DESC LIMIT ? \n )SELECT * " +
-//                        "from this_set ORDER BY UM_USER_NAME ASC;", limit);
-//            }
-//        }
-//        return sqlBuilder;
-//    }
 
     private void multiGroupQueryBuilder(SqlBuilder sqlBuilder, SqlBuilder header, boolean hitFirstRound,
             ExpressionCondition expressionCondition) {

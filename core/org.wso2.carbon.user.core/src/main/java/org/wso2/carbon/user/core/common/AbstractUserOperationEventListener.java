@@ -401,6 +401,14 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
     }
 
     @Override
+    public boolean doPreGetUserListWithID(Condition condition, String domain, String profileName, int limit,
+                                          String cursor, String direction, String sortBy, String sortOrder,
+                                          UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
     public boolean doPreGetUserListWithID(String claimUri, String claimValue, int limit, int offset,
             final List<User> returnUsersList, UserStoreManager userStoreManager) throws UserStoreException {
 

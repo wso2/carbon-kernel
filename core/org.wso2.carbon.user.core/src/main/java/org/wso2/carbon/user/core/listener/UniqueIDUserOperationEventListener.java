@@ -151,6 +151,25 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
             String sortBy, String sortOrder, UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
+     * Pre listener for the get offset paginated conditional user list method.
+     *
+     * @param condition        Condition.
+     * @param domain           User store domain.
+     * @param profileName      Profile name.
+     * @param limit            Number of search results.
+     * @param cursor           Cursor value used for cursor pagination.
+     * @param direction        Pagination direction.
+     * @param sortBy           Sort By attribute
+     * @param sortOrder        Sort order.
+     * @param userStoreManager userStoreManager.
+     * @return true if handling succeeds, otherwise false.
+     * @throws UserStoreException User Store Exception.
+     */
+    boolean doPreGetUserListWithID(Condition condition, String domain, String profileName, int limit, String cursor,
+                                   String direction, String sortBy, String sortOrder, UserStoreManager userStoreManager)
+            throws UserStoreException;
+
+    /**
      * Pre listener for the get paginated user list method.
      *
      * @param claimUri         Claim URI.
