@@ -1221,7 +1221,7 @@
             <dependency>
                 <groupId>org.wso2.orbit.org.apache.poi</groupId>
                 <artifactId>poi-ooxml</artifactId>
-                <version>orbit.version.poi.ooxml</version>
+                <version>${orbit.version.poi.ooxml}</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
@@ -1231,7 +1231,7 @@
             <dependency>
                 <groupId>xmlunit</groupId>
                 <artifactId>xmlunit</artifactId>
-                <version>${xmlunit}</version>
+                <version>${version.xmlunit}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.axis2</groupId>
