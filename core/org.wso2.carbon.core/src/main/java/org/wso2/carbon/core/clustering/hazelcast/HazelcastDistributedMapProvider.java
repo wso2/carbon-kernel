@@ -75,6 +75,7 @@ public class HazelcastDistributedMapProvider implements DistributedMapProvider {
                     listenerId = map.addEntryListener(new EntryListener<K, V>() {
                         @Override
                         public void entryExpired(EntryEvent<K, V> entryEvent) {
+
                         }
 
                         @Override

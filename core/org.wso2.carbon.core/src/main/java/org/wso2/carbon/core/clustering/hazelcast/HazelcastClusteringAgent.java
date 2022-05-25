@@ -69,6 +69,8 @@ import org.wso2.carbon.core.clustering.api.CoordinatedActivity;
 import org.wso2.carbon.core.clustering.hazelcast.aws.AWSBasedMembershipScheme;
 import org.wso2.carbon.core.clustering.hazelcast.aws.AWSECSBasedMembershipScheme;
 import org.wso2.carbon.core.clustering.hazelcast.general.GeneralMembershipScheme;
+import org.wso2.carbon.core.clustering.hazelcast.kubernetes.KubernetesConstants;
+import org.wso2.carbon.core.clustering.hazelcast.kubernetes.KubernetesMembershipScheme;
 import org.wso2.carbon.core.clustering.hazelcast.multicast.MulticastBasedMembershipScheme;
 import org.wso2.carbon.core.clustering.hazelcast.util.MemberUtils;
 import org.wso2.carbon.core.clustering.hazelcast.wka.WKABasedMembershipScheme;
@@ -599,7 +601,14 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
                     primaryHazelcastInstance,
                     sentMsgsBuffer);
             membershipScheme.init();
-        } else {
+        } else if (scheme.equals(HazelcastConstants.KUBERNETES_MEMBERSHIP_SCHEME)) {
+            membershipScheme = new KubernetesMembershipScheme(parameters, primaryDomain,
+                    primaryHazelcastConfig,
+                    primaryHazelcastInstance,
+                    sentMsgsBuffer);
+            membershipScheme.init();
+        }
+        else {
             Parameter classNameParameter = parameters.get(MEMBERSHIP_SCHEME_CLASS_NAME);
             if(classNameParameter != null) {
                 initiateCustomMembershipScheme(classNameParameter, primaryHazelcastConfig);
@@ -656,14 +665,16 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         if (!mbrScheme.equals(ClusteringConstants.MembershipScheme.MULTICAST_BASED) &&
             !mbrScheme.equals(ClusteringConstants.MembershipScheme.WKA_BASED) &&
             !mbrScheme.equals(HazelcastConstants.AWS_MEMBERSHIP_SCHEME) &&
-                !mbrScheme.equals(HazelcastConstants.AWS_ECS_MEMBERSHIP_SCHEME)) {
+                !mbrScheme.equals(HazelcastConstants.AWS_ECS_MEMBERSHIP_SCHEME) &&
+                !mbrScheme.equals(HazelcastConstants.KUBERNETES_MEMBERSHIP_SCHEME)) {
 
             Parameter classNameParameter = parameters.get(MEMBERSHIP_SCHEME_CLASS_NAME);
             if(classNameParameter == null) {
                 String msg = "Invalid membership scheme '" + mbrScheme + "'. Supported schemes are " +
                         ClusteringConstants.MembershipScheme.MULTICAST_BASED + ", " +
                         ClusteringConstants.MembershipScheme.WKA_BASED + " & " +
-                        HazelcastConstants.AWS_MEMBERSHIP_SCHEME;
+                        HazelcastConstants.AWS_MEMBERSHIP_SCHEME + " & " +
+                        HazelcastConstants.KUBERNETES_MEMBERSHIP_SCHEME;
                 log.error(msg);
                 throw new ClusteringFault(msg);
             }
