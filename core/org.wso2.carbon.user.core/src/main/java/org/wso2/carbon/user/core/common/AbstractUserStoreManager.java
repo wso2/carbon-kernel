@@ -2347,16 +2347,26 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     private void handleGetUserListFailureWithID(String errorCode, String errorMassage, Condition condition,
-            String domain, String profileName, int limit, int offset, String sortBy, String sortOrder)
+            String domain, String profileName, int limit, Integer offset, String cursor, String direction,
+                                                String sortBy, String sortOrder)
             throws UserStoreException {
 
         for (UserManagementErrorEventListener listener : UMListenerServiceComponent
                 .getUserManagementErrorEventListeners()) {
-            if (listener.isEnable() && listener instanceof AbstractUserManagementErrorListener
-                    && !((AbstractUserManagementErrorListener) listener)
-                    .onGetUserListFailureWithID(errorCode, errorMassage, condition, domain, profileName, limit, offset,
-                            sortBy, sortOrder, this)) {
-                return;
+            if (cursor == null) {
+                if (listener.isEnable() && listener instanceof AbstractUserManagementErrorListener
+                        && !((AbstractUserManagementErrorListener) listener)
+                        .onGetUserListFailureWithID(errorCode, errorMassage, condition, domain, profileName, limit, offset,
+                                sortBy, sortOrder, this)) {
+                    return;
+                }
+            } else {
+                if (listener.isEnable() && listener instanceof AbstractUserManagementErrorListener
+                        && !((AbstractUserManagementErrorListener) listener)
+                        .onGetUserListFailureWithID(errorCode, errorMassage, condition, domain, profileName, limit,
+                                cursor, direction, sortBy, sortOrder, this)) {
+                    return;
+                }
             }
         }
     }
@@ -2620,9 +2630,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
-    //TODO - Add support for cursor based pagination.
     private void handlePostGetUserListWithID(Condition condition, String domain, String profileName, int limit,
-                 Integer offset, String sortBy, String sortOrder, List<User> users, boolean isAuditLogOnly)
+                 Integer offset, String cursor, String direction, String sortBy, String sortOrder, List<User> users,
+                 boolean isAuditLogOnly)
             throws UserStoreException {
 
         try {
@@ -2633,9 +2643,16 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         continue;
                     }
                     AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
-                    if (!newListener.doPostGetUserListWithID(condition, domain, profileName, limit, offset, sortBy,
-                            sortOrder, users, this)) {
-                        break;
+                    if (cursor == null) {
+                        if (!newListener.doPostGetUserListWithID(condition, domain, profileName, limit, offset, sortBy,
+                                sortOrder, users, this)) {
+                            break;
+                        }
+                    } else {
+                        if (!newListener.doPostGetUserListWithID(condition, domain, profileName, limit, cursor,
+                                direction, sortBy, sortOrder, users, this)) {
+                            break;
+                        }
                     }
                 }
             }
@@ -2643,7 +2660,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             handleGetUserListFailureWithID(
                     ErrorMessages.ERROR_CODE_ERROR_DURING_POST_GET_CONDITIONAL_USER_LIST.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_GET_CONDITIONAL_USER_LIST.getMessage(),
-                            ex.getMessage()), condition, domain, profileName, limit, offset, sortBy, sortOrder);
+                            ex.getMessage()), condition, domain, profileName, limit, offset, cursor, direction, sortBy,
+                    sortOrder);
             throw ex;
         }
     }
@@ -2703,12 +2721,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         if (!newListener.doPreGetUserListWithID(condition, domain, profileName, limit, cursor,
                                 direction, sortBy, sortOrder, this)) {
 
-                            handleGetUserListFailure(ErrorMessages.
-                                            ERROR_CODE_ERROR_DURING_PRE_GET__CONDITIONAL_USER_LIST.getCode(),
-                                    String.format(ErrorMessages.
-                                                    ERROR_CODE_ERROR_DURING_PRE_GET__CONDITIONAL_USER_LIST.getMessage(),
-                                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), condition,
-                                    domain, profileName, limit, offset, sortBy, sortOrder);
+                            handleCursorGetUserListFailure(ErrorMessages.
+                                ERROR_CODE_ERROR_DURING_PRE_GET__CONDITIONAL_USER_LIST.getCode(),
+                                String.format(ErrorMessages.
+                                ERROR_CODE_ERROR_DURING_PRE_GET__CONDITIONAL_USER_LIST.getMessage(),
+                                UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), condition,
+                                domain, profileName, limit, cursor, direction, sortBy, sortOrder);
                             break;
                         }
                     }
@@ -15699,8 +15717,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     sortOrder, secondaryUserStoreManager);
         }
 
-        handlePostGetUserListWithID(condition, domain, profileName, limit, offset, sortBy, sortOrder, filteredUsers,
-                false);
+        handlePostGetUserListWithID(condition, domain, profileName, limit, offset, cursor, direction, sortBy, sortOrder,
+                filteredUsers, false);
 
         if (log.isDebugEnabled()) {
             log.debug("post listener get conditional  user list for domain: " + domain);
@@ -15716,6 +15734,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // This method will flow down to use cursor pagination, so the offset will be null.
         Integer offset = null;
+
+        //If the domain is not PRIMARY, Cursor value will look like: DOMAIN/Cursor (unless it is the initial request)
+        if (!UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(domain) && !StringUtils.EMPTY.equals(cursor)) {
+            String[] removeDomain = cursor.split(CarbonConstants.DOMAIN_SEPARATOR);
+            cursor = removeDomain[1];
+        }
 
         validateCondition(condition);
         if (StringUtils.isNotEmpty(sortBy) && StringUtils.isNotEmpty(sortOrder)) {
@@ -15799,7 +15823,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // The identity claims are not user store based.
             List<User> tempFilteredUsers;
             List<User> aggregateUserList = new ArrayList<>();
-            String cursorCounter = new String(cursor);
+            String cursorCounter = cursor;
 
             Set<User> prevIterationFilteredUsers = new HashSet<>();
             while (aggregateUserList.size() < limit) {
@@ -15840,18 +15864,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // Removing duplicates.
             aggregateUserList = aggregateUserList.stream().distinct().collect(Collectors.toList());
 
+            //Intersecting data maybe added in no particular order. Needs to be organized in ASC order of userName.
             if (UserCoreConstants.PREVIOUS.equals(direction)) {
-                aggregateUserList.sort(new Comparator<User>() {
-                    @Override
-                    public int compare(User user1, User user2) {
-
-                        //For Ascending Order
-                        return user1.getUsername().compareTo(user2.getUsername());
-
-                        //For Descending Order
-                        //return user2.getUsername().compareTo(user1.getUsername());
-                    }
-                });
+                Collections.sort(aggregateUserList, (user1, user2) ->
+                        user1.getUsername().compareTo(user2.getUsername()));
             }
 
             if (aggregateUserList.isEmpty()) {
@@ -15868,11 +15884,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     sortOrder, secondaryUserStoreManager);
         }
 
-        //TODO - changes need to be made
-        if (cursor == null) {
-            handlePostGetUserListWithID(condition, domain, profileName, limit, offset, sortBy, sortOrder, filteredUsers,
-                    false);
-        }
+
+        handlePostGetUserListWithID(condition, domain, profileName, limit, offset, cursor, direction, sortBy,
+                sortOrder, filteredUsers, false);
 
         if (log.isDebugEnabled()) {
             log.debug("post listener get conditional  user list for domain: " + domain);

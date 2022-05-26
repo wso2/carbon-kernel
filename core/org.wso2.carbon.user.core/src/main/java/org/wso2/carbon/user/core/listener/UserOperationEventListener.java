@@ -745,6 +745,28 @@ public interface UserOperationEventListener {
     }
 
     /**
+     * Post listener for the get user cursor paginated conditional list method.
+     *
+     * @param condition        Condition.
+     * @param domain           User store domain.
+     * @param profileName      Profile name.
+     * @param limit            Number of search results.
+     * @param cursor           Cursor value used for cursor pagination.
+     * @param direction        Cursor pagination direction.
+     * @param sortBy           Sort by attribute.
+     * @param sortOrder        Sort order.
+     * @param userStoreManager User store manager.
+     * @param users            Filtered user list
+     * @throws UserStoreException UserStoreException
+     */
+    default boolean doPostGetUserList(Condition condition, String domain, String profileName, int limit, String cursor,
+                                      String direction, String sortBy, String sortOrder, String[] users,
+                                      UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    /**
      * Post listener for the get paginated user list method.
      * @param claimUri Claim URI.
      * @param claimValue Value of the given claim URI.

@@ -299,6 +299,15 @@ public class AbstractUserManagementErrorListener implements UniqueIDUserManageme
     }
 
     @Override
+    public boolean onGetUserListFailureWithID(String errorCode, String errorMassage, Condition condition, String domain,
+                                              String profileName, int limit, String cursor, String direction,
+                                              String sortBy, String sortOrder, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
     public boolean onGetUserFailureWithID(String errorCode, String errorMessage, String userID,
             String[] requestedClaims, String profileName, UserStoreManager userStoreManager) throws UserStoreException {
 
