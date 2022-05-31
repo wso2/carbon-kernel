@@ -1084,11 +1084,6 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
-                <artifactId>org.wso2.carbon.claim.mgt</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.claim.mgt.ui</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -1574,6 +1569,11 @@
                 <artifactId>org.wso2.carbon.registry.indexing</artifactId>
                 <version>${org.wso2.carbon.registry.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.openjdk.nashorn</groupId>
+                <artifactId>openjdk-nashorn</artifactId>
+                <version>${openjdk.nashorn.wso2.version}</version>
+            </dependency>
 
             <!-- Testing related dependencies -->
             <dependency>
@@ -1595,21 +1595,27 @@
                 <version>${jacoco.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-module-testng</artifactId>
-                <version>${org.powermock.version}</version>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.powermock</groupId>
-                <artifactId>powermock-api-mockito</artifactId>
-                <version>${org.powermock.version}</version>
+                <artifactId>powermock-api-mockito2</artifactId>
+                <version>${powermock.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.powermock</groupId>
                 <artifactId>powermock-module-testng-common</artifactId>
-                <version>${org.powermock.version}</version>
+                <version>${powermock.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-module-testng</artifactId>
+                <version>${powermock.version}</version>
                 <scope>test</scope>
             </dependency>
             <!-- Common test utility -->
@@ -1985,10 +1991,9 @@
 
         <!-- Unit test versions -->
         <testng.version>6.9.10</testng.version>
-        <jacoco.version>0.8.2</jacoco.version>
+        <jacoco.version>0.8.4</jacoco.version>
         <jmockit.version>1.44</jmockit.version>
         <maven.surefire.plugin.version>2.22.0</maven.surefire.plugin.version>
-        <org.powermock.version>1.7.4</org.powermock.version>
         <mockito.version>2.23.4</mockito.version>
         <powermock.version>2.0.2</powermock.version>
 
@@ -2008,6 +2013,7 @@
 
         <account.lock.service.version>1.4.23</account.lock.service.version>
         <account.lock.service.imp.pkg.version.range>[1.4.23, 2.0.0)</account.lock.service.imp.pkg.version.range>
+        <openjdk.nashorn.wso2.version>15.3.wso2v1</openjdk.nashorn.wso2.version>
     </properties>
 
     <build>

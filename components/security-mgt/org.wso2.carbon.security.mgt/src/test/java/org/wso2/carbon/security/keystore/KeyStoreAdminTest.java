@@ -19,6 +19,7 @@
 package org.wso2.carbon.security.keystore;
 
 import org.mockito.Mock;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -39,8 +40,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyStore;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 import static org.testng.Assert.assertEquals;
