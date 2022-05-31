@@ -42,6 +42,7 @@ public final class HazelcastConstants {
 
     public static final String CONFIG_XML_NAME = "hazelcast.xml";
     public static final String AWS_ECS_MEMBERSHIP_SCHEME = "aws-ecs";
+    public static final String KUBERNETES_MEMBERSHIP_SCHEME = "kubernetes";
 
     private HazelcastConstants() {
     }

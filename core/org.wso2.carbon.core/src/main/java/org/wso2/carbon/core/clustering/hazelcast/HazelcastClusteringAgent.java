@@ -18,7 +18,6 @@
 package org.wso2.carbon.core.clustering.hazelcast;
 
 import com.hazelcast.config.Config;
-import com.hazelcast.config.GroupConfig;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MemberAttributeConfig;
@@ -29,14 +28,13 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastException;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
-import com.hazelcast.core.ILock;
-import com.hazelcast.core.ITopic;
-import com.hazelcast.core.Member;
-import com.hazelcast.core.MemberAttributeEvent;
-import com.hazelcast.core.MembershipEvent;
-import com.hazelcast.core.MembershipListener;
-import com.hazelcast.core.Message;
-import com.hazelcast.core.MessageListener;
+import com.hazelcast.cp.lock.FencedLock;
+import com.hazelcast.topic.ITopic;
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MembershipEvent;
+import com.hazelcast.cluster.MembershipListener;
+import com.hazelcast.topic.Message;
+import com.hazelcast.topic.MessageListener;
 import com.hazelcast.nio.serialization.ByteArraySerializer;
 import com.hazelcast.nio.serialization.StreamSerializer;
 import org.apache.axiom.om.OMAttribute;
@@ -71,6 +69,8 @@ import org.wso2.carbon.core.clustering.api.CoordinatedActivity;
 import org.wso2.carbon.core.clustering.hazelcast.aws.AWSBasedMembershipScheme;
 import org.wso2.carbon.core.clustering.hazelcast.aws.AWSECSBasedMembershipScheme;
 import org.wso2.carbon.core.clustering.hazelcast.general.GeneralMembershipScheme;
+import org.wso2.carbon.core.clustering.hazelcast.kubernetes.KubernetesConstants;
+import org.wso2.carbon.core.clustering.hazelcast.kubernetes.KubernetesMembershipScheme;
 import org.wso2.carbon.core.clustering.hazelcast.multicast.MulticastBasedMembershipScheme;
 import org.wso2.carbon.core.clustering.hazelcast.util.MemberUtils;
 import org.wso2.carbon.core.clustering.hazelcast.wka.WKABasedMembershipScheme;
@@ -178,7 +178,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         Parameter localParameter = getParameter(LOCAL_MEMBER_IDENTIFIER);
         if (localParameter != null) {
             MemberAttributeConfig memberAttributeConfig = new MemberAttributeConfig();
-            memberAttributeConfig.setStringAttribute(localParameter.getName(), localParameter.getValue().toString());
+            memberAttributeConfig.setAttribute(localParameter.getName(), localParameter.getValue().toString());
             primaryHazelcastConfig.setMemberAttributeConfig(memberAttributeConfig);
         }
 
@@ -227,11 +227,11 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         }
 
         localMember = primaryHazelcastInstance.getCluster().getLocalMember();
-        localMember.getInetSocketAddress().getPort();
+        localMember.getSocketAddress().getPort();
         final org.apache.axis2.clustering.Member carbonLocalMember =
                 MemberUtils.getLocalMember(primaryDomain,
-                                           localMember.getInetSocketAddress().getAddress().getHostAddress(),
-                                           localMember.getInetSocketAddress().getPort());
+                                           localMember.getSocketAddress().getAddress().getHostAddress(),
+                                           localMember.getSocketAddress().getPort());
         log.info("Local member: [" + localMember.getUuid() + "] - " + carbonLocalMember);
 
         //Create a Queue for receiving messages from others
@@ -253,7 +253,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         if(carbonLocalMember.getProperties().get("subDomain") == null){
             carbonLocalMember.getProperties().put("subDomain", "__$default");  // Set the default subDomain
         }
-        MemberUtils.getMembersMap(primaryHazelcastInstance, primaryDomain).put(localMember.getUuid(),
+        MemberUtils.getMembersMap(primaryHazelcastInstance, primaryDomain).put(localMember.getUuid().toString(),
                                                                                carbonLocalMember);
 
         // To receive membership events required for the leader election algorithm.
@@ -269,7 +269,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         // node which acquires the lock checks whether it is the oldest member in the cluster. If it is the oldest
         // member then it elects itself as the coordinator node and then release the lock. If it is not the oldest
         // member them simply release the lock. This distributed lock is used to avoid any race conditions.
-        ILock lock = primaryHazelcastInstance.getLock(HazelcastConstants.CLUSTER_COORDINATOR_LOCK);
+        FencedLock lock = primaryHazelcastInstance.getCPSubsystem().getLock(HazelcastConstants.CLUSTER_COORDINATOR_LOCK);
 
         try {
             log.debug("Trying to get the CLUSTER_COORDINATOR_LOCK lock.");
@@ -308,7 +308,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
 
         if (hazelcastInstance != null && hazelcastInstance.getCluster() != null &&
                 hazelcastInstance.getCluster().getLocalMember() != null) {
-            return hazelcastInstance.getCluster().getLocalMember().getUuid();
+            return hazelcastInstance.getCluster().getLocalMember().getUuid().toString();
         } else {
             return clusterNodeId != null ? clusterNodeId : UUID.randomUUID().toString();
         }
@@ -360,7 +360,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
 
         Parameter managementCenterURL = getParameter(HazelcastConstants.MGT_CENTER_URL);
         if (managementCenterURL != null) {
-            primaryHazelcastConfig.getManagementCenterConfig().setEnabled(true).setUrl((String) managementCenterURL.getValue());
+            primaryHazelcastConfig.getManagementCenterConfig().addTrustedInterface((String) managementCenterURL.getValue());
         }
 
         Parameter licenseKey = getParameter(HazelcastConstants.LICENSE_KEY);
@@ -369,12 +369,8 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         }
 
         primaryHazelcastConfig.setInstanceName(primaryDomain + ".instance");
-        GroupConfig groupConfig = primaryHazelcastConfig.getGroupConfig();
-        groupConfig.setName(primaryDomain);
+        primaryHazelcastConfig.setClusterName(primaryDomain);
         Parameter memberPassword = getParameter(HazelcastConstants.GROUP_PASSWORD);
-        if (memberPassword != null) {
-            groupConfig.setPassword((String) memberPassword.getValue());
-        }
 
         NetworkConfig nwConfig = primaryHazelcastConfig.getNetworkConfig();
         Parameter localMemberHostParam = getParameter(HazelcastConstants.LOCAL_MEMBER_HOST);
@@ -403,7 +399,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         configureMembershipScheme(nwConfig, primaryHazelcastConfig);
 
         MapConfig mapConfig = new MapConfig("carbon-map-config");
-        mapConfig.setEvictionPolicy(MapConfig.DEFAULT_EVICTION_POLICY);
+        mapConfig.getEvictionConfig().setEvictionPolicy(MapConfig.DEFAULT_EVICTION_POLICY);
         if (licenseKey != null) {
             mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
         }
@@ -605,7 +601,14 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
                     primaryHazelcastInstance,
                     sentMsgsBuffer);
             membershipScheme.init();
-        } else {
+        } else if (scheme.equals(HazelcastConstants.KUBERNETES_MEMBERSHIP_SCHEME)) {
+            membershipScheme = new KubernetesMembershipScheme(parameters, primaryDomain,
+                    primaryHazelcastConfig,
+                    primaryHazelcastInstance,
+                    sentMsgsBuffer);
+            membershipScheme.init();
+        }
+        else {
             Parameter classNameParameter = parameters.get(MEMBERSHIP_SCHEME_CLASS_NAME);
             if(classNameParameter != null) {
                 initiateCustomMembershipScheme(classNameParameter, primaryHazelcastConfig);
@@ -662,14 +665,16 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         if (!mbrScheme.equals(ClusteringConstants.MembershipScheme.MULTICAST_BASED) &&
             !mbrScheme.equals(ClusteringConstants.MembershipScheme.WKA_BASED) &&
             !mbrScheme.equals(HazelcastConstants.AWS_MEMBERSHIP_SCHEME) &&
-                !mbrScheme.equals(HazelcastConstants.AWS_ECS_MEMBERSHIP_SCHEME)) {
+                !mbrScheme.equals(HazelcastConstants.AWS_ECS_MEMBERSHIP_SCHEME) &&
+                !mbrScheme.equals(HazelcastConstants.KUBERNETES_MEMBERSHIP_SCHEME)) {
 
             Parameter classNameParameter = parameters.get(MEMBERSHIP_SCHEME_CLASS_NAME);
             if(classNameParameter == null) {
                 String msg = "Invalid membership scheme '" + mbrScheme + "'. Supported schemes are " +
                         ClusteringConstants.MembershipScheme.MULTICAST_BASED + ", " +
                         ClusteringConstants.MembershipScheme.WKA_BASED + " & " +
-                        HazelcastConstants.AWS_MEMBERSHIP_SCHEME;
+                        HazelcastConstants.AWS_MEMBERSHIP_SCHEME + " & " +
+                        HazelcastConstants.KUBERNETES_MEMBERSHIP_SCHEME;
                 log.error(msg);
                 throw new ClusteringFault(msg);
             }
@@ -960,10 +965,6 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
                     log.debug("Member Removed Event: This member is elected as the Coordinator node");
                 }
             }
-        }
-
-        @Override
-        public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
         }
     }
 }

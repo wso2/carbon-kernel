@@ -19,7 +19,7 @@ package org.wso2.carbon.core.clustering.hazelcast.util;
 
 import com.hazelcast.config.TcpIpConfig;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
+import com.hazelcast.map.IMap;
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.clustering.ClusteringConstants;

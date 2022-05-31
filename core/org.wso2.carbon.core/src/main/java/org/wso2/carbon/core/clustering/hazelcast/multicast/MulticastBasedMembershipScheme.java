@@ -19,10 +19,9 @@ package org.wso2.carbon.core.clustering.hazelcast.multicast;
 
 import com.hazelcast.config.MulticastConfig;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.Member;
-import com.hazelcast.core.MembershipEvent;
-import com.hazelcast.core.MemberAttributeEvent;
-import com.hazelcast.core.MembershipListener;
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MembershipEvent;
+import com.hazelcast.cluster.MembershipListener;
 import org.apache.axis2.clustering.ClusteringFault;
 import org.apache.axis2.clustering.ClusteringMessage;
 import org.apache.axis2.description.Parameter;
@@ -123,7 +122,7 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
 
             // send all cluster messages
             carbonCluster.memberAdded(member);
-            log.info("Member joined [" + member.getUuid() + "]: " + member.getInetSocketAddress().toString());
+            log.info("Member joined [" + member.getUuid() + "]: " + member.getSocketAddress().toString());
             // Wait for sometime for the member to completely join before replaying messages
             try {
                 Thread.sleep(5000);
@@ -136,13 +135,8 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
         public void memberRemoved(MembershipEvent membershipEvent) {
             Member member = membershipEvent.getMember();
             carbonCluster.memberRemoved(member);
-            log.info("Member left [" + member.getUuid() + "]: " + member.getInetSocketAddress().toString());
+            log.info("Member left [" + member.getUuid() + "]: " + member.getSocketAddress().toString());
             members.remove(member.getUuid());
         }
-
-        @Override
-        public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
-        }
-
     }
 }
