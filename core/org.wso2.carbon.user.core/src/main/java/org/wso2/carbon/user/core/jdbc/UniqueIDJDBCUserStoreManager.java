@@ -3507,9 +3507,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         } else if (isUsernameFiltering && isClaimFiltering || isClaimFiltering) {
             if (DB2.equals(dbType)) {
                 sqlStatement = new StringBuilder(
-                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
-                                + "UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_NAME  FROM  UM_USER U "
-                                + "INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
+                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
+                                + "UM_USER_NAME) AS rn, UM_USER_ID, UM_USER_NAME FROM (SELECT DISTINCT U.UM_USER_ID, " +
+                                "U.UM_USER_NAME FROM UM_USER U INNER JOIN UM_USER_ATTRIBUTE UA ON " +
+                                "U.UM_ID = UA.UM_USER_ID");
             } else if (MSSQL.equals(dbType)) {
                 sqlStatement = new StringBuilder(
                         "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() OVER " +
@@ -3618,7 +3619,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
         if (!((MYSQL.equals(dbType) || MARIADB.equals(dbType)) && totalMultiGroupFilters > 1 && totalMultiClaimFilters > 1)) {
             if (DB2.equals(dbType)) {
-                sqlBuilder.setTail(") AS p) WHERE rn BETWEEN ? AND ?", limit, offset);
+                if (isClaimFiltering && !isGroupFiltering && totalMultiClaimFilters > 1) {
+                    // Handle multi attribute filtering without group filtering.
+                    sqlBuilder.setTail(") AS Q) AS S) AS R) AS p WHERE P.rn BETWEEN ? AND ?", limit, offset);
+                } else {
+                    sqlBuilder.setTail(") AS p) WHERE rn BETWEEN ? AND ?", limit, offset);
+                }
             } else if (MSSQL.equals(dbType)) {
                 if (isClaimFiltering && !isGroupFiltering && totalMultiClaimFilters > 1) {
                     // Handle multi attribute filtering without group filtering.
