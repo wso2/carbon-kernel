@@ -3629,7 +3629,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             } else if (ORACLE.equals(dbType)) {
                 if (isClaimFiltering && !isGroupFiltering && totalMultiClaimFilters > 1) {
                     String brackets = ")";
-                    for (int x = 2; x <= (totalMultiClaimFilters*2) - 2; x++) {
+                    for (int x = 2; x <= (totalMultiClaimFilters * 2) - 2; x++) {
                         brackets = brackets + " )";
                     }
                     // Handle multi attribute filtering without group filtering.
