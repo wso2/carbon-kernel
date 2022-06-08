@@ -159,8 +159,8 @@
     "active_directory": {
       "user_store.class": "org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager",
       "user_store.properties.TenantManager": "org.wso2.carbon.user.core.tenant.CommonHybridLDAPTenantManager",
-      "user_store.properties.UserSearchBase": "ou=Users,$ref{user_store.base_dn}",
-      "user_store.properties.GroupSearchBase": "ou=Groups,$ref{user_store.base_dn}",
+      "user_store.properties.UserSearchBase": "cn=Users,$ref{user_store.base_dn}",
+      "user_store.properties.GroupSearchBase": "cn=Groups,$ref{user_store.base_dn}",
       "user_store.properties.AnonymousBind": false,
       "user_store.properties.UserEntryObjectClass": "identityPerson",
       "user_store.properties.UserNameAttribute": "uid",
@@ -198,8 +198,8 @@
     "active_directory_unique_id": {
       "user_store.class": "org.wso2.carbon.user.core.ldap.UniqueIDActiveDirectoryUserStoreManager",
       "user_store.properties.TenantManager": "org.wso2.carbon.user.core.tenant.CommonHybridLDAPTenantManager",
-      "user_store.properties.UserSearchBase": "ou=Users,$ref{user_store.base_dn}",
-      "user_store.properties.GroupSearchBase": "ou=Groups,$ref{user_store.base_dn}",
+      "user_store.properties.UserSearchBase": "cn=Users,$ref{user_store.base_dn}",
+      "user_store.properties.GroupSearchBase": "cn=Groups,$ref{user_store.base_dn}",
       "user_store.properties.AnonymousBind": false,
       "user_store.properties.UserEntryObjectClass": "identityPerson",
       "user_store.properties.UserNameAttribute": "cn",
