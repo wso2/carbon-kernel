@@ -91,6 +91,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     private static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
     private static final String SHA_1_PRNG = "SHA1PRNG";
     private static final String DB2 = "db2";
+    private static final String H2 = "h2";
     private static final String MSSQL = "mssql";
     private static final String ORACLE = "oracle";
     private static final String MYSQL = "mysql";
@@ -3431,6 +3432,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                         + "ROW_NUMBER() OVER (ORDER BY UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_NAME  "
                         + "FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U "
                         + "ON UR.UM_USER_ID =U.UM_ID INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
+            } else if (H2.equals(dbType)) {
+                sqlStatement = new StringBuilder(
+                        "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN " +
+                                "UM_USER_ROLE UR ON R.UM_ID =  UR.UM_ROLE_ID INNER JOIN " +
+                                "UM_USER U ON UR.UM_USER_ID = U.UM_ID INNER JOIN " +
+                                "UM_USER_ATTRIBUTE UA ON  U.UM_ID = UA.UM_USER_ID");
             } else if (MSSQL.equals(dbType)) {
                 sqlStatement = new StringBuilder(
                         "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() OVER "
@@ -3467,6 +3474,11 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                                 + " JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U ON UR"
                                 + ".UM_USER_ID "
                                 + "=U.UM_ID ");
+            } else if (H2.equals(dbType)) {
+                sqlStatement = new StringBuilder(
+                        "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN " +
+                                "UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN " +
+                                "UM_USER U ON UR.UM_USER_ID = U.UM_ID");
             } else if (MSSQL.equals(dbType)) {
                 sqlStatement = new StringBuilder(
                         "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() OVER "
