@@ -2968,6 +2968,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         }
         try {
             for (String searchBase : searchBaseArray) {
+                List<User> usersList = new ArrayList<>();
                 do {
                     List<User> tempUsersList = new ArrayList<>();
                     answer = ldapContext.search(escapeDNForSearch(searchBase), searchFilter, searchControls);
@@ -2975,7 +2976,48 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                     if (answer.hasMore()) {
                         tempUsersList = getUserListFromSearch(isGroupFiltering, returnedAttributes, answer,
                                 isSingleAttributeFilterOperation(expressionConditions));
-                        pageIndex++;
+
+                        /* If the found users count is less than the page size, we need to prevent it count as a new
+                        page, because a page should contain user list which is equal to the page size (.e.g. page
+                        size is 10, and found users count is 5, we need to prevent it from counting as a new page). */
+                        if (tempUsersList.size() == pageSize) {
+                            pageIndex++;
+                            if (CollectionUtils.isNotEmpty(usersList)) {
+                                // If we have previously found users, we need to add them to the current page.
+                                usersList.addAll(tempUsersList);
+                                tempUsersList.clear();
+                                tempUsersList.addAll(usersList.subList(0, pageSize));
+                                usersList.removeAll(tempUsersList);
+                            }
+                        } else {
+                             /* Page size is less than the found users count, we need to add the found users to the
+                             usersList so in the next iteration we can add them to the current page. Should not
+                             increase the pageIndex number. */
+                            usersList.addAll(tempUsersList);
+                            tempUsersList.clear();
+                            if (usersList.size() >= pageSize) {
+                                /* After we added the found users to the usersList, check if the usersList size is
+                                greater than the page size. If so, we can show users in the page. */
+                                tempUsersList.addAll(usersList.subList(0, pageSize));
+                                usersList.removeAll(tempUsersList);
+                                pageIndex++;
+                            }
+
+                        }
+                    }
+                    cookie = parseControls(ldapContext.getResponseControls());
+                    String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+                    ldapContext.setRequestControls(new Control[]{new PagedResultsControl(pageSize, cookie,
+                            Control.CRITICAL), new SortControl(userNameAttribute, Control.NONCRITICAL)});
+                    boolean isCookieValid = (cookie != null) && (cookie.length != 0);
+                    if (!isCookieValid) {
+                        /* If the cookie is not valid, the loop will break. We need to add all users in the usersList
+                        to tempUsersList. Otherwise, users in the usersList will be ignored when the loop breaks. */
+                        if (CollectionUtils.isNotEmpty(usersList)) {
+                            tempUsersList = new ArrayList<>(usersList);
+                            usersList.clear();
+                            pageIndex++;
+                        }
                     }
                     if (CollectionUtils.isNotEmpty(tempUsersList)) {
                         if (isMemberShipPropertyFound) {
@@ -2997,10 +3039,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                             }
                         }
                     }
-                    cookie = parseControls(ldapContext.getResponseControls());
-                    String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
-                    ldapContext.setRequestControls(new Control[]{new PagedResultsControl(pageSize, cookie,
-                            Control.CRITICAL), new SortControl(userNameAttribute, Control.NONCRITICAL)});
+
                 } while ((cookie != null) && (cookie.length != 0));
             }
         } catch (PartialResultException e) {
