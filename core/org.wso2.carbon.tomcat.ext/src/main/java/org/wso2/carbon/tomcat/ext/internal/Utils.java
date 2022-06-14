@@ -18,6 +18,7 @@
 package org.wso2.carbon.tomcat.ext.internal;
 
 import org.apache.catalina.connector.Request;
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.tomcat.ext.utils.URLMappingHolder;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -33,8 +34,18 @@ public class Utils {
     private static final String WEB_APP_PATTERN = "/webapps/";
     private static final String JAGGERY_APP_PATTERN = "/jaggeryapps/";
     private static final String JAX_APP_PATTERN = "/jaxwebapps/";
+    private static final String TENANT_DOMAIN_FROM_REQUEST_PATH = "tenantDomainFromRequestPath";
 
 	public static String getTenantDomain(HttpServletRequest request) {
+
+        Object requestAttribute = request.getAttribute(TENANT_DOMAIN_FROM_REQUEST_PATH);
+        if (requestAttribute != null) {
+            String tenantDomain = requestAttribute.toString();
+            if (StringUtils.isNotBlank(tenantDomain)) {
+                return tenantDomain;
+            }
+        }
+
         String requestURI = request.getRequestURI();
         String domain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
 
@@ -138,6 +149,15 @@ public class Utils {
     }
 
     public static String getTenantDomainFromURLMapping(Request request) {
+
+        Object requestAttribute = request.getAttribute(TENANT_DOMAIN_FROM_REQUEST_PATH);
+        if (requestAttribute != null) {
+            String tenantDomain = requestAttribute.toString();
+            if (StringUtils.isNotBlank(tenantDomain)) {
+                return tenantDomain;
+            }
+        }
+
         String requestURI = request.getRequestURI();
         String domain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
         //if the request is from a url mapping(https://apptest.wso2.com/),
