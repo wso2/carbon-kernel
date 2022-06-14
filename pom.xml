@@ -20,7 +20,7 @@
     <groupId>org.wso2.carbon.identity.framework</groupId>
     <artifactId>identity-framework</artifactId>
     <packaging>pom</packaging>
-    <version>5.20.448-SNAPSHOT</version>
+    <version>6.0.0-SNAPSHOT</version>
     <name>WSO2 Carbon - Platform Aggregator Pom</name>
     <url>http://wso2.org</url>
 
@@ -1732,7 +1732,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon kernel version -->
-        <carbon.kernel.version>4.7.0-beta6</carbon.kernel.version>
+        <carbon.kernel.version>4.7.0-beta</carbon.kernel.version>
         <carbon.kernel.feature.version>4.6.0</carbon.kernel.feature.version>
         <carbon.kernel.package.import.version.range>[4.5.0, 5.0.0)</carbon.kernel.package.import.version.range>
         <carbon.kernel.registry.imp.pkg.version>[1.0.1, 2.0.0)</carbon.kernel.registry.imp.pkg.version>
@@ -1903,7 +1903,7 @@
 
         <httpcore.version>4.3.3.wso2v1</httpcore.version>
         <httpcore.version.osgi.import.range>[4.3.0, 5.0.0)</httpcore.version.osgi.import.range>
-        <com.google.code.gson.version>2.9.0</com.google.code.gson.version>
+        <com.google.code.gson.version>2.8.5</com.google.code.gson.version>
         <com.google.code.gson.osgi.version.range>[2.3.1,3.0.0)</com.google.code.gson.osgi.version.range>
         <com.google.code.findbugs.version>1.3.9</com.google.code.findbugs.version>
         <com.google.client.version>1.17.0-rc</com.google.client.version>
