@@ -371,6 +371,7 @@ CREATE TABLE UM_TENANT (
                     UM_ACTIVE NUMBER(1) DEFAULT 0,
 	                UM_CREATED_DATE TIMESTAMP NOT NULL,
 	                UM_USER_CONFIG BLOB,
+			UM_ORG_UUID VARCHAR(36) DEFAULT NULL,
                     PRIMARY KEY (UM_ID),
                     UNIQUE(UM_DOMAIN_NAME),
                     UNIQUE(UM_TENANT_UUID))
