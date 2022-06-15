@@ -52,6 +52,7 @@ public class RealmConfiguration {
     protected boolean isPrimary = false;
     protected RealmConfiguration secondaryRealmConfig;
     protected Map<String, Map<String, String>> multipleCredentialProps = new HashMap<String, Map<String, String>>();
+    protected String associatedOrganizationUUID = null;
 
     public RealmConfiguration() {
         tenantId = MultitenantConstants.SUPER_TENANT_ID;
@@ -137,6 +138,7 @@ public class RealmConfiguration {
         realmConfig.setAdminRoleName(adminRoleName);
         realmConfig.setAdminUserName(adminUserName);
         realmConfig.setAdminPassword(adminPassword);
+        realmConfig.setAssociatedOrganizationUUID(associatedOrganizationUUID);
         realmConfig.setEveryOneRoleName(everyOneRoleName);
         realmConfig.setPrimary(isPrimary);
 
@@ -334,5 +336,15 @@ public class RealmConfiguration {
 
     public void setIsOverrideUsernameClaimFromInternalUsername(String isOverrideUsernameClaimFromInternalUsername) {
         this.isOverrideUsernameClaimFromInternalUsername = isOverrideUsernameClaimFromInternalUsername;
+    }
+
+    public void setAssociatedOrganizationUUID(String associatedOrganizationUUID) {
+
+        this.associatedOrganizationUUID = associatedOrganizationUUID;
+    }
+
+    public String getAssociatedOrganizationUUID() {
+
+        return associatedOrganizationUUID;
     }
 }

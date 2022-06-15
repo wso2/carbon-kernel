@@ -179,7 +179,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         //persist domain
         this.persistDomain();
         doInitialSetup();
-        if (realmConfig.isPrimary()) {
+        if (realmConfig.isPrimary() && StringUtils.isBlank(realmConfig.getAssociatedOrganizationUUID())) {
             addInitialAdminData(Boolean.parseBoolean(realmConfig.getAddAdmin()),
                     !isInitSetupDone());
         }

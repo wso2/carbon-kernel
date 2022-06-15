@@ -72,6 +72,8 @@ public class JDBCTenantManager implements TenantManager {
     public static final String COLUMN_NAME_UM_CREATED_DATE = "UM_CREATED_DATE";
     public static final String COLUMN_NAME_UM_USER_CONFIG = "UM_USER_CONFIG";
     public static final String COLUMN_NAME_UM_TENANT_UUID = "UM_TENANT_UUID";
+    public static final String COLUMN_NAME_UM_ORG_UUID = "UM_ORG_UUID";
+
     private static Log log = LogFactory.getLog(TenantManager.class);
     protected BundleContext bundleContext;
     protected TenantCache tenantCacheManager = TenantCache.getInstance();
@@ -160,9 +162,11 @@ public class JDBCTenantManager implements TenantManager {
                     (RealmConfiguration) tenant.getRealmConfig()).toString();
             InputStream is = new ByteArrayInputStream(realmConfigString.getBytes());
             prepStmt.setBinaryStream(4, is, is.available());
+            tenant.getRealmConfig().setAssociatedOrganizationUUID(tenant.getAssociatedOrganizationUUID());
+            prepStmt.setString(5, tenant.getAssociatedOrganizationUUID());
 
             if (isTenantUniqueIdColumnAvailable()) {
-                prepStmt.setString(5, tenantUniqueID);
+                prepStmt.setString(6, tenantUniqueID);
             }
             prepStmt.executeUpdate();
 
@@ -245,9 +249,10 @@ public class JDBCTenantManager implements TenantManager {
                     (RealmConfiguration) tenant.getRealmConfig()).toString();
             InputStream is = new ByteArrayInputStream(realmConfigString.getBytes());
             prepStmt.setBinaryStream(5, is, is.available());
+            prepStmt.setString(6, tenant.getAssociatedOrganizationUUID());
 
             if (isTenantUniqueIdColumnAvailable()) {
-                prepStmt.setString(6, tenant.getTenantUniqueID());
+                prepStmt.setString(7, tenant.getTenantUniqueID());
             }
 
             prepStmt.executeUpdate();
@@ -404,6 +409,7 @@ public class JDBCTenantManager implements TenantManager {
                 String domain = result.getString(COLUMN_NAME_UM_DOMAIN_NAME);
                 String email = result.getString(COLUMN_NAME_UM_EMAIL);
                 boolean active = result.getBoolean(COLUMN_NAME_UM_ACTIVE);
+                String associatedOrgID = result.getString(COLUMN_NAME_UM_ORG_UUID);
                 String uniqueId = null;
                 if (tenantUUIDColumnExists) {
                     uniqueId = result.getString(COLUMN_NAME_UM_TENANT_UUID);
@@ -415,6 +421,7 @@ public class JDBCTenantManager implements TenantManager {
                 RealmConfigXMLProcessor processor = new RealmConfigXMLProcessor();
                 RealmConfiguration realmConfig = processor.buildTenantRealmConfiguration(is);
                 realmConfig.setTenantId(id);
+                realmConfig.setAssociatedOrganizationUUID(associatedOrgID);
 
                 tenant = new Tenant();
                 tenant.setId(id);
@@ -422,6 +429,7 @@ public class JDBCTenantManager implements TenantManager {
                 tenant.setEmail(email);
                 tenant.setCreatedDate(createdDate);
                 tenant.setActive(active);
+                tenant.setAssociatedOrganizationUUID(associatedOrgID);
                 tenant.setRealmConfig(realmConfig);
                 setSecondaryUserStoreConfig(realmConfig, tenantId);
                 tenant.setAdminName(realmConfig.getAdminUserName());
@@ -731,6 +739,8 @@ public class JDBCTenantManager implements TenantManager {
                 RealmConfiguration realmConfig = processor.buildTenantRealmConfiguration(is);
                 realmConfig.setTenantId(id);
                 String uniqueId = result.getString(COLUMN_NAME_UM_TENANT_UUID);
+                String associatedOrgID = result.getString(COLUMN_NAME_UM_ORG_UUID);
+                realmConfig.setAssociatedOrganizationUUID(associatedOrgID);
 
                 tenant = new Tenant();
                 tenant.setTenantUniqueID(uniqueId);
@@ -739,6 +749,7 @@ public class JDBCTenantManager implements TenantManager {
                 tenant.setEmail(email);
                 tenant.setCreatedDate(createdDate);
                 tenant.setActive(active);
+                tenant.setAssociatedOrganizationUUID(associatedOrgID);
                 tenant.setRealmConfig(realmConfig);
                 setSecondaryUserStoreConfig(realmConfig, id);
                 tenant.setAdminName(realmConfig.getAdminUserName());

@@ -234,7 +234,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         }
         doInitialSetup();
         this.persistDomain();
-        if (addInitData && realmConfig.isPrimary()) {
+        if (addInitData && realmConfig.isPrimary() && StringUtils.isBlank(realmConfig.getAssociatedOrganizationUUID())) {
             addInitialAdminData(Boolean.parseBoolean(realmConfig.getAddAdmin()),
                     !isInitSetupDone());
         }
@@ -332,7 +332,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         this.persistDomain();
         doInitialSetup();
-        if (!skipInitData && realmConfig.isPrimary()) {
+        if (!skipInitData && realmConfig.isPrimary() && StringUtils.isBlank(realmConfig.getAssociatedOrganizationUUID())) {
             addInitialAdminData(Boolean.parseBoolean(realmConfig.getAddAdmin()),
                     !isInitSetupDone());
         }

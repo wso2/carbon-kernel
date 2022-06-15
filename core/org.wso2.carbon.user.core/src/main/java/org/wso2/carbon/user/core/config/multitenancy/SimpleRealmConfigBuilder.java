@@ -43,6 +43,7 @@ public class SimpleRealmConfigBuilder implements MultiTenantRealmConfigBuilder {
             realmConfig.setAdminUserName(persistedConfig.getAdminUserName());
             realmConfig.setAdminPassword(persistedConfig.getAdminPassword());
             realmConfig.setAdminRoleName(persistedConfig.getAdminRoleName());
+            realmConfig.setAssociatedOrganizationUUID(persistedConfig.getAssociatedOrganizationUUID());
             realmConfig.setEveryOneRoleName(persistedConfig.getEveryOneRoleName());
             Map<String, String> authz = realmConfig.getAuthzProperties();
             authz.put(UserCoreConstants.RealmConfig.PROPERTY_ADMINROLE_AUTHORIZATION,
@@ -74,6 +75,7 @@ public class SimpleRealmConfigBuilder implements MultiTenantRealmConfigBuilder {
             removePropertiesFromTenantRealmConfig(realmConfig);
             realmConfig.setAdminUserName(UserCoreUtil.removeDomainFromName(tenantInfo.getAdminName()));
             realmConfig.setAdminPassword(UserCoreUtil.getDummyPassword());
+            realmConfig.setAssociatedOrganizationUUID(tenantInfo.getAssociatedOrganizationUUID());
             realmConfig.setTenantId(tenantId);
 
             realmConfig.setEveryOneRoleName(UserCoreUtil.

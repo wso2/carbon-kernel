@@ -67,6 +67,7 @@ public class LDAPRealmConfigBuilder implements MultiTenantRealmConfigBuilder {
             ldapRealmConfig.setAdminPassword(UIDGenerator.generateUID());
             ldapRealmConfig.setAdminUserName(tenantInfo.getAdminName());
             ldapRealmConfig.setTenantId(tenantId);
+            ldapRealmConfig.setAssociatedOrganizationUUID(tenantInfo.getAssociatedOrganizationUUID());
 
             Map<String, String> authz = ldapRealmConfig.getAuthzProperties();
             authz.put(UserCoreConstants.RealmConfig.PROPERTY_ADMINROLE_AUTHORIZATION,

@@ -50,6 +50,7 @@ public class FileSystemRealmConfigBuilder implements MultiTenantRealmConfigBuild
             realmConfig.setAdminPassword(persistedConfig.getAdminPassword());
             realmConfig.setAdminUserName(persistedConfig.getAdminUserName());
             realmConfig.setAdminRoleName(persistedConfig.getAdminRoleName());
+            realmConfig.setAssociatedOrganizationUUID(persistedConfig.getAssociatedOrganizationUUID());
             realmConfig.setEveryOneRoleName(persistedConfig.getEveryOneRoleName());
             realmConfig.setTenantId(persistedConfig.getTenantId());
 
@@ -102,6 +103,7 @@ public class FileSystemRealmConfigBuilder implements MultiTenantRealmConfigBuild
             ldapRealmConfig.setAdminPassword(UserCoreUtil.getDummyPassword());
             ldapRealmConfig.setAdminUserName(tenantInfo.getAdminName());
             ldapRealmConfig.setTenantId(tenantId);
+            ldapRealmConfig.setAssociatedOrganizationUUID(tenantInfo.getAssociatedOrganizationUUID());
 
             //remove non-tenant specific info from tenant-specific user-mgt.xml before persisting.
             removePropertiesFromTenantRealmConfig(ldapRealmConfig);
