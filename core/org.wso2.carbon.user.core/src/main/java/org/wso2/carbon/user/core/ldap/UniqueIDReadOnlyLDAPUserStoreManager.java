@@ -3005,20 +3005,6 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
 
                         }
                     }
-                    cookie = parseControls(ldapContext.getResponseControls());
-                    String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
-                    ldapContext.setRequestControls(new Control[]{new PagedResultsControl(pageSize, cookie,
-                            Control.CRITICAL), new SortControl(userNameAttribute, Control.NONCRITICAL)});
-                    boolean isCookieValid = (cookie != null) && (cookie.length != 0);
-                    if (!isCookieValid) {
-                        /* If the cookie is not valid, the loop will break. We need to add all users in the usersList
-                        to tempUsersList. Otherwise, users in the usersList will be ignored when the loop breaks. */
-                        if (CollectionUtils.isNotEmpty(usersList)) {
-                            tempUsersList = new ArrayList<>(usersList);
-                            usersList.clear();
-                            pageIndex++;
-                        }
-                    }
                     if (CollectionUtils.isNotEmpty(tempUsersList)) {
                         if (isMemberShipPropertyFound) {
                             /*
@@ -3039,8 +3025,21 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                             }
                         }
                     }
-
+                    cookie = parseControls(ldapContext.getResponseControls());
+                    String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+                    ldapContext.setRequestControls(new Control[]{new PagedResultsControl(pageSize, cookie,
+                            Control.CRITICAL), new SortControl(userNameAttribute, Control.NONCRITICAL)});
                 } while ((cookie != null) && (cookie.length != 0));
+                if (CollectionUtils.isNotEmpty(usersList)) {
+                    // Here we show the remaining users in the final page if we have any.
+                    pageIndex++;
+                    if (isMemberShipPropertyFound) {
+                        users = membershipGroupFilterPostProcessing(isUsernameFiltering, isClaimFiltering,
+                                expressionConditions, usersList);
+                    } else {
+                        generatePaginatedUserList(pageIndex, offset, pageSize, usersList, users);
+                    }
+                }
             }
         } catch (PartialResultException e) {
             // Can be due to referrals in AD. So just ignore error.
