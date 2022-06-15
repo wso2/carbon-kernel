@@ -75,6 +75,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
@@ -3438,10 +3439,17 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         if (isGroupFiltering && isUsernameFiltering && isClaimFiltering || isGroupFiltering && isClaimFiltering) {
 
             if (DB2.equals(dbType)) {
-                sqlStatement = new StringBuilder("SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT "
-                        + "ROW_NUMBER() OVER (ORDER BY UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_NAME  "
-                        + "FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U "
-                        + "ON UR.UM_USER_ID =U.UM_ID INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
+                if (Objects.equals(UserCoreConstants.PREVIOUS, direction)) {
+                    sqlStatement = new StringBuilder("SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT "
+                            + "ROW_NUMBER() OVER (ORDER BY UM_USER_NAME DESC) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_NAME  "
+                            + "FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U "
+                            + "ON UR.UM_USER_ID =U.UM_ID INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
+                } else {
+                    sqlStatement = new StringBuilder("SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT "
+                            + "ROW_NUMBER() OVER (ORDER BY UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_NAME  "
+                            + "FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U "
+                            + "ON UR.UM_USER_ID =U.UM_ID INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
+                }
             } else if (H2.equals(dbType)) {
                 sqlStatement = new StringBuilder(
                         "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN " +
@@ -3449,12 +3457,21 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                                 "UM_USER U ON UR.UM_USER_ID = U.UM_ID INNER JOIN " +
                                 "UM_USER_ATTRIBUTE UA ON  U.UM_ID = UA.UM_USER_ID");
             } else if (MSSQL.equals(dbType)) {
-                sqlStatement = new StringBuilder(
+                    if (Objects.equals(UserCoreConstants.PREVIOUS, direction)) {
+                        sqlStatement = new StringBuilder(
+                                "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() OVER "
+                                        + "(ORDER BY UM_USER_NAME DESC) AS RowNum FROM (SELECT DISTINCT U.UM_USER_ID, " +
+                                        "UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID "
+                                        + "INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID INNER JOIN UM_USER_ATTRIBUTE UA ON" +
+                                        " U.UM_ID = UA.UM_USER_ID");
+                } else {
+                    sqlStatement = new StringBuilder(
                         "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() OVER "
                                 + "(ORDER BY UM_USER_NAME) AS RowNum FROM (SELECT DISTINCT U.UM_USER_ID, " +
                                 "UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID " +
                                 "INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID INNER JOIN UM_USER_ATTRIBUTE UA ON" +
                                 " U.UM_ID = UA.UM_USER_ID");
+                }
             } else if (ORACLE.equals(dbType)) {
                 sqlStatement = new StringBuilder(
                         "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT UM_USER_NAME, rownum AS rnum "
@@ -3478,23 +3495,38 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     .where("UA.UM_TENANT_ID = ?", tenantId).where("UA.UM_PROFILE_ID = ?", profileName);
         } else if (isGroupFiltering && isUsernameFiltering || isGroupFiltering) {
             if (DB2.equals(dbType)) {
-                sqlStatement = new StringBuilder(
-                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
-                                + "UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_NAME  FROM UM_ROLE R INNER"
-                                + " JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U ON UR"
-                                + ".UM_USER_ID "
-                                + "=U.UM_ID ");
+                if (Objects.equals(UserCoreConstants.PREVIOUS, direction)) {
+                    sqlStatement = new StringBuilder(
+                            "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
+                                    + "UM_USER_NAME DESC) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_NAME  FROM UM_ROLE R INNER"
+                                    + " JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U ON UR"
+                                    + ".UM_USER_ID = U.UM_ID ");
+                } else {
+                    sqlStatement = new StringBuilder(
+                            "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
+                                    + "UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_NAME  FROM UM_ROLE R INNER"
+                                    + " JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U ON UR"
+                                    + ".UM_USER_ID = U.UM_ID ");
+                }
             } else if (H2.equals(dbType)) {
                 sqlStatement = new StringBuilder(
                         "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN " +
                                 "UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN " +
                                 "UM_USER U ON UR.UM_USER_ID = U.UM_ID");
             } else if (MSSQL.equals(dbType)) {
-                sqlStatement = new StringBuilder(
+                    if (Objects.equals(UserCoreConstants.PREVIOUS, direction)) {
+                        sqlStatement = new StringBuilder(
+                                "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() OVER "
+                                        + "(ORDER BY UM_USER_NAME DESC) AS RowNum FROM (SELECT DISTINCT U.UM_USER_ID, " +
+                                        "UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID " +
+                                        "INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID");
+                } else {
+                    sqlStatement = new StringBuilder(
                         "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() OVER "
                                 + "(ORDER BY UM_USER_NAME) AS RowNum FROM (SELECT DISTINCT U.UM_USER_ID, " +
                                 "UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID " +
                                 "INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID");
+                }
             } else if (ORACLE.equals(dbType)) {
                 sqlStatement = new StringBuilder(
                         "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT UM_USER_NAME, rownum AS rnum "
@@ -3516,17 +3548,33 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     .where("U.UM_TENANT_ID = ?", tenantId).where("UR.UM_TENANT_ID = ?", tenantId);
         } else if (isUsernameFiltering && isClaimFiltering || isClaimFiltering) {
             if (DB2.equals(dbType)) {
-                sqlStatement = new StringBuilder(
-                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY " +
-                                "UM_USER_NAME) AS rn, UM_USER_ID, UM_USER_NAME FROM (SELECT DISTINCT U.UM_USER_ID, " +
-                                "U.UM_USER_NAME FROM UM_USER U INNER JOIN UM_USER_ATTRIBUTE UA ON " +
-                                "U.UM_ID = UA.UM_USER_ID");
+                if (UserCoreConstants.PaginationDirection.PREVIOUS == direction) {
+                    sqlStatement = new StringBuilder(
+                            "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
+                                    + "UM_USER_NAME DESC) AS rn, UM_USER_ID, UM_USER_NAME FROM "
+                                    + "(SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_USER U "
+                                    + "INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
+                } else {
+                    sqlStatement = new StringBuilder(
+                            "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
+                                    + "UM_USER_NAME) AS rn, UM_USER_ID, UM_USER_NAME FROM "
+                                    + "(SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_USER U "
+                                    + "INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
+                }
             } else if (MSSQL.equals(dbType)) {
-                sqlStatement = new StringBuilder(
-                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() OVER " +
-                                "(ORDER BY UM_USER_NAME) AS RowNum FROM " +
-                                "(SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_USER U " +
-                                "INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
+                if (Objects.equals(UserCoreConstants.PREVIOUS, direction)) {
+                    sqlStatement = new StringBuilder(
+                            "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() OVER " +
+                                    "(ORDER BY UM_USER_NAME DESC) AS RowNum FROM " +
+                                    "(SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_USER U " +
+                                    "INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
+                } else {
+                    sqlStatement = new StringBuilder(
+                            "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() OVER " +
+                                    "(ORDER BY UM_USER_NAME) AS RowNum FROM " +
+                                    "(SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_USER U " +
+                                    "INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
+                }
             } else if (ORACLE.equals(dbType)) {
                 sqlStatement = new StringBuilder(
                         "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, rownum AS rnum FROM "
@@ -3541,15 +3589,29 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     .where("UA.UM_TENANT_ID = ?", tenantId).where("UA.UM_PROFILE_ID = ?", profileName);
         } else if (isUsernameFiltering) {
             if (DB2.equals(dbType)) {
-                sqlStatement = new StringBuilder(
-                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
-                                + "UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_ID, UM_USER_NAME  FROM " +
-                                "UM_USER U");
+                if (Objects.equals(UserCoreConstants.PREVIOUS, direction)) {
+                    sqlStatement = new StringBuilder(
+                            "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
+                                    + "UM_USER_NAME DESC) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_ID, UM_USER_NAME  FROM " +
+                                    "UM_USER U");
+                } else {
+                    sqlStatement = new StringBuilder(
+                            "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
+                                    + "UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_ID, UM_USER_NAME  FROM " +
+                                    "UM_USER U");
+                }
             } else if (MSSQL.equals(dbType)) {
-                sqlStatement = new StringBuilder(
+                    if (Objects.equals(UserCoreConstants.PREVIOUS, direction)) {
+                        sqlStatement = new StringBuilder(
+                                "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() OVER "
+                                        + "(ORDER BY UM_USER_NAME DESC) AS RowNum FROM (SELECT DISTINCT UM_USER_NAME, " +
+                                        "UM_USER_ID FROM UM_USER U");
+                } else {
+                    sqlStatement = new StringBuilder(
                         "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() OVER "
                                 + "(ORDER BY UM_USER_NAME) AS RowNum FROM (SELECT DISTINCT UM_USER_NAME, UM_USER_ID" +
                                 " FROM UM_USER U");
+                }
             } else if (ORACLE.equals(dbType)) {
                 sqlStatement = new StringBuilder(
                         "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, rownum AS rnum "
@@ -3563,9 +3625,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             throw new UserStoreException("Condition is not valid.");
         }
 
-        if (cursor != null && UserCoreConstants.PREVIOUS.equals(direction)) {
-            sqlBuilder.prependSql("WITH this_set AS(");
-        }
         SqlBuilder header = new SqlBuilder(new StringBuilder(sqlBuilder.getSql()));
         addingWheres(sqlBuilder, header);
 
@@ -3621,11 +3680,19 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
         }
 
+        if (cursor != null && Objects.equals(UserCoreConstants.PREVIOUS, direction)) {
+            if (!(MSSQL.equals(dbType) || DB2.equals(dbType))) {
+                sqlBuilder.prependSql("WITH this_set AS(");
+            }
+        }
+
         if (cursor != null) {
             if (UserCoreConstants.PREVIOUS.equals(direction)) {
                 sqlBuilder.where("U.UM_USER_NAME < ?", cursor);
             } else if (UserCoreConstants.NEXT.equals(direction)) {
-                sqlBuilder.where("U.UM_USER_NAME > ?", cursor);
+                if (!(ORACLE.equals(dbType) && StringUtils.isEmpty(cursor))) {
+                    sqlBuilder.where("U.UM_USER_NAME > ?", cursor);
+                }
             }
         }
 
@@ -3633,7 +3700,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             sqlBuilder.updateSql(" GROUP BY U.UM_USER_NAME, U.UM_USER_ID ");
             if (groupFilterCount > 0 && claimFilterCount > 0) {
                 sqlBuilder.updateSql(" HAVING (COUNT(DISTINCT R.UM_ROLE_NAME) = " + groupFilterCount +
-                        " AND COUNT(DISTINCT UA.UM_ATTR_VALUE) = " + claimFilterCount + ")");
+                        " AND COUNT(DISTINCT UA.UM_ATTR_NAME) = " + claimFilterCount + ")");
             } else if (groupFilterCount > 0) {
                 sqlBuilder.updateSql(" HAVING COUNT(DISTINCT R.UM_ROLE_NAME) = " + groupFilterCount);
             } else if (claimFilterCount > 0) {

@@ -179,8 +179,7 @@ public class SqlBuilder {
      */
     public void prependSql(String prepend) {
 
-        this.sql = new StringBuilder(prepend +" "+ this.sql.toString());
-
+        this.sql = new StringBuilder(prepend + " " + this.sql.toString());
     }
 
     public void updateSqlWithOROperation(String expr, Object value) {
