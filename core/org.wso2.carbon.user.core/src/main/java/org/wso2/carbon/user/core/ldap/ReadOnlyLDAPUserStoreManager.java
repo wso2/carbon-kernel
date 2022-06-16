@@ -261,7 +261,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         this.userRealm = realm;
         this.persistDomain();
         doInitialSetup();
-        if (realmConfig.isPrimary()) {
+        if (realmConfig.isPrimary() && StringUtils.isBlank(realmConfig.getAssociatedOrganizationUUID())) {
             addInitialAdminData(Boolean.parseBoolean(realmConfig.getAddAdmin()),
                     !isInitSetupDone());
         }

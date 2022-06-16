@@ -177,7 +177,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         //persist domain
         this.persistDomain();
         doInitialSetup();
-        if (realmConfig.isPrimary()) {
+        if (realmConfig.isPrimary() && StringUtils.isBlank(realmConfig.getAssociatedOrganizationUUID())) {
             addInitialAdminData(Boolean.parseBoolean(realmConfig.getAddAdmin()), !isInitSetupDone());
         }
         /*

@@ -104,6 +104,11 @@ public class Tenant {
      */
     private String provisioningMethod;
 
+    /**
+     * Tenant's associated organization's UUID.
+     */
+    private String associatedOrganizationUUID;
+
     public String getAdminFullName() {
         return adminFullName;
     }
@@ -239,5 +244,15 @@ public class Tenant {
     public void setProvisioningMethod(String provisioningMethod) {
 
         this.provisioningMethod = provisioningMethod;
+    }
+
+    public String getAssociatedOrganizationUUID() {
+
+        return associatedOrganizationUUID;
+    }
+
+    public void setAssociatedOrganizationUUID(String associatedOrganizationUUID) {
+
+        this.associatedOrganizationUUID = associatedOrganizationUUID;
     }
 }

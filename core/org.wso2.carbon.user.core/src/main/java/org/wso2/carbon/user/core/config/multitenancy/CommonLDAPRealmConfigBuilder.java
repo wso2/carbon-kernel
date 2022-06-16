@@ -51,6 +51,7 @@ public class CommonLDAPRealmConfigBuilder implements MultiTenantRealmConfigBuild
             realmConfig.setAdminPassword(persistedConfig.getAdminPassword());
             realmConfig.setAdminUserName(persistedConfig.getAdminUserName());
             realmConfig.setAdminRoleName(persistedConfig.getAdminRoleName());
+            realmConfig.setAssociatedOrganizationUUID(persistedConfig.getAssociatedOrganizationUUID());
             realmConfig.setEveryOneRoleName(persistedConfig.getEveryOneRoleName());
             realmConfig.setTenantId(persistedConfig.getTenantId());
 
@@ -103,6 +104,7 @@ public class CommonLDAPRealmConfigBuilder implements MultiTenantRealmConfigBuild
             ldapRealmConfig.setAdminPassword(UserCoreUtil.getDummyPassword());
             ldapRealmConfig.setAdminUserName(tenantInfo.getAdminName());
             ldapRealmConfig.setTenantId(tenantId);
+            ldapRealmConfig.setAssociatedOrganizationUUID(tenantInfo.getAssociatedOrganizationUUID());
 
             String everyoneRoleName = ldapRealmConfig.getEveryOneRoleName();
             ldapRealmConfig.setEveryOneRoleName(UserCoreUtil.removeDomainFromName(everyoneRoleName));
