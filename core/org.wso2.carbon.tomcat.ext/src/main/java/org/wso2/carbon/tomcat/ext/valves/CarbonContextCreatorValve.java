@@ -39,6 +39,8 @@ import org.wso2.carbon.user.api.UserRealmService;
 import javax.servlet.ServletException;
 import java.io.IOException;
 
+import static org.wso2.carbon.tomcat.ext.constants.Constants.TENANT_DOMAIN_FROM_REQUEST_PATH;
+
 //import org.wso2.carbon.utils.multitenancy.CarbonContextHolder;
 
 /**
@@ -47,8 +49,6 @@ import java.io.IOException;
 @SuppressWarnings("unused")
 public class CarbonContextCreatorValve extends ValveBase {
 
-    // TODO: this constant is used in multiple repos. hence need to decide a common place to maintain it.
-    private static final String TENANT_DOMAIN_FROM_REQUEST_PATH = "tenantDomainFromRequestPath";
     private static Log log = LogFactory.getLog(CarbonContextCreatorValve.class);
 
     public CarbonContextCreatorValve() {

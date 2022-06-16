@@ -27,6 +27,8 @@ import java.io.File;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import static org.wso2.carbon.tomcat.ext.constants.Constants.TENANT_DOMAIN_FROM_REQUEST_PATH;
+
 /**
  * A collection of useful utility methods
  */
@@ -34,7 +36,6 @@ public class Utils {
     private static final String WEB_APP_PATTERN = "/webapps/";
     private static final String JAGGERY_APP_PATTERN = "/jaggeryapps/";
     private static final String JAX_APP_PATTERN = "/jaxwebapps/";
-    private static final String TENANT_DOMAIN_FROM_REQUEST_PATH = "tenantDomainFromRequestPath";
 
 	public static String getTenantDomain(HttpServletRequest request) {
 
