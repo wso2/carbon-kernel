@@ -446,7 +446,7 @@ public class JDBCTenantManager implements TenantManager {
                 boolean active = result.getBoolean(COLUMN_NAME_UM_ACTIVE);
                 String associatedOrgID = null;
                 if (associatedOrgUUIDColumnExists) {
-                    result.getString(COLUMN_NAME_UM_ORG_UUID);
+                    associatedOrgID = result.getString(COLUMN_NAME_UM_ORG_UUID);
                 }
                 String uniqueId = null;
                 if (tenantUUIDColumnExists) {
@@ -759,7 +759,6 @@ public class JDBCTenantManager implements TenantManager {
         Tenant tenant = null;
         int id;
         try {
-
             dbConnection = getDBConnection();
             String sqlStmt = TenantConstants.GET_TENANT_BY_UUID_SQL;
             if (isOrgUUIDColumnAvailable()) {
@@ -787,8 +786,8 @@ public class JDBCTenantManager implements TenantManager {
                 String associatedOrgID = null;
                 if (associatedOrgUUIDColumnExists) {
                     associatedOrgID = result.getString(COLUMN_NAME_UM_ORG_UUID);
+                    realmConfig.setAssociatedOrganizationUUID(associatedOrgID);
                 }
-                realmConfig.setAssociatedOrganizationUUID(associatedOrgID);
 
                 tenant = new Tenant();
                 tenant.setTenantUniqueID(uniqueId);
