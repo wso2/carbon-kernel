@@ -79,6 +79,7 @@ public class JDBCTenantManager implements TenantManager {
     protected TenantCache tenantCacheManager = TenantCache.getInstance();
     DataSource dataSource;
     private static Boolean tenantUniqueIdColumnAvailable;
+    private static Boolean orgUUIDColumnAvailable;
     private static final String DB2 = "db2";
     private static final String MSSQL = "mssql";
     private static final String ORACLE = "oracle";
@@ -134,9 +135,16 @@ public class JDBCTenantManager implements TenantManager {
         try {
             dbConnection = getDBConnection();
             String sqlStmt = TenantConstants.ADD_TENANT_SQL;
+            boolean isOrgUUIDColumnAvailable = isOrgUUIDColumnAvailable();
+            if (isOrgUUIDColumnAvailable) {
+                sqlStmt = TenantConstants.ADD_TENANT_SQL_WITH_ORG_UUID;
+            }
             String tenantUniqueID = tenant.getTenantUniqueID();
             if (isTenantUniqueIdColumnAvailable()) {
                 sqlStmt = TenantConstants.ADD_TENANT_SQL_WITH_UUID;
+                if (isOrgUUIDColumnAvailable) {
+                    sqlStmt = TenantConstants.ADD_TENANT_SQL_WITH_UUID_AND_WITH_ORG_UUID;
+                }
             }
 
             String dbProductName = dbConnection.getMetaData().getDatabaseProductName();
@@ -158,15 +166,24 @@ public class JDBCTenantManager implements TenantManager {
             if (isTenantUniqueIdColumnAvailable()) {
                 tenant.getRealmConfig().setTenantUniqueId(tenantUniqueID);
             }
+            // Add the org UUID to the realm config.
+            if (isOrgUUIDColumnAvailable) {
+                tenant.getRealmConfig().setAssociatedOrganizationUUID(tenant.getAssociatedOrganizationUUID());
+            }
             String realmConfigString = RealmConfigXMLProcessor.serialize(
                     (RealmConfiguration) tenant.getRealmConfig()).toString();
             InputStream is = new ByteArrayInputStream(realmConfigString.getBytes());
             prepStmt.setBinaryStream(4, is, is.available());
-            tenant.getRealmConfig().setAssociatedOrganizationUUID(tenant.getAssociatedOrganizationUUID());
-            prepStmt.setString(5, tenant.getAssociatedOrganizationUUID());
 
             if (isTenantUniqueIdColumnAvailable()) {
-                prepStmt.setString(6, tenantUniqueID);
+                prepStmt.setString(5, tenantUniqueID);
+                if (isOrgUUIDColumnAvailable) {
+                    prepStmt.setString(6, tenant.getAssociatedOrganizationUUID());
+                }
+            } else {
+                if (isOrgUUIDColumnAvailable) {
+                    prepStmt.setString(5, tenant.getAssociatedOrganizationUUID());
+                }
             }
             prepStmt.executeUpdate();
 
@@ -222,8 +239,15 @@ public class JDBCTenantManager implements TenantManager {
         try {
             dbConnection = getDBConnection();
             String sqlStmt = TenantConstants.ADD_TENANT_WITH_ID_SQL;
+            boolean isOrgUUIDColumnAvailable = isOrgUUIDColumnAvailable();
+            if (isOrgUUIDColumnAvailable) {
+                sqlStmt = TenantConstants.ADD_TENANT_WITH_ID_AND_WITH_ORG_UUID_SQL;
+            }
             if (isTenantUniqueIdColumnAvailable()) {
                 sqlStmt = TenantConstants.ADD_TENANT_WITH_ID_AND_UUID_SQL;
+                if (isOrgUUIDColumnAvailable) {
+                    sqlStmt = TenantConstants.ADD_TENANT_WITH_ID_AND_UUID_AND_ORG_UUID_SQL;
+                }
             }
 
             String dbProductName = dbConnection.getMetaData().getDatabaseProductName();
@@ -245,14 +269,24 @@ public class JDBCTenantManager implements TenantManager {
             if (isTenantUniqueIdColumnAvailable()) {
                 tenant.getRealmConfig().setTenantUniqueId(tenant.getTenantUniqueID());
             }
+            // Add the org UUID to the realm config.
+            if (isOrgUUIDColumnAvailable) {
+                tenant.getRealmConfig().setAssociatedOrganizationUUID(tenant.getAssociatedOrganizationUUID());
+            }
             String realmConfigString = RealmConfigXMLProcessor.serialize(
                     (RealmConfiguration) tenant.getRealmConfig()).toString();
             InputStream is = new ByteArrayInputStream(realmConfigString.getBytes());
             prepStmt.setBinaryStream(5, is, is.available());
-            prepStmt.setString(6, tenant.getAssociatedOrganizationUUID());
 
             if (isTenantUniqueIdColumnAvailable()) {
-                prepStmt.setString(7, tenant.getTenantUniqueID());
+                prepStmt.setString(6, tenant.getTenantUniqueID());
+                if (isOrgUUIDColumnAvailable) {
+                    prepStmt.setString(7, tenant.getAssociatedOrganizationUUID());
+                }
+            } else {
+                if (isOrgUUIDColumnAvailable) {
+                    prepStmt.setString(6, tenant.getAssociatedOrganizationUUID());
+                }
             }
 
             prepStmt.executeUpdate();
@@ -403,13 +437,17 @@ public class JDBCTenantManager implements TenantManager {
 
             result = prepStmt.executeQuery();
             boolean tenantUUIDColumnExists = hasColumn(result, COLUMN_NAME_UM_TENANT_UUID);
+            boolean associatedOrgUUIDColumnExists = hasColumn(result, COLUMN_NAME_UM_ORG_UUID);
 
             if (result.next()) {
                 id = result.getInt(COLUMN_NAME_UM_ID);
                 String domain = result.getString(COLUMN_NAME_UM_DOMAIN_NAME);
                 String email = result.getString(COLUMN_NAME_UM_EMAIL);
                 boolean active = result.getBoolean(COLUMN_NAME_UM_ACTIVE);
-                String associatedOrgID = result.getString(COLUMN_NAME_UM_ORG_UUID);
+                String associatedOrgID = null;
+                if (associatedOrgUUIDColumnExists) {
+                    associatedOrgID = result.getString(COLUMN_NAME_UM_ORG_UUID);
+                }
                 String uniqueId = null;
                 if (tenantUUIDColumnExists) {
                     uniqueId = result.getString(COLUMN_NAME_UM_TENANT_UUID);
@@ -429,7 +467,9 @@ public class JDBCTenantManager implements TenantManager {
                 tenant.setEmail(email);
                 tenant.setCreatedDate(createdDate);
                 tenant.setActive(active);
-                tenant.setAssociatedOrganizationUUID(associatedOrgID);
+                if (associatedOrgUUIDColumnExists) {
+                    tenant.setAssociatedOrganizationUUID(associatedOrgID);
+                }
                 tenant.setRealmConfig(realmConfig);
                 setSecondaryUserStoreConfig(realmConfig, tenantId);
                 tenant.setAdminName(realmConfig.getAdminUserName());
@@ -721,10 +761,14 @@ public class JDBCTenantManager implements TenantManager {
         try {
             dbConnection = getDBConnection();
             String sqlStmt = TenantConstants.GET_TENANT_BY_UUID_SQL;
+            if (isOrgUUIDColumnAvailable()) {
+                sqlStmt = TenantConstants.GET_TENANT_BY_UUID_INCLUDING_UM_ORG_UUID_SQL;
+            }
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, tenantUniqueID);
 
             result = prepStmt.executeQuery();
+            boolean associatedOrgUUIDColumnExists = hasColumn(result, COLUMN_NAME_UM_ORG_UUID);
 
             if (result.next()) {
                 id = result.getInt(COLUMN_NAME_UM_ID);
@@ -739,8 +783,11 @@ public class JDBCTenantManager implements TenantManager {
                 RealmConfiguration realmConfig = processor.buildTenantRealmConfiguration(is);
                 realmConfig.setTenantId(id);
                 String uniqueId = result.getString(COLUMN_NAME_UM_TENANT_UUID);
-                String associatedOrgID = result.getString(COLUMN_NAME_UM_ORG_UUID);
-                realmConfig.setAssociatedOrganizationUUID(associatedOrgID);
+                String associatedOrgID = null;
+                if (associatedOrgUUIDColumnExists) {
+                    associatedOrgID = result.getString(COLUMN_NAME_UM_ORG_UUID);
+                    realmConfig.setAssociatedOrganizationUUID(associatedOrgID);
+                }
 
                 tenant = new Tenant();
                 tenant.setTenantUniqueID(uniqueId);
@@ -749,7 +796,9 @@ public class JDBCTenantManager implements TenantManager {
                 tenant.setEmail(email);
                 tenant.setCreatedDate(createdDate);
                 tenant.setActive(active);
-                tenant.setAssociatedOrganizationUUID(associatedOrgID);
+                if (associatedOrgUUIDColumnExists) {
+                    tenant.setAssociatedOrganizationUUID(associatedOrgID);
+                }
                 tenant.setRealmConfig(realmConfig);
                 setSecondaryUserStoreConfig(realmConfig, id);
                 tenant.setAdminName(realmConfig.getAdminUserName());
@@ -1337,6 +1386,14 @@ public class JDBCTenantManager implements TenantManager {
         return tenantUniqueIdColumnAvailable;
     }
 
+    private boolean isOrgUUIDColumnAvailable() throws UserStoreException {
+
+        if (orgUUIDColumnAvailable == null) {
+            orgUUIDColumnAvailable =  checkOrgUUIDColumnInTable();
+        }
+        return orgUUIDColumnAvailable;
+    }
+
     private boolean checkUniqueIdColumnInTable() throws UserStoreException {
 
         String sql;
@@ -1373,6 +1430,45 @@ public class JDBCTenantManager implements TenantManager {
         } catch (SQLException e) {
             log.error("Error while reading connection metadata to check the existence of column: " +
                             COLUMN_NAME_UM_TENANT_UUID + "in table UM_TENANT.", e);
+        }
+        return false;
+    }
+
+    private boolean checkOrgUUIDColumnInTable() throws UserStoreException {
+
+        String sql;
+        try (Connection connection = getDBConnection()) {
+            String dbType = connection.getMetaData().getDatabaseProductName();
+            if (dbType.equalsIgnoreCase("MySQL") || dbType.equalsIgnoreCase("MariaDB") ||
+                    dbType.equalsIgnoreCase("H2") || dbType.equalsIgnoreCase("PostgreSQL")) {
+                sql = TenantConstants.IS_UM_ORG_UUID_COLUMN_EXISTS_MYSQL;
+            } else if (dbType.toLowerCase().startsWith("db2")) {
+                sql = TenantConstants.IS_UM_ORG_UUID_COLUMN_EXISTS_DB2;
+            } else if (dbType.equalsIgnoreCase("MS SQL") ||
+                    connection.getMetaData().getDriverName().contains("Microsoft")) {
+                sql = TenantConstants.IS_UM_ORG_UUID_COLUMN_EXISTS_MSSQL;
+            } else if (dbType.equalsIgnoreCase("Informix")) {
+                sql = TenantConstants.IS_UM_ORG_UUID_COLUMN_EXISTS_INFORMIX;
+            } else if (dbType.equalsIgnoreCase("oracle")) {
+                sql = TenantConstants.IS_UM_ORG_UUID_COLUMN_EXISTS_ORACLE;
+            } else {
+                String message = "Error while loading tenant from DB: Database driver could not be identified" +
+                        " or not supported.";
+                log.error(message);
+                throw new UserStoreException(message);
+            }
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    resultSet.findColumn(COLUMN_NAME_UM_ORG_UUID);
+                    return true;
+                }
+            } catch (SQLException e) {
+                // Ignore since this exception is thrown when the column is not available.
+                return false;
+            }
+        } catch (SQLException e) {
+            log.error("Error while reading connection metadata to check the existence of column: " +
+                    COLUMN_NAME_UM_ORG_UUID + "in table UM_TENANT.", e);
         }
         return false;
     }
