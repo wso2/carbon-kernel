@@ -581,3 +581,7 @@ CREATE TABLE IF NOT EXISTS UM_ORG_HIERARCHY (
             FOREIGN KEY (UM_PARENT_ID) REFERENCES UM_ORG(UM_ID) ON DELETE CASCADE,
             FOREIGN KEY (UM_ID) REFERENCES UM_ORG(UM_ID) ON DELETE CASCADE
 );
+
+-- #####################################
+-- END OF ORGANIZATION MANAGEMENT TABLES
+-- #####################################
