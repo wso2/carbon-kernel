@@ -35,10 +35,11 @@ import org.wso2.carbon.tomcat.ext.internal.Utils;
 import org.wso2.carbon.tomcat.ext.utils.URLMappingHolder;
 import org.wso2.carbon.user.api.TenantManager;
 import org.wso2.carbon.user.api.UserRealmService;
-import org.wso2.carbon.utils.ServerConstants;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
+
+import static org.wso2.carbon.tomcat.ext.constants.Constants.TENANT_DOMAIN_FROM_REQUEST_PATH;
 
 //import org.wso2.carbon.utils.multitenancy.CarbonContextHolder;
 
@@ -47,6 +48,7 @@ import java.io.IOException;
  */
 @SuppressWarnings("unused")
 public class CarbonContextCreatorValve extends ValveBase {
+
     private static Log log = LogFactory.getLog(CarbonContextCreatorValve.class);
 
     public CarbonContextCreatorValve() {
@@ -81,12 +83,50 @@ public class CarbonContextCreatorValve extends ValveBase {
         //checking for URLMapping request and set tenant domain and App name accordingly
         if(!requestedHostName.equalsIgnoreCase(defaultHost)) {
             tenantDomain = Utils.getTenantDomainFromURLMapping(request);
-            appName = Utils.getAppNameForURLMapping(request);
+            appName = getAppNameForURLMapping(request);
         } else {
             //this will get executed with the default host requests
             tenantDomain = Utils.getTenantDomain(request);
-            appName = Utils.getAppNameFromRequest(request);
+            appName = getAppNameFromRequest(request);
         }
+        request.setAttribute(TENANT_DOMAIN_FROM_REQUEST_PATH, tenantDomain);
+        setValuesToCarbonContext(carbonContext, tenantDomain, appName);
+        setMDCValues(carbonContext.getTenantId(), tenantDomain, appName);
+    }
+
+    /**
+     * Derive the app name from the request.
+     *
+     * @param request The request.
+     * @return app name.
+     */
+    protected String getAppNameFromRequest(Request request) {
+
+        return Utils.getAppNameFromRequest(request);
+    }
+
+    /**
+     * Derive the app name from the URL mapping.
+     *
+     * @param request The request.
+     * @return app name.
+     */
+    protected String getAppNameForURLMapping(Request request) {
+
+        return Utils.getAppNameForURLMapping(request);
+    }
+
+    /**
+     * Method to set values to the CarbonContext instance.
+     *
+     * @param carbonContext The carbon context.
+     * @param tenantDomain  The domain of the tenant.
+     * @param appName       The name of the application.
+     * @throws Exception if an error occurs.
+     */
+    protected void setValuesToCarbonContext(PrivilegedCarbonContext carbonContext, String tenantDomain, String appName)
+            throws Exception {
+
         carbonContext.setTenantDomain(tenantDomain);
         carbonContext.setApplicationName(appName);
 
@@ -98,8 +138,6 @@ public class CarbonContextCreatorValve extends ValveBase {
             TenantManager tenantManager = userRealmService.getTenantManager();
             int tenantId = tenantManager.getTenantId(tenantDomain);
             carbonContext.setTenantId(tenantId);
-            MDC.put(MultitenantConstants.TENANT_ID, String.valueOf(tenantId));
-            MDC.put(MultitenantConstants.TENANT_DOMAIN, tenantDomain);
             //carbonContext.setUserRealm(userRealmService.getTenantUserRealm(tenantId));
 
             RegistryService registryService = CarbonRealmServiceHolder.getRegistryService();
@@ -110,7 +148,21 @@ public class CarbonContextCreatorValve extends ValveBase {
                     new GhostRegistry(registryService, tenantId,
                             RegistryType.SYSTEM_GOVERNANCE));
         }
+    }
 
+    /**
+     * Set the tenantId, tenantDomain and appName to the MDC.
+     *
+     * @param tenantId     The ID of the tenant.
+     * @param tenantDomain The domain of the tenant.
+     * @param appName      The name of the application.
+     */
+    protected void setMDCValues(int tenantId, String tenantDomain, String appName) {
+
+        if (tenantDomain != null) {
+            MDC.put(MultitenantConstants.TENANT_ID, String.valueOf(tenantId));
+            MDC.put(MultitenantConstants.TENANT_DOMAIN, tenantDomain);
+        }
         if (StringUtils.isNotEmpty(appName)) {
             MDC.put("appName", appName);
         }
