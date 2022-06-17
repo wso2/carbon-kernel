@@ -66,6 +66,15 @@ public interface TenantManager extends org.wso2.carbon.user.api.TenantManager {
     }
 
     /**
+     * Get the {@link Tenant} instance for given the organization id.
+     *
+     * @param organizationId unique identifier of organization associated with the tenant.
+     * @return instance of {@link Tenant}.
+     * @throws UserStoreException in failure to retrieve the tenant.
+     */
+    Tenant getTenantByOrganizationId(String organizationId) throws UserStoreException;
+
+    /**
      * Activates a tenant.
      *
      * @param tenantUniqueID tenant unique identifier.
@@ -97,7 +106,7 @@ public interface TenantManager extends org.wso2.carbon.user.api.TenantManager {
      */
     default void deleteTenantUMData(int tenantId) throws UserStoreException {
 
-    };
+    }
 
     /**
      * Deletes a tenant from the system.

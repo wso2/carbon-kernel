@@ -100,6 +100,12 @@ public class JDBCTenantManager implements TenantManager {
     private TenantUniqueIdCache tenantUniqueIdCache = TenantUniqueIdCache.getInstance();
 
     /**
+     * Map which maps associated organization id to tenants.
+     * Key - tenant organization uuid, value - tenant.
+     */
+    private TenantOrgIdCache tenantOrgIdCache = TenantOrgIdCache.getInstance();
+
+    /**
      * This is the reverse of the tenantDomainIdMap. Key - tenantId, value - tenant domain
      */
     private TenantDomainCache tenantDomainCache = TenantDomainCache.getInstance();
@@ -1102,6 +1108,82 @@ public class JDBCTenantManager implements TenantManager {
 
     public String getSuperTenantDomain() throws UserStoreException {
         return MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+    }
+
+    @Override
+    public Tenant getTenantByOrganizationId(String organizationId) throws UserStoreException {
+
+        TenantCacheEntry<Tenant> entry = tenantOrgIdCache.getValueFromCache(new TenantOrgIdKey(organizationId));
+
+        if ((entry != null) && (entry.getTenant() != null)) {
+            return entry.getTenant();
+        }
+
+        Connection dbConnection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet result = null;
+        Tenant tenant = null;
+        int id;
+        try {
+            dbConnection = getDBConnection();
+            String sqlStmt = TenantConstants.GET_TENANT_BY_ORG_ID_SQL;
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, organizationId);
+
+            result = prepStmt.executeQuery();
+
+            if (result.next()) {
+                id = result.getInt(COLUMN_NAME_UM_ID);
+                String domain = result.getString(COLUMN_NAME_UM_DOMAIN_NAME);
+                String email = result.getString(COLUMN_NAME_UM_EMAIL);
+                boolean active = result.getBoolean(COLUMN_NAME_UM_ACTIVE);
+                Date createdDate = new Date(result.getTimestamp(
+                        COLUMN_NAME_UM_CREATED_DATE).getTime());
+                InputStream is = result.getBinaryStream(COLUMN_NAME_UM_USER_CONFIG);
+
+                RealmConfigXMLProcessor processor = new RealmConfigXMLProcessor();
+                RealmConfiguration realmConfig = processor.buildTenantRealmConfiguration(is);
+                realmConfig.setTenantId(id);
+                String uniqueId = result.getString(COLUMN_NAME_UM_TENANT_UUID);
+                String associatedOrgID = result.getString(COLUMN_NAME_UM_ORG_UUID);
+                realmConfig.setAssociatedOrganizationUUID(associatedOrgID);
+
+                tenant = new Tenant();
+                tenant.setTenantUniqueID(uniqueId);
+                tenant.setId(id);
+                tenant.setDomain(domain);
+                tenant.setEmail(email);
+                tenant.setCreatedDate(createdDate);
+                tenant.setActive(active);
+                tenant.setAssociatedOrganizationUUID(associatedOrgID);
+                tenant.setRealmConfig(realmConfig);
+                setSecondaryUserStoreConfig(realmConfig, id);
+                tenant.setAdminName(realmConfig.getAdminUserName());
+                tenant.setAdminUserId(getUserId(realmConfig.getAdminUserName(), id));
+
+                if (log.isDebugEnabled()) {
+                    log.debug("Obtained tenant from database for the given organization UUID: " + associatedOrgID
+                            + ", hence adding tenant to cache where tenantDomain: {" + domain + "}");
+                }
+                tenantDomainNameValidation(domain);
+                tenantOrgIdCache.addToCache(new TenantOrgIdKey(organizationId), new TenantCacheEntry<>(tenant));
+                tenantUniqueIdCache.addToCache(new TenantUniqueIDKey(uniqueId), new TenantCacheEntry<>(tenant));
+                tenantCacheManager.addToCache(new TenantIdKey(id), new TenantCacheEntry<>(tenant));
+                tenantDomainCache.addToCache(new TenantIdKey(id), new TenantDomainEntry(domain));
+                tenantIdCache.addToCache(new TenantDomainKey(domain), new TenantIdEntry(id));
+            }
+            dbConnection.commit();
+        } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
+            String msg = "Error in getting the tenant with organization UUID: " + organizationId + ".";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, result, prepStmt);
+        }
+        return tenant;
     }
 
     /**
