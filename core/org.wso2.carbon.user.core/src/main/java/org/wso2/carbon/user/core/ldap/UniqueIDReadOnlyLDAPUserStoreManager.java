@@ -3101,6 +3101,10 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             throws UserStoreException {
 
         boolean isGroupFiltering = ldapSearchSpecification.isGroupFiltering();
+        boolean isUsernameFiltering = ldapSearchSpecification.isUsernameFiltering();
+        boolean isClaimFiltering = ldapSearchSpecification.isClaimFiltering();
+        boolean isMemberShipPropertyFound = ldapSearchSpecification.isMemberShipPropertyFound();
+
         String searchBases = ldapSearchSpecification.getSearchBases();
         String[] searchBaseArray = searchBases.split("#");
         String searchFilter = ldapSearchSpecification.getSearchFilterQuery();
@@ -3122,6 +3126,19 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                     if (answer.hasMore()) {
                         tempUsersList = getUserListFromSearch(isGroupFiltering, returnedAttributes, answer,
                                 isSingleAttributeFilterOperation(expressionConditions));
+                    }
+                    if (CollectionUtils.isNotEmpty(tempUsersList)) {
+                        if (isMemberShipPropertyFound) {
+                                /*
+                                Pagination is not supported for 'member' attribute group filtering. Also,
+                                we need do post-processing if we found username filtering or claim filtering,
+                                because can't apply claim filtering with memberShip group filtering and
+                                can't apply username filtering with 'CO', 'EW', 'SW' filter operations.
+                                 */
+                            users = membershipGroupFilterPostProcessing(isUsernameFiltering, isClaimFiltering,
+                                    expressionConditions, tempUsersList);
+                            break;
+                        }
                     }
                     if (UserCoreConstants.PREVIOUS.equals(direction)) {
                         for (int i = tempUsersList.size() - 1; i >= 0; i--) {

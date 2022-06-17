@@ -97,7 +97,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -15735,12 +15734,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // This method will flow down to use cursor pagination, so the offset will be null.
         Integer offset = null;
 
-        //If the domain is not PRIMARY, Cursor value will look like: DOMAIN/Cursor (unless it is the initial request)
-        if (!UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(domain) && !StringUtils.EMPTY.equals(cursor)) {
-            String[] removeDomain = cursor.split(CarbonConstants.DOMAIN_SEPARATOR);
-            cursor = removeDomain[1];
-        }
-
         validateCondition(condition);
         if (StringUtils.isNotEmpty(sortBy) && StringUtils.isNotEmpty(sortOrder)) {
             throw new UserStoreException("Sorting is not supported.");
@@ -16109,8 +16102,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             for (ExpressionCondition expressionCondition : expressionConditions) {
                 List<org.wso2.carbon.user.api.ClaimMapping> mappedClaim =
-                        Arrays.stream(claimMapping).filter(mapping -> mapping.getMappedAttribute() ==
-                                expressionCondition.getAttributeName()).collect(Collectors.toList());
+                        Arrays.stream(claimMapping).filter(mapping -> mapping.getMappedAttribute()
+                                        .equals(expressionCondition.getAttributeName())).collect(Collectors.toList());
 
                 //Obtaining relevant URI for the mapped attribute.
                 if (mappedClaim.size() == 1) {
