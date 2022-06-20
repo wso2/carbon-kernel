@@ -15,7 +15,7 @@
  */
 package org.wso2.carbon.registry.core.test.performance;
 
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.registry.core.test.utils.BaseTestCase;
@@ -45,7 +45,7 @@ public class BasicPerformanceTest extends BaseTestCase {
 
 //        ds.setMaxWait(1000*60*2);
 
-        ds.setMaxActive(150);
+        ds.setMaxTotal(150);
         ds.setMaxIdle(1000*60*2);
         ds.setMinIdle(5);
         //ds.setDriverClassName("net.sf.log4jdbc.DriverSpy");

@@ -17,7 +17,7 @@
  */
 package org.wso2.carbon.utils.dbcreator;
 
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.testng.annotations.BeforeTest;
