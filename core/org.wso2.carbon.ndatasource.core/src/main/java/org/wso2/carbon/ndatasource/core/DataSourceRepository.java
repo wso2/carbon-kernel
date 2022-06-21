@@ -512,7 +512,7 @@ public class DataSourceRepository {
 		try {
 			return dsReader.testDataSourceConnection(DataSourceUtils.elementToString((Element)dsmInfo.getDefinition().getDsXMLConfiguration()));
 		} catch (DataSourceException e) {
-			log.error(e.getMessage(), e);
+			log.debug(e.getMessage(), e);
 			throw e;
 		}
 		
