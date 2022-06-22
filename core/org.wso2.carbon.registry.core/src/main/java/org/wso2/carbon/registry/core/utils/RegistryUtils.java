@@ -218,8 +218,8 @@ public final class RegistryUtils {
             org.apache.tomcat.jdbc.pool.DataSource ds = (org.apache.tomcat.jdbc.pool.DataSource) datasource;
             connectionId = ds.getPoolProperties().getUsername() + "@" + ds.getPoolProperties().getUrl();
         }
-        if (datasource instanceof org.apache.commons.dbcp.BasicDataSource) {
-            org.apache.commons.dbcp.BasicDataSource ds = (org.apache.commons.dbcp.BasicDataSource) datasource;
+        if (datasource instanceof org.apache.tomcat.dbcp.dbcp2.BasicDataSource) {
+            org.apache.tomcat.dbcp.dbcp2.BasicDataSource ds = (org.apache.tomcat.dbcp.dbcp2.BasicDataSource) datasource;
             connectionId = ds.getUsername() + "@" + ds.getUrl();
         }
         if(log.isDebugEnabled()) {

@@ -161,11 +161,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>commons-dbcp.wso2</groupId>
-            <artifactId>commons-dbcp</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>commons-pool.wso2</groupId>
             <artifactId>commons-pool</artifactId>
             <scope>test</scope>
