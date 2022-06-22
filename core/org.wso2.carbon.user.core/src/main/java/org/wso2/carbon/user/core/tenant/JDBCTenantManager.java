@@ -802,8 +802,12 @@ public class JDBCTenantManager implements TenantManager {
                 tenant.setRealmConfig(realmConfig);
                 setSecondaryUserStoreConfig(realmConfig, id);
                 tenant.setAdminName(realmConfig.getAdminUserName());
-                tenant.setAdminUserId(getUserId(realmConfig.getAdminUserName(), id));
-
+                // Handle the admin UUID resolution properly with https://github.com/wso2/product-is/issues/14001.
+                if (StringUtils.isNotBlank(tenant.getAssociatedOrganizationUUID())) {
+                    tenant.setAdminUserId(realmConfig.getAdminUserName());
+                } else {
+                    tenant.setAdminUserId(getUserId(realmConfig.getAdminUserName(), id));
+                }
                 if (log.isDebugEnabled()) {
                     log.debug("Obtained tenant from database for the given UUID: " + uniqueId
                             + ", hence adding tenant to cache where tenantDomain: {" + domain + "}");
