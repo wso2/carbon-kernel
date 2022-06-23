@@ -515,7 +515,7 @@ public class DataSourceRepository {
 					DataSourceUtils.elementToString((Element) dsmInfo.getDefinition().getDsXMLConfiguration()));
 		} catch (DataSourceException e) {
 			if (log.isDebugEnabled()) {
-				log.debug("Error while testing data source connection " + dsmInfo.getName(), e);
+				log.debug("Error while testing data source connection: " + dsmInfo.getName(), e);
 			}
 			throw e;
 		}
