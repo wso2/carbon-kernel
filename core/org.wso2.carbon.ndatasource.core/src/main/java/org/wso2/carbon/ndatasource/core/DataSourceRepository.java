@@ -504,20 +504,20 @@ public class DataSourceRepository {
 	 * @param dsmInfo The meta information of the data source to be tested.
 	 */
 	public boolean testDataSourceConnection(DataSourceMetaInfo dsmInfo) throws DataSourceException {
+
 		if (log.isDebugEnabled()) {
 			log.debug("Testing connection of data source: " + dsmInfo.getName());
 		}
 		DataSourceReader dsReader = DataSourceManager.getInstance().getDataSourceReader(
 				dsmInfo.getDefinition().getType());
 		try {
-			return dsReader.testDataSourceConnection(DataSourceUtils.elementToString((Element)dsmInfo.getDefinition().getDsXMLConfiguration()));
+			return dsReader.testDataSourceConnection(
+					DataSourceUtils.elementToString((Element) dsmInfo.getDefinition().getDsXMLConfiguration()));
 		} catch (DataSourceException e) {
 			if (log.isDebugEnabled()) {
-				log.debug(e.getMessage(), e);
+				log.debug("Error while testing data source connection " + dsmInfo.getName(), e);
 			}
 			throw e;
 		}
-		
 	}
-
 }
