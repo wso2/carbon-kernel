@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity.framework</groupId>
         <artifactId>security-mgt</artifactId>
-        <version>5.20.433-SNAPSHOT</version>
+        <version>5.20.433</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
