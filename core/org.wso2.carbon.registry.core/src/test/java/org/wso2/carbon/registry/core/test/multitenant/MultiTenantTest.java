@@ -18,7 +18,7 @@
  */
 package org.wso2.carbon.registry.core.test.multitenant;
 
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
 import org.junit.BeforeClass;
 import org.wso2.carbon.context.internal.OSGiDataHolder;
 import org.wso2.carbon.registry.core.ActionConstants;
