@@ -38,7 +38,8 @@
     </scm>
 
     <modules>
-        <module>test-utils/org.wso2.carbon.identity.testutil</module>
+        <module>test-utils</module>
+        <module>identity-framework-test-utils/org.wso2.carbon.identity.framework.testutil</module>
         <module>service-stubs/identity</module>
         <module>components/authentication-framework</module>
         <module>components/entitlement</module>
@@ -1617,6 +1618,12 @@
                 <artifactId>powermock-module-testng</artifactId>
                 <version>${powermock.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <!-- Framework Common test utility -->
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.framework.testutil</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <!-- Common test utility -->
             <dependency>
