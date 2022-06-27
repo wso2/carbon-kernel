@@ -109,7 +109,7 @@
                                 </bundleDef>
                                 <bundleDef>com.jezhumble.wso2:javasysmon:${javasysmon.version}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.tomcat:jdbc-pool:${jdbc-pool.version}</bundleDef>
-                                <bundleDef>org.eclipse.jdt.core.compiler:ecj:${version.eclipse.ecj}</bundleDef>
+                                <bundleDef>org.eclipse.jdt:ecj:${version.eclipse.ecj}</bundleDef>
                                 <bundleDef>com.google.code.gson:gson:${version.com.google.code.gson}</bundleDef>
                                 <!--commons-text and commons-lang3 required for axiom-->
                                 <bundleDef>org.wso2.orbit.commons-text:commons-text:${commons-text.orbit.version}</bundleDef>
