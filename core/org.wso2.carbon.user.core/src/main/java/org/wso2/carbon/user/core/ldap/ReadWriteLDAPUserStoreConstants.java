@@ -77,9 +77,9 @@ public class ReadWriteLDAPUserStoreConstants {
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
 
         setMandatoryProperty(UserStoreConfigConstants.usernameSearchFilter, "User Search Filter",
-                "(&(objectClass=person)(uid=?))", UserStoreConfigConstants.usernameSearchFilterDescription, false,
+                "(&(objectClass=identityPerson)(uid=?))", UserStoreConfigConstants.usernameSearchFilterDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        setMandatoryProperty(UserStoreConfigConstants.usernameListFilter, "User List Filter", "(objectClass=person)",
+        setMandatoryProperty(UserStoreConfigConstants.usernameListFilter, "User List Filter", "(objectClass=identityPerson)",
                 UserStoreConfigConstants.usernameListFilterDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdAttribute,
@@ -87,7 +87,7 @@ public class ReadWriteLDAPUserStoreConstants {
                 UserStoreConfigConstants.userIdAttributeDescription,false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdSearchFilter,
-                UserStoreConfigConstants.userIdSearchFilterAttributeName, "(&(objectClass=person)(uid=?))",
+                UserStoreConfigConstants.userIdSearchFilterAttributeName, "(&(objectClass=identityPerson)(scimId=?))",
                 UserStoreConfigConstants.userIdSearchFilterDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
 

@@ -84,7 +84,7 @@ public class ActiveDirectoryUserStoreConstants {
                 "(&(objectClass=user)(cn=?))", UserStoreConfigConstants.usernameSearchFilterDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
 
-        setMandatoryProperty(UserStoreConfigConstants.usernameListFilter, "User List Filter", "(objectClass=person)",
+        setMandatoryProperty(UserStoreConfigConstants.usernameListFilter, "User List Filter", "(objectClass=user)",
                 UserStoreConfigConstants.usernameListFilterDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
 
@@ -168,7 +168,7 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty("BackLinksEnabled", "Enable Back Links", "true",
                 "Whether to allow attributes to be result from references to the object from other objects",
                 new Property[] { GROUP.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
-        setProperty("Referral", "Referral", "follow",
+        setProperty("Referral", "Referral", "",
                 "Guides the requests to a domain controller in the correct domain",
                 new Property[] { GROUP.getProperty(), STRING.getProperty(), FALSE.getProperty() });
 
@@ -220,7 +220,7 @@ public class ActiveDirectoryUserStoreConstants {
                 UserStoreConfigConstants.userIdAttributeDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdSearchFilter,
-                UserStoreConfigConstants.userIdSearchFilterAttributeName, "(&(objectClass=person)(uid=?))",
+                UserStoreConfigConstants.userIdSearchFilterAttributeName, "(&(objectClass=user)(objectGuid=?))",
                 UserStoreConfigConstants.userIdSearchFilterDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setProperty(UserStoreConfigConstants.dateAndTimePattern, UserStoreConfigConstants.dateAndTimePatternDisplayName,
