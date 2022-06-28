@@ -24,8 +24,6 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <jsp:include page="../dialog/display_messages.jsp"/>
 
 <%
@@ -93,12 +91,9 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
     %>
 
     <script type="text/javascript">
-        <c:set var="errorcode"><fmt:message key="<%=errorCode%>" /></c:set>
-        <c:if test="${!fn:startsWith(errorcode,'???')}">
         jQuery(document).ready(function() {
             CARBON.showWarningDialog('<fmt:message key="<%=Encode.forJavaScript(errorCode)%>"/>');
         });
-        </c:if>
     </script>
     <%
         }
@@ -109,12 +104,9 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
             }
      %>
     <script type="text/javascript">
-        <c:set var="errorcode"><fmt:message key="<%=errorCode%>"/></c:set>
-        <c:if test="${!fn:startsWith(errorcode,'???')}">
         jQuery(document).ready(function() {
             CARBON.showWarningDialog('<fmt:message key="<%=Encode.forJavaScript(errorCode)%>"/>');
         });
-        </c:if>
     </script>
     <%
         }
