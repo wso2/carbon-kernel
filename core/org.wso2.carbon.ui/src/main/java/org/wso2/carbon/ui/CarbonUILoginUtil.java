@@ -120,7 +120,14 @@ public final class CarbonUILoginUtil {
                 cookie.setPath("/");
                 cookie.setSecure(true);
                 cookie.setHttpOnly(true);
-                response.addCookie(cookie);
+
+                try {
+                    response.addCookie(cookie);
+                } catch (IllegalArgumentException e) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Cookie was not created because invalid character is present.");
+                    }
+                }
             }
         }
 

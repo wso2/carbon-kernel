@@ -97,7 +97,6 @@ public class CarbonResponseWrapper extends Response {
             return this.getContext().getCookieProcessor().generateHeader(cookie, null);
         }
 
-        try {
             String cookieString = super.generateCookieString(cookie);
             if (cookie instanceof ServletCookie) {
                 if (((ServletCookie) cookie).getSameSite() == null) {
@@ -109,12 +108,6 @@ public class CarbonResponseWrapper extends Response {
                 cookieString = cookieString + "; SameSite=" + SameSiteCookie.STRICT.getName();
             }
             return cookieString;
-        } catch (IllegalArgumentException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Cookie String was not created because invalid character is present.");
-            }
-            return null;
-        }
     }
 
     private boolean isLegacyUserAgent() {
@@ -365,9 +358,7 @@ public class CarbonResponseWrapper extends Response {
         if (!this.included && !this.isCommitted()) {
             this.getCookies().add(cookie);
             String header = this.generateCookieString(cookie);
-            if (header != null) {
-                this.addHeader("Set-Cookie", header, this.getContext().getCookieProcessor().getCharset());
-            }
+            this.addHeader("Set-Cookie", header, this.getContext().getCookieProcessor().getCharset());
         }
     }
 
