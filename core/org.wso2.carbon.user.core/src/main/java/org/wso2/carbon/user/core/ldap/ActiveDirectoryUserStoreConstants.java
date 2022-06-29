@@ -168,7 +168,7 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty("BackLinksEnabled", "Enable Back Links", "true",
                 "Whether to allow attributes to be result from references to the object from other objects",
                 new Property[] { GROUP.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
-        setProperty("Referral", "Referral", "",
+        setProperty("Referral", "Referral", "ignore",
                 "Guides the requests to a domain controller in the correct domain",
                 new Property[] { GROUP.getProperty(), STRING.getProperty(), FALSE.getProperty() });
 
