@@ -17,7 +17,7 @@
 */
 package org.wso2.carbon.user.core.profile;
 
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
 import org.wso2.carbon.user.core.BaseTestCase;
 import org.wso2.carbon.user.core.ClaimTestUtil;
 import org.wso2.carbon.user.core.UserCoreTestConstants;

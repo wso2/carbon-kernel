@@ -20,7 +20,7 @@ package org.wso2.carbon.user.core.jdbc;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axiom.om.xpath.AXIOMXPath;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
 import org.apache.commons.lang.ArrayUtils;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;

@@ -16,7 +16,7 @@
 
 package org.wso2.carbon.registry.core.jdbc.utils;
 
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
 import org.wso2.carbon.registry.core.config.DataBaseConfiguration;
 import org.wso2.carbon.registry.core.dataaccess.DataAccessManager;
 
@@ -57,15 +57,15 @@ public class RegistryDataSource implements DataSource {
         basicDataSource.setPassword(config.getResolvedPassword());
 
         if (config.getMaxActive() != null) {
-            basicDataSource.setMaxActive(Integer.parseInt(config.getMaxActive()));
+            basicDataSource.setMaxTotal(Integer.parseInt(config.getMaxActive() + config.getMaxIdle()));
         } else {
-            basicDataSource.setMaxActive(DEFAULT_MAX_ACTIVE);
+            basicDataSource.setMaxTotal(DEFAULT_MAX_ACTIVE);
         }
 
         if (config.getMaxWait() != null) {
-            basicDataSource.setMaxWait(Integer.parseInt(config.getMaxWait()));
+            basicDataSource.setMaxWaitMillis(Integer.parseInt(config.getMaxWait()));
         } else {
-            basicDataSource.setMaxWait(DEFAULT_MAX_WAIT);
+            basicDataSource.setMaxWaitMillis(DEFAULT_MAX_WAIT);
         }
 
         if (config.getMaxIdle() != null) {

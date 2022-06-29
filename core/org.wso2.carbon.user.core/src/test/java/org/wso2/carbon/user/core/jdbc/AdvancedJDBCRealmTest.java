@@ -18,7 +18,7 @@
 package org.wso2.carbon.user.core.jdbc;
 
 import junit.framework.TestCase;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
