@@ -26,7 +26,6 @@ import org.wso2.carbon.core.ServletCookie;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.IllegalArgumentException;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.List;
@@ -97,17 +96,17 @@ public class CarbonResponseWrapper extends Response {
             return this.getContext().getCookieProcessor().generateHeader(cookie, null);
         }
 
-            String cookieString = super.generateCookieString(cookie);
-            if (cookie instanceof ServletCookie) {
-                if (((ServletCookie) cookie).getSameSite() == null) {
-                    cookieString = cookieString + "; SameSite=" + SameSiteCookie.STRICT.getName();
-                } else {
-                    cookieString = cookieString + "; SameSite=" + ((ServletCookie) cookie).getSameSite().getName();
-                }
-            } else {
+        String cookieString = super.generateCookieString(cookie);
+        if (cookie instanceof ServletCookie) {
+            if (((ServletCookie) cookie).getSameSite() == null) {
                 cookieString = cookieString + "; SameSite=" + SameSiteCookie.STRICT.getName();
+            } else {
+                cookieString = cookieString + "; SameSite=" + ((ServletCookie) cookie).getSameSite().getName();
             }
-            return cookieString;
+        } else {
+            cookieString = cookieString + "; SameSite=" + SameSiteCookie.STRICT.getName();
+        }
+        return cookieString;
     }
 
     private boolean isLegacyUserAgent() {
