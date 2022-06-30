@@ -513,6 +513,22 @@
             <KeyPassword>{{keystore.internal.key_password}}</KeyPassword>
         </InternalKeyStore>
 
+        <!--
+            KeyStore which will be used for SAML request/response signing if configured.
+            This is only supported for the super tenant ATM.
+        -->
+        <SAMLSignKeyStore>
+            <Location>${carbon.home}/repository/resources/security/{{keystore.saml.file_name}}</Location>
+            <!-- Keystore type (JKS/PKCS12 etc.)-->
+            <Type>{{keystore.saml.type}}</Type>
+            <!-- Keystore password-->
+            <Password>{{keystore.saml.password}}</Password>
+            <!-- Private Key alias-->
+            <KeyAlias>{{keystore.saml.alias}}</KeyAlias>
+            <!-- Private Key password-->
+            <KeyPassword>{{keystore.saml.key_password}}</KeyPassword>
+        </SAMLSignKeyStore>
+
         <UserStorePasswordEncryption>{{keystore.userstore_password_encryption}}</UserStorePasswordEncryption>
 
         <!--

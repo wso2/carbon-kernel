@@ -481,7 +481,6 @@
         <orbit.version.commons.lang>2.6.0.wso2v1</orbit.version.commons.lang>
         <orbit.version.commons.collection>3.2.2.wso2v1</orbit.version.commons.collection>
         <orbit.version.commons.io>2.7.0.wso2v1</orbit.version.commons.io>
-        <orbit.version.commons.dbcp>1.4.0.wso2v1</orbit.version.commons.dbcp>
         <orbit.version.smack>3.0.4.wso2v1</orbit.version.smack>
         <orbit.version.apacheds>1.5.7-wso2v1</orbit.version.apacheds>
         <orbit.version.geronimo-jms_1.1_spec>1.1.1.wso2v1</orbit.version.geronimo-jms_1.1_spec>
@@ -611,7 +610,7 @@
         <slf4j.version>1.5.10</slf4j.version>
         <woden.api.version>1.0M9</woden.api.version>
         <maven.clean.plugin.version>2.4.1</maven.clean.plugin.version>
-        <version.com.google.code.gson>2.8.5</version.com.google.code.gson>
+        <version.com.google.code.gson>2.9.0</version.com.google.code.gson>
 
         <test.framework.version>4.4.3</test.framework.version>
         <testng.verson>6.10</testng.verson>
@@ -1162,11 +1161,6 @@
                 <groupId>commons-pool.wso2</groupId>
                 <artifactId>commons-pool</artifactId>
                 <version>${orbit.version.commons.pool}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-dbcp.wso2</groupId>
-                <artifactId>commons-dbcp</artifactId>
-                <version>${orbit.version.commons.dbcp}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents.wso2</groupId>

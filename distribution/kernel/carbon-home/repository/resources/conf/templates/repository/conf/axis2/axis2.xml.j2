@@ -195,6 +195,7 @@
     <!-- ================================================= -->
     <!-- In Transports -->
     <!-- ================================================= -->
+    {% if axis2_transport.receiver.http.enabled is not defined or axis2_transport.receiver.http.enabled is sameas true %}
     <transportReceiver name="http"
                        class="org.wso2.carbon.core.transports.http.HttpTransportListener">
         <!--
@@ -209,6 +210,7 @@
         -->
         <!--<parameter name="proxyPort">80</parameter>-->
     </transportReceiver>
+    {% endif %}
 
     <!--Please uncomment this in Multiple Instance Scenario if you want to use NIO Transport Recievers and
  	Remove the current transport REceivers in axis2.xml -->
@@ -237,7 +239,7 @@
         </parameter>
     </transportReceiver-->
 
-
+    {% if axis2_transport.receiver.https.enabled is not defined or axis2_transport.receiver.https.enabled is sameas true %}
     <transportReceiver name="https"
                        class="org.wso2.carbon.core.transports.http.HttpsTransportListener">
         <!--
@@ -252,6 +254,7 @@
         -->
         <!--<parameter name="proxyPort">443</parameter>-->
     </transportReceiver>
+    {% endif %}
 
     <!--
        Uncomment the following segment to enable TCP transport.
@@ -355,6 +358,7 @@
                      class="org.wso2.carbon.core.transports.local.CarbonLocalTransportSender"/>
     <!--<transportSender name="jms"
                      class="org.apache.axis2.transport.jms.JMSSender"/>-->
+    {% if axis2_transport.sender.http.enabled is not defined or axis2_transport.sender.http.enabled is sameas true %}
     <transportSender name="http"
                      class="org.apache.axis2.transport.http.CommonsHTTPTransportSender">
         <parameter name="PROTOCOL">HTTP/1.1</parameter>
@@ -362,6 +366,8 @@
         <!-- This parameter has been added to overcome problems encounted in SOAP action parameter -->
         <parameter name="OmitSOAP12Action">true</parameter>
     </transportSender>
+    {% endif %}
+    {% if axis2_transport.sender.https.enabled is not defined or axis2_transport.sender.https.enabled is sameas true %}
     <transportSender name="https"
                      class="org.apache.axis2.transport.http.CommonsHTTPTransportSender">
         <parameter name="PROTOCOL">HTTP/1.1</parameter>
@@ -369,6 +375,7 @@
         <!-- This parameter has been added to overcome problems encounted in SOAP action parameter -->
         <parameter name="OmitSOAP12Action">true</parameter>
     </transportSender>
+    {% endif %}
 
     <!-- To enable mail transport sender, ncomment the following and change the parameters
          accordingly-->
