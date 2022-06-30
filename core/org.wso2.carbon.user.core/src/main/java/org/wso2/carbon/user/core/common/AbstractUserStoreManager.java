@@ -2332,8 +2332,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     private void handleCursorGetUserListFailure(String errorCode, String errorMassage, Condition condition,
-            String domain, String profileName, int limit, String cursor, String direction, String sortBy,
-            String sortOrder) throws UserStoreException {
+            String domain, String profileName, int limit, String cursor,
+            UserCoreConstants.PaginationDirection direction, String sortBy, String sortOrder)
+            throws UserStoreException {
 
         for (UserManagementErrorEventListener listener : UMListenerServiceComponent
                 .getUserManagementErrorEventListeners()) {
@@ -2346,8 +2347,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     private void handleGetUserListFailureWithID(String errorCode, String errorMassage, Condition condition,
-            String domain, String profileName, int limit, Integer offset, String cursor, String direction,
-                                                String sortBy, String sortOrder)
+            String domain, String profileName, int limit, Integer offset, String cursor,
+            UserCoreConstants.PaginationDirection direction, String sortBy, String sortOrder)
             throws UserStoreException {
 
         for (UserManagementErrorEventListener listener : UMListenerServiceComponent
@@ -2630,8 +2631,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     private void handlePostGetUserListWithID(Condition condition, String domain, String profileName, int limit,
-                 Integer offset, String cursor, String direction, String sortBy, String sortOrder, List<User> users,
-                 boolean isAuditLogOnly)
+                 Integer offset, String cursor, UserCoreConstants.PaginationDirection direction, String sortBy,
+                 String sortOrder, List<User> users, boolean isAuditLogOnly)
             throws UserStoreException {
 
         try {
@@ -2696,7 +2697,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     private void handlePreGetUserListWithID(Condition condition, String domain, String profileName, int limit,
-            Integer offset, String cursor, String direction, String sortBy, String sortOrder)
+            Integer offset, String cursor, UserCoreConstants.PaginationDirection direction, String sortBy,
+                                            String sortOrder)
             throws UserStoreException {
 
         try {
@@ -10319,7 +10321,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     protected UniqueIDPaginatedSearchResult doGetUserListWithID(Condition condition, String profileName, int limit,
-              Integer offset, String cursor, String direction, String sortBy, String sortOrder)
+              Integer offset, String cursor, UserCoreConstants.PaginationDirection direction, String sortBy,
+                                                                String sortOrder)
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -15572,7 +15575,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // This method will flow down to use offset pagination, so the cursor and direction will be null.
         String cursor = null;
-        String direction = null;
+        UserCoreConstants.PaginationDirection direction = null;
 
         validateCondition(condition);
         if (StringUtils.isNotEmpty(sortBy) && StringUtils.isNotEmpty(sortOrder)) {
@@ -15728,11 +15731,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     @Override
     public List<User> getUserListWithID(Condition condition, String domain, String profileName, int limit,
-                                        String cursor, String direction, String sortBy, String sortOrder)
+                                        String cursor, String directionStr, String sortBy, String sortOrder)
             throws UserStoreException, NullPointerException {
 
         // This method will flow down to use cursor pagination, so the offset will be null.
         Integer offset = null;
+
+        UserCoreConstants.PaginationDirection direction = UserCoreConstants.PaginationDirection.valueOf(directionStr);
 
         validateCondition(condition);
         if (StringUtils.isNotEmpty(sortBy) && StringUtils.isNotEmpty(sortOrder)) {
@@ -15838,7 +15843,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
                 // For next iteration consider the offset from last fetched size of users.
                 if (!(tempFilteredUsers.size() < limit)) {
-                    if (UserCoreConstants.PREVIOUS.equals(direction)) {
+                    if (UserCoreConstants.PaginationDirection.PREVIOUS == direction) {
                         cursorCounter = tempFilteredUsers.get(0).getPreferredUsername();
                     } else {
                         cursorCounter = tempFilteredUsers.get(tempFilteredUsers.size() - 1).getPreferredUsername();
@@ -15858,7 +15863,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             aggregateUserList = aggregateUserList.stream().distinct().collect(Collectors.toList());
 
             //Intersecting data maybe added in no particular order. Needs to be organized in ASC order of userName.
-            if (UserCoreConstants.PREVIOUS.equals(direction)) {
+            if (UserCoreConstants.PaginationDirection.PREVIOUS == direction) {
                 Collections.sort(aggregateUserList, (user1, user2) ->
                         user1.getUsername().compareTo(user2.getUsername()));
             }
@@ -15902,7 +15907,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     private List<User> getFilteredUsers(Condition condition, String profileName, int limit, Integer offset,
-                       String cursor, String direction, String sortBy, String sortOrder, UserStoreManager secManager)
+                       String cursor, UserCoreConstants.PaginationDirection direction, String sortBy, String sortOrder,
+                       UserStoreManager secManager)
             throws UserStoreException {
 
         List<User> filteredUsers = new ArrayList<>();
@@ -15966,8 +15972,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @throws UserStoreException User store exception.
      */
     private void handlePreGetUserListWithIdentityClaims(Condition condition, String domain, String profileName,
-                                                        int limit, Integer offset, String cursor, String direction,
-                                                        String sortBy, String sortOrder, UserStoreManager secManager,
+                          int limit, Integer offset, String cursor, UserCoreConstants.PaginationDirection direction,
+                          String sortBy, String sortOrder, UserStoreManager secManager,
                                                         List<String> identityClaimFilteredUserNames,
                                                         boolean hasNonIdentityClaimFilters) throws UserStoreException {
 

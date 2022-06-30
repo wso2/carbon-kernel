@@ -20,6 +20,7 @@
 package org.wso2.carbon.user.core.listener;
 
 import org.wso2.carbon.user.api.Permission;
+import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.model.Condition;
@@ -665,7 +666,7 @@ public interface UserOperationEventListener {
      * @throws UserStoreException UserStoreException
      */
     default boolean doPreGetUserList(Condition condition, String domain, String profileName, int limit, String cursor,
-                                     String direction, String sortBy, String sortOrder,
+                                     UserCoreConstants.PaginationDirection direction, String sortBy, String sortOrder,
                                      UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
@@ -760,8 +761,8 @@ public interface UserOperationEventListener {
      * @throws UserStoreException UserStoreException
      */
     default boolean doPostGetUserList(Condition condition, String domain, String profileName, int limit, String cursor,
-                                      String direction, String sortBy, String sortOrder, String[] users,
-                                      UserStoreManager userStoreManager) throws UserStoreException {
+                                      UserCoreConstants.PaginationDirection direction, String sortBy, String sortOrder,
+                                      String[] users, UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
     }
@@ -940,7 +941,7 @@ public interface UserOperationEventListener {
      */
     default boolean doPreGetPaginatedUserList(Condition condition, List<String> userNames, String domain,
                                               UserStoreManager userStoreManager, int limit, String cursor,
-                                              String direction)
+                                              UserCoreConstants.PaginationDirection direction)
             throws UserStoreException {
 
         return true;

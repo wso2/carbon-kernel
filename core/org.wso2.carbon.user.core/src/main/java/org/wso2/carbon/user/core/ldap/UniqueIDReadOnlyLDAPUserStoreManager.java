@@ -1511,22 +1511,22 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
      */
     @Override
     protected UniqueIDPaginatedSearchResult doGetUserListWithID(Condition condition, String profileName, int limit,
-                                                                Integer offset, String cursor, String direction,
-                                                                String sortBy, String sortOrder)
+                                Integer offset, String cursor, UserCoreConstants.PaginationDirection direction,
+                                String sortBy, String sortOrder)
             throws UserStoreException {
 
         UniqueIDPaginatedSearchResult result = new UniqueIDPaginatedSearchResult();
         List<ExpressionCondition> expressionConditions = getExpressionConditions(condition);
         if (cursor != null && (!cursor.equals(""))) {
-            if (UserCoreConstants.NEXT.equals(direction)) {
-                ExpressionCondition cursorCondition = new ExpressionCondition(ExpressionOperation.GT.toString(),
+            ExpressionCondition cursorCondition = null;
+            if (UserCoreConstants.PaginationDirection.NEXT == direction) {
+                cursorCondition = new ExpressionCondition(ExpressionOperation.GT.toString(),
                         ExpressionAttribute.USERNAME.toString(), cursor);
-                expressionConditions.add(cursorCondition);
-            } else if (UserCoreConstants.PREVIOUS.equals(direction)) {
-                ExpressionCondition cursorCondition = new ExpressionCondition(ExpressionOperation.LT.toString(),
+            } else if (UserCoreConstants.PaginationDirection.PREVIOUS == direction) {
+                cursorCondition = new ExpressionCondition(ExpressionOperation.LT.toString(),
                         ExpressionAttribute.USERNAME.toString(), cursor);
-                expressionConditions.add(cursorCondition);
             }
+            expressionConditions.add(cursorCondition);
         }
         LDAPSearchSpecification ldapSearchSpecification = new LDAPSearchSpecification(realmConfig,
                 expressionConditions);
@@ -1545,7 +1545,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
         try {
             if (cursor != null) {
-                if (UserCoreConstants.NEXT.equals(direction)) {
+                if (UserCoreConstants.PaginationDirection.NEXT == direction) {
                     ldapContext.setRequestControls(new Control[] { new PagedResultsControl(pageSize, Control.CRITICAL),
                             new SortControl(userNameAttribute, Control.NONCRITICAL) });
                 } else {
@@ -3097,7 +3097,8 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     }
 
     private List<User> performCursorLDAPSearch(LdapContext ldapContext, LDAPSearchSpecification ldapSearchSpecification,
-                                         int pageSize, List<ExpressionCondition> expressionConditions, String direction)
+                                         int pageSize, List<ExpressionCondition> expressionConditions,
+                                         UserCoreConstants.PaginationDirection direction)
             throws UserStoreException {
 
         boolean isGroupFiltering = ldapSearchSpecification.isGroupFiltering();
@@ -3140,11 +3141,11 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                             break;
                         }
                     }
-                    if (UserCoreConstants.PREVIOUS.equals(direction)) {
+                    if (UserCoreConstants.PaginationDirection.PREVIOUS == direction) {
                         for (int i = tempUsersList.size() - 1; i >= 0; i--) {
                             users.add(tempUsersList.get(i));
                         }
-                    } else if (UserCoreConstants.NEXT.equals(direction)) {
+                    } else if (UserCoreConstants.PaginationDirection.NEXT == direction) {
                         for (int i = 0; i < tempUsersList.size(); i++) {
                             users.add(tempUsersList.get(i));
                         }

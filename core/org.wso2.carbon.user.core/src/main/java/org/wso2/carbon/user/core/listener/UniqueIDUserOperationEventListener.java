@@ -19,6 +19,7 @@
 package org.wso2.carbon.user.core.listener;
 
 import org.wso2.carbon.user.api.Permission;
+import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
@@ -166,7 +167,8 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
      * @throws UserStoreException User Store Exception.
      */
     boolean doPreGetUserListWithID(Condition condition, String domain, String profileName, int limit, String cursor,
-                                   String direction, String sortBy, String sortOrder, UserStoreManager userStoreManager)
+                                   UserCoreConstants.PaginationDirection direction, String sortBy, String sortOrder,
+                                   UserStoreManager userStoreManager)
             throws UserStoreException;
 
     /**
@@ -246,8 +248,8 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
      * @throws UserStoreException UserStoreException
      */
     boolean doPostGetUserListWithID(Condition condition, String domain, String profileName, int limit, String cursor,
-                                    String direction, String sortBy, String sortOrder, List<User> users,
-                                    UserStoreManager userStoreManager)
+                                    UserCoreConstants.PaginationDirection direction, String sortBy, String sortOrder,
+                                    List<User> users, UserStoreManager userStoreManager)
             throws UserStoreException;
 
     /**

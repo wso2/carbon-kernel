@@ -3263,7 +3263,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     @Override
     protected UniqueIDPaginatedSearchResult doGetUserListWithID(Condition condition, String profileName, int limit,
-            Integer offset, String cursor, String direction, String sortBy, String sortOrder)
+            Integer offset, String cursor, UserCoreConstants.PaginationDirection direction, String sortBy,
+                                                                String sortOrder)
             throws UserStoreException {
 
         boolean isGroupFiltering = false;
@@ -3427,8 +3428,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     protected SqlBuilder getQueryString(boolean isGroupFiltering, boolean isUsernameFiltering,
                          boolean isClaimFiltering, List<ExpressionCondition> expressionConditions, int limit,
-                         Integer offset, String cursor, String direction, String sortBy, String sortOrder,
-                         String profileName, String dbType, int totalMultiGroupFilters, int totalMultiClaimFilters)
+                         Integer offset, String cursor, UserCoreConstants.PaginationDirection direction, String sortBy,
+                         String sortOrder, String profileName, String dbType, int totalMultiGroupFilters,
+                         int totalMultiClaimFilters)
             throws UserStoreException {
 
         StringBuilder sqlStatement;
@@ -3441,7 +3443,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         if (isGroupFiltering && isUsernameFiltering && isClaimFiltering || isGroupFiltering && isClaimFiltering) {
 
             if (DB2.equals(dbType)) {
-                if (Objects.equals(UserCoreConstants.PREVIOUS, direction)) {
+                if (UserCoreConstants.PaginationDirection.PREVIOUS == direction) {
                     sqlStatement = new StringBuilder("SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT "
                             + "ROW_NUMBER() OVER (ORDER BY UM_USER_NAME DESC) AS rn, UM_USER_ID, UM_USER_NAME FROM "
                             + "(SELECT DISTINCT U.UM_USER_ID, UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR "
@@ -3461,7 +3463,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                                 "UM_USER U ON UR.UM_USER_ID = U.UM_ID INNER JOIN " +
                                 "UM_USER_ATTRIBUTE UA ON  U.UM_ID = UA.UM_USER_ID");
             } else if (MSSQL.equals(dbType)) {
-                    if (Objects.equals(UserCoreConstants.PREVIOUS, direction)) {
+                if (UserCoreConstants.PaginationDirection.PREVIOUS == direction) {
                         sqlStatement = new StringBuilder(
                                 "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, ROW_NUMBER() "
                                         + "OVER (ORDER BY UM_USER_NAME DESC) AS RowNum FROM (SELECT DISTINCT "
@@ -3499,7 +3501,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     .where("UA.UM_TENANT_ID = ?", tenantId).where("UA.UM_PROFILE_ID = ?", profileName);
         } else if (isGroupFiltering && isUsernameFiltering || isGroupFiltering) {
             if (DB2.equals(dbType)) {
-                if (Objects.equals(UserCoreConstants.PREVIOUS, direction)) {
+                if (UserCoreConstants.PaginationDirection.PREVIOUS == direction) {
                     sqlStatement = new StringBuilder(
                             "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
                                     + "UM_USER_NAME DESC) AS rn, UM_USER_ID, UM_USER_NAME FROM "
@@ -3520,7 +3522,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                                 "UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN " +
                                 "UM_USER U ON UR.UM_USER_ID = U.UM_ID");
             } else if (MSSQL.equals(dbType)) {
-                    if (Objects.equals(UserCoreConstants.PREVIOUS, direction)) {
+                if (UserCoreConstants.PaginationDirection.PREVIOUS == direction) {
                         sqlStatement = new StringBuilder(
                                 "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, "
                                         + "ROW_NUMBER() OVER (ORDER BY UM_USER_NAME DESC) AS RowNum FROM "
@@ -3569,7 +3571,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                                     + "INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
                 }
             } else if (MSSQL.equals(dbType)) {
-                if (Objects.equals(UserCoreConstants.PREVIOUS, direction)) {
+                if (UserCoreConstants.PaginationDirection.PREVIOUS == direction) {
                     sqlStatement = new StringBuilder(
                             "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, "
                                     + "ROW_NUMBER() OVER (ORDER BY UM_USER_NAME DESC) AS RowNum FROM "
@@ -3596,7 +3598,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     .where("UA.UM_TENANT_ID = ?", tenantId).where("UA.UM_PROFILE_ID = ?", profileName);
         } else if (isUsernameFiltering) {
             if (DB2.equals(dbType)) {
-                if (Objects.equals(UserCoreConstants.PREVIOUS, direction)) {
+                if (UserCoreConstants.PaginationDirection.PREVIOUS == direction) {
                     sqlStatement = new StringBuilder(
                             "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
                                     + "UM_USER_NAME DESC) AS rn, UM_USER_ID, UM_USER_NAME FROM (SELECT DISTINCT "
@@ -3608,7 +3610,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                                     + "UM_USER_ID, UM_USER_NAME FROM UM_USER U");
                 }
             } else if (MSSQL.equals(dbType)) {
-                    if (Objects.equals(UserCoreConstants.PREVIOUS, direction)) {
+                if (UserCoreConstants.PaginationDirection.PREVIOUS == direction) {
                         sqlStatement = new StringBuilder(
                                 "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, "
                                         + "ROW_NUMBER() OVER (ORDER BY UM_USER_NAME DESC) AS RowNum FROM "
@@ -3687,16 +3689,16 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
         }
 
-        if (cursor != null && Objects.equals(UserCoreConstants.PREVIOUS, direction)) {
+        if (cursor != null && UserCoreConstants.PaginationDirection.PREVIOUS == direction) {
             if (!(MSSQL.equals(dbType) || DB2.equals(dbType))) {
                 sqlBuilder.prependSql("WITH this_set AS(");
             }
         }
 
         if (cursor != null) {
-            if (UserCoreConstants.PREVIOUS.equals(direction)) {
+            if (UserCoreConstants.PaginationDirection.PREVIOUS == direction) {
                 sqlBuilder.where("U.UM_USER_NAME < ?", cursor);
-            } else if (UserCoreConstants.NEXT.equals(direction)) {
+            } else if (UserCoreConstants.PaginationDirection.NEXT == direction) {
                 if (!(ORACLE.equals(dbType) && StringUtils.isEmpty(cursor))) {
                     sqlBuilder.where("U.UM_USER_NAME > ?", cursor);
                 }

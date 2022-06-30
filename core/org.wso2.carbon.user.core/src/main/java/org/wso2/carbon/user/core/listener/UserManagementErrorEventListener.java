@@ -20,6 +20,7 @@
 package org.wso2.carbon.user.core.listener;
 
 import org.wso2.carbon.user.api.Permission;
+import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
@@ -365,8 +366,8 @@ public interface UserManagementErrorEventListener {
      * @throws UserStoreException UserStoreException
      */
     default boolean onGetUserListFailure(String errorCode, String errorMassage, Condition condition, String domain,
-                                         String profileName, int limit, String cursor, String direction, String sortBy,
-                                         String sortOrder, UserStoreManager userStoreManager)
+                    String profileName, int limit, String cursor, UserCoreConstants.PaginationDirection direction,
+                    String sortBy, String sortOrder, UserStoreManager userStoreManager)
             throws UserStoreException {
 
         return true;
