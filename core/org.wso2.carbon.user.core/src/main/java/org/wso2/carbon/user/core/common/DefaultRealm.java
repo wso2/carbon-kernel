@@ -253,10 +253,8 @@ public class DefaultRealm implements UserRealm {
 
             while (tmpRealmConfig != null) {
 
-                if (tmpRealmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.USER_STORE_DISABLED) != null) {
-                    isDisabled = Boolean.parseBoolean(
-                            tmpRealmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.USER_STORE_DISABLED));
-                }
+                isDisabled = Boolean.parseBoolean(
+                        tmpRealmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.USER_STORE_DISABLED));
                 domainName = tmpRealmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
                 value = tmpRealmConfig.getUserStoreClass();
                 if (value == null) {
