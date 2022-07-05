@@ -1192,4 +1192,98 @@ public class HybridRoleManager {
                 .getMessage(), roleName);
         throw new UserStoreException(errorCode + " - " + errorMessage, errorCode, null);
     }
+
+    /**
+     * Check whether the group exists in hybrid group-role mapper.
+     *
+     * @param groupName        The group name.
+     * @throws UserStoreException An unexpected exception has occurred.
+     */
+    public boolean isExistingHybridGroup(String groupName) throws UserStoreException {
+
+        Connection dbConnection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        boolean isExisting = false;
+
+        try {
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
+            prepStmt = dbConnection.prepareStatement(HybridJDBCConstants.GET_HYBRID_GROUP_ID);
+            prepStmt.setString(1, groupName);
+            prepStmt.setInt(2, tenantId);
+            rs = prepStmt.executeQuery();
+            if (rs.next()) {
+                int value = rs.getInt(1);
+                if (value > -1) {
+                    isExisting = true;
+                }
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Is group: " + groupName + " existing: " + isExisting + " TenantId: " + tenantId);
+            }
+            return !isExisting;
+        } catch (SQLException e) {
+            String errorMessage = "Error occurred while checking the existence of the group : " + groupName +
+                    "in hybrid group-role mapper";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+        }
+    }
+
+    /**
+     * Update group name in the hybrid group-role mapper.
+     *
+     * @param groupName        The current group name.
+     * @param newGroupName     The new group name.
+     * @throws UserStoreException An unexpected exception has occurred.
+     */
+    public void updateHybridGroupName(String groupName, String newGroupName) throws UserStoreException {
+
+        if (this.isExistingHybridGroup(groupName)) {
+            return;
+        }
+
+        Connection dbConnection = null;
+        try {
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
+            DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.UPDATE_HYBRID_GROUP_NAME_SQL,
+                    newGroupName, groupName, tenantId);
+            dbConnection.commit();
+        } catch (SQLException e) {
+            String errorMessage = "Error occurred while updating hybrid group name : " + groupName +
+                    " to new group name: " + newGroupName;
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection);
+        }
+    }
+
+    /**
+     * Delete group from the hybrid group-role mapper.
+     *
+     * @param groupName        The group name.
+     * @throws UserStoreException An unexpected exception has occurred.
+     */
+    public void deleteHybridGroup(String groupName) throws UserStoreException {
+
+        if (this.isExistingHybridGroup(groupName)) {
+            return;
+        }
+
+        Connection dbConnection = null;
+        try {
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
+            DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.DELETE_GROUP_SQL, groupName, tenantId);
+            dbConnection.commit();
+        } catch (SQLException e) {
+            String errorMessage = "Error occurred while deleting the group : " + groupName;
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection);
+        }
+    }
 }
