@@ -17897,25 +17897,25 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
-     * Update group name in the hybrid group-role mapper.
+     * Update group name in the UM_HYBRID_GROUP_ROLE table.
      *
      * @param groupName        The current group name.
      * @param newGroupName     The new group name.
      * @throws UserStoreException An unexpected exception has occurred.
      */
-    public void updateHybridGroupName(String groupName, String newGroupName) throws UserStoreException {
+    public void updateGroupName(String groupName, String newGroupName) throws UserStoreException {
 
-        hybridRoleManager.updateHybridGroupName(groupName, newGroupName);
+        hybridRoleManager.updateGroupName(groupName, newGroupName);
     }
 
     /**
-     * Delete group from the hybrid group-role mapper.
+     * Delete group from the UM_HYBRID_GROUP_ROLE table.
      *
      * @param groupName        The group name.
      * @throws UserStoreException An unexpected exception has occurred.
      */
-    public void deleteHybridGroup(String groupName) throws UserStoreException {
+    public void removeGroupByNameFromRoleMapping(String groupName) throws UserStoreException {
 
-        hybridRoleManager.deleteHybridGroup(groupName);
+        hybridRoleManager.removeGroupByNameFromRoleMapping(groupName);
     }
 }
