@@ -3628,12 +3628,13 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 }
             } else if (ORACLE.equals(dbType)) {
                 if (isClaimFiltering && !isGroupFiltering && totalMultiClaimFilters > 1) {
-                    String brackets = ")";
+                    StringBuilder brackets = new StringBuilder(")");
                     for (int x = 2; x <= (totalMultiClaimFilters * 2) - 2; x++) {
-                        brackets = brackets + " )";
+                        brackets = brackets.append(" )");
                     }
                     // Handle multi attribute filtering without group filtering.
-                    sqlBuilder.setTail(brackets + "ORDER BY UM_USER_NAME ) where rownum <= ?) WHERE  rnum > ?", limit, offset);
+                    sqlBuilder.setTail(brackets.toString()
+                            .concat("ORDER BY UM_USER_NAME ) where rownum <= ?) WHERE  rnum > ?"), limit, offset);
                 } else {
                     sqlBuilder.setTail(" ORDER BY UM_USER_NAME) where rownum <= ?) WHERE  rnum > ?", limit, offset);
                 }
