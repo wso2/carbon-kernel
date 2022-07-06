@@ -18,6 +18,7 @@ package org.wso2.carbon.ndatasource.core.utils;
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.impl.Constants;
@@ -48,6 +49,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.List;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -64,6 +66,8 @@ public class DataSourceUtils {
 	private static SecretResolver secretResolver;
     private static final String XML_DECLARATION = "xml-declaration";
 	private static final int ENTITY_EXPANSION_LIMIT = 0;
+	private static final String SECRET_PROPERTY_PLACEHOLDER_PREFIX = "$secret{";
+	private static final String PLACEHOLDER_SUFFIX = "}";
 	private static final DocumentBuilderFactory dbf;
 
 	static {
@@ -224,16 +228,17 @@ public class DataSourceUtils {
 			throws CryptoException {
 
 		if (checkSecureVault) {
-			String alias = MiscellaneousUtil.getProtectedToken(element.getText());
-			if (alias != null && !alias.isEmpty()) {
-				element.setText(loadFromSecureVault(alias));
-			} else {
+			List<MiscellaneousUtil.ProtectedToken> aliases = MiscellaneousUtil.extractProtectedTokens(
+					element.getText());
+			if (aliases.isEmpty()) {
 				OMAttribute secureAttr = element.getAttribute(new QName(DataSourceConstants.SECURE_VAULT_NS,
 						DataSourceConstants.SECRET_ALIAS_ATTR_NAME));
 				if (secureAttr != null) {
 					element.setText(loadFromSecureVault(secureAttr.getAttributeValue()));
 					element.removeAttribute(secureAttr);
 				}
+			} else {
+				resolveSecretsInOMElement(element, aliases);
 			}
 		} else {
 			String encryptedStr = element.getAttributeValue(new QName(DataSourceConstants.ENCRYPTED_ATTR_NAME));
@@ -373,4 +378,16 @@ public class DataSourceUtils {
 		}
 		return element;
     }
+
+	private static void resolveSecretsInOMElement(OMElement element,
+			List<MiscellaneousUtil.ProtectedToken> secretAliases) {
+
+		String value = element.getText();
+		for (MiscellaneousUtil.ProtectedToken alias : secretAliases) {
+			value = StringUtils.replace(value,
+					SECRET_PROPERTY_PLACEHOLDER_PREFIX + alias.getValue() + PLACEHOLDER_SUFFIX,
+					loadFromSecureVault(alias.getValue()));
+		}
+		element.setText(value);
+	}
 }
