@@ -98,4 +98,20 @@ public class KeyStoreAdminServiceImpl extends AbstractAdmin implements KeyStoreA
 
     }
 
+    /**
+     *
+     * @param keyStoreName  Keystore name.
+     * @param pageNumber    Page number.
+     * @param filterString  Filter text.
+     * @return Paginated keystore data with certificates.
+     * @throws SecurityConfigException
+     */
+    public PaginatedKeyStoreData getFilteredPaginatedKeystoreInfo(String keyStoreName, int pageNumber,
+                                                                  String filterString) throws SecurityConfigException {
+
+        KeyStoreAdmin admin = new KeyStoreAdmin(CarbonContext.getThreadLocalCarbonContext().getTenantId(),
+                getGovernanceSystemRegistry());
+        return admin.getFilteredPaginatedKeystoreInfo(keyStoreName, pageNumber, filterString);
+    }
+
 }
