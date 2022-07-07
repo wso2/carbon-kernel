@@ -28,12 +28,13 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.logging.correlation.CorrelationLogConfigurator;
 import org.wso2.carbon.logging.correlation.CorrelationLogConfigurable;
+import org.wso2.carbon.logging.correlation.CorrelationLogConfigurator;
 import org.wso2.carbon.logging.correlation.bean.CorrelationLogComponentConfig;
-import org.wso2.carbon.logging.correlation.bean.ImmutableCorrelationLogConfig;
 import org.wso2.carbon.logging.correlation.bean.CorrelationLogConfig;
+import org.wso2.carbon.logging.correlation.bean.ImmutableCorrelationLogConfig;
 import org.wso2.carbon.logging.correlation.utils.CorrelationLogConstants;
+import org.wso2.carbon.logging.correlation.utils.CorrelationLogHolder;
 import org.wso2.carbon.logging.correlation.utils.CorrelationLogUtil;
 
 /**
@@ -47,6 +48,7 @@ public class CorrelationLogManager implements CorrelationLogConfigurator {
     private static Log log = LogFactory.getLog(CorrelationLogManager.class);
 
     private CorrelationLogConfig config;
+    private boolean systemEnableCorrelationLogs;
 
     public CorrelationLogManager() {
         // Load root configurations from the carbon.xml file.
@@ -80,11 +82,13 @@ public class CorrelationLogManager implements CorrelationLogConfigurator {
                 .put(service.getName(), loadComponentSpecificConfigs(service.getName()));
         // Create an immutable configuration object and send it to the service.
         service.onConfigure(getComponentSpecificConfiguration(service.getName()));
+        CorrelationLogHolder.getInstance().addCorrelationLogConfigurableService(service);
     }
 
     protected void unsetCorrelationLogService(CorrelationLogConfigurable service) {
         // Remove configuration of the service.
         config.getComponentConfigs().remove(service.getName());
+        CorrelationLogHolder.getInstance().removeCorrelationLogConfigurableService(service.getName());
     }
 
     /**
@@ -123,7 +127,19 @@ public class CorrelationLogManager implements CorrelationLogConfigurator {
         String[] deniedThreads = deniedThreadsList != null ?
                 CorrelationLogUtil.toArray(deniedThreadsList) : CorrelationLogConstants.DEFAULT_DENIED_THREADS;
 
-        log.debug("Correlation log configurations are loaded from the carbon.xml file.");
+        boolean systemEnable = Boolean.parseBoolean(
+                System.getProperty(CorrelationLogConstants.CORRELATION_LOGS_SYS_PROPERTY));
+        if (systemEnable) {
+            enable = true;
+            systemEnableCorrelationLogs = true;
+            String systemDeniedThreads = System.getProperty(CorrelationLogConstants.DENIED_THREADS_SYS_PROPERTY);
+            deniedThreads = (systemDeniedThreads != null) ?
+                    CorrelationLogUtil.toArray(systemDeniedThreads) : CorrelationLogConstants.DEFAULT_DENIED_THREADS;
+            log.debug("Correlation log configuration enabled from the System parameter");
+            CorrelationLogHolder.getInstance().setSystemEnabledCorrelationLogs(true);
+        } else {
+            log.debug("Correlation log configurations are loaded from the carbon.xml file.");
+        }
         return new CorrelationLogConfig(enable, components, deniedThreads);
     }
 
@@ -148,7 +164,8 @@ public class CorrelationLogManager implements CorrelationLogConfigurator {
     private ImmutableCorrelationLogConfig getComponentSpecificConfiguration(String componentName) {
         // Build component specific immutable configuration object
         return new ImmutableCorrelationLogConfig(
-                config.isEnable() && CorrelationLogUtil.isComponentAllowed(componentName, config.getComponents()),
+                systemEnableCorrelationLogs || (config.isEnable() &&
+                        CorrelationLogUtil.isComponentAllowed(componentName, config.getComponents())),
                 config.getDeniedThreads(),
                 config.getComponentConfigs().get(componentName).isLogAllMethods());
     }
