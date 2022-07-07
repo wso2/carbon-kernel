@@ -35,6 +35,12 @@ public class JDBCConfigurableCorrelationLogService implements CorrelationLogConf
     }
 
     @Override
+    public ImmutableCorrelationLogConfig getConfiguration() {
+        return new ImmutableCorrelationLogConfig(JDBCCorrelationConfigDataHolder.isEnable(),
+                JDBCCorrelationConfigDataHolder.getDeniedThreads(), false);
+    }
+
+    @Override
     public void onConfigure(ImmutableCorrelationLogConfig config) {
         JDBCCorrelationConfigDataHolder.setEnable(config.isEnable());
         JDBCCorrelationConfigDataHolder.setDeniedThreads(config.getDeniedThreads());

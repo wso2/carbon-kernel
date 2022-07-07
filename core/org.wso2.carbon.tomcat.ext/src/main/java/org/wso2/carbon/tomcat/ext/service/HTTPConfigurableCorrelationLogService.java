@@ -34,6 +34,12 @@ public class HTTPConfigurableCorrelationLogService implements CorrelationLogConf
     }
 
     @Override
+    public ImmutableCorrelationLogConfig getConfiguration() {
+        return new ImmutableCorrelationLogConfig( HTTPCorrelationConfigDataHolder.isEnable(),
+                new String[0], false);
+    }
+
+    @Override
     public void onConfigure(ImmutableCorrelationLogConfig config) {
         HTTPCorrelationConfigDataHolder.setEnable(config.isEnable());
     }
