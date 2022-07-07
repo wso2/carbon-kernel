@@ -144,6 +144,7 @@ public final class CarbonContextDataHolder {
     private String username;
     private String userId;
     private String tenantDomain;
+    private String organizationId;
     private String applicationName;
 
     private Map<String, Object> properties;
@@ -1345,6 +1346,27 @@ public final class CarbonContextDataHolder {
                 throw new IllegalStateException("Trying to set the domain from " + this.tenantId + " to " + tenantId);
             }
         }
+    }
+
+    /**
+     * Method to obtain the organization id on this CarbonContext instance.
+     *
+     * @return the organization id.
+     */
+    public String getOrganizationId() {
+
+        return organizationId;
+    }
+
+    /**
+     * Method to set the organization id on this CarbonContext instance.
+     *
+     * @param organizationId the organization id.
+     */
+    public void setOrganizationId(String organizationId) {
+
+        CarbonUtils.checkSecurity();
+        this.organizationId = organizationId;
     }
 
     /**
