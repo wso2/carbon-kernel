@@ -35,6 +35,12 @@ public class LDAPConfigurableCorrelationLogService implements CorrelationLogConf
     }
 
     @Override
+    public ImmutableCorrelationLogConfig getConfiguration() {
+        return new ImmutableCorrelationLogConfig( LDAPCorrelationConfigDataHolder.isEnable(),
+                new String[0], false);
+    }
+
+    @Override
     public void onConfigure(ImmutableCorrelationLogConfig config) {
         LDAPCorrelationConfigDataHolder.setEnable(config.isEnable());
     }
