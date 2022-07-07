@@ -3508,7 +3508,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             if (DB2.equals(dbType)) {
                 sqlStatement = new StringBuilder(
                         "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
-                                + "UM_USER_NAME) AS rn, p* FROM (SELECT DISTINCT U.UM_USER_ID, " +
+                                + "UM_USER_NAME) AS rn, p.* FROM (SELECT DISTINCT U.UM_USER_ID, " +
                                 "U.UM_USER_NAME FROM UM_USER U INNER JOIN UM_USER_ATTRIBUTE UA ON " +
                                 "U.UM_ID = UA.UM_USER_ID");
             } else if (MSSQL.equals(dbType)) {
