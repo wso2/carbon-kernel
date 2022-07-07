@@ -49,6 +49,7 @@ import org.wso2.carbon.user.core.config.TestRealmConfigBuilder;
 import org.wso2.carbon.user.core.model.ExpressionAttribute;
 import org.wso2.carbon.user.core.model.ExpressionCondition;
 import org.wso2.carbon.user.core.model.ExpressionOperation;
+import org.wso2.carbon.user.core.model.OperationalCondition;
 import org.wso2.carbon.user.core.model.UniqueIDUserClaimSearchEntry;
 import org.wso2.carbon.user.core.model.UserClaimSearchEntry;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
@@ -586,6 +587,165 @@ public class UniqueIDJDBCRealmSecondaryUserStoreTest extends BaseTestCase {
                 null, 10, 0, null, null).size());
         assertEquals(0, admin.getUserListWithID(expressionCondition, "SECONDARY",
                 null, 10, 2, null, null).size());
+    }
+
+    public void test194GetUserListWithIDConditionCursor() throws Exception {
+
+        // Current user list: user1WithID, user2, user2WithID, user3, user3WithID, user4WithID
+
+        // userName sw use
+        ExpressionCondition expressionCondition = new ExpressionCondition(ExpressionOperation.SW.toString(),
+                ExpressionAttribute.USERNAME.toString(), "use");
+        ExpressionCondition noConditions = new ExpressionCondition(ExpressionOperation.SW.toString(),
+                ExpressionAttribute.USERNAME.toString(), "");
+
+        //Making a List of expressionConditions for multi-attribute filtering
+        // userName co WithID
+        ExpressionCondition expressionCondition2 = new ExpressionCondition(ExpressionOperation.CO.toString(),
+                ExpressionAttribute.USERNAME.toString(), "WithID");
+        // userName sw use and userName co WithID
+        OperationalCondition multiFiltering =
+                new OperationalCondition("AND", expressionCondition, expressionCondition2);
+
+        // No filtering
+        assertEquals(6, admin.getUserListWithID(noConditions, "SECONDARY", null, 10, "", "NEXT", null, null).size());
+
+        // Single userName filtering initial query (no cursor)
+        assertEquals(6, admin.getUserListWithID(expressionCondition, "SECONDARY", null, 10, "", "NEXT", null, null)
+                .size());
+
+        // Single userName filtering - Forwards cursor pagination
+        assertEquals(3, admin.getUserListWithID(expressionCondition, "SECONDARY", null, 10, "user2WithID", "NEXT",
+                null, null).size());
+
+        // Single userName filtering - Backwards cursor pagination
+        assertEquals(2, admin.getUserListWithID(expressionCondition, "SECONDARY", null, 10, "user2WithID", "PREVIOUS",
+                null, null).size());
+
+        // Multi userName filtering - Forwards cursor pagination
+        assertEquals(4, admin.getUserListWithID(multiFiltering, "SECONDARY", null, 10, "", "NEXT", null, null).size());
+
+        // Multi userName filtering - Backwards cursor pagination
+        assertEquals(1, admin.getUserListWithID(multiFiltering, "SECONDARY", null, 10, "user2WithID", "PREVIOUS",
+                null, null).size());
+
+        // Setup for claim filtering
+        Map<String, String> claims = new HashMap<>();
+        claims.put(ClaimTestUtil.CLAIM_URI1, "Alucard");
+        claims.put(ClaimTestUtil.CLAIM_URI6, "Tepes, Alucard");
+        admin.addUser("SECONDARY/Alucard", "pass100", null, claims, null, false);
+        claims.clear();
+        claims.put(ClaimTestUtil.CLAIM_URI1, "Akira");
+        claims.put(ClaimTestUtil.CLAIM_URI6, "Toriyama, Akira");
+        admin.addUser("SECONDARY/Akira", "pass100", null, claims, null, false);
+        claims.clear();
+        claims.put(ClaimTestUtil.CLAIM_URI1, "Alphonse");
+        claims.put(ClaimTestUtil.CLAIM_URI6, "Elrich, Alphonse");
+        admin.addUser("SECONDARY/Alphonse", "pass100", null, claims, null, false);
+        claims.clear();
+        claims.put(ClaimTestUtil.CLAIM_URI1, "Annie");
+        claims.put(ClaimTestUtil.CLAIM_URI6, "Leonhart, Annie");
+        admin.addUser("SECONDARY/Annie", "pass100", null, claims, null, false);
+
+        // New user list: Akira, Alphonse, Alucard, Annie, user1WithID, user2, user2WithID, user3, user3WithID,
+        // user4WithID
+        // Having claims: Akira, Alphonse, Alucard, Annie
+
+        // givenname sw A
+        ExpressionCondition claimFiltering1 = new ExpressionCondition(
+                ExpressionOperation.SW.toString(), "attr1", "A");
+        // fullname sw T
+        ExpressionCondition claimFiltering2 = new ExpressionCondition(
+                ExpressionOperation.SW.toString(), "fullname", "T");
+        // givenname sw A and fullname sw T
+        OperationalCondition multiClaimFiltering = new OperationalCondition("AND", claimFiltering1, claimFiltering2);
+
+        // Single claim filtering forward cursor pagination
+        assertEquals(4, admin.getUserListWithID(claimFiltering1, "SECONDARY", null, 10, "", "NEXT", null, null).size());
+
+        // Single claim filtering backwards cursor pagination
+        assertEquals(2, admin.getUserListWithID(claimFiltering1, "SECONDARY", null, 10, "Alucard", "PREVIOUS",
+                null, null).size());
+
+        // Multi claim filtering forwards cursor pagination
+        assertEquals(2, admin.getUserListWithID(multiClaimFiltering, "SECONDARY", null, 10, "", "NEXT", null, null)
+                .size());
+
+        // Multi claim filtering backwards cursor pagination
+        assertEquals(1, admin.getUserListWithID(multiClaimFiltering, "SECONDARY", null, 10, "Alucard", "PREVIOUS",
+                null, null).size());
+
+        // Role configuration for group filtering
+
+//        admin.addUser("user1", "pass1", new String[]{"role1"}, null, null, false);
+        admin.addRole("SECONDARY/Manager", new String[]{"SECONDARY/Alucard", "SECONDARY/Akira", "SECONDARY/Alphonse",
+                "SECONDARY/Annie", "SECONDARY/user2", "SECONDARY/user2WithID", "SECONDARY/user3",
+                "SECONDARY/user3WithID"}, null);
+        admin.addRole("SECONDARY/HeadManager", new String[]{"SECONDARY/Alucard", "SECONDARY/Akira",
+                "SECONDARY/Alphonse", "SECONDARY/Annie", "SECONDARY/user2", "SECONDARY/user2WithID",
+                "SECONDARY/user3"}, null);
+        // New role list: admin, Internal/everyone, role1WithID, role3, role4, Manager, HeadManager
+
+        // groups eq Manager
+        ExpressionCondition groupFiltering = new ExpressionCondition(
+                ExpressionOperation.EQ.toString(), ExpressionAttribute.ROLE.toString(), "Manager");
+        // group eq HeadManager
+        ExpressionCondition groupFiltering2 = new ExpressionCondition(
+                ExpressionOperation.EQ.toString(), ExpressionAttribute.ROLE.toString(), "HeadManager");
+        // groups eq Manager and groups eq HeadManager
+        OperationalCondition multiGroupFiltering = new OperationalCondition("AND", groupFiltering, groupFiltering2);
+
+        // Group Filtering forwards cursor pagination
+        assertEquals(3, admin.getUserListWithID(groupFiltering, "SECONDARY", null, 10, "user2", "NEXT", null, null)
+                .size());
+
+        // Group Filtering backwards cursor pagination
+        assertEquals(6, admin.getUserListWithID(groupFiltering, "SECONDARY", null, 10, "user3", "PREVIOUS", null, null)
+                .size());
+
+        // Multi-group filtering forwards cursor pagination
+        assertEquals(2, admin.getUserListWithID(multiGroupFiltering, "SECONDARY", null, 10, "user2", "NEXT", null, null)
+                .size());
+
+        // Multi-group filtering backwards cursor pagination
+        assertEquals(3, admin.getUserListWithID(multiGroupFiltering, "SECONDARY", null, 10, "Annie", "PREVIOUS",
+                null, null).size());
+
+        // groups eq Manager and groups eq HeadManager and userName sw use
+        OperationalCondition groupAndUserNameFilter =
+                new OperationalCondition("AND", multiGroupFiltering, expressionCondition);
+
+        // Multi-group filtering and userName filtering forward cursor pagination
+        assertEquals(3, admin.getUserListWithID(groupAndUserNameFilter, "SECONDARY", null, 10, "", "NEXT", null, null)
+                .size());
+
+        // Multi-group filtering and userName filtering backwards cursor pagination
+        assertEquals(1, admin.getUserListWithID(groupAndUserNameFilter, "SECONDARY", null, 10, "user2WithID",
+                "PREVIOUS", null, null).size());
+
+        // givenname sw A and groups eq Manager
+        OperationalCondition singleClaimAndGroupFilter =
+                new OperationalCondition("AND", claimFiltering1, groupFiltering);
+        // givenname sw A and groups eq Manager and groups eq HeadManager
+        OperationalCondition singleClaimAndMultiGroupFilter =
+                new OperationalCondition("AND", claimFiltering1, multiGroupFiltering);
+        // givenname sw A and fullname sw T and groups eq Manager and groups eq HeadManager
+        OperationalCondition multiGroupAndMultiClaimFilter =
+                new OperationalCondition("AND", multiClaimFiltering, multiGroupFiltering);
+
+        // Having claims + In the manager and HeadManager groups: Akira, Alphonse, Alucard, Annie
+
+        // Single group and claim filtering forward cursor pagination
+        assertEquals(3, admin.getUserListWithID(singleClaimAndGroupFilter, "SECONDARY", null, 10, "Akira", "NEXT",
+                null, null).size());
+
+        // Multi-group filtering and single claim filtering forward cursor pagination
+        assertEquals(4, admin.getUserListWithID(singleClaimAndMultiGroupFilter, "SECONDARY", null, 10, "", "NEXT",
+                null, null).size());
+
+        // Multi-group filtering and multi-claim filtering forward cursor pagination
+        assertEquals(1, admin.getUserListWithID(multiGroupAndMultiClaimFilter, "SECONDARY", null, 10, "Akira", "NEXT",
+                null, null).size());
     }
 
     public void test195GetRoleListOfUserWithID() throws UserStoreException {
