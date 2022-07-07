@@ -161,4 +161,13 @@ public class HybridJDBCConstants {
 
     public static final String COUNT_INTERNAL_ONLY_ROLES_SQL = "SELECT COUNT(UM_ID) AS RESULT FROM UM_HYBRID_ROLE " +
             "WHERE UM_ROLE_NAME NOT LIKE 'Application%' AND UM_ROLE_NAME LIKE ? AND UM_TENANT_ID = ?";
+
+    public static final String GET_GROUP_ROLE_MAPPING_ID = "SELECT UM_ID FROM UM_HYBRID_GROUP_ROLE WHERE UM_GROUP_NAME = ? " +
+            "AND UM_TENANT_ID = ?";
+
+    public static final String UPDATE_GROUP_NAME_SQL = "UPDATE UM_HYBRID_GROUP_ROLE set UM_GROUP_NAME = ? " +
+            "WHERE UM_GROUP_NAME = ? AND UM_TENANT_ID = ?";
+
+    public static final String DELETE_GROUP_SQL = "DELETE FROM UM_HYBRID_GROUP_ROLE WHERE UM_GROUP_NAME = ? " +
+            "AND UM_TENANT_ID = ?";
 }
