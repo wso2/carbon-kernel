@@ -10285,7 +10285,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (secManager instanceof AbstractUserStoreManager) {
                 if (((AbstractUserStoreManager) secManager).isUniqueUserIdEnabled()) {
                     UniqueIDPaginatedSearchResult users = ((AbstractUserStoreManager) secManager).doGetUserListWithID(condition,
-                            profileName, limit, offset, sortBy, sortOrder);
+                            profileName, limit, offset, null, null, sortBy, sortOrder);
                     addUsersToUserIdCache(users.getUsers());
                     addUsersToUserNameCache(users.getUsers());
                     filteredUsers = users.getUsers().stream().map(User::getUsername).toArray(String[]::new);
@@ -10309,15 +10309,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                                   String sortBy, String sortOrder) throws UserStoreException {
 
         return new PaginatedSearchResult();
-    }
-
-    protected UniqueIDPaginatedSearchResult doGetUserListWithID(Condition condition, String profileName, int limit,
-            int offset, String sortBy, String sortOrder) throws UserStoreException {
-
-        if (log.isDebugEnabled()) {
-            log.debug("doGetUserListWithID operation is not implemented in: " + this.getClass());
-        }
-        throw new NotImplementedException("doGetUserListWithID operation is not implemented in: " + this.getClass());
     }
 
     protected UniqueIDPaginatedSearchResult doGetUserListWithID(Condition condition, String profileName, int limit,
@@ -16861,7 +16852,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isUniqueUserIdEnabled()) {
             UniqueIDPaginatedSearchResult users = this.doGetUserListWithID(condition,
                     UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME, resolveUserListLimit(limit), offset,
-                    sortBy, sortOrder);
+                    null, null, sortBy, sortOrder);
             addUsersToUserIdCache(users.getUsers());
             addUsersToUserNameCache(users.getUsers());
             filteredUsers = users.getUsers();
