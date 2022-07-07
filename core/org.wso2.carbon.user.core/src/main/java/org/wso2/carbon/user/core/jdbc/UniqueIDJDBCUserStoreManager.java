@@ -3629,6 +3629,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             } else if (ORACLE.equals(dbType)) {
                 if (isClaimFiltering && !isGroupFiltering && totalMultiClaimFilters > 1) {
                     StringBuilder brackets = new StringBuilder(")");
+                    // x = 2 --> Any Oracle query will begin with 2 opening brackets
+                    // x <= (totalMultiClaimFilters * 2) - 2 --> 2 is deducted as there are 2 closing brackets in the
+                    // setTail section below.
                     for (int x = 2; x <= (totalMultiClaimFilters * 2) - 2; x++) {
                         brackets = brackets.append(" )");
                     }
