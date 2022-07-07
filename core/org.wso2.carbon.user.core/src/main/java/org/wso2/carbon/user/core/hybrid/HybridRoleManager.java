@@ -1199,16 +1199,14 @@ public class HybridRoleManager {
      * @param groupName        The group name.
      * @throws UserStoreException An unexpected exception has occurred.
      */
-    public boolean isExistingGroup(String groupName) throws UserStoreException {
+    public boolean isGroupAssignedToHybridRoles(String groupName) throws UserStoreException {
 
-        Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
-        boolean isExisting = false;
+        boolean isGroupAssignedToHybridRoles = false;
 
-        try {
-            dbConnection = DatabaseUtil.getDBConnection(dataSource);
-            prepStmt = dbConnection.prepareStatement(HybridJDBCConstants.GET_GROUP_ID);
+        try (Connection dbConnection = DatabaseUtil.getDBConnection(dataSource)) {
+            prepStmt = dbConnection.prepareStatement(HybridJDBCConstants.GET_GROUP_ROLE_MAPPING_ID);
             prepStmt.setString(1, groupName);
             prepStmt.setInt(2, tenantId);
             rs = prepStmt.executeQuery();
@@ -1216,19 +1214,17 @@ public class HybridRoleManager {
             if (rs.next()) {
                 int value = rs.getInt(1);
                 if (value > -1) {
-                    isExisting = true;
+                    isGroupAssignedToHybridRoles = true;
                 }
             }
-            return !isExisting;
+            return isGroupAssignedToHybridRoles;
         } catch (SQLException e) {
-            String errorMessage = "Error occurred while checking the existence of the group : " + groupName +
-                    "in hybrid group-role mapper";
+            String errorMessage = "Error occurred while checking the group : " + groupName +
+                    "has assigned hybrid roles.";
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
-        } finally {
-            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
     }
 
@@ -1241,22 +1237,18 @@ public class HybridRoleManager {
      */
     public void updateGroupName(String groupName, String newGroupName) throws UserStoreException {
 
-        if (this.isExistingGroup(groupName)) {
+        if (!this.isGroupAssignedToHybridRoles(groupName)) {
             return;
         }
 
-        Connection dbConnection = null;
-        try {
-            dbConnection = DatabaseUtil.getDBConnection(dataSource);
+        try (Connection dbConnection = DatabaseUtil.getDBConnection(dataSource)) {
             DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.UPDATE_GROUP_NAME_SQL,
                     newGroupName, groupName, tenantId);
             dbConnection.commit();
         } catch (SQLException e) {
-            String errorMessage = "Error occurred while updating hybrid group name : " + groupName +
-                    " to new group name: " + newGroupName;
+            String errorMessage = "Error occurred while updating group name : " + groupName +
+                    " to new group name: " + newGroupName + " in assigned hybrid roles.";
             throw new UserStoreException(errorMessage, e);
-        } finally {
-            DatabaseUtil.closeAllConnections(dbConnection);
         }
     }
 
@@ -1266,22 +1258,18 @@ public class HybridRoleManager {
      * @param groupName        The group name.
      * @throws UserStoreException An unexpected exception has occurred.
      */
-    public void removeGroupByNameFromRoleMapping(String groupName) throws UserStoreException {
+    public void removeGroupRoleMappingByGroupName(String groupName) throws UserStoreException {
 
-        if (this.isExistingGroup(groupName)) {
+        if (!this.isGroupAssignedToHybridRoles(groupName)) {
             return;
         }
 
-        Connection dbConnection = null;
-        try {
-            dbConnection = DatabaseUtil.getDBConnection(dataSource);
+        try (Connection dbConnection = DatabaseUtil.getDBConnection(dataSource)) {
             DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.DELETE_GROUP_SQL, groupName, tenantId);
             dbConnection.commit();
         } catch (SQLException e) {
             String errorMessage = "Error occurred while deleting the group : " + groupName;
             throw new UserStoreException(errorMessage, e);
-        } finally {
-            DatabaseUtil.closeAllConnections(dbConnection);
         }
     }
 }

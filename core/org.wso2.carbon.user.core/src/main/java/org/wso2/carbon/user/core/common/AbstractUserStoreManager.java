@@ -17914,8 +17914,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param groupName        The group name.
      * @throws UserStoreException An unexpected exception has occurred.
      */
-    public void removeGroupByNameFromRoleMapping(String groupName) throws UserStoreException {
+    public void removeGroupRoleMappingByGroupName(String groupName) throws UserStoreException {
 
-        hybridRoleManager.removeGroupByNameFromRoleMapping(groupName);
+        hybridRoleManager.removeGroupRoleMappingByGroupName(groupName);
     }
 }
