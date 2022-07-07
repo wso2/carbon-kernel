@@ -45,6 +45,9 @@
     PaginatedKeyStoreData keyStoreData = (PaginatedKeyStoreData) session.getAttribute(SecurityUIConstants.PAGINATED_KEY_STORE_DATA);
     String keyStore = request.getParameter("keyStore");
     String paginationValue = "keyStore=" + keyStore;
+    if (keyStore == null && keyStoreData != null) {
+        keyStore = keyStoreData.getKeyStoreName();
+    }
     int startingPage = 0;
     if (keyStoreData != null) {
         startingPage = (Integer) session.getAttribute(SecurityUIConstants.STARTING_CERT_DATA_PAGE);
@@ -61,7 +64,10 @@
         pageNumberInt = Integer.parseInt(pageNumber);
     } catch (NumberFormatException ignored) {
     }
-    
+
+    if (filter != null) {
+        keyStoreData = null;
+    }
     if (filter == null || filter.trim().length() == 0) {
         filter = (String) session.getAttribute(SecurityUIConstants.KEYSTORE_CERT_LIST_FILTER);
         if (filter == null || filter.trim().length() == 0) {
@@ -80,28 +86,22 @@
         KeyStoreAdminClient client = new KeyStoreAdminClient(cookie, backendServerURL, configContext);
 
         if (keyStoreData == null || startingPage + SecurityUIConstants.CACHING_PAGE_SIZE < pageNumberInt || pageNumberInt < startingPage) {
-
-
-            keyStoreData = client.getPaginatedKeystoreInfo(keyStore, pageNumberInt);
+            keyStoreData = client.getFilteredPaginatedKeystoreInfo(keyStore, pageNumberInt, filter);
             session.setAttribute(SecurityUIConstants.PAGINATED_KEY_STORE_DATA, keyStoreData);
             session.setAttribute(SecurityUIConstants.STARTING_CERT_DATA_PAGE, pageNumberInt);
             startingPage = pageNumberInt;
 
         }
         paginatedCertData = keyStoreData.getPaginatedCertData();
-
-        if (paginatedCertData != null) {
-            CertData[] filteredCerts = Util.doFilter(filter, paginatedCertData.getCertDataSet());
-            certData = Util.doPaging(pageNumberInt - startingPage, filteredCerts);
-            numberOfPages = (int) Math.ceil((double) filteredCerts.length / SecurityUIConstants.DEFAULT_ITEMS_PER_PAGE);
+        if (paginatedCertData != null && paginatedCertData.getCertDataSet() != null) {
+            certData = Util.doPaging(pageNumberInt - startingPage, paginatedCertData.getCertDataSet());
+            numberOfPages = (int) Math.ceil((double) paginatedCertData.getCertDataSet().length / SecurityUIConstants.DEFAULT_ITEMS_PER_PAGE);
         }
-        paginatedKeyData = keyStoreData.getPaginatedKeyData();
-	
-	    if (paginatedKeyData != null) {
-		    CertData[] filteredCerts = Util.doFilter(filter, paginatedKeyData.getCertDataSet());
-		    keyData = Util.doPaging(pageNumberInt - startingPage, filteredCerts);
-	    }
 
+        paginatedKeyData = keyStoreData.getPaginatedKeyData();
+	    if (paginatedKeyData != null && paginatedKeyData.getCertDataSet() != null) {
+		    keyData = Util.doPaging(pageNumberInt - startingPage, paginatedKeyData.getCertDataSet());
+	    }
 
     } catch (Exception e) {
 
