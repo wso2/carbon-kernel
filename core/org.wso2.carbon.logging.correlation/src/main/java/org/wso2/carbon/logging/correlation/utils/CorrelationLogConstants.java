@@ -28,6 +28,7 @@ public class CorrelationLogConstants {
     public static final String CONFIG_PATH_COMPONENTS = "CorrelationLogs.components";
     public static final String CONFIG_PATH_DENIED_THREADS = "CorrelationLogs.deniedThreads";
     public static final String CONFIG_PATH_COMPONENT_CONFIGS = "CorrelationLogs.componentConfigs";
+    public static final String CORRELATION_LOGS_SYS_PROPERTY = "enableCorrelationLogs";
 
     // Defaults
     public static final String[] DEFAULT_DENIED_THREADS = {
@@ -35,5 +36,13 @@ public class CorrelationLogConstants {
             "HumanTaskServer" ,
             "BPELServer",
             "CarbonDeploymentSchedulerThread"
+    };
+
+    public static final String[] DEFAULT_COMPONENTS = {
+            "http",
+            "ldap" ,
+            "jdbc",
+            "synapse",
+            "method-calls"
     };
 }

@@ -113,6 +113,8 @@ public class CorrelationLogManager implements CorrelationLogConfigurator {
      *
      * @return
      */
+
+
     private CorrelationLogConfig loadRootConfigurations() {
         boolean enable = Boolean.parseBoolean(
                 ServerConfiguration.getInstance().getFirstProperty(CorrelationLogConstants.CONFIG_PATH_ENABLE));
@@ -123,7 +125,17 @@ public class CorrelationLogManager implements CorrelationLogConfigurator {
         String[] deniedThreads = deniedThreadsList != null ?
                 CorrelationLogUtil.toArray(deniedThreadsList) : CorrelationLogConstants.DEFAULT_DENIED_THREADS;
 
-        log.debug("Correlation log configurations are loaded from the carbon.xml file.");
+        boolean systemEnable = Boolean.parseBoolean(
+                System.getProperty(CorrelationLogConstants.CORRELATION_LOGS_SYS_PROPERTY));
+        if (systemEnable) {
+            enable = true;
+            components = CorrelationLogConstants.DEFAULT_COMPONENTS;
+            deniedThreads = CorrelationLogConstants.DEFAULT_DENIED_THREADS;
+            log.debug("Correlation log configuration enabled from the System parameter");
+        } else {
+            log.debug("Correlation log configurations are loaded from the carbon.xml file.");
+        }
+
         return new CorrelationLogConfig(enable, components, deniedThreads);
     }
 
