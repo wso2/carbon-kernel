@@ -3629,11 +3629,14 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             } else if (ORACLE.equals(dbType)) {
                 if (isClaimFiltering && !isGroupFiltering && totalMultiClaimFilters > 1) {
                     StringBuilder brackets = new StringBuilder(")");
-                    // x = 2 --> Any Oracle query will begin with 2 opening brackets
-                    // x <= (totalMultiClaimFilters * 2) - 2 --> totalMultiClaims are multiplied by 2 as 2 new opening
-                    // brackets are created for every new claim.
-                    // 2 is deducted as there are 2 closing brackets in the setTail section below.
-                    for (int x = 2; x <= (totalMultiClaimFilters * 2) - 2; x++) {
+                    /*
+                     * x is used to count the number of brackets
+                     * (totalMultiClaimFilters * 2) --> totalMultiClaims are multiplied by 2 as 2 new opening
+                     * brackets are created for every new claim, which needs to be closed at the right position.
+                     * (totalMultiClaimFilters * 2) - 4 is deducted as there are 2 opening brackets in the SQL query
+                     *  and 2 closing brackets in the setTail section below.
+                     */
+                    for (int x = 0; x <= (totalMultiClaimFilters * 2) - 4; x++) {
                         brackets = brackets.append(" )");
                     }
                     // Handle multi attribute filtering without group filtering.
