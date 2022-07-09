@@ -3633,7 +3633,24 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     sqlBuilder.setTail(") AS R) AS P WHERE P.RowNum BETWEEN ? AND ?", limit, offset);
                 }
             } else if (ORACLE.equals(dbType)) {
-                sqlBuilder.setTail(" ORDER BY UM_USER_NAME) where rownum <= ?) WHERE  rnum > ?", limit, offset);
+                if (isClaimFiltering && !isGroupFiltering && totalMultiClaimFilters > 1) {
+                    StringBuilder brackets = new StringBuilder(")");
+                    /*
+                     * x is used to count the number of brackets
+                     * (totalMultiClaimFilters * 2) --> totalMultiClaims are multiplied by 2 as 2 new opening
+                     * brackets are created for every new claim, which needs to be closed at the right position.
+                     * (totalMultiClaimFilters * 2) - 4 is deducted as there are 2 opening brackets in the SQL query
+                     *  and 2 closing brackets in the setTail section below.
+                     */
+                    for (int x = 0; x <= (totalMultiClaimFilters * 2) - 4; x++) {
+                        brackets = brackets.append(" )");
+                    }
+                    // Handle multi attribute filtering without group filtering.
+                    sqlBuilder.setTail(brackets.toString()
+                            .concat("ORDER BY UM_USER_NAME ) where rownum <= ?) WHERE  rnum > ?"), limit, offset);
+                } else {
+                    sqlBuilder.setTail(" ORDER BY UM_USER_NAME) where rownum <= ?) WHERE  rnum > ?", limit, offset);
+                }
             } else {
                 sqlBuilder.setTail(" ORDER BY UM_USER_NAME ASC LIMIT ? OFFSET ?", limit, offset);
             }
