@@ -84,7 +84,7 @@ public class ActiveDirectoryUserStoreConstants {
                 "(&(objectClass=user)(cn=?))", UserStoreConfigConstants.usernameSearchFilterDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
 
-        setMandatoryProperty(UserStoreConfigConstants.usernameListFilter, "User List Filter", "(objectClass=user)",
+        setMandatoryProperty(UserStoreConfigConstants.usernameListFilter, "User List Filter", "(objectClass=person)",
                 UserStoreConfigConstants.usernameListFilterDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
 
@@ -220,7 +220,7 @@ public class ActiveDirectoryUserStoreConstants {
                 UserStoreConfigConstants.userIdAttributeDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdSearchFilter,
-                UserStoreConfigConstants.userIdSearchFilterAttributeName, "(&(objectClass=user)(objectGuid=?))",
+                UserStoreConfigConstants.userIdSearchFilterAttributeName, "(&(objectClass=person)(objectGuid=?))",
                 UserStoreConfigConstants.userIdSearchFilterDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setProperty(UserStoreConfigConstants.dateAndTimePattern, UserStoreConfigConstants.dateAndTimePatternDisplayName,
