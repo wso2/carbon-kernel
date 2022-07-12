@@ -16701,7 +16701,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             Object object = callSecure("isGroupExist", new Object[]{groupID}, argTypes);
             return (boolean) object;
         }
-        return StringUtils.isNotBlank(getGroupNameByGroupId(groupID));
+        try {
+            return StringUtils.isNotBlank(getGroupNameByGroupId(groupID));
+        } catch (UserStoreClientException e) {
+            return false;
+        }
     }
 
     @Override
