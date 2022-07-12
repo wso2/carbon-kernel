@@ -16704,7 +16704,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         try {
             return StringUtils.isNotBlank(getGroupNameByGroupId(groupID));
         } catch (UserStoreClientException e) {
-            return false;
+            if (StringUtils.equals(ERROR_NO_GROUP_FOUND_WITH_ID.getCode(), e.getErrorCode())) {
+                return false;
+            } else {
+                throw e;
+            }
         }
     }
 
