@@ -1042,6 +1042,12 @@
                 <artifactId>swagger-jaxrs</artifactId>
                 <version>${io.swagger.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.wso2.carbon.identity.organization.management</groupId>
+                <artifactId>org.wso2.carbon.identity.organization.management.service</artifactId>
+                <version>${org.wso2.carbon.identity.organization.management.version}</version>
+            </dependency>
             <!--Components Dependencies Ends-->
 
             <!--Composite Feature Dependency-->
@@ -1753,6 +1759,11 @@
         <identity.framework.version>${project.version}</identity.framework.version>
         <carbon.identity.package.export.version>${project.version}</carbon.identity.package.export.version>
         <carbon.identity.package.import.version.range>[5.14.0, 6.0.0)</carbon.identity.package.import.version.range>
+
+        <org.wso2.carbon.identity.organization.management.version>1.0.47
+        </org.wso2.carbon.identity.organization.management.version>
+        <org.wso2.carbon.identity.organization.management.version.range>[1.0.0, 2.0.0)
+        </org.wso2.carbon.identity.organization.management.version.range>
 
         <!--Carbon registry version-->
         <org.wso2.carbon.registry.version>4.7.20</org.wso2.carbon.registry.version>
