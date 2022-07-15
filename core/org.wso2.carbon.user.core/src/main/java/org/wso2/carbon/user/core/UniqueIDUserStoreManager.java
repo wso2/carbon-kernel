@@ -26,6 +26,7 @@ import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.model.Condition;
 import org.wso2.carbon.user.core.model.UniqueIDUserClaimSearchEntry;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -414,8 +415,11 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @return An array of usernames.
      * @throws UserStoreException User Store Exception.
      */
-    List<User> getUserListWithID(Condition condition, String domain, String profileName, int limit, String cursor,
-                                 String direction, String sortBy, String sortOrder) throws UserStoreException;
+    default List<User> getUserListWithID(Condition condition, String domain, String profileName, int limit,
+               String cursor, String direction, String sortBy, String sortOrder) throws UserStoreException {
+
+        return Collections.emptyList();
+    }
 
     /**
      * Get claim values of users.

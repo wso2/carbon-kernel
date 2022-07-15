@@ -1517,7 +1517,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
 
         UniqueIDPaginatedSearchResult result = new UniqueIDPaginatedSearchResult();
         List<ExpressionCondition> expressionConditions = getExpressionConditions(condition);
-        if (cursor != null && (!cursor.equals(""))) {
+        if (StringUtils.isNotEmpty(cursor)) {
             ExpressionCondition cursorCondition = null;
             if (UserCoreConstants.PaginationDirection.NEXT == direction) {
                 cursorCondition = new ExpressionCondition(ExpressionOperation.GT.toString(),
@@ -1546,9 +1546,12 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         try {
             if (cursor != null) {
                 if (UserCoreConstants.PaginationDirection.NEXT == direction) {
+                    // RequestControls similar to offset pagination when direction is NEXT.
                     ldapContext.setRequestControls(new Control[] { new PagedResultsControl(pageSize, Control.CRITICAL),
                             new SortControl(userNameAttribute, Control.NONCRITICAL) });
                 } else {
+                    // RequestControls have to be arranged in descending order when direction is PREVIOUS.
+                    // Use a SortKeyArray to order in descending order.
                     SortKey sortKey = new SortKey(userNameAttribute, LDAPConstants.DESCENDING, null);
                     SortKey[] sortKeyArray = new SortKey[1];
                     sortKeyArray[0] = sortKey;
@@ -3123,7 +3126,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             for (String searchBase : searchBaseArray) {
 
                     answer = ldapContext.search(escapeDNForSearch(searchBase), searchFilter, searchControls);
-                    //DirContext.search never returns null
+                    // DirContext.search never returns null
                     if (answer.hasMore()) {
                         tempUsersList = getUserListFromSearch(isGroupFiltering, returnedAttributes, answer,
                                 isSingleAttributeFilterOperation(expressionConditions));
@@ -3131,10 +3134,10 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                     if (CollectionUtils.isNotEmpty(tempUsersList)) {
                         if (isMemberShipPropertyFound) {
                                 /*
-                                Pagination is not supported for 'member' attribute group filtering. Also,
-                                we need do post-processing if we found username filtering or claim filtering,
-                                because can't apply claim filtering with memberShip group filtering and
-                                can't apply username filtering with 'CO', 'EW', 'SW' filter operations.
+                                 * Pagination is not supported for 'member' attribute group filtering. We also
+                                 * need do post-processing if we found username filtering or claim filtering,
+                                 * because we can't apply claim filtering with memberShip group filtering and
+                                 * can't apply username filtering with 'CO', 'EW', 'SW' filter operations.
                                  */
                             users = membershipGroupFilterPostProcessing(isUsernameFiltering, isClaimFiltering,
                                     expressionConditions, tempUsersList);

@@ -131,8 +131,11 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
      * @return true if handling succeeds, otherwise false.
      * @throws UserStoreException User Store Exception.
      */
-    boolean doPreGetUserListWithID(String claimUri, String claimValue, final List<User> returnUsersList,
-            UserStoreManager userStoreManager) throws UserStoreException;
+    default boolean doPreGetUserListWithID(String claimUri, String claimValue, final List<User> returnUsersList,
+            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
 
     /**
      * Pre listener for the get offset paginated conditional user list method.
@@ -166,10 +169,13 @@ public interface UniqueIDUserOperationEventListener extends UserOperationEventLi
      * @return true if handling succeeds, otherwise false.
      * @throws UserStoreException User Store Exception.
      */
-    boolean doPreGetUserListWithID(Condition condition, String domain, String profileName, int limit, String cursor,
+    default boolean doPreGetUserListWithID(Condition condition, String domain, String profileName, int limit, String cursor,
                                    UserCoreConstants.PaginationDirection direction, String sortBy, String sortOrder,
                                    UserStoreManager userStoreManager)
-            throws UserStoreException;
+            throws UserStoreException {
+
+        return true;
+    }
 
     /**
      * Pre listener for the get paginated user list method.

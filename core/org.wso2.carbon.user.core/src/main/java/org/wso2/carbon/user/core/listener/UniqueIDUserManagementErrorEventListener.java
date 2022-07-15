@@ -366,10 +366,13 @@ public interface UniqueIDUserManagementErrorEventListener extends UserManagement
      * @param userStoreManager User store domain.
      * @throws UserStoreException UserStoreException
      */
-    boolean onGetUserListFailureWithID(String errorCode, String errorMassage, Condition condition, String domain,
-                                       String profileName, int limit, String cursor,
+    default boolean onGetUserListFailureWithID(String errorCode, String errorMassage, Condition condition,
+                                       String domain, String profileName, int limit, String cursor,
                                        UserCoreConstants.PaginationDirection direction, String sortBy,
-                                       String sortOrder, UserStoreManager userStoreManager) throws UserStoreException;
+                                       String sortOrder, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
 
     /**
      * Defines any additional actions that need to be done if there is a failure retrieving the user.
