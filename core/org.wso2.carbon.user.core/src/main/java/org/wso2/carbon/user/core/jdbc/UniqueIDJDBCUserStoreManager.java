@@ -3312,7 +3312,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             dbConnection = getDBConnection();
             String type = DatabaseCreator.getDatabaseType(dbConnection);
 
-            if (!(offset == null)) {
+            if (offset != null) {
                 if (offset <= 0) {
                     offset = 0;
                 } else {
