@@ -34,9 +34,8 @@ import org.wso2.carbon.logging.correlation.bean.CorrelationLogComponentConfig;
 import org.wso2.carbon.logging.correlation.bean.CorrelationLogConfig;
 import org.wso2.carbon.logging.correlation.bean.ImmutableCorrelationLogConfig;
 import org.wso2.carbon.logging.correlation.utils.CorrelationLogConstants;
+import org.wso2.carbon.logging.correlation.utils.CorrelationLogHolder;
 import org.wso2.carbon.logging.correlation.utils.CorrelationLogUtil;
-
-import java.util.HashMap;
 
 /**
  * The correlation log manager class. This class reads correlation log configurations from the Carbon.xml file and the
@@ -48,14 +47,14 @@ import java.util.HashMap;
 public class CorrelationLogManager implements CorrelationLogConfigurator {
     private static Log log = LogFactory.getLog(CorrelationLogManager.class);
 
-    private static HashMap<String, CorrelationLogConfigurable> services;
+
 
     private CorrelationLogConfig config;
 
     public CorrelationLogManager() {
         // Load root configurations from the carbon.xml file.
         this.config = loadRootConfigurations();
-        services = new HashMap<String, CorrelationLogConfigurable>();
+
     }
 
     @Activate
@@ -85,12 +84,13 @@ public class CorrelationLogManager implements CorrelationLogConfigurator {
                 .put(service.getName(), loadComponentSpecificConfigs(service.getName()));
         // Create an immutable configuration object and send it to the service.
         service.onConfigure(getComponentSpecificConfiguration(service.getName()));
-        services.put(service.getName(), service);
+        CorrelationLogHolder.getInstance().addCorrelationLogConfigurableService(service);
     }
 
     protected void unsetCorrelationLogService(CorrelationLogConfigurable service) {
         // Remove configuration of the service.
         config.getComponentConfigs().remove(service.getName());
+        CorrelationLogHolder.getInstance().removeCorrelationLogConfigurableService(service.getName());
     }
 
     /**
@@ -119,8 +119,6 @@ public class CorrelationLogManager implements CorrelationLogConfigurator {
      *
      * @return
      */
-
-
     private CorrelationLogConfig loadRootConfigurations() {
         boolean enable = Boolean.parseBoolean(
                 ServerConfiguration.getInstance().getFirstProperty(CorrelationLogConstants.CONFIG_PATH_ENABLE));
@@ -138,6 +136,7 @@ public class CorrelationLogManager implements CorrelationLogConfigurator {
             components = CorrelationLogConstants.DEFAULT_COMPONENTS;
             deniedThreads = CorrelationLogConstants.DEFAULT_DENIED_THREADS;
             log.debug("Correlation log configuration enabled from the System parameter");
+            CorrelationLogHolder.getInstance().setSystemEnabledCorrelationLogs(true);
         } else {
             log.debug("Correlation log configurations are loaded from the carbon.xml file.");
         }
@@ -171,12 +170,5 @@ public class CorrelationLogManager implements CorrelationLogConfigurator {
                 config.getComponentConfigs().get(componentName).isLogAllMethods());
     }
 
-    public static CorrelationLogConfigurable getLogServiceInstance(String serviceName) {
 
-        if (services.containsKey(serviceName)) {
-            log.debug("Accessing Log Service Instance : " + serviceName);
-            return services.get(serviceName);
-        }
-        return null;
-    }
 }

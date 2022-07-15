@@ -76,7 +76,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.carbon.logging.correlation.internal.*,
+                            !org.wso2.carbon.logging.correlation.internal.*,
                             org.wso2.carbon.logging.correlation.*,
                         </Export-Package>
                         <Import-Package>
