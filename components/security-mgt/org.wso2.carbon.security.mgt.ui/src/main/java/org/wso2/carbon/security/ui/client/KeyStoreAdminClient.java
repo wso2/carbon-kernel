@@ -29,8 +29,8 @@ import org.wso2.carbon.identity.core.util.IdentityIOStreamUtils;
 import org.wso2.carbon.security.mgt.stub.keystore.AddKeyStore;
 import org.wso2.carbon.security.mgt.stub.keystore.AddTrustStore;
 import org.wso2.carbon.security.mgt.stub.keystore.DeleteStore;
-import org.wso2.carbon.security.mgt.stub.keystore.GetFilteredPaginatedKeystoreInfo;
-import org.wso2.carbon.security.mgt.stub.keystore.GetFilteredPaginatedKeystoreInfoResponse;
+import org.wso2.carbon.security.mgt.stub.keystore.GetFilteredPaginatedKeyStoreInfo;
+import org.wso2.carbon.security.mgt.stub.keystore.GetFilteredPaginatedKeyStoreInfoResponse;
 import org.wso2.carbon.security.mgt.stub.keystore.GetKeyStoresResponse;
 import org.wso2.carbon.security.mgt.stub.keystore.GetKeystoreInfo;
 import org.wso2.carbon.security.mgt.stub.keystore.GetKeystoreInfoResponse;
@@ -267,22 +267,24 @@ public class KeyStoreAdminClient {
     }
 
     /**
+     * Get keystore info with paginated and filtered certificates by given filter.
+     *
      * @param keyStoreName Keystore name.
      * @param pageNumber   Page number.
-     * @param filterString Filter text.
+     * @param filter Filter text.
      * @return Paginated keystore data with certificates.
      * @throws java.lang.Exception
      */
-    public PaginatedKeyStoreData getFilteredPaginatedKeystoreInfo(String keyStoreName, int pageNumber,
-                                                                  String filterString) throws java.lang.Exception {
+    public PaginatedKeyStoreData getFilteredPaginatedKeyStoreInfo(String keyStoreName, int pageNumber,
+                                                                  String filter) throws java.lang.Exception {
 
         try {
-            GetFilteredPaginatedKeystoreInfo request = new GetFilteredPaginatedKeystoreInfo();
+            GetFilteredPaginatedKeyStoreInfo request = new GetFilteredPaginatedKeyStoreInfo();
             request.setKeyStoreName(keyStoreName);
             request.setPageNumber(pageNumber);
-            request.setFilterString(filterString);
+            request.setFilter(filter);
 
-            GetFilteredPaginatedKeystoreInfoResponse response = stub.getFilteredPaginatedKeystoreInfo(request);
+            GetFilteredPaginatedKeyStoreInfoResponse response = stub.getFilteredPaginatedKeyStoreInfo(request);
             return response.get_return();
         } catch (java.lang.Exception e) {
             throw e;

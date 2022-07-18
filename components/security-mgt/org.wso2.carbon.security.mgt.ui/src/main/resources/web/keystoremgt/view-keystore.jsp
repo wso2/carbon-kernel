@@ -86,7 +86,7 @@
         KeyStoreAdminClient client = new KeyStoreAdminClient(cookie, backendServerURL, configContext);
 
         if (keyStoreData == null || startingPage + SecurityUIConstants.CACHING_PAGE_SIZE < pageNumberInt || pageNumberInt < startingPage) {
-            keyStoreData = client.getFilteredPaginatedKeystoreInfo(keyStore, pageNumberInt, filter);
+            keyStoreData = client.getFilteredPaginatedKeyStoreInfo(keyStore, pageNumberInt, filter);
             session.setAttribute(SecurityUIConstants.PAGINATED_KEY_STORE_DATA, keyStoreData);
             session.setAttribute(SecurityUIConstants.STARTING_CERT_DATA_PAGE, pageNumberInt);
             startingPage = pageNumberInt;
