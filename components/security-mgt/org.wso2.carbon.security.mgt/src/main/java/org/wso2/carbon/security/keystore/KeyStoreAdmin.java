@@ -808,6 +808,7 @@ public class KeyStoreAdmin {
      * @throws Exception
      */
     private KeyStore getKeyStore(int tenantId, String keyStoreName) throws Exception {
+    
         KeyStore keyStore;
         if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
             KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(tenantId);
@@ -829,6 +830,7 @@ public class KeyStoreAdmin {
      * @throws RegistryException
      */
     private String getKeyStoreType(String keyStoreName) throws SecurityConfigException, RegistryException {
+    
         String keyStoreType;
         if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
             ServerConfiguration serverConfig = ServerConfiguration.getInstance();
@@ -945,6 +947,7 @@ public class KeyStoreAdmin {
      * @throws SecurityConfigException if retrieving the truststore fails.
      */
     public KeyStore getTrustStore() throws SecurityConfigException {
+    
         //Allow only the super tenant to access the default trust store.
         if (tenantId != MultitenantConstants.SUPER_TENANT_ID) {
             throw new SecurityConfigException("Permission denied for accessing trust store");
