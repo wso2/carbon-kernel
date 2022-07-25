@@ -135,21 +135,25 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
                         <table cellspacing="0">
                             <tr class="feature feature-top">
                                 <td>
-                                    <a target="_blank" href="<%=userGuideURL %>"><img src="../admin/images/user-guide.gif"/></a>
+                                    <a target="_blank" href="<%=userGuideURL %>" rel="noopener noreferrer"><img
+                                            src="../admin/images/user-guide.gif"/></a>
                                 </td>
                                 <td>
-                                    <h3><a target="_blank" href="<%=userGuideURL %>"><fmt:message key="user.guide"/></a></h3>
+                                    <h3><a target="_blank" href="<%=userGuideURL %>"
+                                           rel="noopener noreferrer"><fmt:message key="user.guide"/></a>
+                                    </h3>
 
                                     <p><fmt:message key="user.guide.text"/></p>
                                 </td>
                             </tr>
                             <tr class="feature">
                                 <td>
-                                    <a target="_blank" href="<%=userForumURL %>"><img
+                                    <a target="_blank" href="<%=userForumURL %>" rel="noopener noreferrer"><img
                                             src="../admin/images/forum.gif"/></a>
                                 </td>
                                 <td>
-                                    <h3><a target="_blank" href="<%=userForumURL %>"><fmt:message
+                                    <h3><a target="_blank" href="<%=userForumURL %>"
+                                           rel="noopener noreferrer"><fmt:message
                                             key="forum"/></a>
                                     </h3>
 
@@ -159,12 +163,12 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
                             <tr class="feature">
                                 <td>
                                     <a target="_blank"
-                                       href="<%=issuetrackerURL %>"><img
+                                       href="<%=issuetrackerURL %>" rel="noopener noreferrer"><img
                                             src="../admin/images/issue-tracker.gif"/></a>
                                 </td>
                                 <td>
                                     <h3><a target="_blank"
-                                           href="<%=issuetrackerURL %>">
+                                           href="<%=issuetrackerURL %>" rel="noopener noreferrer">
                                         <fmt:message key="issue.tracker"/></a></h3>
 
                                     <p><fmt:message key="issue.tracker.text"/></p>
@@ -173,11 +177,11 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
                             </tr>
                             <tr class="feature">
                                 <td>
-                                    <a target="_blank" href="<%=mailinglistURL %>"><img
+                                    <a target="_blank" href="<%=mailinglistURL %>" rel="noopener noreferrer"><img
                                             src="../admin/images/mailing-list.gif"/></a>
                                 </td>
                                 <td>
-                                    <h3><a target="_blank" href="<%=mailinglistURL %>">
+                                    <h3><a target="_blank" href="<%=mailinglistURL %>" rel="noopener noreferrer">
                                         <fmt:message key="mailing.list"/></a></h3>
 
                                     <p><fmt:message key="mailing.list.text"/></p>
