@@ -134,7 +134,9 @@ public class CorrelationLogManager implements CorrelationLogConfigurator {
         if (systemEnable) {
             enable = true;
             components = CorrelationLogConstants.DEFAULT_COMPONENTS;
-            deniedThreads = CorrelationLogConstants.DEFAULT_DENIED_THREADS;
+            String systemDeniedThreads = System.getProperty(CorrelationLogConstants.DENIED_THREADS_SYS_PROPERTY);
+            deniedThreads = (systemDeniedThreads != null) ?
+                    CorrelationLogUtil.toArray(systemDeniedThreads) : CorrelationLogConstants.DEFAULT_DENIED_THREADS;
             log.debug("Correlation log configuration enabled from the System parameter");
             CorrelationLogHolder.getInstance().setSystemEnabledCorrelationLogs(true);
         } else {
