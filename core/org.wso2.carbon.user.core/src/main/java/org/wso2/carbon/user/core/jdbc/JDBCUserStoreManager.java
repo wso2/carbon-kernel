@@ -4477,6 +4477,27 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     sqlBuilder.where("U.UM_USER_NAME LIKE LOWER(?)", expressionCondition.getAttributeValue()
                             + "%");
                 }
+            } else if (ExpressionOperation.GT.toString().equals(expressionCondition.getOperation()) &&
+                    ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
+                if (isCaseSensitiveUsername()) {
+                    sqlBuilder.where("U.UM_USER_NAME > ?", expressionCondition.getAttributeValue());
+                } else {
+                    sqlBuilder.where("U.UM_USER_NAME > LOWER(?)", expressionCondition.getAttributeValue());
+                }
+            } else if (ExpressionOperation.LT.toString().equals(expressionCondition.getOperation()) &&
+                    ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
+                if (isCaseSensitiveUsername()) {
+                    sqlBuilder.where("U.UM_USER_NAME < ?", expressionCondition.getAttributeValue());
+                } else {
+                    sqlBuilder.where("U.UM_USER_NAME < LOWER(?)", expressionCondition.getAttributeValue());
+                }
+            } else if (ExpressionOperation.NE.toString().equals(expressionCondition.getOperation()) &&
+                    ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
+                if (isCaseSensitiveUsername()) {
+                    sqlBuilder.where("U.UM_USER_NAME != ?", expressionCondition.getAttributeValue());
+                } else {
+                    sqlBuilder.where("U.UM_USER_NAME != LOWER(?)", expressionCondition.getAttributeValue());
+                }
             } else {
                 // Claim filtering
                 if (!(MYSQL.equals(dbType) || MARIADB.equals(dbType)) || totalMultiGroupFilters > 1 && totalMulitClaimFitlers > 1) {
@@ -4539,6 +4560,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             sqlBuilder.where("R.UM_ROLE_NAME LIKE ?", "%" + value + "%");
         } else if (ExpressionOperation.SW.toString().equals(operation)) {
             sqlBuilder.where("R.UM_ROLE_NAME LIKE ?", value + "%");
+        } else if (ExpressionOperation.GT.toString().equals(operation)) {
+            sqlBuilder.where("R.UM_ROLE_NAME > ?", value);
+        } else if (ExpressionOperation.LT.toString().equals(operation)) {
+            sqlBuilder.where("R.UM_ROLE_NAME < ?", value);
+        } else if (ExpressionOperation.NE.toString().equals(operation)) {
+            sqlBuilder.where("R.UM_ROLE_NAME != ?", value);
         }
     }
 
@@ -4564,6 +4591,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             sqlBuilder.updateSqlWithOROperation("R.UM_ROLE_NAME LIKE ?", "%" + value + "%");
         } else if (ExpressionOperation.SW.toString().equals(operation)) {
             sqlBuilder.updateSqlWithOROperation("R.UM_ROLE_NAME LIKE ?", value + "%");
+        } else if (ExpressionOperation.GT.toString().equals(operation)) {
+            sqlBuilder.updateSqlWithOROperation("R.UM_ROLE_NAME > ?", value);
+        } else if (ExpressionOperation.LT.toString().equals(operation)) {
+            sqlBuilder.updateSqlWithOROperation("R.UM_ROLE_NAME < ?", value);
+        } else if (ExpressionOperation.NE.toString().equals(operation)) {
+            sqlBuilder.updateSqlWithOROperation("R.UM_ROLE_NAME != ?", value);
         }
     }
 
@@ -4594,6 +4627,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             sqlBuilder.where("UA.UM_ATTR_VALUE LIKE ?", "%" + attributeValue + "%");
         } else if (ExpressionOperation.SW.toString().equals(operation)) {
             sqlBuilder.where("UA.UM_ATTR_VALUE LIKE ?", attributeValue + "%");
+        } else if (ExpressionOperation.GT.toString().equals(operation)) {
+            sqlBuilder.where("UA.UM_ATTR_VALUE > ?", attributeValue);
+        } else if (ExpressionOperation.LT.toString().equals(operation)) {
+            sqlBuilder.where("UA.UM_ATTR_VALUE < ?", attributeValue);
+        } else if (ExpressionOperation.NE.toString().equals(operation)) {
+            sqlBuilder.where("UA.UM_ATTR_VALUE != ?", attributeValue);
         }
     }
 
@@ -4622,6 +4661,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             sqlBuilder.updateSqlWithOROperation("UA.UM_ATTR_VALUE LIKE ?", "%" + attributeValue + "%");
         } else if (ExpressionOperation.SW.toString().equals(operation)) {
             sqlBuilder.updateSqlWithOROperation("UA.UM_ATTR_VALUE LIKE ?", attributeValue + "%");
+        } else if (ExpressionOperation.GT.toString().equals(operation)) {
+            sqlBuilder.updateSqlWithOROperation("UA.UM_ATTR_VALUE > ?", attributeValue);
+        } else if (ExpressionOperation.LT.toString().equals(operation)) {
+            sqlBuilder.updateSqlWithOROperation("UA.UM_ATTR_VALUE < ?", attributeValue);
+        } else if (ExpressionOperation.NE.toString().equals(operation)) {
+            sqlBuilder.updateSqlWithOROperation("UA.UM_ATTR_VALUE != ?", attributeValue);
         }
     }
 
