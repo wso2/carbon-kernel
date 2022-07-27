@@ -47,14 +47,11 @@ import org.wso2.carbon.logging.correlation.utils.CorrelationLogUtil;
 public class CorrelationLogManager implements CorrelationLogConfigurator {
     private static Log log = LogFactory.getLog(CorrelationLogManager.class);
 
-
-
     private CorrelationLogConfig config;
 
     public CorrelationLogManager() {
         // Load root configurations from the carbon.xml file.
         this.config = loadRootConfigurations();
-
     }
 
     @Activate
@@ -142,7 +139,6 @@ public class CorrelationLogManager implements CorrelationLogConfigurator {
         } else {
             log.debug("Correlation log configurations are loaded from the carbon.xml file.");
         }
-
         return new CorrelationLogConfig(enable, components, deniedThreads);
     }
 
@@ -171,6 +167,4 @@ public class CorrelationLogManager implements CorrelationLogConfigurator {
                 config.getDeniedThreads(),
                 config.getComponentConfigs().get(componentName).isLogAllMethods());
     }
-
-
 }
