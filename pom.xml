@@ -1576,9 +1576,9 @@
                 <version>${org.wso2.carbon.registry.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.orbit.openjdk.nashorn</groupId>
-                <artifactId>openjdk-nashorn</artifactId>
-                <version>${openjdk.nashorn.wso2.version}</version>
+                <groupId>org.openjdk.nashorn</groupId>
+                <artifactId>nashorn-core</artifactId>
+                <version>${openjdk.nashorn.version}</version>
             </dependency>
 
             <!-- Testing related dependencies -->
@@ -2021,7 +2021,7 @@
 
         <account.lock.service.version>1.4.23</account.lock.service.version>
         <account.lock.service.imp.pkg.version.range>[1.4.23, 2.0.0)</account.lock.service.imp.pkg.version.range>
-        <openjdk.nashorn.wso2.version>15.3.wso2v1</openjdk.nashorn.wso2.version>
+        <openjdk.nashorn.version>15.3</openjdk.nashorn.version>
     </properties>
 
     <build>
