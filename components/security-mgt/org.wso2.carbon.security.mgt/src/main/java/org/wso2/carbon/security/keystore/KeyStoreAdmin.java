@@ -717,8 +717,7 @@ public class KeyStoreAdmin {
     }
 
     /**
-     * This method will list 1. Certificate aliases 2. Private key alise 3. Private key value to a
-     * given keystore.
+     * Gets the keystore info by keystore name with its certificates and key certificates.
      *
      * @param keyStoreName The name of the keystore
      * @param pageNumber   page number
@@ -727,150 +726,220 @@ public class KeyStoreAdmin {
      */
     public PaginatedKeyStoreData getPaginatedKeystoreInfo(String keyStoreName, int pageNumber)
             throws SecurityConfigException {
-        try {
 
-            if (keyStoreName == null) {
-                throw new Exception("keystore name cannot be null");
-            }
-
-            KeyStore keyStore;
-            String keyStoreType;
-            String keyStorePassword = null;
-            if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
-                KeyStoreManager keyMan = KeyStoreManager.getInstance(tenantId);
-                keyStore = keyMan.getPrimaryKeyStore();
-                ServerConfiguration serverConfig = ServerConfiguration.getInstance();
-                keyStoreType = serverConfig
-                        .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_TYPE);
-                keyStorePassword = serverConfig
-                        .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIVATE_KEY_PASSWORD);
-            } else if (isTrustStore(keyStoreName)) {
-                KeyStoreManager keyMan = KeyStoreManager.getInstance(tenantId);
-                keyStore = getTrustStore();
-                ServerConfiguration serverConfig = ServerConfiguration.getInstance();
-                keyStoreType = serverConfig.getFirstProperty(SERVER_TRUSTSTORE_TYPE);
-                keyStorePassword = serverConfig.getFirstProperty(SERVER_TRUSTSTORE_PASSWORD);
-            } else {
-                String path = SecurityConstants.KEY_STORES + "/" + keyStoreName;
-                if (!registry.resourceExists(path)) {
-                    throw new SecurityConfigException("Key Store not found");
-                }
-                Resource resource = registry.get(path);
-                KeyStoreManager manager = KeyStoreManager.getInstance(tenantId);
-                keyStore = getKeyStore(keyStoreName);
-                keyStoreType = resource.getProperty(SecurityConstants.PROP_TYPE);
-
-                String encpass = resource.getProperty(SecurityConstants.PROP_PRIVATE_KEY_PASS);
-                if (encpass != null) {
-                    CryptoUtil util = CryptoUtil.getDefaultCryptoUtil();
-                    keyStorePassword = new String(util.base64DecodeAndDecrypt(encpass));
-                }
-            }
-            // Fill the information about the certificates
-            Enumeration<String> aliases = keyStore.aliases();
-            List<org.wso2.carbon.security.keystore.service.CertData> certDataList = new ArrayList<>();
-            Format formatter = new SimpleDateFormat("dd/MM/yyyy");
-
-            while (aliases.hasMoreElements()) {
-                String alias = aliases.nextElement();
-                if (keyStore.isCertificateEntry(alias)) {
-                    X509Certificate cert = (X509Certificate) keyStore.getCertificate(alias);
-                    certDataList.add(fillCertData(cert, alias, formatter));
-                }
-            }
-
-            // Create a cert array
-            CertData[] certs = certDataList.toArray(new CertData[certDataList.size()]);
-
-            // Create a KeyStoreData bean, set the name and fill in the cert information
-            PaginatedKeyStoreData keyStoreData = new PaginatedKeyStoreData();
-            keyStoreData.setKeyStoreName(keyStoreName);
-            keyStoreData.setPaginatedCertData(doPaging(pageNumber, certs));
-            keyStoreData.setKeyStoreType(keyStoreType);
-
-            List<CertData> keyDataList = new ArrayList<>();
-            aliases = keyStore.aliases();
-            while (aliases.hasMoreElements()) {
-                String alias = aliases.nextElement();
-                if (keyStore.isKeyEntry(alias)) {
-                    X509Certificate cert = (X509Certificate) keyStore.getCertificate(alias);
-                    keyDataList.add(fillCertData(cert, alias, formatter));
-                }
-            }
-
-            // Create a cert array.
-            CertData[] keyCerts = keyDataList.toArray(new CertData[keyDataList.size()]);
-            // Create a KeyStoreData bean, set the name and fill in the cert information.
-            keyStoreData.setPaginatedKeyData(doPaging(pageNumber, keyCerts));
-
-            return keyStoreData;
-        } catch (Exception e) {
-            String msg = "Error has encounted while loading the keystore to the given keystore name "
-                    + keyStoreName;
-            log.error(msg, e);
-            throw new SecurityConfigException(msg);
-        }
-
-    }
-
-    /**
-     * This method will add 1. Certificate aliases 2. Private key alise 3. Private key value to a
-     * given keystore with certificate and keystore filtering.
-     *
-     * @param keyStoreName The name of the keystore.
-     * @param pageNumber   Page number.
-     * @param filterString Filter text.
-     * @return Instance of KeyStoreData.
-     * @throws SecurityConfigException will be thrown.
-     */
-    public PaginatedKeyStoreData getFilteredPaginatedKeystoreInfo(String keyStoreName, int pageNumber,
-                                                                  String filterString) throws SecurityConfigException {
-
-        if (keyStoreName == null) {
-            throw new SecurityConfigException("Keystore name cannot be null.");
+        if (StringUtils.isEmpty(keyStoreName)) {
+            throw new SecurityConfigException("Keystore name cannot be empty or null.");
         }
 
         try {
-            KeyStore keyStore;
-            String keyStoreType;
-            if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
-                KeyStoreManager keyMan = KeyStoreManager.getInstance(tenantId);
-                keyStore = keyMan.getPrimaryKeyStore();
-                ServerConfiguration serverConfig = ServerConfiguration.getInstance();
-                keyStoreType = serverConfig
-                        .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_TYPE);
-            } else if (isTrustStore(keyStoreName)) {
-                keyStore = getTrustStore();
-                ServerConfiguration serverConfig = ServerConfiguration.getInstance();
-                keyStoreType = serverConfig.getFirstProperty(SERVER_TRUSTSTORE_TYPE);
-            } else {
-                String path = SecurityConstants.KEY_STORES + "/" + keyStoreName;
-                if (!registry.resourceExists(path)) {
-                    throw new SecurityConfigException("Keystore not found.");
-                }
-                Resource resource = registry.get(path);
-                keyStore = getKeyStore(keyStoreName);
-                keyStoreType = resource.getProperty(SecurityConstants.PROP_TYPE);
-            }
+            // Get keystore.
+            KeyStore keyStore = getKeyStore(tenantId, keyStoreName);
+            // Get keystore type.
+            String keyStoreType = getKeyStoreType(keyStoreName);
 
             // Extract certificates from aliases as list.
-            List<CertData> certDataList = getCertificateListFromAliases(keyStore);
-            List<CertData> keyCertDataList = getKeyCertificateListFromAliases(keyStore);
-            // Filter and paginate certs and keyCerts.
-            PaginatedCertData paginatedCerts = filterAndPaginateCerts(certDataList, filterString, pageNumber);
-            PaginatedCertData paginatedKeyCerts = filterAndPaginateCerts(keyCertDataList, filterString, pageNumber);
+            List<CertData> certDataList = getCertificates(keyStore);
+            List<CertData> keyCertDataList = getKeyCertificates(keyStore);
+
+            // Create a certificate array.
+            CertData[] certs = certDataList.toArray(new CertData[certDataList.size()]);
+            // Get paginated certificates.
+            PaginatedCertData paginatedCerts = doPaging(pageNumber, certs);
+
+            // Create a key certificate array.
+            CertData[] keyCerts = keyCertDataList.toArray(new CertData[keyCertDataList.size()]);
+            // Get paginated key certificates.
+            PaginatedCertData paginatedKeyCerts = doPaging(pageNumber, keyCerts);
+
             // Fill information about the keystore to PaginatedKeyStoreData.
             PaginatedKeyStoreData keyStoreData = fillPaginatedKeyStoreData(keyStoreName, keyStoreType,
                     paginatedCerts, paginatedKeyCerts);
 
             return keyStoreData;
         } catch (Exception e) {
-            String msg = "Error has encounted while loading the keystore to the given keystore name "
-                    + keyStoreName;
-            log.error(msg, e);
-            throw new SecurityConfigException(msg);
+            throw new SecurityConfigException(e.getMessage());
+        }
+
+    }
+
+    /**
+     * Gets the keystore info by keystore name and filters its certificates and key certificates
+     * by applying the filter for certificate aliases.
+     *
+     * @param keyStoreName The name of the keystore.
+     * @param pageNumber   Page number.
+     * @param filter       Filter for certificate alias.
+     * @return Instance of KeyStoreData.
+     * @throws SecurityConfigException will be thrown.
+     */
+    public PaginatedKeyStoreData getFilteredPaginatedKeyStoreInfo(String keyStoreName, int pageNumber,
+                                                                  String filter) throws SecurityConfigException {
+
+        if (StringUtils.isEmpty(keyStoreName)) {
+            throw new SecurityConfigException("Keystore name cannot be empty or null.");
+        }
+
+        try {
+            // Get keystore.
+            KeyStore keyStore = getKeyStore(tenantId, keyStoreName);
+            // Get keystore type.
+            String keyStoreType = getKeyStoreType(keyStoreName);
+
+            // Extract certificates from aliases as list.
+            List<CertData> certDataList = getCertificates(keyStore);
+            List<CertData> keyCertDataList = getKeyCertificates(keyStore);
+            // Filter and paginate certs and keyCerts.
+            PaginatedCertData paginatedCerts = filterAndPaginateCerts(certDataList, filter, pageNumber);
+            PaginatedCertData paginatedKeyCerts = filterAndPaginateCerts(keyCertDataList, filter, pageNumber);
+            // Fill information about the keystore to PaginatedKeyStoreData.
+            PaginatedKeyStoreData keyStoreData = fillPaginatedKeyStoreData(keyStoreName, keyStoreType,
+                    paginatedCerts, paginatedKeyCerts);
+
+            return keyStoreData;
+        } catch (Exception e) {
+            throw new SecurityConfigException(e.getMessage());
         }
     }
+
+    /**
+     * @param tenantId     Tenant Id.
+     * @param keyStoreName Keystore Name.
+     * @return
+     * @throws Exception
+     */
+    private KeyStore getKeyStore(int tenantId, String keyStoreName) throws Exception {
+    
+        KeyStore keyStore;
+        if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
+            KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(tenantId);
+            keyStore = keyStoreManager.getPrimaryKeyStore();
+        } else if (isTrustStore(keyStoreName)) {
+            keyStore = getTrustStore();
+        } else {
+            keyStore = getKeyStore(keyStoreName);
+        }
+        return keyStore;
+    }
+
+    /**
+     * Get keystore type.
+     *
+     * @param keyStoreName Keystore name.
+     * @return
+     * @throws SecurityConfigException
+     * @throws RegistryException
+     */
+    private String getKeyStoreType(String keyStoreName) throws SecurityConfigException, RegistryException {
+    
+        String keyStoreType;
+        if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
+            ServerConfiguration serverConfig = ServerConfiguration.getInstance();
+            keyStoreType = serverConfig
+                    .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_TYPE);
+        } else if (isTrustStore(keyStoreName)) {
+            ServerConfiguration serverConfig = ServerConfiguration.getInstance();
+            keyStoreType = serverConfig.getFirstProperty(SERVER_TRUSTSTORE_TYPE);
+        } else {
+            String path = SecurityConstants.KEY_STORES + "/" + keyStoreName;
+            if (!registry.resourceExists(path)) {
+                throw new SecurityConfigException("Keystore " + keyStoreName + " not found at " + path);
+            }
+            Resource resource = registry.get(path);
+            keyStoreType = resource.getProperty(SecurityConstants.PROP_TYPE);
+        }
+        return keyStoreType;
+    }
+
+    /**
+     * Fill PaginatedKeyStoreData with keystore details.
+     *
+     * @param keyStoreName Name of the keystore.
+     * @param keyStoreType Type of the keystore.
+     * @param certs        Paginated certificates.
+     * @param keyCerts     Paginated key certificates.
+     * @return Paginated KeyStore Data.
+     */
+    private PaginatedKeyStoreData fillPaginatedKeyStoreData(String keyStoreName, String keyStoreType,
+                                                            PaginatedCertData certs, PaginatedCertData keyCerts) {
+
+        // Create a KeyStoreData bean, set the name, type and fill in the cert information.
+        PaginatedKeyStoreData keyStoreData = new PaginatedKeyStoreData();
+        keyStoreData.setKeyStoreName(keyStoreName);
+        keyStoreData.setKeyStoreType(keyStoreType);
+        keyStoreData.setPaginatedCertData(certs);
+        keyStoreData.setPaginatedKeyData(keyCerts);
+        return keyStoreData;
+    }
+
+    /**
+     * Get certificates related to alias from the keystore.
+     *
+     * @param keyStore Keystore
+     * @return List of certificate data.
+     * @throws KeyStoreException
+     * @throws CertificateEncodingException
+     */
+    private List<CertData> getCertificates(KeyStore keyStore)
+            throws KeyStoreException, CertificateEncodingException {
+
+        Enumeration<String> aliases = keyStore.aliases();
+        // Create lists for cert and key lists.
+        List<CertData> certDataList = new ArrayList<>();
+        Format formatter = new SimpleDateFormat("dd/MM/yyyy");
+
+        while (aliases.hasMoreElements()) {
+            String alias = aliases.nextElement();
+            X509Certificate cert = (X509Certificate) keyStore.getCertificate(alias);
+            if (keyStore.isCertificateEntry(alias)) {
+                certDataList.add(fillCertData(cert, alias, formatter));
+            }
+        }
+        return certDataList;
+    }
+
+    /**
+     * Get key certificates related to alias from the keystore.
+     *
+     * @param keyStore Keystore
+     * @return List of certificate data.
+     * @throws KeyStoreException
+     * @throws CertificateEncodingException
+     */
+    private List<CertData> getKeyCertificates(KeyStore keyStore)
+            throws KeyStoreException, CertificateEncodingException {
+
+        Enumeration<String> aliases = keyStore.aliases();
+        // Create lists for cert and key lists.
+        List<CertData> certDataList = new ArrayList<>();
+        Format formatter = new SimpleDateFormat("dd/MM/yyyy");
+
+        while (aliases.hasMoreElements()) {
+            String alias = aliases.nextElement();
+            X509Certificate cert = (X509Certificate) keyStore.getCertificate(alias);
+            if (keyStore.isKeyEntry(alias)) {
+                certDataList.add(fillCertData(cert, alias, formatter));
+            }
+        }
+        return certDataList;
+    }
+
+    /**
+     * Filter and paginate certificate list.
+     *
+     * @param certDataList Certificate list.
+     * @param filterString Filter text.
+     * @param pageNumber   Page number.
+     * @return Paginated and Filtered Certificate Data.
+     */
+    private PaginatedCertData filterAndPaginateCerts(List<CertData> certDataList, String filterString, int pageNumber) {
+
+        PaginatedCertData paginatedCerts;
+        CertData[] certs = certDataList.toArray(new CertData[0]);
+        certs = (doFilter(filterString, certs));
+        paginatedCerts = doPaging(pageNumber, certs);
+        return paginatedCerts;
+    }
+
     /**
      * Load the default trust store (allowed only for super tenant).
      *
@@ -878,6 +947,7 @@ public class KeyStoreAdmin {
      * @throws SecurityConfigException if retrieving the truststore fails.
      */
     public KeyStore getTrustStore() throws SecurityConfigException {
+    
         //Allow only the super tenant to access the default trust store.
         if (tenantId != MultitenantConstants.SUPER_TENANT_ID) {
             throw new SecurityConfigException("Permission denied for accessing trust store");
@@ -903,96 +973,6 @@ public class KeyStoreAdmin {
             throw new SecurityConfigException("Error occurred while loading trust store", e);
         }
         return trustStore;
-    }
-
-    /**
-     * Fill PaginatedKeyStoreData with keystore details.
-     *
-     * @param keyStoreName Name of the keystore.
-     * @param keyStoreType Type of the keystore.
-     * @param certs        Paginated certificates.
-     * @param keyCerts     Paginated key certificates.
-     * @return Paginated KeyStore Data.
-     */
-    private PaginatedKeyStoreData fillPaginatedKeyStoreData(String keyStoreName, String keyStoreType,
-                                                            PaginatedCertData certs, PaginatedCertData keyCerts) {
-
-        // Create a KeyStoreData bean, set the name, type and fill in the cert information.
-        PaginatedKeyStoreData keyStoreData = new PaginatedKeyStoreData();
-        keyStoreData.setKeyStoreName(keyStoreName);
-        keyStoreData.setKeyStoreType(keyStoreType);
-        keyStoreData.setPaginatedCertData(certs);
-        keyStoreData.setPaginatedKeyData(keyCerts);
-        return keyStoreData;
-    }
-
-    /**
-     * Get list of certificates from aliases.
-     *
-     * @param keyStore Keystore
-     * @return List of certificate data.
-     * @throws KeyStoreException
-     * @throws CertificateEncodingException
-     */
-    private List<CertData> getCertificateListFromAliases(KeyStore keyStore)
-            throws KeyStoreException, CertificateEncodingException {
-
-        Enumeration<String> aliases = keyStore.aliases();
-        // Create lists for cert and key lists.
-        List<CertData> certDataList = new ArrayList<>();
-        Format formatter = new SimpleDateFormat("dd/MM/yyyy");
-
-        while (aliases.hasMoreElements()) {
-            String alias = aliases.nextElement();
-            X509Certificate cert = (X509Certificate) keyStore.getCertificate(alias);
-            if (keyStore.isCertificateEntry(alias)) {
-                certDataList.add(fillCertData(cert, alias, formatter));
-            }
-        }
-        return certDataList;
-    }
-
-    /**
-     * Get list of key certificates from aliases.
-     *
-     * @param keyStore Keystore
-     * @return List of certificate data.
-     * @throws KeyStoreException
-     * @throws CertificateEncodingException
-     */
-    private List<CertData> getKeyCertificateListFromAliases(KeyStore keyStore)
-            throws KeyStoreException, CertificateEncodingException {
-
-        Enumeration<String> aliases = keyStore.aliases();
-        // Create lists for cert and key lists.
-        List<CertData> certDataList = new ArrayList<>();
-        Format formatter = new SimpleDateFormat("dd/MM/yyyy");
-
-        while (aliases.hasMoreElements()) {
-            String alias = aliases.nextElement();
-            X509Certificate cert = (X509Certificate) keyStore.getCertificate(alias);
-            if (keyStore.isKeyEntry(alias)) {
-                certDataList.add(fillCertData(cert, alias, formatter));
-            }
-        }
-        return certDataList;
-    }
-
-    /**
-     * Filter and paginate certificate lists.
-     *
-     * @param certDataList Certificate list.
-     * @param filterString Filter text.
-     * @param pageNumber   Page number.
-     * @return Paginated and Filtered Certificate Data.
-     */
-    private PaginatedCertData filterAndPaginateCerts(List<CertData> certDataList, String filterString, int pageNumber) {
-
-        PaginatedCertData paginatedCerts;
-        CertData[] certs = certDataList.toArray(new CertData[0]);
-        certs = (doFilter(filterString, certs));
-        paginatedCerts = doPaging(pageNumber, certs);
-        return paginatedCerts;
     }
 
     /**
