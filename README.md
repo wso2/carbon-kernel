@@ -23,6 +23,7 @@ WSO2 Carbon kernel, the lean, modular, OSGi-based platform, is the base of the W
 
 ## New Features
 * Simplified one configuration file
+* Java17 support - Starting from kernel 4.7.0 release, the kernel can now be compiled on Java 11 and run on Java version from 11 to 17.
 * Log4j2 upgrade
 * Tomcat upgrade - Tomcat is upgraded to version 9.0.22. 
 
