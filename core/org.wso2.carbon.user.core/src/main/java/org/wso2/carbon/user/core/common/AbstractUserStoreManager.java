@@ -16701,7 +16701,17 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             Object object = callSecure("isGroupExist", new Object[]{groupID}, argTypes);
             return (boolean) object;
         }
-        return StringUtils.isNotBlank(getGroupNameByGroupId(groupID));
+
+        if (StringUtils.isBlank(groupID)) {
+            throw new UserStoreClientException(ERROR_EMPTY_GROUP_ID.getMessage(), ERROR_EMPTY_GROUP_ID.getCode());
+        }
+        UserStore userStore = getUserStoreWithGroupId(groupID);
+        if (userStore.isRecurssive()) {
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager()).isGroupExist(groupID);
+        }
+
+        // #################### Domain Name Free Zone Starts Here ################################
+        return StringUtils.isNotBlank(getGroupNameById(groupID));
     }
 
     @Override
