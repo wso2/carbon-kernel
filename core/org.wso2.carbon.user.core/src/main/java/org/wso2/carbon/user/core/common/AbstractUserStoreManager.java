@@ -16707,8 +16707,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
         UserStore userStore = getUserStoreWithGroupId(groupID);
         if (userStore.isRecurssive()) {
-            return StringUtils.isNotBlank(((AbstractUserStoreManager) userStore.getUserStoreManager())
-                    .getGroupNameByGroupId(groupID));
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager()).isGroupExist(groupID);
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
