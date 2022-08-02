@@ -21,7 +21,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 
 /**
- * The bootstrap class used for bootstrapping a checkin cleint.
+ * The bootstrap class used for bootstrapping a checkin client.
  * <p/>
  * See http://frank.zinepal.com/embedded-tomcat-class-loading-trickery
  * See http://tomcat.apache.org/tomcat-7.0-doc/class-loader-howto.html
