@@ -48,6 +48,7 @@ public class CorrelationLogManager implements CorrelationLogConfigurator {
     private static Log log = LogFactory.getLog(CorrelationLogManager.class);
 
     private CorrelationLogConfig config;
+    private boolean systemEnableCorrelationLogs;
 
     public CorrelationLogManager() {
         // Load root configurations from the carbon.xml file.
@@ -130,7 +131,7 @@ public class CorrelationLogManager implements CorrelationLogConfigurator {
                 System.getProperty(CorrelationLogConstants.CORRELATION_LOGS_SYS_PROPERTY));
         if (systemEnable) {
             enable = true;
-            components = CorrelationLogConstants.DEFAULT_COMPONENTS;
+            systemEnableCorrelationLogs = true;
             String systemDeniedThreads = System.getProperty(CorrelationLogConstants.DENIED_THREADS_SYS_PROPERTY);
             deniedThreads = (systemDeniedThreads != null) ?
                     CorrelationLogUtil.toArray(systemDeniedThreads) : CorrelationLogConstants.DEFAULT_DENIED_THREADS;
@@ -163,7 +164,8 @@ public class CorrelationLogManager implements CorrelationLogConfigurator {
     private ImmutableCorrelationLogConfig getComponentSpecificConfiguration(String componentName) {
         // Build component specific immutable configuration object
         return new ImmutableCorrelationLogConfig(
-                config.isEnable() && CorrelationLogUtil.isComponentAllowed(componentName, config.getComponents()),
+                systemEnableCorrelationLogs || (config.isEnable() &&
+                        CorrelationLogUtil.isComponentAllowed(componentName, config.getComponents())),
                 config.getDeniedThreads(),
                 config.getComponentConfigs().get(componentName).isLogAllMethods());
     }

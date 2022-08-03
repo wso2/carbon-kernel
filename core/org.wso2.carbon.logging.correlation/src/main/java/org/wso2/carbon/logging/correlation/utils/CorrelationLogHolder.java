@@ -41,7 +41,7 @@ public class CorrelationLogHolder {
     }
 
     public void addCorrelationLogConfigurableService(CorrelationLogConfigurable service) {
-        services.put(service.getName(), service);
+        services.put(service.getName().trim(), service);
     }
 
     public void removeCorrelationLogConfigurableService(String serviceName) {
@@ -60,7 +60,7 @@ public class CorrelationLogHolder {
     public void setCorrelationLogServiceConfigs(CorrelationLogConfig config) {
         if (!systemEnabledCorrelationLogs) {
             for (CorrelationLogConfigurable service : services.values()) {
-                String componentName = service.getName();
+                String componentName = service.getName().trim();
                 ImmutableCorrelationLogConfig componentConfig = new ImmutableCorrelationLogConfig(
                         config.isEnable() && CorrelationLogUtil.isComponentAllowed(componentName, config.getComponents()),
                         config.getDeniedThreads(),

@@ -38,12 +38,4 @@ public class CorrelationLogConstants {
             "BPELServer",
             "CarbonDeploymentSchedulerThread"
     };
-
-    public static final String[] DEFAULT_COMPONENTS = {
-            "http",
-            "ldap" ,
-            "jdbc",
-            "synapse",
-            "method-calls"
-    };
 }
