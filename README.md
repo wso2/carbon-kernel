@@ -4,6 +4,10 @@ WSO2 Carbon redefines middleware by providing an integrated and componentized mi
 
 WSO2 Carbon kernel, the lean, modular, OSGi-based platform, is the base of the WSO2 Carbon platform. It is a composable server architecture which inherits modularity and dynamism from OSGi framework. WSO2 Carbon kernel can be considered as a framework for server development. All the WSO2 products are composed as a collection reusable components running on this kernel. These products/components inherits all the core services provided by Carbon kernel such as Registry/repository, User management, Transports, Caching, Clustering, Logging, Deployment related features.
 
+## System Requirements
+* Java SE Development Kit 11
+
+
 ## Key Features
 * Composable Server Architecture - Provides a modular, light-weight, OSGi-based server development framework.
 * Carbon Application(CApp) deployment support.
@@ -18,10 +22,7 @@ WSO2 Carbon kernel, the lean, modular, OSGi-based platform, is the base of the W
 * Multi-tenancy support - The roots of the multi-tenancy in Carbon platform lies in the Carbon kernel. This feature includes tenant level isolation as well as lazy loading of tenants.
 
 ## New Features
-* Simplified one configuration file
-* Java11 support - Starting from kernel 4.5.0 release, the kernel can now be compiled on Java 11 and run on Java version from 9 to 11.
-* Log4j2 upgrade
-* Tomcat upgrade - Tomcat is upgraded to version 9.0.22. 
+* Java17 support - Starting from kernel 4.7.0 release, the kernel can now be compiled on Java 11 and run on Java version from 11 to 17.
 
 
 ## How to Contribute
