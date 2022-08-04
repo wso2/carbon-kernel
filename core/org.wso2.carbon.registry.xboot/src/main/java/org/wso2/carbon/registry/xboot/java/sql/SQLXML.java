@@ -16,10 +16,10 @@
  *  under the License.
  *
  */
-package java.sql;
+package org.wso2.carbon.registry.xboot.java.sql;
 
 /**
- * Dummy implementation of RowId in JDK6
+ * Dummy implementation of SQLXML in JDK6
  */
-public interface RowId {
+public interface SQLXML {
 }

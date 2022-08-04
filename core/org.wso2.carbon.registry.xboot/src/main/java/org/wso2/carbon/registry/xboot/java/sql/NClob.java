@@ -16,7 +16,7 @@
  *  under the License.
  *
  */
-package java.sql;
+package org.wso2.carbon.registry.xboot.java.sql;
 
 /**
  * Dummy implementation of NClob in JDK6
