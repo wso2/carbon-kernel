@@ -1,4 +1,4 @@
-# Carbon 4.6.x Release Process
+# Carbon 4.7.x Release Process
 
 ## Pre Release Tasks
 * Check whether upstream projects needs a release before releasing kernel. Kernel depends on wso2-axis2, wso2-axiom, and wso2-xmlschema (You need to check the PRs and the commits of these repos).
@@ -7,7 +7,7 @@
 * Do a FindSecurityBugs and ZAP scans and review the report. Send the report to security@wso2.com to get it reviewed/approved by the platform security team.
 
 ## Release Tasks
-1. Create a release branch from the 4.6.x branch.
+1. Create a release branch from the 4.7.x branch.
 2. Update the distribution/product/modules/distribution/release-notes.html for the latest release. We need to include the new features, new github filters for issues fixed for the current release and known issues.
     * Change “All fixed issues have been recorded at” section 
     * Change “All known issues have been recorded at” section 
@@ -44,6 +44,6 @@ Note: If there are negative votes, add the changes and do the next RC version.(G
     
 ## Post Release Tasks
 * Change the version in the carbon.product to have the snapshot of the next version.
-* Merge the release branch to the relevant development branch(4.6.x).
+* Merge the release branch to the relevant development branch(4.7.x).
 * Send the release mail.
 
