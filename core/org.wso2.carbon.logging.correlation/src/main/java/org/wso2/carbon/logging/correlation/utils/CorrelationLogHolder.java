@@ -51,7 +51,9 @@ public class CorrelationLogHolder {
     public CorrelationLogConfigurable getLogServiceInstance(String serviceName) {
 
         if (services.containsKey(serviceName)) {
-            log.debug("Accessing Log Service Instance : " + serviceName);
+            if (log.isDebugEnabled()) {
+                log.debug("Accessing Log Service Instance : " + serviceName);
+            }
             return services.get(serviceName);
         }
         return null;
