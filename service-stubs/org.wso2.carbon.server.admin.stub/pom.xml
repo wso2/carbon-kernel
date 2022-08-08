@@ -94,7 +94,7 @@
                         <Bundle-SymbolicName>
                             ${project.artifactId}
                         </Bundle-SymbolicName>
-                        <Bundle-Vendor>WSO2 Inc</Bundle-Vendor>
+                        <Bundle-Vendor>WSO2 LLC</Bundle-Vendor>
                         <Export-Package>
                             org.wso2.carbon.server.admin.stub.*;version="${carbon.kernel.exp.pkg.version}"
                         </Export-Package>
