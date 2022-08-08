@@ -427,26 +427,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             return new String[0];
         }
 
-        int givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
-
-        int searchTime = UserCoreConstants.MAX_SEARCH_TIME;
-
-        try {
-            givenMax = Integer.parseInt(realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST));
-        } catch (Exception e) {
-            givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
-        }
-
-        try {
-            searchTime = Integer.parseInt(realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
-        } catch (Exception e) {
-            searchTime = UserCoreConstants.MAX_SEARCH_TIME;
-        }
-
-        if (maxItemLimit < 0 || maxItemLimit > givenMax) {
-            maxItemLimit = givenMax;
+        if (maxItemLimit < 0 || maxItemLimit > maximumUserNameListLength) {
+            maxItemLimit = maximumUserNameListLength;
         }
 
         String displayNameAttribute = realmConfig.getUserStoreProperty(JDBCUserStoreConstants.DISPLAY_NAME_ATTRIBUTE);
@@ -492,7 +474,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
             prepStmt.setMaxRows(maxItemLimit);
             try {
-                prepStmt.setQueryTimeout(searchTime);
+                prepStmt.setQueryTimeout(queryTimeout);
             } catch (Exception e) {
                 // this can be ignored since timeout method is not implemented
                 log.debug(e);
@@ -709,20 +691,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         int givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
 
-        int searchTime = UserCoreConstants.MAX_SEARCH_TIME;
-
         try {
             givenMax =
                     Integer.parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_ROLE_LIST));
         } catch (Exception e) {
             givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
-        }
-
-        try {
-            searchTime =
-                    Integer.parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
-        } catch (Exception e) {
-            searchTime = UserCoreConstants.MAX_SEARCH_TIME;
         }
 
         if (maxItemLimit < 0 || maxItemLimit > givenMax) {
@@ -731,7 +704,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         ps.setMaxRows(maxItemLimit);
         try {
-            ps.setQueryTimeout(searchTime);
+            ps.setQueryTimeout(queryTimeout);
         } catch (Exception e) {
             // this can be ignored since timeout method is not implemented
             log.debug(e);
@@ -3148,27 +3121,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 prepStmt.setInt(++count, tenantId);
             }
 
-            int givenMax;
-            int searchTime;
             int maxItemLimit = MAX_ITEM_LIMIT_UNLIMITED;
-            try {
-                givenMax = Integer.parseInt(realmConfig
-                        .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST));
-            } catch (Exception e) {
-                givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
-            }
-            try {
-                searchTime = Integer.parseInt(realmConfig
-                        .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
-            } catch (Exception e) {
-                searchTime = UserCoreConstants.MAX_SEARCH_TIME;
-            }
-            if (maxItemLimit < 0 || maxItemLimit > givenMax) {
-                maxItemLimit = givenMax;
+            if (maxItemLimit < 0 || maxItemLimit > maximumUserNameListLength) {
+                maxItemLimit = maximumUserNameListLength;
             }
             prepStmt.setMaxRows(maxItemLimit);
             try {
-                prepStmt.setQueryTimeout(searchTime);
+                prepStmt.setQueryTimeout(queryTimeout);
             } catch (Exception e) {
                 // this can be ignored since timeout method is not implemented
                 log.debug(e);
@@ -3755,8 +3714,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         String sqlStmt;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
-        int givenMax;
-        int searchTime;
 
         PaginatedSearchResult result = new PaginatedSearchResult();
 
@@ -3764,22 +3721,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             return result;
         }
 
-        try {
-            givenMax = Integer.parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig
-                    .PROPERTY_MAX_USER_LIST));
-        } catch (Exception e) {
-            givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
-        }
-
-        try {
-            searchTime = Integer.parseInt(realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
-        } catch (Exception e) {
-            searchTime = UserCoreConstants.MAX_SEARCH_TIME;
-        }
-
-        if (limit < 0 || limit > givenMax) {
-            limit = givenMax;
+        if (limit < 0 || limit > maximumUserNameListLength) {
+            limit = maximumUserNameListLength;
         }
 
         try {
@@ -3845,7 +3788,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
 
             try {
-                prepStmt.setQueryTimeout(searchTime);
+                prepStmt.setQueryTimeout(queryTimeout);
             } catch (Exception e) {
                 // this can be ignored since timeout method is not implemented
                 log.debug(e);
@@ -4766,17 +4709,24 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private int getMaxUserNameListLength() {
 
         int maxUserList;
-        try {
-            maxUserList = Integer.parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig
-                    .PROPERTY_MAX_USER_LIST));
-        } catch (Exception e) {
-            // The user store property might not be configured. Therefore logging as debug.
+        if (StringUtils.isEmpty(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig
+                .PROPERTY_MAX_USER_LIST))) {
             if (log.isDebugEnabled()) {
-                log.debug("Unable to get the " + UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST +
-                        " from the realm configuration. The default value: " + UserCoreConstants.MAX_USER_ROLE_LIST +
-                        " is used instead.", e);
+                log.debug(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST + " is not defined in the realm " +
+                        "configuration. The default value: " + UserCoreConstants.MAX_USER_ROLE_LIST + " is used " +
+                        "instead.");
             }
             maxUserList = UserCoreConstants.MAX_USER_ROLE_LIST;
+        } else {
+            try {
+                maxUserList = Integer.parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig
+                        .PROPERTY_MAX_USER_LIST));
+            } catch (NumberFormatException e) {
+                log.warn("Unable to get the " + UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST +
+                        " from the realm configuration. The default value: " + UserCoreConstants.MAX_USER_ROLE_LIST +
+                        " is used instead.", e);
+                maxUserList = UserCoreConstants.MAX_USER_ROLE_LIST;
+            }
         }
         return maxUserList;
     }
@@ -4784,17 +4734,24 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private int getSQLQueryTimeoutLimit() {
 
         int searchTime;
-        try {
-            searchTime = Integer.parseInt(realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
-        } catch (Exception e) {
-            // The user store property might not be configured. Therefore logging as debug.
+        if (StringUtils.isEmpty(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig
+                .PROPERTY_MAX_SEARCH_TIME))) {
             if (log.isDebugEnabled()) {
-                log.debug("Unable to get the " + UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME +
-                        " from the realm configuration. The default value: " + UserCoreConstants.MAX_SEARCH_TIME +
-                        " is used instead.", e);
+                log.debug(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME + " is not defined in the realm " +
+                        "configuration. The default value: " + UserCoreConstants.MAX_SEARCH_TIME + " is used " +
+                        "instead.");
             }
             searchTime = UserCoreConstants.MAX_SEARCH_TIME;
+        } else {
+            try {
+                searchTime = Integer.parseInt(realmConfig
+                        .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
+            } catch (NumberFormatException e) {
+                log.warn("Unable to get the " + UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME +
+                        " from the realm configuration. The default value: " + UserCoreConstants.MAX_SEARCH_TIME +
+                        " is used instead.", e);
+                searchTime = UserCoreConstants.MAX_SEARCH_TIME;
+            }
         }
         return searchTime;
     }
