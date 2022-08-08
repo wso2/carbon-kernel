@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
- ~ Copyright (c) WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ ~ Copyright (c) WSO2 LLC. (http://wso2.com) All Rights Reserved.
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
  ~ you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Bundle-Vendor>WSO2 Inc</Bundle-Vendor>
+                        <Bundle-Vendor>WSO2 LLC</Bundle-Vendor>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Activator>org.wso2.carbon.osgi.security.internal.OSGiSecurityActivator
                         </Bundle-Activator>
