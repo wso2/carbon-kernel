@@ -28,6 +28,8 @@ public class CorrelationLogConstants {
     public static final String CONFIG_PATH_COMPONENTS = "CorrelationLogs.components";
     public static final String CONFIG_PATH_DENIED_THREADS = "CorrelationLogs.deniedThreads";
     public static final String CONFIG_PATH_COMPONENT_CONFIGS = "CorrelationLogs.componentConfigs";
+    public static final String CORRELATION_LOGS_SYS_PROPERTY = "enableCorrelationLogs";
+    public static final String DENIED_THREADS_SYS_PROPERTY = "org.wso2.CorrelationLogInterceptor.BlacklistedThreads";
 
     // Defaults
     public static final String[] DEFAULT_DENIED_THREADS = {

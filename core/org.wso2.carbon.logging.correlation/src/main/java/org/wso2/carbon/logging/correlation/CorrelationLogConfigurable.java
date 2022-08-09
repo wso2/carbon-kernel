@@ -32,6 +32,8 @@ public interface CorrelationLogConfigurable {
      */
     String getName();
 
+    ImmutableCorrelationLogConfig getConfiguration();
+
     /**
      * Receives an instance of <code>ImmutableCorrelationLogConfig</code> class which holds the component-specific
      * configuration.
