@@ -218,36 +218,12 @@
             <artifactId>org.eclipse.core.runtime</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.ecf</groupId>
-            <artifactId>org.eclipse.ecf</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.ecf</groupId>
-            <artifactId>org.eclipse.ecf.filetransfer</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.ecf</groupId>
-            <artifactId>org.eclipse.ecf.identity</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.ecf</groupId>
-            <artifactId>org.eclipse.ecf.provider.filetransfer</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.eclipse</groupId>
             <artifactId>org.sat4j.core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse</groupId>
             <artifactId>org.sat4j.pb</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.osgi</groupId>
-            <artifactId>org.eclipse.equinox.p2.transport.ecf</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.ecf.provider.filetransfer</groupId>
-            <artifactId>httpclient</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.eclipse.osgi</groupId>
@@ -302,10 +278,6 @@
                                 <bundleDef>org.eclipse.core:org.eclipse.core.expressions</bundleDef>
                                 <bundleDef>org.eclipse.core:org.eclipse.core.jobs</bundleDef>
                                 <bundleDef>org.eclipse.core:org.eclipse.core.runtime</bundleDef>
-                                <bundleDef>org.eclipse.ecf:org.eclipse.ecf</bundleDef>
-                                <bundleDef>org.eclipse.ecf:org.eclipse.ecf.filetransfer</bundleDef>
-                                <bundleDef>org.eclipse.ecf:org.eclipse.ecf.identity</bundleDef>
-                                <bundleDef>org.eclipse.ecf:org.eclipse.ecf.provider.filetransfer</bundleDef>
                                 <bundleDef>org.eclipse:org.sat4j.core</bundleDef>
                                 <bundleDef>org.eclipse:org.sat4j.pb</bundleDef>
                                 <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.p2.artifact.repository</bundleDef>
@@ -329,8 +301,6 @@
                                 <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.p2.updatesite</bundleDef>
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.publisher.eclipse</bundleDef>
                                 <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.launcher.gtk.linux.x86</bundleDef>
-                                <bundleDef>org.eclipse.osgi:org.eclipse.equinox.p2.transport.ecf</bundleDef>
-                                <bundleDef>org.eclipse.ecf.provider.filetransfer:httpclient</bundleDef>
                                 <bundleDef>org.wso2.eclipse.osgi:org.eclipse.osgi.compatibility.state</bundleDef>
                             </bundles>
                         </configuration>

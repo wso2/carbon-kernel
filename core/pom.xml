@@ -140,7 +140,6 @@
         <module>org.wso2.carbon.base</module>
         <module>org.wso2.carbon.bootstrap</module>
         <module>org.wso2.carbon.core.bootup.validator</module>
-        <module>feature-manager</module>
         <module>server-role-manager</module>
         <module>org.wso2.carbon.coordination.common</module>
         <module>org.wso2.carbon.coordination.core</module>
