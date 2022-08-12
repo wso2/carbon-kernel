@@ -280,7 +280,7 @@ echo "Using Java memory options: $JVM_MEM_OPTS"
 #To monitor a Carbon server in remote JMX mode on linux host machines, set the below system property.
 #   -Djava.rmi.server.hostname="your.IP.goes.here"
 
-JAVA_VER_BASED_OPTS=""
+JAVA_VER_BASED_OPTS="--add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens java.rmi/sun.rmi.transport=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED"
 
 if [ $java_version_formatted -ge 1700 ]; then
     JAVA_VER_BASED_OPTS=$JAVA_VER_BASED_OPTS "--add-opens=java.naming/com.sun.jndi.ldap=ALL-UNNAMED"
