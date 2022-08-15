@@ -249,9 +249,9 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
                             </table>
                         </form>
                         <br/>
-			            <a target="_blank" href="../docs/signin_userguide.html" tabindex="4">
-                            <fmt:message key="sign.in.help"/>
-                        </a>
+<%--			            <a target="_blank" href="../docs/signin_userguide.html" tabindex="4">--%>
+<%--                            <fmt:message key="sign.in.help"/>--%>
+<%--                        </a>--%>
                     </div>
                 </td>
             </tr>
