@@ -51,6 +51,9 @@ import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import static org.wso2.carbon.user.core.ldap.LDAPConstants.DRIVER_NAME;
+import static org.wso2.carbon.user.core.ldap.LDAPConstants.SIMPLE_SECURITY_AUTHENTICATION;
+
 public class LDAPConnectionContext {
 
     private static Log log = LogFactory.getLog(LDAPConnectionContext.class);
@@ -242,6 +245,38 @@ public class LDAPConnectionContext {
         // By-default set to close state.
         ldapConnectionCircuitBreakerState = CIRCUIT_STATE_CLOSE;
         thresholdStartTime = 0;
+    }
+
+    /**
+     * Create LDAPConnectionContext object with minimal configuration to test connection health.
+     * @param connectionURL Connection URL.
+     * @param connectionName Connection Name.
+     * @param connectionPassword Connection Password.
+     */
+    public LDAPConnectionContext(String connectionURL, String connectionName, String connectionPassword) {
+        environment = new Hashtable();
+
+        environment.put(Context.INITIAL_CONTEXT_FACTORY, DRIVER_NAME);
+        environment.put(Context.SECURITY_AUTHENTICATION, SIMPLE_SECURITY_AUTHENTICATION);
+        environment.put(CarbonConstants.REQUEST_BASE_CONTEXT, "true");
+
+        if (connectionName != null) {
+            environment.put(Context.SECURITY_PRINCIPAL, connectionName);
+        }
+
+        if (connectionPassword != null) {
+            environment.put(Context.SECURITY_CREDENTIALS, connectionPassword);
+        }
+
+        if (connectionURL != null) {
+            environment.put(Context.PROVIDER_URL, connectionURL);
+        }
+
+        startTLSEnabled = false;
+        thresholdTimeoutInMilliseconds = UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS;
+        ldapConnectionCircuitBreakerState = CIRCUIT_STATE_CLOSE;
+        thresholdStartTime = 0;
+
     }
 
     public DirContext getContext() throws UserStoreException {
