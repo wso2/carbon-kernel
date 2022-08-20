@@ -15,7 +15,6 @@
  */
 package org.wso2.carbon.core.internal;
 
-import com.hazelcast.core.HazelcastInstance;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.clustering.ClusteringAgent;
 import org.apache.axis2.clustering.ClusteringConstants;
@@ -41,10 +40,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.caching.impl.DistributedMapProvider;
 import org.wso2.carbon.core.ServerStatus;
-import org.wso2.carbon.core.clustering.api.CarbonCluster;
-import org.wso2.carbon.core.clustering.hazelcast.HazelcastClusteringAgent;
 import org.wso2.carbon.core.init.JMXServerManager;
 import org.wso2.carbon.core.multitenancy.eager.TenantEagerLoader;
 import org.wso2.carbon.core.multitenancy.utils.TenantAxisUtils;
@@ -298,16 +294,6 @@ public class StartupFinalizerServiceComponent implements ServiceListener {
             clusteringAgent.setConfigurationContext(configContext);
             clusteringAgent.init();
             configContext.setNonReplicableProperty(ClusteringConstants.CLUSTER_INITIALIZED, "true");
-
-            if (clusteringAgent instanceof HazelcastClusteringAgent) {
-                HazelcastClusteringAgent hazelcastClusteringAgent = (HazelcastClusteringAgent) clusteringAgent;
-                bundleContext.registerService(DistributedMapProvider.class,
-                                              hazelcastClusteringAgent.getDistributedMapProvider(), null);
-                bundleContext.registerService(HazelcastInstance.class,
-                                              hazelcastClusteringAgent.getPrimaryHazelcastInstance(), null);
-                bundleContext.registerService(CarbonCluster.class,
-                                              hazelcastClusteringAgent.getCarbonCluster(), null);
-            }
         }
     }
 

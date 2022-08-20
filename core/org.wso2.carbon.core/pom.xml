@@ -33,16 +33,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.orbit.com.hazelcast</groupId>
-            <artifactId>hazelcast</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.hazelcast</groupId>
-                    <artifactId>hazelcast</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
         </dependency>
