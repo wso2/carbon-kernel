@@ -81,7 +81,13 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
-                        <Export-Package>org.wso2.carbon.hazelcast.*</Export-Package>
+                        <Private-Package>
+                            org.wso2.carbon.hazelcast.internal
+                        </Private-Package>
+                        <Export-Package>
+                            !org.wso2.carbon.hazelcast.internal,
+                            org.wso2.carbon.hazelcast.*; version="${carbon.kernel.exp.pkg.version}",
+                        </Export-Package>
                         <Import-Package>
                             !javax.xml.namespace,
                             org.apache.axis2.*; version="${imp.pkg.version.axis2}",
