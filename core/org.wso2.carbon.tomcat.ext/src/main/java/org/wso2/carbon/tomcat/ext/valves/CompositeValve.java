@@ -41,8 +41,11 @@ public class CompositeValve extends ValveBase {
     @Override
     public void invoke(Request request, Response response) throws IOException, ServletException {
         try {
-            
             if (request.getContext() == null) {
+                if (request.getRequestURI() == null) {
+                    log.debug("Could not handle the request, could be due to not properly encoded request.");
+                    return;
+                }
                 log.error("Could not handle the request, could be due to the maxHttpHeaderSize limitation.");
                 return;
             }
