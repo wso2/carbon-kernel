@@ -96,18 +96,22 @@ public class PermissionUpdater {
     }
 
     public static void remove(int tenantId) {
-        try {
-            RegistryService registryService = dataHolder.getRegistryService();
-            AuthorizationManager authzManager = getAuthzManager(tenantId, registryService);
-            if (authzManager instanceof JDBCAuthorizationManager) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Updating  permission cache for tenant: " + tenantId);
+        if(tenantId == -1){
+            log.error("Invalid tenant ID : -1");
+        } else {
+            try {
+                RegistryService registryService = dataHolder.getRegistryService();
+                AuthorizationManager authzManager = getAuthzManager(tenantId, registryService);
+                if (authzManager instanceof JDBCAuthorizationManager) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Updating  permission cache for tenant: " + tenantId);
+                    }
+                    ((JDBCAuthorizationManager) authzManager).clearPermissionTree();
                 }
-                ((JDBCAuthorizationManager) authzManager).clearPermissionTree();
+                permTreeModifiedTimeStampMap.remove(tenantId);
+            } catch (Exception e) {
+                log.error("Error when clearing the permission cache for tenant : " + tenantId, e);
             }
-            permTreeModifiedTimeStampMap.remove(tenantId);
-        } catch (Exception e) {
-            log.error("Error when clearing the permission cache for tenant : " + tenantId, e);
         }
     }
 
