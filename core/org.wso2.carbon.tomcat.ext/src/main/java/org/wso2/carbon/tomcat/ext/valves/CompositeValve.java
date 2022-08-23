@@ -43,7 +43,7 @@ public class CompositeValve extends ValveBase {
         try {
             if (request.getContext() == null) {
                 if (request.getRequestURI() == null) {
-                    log.debug("Could not handle the request, could be due to not properly encoded request.");
+                    log.debug("Could not handle the request. The request URI is invalid.");
                     return;
                 }
                 log.error("Could not handle the request, could be due to the maxHttpHeaderSize limitation.");
