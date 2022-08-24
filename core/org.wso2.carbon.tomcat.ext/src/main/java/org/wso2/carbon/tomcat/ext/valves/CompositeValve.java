@@ -4,6 +4,7 @@ import org.apache.catalina.Realm;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -42,7 +43,7 @@ public class CompositeValve extends ValveBase {
     public void invoke(Request request, Response response) throws IOException, ServletException {
         try {
             if (request.getContext() == null) {
-                if (request.getRequestURI() == null) {
+                if (StringUtils.isEmpty(request.getRequestURI())) {
                     if (log.isDebugEnabled()) {
                         log.debug("Could not handle the request. The request URI is invalid.");
                     }
