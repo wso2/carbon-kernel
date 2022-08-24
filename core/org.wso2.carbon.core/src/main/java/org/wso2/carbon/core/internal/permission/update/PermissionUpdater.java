@@ -96,7 +96,7 @@ public class PermissionUpdater {
     }
 
     public static void remove(int tenantId) {
-        if(tenantId == -1) {
+        if (tenantId == -1) {
             log.error("Invalid tenant ID : -1");
         } else {
             try {
