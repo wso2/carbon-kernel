@@ -49,15 +49,17 @@
         						.getServerConfigurationProperty("Name");
         %>
         <h2>
-            <fmt:message key="carbon.server.home">
-                <fmt:param value="<%= serverName%>"/>
-            </fmt:message>
+            WSO2 Private CIAM Cloud
+<%--            <fmt:message key="carbon.server.home">--%>
+<%--                <fmt:param value="<%= serverName%>"/>--%>
+<%--            </fmt:message>--%>
         </h2>
 
         <p>
-            <fmt:message key="carbon.console.welcome">
-                <fmt:param value="<%= serverName%>"/>
-            </fmt:message>
+            Welcome to the WSO2 Private CIAM Cloud Management Console
+<%--            <fmt:message key="carbon.console.welcome">--%>
+<%--                <fmt:param value="<%= serverName%>"/>--%>
+<%--            </fmt:message>--%>
         </p>
 
         <p>&nbsp;</p>

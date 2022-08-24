@@ -146,35 +146,35 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
                                     <p><fmt:message key="user.guide.text"/></p>
                                 </td>
                             </tr>
-                            <tr class="feature">
-                                <td>
-                                    <a target="_blank" href="<%=userForumURL %>" rel="noopener noreferrer"><img
-                                            src="../admin/images/forum.gif"/></a>
-                                </td>
-                                <td>
-                                    <h3><a target="_blank" href="<%=userForumURL %>"
-                                           rel="noopener noreferrer"><fmt:message
-                                            key="forum"/></a>
-                                    </h3>
+<%--                            <tr class="feature">--%>
+<%--                                <td>--%>
+<%--                                    <a target="_blank" href="<%=userForumURL %>" rel="noopener noreferrer"><img--%>
+<%--                                            src="../admin/images/forum.gif"/></a>--%>
+<%--                                </td>--%>
+<%--                                <td>--%>
+<%--                                    <h3><a target="_blank" href="<%=userForumURL %>"--%>
+<%--                                           rel="noopener noreferrer"><fmt:message--%>
+<%--                                            key="forum"/></a>--%>
+<%--                                    </h3>--%>
 
-                                    <p><fmt:message key="forum.text"/></p>
-                                </td>
-                            </tr>
-                            <tr class="feature">
-                                <td>
-                                    <a target="_blank"
-                                       href="<%=issuetrackerURL %>" rel="noopener noreferrer"><img
-                                            src="../admin/images/issue-tracker.gif"/></a>
-                                </td>
-                                <td>
-                                    <h3><a target="_blank"
-                                           href="<%=issuetrackerURL %>" rel="noopener noreferrer">
-                                        <fmt:message key="issue.tracker"/></a></h3>
+<%--                                    <p><fmt:message key="forum.text"/></p>--%>
+<%--                                </td>--%>
+<%--                            </tr>--%>
+<%--                            <tr class="feature">--%>
+<%--                                <td>--%>
+<%--                                    <a target="_blank"--%>
+<%--                                       href="<%=issuetrackerURL %>" rel="noopener noreferrer"><img--%>
+<%--                                            src="../admin/images/issue-tracker.gif"/></a>--%>
+<%--                                </td>--%>
+<%--                                <td>--%>
+<%--                                    <h3><a target="_blank"--%>
+<%--                                           href="<%=issuetrackerURL %>" rel="noopener noreferrer">--%>
+<%--                                        <fmt:message key="issue.tracker"/></a></h3>--%>
 
-                                    <p><fmt:message key="issue.tracker.text"/></p>
+<%--                                    <p><fmt:message key="issue.tracker.text"/></p>--%>
 
-                                </td>
-                            </tr>
+<%--                                </td>--%>
+<%--                            </tr>--%>
                             <tr class="feature">
                                 <td>
                                     <a target="_blank" href="<%=mailinglistURL %>" rel="noopener noreferrer"><img
@@ -249,9 +249,9 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
                             </table>
                         </form>
                         <br/>
-			            <a target="_blank" href="../docs/signin_userguide.html" tabindex="4">
-                            <fmt:message key="sign.in.help"/>
-                        </a>
+<%--			            <a target="_blank" href="../docs/signin_userguide.html" tabindex="4">--%>
+<%--                            <fmt:message key="sign.in.help"/>--%>
+<%--                        </a>--%>
                     </div>
                 </td>
             </tr>
