@@ -4,6 +4,7 @@ import org.apache.catalina.Realm;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -41,9 +42,16 @@ public class CompositeValve extends ValveBase {
     @Override
     public void invoke(Request request, Response response) throws IOException, ServletException {
         try {
-            
             if (request.getContext() == null) {
-                log.error("Could not handle the request, could be due to the maxHttpHeaderSize limitation.");
+                if (StringUtils.isEmpty(request.getRequestURI())) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Could not handle the request. The request URI is invalid.");
+                    }
+                    return;
+                }
+                if (log.isDebugEnabled()) {
+                    log.debug("Could not handle the request, could be due to the maxHttpHeaderSize limitation.");
+                }
                 return;
             }
             
