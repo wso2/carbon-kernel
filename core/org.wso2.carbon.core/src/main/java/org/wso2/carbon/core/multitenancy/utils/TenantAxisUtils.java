@@ -455,8 +455,15 @@ public final class TenantAxisUtils {
                                 PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
                                 carbonContext.setTenantDomain(tenantDomain, true);
 
-                                // Terminating idle tenant configuration contexts.
-                                terminateTenantConfigContext(tenantCfgCtx);
+                                if (carbonContext.getTenantId() != MultitenantConstants.INVALID_TENANT_ID) {
+                                    // Terminating idle tenant configuration contexts.
+                                    terminateTenantConfigContext(tenantCfgCtx);
+                                } else {
+                                    if (log.isDebugEnabled()) {
+                                        log.debug("If the tenant ID from the carbon context is -1, it is possible" +
+                                                " that the tenant has already been removed.");
+                                    }
+                                }
                                 tenantConfigContexts.remove(tenantDomain);
                             } finally {
                                 PrivilegedCarbonContext.endTenantFlow();

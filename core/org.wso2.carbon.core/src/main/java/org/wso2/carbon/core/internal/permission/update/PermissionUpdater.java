@@ -95,13 +95,7 @@ public class PermissionUpdater {
         return authznManager;
     }
 
-    public static void remove(int tenantId) {
-        if (tenantId == -1) {
-            if (log.isDebugEnabled()) {
-                log.debug("Invalid tenant ID : -1");
-            }
-            return;
-        }
+    public static void remove(int tenantId) {q
         try {
             RegistryService registryService = dataHolder.getRegistryService();
             AuthorizationManager authzManager = getAuthzManager(tenantId, registryService);
