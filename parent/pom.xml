@@ -422,7 +422,7 @@
         <version.ant.contrib>1.0b3</version.ant.contrib>
 
         <!-- Apache xmlbeans -->
-        <version.xmlbeans>2.3.0.wso2v1</version.xmlbeans>
+        <version.xmlbeans>3.1.0.wso2v1</version.xmlbeans>
 
         <!-- Apache woden-->
         <version.woden>1.0.0.M9-wso2v1</version.woden>
@@ -526,7 +526,7 @@
         <!--<version.opensaml2>2.4.1.wso2v1</version.opensaml2>-->
         <version.compass>2.0.1.wso2v2</version.compass>
 
-        <version.xercesImpl>2.8.1.wso2v2</version.xercesImpl>
+        <version.xercesImpl>2.12.2.wso2v1</version.xercesImpl>
         <version.xalan>2.7.2.wso2v2</version.xalan>
         <version.xml-apis>1.4.01</version.xml-apis>
         <version.xml-resolver>1.2</version.xml-resolver>
@@ -1038,7 +1038,7 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>org.apache.xmlbeans.wso2</groupId>
+                <groupId>org.wso2.orbit.org.apache.xmlbeans</groupId>
                 <artifactId>xmlbeans</artifactId>
                 <version>${version.xmlbeans}</version>
             </dependency>
@@ -1053,7 +1053,7 @@
                 <version>${neethi.osgi.version}</version>
             </dependency>
             <dependency>
-                <groupId>xerces.wso2</groupId>
+                <groupId>org.wso2.orbit.xerces</groupId>
                 <artifactId>xercesImpl</artifactId>
                 <version>${version.xercesImpl}</version>
             </dependency>
