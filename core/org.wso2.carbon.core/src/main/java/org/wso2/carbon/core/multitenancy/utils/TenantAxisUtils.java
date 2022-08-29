@@ -460,8 +460,9 @@ public final class TenantAxisUtils {
                                     terminateTenantConfigContext(tenantCfgCtx);
                                 } else {
                                     if (log.isDebugEnabled()) {
-                                        log.debug("If the tenant ID from the carbon context is -1, it is possible" +
-                                                " that the tenant has already been removed.");
+                                        log.debug("Tenant ID of tenant domain " + tenantDomain +
+                                                " can't be resolved. This tenant may be deleted." +
+                                                " So skipping the tenant unloading part.");
                                     }
                                 }
                                 tenantConfigContexts.remove(tenantDomain);
