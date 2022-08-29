@@ -95,7 +95,7 @@ public class PermissionUpdater {
         return authznManager;
     }
 
-    public static void remove(int tenantId) {q
+    public static void remove(int tenantId) {
         try {
             RegistryService registryService = dataHolder.getRegistryService();
             AuthorizationManager authzManager = getAuthzManager(tenantId, registryService);
