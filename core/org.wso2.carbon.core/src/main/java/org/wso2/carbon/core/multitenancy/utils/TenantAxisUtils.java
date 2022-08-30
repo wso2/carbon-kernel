@@ -455,7 +455,7 @@ public final class TenantAxisUtils {
                                 PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
                                 carbonContext.setTenantDomain(tenantDomain, true);
 
-                                if (MultitenantConstants.INVALID_TENANT_ID  != carbonContext.getTenantId()) {
+                                if (MultitenantConstants.INVALID_TENANT_ID != carbonContext.getTenantId()) {
                                     // Terminating idle tenant configuration contexts.
                                     terminateTenantConfigContext(tenantCfgCtx);
                                 } else {
