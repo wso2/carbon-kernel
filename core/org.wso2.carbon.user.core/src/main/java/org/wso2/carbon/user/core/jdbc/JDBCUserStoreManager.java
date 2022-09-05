@@ -4790,7 +4790,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         String searchTimeRawValue = realmConfig.getUserStoreProperty(UserCoreConstants.
                 RealmConfig.PROPERTY_MAX_SEARCH_TIME);
 
-        if (StringUtils.isNumeric(searchTimeRawValue)) {
+        if (StringUtils.isNotEmpty(searchTimeRawValue) && StringUtils.isNumeric(searchTimeRawValue)) {
             searchTime = Integer.parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.
                     RealmConfig.PROPERTY_MAX_SEARCH_TIME));
         } else {
