@@ -1430,7 +1430,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             // in a one level above this.
             if (debug) {
                 log.debug("Authentication failed " + e, e);
-                log.debug("Clearing cache for DN: " + dn, e);
+                log.debug("Clearing cache for DN: " + dn);
             }
             if (userName != null) {
                 removeFromUserCache(userName);
