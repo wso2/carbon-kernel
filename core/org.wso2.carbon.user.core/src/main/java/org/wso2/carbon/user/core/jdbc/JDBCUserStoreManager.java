@@ -4769,7 +4769,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         String maxUserListRawValue = realmConfig.getUserStoreProperty(UserCoreConstants.
                 RealmConfig.PROPERTY_MAX_USER_LIST);
 
-        if (StringUtils.isNumeric(maxUserListRawValue)) {
+        if (StringUtils.isNotEmpty(maxUserListRawValue) && StringUtils.isNumeric(maxUserListRawValue)) {
             maxUserList = Integer.parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.
                     RealmConfig.PROPERTY_MAX_USER_LIST));
         } else {
