@@ -87,7 +87,7 @@ public class ReadWriteLDAPUserStoreConstants {
                 UserStoreConfigConstants.userIdAttributeDescription,false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdSearchFilter,
-                UserStoreConfigConstants.userIdSearchFilterAttributeName, "(&(objectClass=person)(uid=?))",
+                UserStoreConfigConstants.userIdSearchFilterAttributeName, "(&(objectClass=person)(scimId=?))",
                 UserStoreConfigConstants.userIdSearchFilterDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
 
