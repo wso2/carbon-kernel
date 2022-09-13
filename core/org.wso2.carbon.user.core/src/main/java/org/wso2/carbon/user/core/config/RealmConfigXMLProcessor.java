@@ -89,12 +89,16 @@ public class RealmConfigXMLProcessor {
         OMElement adminUserNameElem = factory.createOMElement(new QName(
                 UserCoreConstants.RealmConfig.LOCAL_NAME_USER_NAME));
         adminUserNameElem.setText(realmConfig.getAdminUserName());
+        OMElement adminUserIdElem = factory.createOMElement(new QName(
+                UserCoreConstants.RealmConfig.LOCAL_NAME_USERID));
+        adminUserIdElem.setText(realmConfig.getAdminUserId());
         OMElement adminPasswordElem = factory.createOMElement(new QName(
                 UserCoreConstants.RealmConfig.LOCAL_NAME_PASSWORD));
         addAdmin.setText(UserCoreUtil.removeDomainFromName(realmConfig.getAddAdmin()));
         adminPasswordElem.setText(realmConfig.getAdminPassword());
         adminUser.addChild(adminUserNameElem);
         adminUser.addChild(adminPasswordElem);
+        adminUser.addChild(adminUserIdElem);
         mainConfig.addChild(addAdmin);
         mainConfig.addChild(adminUser);
 
@@ -298,6 +302,7 @@ public class RealmConfigXMLProcessor {
         String adminRoleName = null;
         String adminUserName = null;
         String adminPassword = null;
+        String adminUserId = null;
         String everyOneRoleName = null;
         String realmClass = null;
         String description = null;
@@ -376,6 +381,14 @@ public class RealmConfigXMLProcessor {
         OMElement adminPasswordElement =
                 adminUser.getFirstChildWithName(new QName(UserCoreConstants.RealmConfig.LOCAL_NAME_PASSWORD));
         adminPassword = MiscellaneousUtil.resolve(adminPasswordElement, secretResolver);
+
+        if (adminUser.getFirstChildWithName(new QName(UserCoreConstants.RealmConfig.LOCAL_NAME_USERID)) != null) {
+            adminUserId = adminUser
+                    .getFirstChildWithName(
+                            new QName(UserCoreConstants.RealmConfig.LOCAL_NAME_USERID)).getText()
+                    .trim();
+        }
+
         adminRoleName = mainConfig
                 .getFirstChildWithName(
                         new QName(UserCoreConstants.RealmConfig.LOCAL_NAME_ADMIN_ROLE)).getText()
@@ -475,6 +488,7 @@ public class RealmConfigXMLProcessor {
                     + everyOneRoleName);
             realmConfig.setAdminRoleName(adminRoleName);
             realmConfig.setAdminUserName(adminUserName);
+            realmConfig.setAdminUserId(adminUserId);
             realmConfig.setIsOverrideUsernameClaimFromInternalUsername(isOverrideUsernameClaimFromInternalUsername);
             realmConfig.setUserStoreProperties(userStoreProperties);
             realmConfig.setAuthzProperties(authzProperties);

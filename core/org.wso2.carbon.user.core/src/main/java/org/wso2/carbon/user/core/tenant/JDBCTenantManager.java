@@ -473,6 +473,7 @@ public class JDBCTenantManager implements TenantManager {
                 tenant.setRealmConfig(realmConfig);
                 setSecondaryUserStoreConfig(realmConfig, tenantId);
                 tenant.setAdminName(realmConfig.getAdminUserName());
+                tenant.setAdminUserId(realmConfig.getAdminUserId());
                 if (tenantUUIDColumnExists) {
                     tenant.setTenantUniqueID(uniqueId);
                 }
@@ -802,9 +803,14 @@ public class JDBCTenantManager implements TenantManager {
                 tenant.setRealmConfig(realmConfig);
                 setSecondaryUserStoreConfig(realmConfig, id);
                 tenant.setAdminName(realmConfig.getAdminUserName());
-                // Handle the admin UUID resolution properly with https://github.com/wso2/product-is/issues/14001.
                 if (StringUtils.isNotBlank(tenant.getAssociatedOrganizationUUID())) {
-                    tenant.setAdminUserId(realmConfig.getAdminUserName());
+                    String adminId = realmConfig.getAdminUserId();
+                    if (StringUtils.isNotBlank(adminId)) {
+                        tenant.setAdminUserId(adminId);
+                    } else {
+                        // If realms were not migrated after https://github.com/wso2/product-is/issues/14001.
+                        tenant.setAdminUserId(realmConfig.getAdminUserName());
+                    }
                 } else {
                     tenant.setAdminUserId(getUserId(realmConfig.getAdminUserName(), id));
                 }
