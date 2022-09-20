@@ -638,6 +638,44 @@
                 <type>zip</type>
                 <scope>test</scope>
             </dependency>
+
+            <!--Java 11 related dependencies-->
+            <dependency>
+                <groupId>org.wso2.orbit.javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${org.wso2.orbit.javax.xml.bind.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.sun.xml.bind</groupId>
+                <artifactId>jaxb</artifactId>
+                <version>${org.wso2.orbit.sun.xml.bind.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.javax.activation</groupId>
+                <artifactId>activation</artifactId>
+                <version>${com.sun.activation.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.xml-apis</groupId>
+                <artifactId>xml-apis</artifactId>
+                <version>${org.wso2.orbit.xml-apis.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-activation_1.1_spec</artifactId>
+                <version>${org.apache.geronimo.spec.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.istack</groupId>
+                <artifactId>istack-commons-runtime</artifactId>
+                <version>${com.sun.istack.version}</version>
+                <type>jar</type>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

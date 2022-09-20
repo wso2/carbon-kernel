@@ -91,6 +91,28 @@
             <artifactId>powermock-module-testng</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- Java11 dependencies -->
+        <dependency>
+            <groupId>org.wso2.orbit.javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.sun.xml.bind</groupId>
+            <artifactId>jaxb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-activation_1.1_spec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.istack</groupId>
+            <artifactId>istack-commons-runtime</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.javax.activation</groupId>
+            <artifactId>activation</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

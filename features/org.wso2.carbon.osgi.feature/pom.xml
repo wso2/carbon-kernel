@@ -117,6 +117,22 @@
             <groupId>org.wso2.eclipse.osgi</groupId>
             <artifactId>org.eclipse.osgi.compatibility.state</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.sun.xml.bind</groupId>
+            <artifactId>jaxb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.javax.activation</groupId>
+            <artifactId>activation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -225,6 +241,22 @@
                                 <bundle>
                                     <symbolicName>org.eclipse.osgi.compatibility.state</symbolicName>
                                     <version>${equinox.osgi.compatibility.state.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.wso2.orbit.sun.xml.bind.jaxb</symbolicName>
+                                    <version>${org.wso2.orbit.sun.xml.bind.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.wso2.orbit.javax.xml.bind.jaxb-api</symbolicName>
+                                    <version>${org.wso2.orbit.javax.xml.bind.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.wso2.orbit.javax.activation.activation</symbolicName>
+                                    <version>${com.sun.activation.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.wso2.orbit.xml-apis.xml-apis</symbolicName>
+                                    <version>${org.wso2.orbit.xml-apis.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>
