@@ -105,6 +105,17 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${maven.spotbugsplugin.version}</version>
+                <configuration>
+                    <effort>Max</effort>
+                    <threshold>Low</threshold>
+                    <xmlOutput>true</xmlOutput>
+                    <excludeFilterFile>${maven.spotbugsplugin.exclude.file}</excludeFilterFile>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

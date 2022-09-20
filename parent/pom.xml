@@ -754,6 +754,7 @@
         <maven-plugin-annotations.version>3.4</maven-plugin-annotations.version>
         <maven-core.version>3.3.9</maven-core.version>
         <maven-bundle-plugin.version>3.3.0</maven-bundle-plugin.version>
+        <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
 
         <!--Pax Exam Versions-->
         <pax.exam.version>4.9.1</pax.exam.version>
