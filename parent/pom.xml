@@ -128,6 +128,9 @@
                             <goals>
                                 <goal>javadoc</goal>
                             </goals>
+                            <configuration>
+                                <additionalparam>-Xdoclint:none</additionalparam>
+                            </configuration>
                         </execution>
                     </executions>
                 </plugin>
@@ -135,6 +138,26 @@
                     <groupId>org.wso2.carbon.maven</groupId>
                     <artifactId>carbon-feature-plugin</artifactId>
                     <version>${carbon.feature.plugin.version}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.sun.xml.bind</groupId>
+                            <artifactId>jaxb-core</artifactId>
+                            <version>${com.sun.xml.bind.version}</version>
+                            <type>jar</type>
+                        </dependency>
+                        <dependency>
+                            <groupId>com.sun.xml.bind</groupId>
+                            <artifactId>jaxb-impl</artifactId>
+                            <version>${com.sun.xml.bind.version}</version>
+                            <type>jar</type>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.wso2.orbit.javax.xml.bind</groupId>
+                            <artifactId>jaxb-api</artifactId>
+                            <version>${org.wso2.orbit.javax.xml.bind.version}</version>
+                            <type>jar</type>
+                        </dependency>
+                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.wso2.carbon.config</groupId>
@@ -147,6 +170,7 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
+                <version>${maven-bundle-plugin.version}</version>
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${bundle.symbolicName}</Bundle-SymbolicName>
@@ -691,6 +715,7 @@
         <maven-plugin-api.version>3.3.9</maven-plugin-api.version>
         <maven-plugin-annotations.version>3.4</maven-plugin-annotations.version>
         <maven-core.version>3.3.9</maven-core.version>
+        <maven-bundle-plugin.version>3.3.0</maven-bundle-plugin.version>
 
         <!--Pax Exam Versions-->
         <pax.exam.version>4.9.1</pax.exam.version>
@@ -709,23 +734,35 @@
         <!--Other dependency versions -->
         <carbon.feature.plugin.version>3.1.1</carbon.feature.plugin.version>
         <testng.version>6.9.4</testng.version>
-        <jacoco.version>0.7.5.201505241946</jacoco.version>
+        <jacoco.version>0.8.2</jacoco.version>
         <org.jacoco.ant.version>0.7.5.201505241946</org.jacoco.ant.version>
         <commons.io.version>2.4.0.wso2v1</commons.io.version>
         <commons.compress.version>1.4.1</commons.compress.version>
-        <org.kohsuke.metainf.services.version>1.2</org.kohsuke.metainf.services.version>
+        <org.kohsuke.metainf.services.version>1.9</org.kohsuke.metainf.services.version>
         <geronimo.jms.spec.version>1.1</geronimo.jms.spec.version>
         <easymock.version>3.4</easymock.version>
         <powermock.api.easymock.version>1.6.5</powermock.api.easymock.version>
         <powermock.module.testng.version>1.6.5</powermock.module.testng.version>
         <javax.management.import.version.range>[0.0.0,1.0.0)</javax.management.import.version.range>
         <javax.security.auth.import.version.range>[0.0.0,1.0.0)</javax.security.auth.import.version.range>
-        <javax.xml.import.version.range>[0.0.0,1.0.0)</javax.xml.import.version.range>
+        <javax.xml.import.version.range>[0.0.0,5.0.0)</javax.xml.import.version.range>
         <org.w3c.import.version.range>[0.0.0,1.0.0)</org.w3c.import.version.range>
         <org.xml.sax.import.version.range>[0.0.0,1.0.0)</org.xml.sax.import.version.range>
         <javax.crypto.version.range>[0.0.0,1.0.0)</javax.crypto.version.range>
         <org.eclipse.core.runtime.import.version.range>[3.0.0, 4.0.0)</org.eclipse.core.runtime.import.version.range>
         <org.eclipse.equinox.p2.engine.import.version.range>[2.0.0, 3.0.0)</org.eclipse.equinox.p2.engine.import.version.range>
         <org.eclipse.equinox.p2.touchpoint.eclipse.import.version.range>[2.0.0, 3.0.0)</org.eclipse.equinox.p2.touchpoint.eclipse.import.version.range>
+
+        <!-- Java 11 related dependencies -->
+        <javax.annotation.version>1.3.2</javax.annotation.version>
+        <org.wso2.orbit.xml-apis.version>1.4.01.wso2v1</org.wso2.orbit.xml-apis.version>
+        <org.wso2.orbit.javax.xml.bind.version>2.3.1.wso2v1</org.wso2.orbit.javax.xml.bind.version>
+        <org.wso2.orbit.sun.xml.bind.version>2.3.2.wso2v1</org.wso2.orbit.sun.xml.bind.version>
+        <com.sun.xml.bind.version>2.4.0-b180830.0438</com.sun.xml.bind.version>
+        <org.apache.geronimo.spec.version>1.1</org.apache.geronimo.spec.version>
+        <com.sun.istack.version>3.0.8</com.sun.istack.version>
+        <com.sun.activation.version>1.1.1.wso2v3</com.sun.activation.version>
+        <com.sun.xml.bind.version>2.3.0</com.sun.xml.bind.version>
+        <com.sun.activation.javax.activation.version>1.2.0</com.sun.activation.javax.activation.version>
     </properties>
 </project>

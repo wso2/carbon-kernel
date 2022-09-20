@@ -126,6 +126,14 @@
             <plugin>
                 <groupId>org.wso2.carbon.maven</groupId>
                 <artifactId>carbon-feature-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.sun.activation</groupId>
+                        <artifactId>javax.activation</artifactId>
+                        <version>${com.sun.activation.javax.activation.version}</version>
+                        <type>jar</type>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <execution>
                         <id>p2-repo-generation</id>
