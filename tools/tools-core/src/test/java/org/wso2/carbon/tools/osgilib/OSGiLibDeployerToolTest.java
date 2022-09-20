@@ -233,8 +233,8 @@ public class OSGiLibDeployerToolTest {
 
     private static List<BundleInfo> getExpectedBundleInfo() {
         List<BundleInfo> bundleInfo = new ArrayList<>();
-        bundleInfo.add(BundleInfo.getInstance("org.eclipse.osgi," + TestConstants.EQUINOX_OSGI_VERSION + ",../../" +
-                Constants.OSGI_LIB + "/" + TestConstants.ARTIFACT_ONE + ",4,true"));
+        bundleInfo.add(BundleInfo.getInstance("org.eclipse.osgi," + TestConstants.EQUINOX_OSGI_BUNDLE_VERSION +
+                ",../../" + Constants.OSGI_LIB + "/" + TestConstants.ARTIFACT_ONE + ",4,true"));
         bundleInfo.add(BundleInfo.getInstance("org.eclipse.equinox.simpleconfigurator," +
                 TestConstants.EQUINOX_SMP_CONFIGURATOR_VERSION + ",../../" + Constants.OSGI_LIB +
                 "/" + TestConstants.ARTIFACT_TWO + ",4,true"));

@@ -127,6 +127,7 @@
                     <systemProperties>
                         <carbon.kernel.version>${carbon.kernel.version}</carbon.kernel.version>
                         <equinox.osgi.version>${equinox.osgi.version}</equinox.osgi.version>
+                        <equinox.osgi.bundle.version>${equinox.osgi.bundle.version}</equinox.osgi.bundle.version>
                         <equinox.simpleconfigurator.version>${equinox.simpleconfigurator.version}
                         </equinox.simpleconfigurator.version>
                         <equinox.util.version>${equinox.util.version}</equinox.util.version>

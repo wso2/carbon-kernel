@@ -103,7 +103,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <systemProperties>
-                        <equinox.osgi.version>${equinox.osgi.version}</equinox.osgi.version>
+                        <equinox.osgi.version>${equinox.osgi.bundle.version}</equinox.osgi.version>
                         <equinox.simpleconfigurator.version>${equinox.simpleconfigurator.version}
                         </equinox.simpleconfigurator.version>
                         <equinox.util.version>${equinox.util.version}</equinox.util.version>
