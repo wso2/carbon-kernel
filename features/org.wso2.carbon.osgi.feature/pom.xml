@@ -34,7 +34,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.eclipse.osgi</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
         </dependency>
         <dependency>
@@ -78,7 +78,7 @@
             <artifactId>org.eclipse.equinox.frameworkadmin.equinox</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.console</artifactId>
         </dependency>
         <dependency>
@@ -168,7 +168,7 @@
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.osgi</symbolicName>
-                                    <version>${equinox.osgi.version}</version>
+                                    <version>${equinox.osgi.bundle.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.equinox.concurrent</symbolicName>
@@ -192,7 +192,7 @@
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.equinox.console</symbolicName>
-                                    <version>${equinox.console.version}</version>
+                                    <version>${equinox.console.bundle.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.apache.felix.gogo.command</symbolicName>

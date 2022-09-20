@@ -255,7 +255,7 @@
                 <version>${osgi.compendium.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.eclipse.osgi</groupId>
+                <groupId>org.eclipse.platform</groupId>
                 <artifactId>org.eclipse.osgi</artifactId>
                 <version>${equinox.osgi.version}</version>
             </dependency>
@@ -320,7 +320,7 @@
                 <version>${equinox.simpleconfigurator.manipulator.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.eclipse.equinox</groupId>
+                <groupId>org.eclipse.platform</groupId>
                 <artifactId>org.eclipse.equinox.console</artifactId>
                 <version>${equinox.console.version}</version>
             </dependency>
@@ -648,7 +648,8 @@
 
         <!-- Equinox dependency versions -->
         <osgi.core.api.version>6.0.0</osgi.core.api.version>
-        <equinox.osgi.version>3.11.0.v20160603-1336</equinox.osgi.version>
+        <equinox.osgi.version>3.14.0</equinox.osgi.version>
+        <equinox.osgi.bundle.version>3.14.0.v20190517-1309</equinox.osgi.bundle.version>
         <equinox.osgi.services.version>3.5.100.v20160504-1419</equinox.osgi.services.version>
         <equinox.ds.version>1.4.400.v20160226-2036</equinox.ds.version>
         <equinox.common.version>3.8.0.v20160509-1230</equinox.common.version>
@@ -667,7 +668,8 @@
         <equinox.registry.version>3.5.400.v20140428-1507</equinox.registry.version>
         <equinox.simpleconfigurator.manipulator.version>2.0.200.v20160504-1450
         </equinox.simpleconfigurator.manipulator.version>
-        <equinox.console.version>1.1.200.v20150929-1405</equinox.console.version>
+        <equinox.console.version>1.3.300</equinox.console.version>
+        <equinox.console.bundle.version>1.3.300.v20190516-1504</equinox.console.bundle.version>
         <apache.felix.gogo.command.version>0.10.0.v201209301215</apache.felix.gogo.command.version>
         <apache.felix.gogo.shell.version>0.10.0.v201212101605</apache.felix.gogo.shell.version>
         <apache.felix.gogo.runtime.version>0.10.0.v201209301036</apache.felix.gogo.runtime.version>

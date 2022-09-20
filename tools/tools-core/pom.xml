@@ -47,7 +47,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.osgi</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
             <scope>test</scope>
         </dependency>
@@ -160,7 +160,7 @@
                                     <destFileName>tool-test-artifact-${carbon.kernel.version}.jar</destFileName>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>org.wso2.eclipse.osgi</groupId>
+                                    <groupId>org.eclipse.platform</groupId>
                                     <artifactId>org.eclipse.osgi</artifactId>
                                     <version>${equinox.osgi.version}</version>
                                     <type>jar</type>
@@ -176,7 +176,7 @@
                                     <destFileName>tool-test-artifact-${carbon.kernel.version}.jar</destFileName>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>org.wso2.eclipse.osgi</groupId>
+                                    <groupId>org.eclipse.platform</groupId>
                                     <artifactId>org.eclipse.osgi</artifactId>
                                     <version>${equinox.osgi.version}</version>
                                     <type>jar</type>
