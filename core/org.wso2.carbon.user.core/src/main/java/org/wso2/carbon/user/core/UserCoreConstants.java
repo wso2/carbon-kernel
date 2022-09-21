@@ -133,6 +133,7 @@ public class UserCoreConstants {
         public static final String LOCAL_NAME_ADMIN_USER = "AdminUser";
         public static final String LOCAL_NAME_USER_NAME = "UserName";
         public static final String LOCAL_NAME_PASSWORD = "Password";
+        public static final String LOCAL_NAME_USERID = "UserId";
         public static final String LOCAL_NAME_AUTHENTICATOR = "Authenticator";
         public static final String LOCAL_NAME_USER_STORE_MANAGER = "UserStoreManager";
         public static final String LOCAL_NAME_ATHZ_MANAGER = "AuthorizationManager";

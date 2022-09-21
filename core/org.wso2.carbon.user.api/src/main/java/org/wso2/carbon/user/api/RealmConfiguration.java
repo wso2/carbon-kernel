@@ -35,6 +35,7 @@ public class RealmConfiguration {
     protected String addAdmin = null;
     protected String adminRoleName = null;
     protected String adminUserName = null;
+    protected String adminUserId = null;
     protected String adminPassword = null;
     protected String everyOneRoleName = null;
     protected String realmClassName = null;
@@ -137,6 +138,7 @@ public class RealmConfiguration {
         realmConfig.setAddAdmin(addAdmin);
         realmConfig.setAdminRoleName(adminRoleName);
         realmConfig.setAdminUserName(adminUserName);
+        realmConfig.setAdminUserId(adminUserId);
         realmConfig.setAdminPassword(adminPassword);
         realmConfig.setAssociatedOrganizationUUID(associatedOrganizationUUID);
         realmConfig.setEveryOneRoleName(everyOneRoleName);
@@ -346,5 +348,15 @@ public class RealmConfiguration {
     public String getAssociatedOrganizationUUID() {
 
         return associatedOrganizationUUID;
+    }
+
+    public String getAdminUserId() {
+
+        return adminUserId;
+    }
+
+    public void setAdminUserId(String adminUserId) {
+
+        this.adminUserId = adminUserId;
     }
 }

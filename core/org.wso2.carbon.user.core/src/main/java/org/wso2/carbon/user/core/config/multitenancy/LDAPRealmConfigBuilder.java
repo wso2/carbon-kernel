@@ -66,6 +66,7 @@ public class LDAPRealmConfigBuilder implements MultiTenantRealmConfigBuilder {
             //TODO: Random password generation. 
             ldapRealmConfig.setAdminPassword(UIDGenerator.generateUID());
             ldapRealmConfig.setAdminUserName(tenantInfo.getAdminName());
+            ldapRealmConfig.setAdminUserId(tenantInfo.getAdminUserId());
             ldapRealmConfig.setTenantId(tenantId);
             ldapRealmConfig.setAssociatedOrganizationUUID(tenantInfo.getAssociatedOrganizationUUID());
 

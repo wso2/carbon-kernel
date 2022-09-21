@@ -42,6 +42,7 @@ public class SimpleRealmConfigBuilder implements MultiTenantRealmConfigBuilder {
             realmConfig = bootStrapConfig.cloneRealmConfigurationWithoutSecondary();
             realmConfig.setAdminUserName(persistedConfig.getAdminUserName());
             realmConfig.setAdminPassword(persistedConfig.getAdminPassword());
+            realmConfig.setAdminUserId(persistedConfig.getAdminUserId());
             realmConfig.setAdminRoleName(persistedConfig.getAdminRoleName());
             realmConfig.setAssociatedOrganizationUUID(persistedConfig.getAssociatedOrganizationUUID());
             realmConfig.setEveryOneRoleName(persistedConfig.getEveryOneRoleName());
@@ -75,6 +76,7 @@ public class SimpleRealmConfigBuilder implements MultiTenantRealmConfigBuilder {
             removePropertiesFromTenantRealmConfig(realmConfig);
             realmConfig.setAdminUserName(UserCoreUtil.removeDomainFromName(tenantInfo.getAdminName()));
             realmConfig.setAdminPassword(UserCoreUtil.getDummyPassword());
+            realmConfig.setAdminUserId(tenantInfo.getAdminUserId());
             realmConfig.setAssociatedOrganizationUUID(tenantInfo.getAssociatedOrganizationUUID());
             realmConfig.setTenantId(tenantId);
 

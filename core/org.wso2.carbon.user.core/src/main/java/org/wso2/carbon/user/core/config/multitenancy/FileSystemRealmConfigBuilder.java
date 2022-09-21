@@ -49,6 +49,7 @@ public class FileSystemRealmConfigBuilder implements MultiTenantRealmConfigBuild
             realmConfig = bootStrapConfig.cloneRealmConfiguration();
             realmConfig.setAdminPassword(persistedConfig.getAdminPassword());
             realmConfig.setAdminUserName(persistedConfig.getAdminUserName());
+            realmConfig.setAdminUserId(persistedConfig.getAdminUserId());
             realmConfig.setAdminRoleName(persistedConfig.getAdminRoleName());
             realmConfig.setAssociatedOrganizationUUID(persistedConfig.getAssociatedOrganizationUUID());
             realmConfig.setEveryOneRoleName(persistedConfig.getEveryOneRoleName());
@@ -102,6 +103,7 @@ public class FileSystemRealmConfigBuilder implements MultiTenantRealmConfigBuild
             RealmConfiguration ldapRealmConfig = bootStrapConfig.cloneRealmConfiguration();
             ldapRealmConfig.setAdminPassword(UserCoreUtil.getDummyPassword());
             ldapRealmConfig.setAdminUserName(tenantInfo.getAdminName());
+            ldapRealmConfig.setAdminUserId(tenantInfo.getAdminUserId());
             ldapRealmConfig.setTenantId(tenantId);
             ldapRealmConfig.setAssociatedOrganizationUUID(tenantInfo.getAssociatedOrganizationUUID());
 
