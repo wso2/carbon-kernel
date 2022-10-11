@@ -89,12 +89,15 @@ public class UserUniqueIDManger {
 
         String userName = getFromUserNameCache(uniqueId);
         if (StringUtils.isEmpty(userName)) {
-            String uniqueIdWithDomain = uniqueId;
-            if(StringUtils.isNotEmpty(userStoreDomain)){
-                uniqueIdWithDomain = UserCoreUtil.addDomainToName(uniqueId, userStoreDomain);
+            String[] usernames;
+            if (StringUtils.isNotEmpty(userStoreDomain)) {
+                usernames = userStoreManager.getUserList(UserCoreClaimConstants.USER_ID_CLAIM_URI,
+                        UserCoreUtil.addDomainToName(uniqueId, userStoreDomain), null);
+            } else {
+                usernames = userStoreManager.getUserList(UserCoreClaimConstants.USER_ID_CLAIM_URI,
+                        uniqueId, null);
             }
-            String[] usernames = userStoreManager.getUserList(UserCoreClaimConstants.USER_ID_CLAIM_URI,
-                    uniqueIdWithDomain, null);
+
             if (usernames.length > 1) {
                 throw new UserStoreException("More than one user presents with the same user unique id.");
             }
