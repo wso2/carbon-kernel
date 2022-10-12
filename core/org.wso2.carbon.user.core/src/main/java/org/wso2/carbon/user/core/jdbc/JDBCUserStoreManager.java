@@ -55,6 +55,7 @@ import org.wso2.carbon.user.core.model.SqlBuilder;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
+import org.wso2.carbon.user.core.util.DatasourceDataHolder;
 import org.wso2.carbon.user.core.util.JDBCRealmUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.Secret;
@@ -72,6 +73,7 @@ import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.SQLTimeoutException;
 import java.sql.Timestamp;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -117,7 +119,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private static final String MYSQL = "mysql";
     private static final String MARIADB = "mariadb";
     private static final String POSTGRESQL = "postgresql";
-
+    public static final String PRIMARY_USER_STORE_DOMAIN = "PRIMARY";
     private static final int MAX_ITEM_LIMIT_UNLIMITED = -1;
 
     public JDBCUserStoreManager() {
@@ -294,9 +296,16 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         }
         this.claimManager = claimManager;
         this.userRealm = realm;
-
+        boolean addDataStore = false;
+        // cache secondary user-store datasources.
+        String domain = getMyDomainName();
+        AbstractMap.SimpleEntry<String, String> key = new AbstractMap.SimpleEntry<>(String.valueOf(tenantId), domain);
+        jdbcds = DatasourceDataHolder.getInstance().getDataStoreForDomain(key);
         try {
-            jdbcds = loadUserStoreSpacificDataSoruce();
+            if (jdbcds == null) {
+                addDataStore = !(PRIMARY_USER_STORE_DOMAIN.equals(domain) || tenantId == MultitenantConstants.SUPER_TENANT_ID);
+                jdbcds = loadUserStoreSpacificDataSoruce();
+            }
 
             if (jdbcds == null) {
                 jdbcds = (DataSource) properties.get(UserCoreConstants.DATA_SOURCE);
@@ -304,6 +313,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             if (jdbcds == null) {
                 jdbcds = DatabaseUtil.getRealmDataSource(realmConfig);
                 properties.put(UserCoreConstants.DATA_SOURCE, jdbcds);
+            }
+
+            if (addDataStore) {
+                DatasourceDataHolder.getInstance().addDataSourceForDomain(key, jdbcds);
             }
 
             if (log.isDebugEnabled()) {
