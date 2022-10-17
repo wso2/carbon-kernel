@@ -133,6 +133,18 @@
             <groupId>org.wso2.orbit.xml-apis</groupId>
             <artifactId>xml-apis</artifactId>
         </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -257,6 +269,22 @@
                                 <bundle>
                                     <symbolicName>org.wso2.orbit.xml-apis.xml-apis</symbolicName>
                                     <version>${org.wso2.orbit.xml-apis.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>javax.annotation-api</symbolicName>
+                                    <version>${javax.annotation.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>javax.annotation-api</symbolicName>
+                                    <version>${javax.annotation.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.wso2.orbit.javax.xml.bind.jaxb-api</symbolicName>
+                                    <version>${org.wso2.orbit.javax.xml.bind.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>com.sun.xml.bind.jaxb-impl</symbolicName>
+                                    <version>${com.sun.xml.bind.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>
