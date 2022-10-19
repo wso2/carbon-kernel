@@ -74,11 +74,30 @@ public class UserUniqueIDManger {
     public User getUser(String uniqueId, AbstractUserStoreManager userStoreManager)
             throws UserStoreException {
 
+        return getUser(uniqueId, userStoreManager, null);
+    }
+
+    /**
+     * Get user from unique id with user store domain present.
+     * @param uniqueId User's unique id.
+     * @param userStoreManager User store manager instance.
+     * @param userStoreDomain User store domain of the user.
+     * @return User object if user presents for the unique id. Null otherwise.
+     */
+    public User getUser(String uniqueId, AbstractUserStoreManager userStoreManager, String userStoreDomain)
+            throws UserStoreException {
+
         String userName = getFromUserNameCache(uniqueId);
         if (StringUtils.isEmpty(userName)) {
+            String[] usernames;
+            if (StringUtils.isNotEmpty(userStoreDomain)) {
+                usernames = userStoreManager.getUserList(UserCoreClaimConstants.USER_ID_CLAIM_URI,
+                        UserCoreUtil.addDomainToName(uniqueId, userStoreDomain), null);
+            } else {
+                usernames = userStoreManager.getUserList(UserCoreClaimConstants.USER_ID_CLAIM_URI,
+                        uniqueId, null);
+            }
 
-            String[] usernames = userStoreManager.getUserList(UserCoreClaimConstants.USER_ID_CLAIM_URI, uniqueId,
-                    null);
             if (usernames.length > 1) {
                 throw new UserStoreException("More than one user presents with the same user unique id.");
             }

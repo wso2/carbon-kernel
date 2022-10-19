@@ -12781,7 +12781,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isUniqueUserIdEnabledInUserStore(userStore)) {
             return getUserNameFromCurrentUserStore(userID, userStore);
         } else {
-            return userUniqueIDManger.getUser(userID, this).getDomainQualifiedUsername();
+            return userUniqueIDManger.getUser(userID, this, userStore.getDomainName()).getDomainQualifiedUsername();
         }
     }
 
@@ -13228,7 +13228,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isUniqueIdEnabled) {
             isUserExists = doCheckExistingUserWithID(userID);
         } else {
-            user = userUniqueIDManger.getUser(userID, this);
+            user = userUniqueIDManger.getUser(userID, this, userStore.getDomainName());
             isUserExists = user != null;
         }
 
