@@ -3630,7 +3630,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 }
             } else if (MSSQL.equals(dbType)) {
                 if (isClaimFiltering && !isGroupFiltering && totalMultiClaimFilters > 1) {
-                    StringBuilder subQuery = new StringBuilder(") As Q0");
+                    StringBuilder alias = new StringBuilder(") As Q0");
                     /*
                      * x is used to count the number of sub queries.
                      * (totalMultiClaimFilters * 2) --> totalMultiClaims are multiplied by 2 as 2 sub queries for
@@ -3639,11 +3639,11 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                      */
                     int x;
                     for ( x = 1; x <= (totalMultiClaimFilters * 2 - 1); x++) {
-                        subQuery = subQuery.append(" ) AS Q" + x );
+                        alias = alias.append(" ) AS Q" + x );
                     }
+                    String tail = alias.toString().concat(" WHERE Q" + String.valueOf(x-1) + ".RowNum BETWEEN ? AND ?");
                     // Handle multi attribute filtering without group filtering.
-                    sqlBuilder.setTail(subQuery.toString()
-                            .concat(" WHERE Q" + String.valueOf(x-1) + ".RowNum BETWEEN ? AND ?"), limit, offset);
+                    sqlBuilder.setTail(tail, limit, offset);
                 } else {
                     sqlBuilder.setTail(") AS R) AS P WHERE P.RowNum BETWEEN ? AND ?", limit, offset);
                 }
