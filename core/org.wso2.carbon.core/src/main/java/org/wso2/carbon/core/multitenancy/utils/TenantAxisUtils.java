@@ -58,6 +58,7 @@ import org.wso2.carbon.core.util.Utils;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.user.core.tenant.TenantManager;
+import org.wso2.carbon.user.core.util.DatasourceDataHolder;
 import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ServerConstants;
@@ -458,6 +459,10 @@ public final class TenantAxisUtils {
                                 // Terminating idle tenant configuration contexts.
                                 terminateTenantConfigContext(tenantCfgCtx);
                                 tenantConfigContexts.remove(tenantDomain);
+                                // removing cached datasources of the domain
+                                DatasourceDataHolder.removeDatasourcesOfTenant(getTenantId(tenantDomain));
+                            } catch (Exception e) {
+                                log.error("Error occurred while fetching the tenant details");
                             } finally {
                                 PrivilegedCarbonContext.endTenantFlow();
                             }
