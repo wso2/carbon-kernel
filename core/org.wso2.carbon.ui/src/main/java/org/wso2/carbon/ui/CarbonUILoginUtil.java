@@ -44,6 +44,8 @@ public final class CarbonUILoginUtil {
     private static final String ACCOUNT_LOCK_ERROR_MESSAGE = "Cannot login until the account is unlocked.";
     private static final String USER_NOT_FOUND_ERROR_CODE = "17001";
     private static final String INVALID_CREDENTIALS_ERROR_CODE = "Invalid user credentials.";
+    private static final String SAML_RESPONSE_KEY = "SAMLResponse";
+    private static final String SAML_SSO_ACS_AUTH_FAILURE_PATH = "/carbon/sso-acs/authFailure.jsp";
     private static Log log = LogFactory.getLog(CarbonUILoginUtil.class);
     private static Pattern tenantEnabledUriPattern;
     private static final String TENANT_ENABLED_URI_PATTERN = "(/.*/|/)"
@@ -487,7 +489,12 @@ public final class CarbonUILoginUtil {
             log.debug("Authentication failure ...", e);
             try {
                 request.getSession().invalidate();
-                getAuthenticator(request).unauthenticate(request);
+                CarbonUIAuthenticator carbonUIAuthenticator = getAuthenticator(request);
+                if (carbonUIAuthenticator == null && request.getParameterMap().containsKey(SAML_RESPONSE_KEY)) {
+                    response.sendRedirect(contextPath + SAML_SSO_ACS_AUTH_FAILURE_PATH);
+                    return false;
+                }
+                carbonUIAuthenticator.unauthenticate(request);
 
                 if (isLoginFailureReasonEnabled()) {
                     if (e.getCause().getMessage().contains(ACCOUNT_LOCK_ERROR_CODE) || e.getCause().getMessage()
