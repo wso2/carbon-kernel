@@ -30,4 +30,7 @@ public class KubernetesConstants {
     public static final String SERVICE_NAME = "service-name";
 
     public static final String SERVICE_PORT = "service-port";
+    public static final String DEFAULT_SERVICE_PORT = "4000";
+
+    public static final int MEMBER_JOIN_WAIT_TIME = 5000;
 }
