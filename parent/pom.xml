@@ -711,7 +711,7 @@
         <org.jacoco.ant.version>0.7.5.201505241946</org.jacoco.ant.version>
         <commons.io.version>2.4.0.wso2v1</commons.io.version>
         <commons.compress.version>1.4.1</commons.compress.version>
-        <org.kohsuke.metainf.services.version>1.2</org.kohsuke.metainf.services.version>
+        <org.kohsuke.metainf.services.version>1.8</org.kohsuke.metainf.services.version>
         <geronimo.jms.spec.version>1.1</geronimo.jms.spec.version>
         <easymock.version>3.4</easymock.version>
         <powermock.api.easymock.version>1.6.5</powermock.api.easymock.version>
