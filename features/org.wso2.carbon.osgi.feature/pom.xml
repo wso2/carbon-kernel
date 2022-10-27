@@ -126,10 +126,6 @@
             <artifactId>jaxb</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.orbit.javax.activation</groupId>
-            <artifactId>activation</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.wso2.orbit.xml-apis</groupId>
             <artifactId>xml-apis</artifactId>
         </dependency>
@@ -261,10 +257,6 @@
                                 <bundle>
                                     <symbolicName>org.wso2.orbit.javax.xml.bind.jaxb-api</symbolicName>
                                     <version>${org.wso2.orbit.javax.xml.bind.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>org.wso2.orbit.javax.activation.activation</symbolicName>
-                                    <version>${com.sun.activation.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.wso2.orbit.xml-apis.xml-apis</symbolicName>

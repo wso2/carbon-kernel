@@ -20,7 +20,6 @@
         <groupId>org.wso2</groupId>
         <artifactId>wso2</artifactId>
         <version>5.3</version>
-        <relativePath />
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -653,12 +652,6 @@
                 <type>jar</type>
             </dependency>
             <dependency>
-                <groupId>org.wso2.orbit.javax.activation</groupId>
-                <artifactId>activation</artifactId>
-                <version>${com.sun.activation.version}</version>
-                <type>jar</type>
-            </dependency>
-            <dependency>
                 <groupId>org.wso2.orbit.xml-apis</groupId>
                 <artifactId>xml-apis</artifactId>
                 <version>${org.wso2.orbit.xml-apis.version}</version>
@@ -674,24 +667,6 @@
                 <groupId>com.sun.istack</groupId>
                 <artifactId>istack-commons-runtime</artifactId>
                 <version>${com.sun.istack.version}</version>
-                <type>jar</type>
-            </dependency>
-            <dependency>
-                <groupId>javax.annotation</groupId>
-                <artifactId>javax.annotation-api</artifactId>
-                <version>${javax.annotation.version}</version>
-                <type>jar</type>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.orbit.javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
-                <version>${org.wso2.orbit.javax.xml.bind.version}</version>
-                <type>jar</type>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.xml.bind</groupId>
-                <artifactId>jaxb-impl</artifactId>
-                <version>${com.sun.xml.bind.version}</version>
                 <type>jar</type>
             </dependency>
         </dependencies>
@@ -793,7 +768,7 @@
         <testng.version>6.9.4</testng.version>
         <jacoco.version>0.8.2</jacoco.version>
         <org.jacoco.ant.version>0.7.5.201505241946</org.jacoco.ant.version>
-        <commons.io.version>2.4.0.wso2v1</commons.io.version>
+        <commons.io.version>2.11.0.wso2v1</commons.io.version>
         <commons.compress.version>1.4.1</commons.compress.version>
         <org.kohsuke.metainf.services.version>1.9</org.kohsuke.metainf.services.version>
         <geronimo.jms.spec.version>1.1</geronimo.jms.spec.version>
@@ -818,7 +793,6 @@
         <com.sun.xml.bind.version>2.4.0-b180830.0438</com.sun.xml.bind.version>
         <org.apache.geronimo.spec.version>1.1</org.apache.geronimo.spec.version>
         <com.sun.istack.version>3.0.8</com.sun.istack.version>
-        <com.sun.activation.version>1.1.1.wso2v3</com.sun.activation.version>
         <com.sun.xml.bind.version>2.3.0</com.sun.xml.bind.version>
         <com.sun.activation.javax.activation.version>1.2.0</com.sun.activation.javax.activation.version>
     </properties>
