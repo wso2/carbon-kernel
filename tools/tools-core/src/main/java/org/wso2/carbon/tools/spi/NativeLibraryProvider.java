@@ -97,7 +97,7 @@ public class NativeLibraryProvider implements CarbonTool {
         String nativeLibString = toolArgs[2];
         String osgiJar = (toolArgs.length == 4 && !toolArgs[3].isEmpty()) ? toolArgs[3] :
                 Paths.get(System.getProperty("carbon.home"), "wso2", "lib", "plugins",
-                        "org.eclipse.osgi_3.11.0.v20160603-1336.jar").toString();
+                        "org.eclipse.osgi_3.14.0").toString();
 
         Path fileName = jarFile.getFileName();
         if (fileName == null) {

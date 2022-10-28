@@ -19,8 +19,7 @@
     <parent>
         <groupId>org.wso2</groupId>
         <artifactId>wso2</artifactId>
-        <version>5</version>
-        <relativePath />
+        <version>5.3</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -128,6 +127,9 @@
                             <goals>
                                 <goal>javadoc</goal>
                             </goals>
+                            <configuration>
+                                <additionalparam>-Xdoclint:none</additionalparam>
+                            </configuration>
                         </execution>
                     </executions>
                 </plugin>
@@ -135,6 +137,26 @@
                     <groupId>org.wso2.carbon.maven</groupId>
                     <artifactId>carbon-feature-plugin</artifactId>
                     <version>${carbon.feature.plugin.version}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.sun.xml.bind</groupId>
+                            <artifactId>jaxb-core</artifactId>
+                            <version>${com.sun.xml.bind.version}</version>
+                            <type>jar</type>
+                        </dependency>
+                        <dependency>
+                            <groupId>com.sun.xml.bind</groupId>
+                            <artifactId>jaxb-impl</artifactId>
+                            <version>${com.sun.xml.bind.version}</version>
+                            <type>jar</type>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.wso2.orbit.javax.xml.bind</groupId>
+                            <artifactId>jaxb-api</artifactId>
+                            <version>${org.wso2.orbit.javax.xml.bind.version}</version>
+                            <type>jar</type>
+                        </dependency>
+                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.wso2.carbon.config</groupId>
@@ -147,6 +169,7 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
+                <version>${maven-bundle-plugin.version}</version>
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${bundle.symbolicName}</Bundle-SymbolicName>
@@ -255,7 +278,7 @@
                 <version>${osgi.compendium.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.eclipse.osgi</groupId>
+                <groupId>org.eclipse.platform</groupId>
                 <artifactId>org.eclipse.osgi</artifactId>
                 <version>${equinox.osgi.version}</version>
             </dependency>
@@ -320,7 +343,7 @@
                 <version>${equinox.simpleconfigurator.manipulator.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.eclipse.equinox</groupId>
+                <groupId>org.eclipse.platform</groupId>
                 <artifactId>org.eclipse.equinox.console</artifactId>
                 <version>${equinox.console.version}</version>
             </dependency>
@@ -614,6 +637,38 @@
                 <type>zip</type>
                 <scope>test</scope>
             </dependency>
+
+            <!--Java 11 related dependencies-->
+            <dependency>
+                <groupId>org.wso2.orbit.javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${org.wso2.orbit.javax.xml.bind.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.sun.xml.bind</groupId>
+                <artifactId>jaxb</artifactId>
+                <version>${org.wso2.orbit.sun.xml.bind.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.xml-apis</groupId>
+                <artifactId>xml-apis</artifactId>
+                <version>${org.wso2.orbit.xml-apis.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-activation_1.1_spec</artifactId>
+                <version>${org.apache.geronimo.spec.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.istack</groupId>
+                <artifactId>istack-commons-runtime</artifactId>
+                <version>${com.sun.istack.version}</version>
+                <type>jar</type>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -648,7 +703,8 @@
 
         <!-- Equinox dependency versions -->
         <osgi.core.api.version>6.0.0</osgi.core.api.version>
-        <equinox.osgi.version>3.11.0.v20160603-1336</equinox.osgi.version>
+        <equinox.osgi.version>3.14.0</equinox.osgi.version>
+        <equinox.osgi.bundle.version>3.14.0.v20190517-1309</equinox.osgi.bundle.version>
         <equinox.osgi.services.version>3.5.100.v20160504-1419</equinox.osgi.services.version>
         <equinox.ds.version>1.4.400.v20160226-2036</equinox.ds.version>
         <equinox.common.version>3.8.0.v20160509-1230</equinox.common.version>
@@ -667,7 +723,8 @@
         <equinox.registry.version>3.5.400.v20140428-1507</equinox.registry.version>
         <equinox.simpleconfigurator.manipulator.version>2.0.200.v20160504-1450
         </equinox.simpleconfigurator.manipulator.version>
-        <equinox.console.version>1.1.200.v20150929-1405</equinox.console.version>
+        <equinox.console.version>1.3.300</equinox.console.version>
+        <equinox.console.bundle.version>1.3.300.v20190516-1504</equinox.console.bundle.version>
         <apache.felix.gogo.command.version>0.10.0.v201209301215</apache.felix.gogo.command.version>
         <apache.felix.gogo.shell.version>0.10.0.v201212101605</apache.felix.gogo.shell.version>
         <apache.felix.gogo.runtime.version>0.10.0.v201209301036</apache.felix.gogo.runtime.version>
@@ -689,6 +746,8 @@
         <maven-plugin-api.version>3.3.9</maven-plugin-api.version>
         <maven-plugin-annotations.version>3.4</maven-plugin-annotations.version>
         <maven-core.version>3.3.9</maven-core.version>
+        <maven-bundle-plugin.version>3.3.0</maven-bundle-plugin.version>
+        <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
 
         <!--Pax Exam Versions-->
         <pax.exam.version>4.9.1</pax.exam.version>
@@ -705,25 +764,36 @@
         <geronimo.atinject.spec.version>1.0</geronimo.atinject.spec.version>
 
         <!--Other dependency versions -->
-        <carbon.feature.plugin.version>3.1.1</carbon.feature.plugin.version>
+        <carbon.feature.plugin.version>3.1.5</carbon.feature.plugin.version>
         <testng.version>6.9.4</testng.version>
-        <jacoco.version>0.7.5.201505241946</jacoco.version>
+        <jacoco.version>0.8.2</jacoco.version>
         <org.jacoco.ant.version>0.7.5.201505241946</org.jacoco.ant.version>
-        <commons.io.version>2.4.0.wso2v1</commons.io.version>
+        <commons.io.version>2.11.0.wso2v1</commons.io.version>
         <commons.compress.version>1.4.1</commons.compress.version>
-        <org.kohsuke.metainf.services.version>1.2</org.kohsuke.metainf.services.version>
+        <org.kohsuke.metainf.services.version>1.9</org.kohsuke.metainf.services.version>
         <geronimo.jms.spec.version>1.1</geronimo.jms.spec.version>
         <easymock.version>3.4</easymock.version>
         <powermock.api.easymock.version>1.6.5</powermock.api.easymock.version>
         <powermock.module.testng.version>1.6.5</powermock.module.testng.version>
         <javax.management.import.version.range>[0.0.0,1.0.0)</javax.management.import.version.range>
         <javax.security.auth.import.version.range>[0.0.0,1.0.0)</javax.security.auth.import.version.range>
-        <javax.xml.import.version.range>[0.0.0,1.0.0)</javax.xml.import.version.range>
+        <javax.xml.import.version.range>[0.0.0,5.0.0)</javax.xml.import.version.range>
         <org.w3c.import.version.range>[0.0.0,1.0.0)</org.w3c.import.version.range>
         <org.xml.sax.import.version.range>[0.0.0,1.0.0)</org.xml.sax.import.version.range>
         <javax.crypto.version.range>[0.0.0,1.0.0)</javax.crypto.version.range>
         <org.eclipse.core.runtime.import.version.range>[3.0.0, 4.0.0)</org.eclipse.core.runtime.import.version.range>
         <org.eclipse.equinox.p2.engine.import.version.range>[2.0.0, 3.0.0)</org.eclipse.equinox.p2.engine.import.version.range>
         <org.eclipse.equinox.p2.touchpoint.eclipse.import.version.range>[2.0.0, 3.0.0)</org.eclipse.equinox.p2.touchpoint.eclipse.import.version.range>
+
+        <!-- Java 11 related dependencies -->
+        <javax.annotation.version>1.3.2</javax.annotation.version>
+        <org.wso2.orbit.xml-apis.version>1.4.01.wso2v1</org.wso2.orbit.xml-apis.version>
+        <org.wso2.orbit.javax.xml.bind.version>2.3.1.wso2v1</org.wso2.orbit.javax.xml.bind.version>
+        <org.wso2.orbit.sun.xml.bind.version>2.3.2.wso2v1</org.wso2.orbit.sun.xml.bind.version>
+        <com.sun.xml.bind.version>2.4.0-b180830.0438</com.sun.xml.bind.version>
+        <org.apache.geronimo.spec.version>1.1</org.apache.geronimo.spec.version>
+        <com.sun.istack.version>3.0.8</com.sun.istack.version>
+        <com.sun.xml.bind.version>2.3.0</com.sun.xml.bind.version>
+        <com.sun.activation.javax.activation.version>1.2.0</com.sun.activation.javax.activation.version>
     </properties>
 </project>

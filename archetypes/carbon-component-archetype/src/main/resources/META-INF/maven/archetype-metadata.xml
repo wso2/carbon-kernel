@@ -28,6 +28,12 @@
                 <include>**/*.java</include>
             </includes>
         </fileSet>
+        <fileSet filtered="true" packaged="false" encoding="UTF-8">
+            <directory></directory>
+            <includes>
+                <include>spotbugs-exclude.xml</include>
+            </includes>
+        </fileSet>
     </fileSets>
 
     <requiredProperties>

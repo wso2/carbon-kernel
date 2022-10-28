@@ -93,7 +93,7 @@ public class StartupServiceCache {
             return availableServices.entrySet()
                     .stream()
                     .collect(Collectors.toMap(Map.Entry::getKey,
-                            stringLongEntry -> Long.valueOf(stringLongEntry.getValue())));
+                            stringLongEntry -> (stringLongEntry.getValue())));
         }
     }
 }
