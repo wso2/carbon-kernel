@@ -107,14 +107,6 @@ if [ -z "$JAVA_HOME" ]; then
   exit 1
 fi
 
-java_version=$("$JAVACMD" -version 2>&1 | awk -F '"' '/version/ {print $2}')
-java_version_formatted=$(echo "$java_version" | awk -F. '{printf("%02d%02d",$1,$2);}')
-if [ $java_version_formatted -lt 0108 ] || [ $java_version_formatted -gt 1700 ]; then
-   echo " Starting WSO2 Carbon (in unsupported JDK)"
-   echo " [ERROR] CARBON is supported only between JDK 1.8 and 17"
-   exit 1
-fi
-
 echo JAVA_HOME environment variable is set to $JAVA_HOME
 echo CARBON_HOME environment variable is set to $CARBON_HOME
 
