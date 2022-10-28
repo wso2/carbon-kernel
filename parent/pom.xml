@@ -669,6 +669,18 @@
                 <version>${com.sun.istack.version}</version>
                 <type>jar</type>
             </dependency>
+            <dependency>
+                <groupId>javax.annotation</groupId>
+                <artifactId>javax.annotation-api</artifactId>
+                <version>${javax.annotation.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-impl</artifactId>
+                <version>${com.sun.xml.bind.version}</version>
+                <type>jar</type>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
