@@ -34,7 +34,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.eclipse.osgi</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
         </dependency>
         <dependency>
@@ -78,7 +78,7 @@
             <artifactId>org.eclipse.equinox.frameworkadmin.equinox</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.console</artifactId>
         </dependency>
         <dependency>
@@ -116,6 +116,30 @@
         <dependency>
             <groupId>org.wso2.eclipse.osgi</groupId>
             <artifactId>org.eclipse.osgi.compatibility.state</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.sun.xml.bind</groupId>
+            <artifactId>jaxb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
         </dependency>
     </dependencies>
 
@@ -168,7 +192,7 @@
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.osgi</symbolicName>
-                                    <version>${equinox.osgi.version}</version>
+                                    <version>${equinox.osgi.bundle.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.equinox.concurrent</symbolicName>
@@ -192,7 +216,7 @@
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.equinox.console</symbolicName>
-                                    <version>${equinox.console.version}</version>
+                                    <version>${equinox.console.bundle.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.apache.felix.gogo.command</symbolicName>
@@ -225,6 +249,34 @@
                                 <bundle>
                                     <symbolicName>org.eclipse.osgi.compatibility.state</symbolicName>
                                     <version>${equinox.osgi.compatibility.state.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.wso2.orbit.sun.xml.bind.jaxb</symbolicName>
+                                    <version>${org.wso2.orbit.sun.xml.bind.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.wso2.orbit.javax.xml.bind.jaxb-api</symbolicName>
+                                    <version>${org.wso2.orbit.javax.xml.bind.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.wso2.orbit.xml-apis.xml-apis</symbolicName>
+                                    <version>${org.wso2.orbit.xml-apis.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>javax.annotation-api</symbolicName>
+                                    <version>${javax.annotation.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>javax.annotation-api</symbolicName>
+                                    <version>${javax.annotation.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.wso2.orbit.javax.xml.bind.jaxb-api</symbolicName>
+                                    <version>${org.wso2.orbit.javax.xml.bind.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>com.sun.xml.bind.jaxb-impl</symbolicName>
+                                    <version>${com.sun.xml.bind.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>

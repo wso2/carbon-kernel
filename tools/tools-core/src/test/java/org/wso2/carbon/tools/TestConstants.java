@@ -30,6 +30,7 @@ public class TestConstants {
     public static final String CHILD_TEST_DIRECTORY_ONE = "sampleOne";
 
     public static final String EQUINOX_OSGI_VERSION = System.getProperty("equinox.osgi.version");
+    public static final String EQUINOX_OSGI_BUNDLE_VERSION = System.getProperty("equinox.osgi.bundle.version");
     public static final String EQUINOX_SMP_CONFIGURATOR_VERSION = System.
             getProperty("equinox.simpleconfigurator.version");
     public static final String EQUINOX_UTIL_VERSION = System.getProperty("equinox.util.version");

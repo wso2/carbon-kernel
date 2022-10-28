@@ -52,7 +52,7 @@ public class ICFProviderToolTest {
         String spiImpl = "org.wso2.carbon.impl.TestSPIImpl";
         icfProviderTool.execute(spiImpl, sampleJARFile.toString(), converterTestResources.toString(),
                                 converterTestResources.getParent().resolve("lib")
-                                                      .resolve("org.eclipse.osgi_3.11.0.v20160603-1336.jar")
+                                                      .resolve("org.eclipse.osgi_3.14.0.v20190517-1309.jar")
                                                       .toString());
 
         String jarFileName = sampleJARFile.getFileName().toString();
