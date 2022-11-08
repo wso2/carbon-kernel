@@ -79,7 +79,7 @@ public class KubernetesMembershipScheme implements HazelcastMembershipScheme {
     @Override
     public void init() {
 
-        String localMemberPort = "4000";
+        String localMemberPort = KubernetesConstants.DEFAULT_SERVICE_PORT;
         Parameter namespace = getParameter(KubernetesConstants.NAMESPACE_PROPERTY);
         Parameter serviceName = getParameter(KubernetesConstants.SERVICE_NAME_PROPERTY);
 
@@ -136,7 +136,7 @@ public class KubernetesMembershipScheme implements HazelcastMembershipScheme {
                     member.getSocketAddress().toString()));
             // Wait for sometime for the member to completely join before replaying messages.
             try {
-                Thread.sleep(5000);
+                Thread.sleep(KubernetesConstants.MEMBER_JOIN_WAIT_TIME);
             } catch (InterruptedException ignored) {
             }
             HazelcastUtil.sendMessagesToMember(messageBuffer, member, carbonCluster);
