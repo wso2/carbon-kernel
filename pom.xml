@@ -68,6 +68,7 @@
         <module>components/multi-attribute-login</module>
         <module>components/secret-mgt</module>
         <module>components/central-logger</module>
+        <module>components/input-validation-mgt</module>
         <module>features/security-mgt</module>
         <module>features/claim-mgt</module>
         <module>features/identity-core</module>
@@ -95,6 +96,7 @@
         <module>features/user-store</module>
         <module>features/secret-mgt</module>
         <module>features/central-logger</module>
+        <module>features/input-validation-mgt</module>
     </modules>
 
 
@@ -270,6 +272,12 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.user.mgt.common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.input.validation.mgt</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
