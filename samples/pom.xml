@@ -43,8 +43,4 @@
             </plugin>
         </plugins>
     </build>
-
-  <scm>
-    <tag>v4.7.1</tag>
-  </scm>
 </project>
