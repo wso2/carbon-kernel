@@ -779,6 +779,33 @@
         <disableRestart>{{server.disable_restart_from_ui | default('false')}}</disableRestart>
      </disableShutdownRestartFromUI>
 
+     {% if correlation_logs is defined %}
+     <CorrelationLogs>
+         <enable>{{correlation_logs.enable}}</enable>
+         <components>{% for component in correlation_logs.components %}{{component}}{{"," if not loop.last}}{% endfor%}</components>
+         {% if correlation_logs.denied_threads is defined %}
+         <deniedThreads>{% for thread in correlation_logs.denied_threads %}{{thread}}{{"," if not loop.last}}{% endfor %}</deniedThreads>
+         {% endif %}
+         {% if correlation_logs.component_configs is defined %}
+         <componentConfigs>
+             {% for component in correlation_logs.component_configs %}
+             <{{component.type}}>
+                 {% for k, v in component.items() %}
+                 {% if k != "type" %}
+                 {% if v is sequence and v is not string and v is not mapping %}
+                 <{{k}}>{% for p in v %}{{p}}{{"," if not loop.last}}{% endfor %}</{{k}}>
+                 {% else %}
+                 <{{k}}>{{v}}</{{k}}>
+                 {% endif %}
+                 {% endif %}
+                 {% endfor %}
+             </{{component.type}}>
+             {% endfor %}
+         </componentConfigs>
+         {% endif %}
+     </CorrelationLogs>
+     {% endif %}
+
     <!-- Configure disable/enable server shutdown and restart from API -->
 
      <enableShutdownRestartFromAPI>

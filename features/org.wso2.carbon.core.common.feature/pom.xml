@@ -156,6 +156,8 @@
                                 </bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.ndatasource.rdbms:${carbon.kernel.version}
                                 </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.logging.correlation:${carbon.kernel.version}
+                                </bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.user.api:${carbon.kernel.version}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.framework.exporter:${carbon.kernel.version}
                                 </bundleDef>
