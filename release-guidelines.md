@@ -7,7 +7,7 @@
 * Do a FindSecurityBugs and ZAP scans and review the report. Send the report to security@wso2.com to get it reviewed/approved by the platform security team.
 
 ## Release Tasks
-1. Create a release branch from the 4.7.x branch.
+1. Create a release branch from the 4.8.x branch.
 2. Update the distribution/product/modules/distribution/release-notes.html for the latest release. We need to include the new features, new github filters for issues fixed for the current release and known issues.
     * Change “All fixed issues have been recorded at” section 
     * Change “All known issues have been recorded at” section 
@@ -15,12 +15,12 @@
 3. Verify  carbon.product, filter.properties, README.txt, bin/README.txt, release-notes.html, INSTALL.txt, about.html - check dates, hard-coded versions etc. (ex. 4420, 4.4.20, 2017)
   Following are the changes needed for the files.
     * Update core/org.wso2.carbon.ui/src/main/resources/web/docs/about.html
-        * Ex: `<h1>Version 4.7.19</h1>` -> `<h1>Version 4.7.20</h1>`
+        * Ex: `<h1>Version 4.8.0</h1>` -> `<h1>Version 4.8.1</h1>`
     * Update distribution/kernel/carbon.product
-        * Change product version Ex: 4.7.19.SNAPSHOT -> 4.7.20
-        * Change runtime version Ex: 4.7.19.SNAPSHOT -> 4.7.20
+        * Change product version Ex: 4.8.0.SNAPSHOT -> 4.8.1
+        * Change runtime version Ex: 4.8.0.SNAPSHOT -> 4.8.1
     * Update distribution/kernel/src/assembly/filter.properties
-        * Change carbon.version Ex: 4.7.19 -> 4.7.20
+        * Change carbon.version Ex: 4.8.0 -> 4.8.1
     * Update distribution/product/modules/distribution/INSTALL.txt
         * Change the version
     * Update distribution/product/modules/distribution/LICENSE.txt
