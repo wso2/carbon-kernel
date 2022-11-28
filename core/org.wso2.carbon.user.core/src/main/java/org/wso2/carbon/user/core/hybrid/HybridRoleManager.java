@@ -30,7 +30,6 @@ import org.wso2.carbon.user.core.authorization.AuthorizationCache;
 import org.wso2.carbon.user.core.common.UserRolesCache;
 import org.wso2.carbon.user.core.constants.UserCoreDBConstants;
 import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
-import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
@@ -55,7 +54,7 @@ import static org.wso2.carbon.user.core.hybrid.HybridJDBCConstants.COUNT_INTERNA
 
 public class HybridRoleManager {
 
-    private static Log log = LogFactory.getLog(JDBCUserStoreManager.class);
+    private static Log log = LogFactory.getLog(HybridRoleManager.class);
     private final int DEFAULT_MAX_ROLE_LIST_SIZE = 1000;
     private final int DEFAULT_MAX_SEARCH_TIME = 1000;
     protected UserRealm userRealm = null;
