@@ -102,8 +102,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
     /* To track whether this is the first time startup of the server. */
     protected static boolean isFirstStartup = true;
-    private static Log logger = LogFactory.getLog(ReadWriteLDAPUserStoreManager.class);
-    private static Log log = LogFactory.getLog(ReadWriteLDAPUserStoreManager.class);
+    private static final Log log = LogFactory.getLog(ReadWriteLDAPUserStoreManager.class);
     private static final String BULK_IMPORT_SUPPORT = "BulkImportSupported";
 
     protected Random random = new Random();
@@ -171,7 +170,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             // Skipped to throw a UserStoreException and log the error message in-order to successfully initiate and
             // create the user-store object.
             log.error("Cannot create connection to LDAP server. Connection URL: " + realmConfig
-                    .getUserStoreProperty(LDAPConstants.CONNECTION_URL) + " Error message: " + e.getMessage());
+                    .getUserStoreProperty(LDAPConstants.CONNECTION_URL) + " Error message: " + e.getMessage(), e);
         } finally {
             JNDIUtil.closeContext(dirContext);
         }
@@ -1270,7 +1269,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                         } else {
                             String errorMsg = "There is no user with the user name: " + userName
                                     + " to be added to this role.";
-                            logger.error(errorMsg);
+                            log.error(errorMsg);
                             throw new UserStoreException(errorMsg);
                         }
                         // get his DN
@@ -1290,12 +1289,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 Name compoundGroupName = ldapParser.parse("cn=" + roleName);
                 groupContext.bind(compoundGroupName, null, groupAttributes);
 
-            } catch (NamingException e) {
-                String errorMsg = "Role: " + roleName + " could not be added.";
-                if (log.isDebugEnabled()) {
-                    log.debug(errorMsg, e);
-                }
-                throw new UserStoreException(errorMsg, e);
             } catch (Exception e) {
                 String errorMsg = "Role: " + roleName + " could not be added.";
                 if (log.isDebugEnabled()) {
@@ -1709,7 +1702,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
-            logger.debug("Modifying role: " + groupRDN + " with type: " + modifyType + " user: " + userNameDN
+            log.debug("Modifying role: " + groupRDN + " with type: " + modifyType + " user: " + userNameDN
                     + " in search base: " + searchBase);
         }
 
@@ -1726,7 +1719,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
             groupContext.modifyAttributes(groupRDN, modifyType, modifyingAttributes);
             if (log.isDebugEnabled()) {
-                logger.debug("User: " + userNameDN + " was successfully " + "modified in LDAP group: "
+                log.debug("User: " + userNameDN + " was successfully " + "modified in LDAP group: "
                         + groupRDN);
             }
         } catch (NamingException e) {
@@ -2133,6 +2126,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                     attributeName = getClaimAtrribute(claimURI, userName, null);
                 } catch (org.wso2.carbon.user.api.UserStoreException e) {
                     String errorMessage = "Error in obtaining claim mapping.";
+                    if (log.isDebugEnabled()) {
+                        log.debug(errorMessage, e);
+                    }
                     throw new UserStoreException(errorMessage, e);
                 }
 
@@ -2239,36 +2235,41 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         if (e instanceof InvalidAttributeValueException) {
             String errorMessage = "One or more attribute values provided are incompatible for user : " + userName
                                   + "Please check and try again.";
-            if (logger.isDebugEnabled()) {
-                logger.debug(errorMessage, e);
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
         } else if (e instanceof InvalidAttributeIdentifierException) {
             String errorMessage = "One or more attributes you are trying to add/update are not "
                                   + "supported by underlying LDAP for user : " + userName;
-            if (logger.isDebugEnabled()) {
-                logger.debug(errorMessage, e);
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
         } else if (e instanceof NoSuchAttributeException) {
             String errorMessage = "One or more attributes you are trying to add/update are not "
                                   + "supported by underlying LDAP for user : " + userName;
-            if (logger.isDebugEnabled()) {
-                logger.debug(errorMessage, e);
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
         } else if (e instanceof NamingException) {
             String errorMessage = "Profile information could not be updated in LDAP user store for user : " + userName;
-            if (logger.isDebugEnabled()) {
-                logger.debug(errorMessage, e);
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
         } else if (e instanceof org.wso2.carbon.user.api.UserStoreException) {
             String errorMessage = "Error in obtaining claim mapping for user : " + userName;
-            if (logger.isDebugEnabled()) {
-                logger.debug(errorMessage, e);
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+        } else {
+            String errorMessage = "Error while performing the operation with the user : " + userName + ".";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
         }
     }
 
@@ -2509,13 +2510,13 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
         String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Retrieved user store properties for update: " + userStorePropertyValues);
+        if (log.isDebugEnabled()) {
+            log.debug("Retrieved user store properties for update: " + userStorePropertyValues);
         }
 
         if (ArrayUtils.isNotEmpty(immutableAttributes)) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Skipping Read only user store maintained default attributes: " +
+            if (log.isDebugEnabled()) {
+                log.debug("Skipping Read only user store maintained default attributes: " +
                         Arrays.toString(immutableAttributes));
             }
 

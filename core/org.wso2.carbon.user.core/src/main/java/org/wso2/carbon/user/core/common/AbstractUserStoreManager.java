@@ -244,6 +244,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 boolean isClientException = e.getCause().getCause() instanceof UserStoreClientException;
                 String errorCode = ((UserStoreException) e.getCause().getCause()).getErrorCode();
                 String errorMessage = e.getCause().getCause().getMessage();
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
                 if (isClientException) {
                     if (StringUtils.isBlank(errorCode)) {
                         throw new UserStoreClientException(errorCode, e);

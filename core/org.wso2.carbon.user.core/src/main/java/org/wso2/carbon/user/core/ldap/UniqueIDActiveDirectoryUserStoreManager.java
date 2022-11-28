@@ -67,6 +67,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_WHILE_GETTING_GROUP_BY_NAME;
+
 /**
  * This class is responsible for manipulating Microsoft Active Directory(AD)and Active Directory
  * Light Directory Service (AD LDS)data. This class provides facility to add/delete/modify/view user
@@ -74,7 +76,7 @@ import java.util.stream.Stream;
  */
 public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLDAPUserStoreManager {
 
-    private static Log logger = LogFactory.getLog(UniqueIDActiveDirectoryUserStoreManager.class);
+    private static final Log logger = LogFactory.getLog(UniqueIDActiveDirectoryUserStoreManager.class);
     private boolean isADLDSRole = false;
     private boolean isSSLConnection = false;
     private String userAccountControl = "512";
@@ -96,6 +98,8 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
 
     // For AD's this value is 1500 by default, hence overriding the default value.
     protected static final int MEMBERSHIP_ATTRIBUTE_RANGE_VALUE = 1500;
+
+    private static final String UNSUPPORTED_CREDENTIAL_TYPE_ERROR_MSG = "Unsupported credential type.";
 
     static {
         setAdvancedProperties();
@@ -206,7 +210,10 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
         try {
             credentialObj = Secret.getSecret(credential);
         } catch (UnsupportedSecretTypeException e) {
-            throw new UserStoreException("Unsupported credential type", e);
+            if (logger.isDebugEnabled()) {
+                logger.debug(UNSUPPORTED_CREDENTIAL_TYPE_ERROR_MSG, e);
+            }
+            throw new UserStoreException(UNSUPPORTED_CREDENTIAL_TYPE_ERROR_MSG, e);
         }
 
         Name compoundName = null;
@@ -253,10 +260,16 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
                     dirContext.unbind(compoundName);
                 } catch (NamingException e1) {
                     errorMessage = "Error while accessing the Active Directory for user : " + userName;
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(errorMessage, e);
+                    }
                     throw new UserStoreException(errorMessage, e);
                 }
                 errorMessage = "Error while enabling the user account. Please check password policy at DC for user : "
                         + userName;
+            }
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
         } finally {
@@ -298,6 +311,9 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
                     attributeName = getClaimAtrribute(claimURI, userName, null);
                 } catch (org.wso2.carbon.user.api.UserStoreException e) {
                     String errorMessage = "Error in obtaining claim mapping.";
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(errorMessage, e);
+                    }
                     throw new UserStoreException(errorMessage, e);
                 }
 
@@ -355,7 +371,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
         } catch (NumberFormatException e) {
             if (debug) {
                 logger.debug("Error occurred while reading user store property: "
-                        + UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST + " : " + e);
+                        + UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST + " : " + e, e);
             }
             givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
         }
@@ -366,7 +382,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
         } catch (NumberFormatException e) {
             if (debug) {
                 logger.debug("Error occurred while reading user store property: "
-                        + UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME + " : " + e);
+                        + UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME + " : " + e, e);
             }
             searchTime = UserCoreConstants.MAX_SEARCH_TIME;
         }
@@ -504,7 +520,10 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
         try {
             credentialObj = Secret.getSecret(newCredential);
         } catch (UnsupportedSecretTypeException e) {
-            throw new UserStoreException("Unsupported credential type", e);
+            if (logger.isDebugEnabled()) {
+                logger.debug(UNSUPPORTED_CREDENTIAL_TYPE_ERROR_MSG, e);
+            }
+            throw new UserStoreException(UNSUPPORTED_CREDENTIAL_TYPE_ERROR_MSG, e);
         }
 
         if (logger.isDebugEnabled()) {
@@ -515,7 +534,11 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
                                     .getNameInNamespace());
                 }
             } catch (NamingException e) {
-                logger.debug("Error while getting DN of search base", e);
+                String msg = "Error while getting DN of search base.";
+                if (logger.isDebugEnabled()) {
+                    logger.debug(msg, e);
+                }
+                logger.debug(msg, e);
             }
         }
 
@@ -622,7 +645,10 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
                 try {
                     credentialObj = Secret.getSecret(newCredential);
                 } catch (UnsupportedSecretTypeException e) {
-                    throw new UserStoreException("Unsupported credential type", e);
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(UNSUPPORTED_CREDENTIAL_TYPE_ERROR_MSG, e);
+                    }
+                    throw new UserStoreException(UNSUPPORTED_CREDENTIAL_TYPE_ERROR_MSG, e);
                 }
 
                 try {
@@ -893,6 +919,11 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
                 logger.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+        } else {
+            String errorMessage = "Error while performing the operation with the user : " + userName + ".";
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
         }
     }
 

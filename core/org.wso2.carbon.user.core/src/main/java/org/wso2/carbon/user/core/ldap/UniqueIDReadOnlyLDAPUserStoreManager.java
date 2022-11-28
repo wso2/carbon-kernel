@@ -117,14 +117,13 @@ import static org.wso2.carbon.user.core.ldap.LDAPConstants.DEFAULT_LDAP_TIME_FOR
 
 public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager {
 
-    private static Log logger = LogFactory.getLog(UniqueIDReadOnlyLDAPUserStoreManager.class);
     public static final String MEMBER_UID = "memberUid";
     protected static final String OBJECT_GUID = "objectGUID";
     protected static final String MEMBERSHIP_ATTRIBUTE_RANGE = "MembershipAttributeRange";
     protected static final String MEMBERSHIP_ATTRIBUTE_RANGE_DISPLAY_NAME = "Membership Attribute Range";
     private static final String USER_CACHE_NAME_PREFIX = CachingConstants.LOCAL_CACHE_PREFIX + "UserCache-";
     private static final String USER_CACHE_MANAGER = "UserCacheManager";
-    private static Log log = LogFactory.getLog(UniqueIDReadOnlyLDAPUserStoreManager.class);
+    private static final Log log = LogFactory.getLog(UniqueIDReadOnlyLDAPUserStoreManager.class);
 
     private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION =
             "This is the separator for multiple claim " + "values";
@@ -146,6 +145,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                     + "Values  {0: expire immediately, -1: never expire, '': i.e. empty, system default}.";
     protected static final String USER_DN_CACHE_ENABLED_ATTRIBUTE_DESCRIPTION =
             "Enables the user cache. Default true," + " Unless set to false. Empty value is interpreted as true.";
+    private static final String EXTRACTING_ANSWER_ERROR_MSG = "An error occurred while extracting the answer.";
 
     // Authenticating to LDAP via Anonymous Bind.
     private static final String USE_ANONYMOUS_BIND = "AnonymousBind";
@@ -616,9 +616,13 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 return userIds.get(0);
             }
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            String msg ="Error occurred while retrieving the userId of domain : " + getMyDomainName() + " and " +
+                    "property" + property + " value: " + claimValue + ".";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
             throw new UserStoreException(
-                    "Error occurred while retrieving the userId of domain : " + getMyDomainName() + " and " + "property"
-                            + property + " value: " + claimValue, e);
+                    msg, e);
         }
     }
 
@@ -1006,7 +1010,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                         } catch (NamingException e) {
                             // ignore
                             if (log.isDebugEnabled()) {
-                                log.debug(e);
+                                log.debug(EXTRACTING_ANSWER_ERROR_MSG, e);
                             }
                         }
                     }
@@ -1039,7 +1043,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                         } catch (NamingException e) {
                             // ignore
                             if (log.isDebugEnabled()) {
-                                log.debug(e);
+                                log.debug(EXTRACTING_ANSWER_ERROR_MSG, e);
                             }
                         }
                     }
@@ -1311,7 +1315,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 } catch (NamingException e) {
                     //ignore
                     if (log.isDebugEnabled()) {
-                        log.debug(e);
+                        log.debug(EXTRACTING_ANSWER_ERROR_MSG, e);
                     }
                 }
             }
@@ -1533,11 +1537,11 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             result.setUsers(users);
             return result;
         } catch (NamingException e) {
-            log.error(String.format("Error occurred while performing paginated search, %s", e.getMessage()));
+            log.error(String.format("Error occurred while performing paginated search, %s.", e.getMessage()), e);
             throw new UserStoreException(e.getMessage(), e);
         } catch (IOException e) {
-            log.error(String.format("Error occurred while setting paged results controls for paginated search, %s",
-                    e.getMessage()));
+            log.error(String.format("Error occurred while setting paged results controls for paginated search, %s.",
+                    e.getMessage()), e);
             throw new UserStoreException(e.getMessage(), e);
         } finally {
             JNDIUtil.closeContext(dirContext);
@@ -1817,8 +1821,11 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 paginatedGroups.add(group);
             }
         } catch (NamingException e) {
-            throw new UserStoreException(ERROR_WHILE_PERFORMING_PAGINATED_SEARCH.getMessage(),
-                    ERROR_WHILE_PERFORMING_PAGINATED_SEARCH.getCode(), e);
+            String msg = ERROR_WHILE_PERFORMING_PAGINATED_SEARCH.getMessage();
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, ERROR_WHILE_PERFORMING_PAGINATED_SEARCH.getCode(), e);
         }
         return paginatedGroups;
     }
@@ -1887,7 +1894,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 membershipValue = escapeLdapNameForFilter(ldn);
             }
         } catch (InvalidNameException e) {
-            log.error("Error while creating LDAP name from: " + nameInSpace);
+            log.error("Error while creating LDAP name from: " + nameInSpace + ".", e);
             throw new UserStoreException("Invalid naming exception for : " + nameInSpace, e);
         }
         String[] returnedAttributes = getMandatoryGroupsAttributesList().toArray(new String[0]);
@@ -1957,13 +1964,13 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             }
         } catch (NamingException e) {
             if (log.isDebugEnabled()) {
-                log.error("Error occurred while performing paginated search", e);
+                log.error("Error occurred while performing paginated search.", e);
             }
             throw new UserStoreException(ERROR_WHILE_GETTING_GROUPS.getMessage(),
                     ERROR_WHILE_GETTING_GROUPS.getCode(), e);
         } catch (IOException e) {
             if (log.isDebugEnabled()) {
-                log.error("Error occurred while setting paged results controls for paginated search", e);
+                log.error("Error occurred while setting paged results controls for paginated search.", e);
             }
             throw new UserStoreException(ERROR_WHILE_GETTING_GROUPS.getMessage(),
                     ERROR_WHILE_GETTING_GROUPS.getCode(), e);
@@ -2023,7 +2030,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             return names;
         } catch (NamingException e) {
             if (log.isDebugEnabled()) {
-                log.error("Error occurred while performing paginated search", e);
+                log.error("Error occurred while performing paginated search.", e);
             }
             throw new UserStoreException(ERROR_WHILE_PERFORMING_PAGINATED_SEARCH.getMessage(),
                     ERROR_WHILE_PERFORMING_PAGINATED_SEARCH.getCode(), e);
@@ -2058,8 +2065,11 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 }
             }
         } catch (UserStoreException | NamingException e) {
-            throw new UserStoreException(ERROR_WHILE_GETTING_GROUPS.getMessage(),
-                    ERROR_WHILE_GETTING_GROUPS.getCode(), e);
+            String msg = ERROR_WHILE_GETTING_GROUPS.getMessage();
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, ERROR_WHILE_GETTING_GROUPS.getCode(), e);
         } finally {
             JNDIUtil.closeContext(dirContext);
         }
@@ -2074,7 +2084,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 groups.add(new LdapName(groupDN));
             } catch (InvalidNameException e) {
                 if (log.isDebugEnabled()) {
-                    log.debug("LDAP Name error for dn: " + groupDN, e);
+                    log.debug("LDAP Name error for dn: " + groupDN + ".", e);
                 }
             }
         }
@@ -2705,7 +2715,11 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                     log.debug("Tenant domain : " + tenantDomain + " found for the tenant ID : " + tenantId);
                 }
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                throw new UserStoreException("Could not get the tenant domain for tenant id : " + tenantId, e);
+                String msg = "Could not get the tenant domain for tenant id : " + tenantId + ".";
+                if (log.isDebugEnabled()) {
+                    log.debug(msg, e);
+                }
+                throw new UserStoreException(msg, e);
             }
         }
 
@@ -2906,13 +2920,13 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
 
         String[] timestampAttributes = StringUtils.split(timestampAttributesProperty, ",");
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Unique read only timestamp attributes: " + Arrays.toString(timestampAttributes));
+        if (log.isDebugEnabled()) {
+            log.debug("Unique read only timestamp attributes: " + Arrays.toString(timestampAttributes));
         }
 
         if (ArrayUtils.isNotEmpty(timestampAttributes)) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Retrieved user store properties before type conversions: " + userStorePropertyValues);
+            if (log.isDebugEnabled()) {
+                log.debug("Retrieved user store properties before type conversions: " + userStorePropertyValues);
             }
 
             Map<String, String> convertedTimestampAttributeValues = Arrays.stream(timestampAttributes)
@@ -2920,14 +2934,14 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                     .collect(Collectors.toMap(Function.identity(),
                             attribute -> convertDateFormatFromLDAP(userStorePropertyValues.get(attribute))));
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Converted timestamp attribute values: " + convertedTimestampAttributeValues);
+            if (log.isDebugEnabled()) {
+                log.debug("Converted timestamp attribute values: " + convertedTimestampAttributeValues);
             }
 
             userStorePropertyValues.putAll(convertedTimestampAttributeValues);
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Retrieved user store properties after type conversions: " + userStorePropertyValues);
+            if (log.isDebugEnabled()) {
+                log.debug("Retrieved user store properties after type conversions: " + userStorePropertyValues);
             }
         }
     }
@@ -3045,18 +3059,19 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             // Can be due to referrals in AD. So just ignore error.
             if (isIgnorePartialResultException()) {
                 if (log.isDebugEnabled()) {
-                    log.debug(String.format("Error occurred while searching for user(s) for filter: %s", searchFilter));
+                    log.debug(String.format("Error occurred while searching for user(s) for filter: %s.", searchFilter),
+                            e);
                 }
             } else {
-                log.error(String.format("Error occurred while searching for user(s) for filter: %s", searchFilter));
+                log.error(String.format("Error occurred while searching for user(s) for filter: %s.", searchFilter));
                 throw new UserStoreException(e.getMessage(), e);
             }
         } catch (NamingException e) {
-            log.error(String.format("Error occurred while searching for user(s) for filter: %s, %s",
-                    searchFilter, e.getMessage()));
+            log.error(String.format("Error occurred while searching for user(s) for filter: %s, %s.",
+                    searchFilter, e.getMessage()), e);
             throw new UserStoreException(e.getMessage(), e);
         } catch (IOException e) {
-            log.error(String.format("Error occurred while doing paginated search, %s", e.getMessage()));
+            log.error(String.format("Error occurred while doing paginated search, %s.", e.getMessage()), e);
             throw new UserStoreException(e.getMessage(), e);
         } finally {
             JNDIUtil.closeNamingEnumeration(answer);
@@ -3170,7 +3185,8 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 }
             }
         } catch (NamingException e) {
-            log.error(String.format("Error occurred while getting user list from non group filter %s", e.getMessage()));
+            log.error(String.format("Error occurred while getting user list from non group filter %s.",
+                    e.getMessage()), e);
             throw new UserStoreException(e.getMessage(), e);
         } finally {
             // Close the naming enumeration and free up resources
@@ -3237,7 +3253,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 }
             }
         } catch (NamingException e) {
-            log.error(String.format("Error occurred while getting user list from group filter %s", e.getMessage()));
+            log.error(String.format("Error occurred while getting user list from group filter %s.", e.getMessage()), e);
             throw new UserStoreException(e.getMessage(), e);
         } finally {
             JNDIUtil.closeNamingEnumeration(attrs);
@@ -3306,7 +3322,8 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 }
             }
         } catch (NamingException e) {
-            log.error(String.format("Error occurred while getting user list from non group filter %s", e.getMessage()));
+            log.error(String.format("Error occurred while getting user list from non group filter %s.",
+                    e.getMessage()), e);
             throw new UserStoreException(e.getMessage(), e);
         }
         return finalUserList;
@@ -3370,8 +3387,8 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                     }
                 }
             } catch (NamingException e) {
-                log.error(String.format("Error in reading user information in the user store for the user %s, %s",
-                        userFromSearch, e.getMessage()));
+                log.error(String.format("Error in reading user information in the user store for the user %s, %s.",
+                        userFromSearch, e.getMessage()), e);
                 throw new UserStoreException(e.getMessage(), e);
             }
         }
@@ -3526,8 +3543,8 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                         Arrays.asList(claimSearchControls.getReturningAttributes()));
             }
         } catch (NamingException e) {
-            log.error(String.format("Error occurred while doing claim filtering for user(s) with filter: %s, %s",
-                    claimSearch.getSearchFilterQuery(), e.getMessage()));
+            log.error(String.format("Error occurred while doing claim filtering for user(s) with filter: %s, %s.",
+                    claimSearch.getSearchFilterQuery(), e.getMessage()), e);
             throw new UserStoreException(e.getMessage(), e);
         } finally {
             JNDIUtil.closeContext(claimSearchDirContext);
@@ -3574,14 +3591,22 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                     }
                 }
             } catch (NamingException e) {
+                String msg;
                 // We need to throw different exception if the identifier is group name.
                 if (isGroupNameIdentifier) {
-                    throw new UserStoreException(String.format(ERROR_WHILE_GETTING_GROUP_BY_NAME.getMessage(),
-                            groupIdentifier, getMyDomainName(), tenantId),
-                            ERROR_WHILE_GETTING_GROUP_BY_NAME.getCode(), e);
+                    msg = String.format(ERROR_WHILE_GETTING_GROUP_BY_NAME.getMessage(), groupIdentifier,
+                            getMyDomainName(), tenantId);
+                    if (log.isDebugEnabled()) {
+                        log.debug(msg, e);
+                    }
+                    throw new UserStoreException(msg, e);
                 }
-                throw new UserStoreException(String.format(ERROR_WHILE_GETTING_GROUP_BY_ID.getMessage(),
-                        groupIdentifier, getMyDomainName(), tenantId), ERROR_WHILE_GETTING_GROUP_BY_ID.getCode(), e);
+                msg = (String.format(ERROR_WHILE_GETTING_GROUP_BY_ID.getMessage(),
+                        groupIdentifier, getMyDomainName(), tenantId));
+                if (log.isDebugEnabled()) {
+                    log.debug(msg, e);
+                }
+                throw new UserStoreException(msg, ERROR_WHILE_GETTING_GROUP_BY_ID.getCode(), e);
             } finally {
                 JNDIUtil.closeNamingEnumeration(answer);
                 JNDIUtil.closeContext(dirContext);
@@ -3628,8 +3653,12 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                     }
                 }
             } catch (NamingException e) {
-                throw new UserStoreException(String.format(ERROR_WHILE_GETTING_GROUP_BY_NAME.getMessage(),
-                        groupName, getMyDomainName(), tenantId), ERROR_WHILE_GETTING_GROUP_BY_NAME.getCode(), e);
+                String msg = String.format(ERROR_WHILE_GETTING_GROUP_BY_NAME.getMessage(),
+                        groupName, getMyDomainName(), tenantId);
+                if (log.isDebugEnabled()) {
+                    log.debug(msg, e);
+                }
+                throw new UserStoreException(msg, ERROR_WHILE_GETTING_GROUP_BY_NAME.getCode(), e);
             } finally {
                 JNDIUtil.closeNamingEnumeration(answer);
                 JNDIUtil.closeContext(dirContext);
@@ -3676,8 +3705,12 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 }
             }
         } catch (NamingException e) {
-            throw new UserStoreException(String.format(ERROR_WHILE_BUILDING_GROUP_RESPONSE.getMessage(),
-                    getMyDomainName(), tenantId), ERROR_WHILE_BUILDING_GROUP_RESPONSE.getCode(), e);
+            String msg = String.format(ERROR_WHILE_BUILDING_GROUP_RESPONSE.getMessage(),
+                    getMyDomainName(), tenantId);
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, ERROR_WHILE_BUILDING_GROUP_RESPONSE.getCode(), e);
         }
         group.setUserStoreDomain(getMyDomainName());
         group.setTenantDomain(tenantDomain);
@@ -3903,8 +3936,11 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 throw new UserStoreException(errorMessage, e);
             }
         } catch (NamingException e) {
-            throw new UserStoreException(ERROR_WHILE_GETTING_GROUPS.getMessage(),
-                    ERROR_WHILE_GETTING_GROUPS.getCode(), e);
+            String msg = ERROR_WHILE_GETTING_GROUPS.getMessage();
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, ERROR_WHILE_GETTING_GROUPS.getCode(), e);
         } finally {
             JNDIUtil.closeNamingEnumeration(answer);
             JNDIUtil.closeContext(dirContext);
