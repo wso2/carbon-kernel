@@ -1674,8 +1674,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
 
                 if (!listener.authenticate(userName, credentialArgument, abstractUserStoreManager)) {
-                    handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
-                            ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(), userName,
+                    handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_INVALID_CREDENTIAL.getCode(),
+                            ErrorMessages.ERROR_CODE_ERROR_INVALID_CREDENTIAL.getMessage(), userName,
                             credentialArgument);
                     return false;
                 }
@@ -1786,8 +1786,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (!authenticated) {
-            handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
-                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(),
+            handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_INVALID_CREDENTIAL.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_INVALID_CREDENTIAL.getMessage(),
                             "Authentication failed"), userName, credential);
         }
 
@@ -10545,8 +10545,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (log.isDebugEnabled()) {
                 log.debug("Authentication failure. Invalid username or password is provided.");
             }
-            handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
-                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(),
+            handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_INVALID_CREDENTIAL.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_INVALID_CREDENTIAL.getMessage(),
                             "Authentication failed"), userName, credential);
             throw new UserStoreException("Authentication failed. Invalid username or password.");
         }
@@ -10871,8 +10871,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (!authenticated) {
-            handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
-                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(),
+            handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_INVALID_CREDENTIAL.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_INVALID_CREDENTIAL.getMessage(),
                             "Authentication failed"), loginIdentifiers, credential);
         }
 
@@ -11090,8 +11090,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (log.isDebugEnabled()) {
                     log.debug("Authentication failure. Invalid username or password is provided.");
                 }
-                handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
-                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(),
+                handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_INVALID_CREDENTIAL.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_INVALID_CREDENTIAL.getMessage(),
                                 "Authentication failed"), preferredUserNameValue, credential);
                 throw new UserStoreException("Authentication failed. Invalid username or password.");
             }
@@ -11184,13 +11184,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (!((AbstractUserStoreManagerListener) listener)
                         .authenticateWithID(preferredUserNameClaim, preferredUserNameValue, credentialArgument,
                                 abstractUserStoreManager)) {
-                    handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
-                            ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(), preferredUserNameClaim,
-                            preferredUserNameValue, credentialArgument);
+                    handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_INVALID_CREDENTIAL.getCode(),
+                            ErrorMessages.ERROR_CODE_ERROR_INVALID_CREDENTIAL.getMessage(), preferredUserNameClaim,
+                            preferredUserNameValue);
 
                     authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
                     authenticationResult.setFailureReason(
-                            new FailureReason(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage()));
+                            new FailureReason(ErrorMessages.ERROR_CODE_ERROR_INVALID_CREDENTIAL.getMessage()));
                     return authenticationResult;
                 }
             }
@@ -11340,8 +11340,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (!authenticated) {
-            handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
-                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(),
+            handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_INVALID_CREDENTIAL.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_INVALID_CREDENTIAL.getMessage(),
                             "Authentication failed"), preferredUserNameClaim, preferredUserNameValue, credential);
         }
 
@@ -11556,8 +11556,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (!authenticated) {
-            handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
-                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(),
+            handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_INVALID_CREDENTIAL.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_INVALID_CREDENTIAL.getMessage(),
                             "Authentication failed"), userID, credential);
         }
 
