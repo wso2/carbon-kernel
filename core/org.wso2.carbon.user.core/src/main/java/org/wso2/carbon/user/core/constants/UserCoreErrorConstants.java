@@ -59,6 +59,8 @@ public class UserCoreErrorConstants {
         ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION("31002", "Un-expected error while pre-authenticating, %s"),
         ERROR_CODE_TENANT_DEACTIVATED("31003", "Tenant has been deactivated. TenantID : %s"),
         ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION("31004", "TUn-expected error while post-authentication, %s"),
+        ERROR_CODE_ERROR_INVALID_CREDENTIAL(
+                "31005", "Authentication failure. Invalid username or password is provided."),
 
         // Error code related with getClaimValue
         ERROR_CODE_ERROR_WHILE_GETTING_USER_CLAIM_VALUE("32001", "Un-expected error while getting user-claim value, "
