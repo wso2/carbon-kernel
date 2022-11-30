@@ -12130,14 +12130,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         User user = null;
         if (isUniqueIdEnabled) {
             isUserExists = doCheckExistingUserWithID(userID);
-        } else{
-            if (userStore != null && StringUtils.isNotBlank(userStore.getDomainName())){
+        } else {
+            if (userStore != null && StringUtils.isNotBlank(userStore.getDomainName())) {
                 user = userUniqueIDManger.getUser(userID, this, userStore.getDomainName());
-                isUserExists = user != null;
-            } else{
+            } else {
                 user = userUniqueIDManger.getUser(userID, this);
-                isUserExists = user != null;
             }
+            isUserExists = user != null;
         }
 
         if (!isUserExists) {
