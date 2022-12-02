@@ -55,6 +55,7 @@ public class JDBCCaseInsensitiveConstants {
     public static final String GET_USERID_FROM_USERNAME_CASE_INSENSITIVE = "GetUserIDFromUserNameSQLCaseInsensitive";
     public static final String GET_TENANT_ID_FROM_USERNAME_CASE_INSENSITIVE =
             "GetTenantIDFromUserNameSQLCaseInsensitive";
+    public static final String ADD_USER_PROPERTY_CASE_INSENSITIVE = "AddUserPropertySQLCaseInsensitive";
     public static final String ADD_USER_TO_ROLE_CASE_INSENSITIVE = "AddUserToRoleSQLCaseInsensitive";
     public static final String ADD_ROLE_TO_USER_CASE_INSENSITIVE = "AddRoleToUserSQLCaseInsensitive";
     public static final String ADD_SHARED_ROLE_TO_USER_CASE_INSENSITIVE = "AddSharedRoleToUserSQLCaseInsensitive";
@@ -68,6 +69,9 @@ public class JDBCCaseInsensitiveConstants {
     public static final String ON_DELETE_USER_REMOVE_ATTRIBUTE_CASE_INSENSITIVE =
             "OnDeleteUserRemoveUserAttributeSQLCaseInsensitive";
     public static final String UPDATE_USER_PASSWORD_CASE_INSENSITIVE = "UpdateUserPasswordSQLCaseInsensitive";
+    public static final String ADD_USER_PROPERTY_SQL_CASE_INSENSITIVE = "INSERT INTO UM_USER_ATTRIBUTE " +
+            "(UM_USER_ID, UM_ATTR_NAME, UM_ATTR_VALUE, UM_PROFILE_ID, UM_TENANT_ID) VALUES " +
+            "((SELECT UM_ID FROM UM_USER WHERE LOWER(UM_USER_NAME)=LOWER(?) AND UM_TENANT_ID=?), ?, ?, ?, ?)";
     public static final String UPDATE_USER_PROPERTY_CASE_INSENSITIVE = "UpdateUserPropertySQLCaseInsensitive";
     public static final String DELETE_USER_PROPERTY_CASE_INSENSITIVE = "DeleteUserPropertySQLCaseInsensitive";
     public static final String USER_NAME_UNIQUE_CASE_INSENSITIVE = "UserNameUniqueAcrossTenantsSQLCaseInsensitive";

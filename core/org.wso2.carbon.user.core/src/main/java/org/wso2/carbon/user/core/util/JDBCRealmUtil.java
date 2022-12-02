@@ -686,6 +686,10 @@ public class JDBCRealmUtil {
             properties.put(JDBCCaseInsensitiveConstants.USER_NAME_UNIQUE_CASE_INSENSITIVE_WITH_ID,
                     JDBCCaseInsensitiveConstants.USER_NAME_UNIQUE_SQL_CASE_INSENSITIVE_WITH_ID);
         }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.ADD_USER_PROPERTY_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.ADD_USER_PROPERTY_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.ADD_USER_PROPERTY_SQL_CASE_INSENSITIVE);
+        }
         if (!properties.containsKey(JDBCCaseInsensitiveConstants.UPDATE_USER_PROPERTY_CASE_INSENSITIVE)) {
             properties.put(JDBCCaseInsensitiveConstants.UPDATE_USER_PROPERTY_CASE_INSENSITIVE,
                     JDBCCaseInsensitiveConstants.UPDATE_USER_PROPERTY_SQL_CASE_INSENSITIVE);
