@@ -144,6 +144,7 @@ public class RequestCorrelationIdValve extends ValveBase {
             }
             disAssociateFromThread();
             ThreadContext.remove(correlationIdMdc);
+            MDC.clear();
         }
     }
 
