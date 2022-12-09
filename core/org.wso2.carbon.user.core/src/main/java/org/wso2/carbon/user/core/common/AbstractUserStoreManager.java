@@ -13708,6 +13708,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         } finally {
             newCredentialObj.clear();
+            UserCoreUtil.removeSkipPasswordPatternValidationThreadLocal();
         }
         // #################### </Listeners> #####################################################
 
