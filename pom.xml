@@ -245,6 +245,12 @@
                 <groupId>org.apache.santuario</groupId>
                 <artifactId>xmlsec</artifactId>
                 <version>${xmlsec.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.woodstox</groupId>
+                        <artifactId>woodstox-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.wso2.orbit.jsr105</groupId>
