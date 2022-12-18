@@ -708,7 +708,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 Timestamp changedTime = rs.getTimestamp(6);
 
                 GregorianCalendar gc = new GregorianCalendar();
-                gc.add(GregorianCalendar.HOUR, -24);
+                gc.add(GregorianCalendar.HOUR, -1 * getDefaultPasswordValidityPeriodInHours());
                 Date date = gc.getTime();
 
                 if (requireChange && changedTime.before(date)) {
@@ -853,7 +853,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 Timestamp changedTime = rs.getTimestamp(6);
 
                 GregorianCalendar gc = new GregorianCalendar();
-                gc.add(GregorianCalendar.HOUR, -24);
+                gc.add(GregorianCalendar.HOUR, -1 * getDefaultPasswordValidityPeriodInHours());
                 Date date = gc.getTime();
 
                 if (requireChange && changedTime.before(date)) {
@@ -941,7 +941,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 Timestamp changedTime = rs.getTimestamp(6);
 
                 GregorianCalendar gc = new GregorianCalendar();
-                gc.add(GregorianCalendar.HOUR, -24);
+                gc.add(GregorianCalendar.HOUR, -1 * getDefaultPasswordValidityPeriodInHours());
                 Date date = gc.getTime();
 
                 if (requireChange && changedTime.before(date)) {
@@ -1047,7 +1047,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 Timestamp changedTime = rs.getTimestamp(6);
 
                 GregorianCalendar gc = new GregorianCalendar();
-                gc.add(GregorianCalendar.HOUR, -24);
+                gc.add(GregorianCalendar.HOUR, -1 * getDefaultPasswordValidityPeriodInHours());
                 Date date = gc.getTime();
 
                 if (requireChange && changedTime.before(date)) {
@@ -2090,7 +2090,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 if (requireChange) {
                     GregorianCalendar gc = new GregorianCalendar();
                     gc.setTime(changedTime);
-                    gc.add(GregorianCalendar.HOUR, 24);
+                    gc.add(GregorianCalendar.HOUR, getDefaultPasswordValidityPeriodInHours());
                     date = gc.getTime();
                 }
             }

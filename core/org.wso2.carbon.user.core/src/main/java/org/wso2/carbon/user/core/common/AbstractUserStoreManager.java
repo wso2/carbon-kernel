@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.NotImplementedException;
@@ -70,6 +71,7 @@ import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.system.SystemUserRoleManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.Secret;
+import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
@@ -16170,5 +16172,20 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
         handleGetUserClaimValuesFailure(errorCode, errorMessage, userName, null, profileName);
         throw new UserStoreException(errorCode + " - " + errorMessage);
+    }
+
+    /**
+     * The password validity timeout value is set by server configuration value from carbon.xml file.
+     * If value is not present the default value of 24 hours is returned.
+     * @return password validity timeout in hours.
+     */
+    protected int getDefaultPasswordValidityPeriodInHours() throws UserStoreException {
+
+        String pwValidityTimeoutStr = ServerConfiguration.getInstance()
+                .getFirstProperty(ServerConstants.DEFAULT_PASSWORD_VALIDITY_PERIOD);
+        if (!StringUtils.isBlank(pwValidityTimeoutStr)){
+            return Integer.parseInt(pwValidityTimeoutStr);
+        }
+        return 24;
     }
 }

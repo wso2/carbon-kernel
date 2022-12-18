@@ -1370,7 +1370,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 Timestamp changedTime = rs.getTimestamp(6);
 
                 GregorianCalendar gc = new GregorianCalendar();
-                gc.add(GregorianCalendar.HOUR, -24);
+                gc.add(GregorianCalendar.HOUR, -1 * getDefaultPasswordValidityPeriodInHours());
                 Date date = gc.getTime();
 
                 if (requireChange == true && changedTime.before(date)) {
@@ -2538,7 +2538,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 if (requireChange) {
                     GregorianCalendar gc = new GregorianCalendar();
                     gc.setTime(changedTime);
-                    gc.add(GregorianCalendar.HOUR, 24);
+                    gc.add(GregorianCalendar.HOUR, getDefaultPasswordValidityPeriodInHours());
                     date = gc.getTime();
                 }
             }
