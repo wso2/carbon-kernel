@@ -197,7 +197,8 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
         superTenantOutMessageContext.setProperty(MultitenantConstants.COPY_CONTENT_LENGTH_FROM_INCOMING,
                 contentLengthCopy);
 
-
+        superTenantOutMessageContext.setProperty(MultitenantConstants.CORRELATION_ID,
+                msgContext.getProperty(MultitenantConstants.CORRELATION_ID));
 
         superTenantOutMessageContext.setProperty(Constants.Configuration.MESSAGE_TYPE,
                 msgContext.getProperty(Constants.Configuration.MESSAGE_TYPE));
