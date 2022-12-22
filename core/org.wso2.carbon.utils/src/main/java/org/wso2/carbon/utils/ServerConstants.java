@@ -145,7 +145,6 @@ public final class ServerConstants {
     public static final String STS_NAME = "wso2carbon-sts";
     public static final String DEFAULT_PASSWORD_VALIDITY_PERIOD = "DefaultPasswordValidityPeriod";
 
-
     public static class Axis2ParameterNames {
         public static final String CONTEXT_ROOT = "contextRoot";
         public static final String SERVICE_PATH = "servicePath";
