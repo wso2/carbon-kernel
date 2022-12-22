@@ -33,14 +33,7 @@ import org.wso2.carbon.user.core.UserStoreClientException;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.ClaimManager;
-import org.wso2.carbon.user.core.common.AuthenticationResult;
-import org.wso2.carbon.user.core.common.FailureReason;
-import org.wso2.carbon.user.core.common.LoginIdentifier;
-import org.wso2.carbon.user.core.common.PaginatedSearchResult;
-import org.wso2.carbon.user.core.common.RoleBreakdown;
-import org.wso2.carbon.user.core.common.RoleContext;
-import org.wso2.carbon.user.core.common.UniqueIDPaginatedSearchResult;
-import org.wso2.carbon.user.core.common.User;
+import org.wso2.carbon.user.core.common.*;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
 import org.wso2.carbon.user.core.model.Condition;
 import org.wso2.carbon.user.core.model.ExpressionAttribute;
@@ -708,7 +701,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 Timestamp changedTime = rs.getTimestamp(6);
 
                 GregorianCalendar gc = new GregorianCalendar();
-                gc.add(GregorianCalendar.HOUR, -1 * getDefaultPasswordValidityPeriodInHours());
+                gc.add(GregorianCalendar.HOUR, - AbstractUserStoreManager.pwValidityTimeoutInt);
                 Date date = gc.getTime();
 
                 if (requireChange && changedTime.before(date)) {
@@ -853,7 +846,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 Timestamp changedTime = rs.getTimestamp(6);
 
                 GregorianCalendar gc = new GregorianCalendar();
-                gc.add(GregorianCalendar.HOUR, -1 * getDefaultPasswordValidityPeriodInHours());
+                gc.add(GregorianCalendar.HOUR, - AbstractUserStoreManager.pwValidityTimeoutInt);
                 Date date = gc.getTime();
 
                 if (requireChange && changedTime.before(date)) {
@@ -941,7 +934,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 Timestamp changedTime = rs.getTimestamp(6);
 
                 GregorianCalendar gc = new GregorianCalendar();
-                gc.add(GregorianCalendar.HOUR, -1 * getDefaultPasswordValidityPeriodInHours());
+                gc.add(GregorianCalendar.HOUR, - AbstractUserStoreManager.pwValidityTimeoutInt);
                 Date date = gc.getTime();
 
                 if (requireChange && changedTime.before(date)) {
@@ -1047,7 +1040,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 Timestamp changedTime = rs.getTimestamp(6);
 
                 GregorianCalendar gc = new GregorianCalendar();
-                gc.add(GregorianCalendar.HOUR, -1 * getDefaultPasswordValidityPeriodInHours());
+                gc.add(GregorianCalendar.HOUR, - AbstractUserStoreManager.pwValidityTimeoutInt);
                 Date date = gc.getTime();
 
                 if (requireChange && changedTime.before(date)) {
@@ -2090,7 +2083,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 if (requireChange) {
                     GregorianCalendar gc = new GregorianCalendar();
                     gc.setTime(changedTime);
-                    gc.add(GregorianCalendar.HOUR, getDefaultPasswordValidityPeriodInHours());
+                    gc.add(GregorianCalendar.HOUR, AbstractUserStoreManager.pwValidityTimeoutInt);
                     date = gc.getTime();
                 }
             }

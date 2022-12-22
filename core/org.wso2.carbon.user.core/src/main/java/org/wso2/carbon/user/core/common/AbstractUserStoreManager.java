@@ -140,6 +140,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     private static final String LOCATION_CLAIM_URI = "http://wso2.org/claims/location";
     private static final int DEFAULT_PASSWORD_VALIDITY_PERIOD_VALUE = 24;
+    protected static int pwValidityTimeoutInt = getDefaultPasswordValidityPeriodInHours();
     private static Log log = LogFactory.getLog(AbstractUserStoreManager.class);
     protected int tenantId;
     protected DataSource dataSource = null;
@@ -16177,16 +16178,18 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     /**
      * The password validity timeout value is set by server configuration value from carbon.xml file.
-     * If value is not present the default value of 24 hours is returned.
+     * If value is not present the default value of DEFAULT_PASSWORD_VALIDITY_PERIOD_VALUE is returned.
      * @return password validity timeout in hours.
      */
-    protected int getDefaultPasswordValidityPeriodInHours() throws UserStoreException {
+    private static int getDefaultPasswordValidityPeriodInHours() {
 
         String pwValidityTimeoutStr = ServerConfiguration.getInstance()
                 .getFirstProperty(ServerConstants.DEFAULT_PASSWORD_VALIDITY_PERIOD);
-        if (!StringUtils.isBlank(pwValidityTimeoutStr)){
+        if (!StringUtils.isBlank(pwValidityTimeoutStr)) {
             return Integer.parseInt(pwValidityTimeoutStr);
         }
-        return DEFAULT_PASSWORD_VALIDITY_PERIOD_VALUE;
+        else {
+            return DEFAULT_PASSWORD_VALIDITY_PERIOD_VALUE;
+        }
     }
 }
