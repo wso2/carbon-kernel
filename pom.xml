@@ -1893,7 +1893,7 @@
         <commons-beanutils.version>1.8.0</commons-beanutils.version>
         <commons-collections.version>3.2.2.wso2v1</commons-collections.version>
         <commons-digester.version>1.8</commons-digester.version>
-        <commons-io.wso2.version>2.4.0.wso2v1</commons-io.wso2.version>
+        <commons-io.wso2.version>2.11.0.wso2v1</commons-io.wso2.version>
         <commons.io.wso2.osgi.version.range>[2.4.0,3.0.0)</commons.io.wso2.osgi.version.range>
         <commons-fileupload.wso2.version>1.2.2.wso2v1</commons-fileupload.wso2.version>
         <commons-fileupload.imp.pkg.version.range>[1.2.2,2.0.0)</commons-fileupload.imp.pkg.version.range>
@@ -1977,7 +1977,7 @@
         <cxf-bundle.wso2.version>2.7.16.wso2v1</cxf-bundle.wso2.version>
         <org.apache.cxf.version>3.4.5</org.apache.cxf.version>
         <opencsv.wso2.version>1.8.wso2v1</opencsv.wso2.version>
-        <orbit.version.poi>3.17.0.wso2v1</orbit.version.poi>
+        <orbit.version.poi>5.2.3.wso2v1</orbit.version.poi>
         <javax.activation.import.pkg.version>[0.0.0, 1.0.0)</javax.activation.import.pkg.version>
         <com.yubico.version>0.14.0</com.yubico.version>
         <encoder.wso2.version>1.2.0.wso2v1</encoder.wso2.version>
