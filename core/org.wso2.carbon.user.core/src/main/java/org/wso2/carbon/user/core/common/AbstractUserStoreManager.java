@@ -139,6 +139,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private static final String PROPERTY_PASSWORD_ERROR_MSG = "PasswordJavaRegExViolationErrorMsg";
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     private static final String LOCATION_CLAIM_URI = "http://wso2.org/claims/location";
+    private static final int DEFAULT_PASSWORD_VALIDITY_PERIOD_VALUE = 24;
     private static Log log = LogFactory.getLog(AbstractUserStoreManager.class);
     protected int tenantId;
     protected DataSource dataSource = null;
@@ -16186,6 +16187,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (!StringUtils.isBlank(pwValidityTimeoutStr)){
             return Integer.parseInt(pwValidityTimeoutStr);
         }
-        return 24;
+        return DEFAULT_PASSWORD_VALIDITY_PERIOD_VALUE;
     }
 }
