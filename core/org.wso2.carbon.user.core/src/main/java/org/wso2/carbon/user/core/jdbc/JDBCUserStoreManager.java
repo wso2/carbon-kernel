@@ -3298,12 +3298,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 }
             }
 
-            sqlStmt = sqlStmt.replaceFirst("\\?", Matcher.quoteReplacement(usernameParameter.toString()));
             prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setString(1, profileName);
+            prepStmt.setString(1, usernameParameter.toString());
+            prepStmt.setString(2, profileName);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                prepStmt.setInt(2, tenantId);
                 prepStmt.setInt(3, tenantId);
+                prepStmt.setInt(4, tenantId);
             }
 
             rs = prepStmt.executeQuery();
@@ -3381,12 +3381,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 }
             }
 
-            sqlStmt = sqlStmt.replaceFirst("\\?", Matcher.quoteReplacement(usernameParameter.toString()));
             prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, usernameParameter.toString());
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                prepStmt.setInt(1, tenantId);
                 prepStmt.setInt(2, tenantId);
                 prepStmt.setInt(3, tenantId);
+                prepStmt.setInt(4, tenantId);
             }
             rs = prepStmt.executeQuery();
             String domainName = getMyDomainName();
