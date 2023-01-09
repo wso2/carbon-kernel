@@ -7522,6 +7522,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // Get the domain if it is already resolved in our cache or in local database.
         String domainName = groupUniqueIDDomainResolver.getDomainForGroupId(groupId, tenantId);
+        if (StringUtils.isNotBlank(domainName) && !UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(domainName) &&
+                !domainName.equals(getMyDomainName()) && !userStoreManagerHolder.containsKey(domainName)) {
+            domainName = null;
+            clearGroupIDResolverCache(groupId);
+        }
         if (domainName == null) {
             if (log.isDebugEnabled()) {
                 log.debug("Iterating though scim2 tables tenant: " + tenantId);
@@ -7628,6 +7633,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // First we have to check whether this user store is already resolved and we have it either in the cache or
         // in our local database. If so we can use that.
         String domainName = userUniqueIDDomainResolver.getDomainForUserId(userId, tenantId);
+        if (StringUtils.isNotBlank(domainName) && !UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(domainName) &&
+                !domainName.equals(getMyDomainName()) && !userStoreManagerHolder.containsKey(domainName)) {
+            domainName = null;
+            clearUserIDResolverCache(userId);
+        }
 
         // If we don't have the domain name in our side, then we have to iterate through each user store and find
         // where is this user id from and mark it as the user store domain.
@@ -17938,6 +17948,20 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public void removeGroupRoleMappingByGroupName(String groupName) throws UserStoreException {
 
         hybridRoleManager.removeGroupRoleMappingByGroupName(groupName);
+    }
+
+    private void clearUserIDResolverCache(String userId) {
+
+        UserIdResolverCache.getInstance().clearCacheEntry(userId, RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME, tenantId);
+        UserIdResolverCache.getInstance()
+                .clearCacheEntry(userId, RESOLVE_USER_NAME_FROM_UNIQUE_USER_ID_CACHE_NAME, SUPER_TENANT_ID);
+    }
+
+    private void clearGroupIDResolverCache(String groupId) {
+
+        GroupIdResolverCache.getInstance()
+                .clearCacheEntry(groupId, RESOLVE_GROUP_NAME_FROM_USER_ID_CACHE_NAME, tenantId);
+
     }
 
     /**
