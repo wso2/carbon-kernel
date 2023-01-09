@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.NotImplementedException;
@@ -77,6 +78,7 @@ import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.system.SystemUserRoleManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.Secret;
+import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
@@ -169,6 +171,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     private static final String LOCATION_CLAIM_URI = "http://wso2.org/claims/location";
     private static Log log = LogFactory.getLog(AbstractUserStoreManager.class);
+    private static final int DEFAULT_PASSWORD_VALIDITY_PERIOD_VALUE = 24;
+    protected static int pwValidityTimeoutInt = getDefaultPasswordValidityPeriodInHours();
     protected int tenantId;
     protected DataSource dataSource = null;
     protected RealmConfiguration realmConfig = null;
@@ -17934,5 +17938,20 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public void removeGroupRoleMappingByGroupName(String groupName) throws UserStoreException {
 
         hybridRoleManager.removeGroupRoleMappingByGroupName(groupName);
+    }
+
+    /**
+     * The password validity timeout value is set by server configuration value from carbon.xml file.
+     * If value is not present the default value of DEFAULT_PASSWORD_VALIDITY_PERIOD_VALUE is returned.
+     * @return password validity timeout in hours.
+     */
+    private static int getDefaultPasswordValidityPeriodInHours() {
+
+        String pwValidityTimeoutStr = ServerConfiguration.getInstance()
+                .getFirstProperty(ServerConstants.DEFAULT_PASSWORD_VALIDITY_PERIOD);
+        if (!StringUtils.isBlank(pwValidityTimeoutStr)) {
+            return Integer.parseInt(pwValidityTimeoutStr);
+        }
+        return DEFAULT_PASSWORD_VALIDITY_PERIOD_VALUE;
     }
 }
