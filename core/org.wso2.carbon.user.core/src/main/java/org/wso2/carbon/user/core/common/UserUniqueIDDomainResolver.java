@@ -36,7 +36,6 @@ import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.sql.DataSource;
 
-import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_GROUP_NAME_FROM_USER_ID_CACHE_NAME;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_UNIQUE_USER_ID_CACHE_NAME;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME;
 import static org.wso2.carbon.utils.multitenancy.MultitenantConstants.SUPER_TENANT_ID;
@@ -94,7 +93,6 @@ public class UserUniqueIDDomainResolver {
      */
     public String getDomainForUserId(String userId, int tenantId) throws UserStoreException {
 
-
         try {
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
@@ -119,7 +117,7 @@ public class UserUniqueIDDomainResolver {
                 domainName = getDomainFromDB(userId, tenantId);
 
                 // Update the cache.
-                if (domainName != null) {
+                if (org.apache.commons.lang.StringUtils.isNotBlank(domainName)) {
                     uniqueIdDomainCache.put(userId, domainName);
                     if (log.isDebugEnabled()) {
                         log.debug("Domain with name: " + domainName + " retrieved from the database.");
@@ -202,22 +200,6 @@ public class UserUniqueIDDomainResolver {
             throw new UserStoreException("Error occurred while reading the domain name for user id from database.", ex);
         }
         return domainName;
-    }
-
-    private void deleteDomainFromDB(String userDomain, String userId, int tenantId) throws UserStoreException {
-
-        String domainName = null;
-        try (Connection dbConnection = getDBConnection();
-             PreparedStatement preparedStatement = dbConnection.prepareStatement(DELETE_DOMAIN)) {
-            preparedStatement.setString(1, userDomain);
-            preparedStatement.setInt(2, tenantId);
-            preparedStatement.setString(3, userId);
-            preparedStatement.setInt(4, tenantId);
-            preparedStatement.execute();
-            commitTransaction(dbConnection);
-        } catch (SQLException ex) {
-            throw new UserStoreException("Error occurred while deleting the domain name for user id from database.", ex);
-        }
     }
 
     private void persistDomainAgainstUserId(String userId, String userDomain, int tenantId) throws UserStoreException {
@@ -321,5 +303,18 @@ public class UserUniqueIDDomainResolver {
                 .clearCacheEntry(userId, RESOLVE_USER_NAME_FROM_UNIQUE_USER_ID_CACHE_NAME, SUPER_TENANT_ID);
     }
 
+    private void deleteDomainFromDB(String userDomain, String userId, int tenantId) throws UserStoreException {
 
+        try (Connection dbConnection = getDBConnection();
+             PreparedStatement preparedStatement = dbConnection.prepareStatement(DELETE_DOMAIN)) {
+            preparedStatement.setString(1, userDomain);
+            preparedStatement.setInt(2, tenantId);
+            preparedStatement.setString(3, userId);
+            preparedStatement.setInt(4, tenantId);
+            preparedStatement.execute();
+            commitTransaction(dbConnection);
+        } catch (SQLException ex) {
+            throw new UserStoreException("Error occurred while deleting the domain name for user id from database.", ex);
+        }
+    }
 }

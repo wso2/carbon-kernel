@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.user.core.common;
 
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -110,7 +109,7 @@ public class GroupUniqueIDDomainResolver {
                 // Read the domain name from the Database;
                 domainName = getDomainFromDB(groupId, tenantId);
                 // Update the cache.
-                if (domainName != null) {
+                if (org.apache.commons.lang.StringUtils.isNotBlank(domainName)) {
                     uniqueIdDomainCache.put(groupId, domainName);
                     if (log.isDebugEnabled()) {
                         log.debug("Domain with name: " + domainName + " retrieved from the database.");
@@ -304,7 +303,6 @@ public class GroupUniqueIDDomainResolver {
 
     private void deleteDomainFromDB(String userDomain, String groupId, int tenantId) throws UserStoreException {
 
-        String domainName = null;
         try (Connection dbConnection = getDBConnection();
              PreparedStatement preparedStatement = dbConnection.prepareStatement(DELETE_DOMAIN)) {
             preparedStatement.setString(1, userDomain);
@@ -314,7 +312,7 @@ public class GroupUniqueIDDomainResolver {
             preparedStatement.execute();
             commitTransaction(dbConnection);
         } catch (SQLException ex) {
-            throw new UserStoreException("Error occurred while deleting the domain name for user id from database.", ex);
+            throw new UserStoreException("Error occurred while deleting the domain name for group id from database.", ex);
         }
     }
 }
