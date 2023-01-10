@@ -674,13 +674,14 @@ public class HybridRoleManager {
             }
         }
 
+        sqlStmt = sqlStmt.replaceFirst("\\?", Matcher.quoteReplacement(usernameParameter.toString()));
         try (Connection connection = DatabaseUtil.getDBConnection(dataSource);
                 PreparedStatement prepStmt = connection.prepareStatement(sqlStmt)) {
-            prepStmt.setString(1, usernameParameter.toString());
+//            prepStmt.setString(1, usernameParameter.toString());
+            prepStmt.setInt(1, tenantId);
             prepStmt.setInt(2, tenantId);
             prepStmt.setInt(3, tenantId);
-            prepStmt.setInt(4, tenantId);
-            prepStmt.setString(5, domainName);
+            prepStmt.setString(4, domainName);
             try (ResultSet resultSet = prepStmt.executeQuery()) {
                 while (resultSet.next()) {
                     String userName = resultSet.getString(1);
@@ -752,13 +753,14 @@ public class HybridRoleManager {
             }
         }
 
+        sqlStmt = sqlStmt.replaceFirst("\\?", Matcher.quoteReplacement(groupNameParameter.toString()));
         try (Connection connection = DatabaseUtil.getDBConnection(dataSource);
                 PreparedStatement prepStmt = connection.prepareStatement(sqlStmt)) {
-            prepStmt.setString(1, groupNameParameter.toString());
+//            prepStmt.setString(1, groupNameParameter.toString());
+            prepStmt.setInt(1, tenantId);
             prepStmt.setInt(2, tenantId);
             prepStmt.setInt(3, tenantId);
-            prepStmt.setInt(4, tenantId);
-            prepStmt.setString(5, domainName);
+            prepStmt.setString(4, domainName);
             try (ResultSet resultSet = prepStmt.executeQuery()) {
                 while (resultSet.next()) {
                     String groupName = resultSet.getString(1);
