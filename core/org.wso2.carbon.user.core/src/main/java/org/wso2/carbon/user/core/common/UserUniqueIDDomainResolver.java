@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.user.core.common;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -25,7 +26,6 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
-import org.wso2.carbon.utils.xml.StringUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -108,7 +108,7 @@ public class UserUniqueIDDomainResolver {
             // Read the cache first.
             String domainName = uniqueIdDomainCache.get(userId);
 
-            if (org.apache.commons.lang.StringUtils.isBlank(domainName)) {
+            if (StringUtils.isBlank(domainName)) {
                 if (log.isDebugEnabled()) {
                     log.debug("Cache miss for user id: " + userId + " searching from the database.");
                 }
@@ -117,20 +117,23 @@ public class UserUniqueIDDomainResolver {
                 domainName = getDomainFromDB(userId, tenantId);
 
                 // Update the cache.
-                if (org.apache.commons.lang.StringUtils.isNotBlank(domainName)) {
+                if (StringUtils.isNotBlank(domainName)) {
                     uniqueIdDomainCache.put(userId, domainName);
                     if (log.isDebugEnabled()) {
                         log.debug("Domain with name: " + domainName + " retrieved from the database.");
                     }
                 }
             }
-            if (org.apache.commons.lang.StringUtils.isNotBlank(domainName) &&
+            if (StringUtils.isNotBlank(domainName) &&
                     !UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(domainName)) {
                 RealmService realmService = UserCoreUtil.getRealmService();
                 UserStoreManager userStoreManager =
                         ((AbstractUserStoreManager) realmService.getTenantUserRealm(tenantId)
                                 .getUserStoreManager()).getSecondaryUserStoreManager(domainName);
                 if (userStoreManager == null) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Entry is outdated. Clearing cache and the database entries.");
+                    }
                     deleteDomainFromDB(domainName, userId, tenantId);
                     clearUserIDResolverCache(userId, tenantId);
                     domainName = null;
