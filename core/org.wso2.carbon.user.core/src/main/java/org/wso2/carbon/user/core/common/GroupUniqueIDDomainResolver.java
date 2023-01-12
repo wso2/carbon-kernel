@@ -119,9 +119,11 @@ public class GroupUniqueIDDomainResolver {
             if (StringUtils.isNotBlank(domainName) &&
                     !UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(domainName)) {
                 RealmService realmService = UserCoreUtil.getRealmService();
-                UserStoreManager userStoreManager =
-                        ((AbstractUserStoreManager) realmService.getTenantUserRealm(tenantId)
-                                .getUserStoreManager()).getSecondaryUserStoreManager(domainName);
+                UserStoreManager userStoreManager = null;
+                if (realmService != null) {
+                    userStoreManager = ((AbstractUserStoreManager) realmService.getTenantUserRealm(tenantId)
+                            .getUserStoreManager()).getSecondaryUserStoreManager(domainName);
+                }
                 if (userStoreManager == null) {
                     if (log.isDebugEnabled()) {
                         log.debug("Entry is outdated. Clearing cache and the database entries.");
