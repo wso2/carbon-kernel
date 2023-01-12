@@ -17940,20 +17940,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         hybridRoleManager.removeGroupRoleMappingByGroupName(groupName);
     }
 
-    private void clearUserIDResolverCache(String userId) {
-
-        UserIdResolverCache.getInstance().clearCacheEntry(userId, RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME, tenantId);
-        UserIdResolverCache.getInstance()
-                .clearCacheEntry(userId, RESOLVE_USER_NAME_FROM_UNIQUE_USER_ID_CACHE_NAME, SUPER_TENANT_ID);
-    }
-
-    private void clearGroupIDResolverCache(String groupId) {
-
-        GroupIdResolverCache.getInstance()
-                .clearCacheEntry(groupId, RESOLVE_GROUP_NAME_FROM_USER_ID_CACHE_NAME, tenantId);
-
-    }
-
     /**
      * The password validity timeout value is set by server configuration value from carbon.xml file.
      * If value is not present the default value of DEFAULT_PASSWORD_VALIDITY_PERIOD_VALUE is returned.
