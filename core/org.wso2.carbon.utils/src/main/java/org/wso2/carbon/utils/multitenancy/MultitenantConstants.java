@@ -102,4 +102,5 @@ public class MultitenantConstants {
     public static final String NO_KEEPALIVE = "NO_KEEPALIVE";
 
     public static final String SYNAPSE_JSON_INPUT_STREAM = "org.apache.synapse.commons.json.JsonInputStream";
+    public static final String CORRELATION_ID = "correlation_id";
 }
