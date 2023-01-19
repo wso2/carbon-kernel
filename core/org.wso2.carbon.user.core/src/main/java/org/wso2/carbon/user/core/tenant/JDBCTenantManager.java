@@ -809,7 +809,11 @@ public class JDBCTenantManager implements TenantManager {
                         tenant.setAdminUserId(adminId);
                     } else {
                         // If realms were not migrated after https://github.com/wso2/product-is/issues/14001.
-                        tenant.setAdminUserId(realmConfig.getAdminUserName());
+                        try {
+                            tenant.setAdminUserId(getUserId(realmConfig.getAdminUserName(), id));
+                        } catch (Exception ex) {
+                            tenant.setAdminUserId(realmConfig.getAdminUserName());
+                        }
                     }
                 } else {
                     tenant.setAdminUserId(getUserId(realmConfig.getAdminUserName(), id));
