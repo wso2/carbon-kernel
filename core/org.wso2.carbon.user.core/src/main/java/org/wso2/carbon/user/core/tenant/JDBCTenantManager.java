@@ -810,8 +810,13 @@ public class JDBCTenantManager implements TenantManager {
                     } else {
                         // If realms were not migrated after https://github.com/wso2/product-is/issues/14001.
                         try {
+                            /*
+                            Try to resolve user id from username. This get successful if the user store manager
+                            can resolve the user id even when the user does not belong to the tenant user store
+                             */
                             tenant.setAdminUserId(getUserId(realmConfig.getAdminUserName(), id));
-                        } catch (Exception ex) {
+                        } catch (UserStoreException ex) {
+                            // Failure to resolve user id from username means the user id is stored as the username.
                             tenant.setAdminUserId(realmConfig.getAdminUserName());
                         }
                     }
