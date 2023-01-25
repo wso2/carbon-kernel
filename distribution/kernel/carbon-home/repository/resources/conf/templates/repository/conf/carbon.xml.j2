@@ -786,4 +786,10 @@
         <enableRestart>{{server.enable_restart_from_api}}</enableRestart>
      </enableShutdownRestartFromAPI>
 
+    {% if masking_logs.enabled is defined %}
+    <maskingLogsEnabled>{{masking_logs.enabled}}</maskingLogsEnabled>
+    {% else %}
+    <maskingLogsEnabled>true</maskingLogsEnabled>
+    {% endif %}
+
 </Server>
