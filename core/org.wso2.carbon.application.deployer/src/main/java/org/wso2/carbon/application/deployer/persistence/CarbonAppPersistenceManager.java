@@ -54,6 +54,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.UUID;
 import java.util.zip.ZipInputStream;
 
@@ -253,6 +254,17 @@ public class CarbonAppPersistenceManager {
                 RegistrySynchronizer.checkIn((UserRegistry) reg, dirPath,
                         col.getPath(), true, true);
             }
+            try {
+                Resource resource = reg.get(col.getPath());
+                Properties properties = col.getProperties();
+                for(Object key:  properties.keySet()){
+                    resource.setProperty((String) key, (String) properties.getProperty((String)key));
+                }
+                reg.put(col.getPath(), resource);
+                reg.commitTransaction();
+            } catch (RegistryException ex) {
+                log.error("Error while getting registry for " + col.getPath(), ex);
+            }
         }
 
         // write resources
@@ -278,7 +290,8 @@ public class CarbonAppPersistenceManager {
 						resourcePath,
 						resource.getMediaType() != null ? resource.getMediaType() : 
 						AppDeployerUtils.readMediaType(regConfig.getExtractedPath(),
-						resource.getFileName()));
+						resource.getFileName()),
+                        resource.getProperties());
                 if (actualResourcePath != null && !resourcePath.equals(actualResourcePath)) {
                     Resource pathMappingResource = configRegistry.
                             get(AppDeployerConstants.REG_PATH_MAPPING + regConfig.getAppName());
@@ -382,6 +395,65 @@ public class CarbonAppPersistenceManager {
             Resource resource = reg.newResource();
             resource.setContent(content);
             resource.setMediaType(mediaType);
+            resourcePath = reg.put(registryPath, resource);
+            reg.commitTransaction();
+        } catch (RegistryException e) {
+            try {
+                reg.rollbackTransaction();
+            } catch (RegistryException e1) {
+                log.error("Error while transaction rollback", e1);
+            }
+            log.error("Error while checking in resource to path: " + registryPath +
+                    " from file: " + file.getAbsolutePath(), e);
+        }
+        return resourcePath;
+    }
+
+    /**
+     * Write the file content as a registry resource to the given path
+     *
+     * @param reg          - correct registry instance
+     * @param file         - file to be written
+     * @param registryPath - path to write the resource
+     * @param mediaType    - media type of the resource to be added
+     *
+     * @return String resourcePath - actual resource path
+     */
+    private String writeFromFile(Registry reg, File file, String registryPath, String mediaType, Properties properties) {
+        // convert the file content into bytes and then encode it as a string
+        byte[] content = getBytesFromFile(file);
+        if (content == null) {
+            log.error("Error while writing file content into Registry. File content is null..");
+            return null;
+        }
+
+        String resourcePath = null;
+        try {
+            reg.beginTransaction();
+            String fileName = file.getName();
+            if (mediaType == null) {
+                mediaType = MediaTypesUtils.getMediaType(fileName);
+            }
+
+            if (AppDeployerConstants.REG_GAR_MEDIATYPE.equals(mediaType)) {
+                try {
+                    String garName = fileName.substring(0, fileName.lastIndexOf("."));
+                    String garMappingResourcePath = AppDeployerConstants.REG_GAR_PATH_MAPPING + garName;
+                    Resource gar = configRegistry.newResource();
+                    gar.setUUID(UUID.randomUUID().toString());
+                    gar.setContent("<gar_mapping/>");
+                    configRegistry.put(garMappingResourcePath, gar);
+                } catch (Exception e) {
+                    log.error("Error in adding gar mapping file for " + fileName, e);
+                }
+            }
+
+            Resource resource = reg.newResource();
+            resource.setContent(content);
+            resource.setMediaType(mediaType);
+            for(Object key:  properties.keySet()){
+                resource.setProperty((String) key, (String) properties.getProperty((String)key));
+            }
             resourcePath = reg.put(registryPath, resource);
             reg.commitTransaction();
         } catch (RegistryException e) {
