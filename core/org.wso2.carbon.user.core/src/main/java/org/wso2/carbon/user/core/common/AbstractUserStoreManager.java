@@ -78,6 +78,7 @@ import org.wso2.carbon.user.core.system.SystemUserRoleManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
+import org.wso2.carbon.utils.logging.central.logger.LoggerUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.lang.reflect.Constructor;
@@ -4971,8 +4972,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // Property to check whether this user store supports new APIs with unique user id.
             if (isExistingUser) {
                 String message = String.format(ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getMessage(), userName);
+                String maskedMessage = message;
+                if (LoggerUtils.getLogMaskingConfigValue()) {
+                    maskedMessage = String.format(ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getMessage(),
+                            LoggerUtils.getMaskedContent(userName));
+                }
                 String errorCode = ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getCode();
-                handleAddUserFailure(errorCode, message, userName, credential, roleList, claims, profileName);
+                handleAddUserFailure(errorCode, maskedMessage, userName, credential, roleList, claims, profileName);
                 throw new UserStoreException(errorCode + " - " + message);
             }
 
