@@ -540,7 +540,7 @@ public class HybridRoleManager {
             if (domain != null) {
                 domain = domain.toUpperCase();
             }
-            if (filter.equals("*") || StringUtils.isEmpty(filter)) {
+            if (StringUtils.isEmpty(filter) || filter.equals("*")) {
                 sqlStmt = getHybridRoleListSqlStatement(
                         realmConfig.getRealmProperty(HybridJDBCConstants.GET_ROLE_LIST_OF_USER),
                         HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL,

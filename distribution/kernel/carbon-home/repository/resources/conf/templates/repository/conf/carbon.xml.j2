@@ -786,10 +786,13 @@
         <enableRestart>{{server.enable_restart_from_api}}</enableRestart>
      </enableShutdownRestartFromAPI>
 
+    <!-- Configure password validity period for initially set password -->
+    <DefaultPasswordValidityPeriod>{{password.default_validity_period}}</DefaultPasswordValidityPeriod>
+
     {% if masking_logs.enabled is defined %}
     <maskingLogsEnabled>{{masking_logs.enabled}}</maskingLogsEnabled>
     {% else %}
     <maskingLogsEnabled>true</maskingLogsEnabled>
     {% endif %}
-
+    
 </Server>
