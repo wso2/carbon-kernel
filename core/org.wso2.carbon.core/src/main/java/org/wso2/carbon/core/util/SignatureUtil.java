@@ -17,10 +17,13 @@
 */
 package org.wso2.carbon.core.util;
 
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
+import org.wso2.carbon.utils.ServerConstants;
 
 import java.security.*;
 import java.security.cert.Certificate;
@@ -28,19 +31,34 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Enumeration;
 
+import static org.wso2.carbon.core.util.CryptoUtil.getJCEProvider;
+
 public class SignatureUtil {
 
     private static final String THUMB_DIGEST_ALGORITHM = "SHA-1";
 
     private static String signatureAlgorithm = "SHA1withRSA";
-    private static String provider = "BC";
 
     private SignatureUtil() {
         // hide default constructor for utility class
     }
 
     public static void init() throws Exception {
-        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+
+        String providerName = ServerConfiguration.getInstance().getFirstProperty(ServerConstants.JCE_PROVIDER);
+        Provider provider;
+        if (StringUtils.isBlank(providerName) || providerName.equals(ServerConstants.JCE_PROVIDER_BC)) {
+            provider = (Provider) (Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider")).
+                    getDeclaredConstructor().newInstance();
+
+        } else if (providerName.equals(ServerConstants.JCE_PROVIDER_BCFIPS)) {
+            provider = (Provider) (Class.forName("org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider")).
+                    getDeclaredConstructor().newInstance();
+
+        } else {
+            throw new NoSuchProviderException("Configured JCE provider is not supported.");
+        }
+        Security.addProvider(provider);
     }
 
     /**
@@ -68,7 +86,7 @@ public class SignatureUtil {
      * @throws Exception
      */
     public static boolean validateSignature(byte[] thumb, String data, byte[] signature) throws Exception {
-        Signature signer = Signature.getInstance(signatureAlgorithm, provider);
+        Signature signer = Signature.getInstance(signatureAlgorithm, getJCEProvider());
         signer.initVerify(getPublicKey(thumb));
         signer.update(data.getBytes());
         return signer.verify(signature);
@@ -83,7 +101,7 @@ public class SignatureUtil {
      * @throws Exception
      */
     public static boolean validateSignature(String data, byte[] signature) throws Exception {
-        Signature signer = Signature.getInstance(signatureAlgorithm, provider);
+        Signature signer = Signature.getInstance(signatureAlgorithm, getJCEProvider());
         signer.initVerify(getDefaultPublicKey());
         signer.update(data.getBytes());
         return signer.verify(signature);
@@ -97,7 +115,7 @@ public class SignatureUtil {
      * @throws Exception
      */
     public static byte[] doSignature(String data) throws Exception {
-        Signature signer = Signature.getInstance(signatureAlgorithm, provider);
+        Signature signer = Signature.getInstance(signatureAlgorithm, getJCEProvider());
         signer.initSign(getDefaultPrivateKey());
         signer.update(data.getBytes());
         return signer.sign();

@@ -15,16 +15,20 @@
  */
 package org.wso2.carbon.core.internal;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.io.File;
 import java.lang.management.ManagementPermission;
+import java.security.NoSuchProviderException;
+import java.security.Provider;
 import java.security.Security;
 
 /**
@@ -69,9 +73,22 @@ public class CarbonCoreActivator implements BundleActivator {
                  System.getProperty("user.language") + "-" + System.getProperty("user.country") +
                  ", " + System.getProperty("user.timezone"));
 
-        Security.addProvider(new BouncyCastleProvider());
-        if(log.isDebugEnabled()){
-            log.debug("BouncyCastle security provider is successfully registered in JVM.");
+        String providerName = ServerConfiguration.getInstance().getFirstProperty(ServerConstants.JCE_PROVIDER);
+        Provider provider;
+        if (StringUtils.isBlank(providerName) || providerName.equals(ServerConstants.JCE_PROVIDER_BC)) {
+            provider = (Provider) (Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider")).
+                    getDeclaredConstructor().newInstance();
+
+        } else if (providerName.equals(ServerConstants.JCE_PROVIDER_BCFIPS)) {
+            provider = (Provider) (Class.forName("org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider")).
+                    getDeclaredConstructor().newInstance();
+
+        } else {
+            throw new NoSuchProviderException("Configured JCE provider is not supported.");
+        }
+        Security.addProvider(provider);
+        if (log.isDebugEnabled()) {
+            log.debug(providerName + " security provider is successfully registered in JVM.");
         }
     }
 

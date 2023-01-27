@@ -715,4 +715,7 @@
         <enableRestart>false</enableRestart>
     </enableShutdownRestartFromAPI>
 
+    <!-- Configure JCE provider -->
+    <JCEProvider>BC</JCEProvider>
+
 </Server>
