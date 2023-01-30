@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -33,16 +33,14 @@ public class LoggerUtils {
     public static final Pattern LOG_MASKING_PATTERN = Pattern.compile("(?<=.).(?=.)");
     public static boolean isLogMaskingEnable = true;
 
-
     /**
      * Get the log masking config value from config file.
      */
     public static boolean getLogMaskingConfigValue() {
 
-        if(ServerConfiguration.getInstance().getProperties(ENABLE_LOG_MASKING).length>0) {
+        if (ServerConfiguration.getInstance().getProperties(ENABLE_LOG_MASKING).length > 0) {
             isLogMaskingEnable =
                     Boolean.parseBoolean(ServerConfiguration.getInstance().getProperties(ENABLE_LOG_MASKING)[0]);
-            return isLogMaskingEnable;
         }
         return isLogMaskingEnable;
     }
@@ -58,7 +56,6 @@ public class LoggerUtils {
         if(!isLogMaskingEnable) {
             return content;
         }
-
         if (StringUtils.isNotEmpty(content)) {
             return LOG_MASKING_PATTERN.matcher(content).replaceAll(MASKING_CHARACTER);
         }
