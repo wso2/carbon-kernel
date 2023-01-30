@@ -470,8 +470,8 @@
         <antlr.wso2.version>3.2.0.wso2v1</antlr.wso2.version>
 
         <!-- Jettison Version -->
-        <version.jettison>1.3.4</version.jettison>
-        <orbit.version.jettison>1.3.4.wso2v1</orbit.version.jettison>
+        <version.jettison>1.5.3</version.jettison>
+        <orbit.version.jettison>1.5.3.wso2v1</orbit.version.jettison>
 
         <orbit.version.hsqldb>1.8.0.7wso2v1</orbit.version.hsqldb>
         <orbit.version.commons.beanutils>1.8.0.wso2v1</orbit.version.commons.beanutils>
@@ -1325,7 +1325,7 @@
                 <version>${version.ant.contrib}</version>
             </dependency>
             <dependency>
-                <groupId>org.codehaus.jettison.wso2</groupId>
+                <groupId>org.wso2.orbit.org.codehaus.jettison</groupId>
                 <artifactId>jettison</artifactId>
                 <version>${orbit.version.jettison}</version>
             </dependency>
