@@ -10,7 +10,7 @@
     <groupId>org.wso2.carbon</groupId>
     <artifactId>carbon-parent</artifactId>
     <packaging>pom</packaging>
-    <version>4.9.0-m5</version>
+    <version>4.9.1-SNAPSHOT</version>
     <name>WSO2 Carbon - Parent Pom</name>
     <description>WSO2 Carbon Kernel Parent Pom</description>
     <url>http://wso2.org</url>
@@ -301,7 +301,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon Kernel Related Versions-->
-        <carbon.kernel.version>4.9.0-m5</carbon.kernel.version>
+        <carbon.kernel.version>4.9.1-SNAPSHOT</carbon.kernel.version>
         <carbon.kernel.exp.pkg.version>${carbon.kernel.version}</carbon.kernel.exp.pkg.version>
         <carbon.kernel.imp.pkg.version>[${carbon.kernel.version}, 4.10.0)</carbon.kernel.imp.pkg.version>
 
@@ -475,7 +475,7 @@
 
         <orbit.version.hsqldb>1.8.0.7wso2v1</orbit.version.hsqldb>
         <orbit.version.commons.beanutils>1.8.0.wso2v1</orbit.version.commons.beanutils>
-        <orbit.version.poi>3.17.0.wso2v1</orbit.version.poi>
+        <orbit.version.poi>5.2.3.wso2v1</orbit.version.poi>
         <orbit.version.poi.scratchpad>5.2.3.wso2v1</orbit.version.poi.scratchpad>
         <orbit.version.poi.ooxml>5.2.3.wso2v1</orbit.version.poi.ooxml>
         <orbit.version.commons.lang>2.6.0.wso2v1</orbit.version.commons.lang>
@@ -498,7 +498,7 @@
 
         <version.eclipse.ecj>3.28.0</version.eclipse.ecj>
 
-        <orbit.version.hazelcast>4.2.5.wso2v1</orbit.version.hazelcast>
+        <orbit.version.hazelcast>4.2.6.wso2v1</orbit.version.hazelcast>
         <version.apacheds.shared.ldap>0.9.18</version.apacheds.shared.ldap>
 
         <!-- hibernate -->
@@ -1904,8 +1904,4 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-  <scm>
-    <tag>v4.9.0-m5</tag>
-  </scm>
 </project>
