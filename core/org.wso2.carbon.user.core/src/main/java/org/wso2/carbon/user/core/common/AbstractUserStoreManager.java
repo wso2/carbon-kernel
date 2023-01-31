@@ -8454,6 +8454,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     protected boolean checkUserNameValid(String userName) throws UserStoreException {
 
+        if (UserCoreUtil.getSkipUsernamePatternValidationThreadLocal()) {
+            return true;
+        }
         if (isValidUserName(userName)) {
             String regularExpression = realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
