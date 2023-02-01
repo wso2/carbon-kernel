@@ -38,19 +38,19 @@
             <artifactId>org.eclipse.osgi</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.osgi</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.osgi.services</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.launcher.gtk.linux.x86</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.common</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.simpleconfigurator</artifactId>
         </dependency>
         <dependency>
@@ -58,31 +58,31 @@
             <artifactId>org.wso2.carbon.osgi.security</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.util</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.ds</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.launcher</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.app</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.concurrent</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.frameworkadmin</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.frameworkadmin.equinox</artifactId>
         </dependency>
         <dependency>
@@ -102,103 +102,103 @@
             <artifactId>org.apache.felix.gogo.runtime</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.p2.artifact.repository</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>at.bestsolution.efxclipse.eclipse</groupId>
             <artifactId>org.eclipse.equinox.p2.console</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.p2.core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.p2.director</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.p2.director.app</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.p2.directorywatcher</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.p2.engine</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.p2.extensionlocation</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.p2.garbagecollector</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.p2.jarprocessor</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.p2.metadata</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.p2.metadata.repository</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>at.bestsolution.efxclipse.eclipse</groupId>
             <artifactId>org.eclipse.equinox.p2.reconciler.dropins</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.p2.repository.tools</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.p2.repository</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.p2.touchpoint.eclipse</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.p2.touchpoint.natives</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.p2.updatechecker</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.p2.updatesite</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.p2.publisher.eclipse</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.preferences</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.registry</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.security</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.simpleconfigurator.manipulator</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.p2.publisher</artifactId>
         </dependency>
         <dependency>
@@ -214,7 +214,7 @@
             <artifactId>org.eclipse.core.jobs</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.core</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.core.runtime</artifactId>
         </dependency>
         <dependency>
