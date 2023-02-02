@@ -324,8 +324,8 @@
         <version.equinox.osgi.services>3.11.100</version.equinox.osgi.services>
         <version.equinox.osgi>3.18.200</version.equinox.osgi>
         <version.equinox.core.contenttype>3.4.200.v20130326-1255</version.equinox.core.contenttype>
-        <version.equinox.core.expressions>3.4.500.v20130515-1343</version.equinox.core.expressions>
-        <version.equinox.core.jobs>3.5.300.v20130429-1813</version.equinox.core.jobs>
+        <version.equinox.core.expressions>3.8.200</version.equinox.core.expressions>
+        <version.equinox.core.jobs>3.13.200</version.equinox.core.jobs>
         <version.equinox.console>1.4.500</version.equinox.console>
         <equinox.osgi.compatibility.state.version>1.0.200.v20160504-1419</equinox.osgi.compatibility.state.version>
         <version.ecf>3.2.0.v20130604-1622</version.ecf>
@@ -845,12 +845,12 @@
                 <version>${version.equinox.core.contenttype}</version>
             </dependency>
             <dependency>
-                <groupId>org.eclipse.core</groupId>
+                <groupId>org.eclipse.platform</groupId>
                 <artifactId>org.eclipse.core.expressions</artifactId>
                 <version>${version.equinox.core.expressions}</version>
             </dependency>
             <dependency>
-                <groupId>org.eclipse.core</groupId>
+                <groupId>org.eclipse.platform</groupId>
                 <artifactId>org.eclipse.core.jobs</artifactId>
                 <version>${version.equinox.core.jobs}</version>
             </dependency>
