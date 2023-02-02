@@ -351,14 +351,14 @@
         <version.equinox.p2.director.app>1.2.300</version.equinox.p2.director.app>
         <version.equinox.p2.directorywatcher>1.3.100</version.equinox.p2.directorywatcher>
         <version.equinox.p2.engine>2.7.500</version.equinox.p2.engine>
-        <version.equinox.p2.console>1.2.0.v20210315-2042</version.equinox.p2.console>
+        <version.equinox.p2.console>1.0.300.v20131113-1212</version.equinox.p2.console>
         <!-- this version was added -->
         <version.equinox.p2.extensionlocation>1.4.100</version.equinox.p2.extensionlocation>
         <version.equinox.p2.garbagecollector>1.2.100</version.equinox.p2.garbagecollector>
         <version.equinox.p2.jarprocessor>1.2.300</version.equinox.p2.jarprocessor>
         <version.equinox.p2.metadata>2.6.300</version.equinox.p2.metadata>
         <version.equinox.p2.metadata.repository>1.4.100</version.equinox.p2.metadata.repository>
-        <version.equinox.p2.reconciler.dropins>1.4.100.v20211217-1131</version.equinox.p2.reconciler.dropins>
+        <version.equinox.p2.reconciler.dropins>1.1.200.v20131119-0908</version.equinox.p2.reconciler.dropins>
         <version.equinox.p2.repository.tools>2.3.200</version.equinox.p2.repository.tools>
         <version.equinox.p2.repository>2.6.300</version.equinox.p2.repository>
         <version.equinox.p2.touchpoint.eclipse>2.3.300</version.equinox.p2.touchpoint.eclipse>
@@ -729,7 +729,7 @@
                 <version>${version.equinox.p2.artifact.repository}</version>
             </dependency>
             <dependency>
-                <groupId>at.bestsolution.efxclipse.eclipse</groupId>
+                <groupId>org.wso2.eclipse.equinox</groupId>
                 <artifactId>org.eclipse.equinox.p2.console</artifactId>
                 <version>${version.equinox.p2.console}</version>
             </dependency>
@@ -784,7 +784,7 @@
                 <version>${version.equinox.p2.metadata.repository}</version>
             </dependency>
             <dependency>
-                <groupId>at.bestsolution.efxclipse.eclipse</groupId>
+                <groupId>org.wso2.eclipse.equinox</groupId>
                 <artifactId>org.eclipse.equinox.p2.reconciler.dropins</artifactId>
                 <version>${version.equinox.p2.reconciler.dropins}</version>
             </dependency>

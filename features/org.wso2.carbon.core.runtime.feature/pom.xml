@@ -106,7 +106,7 @@
             <artifactId>org.eclipse.equinox.p2.artifact.repository</artifactId>
         </dependency>
         <dependency>
-            <groupId>at.bestsolution.efxclipse.eclipse</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.console</artifactId>
         </dependency>
         <dependency>
@@ -150,7 +150,7 @@
             <artifactId>org.eclipse.equinox.p2.metadata.repository</artifactId>
         </dependency>
         <dependency>
-            <groupId>at.bestsolution.efxclipse.eclipse</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.reconciler.dropins</artifactId>
         </dependency>
         <dependency>
@@ -276,22 +276,22 @@
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.common</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.simpleconfigurator</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.common</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.simpleconfigurator</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.osgi.security</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.ds</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.launcher</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.util</bundleDef>
-                                <bundleDef>org.wso2.eclipse.osgi:org.eclipse.osgi.services</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.ds</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.launcher</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.util</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.osgi.services</bundleDef>
                                 <bundleDef>org.eclipse.platform:org.eclipse.osgi</bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.app</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.concurrent</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.frameworkadmin</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.frameworkadmin.equinox</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.preferences</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.registry</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.security</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.simpleconfigurator.manipulator
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.app</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.concurrent</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.frameworkadmin</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.frameworkadmin.equinox</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.preferences</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.registry</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.security</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.simpleconfigurator.manipulator
                                 </bundleDef>
                                 <!--<bundleDef>org.apache.felix:org.apache.felix.scr</bundleDef>-->
                                 <bundleDef>org.eclipse.platform:org.eclipse.equinox.console</bundleDef>
@@ -301,34 +301,34 @@
                                 <bundleDef>org.eclipse.core:org.eclipse.core.contenttype</bundleDef>
                                 <bundleDef>org.eclipse.core:org.eclipse.core.expressions</bundleDef>
                                 <bundleDef>org.eclipse.core:org.eclipse.core.jobs</bundleDef>
-                                <bundleDef>org.eclipse.core:org.eclipse.core.runtime</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.core.runtime</bundleDef>
                                 <bundleDef>org.eclipse.ecf:org.eclipse.ecf</bundleDef>
                                 <bundleDef>org.eclipse.ecf:org.eclipse.ecf.filetransfer</bundleDef>
                                 <bundleDef>org.eclipse.ecf:org.eclipse.ecf.identity</bundleDef>
                                 <bundleDef>org.eclipse.ecf:org.eclipse.ecf.provider.filetransfer</bundleDef>
                                 <bundleDef>org.eclipse:org.sat4j.core</bundleDef>
                                 <bundleDef>org.eclipse:org.sat4j.pb</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.p2.artifact.repository</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.p2.artifact.repository</bundleDef>
                                 <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.p2.console</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.p2.core</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.p2.director</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.p2.engine</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.p2.garbagecollector</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.p2.jarprocessor</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.p2.metadata</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.p2.metadata.repository</bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.publisher</bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.touchpoint.eclipse</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.p2.touchpoint.natives</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.p2.updatechecker</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.p2.director.app</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.p2.directorywatcher</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.p2.extensionlocation</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.p2.repository.tools</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.p2.repository</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.p2.updatesite</bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.publisher.eclipse</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.launcher.gtk.linux.x86</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.p2.core</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.p2.director</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.p2.engine</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.p2.garbagecollector</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.p2.jarprocessor</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.p2.metadata</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.p2.metadata.repository</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.p2.publisher</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.p2.touchpoint.eclipse</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.p2.touchpoint.natives</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.p2.updatechecker</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.p2.director.app</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.p2.directorywatcher</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.p2.extensionlocation</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.p2.repository.tools</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.p2.repository</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.p2.updatesite</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.p2.publisher.eclipse</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.launcher.gtk.linux.x86</bundleDef>
                                 <bundleDef>org.eclipse.osgi:org.eclipse.equinox.p2.transport.ecf</bundleDef>
                                 <bundleDef>org.eclipse.ecf.provider.filetransfer:httpclient</bundleDef>
                                 <bundleDef>org.wso2.eclipse.osgi:org.eclipse.osgi.compatibility.state</bundleDef>
