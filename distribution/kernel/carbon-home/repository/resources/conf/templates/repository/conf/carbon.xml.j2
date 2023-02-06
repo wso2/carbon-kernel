@@ -789,4 +789,8 @@
     <!-- Configure password validity period for initially set password -->
     <DefaultPasswordValidityPeriod>{{password.default_validity_period}}</DefaultPasswordValidityPeriod>
 
+    <!-- Configure JCE provider -->
+    {% if jce_provider.provider_name is defined %}
+        <JCEProvider>{{jce_provider.provider_name}}</JCEProvider>
+    {% endif %}
 </Server>

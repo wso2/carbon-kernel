@@ -21,11 +21,13 @@ import org.apache.axiom.om.util.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.crypto.api.CipherMetaDataHolder;
 import org.wso2.carbon.crypto.api.CryptoService;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.utils.ServerConstants;
 
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
@@ -49,8 +51,6 @@ public class CryptoUtil {
                                                             'C', 'D', 'E', 'F'};
 
     private static final String DEFAULT_CRYPTO_ALGORITHM = "RSA";
-
-    private static final String CRYPTO_API_PROVIDER_BC = "BC";
 
     /**
      * This method returns CryptoUtil object, where this should only be used at runtime,
@@ -141,7 +141,7 @@ public class CryptoUtil {
                 }
             }
             encryptedKey = cryptoService
-                    .encrypt(plainTextBytes, algorithm, CRYPTO_API_PROVIDER_BC, returnSelfContainedCipherText);
+                    .encrypt(plainTextBytes, algorithm, getJCEProvider(), returnSelfContainedCipherText);
         } catch (Exception e) {
             throw new CryptoException("An error occurred while encrypting data.", e);
         }
@@ -202,7 +202,7 @@ public class CryptoUtil {
                     }
                 }
                 encryptedKey = cryptoService
-                        .encrypt(plainTextBytes, algorithm, CRYPTO_API_PROVIDER_BC, returnSelfContainedCipherText,
+                        .encrypt(plainTextBytes, algorithm, getJCEProvider(), returnSelfContainedCipherText,
                                 internalCryptoProviderType);
 
             }
@@ -308,7 +308,7 @@ public class CryptoUtil {
                     log.debug("Ciphertext is empty. An empty array will be used as the plaintext bytes.");
                 }
             } else {
-                decryptedValue = cryptoService.decrypt(cipherTextBytes, algorithm, CRYPTO_API_PROVIDER_BC);
+                decryptedValue = cryptoService.decrypt(cipherTextBytes, algorithm, getJCEProvider());
             }
 
             return decryptedValue;
@@ -358,7 +358,7 @@ public class CryptoUtil {
                     log.debug("Ciphertext is empty. An empty array will be used as the plaintext bytes.");
                 }
             }else {
-                decryptedValue = cryptoService.decrypt(cipherTextBytes, algorithm, CRYPTO_API_PROVIDER_BC);
+                decryptedValue = cryptoService.decrypt(cipherTextBytes, algorithm, getJCEProvider());
             }
 
             return decryptedValue;
@@ -409,7 +409,7 @@ public class CryptoUtil {
                     log.debug("Ciphertext is empty. An empty array will be used as the plaintext bytes.");
                 }
             } else {
-                decryptedValue = cryptoService.decrypt(cipherTextBytes, algorithm, CRYPTO_API_PROVIDER_BC,
+                decryptedValue = cryptoService.decrypt(cipherTextBytes, algorithm, getJCEProvider(),
                         internalCryptoProviderType);
             }
             return decryptedValue;
@@ -598,6 +598,15 @@ public class CryptoUtil {
         if (StringUtils.isBlank(internalCryptoProviderType)) {
             throw new CryptoException("Internal crypto provider can't be null.");
         }
+    }
+
+    public static String getJCEProvider() {
+
+        String provider = ServerConfiguration.getInstance().getFirstProperty(ServerConstants.JCE_PROVIDER);
+        if (!StringUtils.isBlank(provider)) {
+            return provider;
+        }
+        return ServerConstants.JCE_PROVIDER_BC;
     }
 }
 
