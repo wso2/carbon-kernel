@@ -345,7 +345,7 @@
         <version.equinox.javax.servlet.jsp>2.2.0.v201112011158</version.equinox.javax.servlet.jsp>
         <version.equinox.jasper>2.2.2.v201205150955</version.equinox.jasper>
 
-        <version.equinox.p2.artifact.repository>1.2.200</version.equinox.p2.artifact.repository>
+        <version.equinox.p2.artifact.repository>1.4.600</version.equinox.p2.artifact.repository>
         <version.equinox.p2.core>2.8.100</version.equinox.p2.core>
         <version.equinox.p2.director>2.5.400</version.equinox.p2.director>
         <version.equinox.p2.director.app>1.2.300</version.equinox.p2.director.app>
