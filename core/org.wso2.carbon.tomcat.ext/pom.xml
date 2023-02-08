@@ -133,7 +133,7 @@
                         <Private-Package>org.wso2.carbon.tomcat.ext.internal</Private-Package>
                         <Export-Package>
                             !org.wso2.carbon.tomcat.ext.internal.*,
-                            org.wso2.carbon.tomcat.ext.*
+                            org.wso2.carbon.tomcat.ext.*;version="4.9.1",
                         </Export-Package>
                         <Import-Package>
                             org.apache.tomcat.*

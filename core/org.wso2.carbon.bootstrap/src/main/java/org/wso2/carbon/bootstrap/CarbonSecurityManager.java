@@ -18,8 +18,6 @@
 
 package org.wso2.carbon.bootstrap;
 
-import sun.security.util.SecurityConstants;
-
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
 import java.security.Policy;
@@ -86,7 +84,7 @@ public class CarbonSecurityManager extends SecurityManager {
             throw new NullPointerException("thread group can't be null");
         }
 
-        checkPermission(SecurityConstants.MODIFY_THREADGROUP_PERMISSION);
+        checkPermission(new RuntimePermission("modifyThreadGroup"));
     }
 
     /**
@@ -100,7 +98,7 @@ public class CarbonSecurityManager extends SecurityManager {
             throw new NullPointerException("thread can't be null");
         }
 
-        checkPermission(SecurityConstants.MODIFY_THREADGROUP_PERMISSION);
+        checkPermission(new RuntimePermission("modifyThreadGroup"));
     }
 
 
