@@ -113,7 +113,7 @@
         <module>org.wso2.carbon.registry.api</module>
         <module>org.wso2.carbon.user.api</module>
         <module>org.wso2.carbon.osgi.security</module>
-        <module>org.wso2.carbon.registry.xboot</module>
+<!--        <module>org.wso2.carbon.registry.xboot</module>-->
         <module>org.wso2.carbon.queuing</module>
         <module>org.wso2.carbon.utils</module>
         <module>org.wso2.carbon.securevault</module>
@@ -123,7 +123,7 @@
         <module>org.wso2.carbon.core</module>
         <module>org.wso2.carbon.bridge</module>
         <module>org.wso2.carbon.http.bridge</module>
-        <module>org.wso2.carbon.servletbridge</module>
+<!--        <module>org.wso2.carbon.servletbridge</module>-->
         <module>org.wso2.carbon.core.common</module>
         <module>org.wso2.carbon.authenticator.proxy</module>
         <module>org.wso2.carbon.core.services</module>
@@ -147,7 +147,7 @@
         <module>org.wso2.carbon.ndatasource.common</module>
         <module>org.wso2.carbon.ndatasource.core</module>
         <module>org.wso2.carbon.ndatasource.rdbms</module>
-        <module>org.wso2.carbon.framework.exporter</module>
+<!--        <module>org.wso2.carbon.framework.exporter</module>-->
         <module>org.wso2.carbon.pax-logging-log4j2-plugins</module>
     </modules>
 </project>
