@@ -308,6 +308,10 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
             attributeValueMap.put(realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE), userID);
             processAttributesBeforeUpdateWithID(userID, attributeValueMap, null);
 
+            String singleValuedAttributesProperty = Optional.ofNullable(realmConfig
+                    .getUserStoreProperty(UserStoreConfigConstants.singleValuedAttributes)).orElse(StringUtils.EMPTY);
+            String[] singleValuedAttributes = StringUtils.split(singleValuedAttributesProperty, ",");
+
             attributeValueMap.forEach((attributeName, attributeValue) -> {
                 BasicAttribute claim = new BasicAttribute(attributeName);
                 if (attributeValue != null) {
@@ -315,7 +319,9 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
                     if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
                         userAttributeSeparator = claimSeparator;
                     }
-                    if (attributeValue.contains(userAttributeSeparator)) {
+                    if (attributeValue.contains(userAttributeSeparator) &&
+                            !(ArrayUtils.isNotEmpty(singleValuedAttributes)
+                                    && (Arrays.stream(singleValuedAttributes).anyMatch(attributeName::equals)))) {
                         StringTokenizer st = new StringTokenizer(attributeValue, userAttributeSeparator);
                         while (st.hasMoreElements()) {
                             String newVal = st.nextElement().toString();
@@ -1099,6 +1105,9 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
         setAdvancedProperty(UserStoreConfigConstants.timestampAttributes,
                 UserStoreConfigConstants.timestampAttributesDisplayName, " ",
                 UserStoreConfigConstants.timestampAttributesDescription);
+        setAdvancedProperty(UserStoreConfigConstants.singleValuedAttributes,
+                UserStoreConfigConstants.singleValuedAttributesDisplayName, " ",
+                UserStoreConfigConstants.singleValuedAttributesDescription);
     }
 
     private static void setAdvancedProperty(String name, String displayName, String value, String description) {
