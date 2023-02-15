@@ -86,6 +86,7 @@
   "user_store.membership_attribute_range": "user_store.properties.MembershipAttributeRange",
   "user_store.ssl_certificate_validation_enabled": "user_store.properties.SSLCertificateValidationEnabled",
   "user_store.date_and_time_pattern": "user_store.properties.DateAndTimePattern",
+  "user_store.single_valued_attributes": "user_store.properties.SingleValuedAttributes",
 
   "transport.https.properties.certificate_verification": "transport.https.sslHostConfig.properties.certificateVerification",
   "transport.https.properties.protocols": "transport.https.sslHostConfig.properties.protocols",

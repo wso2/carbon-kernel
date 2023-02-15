@@ -263,6 +263,10 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 
             processAttributesBeforeUpdate(userName, attributeValueMap, null);
 
+            String singleValuedAttributesProperty = Optional.ofNullable(realmConfig
+                    .getUserStoreProperty(UserStoreConfigConstants.singleValuedAttributes)).orElse(StringUtils.EMPTY);
+            String[] singleValuedAttributes = StringUtils.split(singleValuedAttributesProperty, ",");
+
             attributeValueMap.forEach((attributeName, attributeValue) -> {
                 BasicAttribute claim = new BasicAttribute(attributeName);
                 if (attributeValue != null) {
@@ -270,7 +274,9 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                     if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
                         userAttributeSeparator = claimSeparator;
                     }
-                    if (attributeValue.contains(userAttributeSeparator)) {
+                    if (attributeValue.contains(userAttributeSeparator) &&
+                            !(ArrayUtils.isNotEmpty(singleValuedAttributes)
+                                    && (Arrays.stream(singleValuedAttributes).anyMatch(attributeName::equals)))) {
                         StringTokenizer st = new StringTokenizer(attributeValue, userAttributeSeparator);
                         while (st.hasMoreElements()) {
                             String newVal = st.nextElement().toString();
@@ -1021,6 +1027,9 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         setAdvancedProperty(UserStoreConfigConstants.timestampAttributes,
                 UserStoreConfigConstants.timestampAttributesDisplayName, " ",
                 UserStoreConfigConstants.timestampAttributesDescription);
+        setAdvancedProperty(UserStoreConfigConstants.singleValuedAttributes,
+                UserStoreConfigConstants.singleValuedAttributesDisplayName, " ",
+                UserStoreConfigConstants.singleValuedAttributesDescription);
     }
 
 

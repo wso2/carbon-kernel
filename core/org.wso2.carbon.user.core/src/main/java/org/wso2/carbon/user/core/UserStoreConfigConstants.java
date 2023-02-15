@@ -182,4 +182,10 @@ public class UserStoreConfigConstants {
     // Property to bypass account locking for the userstore.
     public static final String BYPASS_ACCOUNT_LOCK = "BypassAccountLock";
     public static final String BYPASS_ACCOUNT_LOCK_DESCRIPTION = "Enable bypass account locking for the userstore";
+
+    // Property to specify attributes that need to skip multi-valued attribute separation.
+    public static final String singleValuedAttributes = "SingleValuedAttributes";
+    public static final String singleValuedAttributesDescription = "Comma-separated list of attributes that need to " +
+            "skip multi-valued attribute separation";
+    public static final String singleValuedAttributesDisplayName = "Single Valued Attributes";
 }
