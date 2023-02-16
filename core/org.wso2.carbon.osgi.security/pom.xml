@@ -70,7 +70,7 @@
                         </Private-Package>
                         <Export-Package>
                             !org.wso2.carbon.osgi.security.internal,
-                            org.wso2.carbon.osgi.security.*,
+                            org.wso2.carbon.osgi.security.*;version="${project.version}"
                         </Export-Package>
                         <Import-Package>
                             *;resolution:=optional

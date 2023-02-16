@@ -31,6 +31,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
+<!--                <version>3.2.1</version>-->
                 <configuration>
                     <rules>
                         <requireJavaVersion>
@@ -302,7 +303,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon Kernel Related Versions-->
-        <carbon.kernel.version>4.9.1-SNAPSHOT</carbon.kernel.version>
+        <carbon.kernel.version>${project.version}</carbon.kernel.version>
         <carbon.kernel.exp.pkg.version>${carbon.kernel.version}</carbon.kernel.exp.pkg.version>
         <carbon.kernel.imp.pkg.version>[${carbon.kernel.version}, 4.10.0)</carbon.kernel.imp.pkg.version>
 
@@ -440,7 +441,7 @@
         <imp.pkg.version.neethi>[2.0.4.wso2v4, 3.0.0)</imp.pkg.version.neethi>
 
         <!-- Apache Axiom -->
-        <orbit.version.axiom>1.2.11-wso2v17</orbit.version.axiom>
+        <orbit.version.axiom>1.2.11-wso2v27-SNAPSHOT</orbit.version.axiom>
         <imp.pkg.version.axiom>[1.2.11, 1.3.0)</imp.pkg.version.axiom>
         <version.axiom>1.2.11-wso2v17</version.axiom>
         <axiom.osgi.version>1.2.11-wso2v17</axiom.osgi.version>
@@ -456,7 +457,7 @@
         <version.spring>3.1.0.RELEASE</version.spring>
 
         <!-- Apache Axis2 -->
-        <version.axis2>1.6.1-wso2v76</version.axis2>
+        <version.axis2>1.6.1-wso2v89-SNAPSHOT</version.axis2>
         <imp.pkg.version.axis2>[1.6.1, 1.7.0)</imp.pkg.version.axis2>
         <version.addressing>${version.axis2}</version.addressing>
         <orbit.version.axis2>${version.axis2}</orbit.version.axis2>
@@ -587,7 +588,7 @@
         <version.org.wso2.orbit.com.sun.xml.ws.jaxws>2.3.2.wso2v1</version.org.wso2.orbit.com.sun.xml.ws.jaxws>
         <version.org.wso2.orbit.javax.jta>1.1.0.wso2v2</version.org.wso2.orbit.javax.jta>
         <verion.javax.annotation.annotation-api>1.3.2</verion.javax.annotation.annotation-api>
-        <maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
+        <maven.compiler.plugin.version>3.10.1</maven.compiler.plugin.version>
         <maven.incremental.plugin.version>1.3</maven.incremental.plugin.version>
         <maven.scr.plugin.version>1.7.4</maven.scr.plugin.version>
         <!--<maven.scr.plugin.version>1.7.4-1</maven.scr.plugin.version>-->

@@ -161,6 +161,11 @@
             <groupId>org.jvnet.staxex</groupId>
             <artifactId>stax-ex</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.osgi.security</artifactId>
+            <version>${carbon.kernel.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

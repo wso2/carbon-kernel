@@ -42,7 +42,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.carbon.queuing.*; version="1.0.0"
+                            org.wso2.carbon.queuing.*
                         </Export-Package>
                         <Import-Package>
                             *;resolution:=optional
