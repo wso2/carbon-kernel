@@ -1,22 +1,22 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
-package org.wso2.carbon.ui.filters.cache;
+package org.wso2.carbon.tomcat.ext.filter; 
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,14 +44,7 @@ import org.apache.commons.logging.LogFactory;
  * 1.1. In order to accommodate future modifications to protocol specifications
  * and introduction of custom cache prevention headers and values, the filter
  * can also utilize headers and values that are defined in the web.xml file.
- *
- * @since 4.2.0
  */
-
-/**
- * @deprecated This class is moved to org.wso2.carbon.tomcat.ext
- */
-@Deprecated
 public abstract class AbstractCachePreventionFilter implements Filter {
 
     private static Log log = LogFactory.getLog(AbstractCachePreventionFilter.class);
@@ -76,8 +69,8 @@ public abstract class AbstractCachePreventionFilter implements Filter {
     private static final String DELIMITER_HEADER_NAME_VALUE = ":";
 
     private String patternAction;
-    private ArrayList<Pattern> patternsList = new ArrayList<Pattern>();
-    private Map<String, String> headersMap = new HashMap<String, String>();
+    private ArrayList<Pattern> patternsList = new ArrayList<>();
+    private Map<String, String> headersMap = new HashMap<>();
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -182,11 +175,11 @@ public abstract class AbstractCachePreventionFilter implements Filter {
 
         //Checking to skip or apply headers to the matching URL/Content Type.
         if (patternMatched) {
-            return PARAM_VALUE_PATTERNS_ACTION_ENFORCE.equals(patternAction) ? true : false;
+            return PARAM_VALUE_PATTERNS_ACTION_ENFORCE.equals(patternAction);
         }
         //Checking to skip or apply headers to URLs/Content Types that doesn't mactch.
         else {
-            return PARAM_VALUE_PATTERNS_ACTION_SKIP.equals(patternAction) ? true : false;
+            return PARAM_VALUE_PATTERNS_ACTION_SKIP.equals(patternAction);
         }
     }
 
