@@ -44,8 +44,6 @@ import org.apache.commons.logging.LogFactory;
  * 1.1. In order to accommodate future modifications to protocol specifications
  * and introduction of custom cache prevention headers and values, the filter
  * can also utilize headers and values that are defined in the web.xml file.
- *
- * @since 4.2.0
  */
 public abstract class AbstractCachePreventionFilter implements Filter {
 
@@ -71,8 +69,8 @@ public abstract class AbstractCachePreventionFilter implements Filter {
     private static final String DELIMITER_HEADER_NAME_VALUE = ":";
 
     private String patternAction;
-    private ArrayList<Pattern> patternsList = new ArrayList<Pattern>();
-    private Map<String, String> headersMap = new HashMap<String, String>();
+    private ArrayList<Pattern> patternsList = new ArrayList<>();
+    private Map<String, String> headersMap = new HashMap<>();
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -177,11 +175,11 @@ public abstract class AbstractCachePreventionFilter implements Filter {
 
         //Checking to skip or apply headers to the matching URL/Content Type.
         if (patternMatched) {
-            return PARAM_VALUE_PATTERNS_ACTION_ENFORCE.equals(patternAction) ? true : false;
+            return PARAM_VALUE_PATTERNS_ACTION_ENFORCE.equals(patternAction);
         }
         //Checking to skip or apply headers to URLs/Content Types that doesn't mactch.
         else {
-            return PARAM_VALUE_PATTERNS_ACTION_SKIP.equals(patternAction) ? true : false;
+            return PARAM_VALUE_PATTERNS_ACTION_SKIP.equals(patternAction);
         }
     }
 

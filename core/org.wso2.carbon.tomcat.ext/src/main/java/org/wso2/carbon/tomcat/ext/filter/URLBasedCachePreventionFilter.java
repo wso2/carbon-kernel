@@ -36,8 +36,6 @@ import javax.servlet.http.HttpServletResponse;
  * 1.1. In order to accommodate future modifications to protocol specifications
  * and introduction of custom cache prevention headers and values, the filter
  * can also utilize headers and values that are defined in the web.xml file.
- *
- * @since 4.2.0
  */
 public class URLBasedCachePreventionFilter extends AbstractCachePreventionFilter {
 

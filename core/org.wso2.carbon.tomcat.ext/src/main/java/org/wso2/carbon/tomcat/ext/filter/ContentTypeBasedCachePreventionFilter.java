@@ -37,25 +37,23 @@ import javax.servlet.http.HttpServletResponseWrapper;
  * 1.1. In order to accommodate future modifications to protocol specifications
  * and introduction of custom cache prevention headers and values, the filter
  * can also utilize headers and values that are defined in the web.xml file.
- *
- * @since 4.2.0
  */
 
 public class ContentTypeBasedCachePreventionFilter extends AbstractCachePreventionFilter {
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
         chain.doFilter(request, new HttpServletResponseWrapper((HttpServletResponse) response) {
 
-            @Override
             /**
              * {@inheritDoc}
              */
+            @Override
             public void setContentType(String contentType) {
                 if (canApplyCachePreventionHeaders(contentType)) {
                     applyCachePreventionHeaders(this);
