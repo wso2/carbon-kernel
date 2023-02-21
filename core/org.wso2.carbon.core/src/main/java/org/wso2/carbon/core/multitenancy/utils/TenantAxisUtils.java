@@ -82,6 +82,7 @@ public final class TenantAxisUtils {
     private static final Log log = LogFactory.getLog(TenantAxisUtils.class);
     private static final String TENANT_CONFIGURATION_CONTEXTS = "tenant.config.contexts";
     private static final String TENANT_CONFIGURATION_CONTEXTS_CREATED = "tenant.config.contexts.created";
+    private static final String ILLEGAL_CHARACTERS_FOR_TENANT_DOMAIN = ".*[^a-z0-9\\._\\-].*";
     private static CarbonCoreDataHolder dataHolder = CarbonCoreDataHolder.getInstance();
     private static Map<String, ReentrantReadWriteLock> tenantReadWriteLocks =
             new ConcurrentHashMap<String, ReentrantReadWriteLock>();
@@ -120,6 +121,12 @@ public final class TenantAxisUtils {
         ConfigurationContext tenantConfigCtx;
 
         Boolean isTenantActive;
+        if (tenantDomain != null && tenantDomain.matches(ILLEGAL_CHARACTERS_FOR_TENANT_DOMAIN)) {
+            String errorMsg = "The tenant domain ' " + tenantDomain +
+                    " ' contains one or more illegal characters. The valid characters are " +
+                    "lowercase letters, numbers, '.', '-' and '_'.";
+            throw new RuntimeException(errorMsg);
+        }
         try {
             isTenantActive = CarbonCoreDataHolder.getInstance().getRealmService().getTenantManager().
                     isTenantActive(getTenantId(tenantDomain));
