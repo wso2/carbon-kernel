@@ -1713,11 +1713,11 @@
                 <artifactId>cxf-rt-rs-service-description</artifactId>
                 <version>${apache.cxf-rt-rs-service-description.version}</version>
             </dependency>
-        <dependency>
-            <groupId>org.codehaus.jettison</groupId>
-            <artifactId>jettison</artifactId>
-            <version>${codehaus.jettison.version}</version>
-        </dependency>
+            <dependency>
+                <groupId>org.codehaus.jettison</groupId>
+                <artifactId>jettison</artifactId>
+                <version>${codehaus.jettison.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-web</artifactId>
@@ -1727,6 +1727,16 @@
                 <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.identity.central.log.mgt</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>${commons-compress.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.org.apache.xmlbeans</groupId>
+                <artifactId>xmlbeans</artifactId>
+                <version>${xmlbeans.version}</version>
             </dependency>
         </dependencies>
 
@@ -1978,6 +1988,9 @@
         <org.apache.cxf.version>3.4.5</org.apache.cxf.version>
         <opencsv.wso2.version>1.8.wso2v1</opencsv.wso2.version>
         <orbit.version.poi>5.2.3.wso2v1</orbit.version.poi>
+        <orbit.version.poi.range>[5.0.0,6.0.0)</orbit.version.poi.range>
+        <commons-compress.version>1.22.0.wso2v1</commons-compress.version>
+        <xmlbeans.version>5.1.1.wso2v1</xmlbeans.version>
         <javax.activation.import.pkg.version>[0.0.0, 1.0.0)</javax.activation.import.pkg.version>
         <com.yubico.version>0.14.0</com.yubico.version>
         <encoder.wso2.version>1.2.0.wso2v1</encoder.wso2.version>
