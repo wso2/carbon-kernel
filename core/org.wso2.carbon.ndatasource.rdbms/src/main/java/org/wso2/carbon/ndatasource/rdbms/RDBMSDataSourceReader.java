@@ -15,6 +15,8 @@
  */
 package org.wso2.carbon.ndatasource.rdbms;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.ndatasource.common.DataSourceException;
 import org.wso2.carbon.ndatasource.common.spi.DataSourceReader;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -33,6 +35,8 @@ import java.sql.SQLException;
  * This class represents the RDBMS based data source reader implementation.
  */
 public class RDBMSDataSourceReader implements DataSourceReader {
+
+	private static Log log = LogFactory.getLog(RDBMSDataSourceReader.class);
 	
 	@Override
 	public String getType() {
@@ -64,6 +68,10 @@ public class RDBMSDataSourceReader implements DataSourceReader {
                 (rdbmsConfiguration.getUrl().toLowerCase().contains(";init="))) {
             throw new DataSourceException(
                     "INIT expressions are not allowed in the connection URL due to security reasons.");
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Database URL : " + rdbmsConfiguration.getUrl());
+            log.debug("Database Driver : " + rdbmsConfiguration.getDriverClassName());
         }
 		if (isDataSourceFactoryReference) {
 			return (new RDBMSDataSource(rdbmsConfiguration).getDataSourceFactoryReference());
