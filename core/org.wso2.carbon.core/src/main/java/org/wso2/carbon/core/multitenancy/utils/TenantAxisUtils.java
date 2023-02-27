@@ -72,6 +72,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import static org.wso2.carbon.CarbonConstants.EAGER_LOADING;
+
 /**
  * Utility methods for Tenant Operations at Axis2-level.
  */
@@ -447,6 +449,11 @@ public final class TenantAxisUtils {
             String tenantDomain = entry.getKey();
             synchronized (tenantDomain.intern()) {
                 ConfigurationContext tenantCfgCtx = entry.getValue();
+                // Get the Eager Loading tenant property from the tenant configuration context
+                Object eagerLoadingTenant = tenantCfgCtx.getProperty(EAGER_LOADING);
+                if (eagerLoadingTenant != null && (boolean) eagerLoadingTenant) {
+                    continue;
+                }
                 Long lastAccessed =
                         (Long) tenantCfgCtx.getProperty(MultitenantConstants.LAST_ACCESSED);
                 if (System.currentTimeMillis() - lastAccessed >= tenantIdleTimeMillis) {
