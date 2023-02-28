@@ -105,8 +105,7 @@ public class DBSFileUploadExecutor extends org.wso2.carbon.ui.transports.fileupl
                 log.error("File upload failed", e);                
                 out.write("<script type=\"text/javascript\" src=\"../ds/extensions/core/js/data_service.js\"></script>");                
                 out.write("<script type=\"text/javascript\">" +
-                          "alert('Service file upload FAILED. You will be redirected to file upload screen. Reason :" +
-                          e.getMessage().replaceFirst(",","") + "');" +
+                          "alert('Service file upload FAILED. You will be redirected to file upload screen.');" +
                           "loadDBSFileUploadPage();"+ //available in data_service.js
                           "</script>");
             }
