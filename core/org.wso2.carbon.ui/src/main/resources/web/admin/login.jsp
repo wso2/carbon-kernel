@@ -34,9 +34,6 @@ String userForumURL =
 String userGuideURL =
         (String) config.getServletContext().getAttribute(CarbonConstants.PRODUCT_XML_WSO2CARBON +
                                                          CarbonConstants.PRODUCT_XML_USERGUIDE);
-String mailinglistURL =
-        (String) config.getServletContext().getAttribute(CarbonConstants.PRODUCT_XML_WSO2CARBON +
-                                                         CarbonConstants.PRODUCT_XML_MAILINGLIST);
 String issuetrackerURL =
         (String) config.getServletContext().getAttribute(CarbonConstants.PRODUCT_XML_WSO2CARBON +
                                                          CarbonConstants.PRODUCT_XML_ISSUETRACKER);
@@ -45,9 +42,6 @@ if(userForumURL == null){
 }
 if(userGuideURL == null){
 	userGuideURL = "#";
-}
-if(mailinglistURL == null){
-	mailinglistURL = "#";
 }
 if(issuetrackerURL == null){
 	issuetrackerURL = "#";
@@ -178,18 +172,6 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
 
                                     <p><fmt:message key="issue.tracker.text"/></p>
 
-                                </td>
-                            </tr>
-                            <tr class="feature">
-                                <td>
-                                    <a target="_blank" href="<%=mailinglistURL %>" rel="noopener noreferrer"><img
-                                            src="../admin/images/mailing-list.gif"/></a>
-                                </td>
-                                <td>
-                                    <h3><a target="_blank" href="<%=mailinglistURL %>" rel="noopener noreferrer">
-                                        <fmt:message key="mailing.list"/></a></h3>
-
-                                    <p><fmt:message key="mailing.list.text"/></p>
                                 </td>
                             </tr>
                         </table>
