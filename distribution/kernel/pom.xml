@@ -280,11 +280,11 @@
                     <execution>
                         <phase>package</phase>
                         <configuration>
-                            <tasks>
+                            <target>
                                 <replace token="false" value="true" dir="target/WSO2Carbon">
                                     <include name="**/bundles.info" />
                                 </replace>
-                            </tasks>
+                            </target>
                         </configuration>
                         <goals>
                             <goal>run</goal>
@@ -297,7 +297,7 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <tasks>
+                            <target>
                                 <path id="h2.classpath">
                                     <path refid="maven.compile.classpath" />
                                 </path>
@@ -318,7 +318,7 @@
                                     <fileset file="${basedir}/carbon-home/dbscripts/h2.sql" />
                                 </sql>
                                 <echo message="##################### END ########################" />
-                            </tasks>
+                            </target>
                         </configuration>
                     </execution>
                     <execution>

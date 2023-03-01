@@ -42,7 +42,7 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <tasks>
+                            <target>
                                 <path id="wsdl2java.classpath">
                                     <pathelement location="${settings.localRepository}/org/apache/axis2/wso2/axis2-client/${orbit.version.axis2}/axis2-client-${orbit.version.axis2}.jar" />
                                     <pathelement location="${settings.localRepository}/org/apache/axis2/wso2/axis2/${orbit.version.axis2}/axis2-${orbit.version.axis2}.jar" />
@@ -57,7 +57,7 @@
                                     <arg line="-uri src/main/resources/AuthenticationAdmin.wsdl -u -uw -o target/generated-code -ns2p http://common.core.carbon.wso2.org/xsd=org.wso2.carbon.authenticator.stub.authentication,http://authentication.services.core.carbon.wso2.org=org.wso2.carbon.authenticator.stub,http://authentication.services.core.carbon.wso2.org/xsd=org.wso2.carbon.authenticator.stub" />
                                     <classpath refid="wsdl2java.classpath" />
                                 </java>
-                            </tasks>
+                            </target>
                         </configuration>
                     </execution>
                 </executions>

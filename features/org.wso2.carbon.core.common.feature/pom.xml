@@ -56,9 +56,9 @@
                                 <bundleDef>
                                     org.eclipse.platform:org.eclipse.equinox.http.servlet:${version.equinox.http.servlet}
                                 </bundleDef>
-                                <bundleDef>
-                                    org.eclipse.equinox:org.eclipse.equinox.http.helper:${version.equinox.http.helper}
-                                </bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.osgi.services</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.base:${carbon.kernel.version}</bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.http.helper:${version.equinox.http.helper}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.tomcat:tomcat-jsp-api:${orbit.version.tomcat.jsp.api}
                                 </bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.tomcat:tomcat-el-api:${orbit.version.tomcat.el.api}
@@ -171,6 +171,11 @@
                                     org.wso2.carbon.crypto:org.wso2.carbon.crypto.provider:${carbon.crypto.version}
                                 </bundleDef>
                                 <bundleDef>org.wso2.orbit.sun.xml.bind:jaxb:${version.org.wso2.orbit.javax.xml.bind.jaxb}</bundleDef>
+                                <bundleDef>com.sun.activation:javax.activation:1.2.0</bundleDef>
+                                <bundleDef>com.sun.xml.bind:jaxb-impl:4.0.0</bundleDef>
+                                <bundleDef>jakarta.xml.bind:jakarta.xml.bind-api:4.0.0</bundleDef>
+                                <bundleDef>javax.xml.soap:javax.xml.soap-api:1.4.0</bundleDef>
+                                <bundleDef>jakarta.activation:jakarta.activation-api:2.1.0</bundleDef>
                             </bundles>
                         </configuration>
                     </execution>

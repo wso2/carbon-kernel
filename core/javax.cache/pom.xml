@@ -95,6 +95,11 @@
             <scope>test</scope>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.platform</groupId>
+            <artifactId>org.eclipse.osgi.services</artifactId>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
     <build>
