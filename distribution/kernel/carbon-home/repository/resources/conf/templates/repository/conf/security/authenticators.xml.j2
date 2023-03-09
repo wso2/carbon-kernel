@@ -22,25 +22,6 @@
 -->
 <Authenticators xmlns="http://wso2.org/projects/carbon/authenticators.xml">
 
-    <!-- Authenticator Configurations for TokenUIAuthenticator -->
-    <Authenticator
-        id="token_ui_authenticator"
-        name="TokenUIAuthenticator"
-        {% if admin_console.authenticator.token_ui_authenticator.enable is sameas true %}
-        disabled="false">
-        {% else %}
-        disabled="true">
-        {% endif %}
-        <Priority>{{admin_console.authenticator.token_ui_authenticator.priority}}</Priority>
-        {% if admin_console.authenticator.token_ui_authenticator.config is defined %}
-        <Config>
-            {% for key,value in admin_console.authenticator.token_ui_authenticator.config.items() %}
-            <Parameter name="{{key}}">{{value}}</Parameter>
-            {% endfor %}
-        </Config>
-        {% endif %}
-    </Authenticator>
-
     <!-- Authenticator Configurations for SAML2SSOAuthenticator -->
     <Authenticator
         id="saml_sso_authenticator"
