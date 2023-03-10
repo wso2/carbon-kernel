@@ -649,36 +649,15 @@ public final class CarbonServerManager implements Controllable {
     private void populateConnectionProperties() throws Exception {
         RegistryService registryService = CarbonCoreDataHolder.getInstance().getRegistryService();
         Registry registry = registryService.getConfigSystemRegistry();
-        String contextRoot = serverConfigContext.getContextRoot();
-        String servicePath = serverConfigContext.getServicePath();
-        String requestIP = org.apache.axis2.util.Utils
-                .getIpAddress(serverConfigContext.getAxisConfiguration());
-
-        Resource resource;
         if (!registry.resourceExists(RegistryResources.CONNECTION_PROPS)) {
-            resource = registry.newResource();
-            resource.setProperty(SERVICE_PATH, servicePath);
-            resource.setProperty(BUNDLE_CONTEXT_ROOT, contextRoot);
-            resource.setProperty(HOST_NAME, requestIP);
+            Resource resource = registry.newResource();
+            resource.setProperty(SERVICE_PATH, serverConfigContext.getServicePath());
+            resource.setProperty(BUNDLE_CONTEXT_ROOT, serverConfigContext.getContextRoot());
+            resource.setProperty(HOST_NAME, org.apache.axis2.util.Utils
+                    .getIpAddress(serverConfigContext.getAxisConfiguration()));
             registry.put(RegistryResources.CONNECTION_PROPS, resource);
-        } else {
-            resource = registry.get(RegistryResources.CONNECTION_PROPS);
-            // existing property values
-            String exServicePath = resource.getProperty(SERVICE_PATH);
-            String exContext = resource.getProperty(BUNDLE_CONTEXT_ROOT);
-            String exHost = resource.getProperty(HOST_NAME);
-
-            if (!(exServicePath != null && exServicePath.equals(servicePath) &&
-                    exContext != null && exContext.equals(contextRoot) &&
-                    exHost != null && exHost.equals(contextRoot))) {
-                resource.setProperty(SERVICE_PATH, servicePath);
-                resource.setProperty(BUNDLE_CONTEXT_ROOT, contextRoot);
-                resource.setProperty(HOST_NAME, requestIP);
-                // put the updated resource
-                registry.put(RegistryResources.CONNECTION_PROPS, resource);
-            }
+            resource.discard();
         }
-        resource.discard();
     }
     // remove this method as this ListenerManager will destroy by CarbonCoreServiceComponent deactivate method.
 //    public void stopListenerManager() throws AxisFault {
