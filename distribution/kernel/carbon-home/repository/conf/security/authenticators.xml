@@ -22,11 +22,6 @@
 -->
 <Authenticators xmlns="http://wso2.org/projects/carbon/authenticators.xml">
 
-    <!-- Authenticator Configurations for TokenUIAuthenticator -->
-    <Authenticator name="TokenUIAuthenticator" disabled="true">
-        <Priority>5</Priority>
-    </Authenticator>
-
     <!-- Authenticator Configurations for SAML2SSOAuthenticator -->
     <Authenticator name="SAML2SSOAuthenticator" disabled="true">
         <Priority>10</Priority>

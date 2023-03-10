@@ -71,10 +71,6 @@ password = "wso2carbon"
 #alias ="wso2carbon"
 #key_password = "wso2carbon"
 
-#[admin_console.authenticator.token_ui_authenticator]
-#enable = false
-#priority = 5
-
 #[admin_console.authenticator.saml_sso_authenticator]
 #enable = false
 #priority = 10
