@@ -21,6 +21,7 @@ import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
+import org.wso2.carbon.utils.ServerConstants;
 
 import java.security.*;
 import java.security.cert.Certificate;
@@ -33,14 +34,16 @@ public class SignatureUtil {
     private static final String THUMB_DIGEST_ALGORITHM = "SHA-1";
 
     private static String signatureAlgorithm = "SHA1withRSA";
-    private static String provider = "BC";
+    private static String provider;
 
     private SignatureUtil() {
         // hide default constructor for utility class
     }
 
     public static void init() throws Exception {
-        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        provider = getPreferredJceProviderIdentifier();
+        String providerClass = getPreferredJceProviderClass(provider);
+        Security.addProvider((Provider) Class.forName(providerClass).getDeclaredConstructor().newInstance());
     }
 
     /**
@@ -162,6 +165,34 @@ public class SignatureUtil {
             throw new Exception("Please check alias. Cannot retrieve valid certificate");
         }
         return cert;
+    }
+
+    /**
+     * This method returns the preferred JCE provider identifier to be used.
+     *
+     * @return jce provider identifier name
+     */
+    private static String getPreferredJceProviderIdentifier() {
+        String provider = System.getProperty("security.jce.provider");
+        if (provider != null && provider.equalsIgnoreCase(ServerConstants.BOUNCY_CASTLE_FIPS_PROVIDER_IDENTIFIER)) {
+            return ServerConstants.BOUNCY_CASTLE_FIPS_PROVIDER_IDENTIFIER;
+        }
+        return ServerConstants.BOUNCY_CASTLE_PROVIDER_IDENTIFIER;
+    }
+
+    /**
+     * This method returns the preferred JCE provider class to be used.
+     *
+     * @return jce provider identifier name
+     */
+    private static String getPreferredJceProviderClass(String providerIdentifier) throws Exception {
+         if (ServerConstants.BOUNCY_CASTLE_FIPS_PROVIDER_IDENTIFIER.equalsIgnoreCase(providerIdentifier)) {
+            return ServerConstants.BOUNCY_CASTLE_FIPS_PROVIDER_CLASS;
+        } else if (ServerConstants.BOUNCY_CASTLE_PROVIDER_IDENTIFIER.equalsIgnoreCase(providerIdentifier)) {
+             return ServerConstants.BOUNCY_CASTLE_PROVIDER_CLASS;
+         } else {
+            throw new Exception("Unsupported JCE provider: " + providerIdentifier);
+        }
     }
 
 }

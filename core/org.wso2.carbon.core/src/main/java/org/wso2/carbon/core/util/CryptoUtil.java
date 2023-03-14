@@ -26,6 +26,7 @@ import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.crypto.api.CipherMetaDataHolder;
 import org.wso2.carbon.crypto.api.CryptoService;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.utils.ServerConstants;
 
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
@@ -43,14 +44,13 @@ public class CryptoUtil {
     private static Log log = LogFactory.getLog(CryptoUtil.class);
     private ServerConfigurationService serverConfigService;
     private RegistryService registryService;
+    private String cryptoProviderIdentifier;
     private Gson gson = new Gson();
     private static CryptoUtil instance = null;
     private static final char[] HEX_CHARACTERS = new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B',
                                                             'C', 'D', 'E', 'F'};
 
     private static final String DEFAULT_CRYPTO_ALGORITHM = "RSA";
-
-    private static final String CRYPTO_API_PROVIDER_BC = "BC";
 
     /**
      * This method returns CryptoUtil object, where this should only be used at runtime,
@@ -97,6 +97,7 @@ public class CryptoUtil {
                        RegistryService registryService) {
         this.serverConfigService = serverConfigService;
         this.registryService = registryService;
+        this.cryptoProviderIdentifier = getPreferredJceProviderIdentifier();
     }
 
     public ServerConfigurationService getServerConfigService() {
@@ -141,7 +142,7 @@ public class CryptoUtil {
                 }
             }
             encryptedKey = cryptoService
-                    .encrypt(plainTextBytes, algorithm, CRYPTO_API_PROVIDER_BC, returnSelfContainedCipherText);
+                    .encrypt(plainTextBytes, algorithm, cryptoProviderIdentifier, returnSelfContainedCipherText);
         } catch (Exception e) {
             throw new CryptoException("An error occurred while encrypting data.", e);
         }
@@ -202,7 +203,7 @@ public class CryptoUtil {
                     }
                 }
                 encryptedKey = cryptoService
-                        .encrypt(plainTextBytes, algorithm, CRYPTO_API_PROVIDER_BC, returnSelfContainedCipherText,
+                        .encrypt(plainTextBytes, algorithm, cryptoProviderIdentifier, returnSelfContainedCipherText,
                                 internalCryptoProviderType);
 
             }
@@ -308,7 +309,7 @@ public class CryptoUtil {
                     log.debug("Ciphertext is empty. An empty array will be used as the plaintext bytes.");
                 }
             } else {
-                decryptedValue = cryptoService.decrypt(cipherTextBytes, algorithm, CRYPTO_API_PROVIDER_BC);
+                decryptedValue = cryptoService.decrypt(cipherTextBytes, algorithm, cryptoProviderIdentifier);
             }
 
             return decryptedValue;
@@ -358,7 +359,7 @@ public class CryptoUtil {
                     log.debug("Ciphertext is empty. An empty array will be used as the plaintext bytes.");
                 }
             }else {
-                decryptedValue = cryptoService.decrypt(cipherTextBytes, algorithm, CRYPTO_API_PROVIDER_BC);
+                decryptedValue = cryptoService.decrypt(cipherTextBytes, algorithm, cryptoProviderIdentifier);
             }
 
             return decryptedValue;
@@ -409,7 +410,7 @@ public class CryptoUtil {
                     log.debug("Ciphertext is empty. An empty array will be used as the plaintext bytes.");
                 }
             } else {
-                decryptedValue = cryptoService.decrypt(cipherTextBytes, algorithm, CRYPTO_API_PROVIDER_BC,
+                decryptedValue = cryptoService.decrypt(cipherTextBytes, algorithm, cryptoProviderIdentifier,
                         internalCryptoProviderType);
             }
             return decryptedValue;
@@ -598,6 +599,19 @@ public class CryptoUtil {
         if (StringUtils.isBlank(internalCryptoProviderType)) {
             throw new CryptoException("Internal crypto provider can't be null.");
         }
+    }
+
+    /**
+     * This method returns the preferred JCE provider identifier to be used.
+     *
+     * @return jce provider identifier name
+     */
+    private String getPreferredJceProviderIdentifier() {
+        String provider = System.getProperty("security.jce.provider");
+        if (provider != null && provider.equalsIgnoreCase(ServerConstants.BOUNCY_CASTLE_FIPS_PROVIDER_IDENTIFIER)) {
+            return ServerConstants.BOUNCY_CASTLE_FIPS_PROVIDER_IDENTIFIER;
+        }
+        return ServerConstants.BOUNCY_CASTLE_PROVIDER_IDENTIFIER;
     }
 }
 

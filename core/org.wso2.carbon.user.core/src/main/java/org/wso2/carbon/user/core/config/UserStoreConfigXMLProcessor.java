@@ -44,6 +44,7 @@ import org.wso2.carbon.user.core.internal.UserStoreMgtDataHolder;
 import org.wso2.carbon.user.core.tracker.UserStoreManagerRegistry;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 import org.wso2.securevault.commons.MiscellaneousUtil;
@@ -81,7 +82,7 @@ public class UserStoreConfigXMLProcessor {
     private SecretResolver secretResolver;
     private String filePath = null;
     private Gson gson = new Gson();
-    private static final String CRYPTO_API_PROVIDER_BC = "BC";
+    private String cryptoProviderIdentifier;
     private static final String ENCRYPTION_KEYSTORE = "Security.UserStorePasswordEncryption";
     private static final String INTERNAL_KEYSTORE = "InternalKeystore";
     private static final String CRYPTO_PROVIDER = "CryptoService.InternalCryptoProviderClassName";
@@ -90,6 +91,7 @@ public class UserStoreConfigXMLProcessor {
 
     public UserStoreConfigXMLProcessor(String path) {
         this.filePath = path;
+        this.cryptoProviderIdentifier = getPreferredJceProviderIdentifier();
     }
 
     public static void setBundleContext(BundleContext bundleContext) {
@@ -490,7 +492,7 @@ public class UserStoreConfigXMLProcessor {
                     log.debug("Ciphertext is empty. An empty array will be used as the plaintext bytes.");
                 }
             } else {
-                decryptedValue = cryptoService.decrypt(cipherTextBytes, algorithm, CRYPTO_API_PROVIDER_BC);
+                decryptedValue = cryptoService.decrypt(cipherTextBytes, algorithm, cryptoProviderIdentifier);
             }
             return new String(decryptedValue);
 
@@ -524,14 +526,14 @@ public class UserStoreConfigXMLProcessor {
                         log.debug("Cipher transformation for decryption : " + cipherHolder.getTransformation());
                     }
 
-                    keyStoreCipher = Cipher.getInstance(cipherHolder.getTransformation(), "BC");
+                    keyStoreCipher = Cipher.getInstance(cipherHolder.getTransformation(), cryptoProviderIdentifier);
 
                     cipherTextBytes = cipherHolder.getCipherBase64Decoded();
                 } else {
                     // If the ciphertext is not a self-contained, directly decrypt using transformation configured in
                     // carbon.properties file
 
-                    keyStoreCipher = Cipher.getInstance(cipherTransformation, "BC");
+                    keyStoreCipher = Cipher.getInstance(cipherTransformation, cryptoProviderIdentifier);
 
                 }
             } else {
@@ -541,7 +543,7 @@ public class UserStoreConfigXMLProcessor {
                     log.debug("Cipher transformation property is not available.Hence RSA is considered as default " +
                             "cipher transformation.");
                 }
-                keyStoreCipher = Cipher.getInstance("RSA", "BC");
+                keyStoreCipher = Cipher.getInstance("RSA", cryptoProviderIdentifier);
 
             }
 
@@ -576,4 +578,16 @@ public class UserStoreConfigXMLProcessor {
         }
     }
 
+    /**
+     * This method returns the preferred JCE provider identifier to be used.
+     *
+     * @return jce provider identifier name
+     */
+    private String getPreferredJceProviderIdentifier() {
+        String provider = System.getProperty("security.jce.provider");
+        if (provider != null && provider.equalsIgnoreCase(ServerConstants.BOUNCY_CASTLE_FIPS_PROVIDER_IDENTIFIER)) {
+            return ServerConstants.BOUNCY_CASTLE_FIPS_PROVIDER_IDENTIFIER;
+        }
+        return ServerConstants.BOUNCY_CASTLE_PROVIDER_IDENTIFIER;
+    }
 }
