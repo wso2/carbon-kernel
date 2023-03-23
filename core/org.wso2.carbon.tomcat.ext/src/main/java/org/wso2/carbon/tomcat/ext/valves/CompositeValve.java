@@ -44,14 +44,10 @@ public class CompositeValve extends ValveBase {
         try {
             if (request.getContext() == null) {
                 if (StringUtils.isEmpty(request.getRequestURI())) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Could not handle the request. The request URI is invalid.");
-                    }
+                    log.debug("Could not handle the request. The request URI is invalid.");
                     return;
                 }
-                if (log.isDebugEnabled()) {
-                    log.debug("Could not handle the request, could be due to the maxHttpHeaderSize limitation.");
-                }
+                log.debug("Could not handle the request, could be due to the maxHttpHeaderSize limitation.");
                 return;
             }
             
