@@ -1007,6 +1007,13 @@ public class DatabaseUtil {
             }
             dbConnection.commit();
         } catch (SQLException e) {
+            if (e.getMessage().contains("Cannot insert duplicate key in object")) {
+                if (log.isDebugEnabled()) {
+                    // Refer https://www.rfc-editor.org/rfc/rfc7644#section-3.5.2.1
+                    log.debug("The resource is already added. Hence, skipping the error.", e);
+                }
+                return;
+            }
             String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
