@@ -26,6 +26,8 @@ public class JDBCCaseInsensitiveConstants {
             "SelectUserIDFromUserNameSQLCaseInsensitive";
     public static final String GET_USER_FILTER_CASE_INSENSITIVE = "UserFilterSQLCaseInsensitive";
     public static final String GET_USER_FILTER_WITH_ID_CASE_INSENSITIVE = "UserFilterWithIDSQLCaseInsensitive";
+    public static final String GET_USER_FILTER_WITH_ID_CASE_INSENSITIVE_WITH_ESCAPE =
+            "UserFilterWithIDSQLCaseInsensitiveWithEscape";
     public static final String GET_USER_FILTER_CASE_INSENSITIVE_WITH_ESCAPE = "UserFilterSQLCaseInsensitiveWithEscape";
     public static final String GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED = "UserFilterPaginatedSQLCaseInsensitive";
     public static final String GET_USER_FILTER_WITH_ID_CASE_INSENSITIVE_PAGINATED =
@@ -93,6 +95,9 @@ public class JDBCCaseInsensitiveConstants {
             "(UM_USER_NAME) LIKE LOWER(?) AND UM_TENANT_ID=? ORDER BY UM_USER_NAME";
     public static final String GET_USER_FILTER_WITH_ID_SQL_CASE_INSENSITIVE = "SELECT UM_USER_ID, UM_USER_NAME FROM "
             + "UM_USER WHERE LOWER(UM_USER_NAME) LIKE LOWER(?) AND UM_TENANT_ID=? ORDER BY UM_USER_NAME";
+    public static final String GET_USER_FILTER_WITH_ID_SQL_CASE_INSENSITIVE_WITH_ESCAPE = "SELECT UM_USER_ID, " +
+            "UM_USER_NAME FROM UM_USER WHERE LOWER(UM_USER_NAME) LIKE LOWER(?) ESCAPE ? AND UM_TENANT_ID=? ORDER BY " +
+            "UM_USER_NAME";
     public static final String GET_USER_FILTER_SQL_CASE_INSENSITIVE_WITH_ESCAPE = "SELECT UM_USER_NAME FROM UM_USER "
             + "WHERE LOWER(UM_USER_NAME) LIKE LOWER(?) ESCAPE ? AND UM_TENANT_ID=? ORDER BY UM_USER_NAME";
     public static final String GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_SQL = "SELECT UM_USER_NAME FROM UM_USER " +

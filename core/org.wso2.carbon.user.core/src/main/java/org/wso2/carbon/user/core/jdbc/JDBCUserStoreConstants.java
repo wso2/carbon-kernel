@@ -333,6 +333,9 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(JDBCRealmConstants.GET_USER_FILTER_WITH_ID, "User ID Filter SQL",
                 JDBCRealmConstants.GET_USER_FILTER_WITH_ID_SQL, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCRealmConstants.GET_USER_FILTER_WITH_ID_WITH_ESCAPE, "User ID Filter SQL With Escape",
+                JDBCRealmConstants.GET_USER_FILTER_WITH_ID_WITH_ESCAPE_SQL, "",
+                new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCRealmConstants.GET_USER_FILTER_WITH_ESCAPE, "User Filter SQL With Escape",
                 JDBCRealmConstants.GET_USER_FILTER_SQL_WITH_ESCAPE, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
@@ -343,6 +346,10 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_USER_FILTER_WITH_ID_CASE_INSENSITIVE,
                 "User Filter With ID SQL With Case Insensitive Username",
                 JDBCCaseInsensitiveConstants.GET_USER_FILTER_WITH_ID_SQL_CASE_INSENSITIVE, "",
+                new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_USER_FILTER_WITH_ID_CASE_INSENSITIVE_WITH_ESCAPE,
+                "User Filter With ID SQL Case Insensitive Username With Escape",
+                JDBCCaseInsensitiveConstants.GET_USER_FILTER_WITH_ID_SQL_CASE_INSENSITIVE_WITH_ESCAPE, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_WITH_ESCAPE,
                 "User Filter SQL With Case Insensitive Username With Escape",
