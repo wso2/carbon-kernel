@@ -670,7 +670,7 @@ public final class CarbonServerManager implements Controllable {
 
             if (!(exServicePath != null && exServicePath.equals(servicePath) &&
                     exContext != null && exContext.equals(contextRoot) &&
-                    exHost != null && exHost.equals(contextRoot))) {
+                    exHost != null && exHost.equals(requestIP))) {
                 resource.setProperty(SERVICE_PATH, servicePath);
                 resource.setProperty(BUNDLE_CONTEXT_ROOT, contextRoot);
                 resource.setProperty(HOST_NAME, requestIP);
