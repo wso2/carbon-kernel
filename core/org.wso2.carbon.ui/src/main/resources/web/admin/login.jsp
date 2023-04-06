@@ -16,11 +16,15 @@
  under the License.
  --%>
 
+<%@page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@page import="org.wso2.carbon.utils.CarbonUtils"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
+<%@ page import="org.wso2.carbon.identity.mgt.stub.dto.AdminAdvisoryBannerDTO"%>
+<%@ page import="org.wso2.carbon.identity.mgt.ui.AdminAdvisoryBannerClient"%>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -56,6 +60,25 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
 	return;
 }
 
+AdminAdvisoryBannerDTO adminAdvisoryBannerConfig = null;
+Boolean enableBanner = null;
+String bannerContent = null;
+String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
+ConfigurationContext configContext = (ConfigurationContext) config.getServletContext()
+                .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+AdminAdvisoryBannerClient client = new AdminAdvisoryBannerClient(backendServerURL, configContext);
+
+try {
+    adminAdvisoryBannerConfig = client.loadBannerConfig();
+    enableBanner = adminAdvisoryBannerConfig.getEnableBanner();
+    bannerContent = adminAdvisoryBannerConfig.getContent();
+
+} catch (Exception e) {
+	e.printStackTrace();
+    String message = resourceBundle.getString("error.while.loading.admin.advisory.banner.data");
+    CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
+    forwardTo = "../admin/error.jsp";
+}
 %>
 
 <fmt:bundle basename="org.wso2.carbon.i18n.Resources">
@@ -196,6 +219,15 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
 
                         <form action='../admin/login_action.jsp' method="POST" onsubmit="return doValidation();" target="_self" onsubmit="checkInputs()">
                             <table>
+                                <%if (enableBanner) { %>
+                                <tr>
+                                    <td colspan="2">
+                                        <div style='background-color: #fff5e8; text-align: justify; padding: 10px'>
+                                            <%=Encode.forHtmlAttribute(bannerContent)%>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <% } %>
                                  <%if(!CarbonUtils.isRunningOnLocalTransportMode()) { %>
                                 <tr>
                                     <td>
