@@ -17,6 +17,7 @@ import org.wso2.carbon.tomcat.ext.realms.CarbonTomcatRealm;
 import org.wso2.carbon.tomcat.ext.utils.URLMappingHolder;
 import org.wso2.carbon.user.api.TenantManager;
 import org.wso2.carbon.user.api.UserRealmService;
+import org.wso2.carbon.user.api.UserStoreException;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
@@ -109,7 +110,7 @@ public class CompositeValve extends ValveBase {
                 // See  http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
                 getNext().invoke(request, response);
             }
-        } catch (Exception e) {
+        } catch (ServletException | UserStoreException | IOException e) {
             log.error("Could not handle request: " + request.getRequestURI(), e);
         }
     }
