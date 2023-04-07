@@ -126,9 +126,7 @@ public final class CarbonUILoginUtil {
                 try {
                     response.addCookie(cookie);
                 } catch (IllegalArgumentException e) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Cookie was not created because invalid character is present.");
-                    }
+                    log.debug("Cookie was not created because invalid character is present.");
                 }
             }
         }
