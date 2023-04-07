@@ -71,10 +71,9 @@ AdminAdvisoryBannerClient client = new AdminAdvisoryBannerClient(backendServerUR
 try {
     adminAdvisoryBannerConfig = client.loadBannerConfig();
     enableBanner = adminAdvisoryBannerConfig.getEnableBanner();
-    bannerContent = adminAdvisoryBannerConfig.getContent();
+    bannerContent = adminAdvisoryBannerConfig.getBannerContent();
 
 } catch (Exception e) {
-	e.printStackTrace();
     String message = resourceBundle.getString("error.while.loading.admin.advisory.banner.data");
     CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
     forwardTo = "../admin/error.jsp";
