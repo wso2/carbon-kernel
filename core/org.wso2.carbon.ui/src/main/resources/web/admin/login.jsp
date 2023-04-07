@@ -74,9 +74,7 @@ try {
     bannerContent = adminAdvisoryBannerConfig.getBannerContent();
 
 } catch (Exception e) {
-    String message = resourceBundle.getString("error.while.loading.admin.advisory.banner.data");
-    CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-    forwardTo = "../admin/error.jsp";
+    e.printStackTrace();
 }
 %>
 
