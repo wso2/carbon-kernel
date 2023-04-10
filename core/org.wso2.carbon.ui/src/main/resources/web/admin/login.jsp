@@ -61,7 +61,7 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
 }
 
 AdminAdvisoryBannerDTO adminAdvisoryBannerConfig = null;
-Boolean enableBanner = null;
+Boolean enableBanner = false;
 String bannerContent = null;
 String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
 ConfigurationContext configContext = (ConfigurationContext) config.getServletContext()
@@ -74,7 +74,7 @@ try {
     bannerContent = adminAdvisoryBannerConfig.getBannerContent();
 
 } catch (Exception e) {
-    e.printStackTrace();
+    log.error("Error in displaying admin advisory banner", e);
 }
 %>
 
