@@ -30,6 +30,22 @@
 <jsp:include page="../dialog/display_messages.jsp"/>
 
 <%
+private AdminAdvisoryBannerDTO getAdminBannerConfig() {
+
+    String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
+    ConfigurationContext configContext = (ConfigurationContext) config.getServletContext()
+                    .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+    AdminAdvisoryBannerClient client = new AdminAdvisoryBannerClient(backendServerURL, configContext);
+
+    try {
+        return client.loadBannerConfig();
+
+    } catch (Exception e) {
+        log.error("Error in displaying admin advisory banner", e);
+    }
+}
+%>
+<%
 String userForumURL =
         (String) config.getServletContext().getAttribute(CarbonConstants.PRODUCT_XML_WSO2CARBON +
                                                          CarbonConstants.PRODUCT_XML_USERFORUM);
@@ -60,22 +76,9 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
 	return;
 }
 
-AdminAdvisoryBannerDTO adminAdvisoryBannerConfig = null;
-Boolean enableBanner = false;
-String bannerContent = null;
-String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
-ConfigurationContext configContext = (ConfigurationContext) config.getServletContext()
-                .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-AdminAdvisoryBannerClient client = new AdminAdvisoryBannerClient(backendServerURL, configContext);
-
-try {
-    adminAdvisoryBannerConfig = client.loadBannerConfig();
-    enableBanner = adminAdvisoryBannerConfig.getEnableBanner();
-    bannerContent = adminAdvisoryBannerConfig.getBannerContent();
-
-} catch (Exception e) {
-    log.error("Error in displaying admin advisory banner", e);
-}
+AdminAdvisoryBannerDTO adminAdvisoryBannerConfig = getAdminBannerConfig();
+boolean enableBanner = adminAdvisoryBannerConfig.getEnableBanner();
+String bannerContent = adminAdvisoryBannerConfig.getBannerContent();
 %>
 
 <fmt:bundle basename="org.wso2.carbon.i18n.Resources">
