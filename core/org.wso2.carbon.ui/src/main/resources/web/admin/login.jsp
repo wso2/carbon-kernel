@@ -25,25 +25,28 @@
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="org.apache.commons.logging.Log" %>
+<%@ page import="org.apache.commons.logging.LogFactory" %>
+<%@ page import="org.apache.axis2.AxisFault" %>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <jsp:include page="../dialog/display_messages.jsp"/>
 
-<%
-private AdminAdvisoryBannerDTO getAdminBannerConfig() {
+<%!
+    private Log log = LogFactory.getLog(this.getClass());
+%>
+<%!
+    private AdminAdvisoryBannerDTO getAdminBannerConfig(String backendServerURL, ConfigurationContext configContext) {
 
-    String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
-    ConfigurationContext configContext = (ConfigurationContext) config.getServletContext()
-                    .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-    AdminAdvisoryBannerClient client = new AdminAdvisoryBannerClient(backendServerURL, configContext);
-
-    try {
-        return client.loadBannerConfig();
-
-    } catch (Exception e) {
-        log.error("Error in displaying admin advisory banner", e);
+        AdminAdvisoryBannerDTO adminAdvisoryBannerConfig = new AdminAdvisoryBannerDTO();
+        try {
+            AdminAdvisoryBannerClient client = new AdminAdvisoryBannerClient(backendServerURL, configContext);
+            adminAdvisoryBannerConfig = client.loadBannerConfig();
+        } catch (AxisFault e) {
+            log.error("Error in displaying admin advisory banner", e);
+        }
+        return adminAdvisoryBannerConfig;
     }
-}
 %>
 <%
 String userForumURL =
@@ -75,10 +78,12 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
 	response.sendRedirect("../admin/login_action.jsp");
 	return;
 }
-
-AdminAdvisoryBannerDTO adminAdvisoryBannerConfig = getAdminBannerConfig();
-boolean enableBanner = adminAdvisoryBannerConfig.getEnableBanner();
-String bannerContent = adminAdvisoryBannerConfig.getBannerContent();
+String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
+ConfigurationContext configContext = (ConfigurationContext) config.getServletContext()
+    .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+AdminAdvisoryBannerDTO adminConfig = getAdminBannerConfig(backendServerURL, configContext);
+Boolean enableBanner = adminConfig.getEnableBanner();
+String bannerContent = adminConfig.getBannerContent();
 %>
 
 <fmt:bundle basename="org.wso2.carbon.i18n.Resources">
