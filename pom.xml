@@ -69,6 +69,7 @@
         <module>components/secret-mgt</module>
         <module>components/central-logger</module>
         <module>components/input-validation-mgt</module>
+        <module>components/extension-mgt</module>
         <module>features/security-mgt</module>
         <module>features/claim-mgt</module>
         <module>features/identity-core</module>
@@ -1312,6 +1313,11 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.extension.mgt</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.identity.configuration.mgt.endpoint</artifactId>
                 <version>${project.version}</version>
                 <type>war</type>
@@ -1513,6 +1519,11 @@
                 <groupId>org.wso2.carbon.identity.framework</groupId>
                 <artifactId>org.wso2.carbon.identity.user.registration.stub</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>${org.json.version}</version>
             </dependency>
 
             <dependency>
@@ -1857,7 +1868,8 @@
         <oltu.package.import.version.range>[1.0.0, 2.0.0)</oltu.package.import.version.range>
         <bcprov.version>1.49.0.wso2v2</bcprov.version>
         <swagger.jaxrs.version>1.5.2</swagger.jaxrs.version>
-
+        <org.json.version>20230227</org.json.version>
+        <json.wso2.osgi.version.range>[20160810, 20300101)</json.wso2.osgi.version.range>
         <!-- Orbits -->
         <orbit.version.xmlschema>1.4.7.wso2v3</orbit.version.xmlschema>
         <orbit.version.infinispan>5.1.2.wso2v1</orbit.version.infinispan>
