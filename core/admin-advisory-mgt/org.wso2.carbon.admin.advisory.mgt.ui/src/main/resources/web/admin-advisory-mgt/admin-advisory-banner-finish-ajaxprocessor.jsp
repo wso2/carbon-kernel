@@ -39,12 +39,12 @@
     }
 
     String enableBanner = request.getParameter("enableBanner");
-    String bannerContent = request.getParameter("bannerContent");
+    String bannerContent = request.getParameter("bannerContent").trim();
 
     AdminAdvisoryBannerDTO adminAdvisoryBannerConfig = new AdminAdvisoryBannerDTO();
 
     adminAdvisoryBannerConfig.setEnableBanner(Boolean.parseBoolean(enableBanner));
-    if (bannerContent != null && bannerContent.trim().length() > 0) {
+    if (bannerContent != null && bannerContent.length() > 0) {
         adminAdvisoryBannerConfig.setBannerContent(bannerContent);
     }
 	
