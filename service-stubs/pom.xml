@@ -37,6 +37,7 @@
         <module>org.wso2.carbon.feature.mgt.stub</module>
         <module>org.wso2.carbon.roles.mgt.stub</module>
         <module>org.wso2.carbon.server.admin.stub</module>
+        <module>org.wso2.carbon.admin.advisory.mgt.stub</module>
     </modules>
 
     <build>

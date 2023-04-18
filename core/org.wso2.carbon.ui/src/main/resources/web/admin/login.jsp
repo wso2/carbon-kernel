@@ -19,15 +19,14 @@
 <%@page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@page import="org.wso2.carbon.utils.CarbonUtils"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
-<%@ page import="org.wso2.carbon.identity.mgt.stub.dto.AdminAdvisoryBannerDTO"%>
-<%@ page import="org.wso2.carbon.identity.mgt.ui.AdminAdvisoryBannerClient"%>
+<%@ page import="org.wso2.carbon.admin.advisory.mgt.stub.dto.AdminAdvisoryBannerDTO"%>
+<%@ page import="org.wso2.carbon.admin.advisory.mgt.ui.AdminAdvisoryBannerClient"%>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.apache.commons.logging.Log" %>
 <%@ page import="org.apache.commons.logging.LogFactory" %>
-<%@ page import="org.apache.axis2.AxisFault" %>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -42,7 +41,7 @@
         try {
             AdminAdvisoryBannerClient client = new AdminAdvisoryBannerClient(backendServerURL, configContext);
             adminAdvisoryBannerConfig = client.loadBannerConfig();
-        } catch (AxisFault e) {
+        } catch (Exception e) {
             log.error("Error in displaying admin advisory banner", e);
         }
         return adminAdvisoryBannerConfig;

@@ -151,5 +151,6 @@
         <module>org.wso2.carbon.pax-logging-log4j2-plugins</module>
         <module>org.wso2.carbon.logging.correlation</module>
         <module>org.wso2.carbon.hazelcast</module>
+        <module>admin-advisory-mgt</module>
     </modules>
 </project>
