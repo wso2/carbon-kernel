@@ -63,6 +63,8 @@
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.feature.mgt.stub:${carbon.kernel.version}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.roles.mgt.ui:${carbon.kernel.version}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.roles.mgt.stub:${carbon.kernel.version}</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.admin.advisory.mgt.ui:${carbon.kernel.version}</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.admin.advisory.mgt.stub:${carbon.kernel.version}</bundleDef>
                                 <bundleDef>javax.servlet.jsp.jstl.wso2:jstl:${orbit.version.jstl}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.owasp.encoder:encoder:${orbit.version.encoder}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.owasp:csrfguard:${orbit.version.csrfguard}</bundleDef>
