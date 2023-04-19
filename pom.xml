@@ -61,6 +61,7 @@
         <module>components/consent-mgt</module>
         <module>components/functions-library-mgt</module>
         <module>components/template-mgt</module>
+        <module>components/extension-mgt</module>
         <module>components/configuration-mgt</module>
         <module>components/captcha-mgt</module>
         <module>components/user-functionality-mgt</module>
@@ -69,7 +70,7 @@
         <module>components/secret-mgt</module>
         <module>components/central-logger</module>
         <module>components/input-validation-mgt</module>
-        <module>components/extension-mgt</module>
+        <module>features/extension-mgt</module>
         <module>features/security-mgt</module>
         <module>features/claim-mgt</module>
         <module>features/identity-core</module>
