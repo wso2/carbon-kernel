@@ -95,13 +95,12 @@ public class AdminAdvisoryBannerClient {
      */
     public AdminAdvisoryBannerDTO loadBannerConfig() throws AxisFault {
 
-        AdminAdvisoryBannerDTO adminAdvisoryBannerDTO = null;
         try {
-            adminAdvisoryBannerDTO = stub.getAdminAdvisoryConfig();
+            return stub.getAdminAdvisoryConfig();
         } catch (Exception e) {
             handleException(e.getMessage(), e);
         }
-        return adminAdvisoryBannerDTO;
+        return null;
     }
 
     /**

@@ -30,33 +30,53 @@ public class AdminAdvisoryManagementDataHolder {
     private RegistryService registryService;
     private RealmService realmService;
 
+    /**
+     * Get the AdminAdvisoryManagementDataHolder instance.
+     *
+     * @return AdminAdvisoryManagementDataHolder instance.
+     */
     public static AdminAdvisoryManagementDataHolder getInstance() {
 
         return instance;
     }
 
-    private AdminAdvisoryManagementDataHolder() {
-
-    }
-
+    /**
+     * Get the registry service.
+     *
+     * @return RegistryService instance.
+     */
     public RegistryService getRegistryService() {
 
         return registryService;
     }
 
+    /**
+     * Set the registry service.
+     *
+     * @param registryService RegistryService instance.
+     */
     public void setRegistryService(RegistryService registryService) {
 
         this.registryService = registryService;
     }
 
+    /**
+     * Get the realm service.
+     *
+     * @return RealmService instance.
+     */
     public RealmService getRealmService() {
 
         return realmService;
     }
 
+    /**
+     * Set the realm service.
+     *
+     * @param realmService RealmService instance.
+     */
     public void setRealmService(RealmService realmService) {
 
         this.realmService = realmService;
     }
-
 }
