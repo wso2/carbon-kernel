@@ -3101,11 +3101,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             extractedDomain = names[0].trim();
         }
 
-        // Extracting the domain using user id.
-        if (StringUtils.isBlank(extractedDomain) && UserCoreClaimConstants.USER_ID_CLAIM_URI.equalsIgnoreCase(claim)) {
-            extractedDomain = getDomainWithUserID(claimValue);
-        }
-
         UserStoreManager userManager = this;
         /*
         * This method("getUserListWithID") can be called for secondary userstore managers.
@@ -11735,7 +11730,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isUniqueIdEnabled) {
             isUserExists = doCheckExistingUserWithID(userID);
         } else {
-            user = userUniqueIDManger.getUser(userID, this);
+            user = userUniqueIDManger.getUser(userID, this, userStore.getDomainName());
             isUserExists = user != null;
         }
 
@@ -11756,7 +11751,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // If unique id feature is not enabled, we have to call the legacy methods.
             if (!isUniqueUserIdEnabledInUserStore(userStore)) {
                 if (user == null) {
-                    user = userUniqueIDManger.getUser(userID, this);
+                    user = userUniqueIDManger.getUser(userID, this, userStore.getDomainName());
                 }
             } else {
                 user = getUserFromID(userID, requestedClaims, userStore.getDomainName(), profileName);
@@ -17964,21 +17959,5 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return Integer.parseInt(pwValidityTimeoutStr);
         }
         return DEFAULT_PASSWORD_VALIDITY_PERIOD_VALUE;
-    }
-
-    /**
-     * Get the domain name using the user ID.
-     *
-     * @param userId User ID.
-     * @throws UserStoreException Exception when the user does not exist.
-     */
-    private String getDomainWithUserID(String userId) throws UserStoreException {
-
-        UserStore userStore = getUserStoreWithID(userId);
-        String domain = null;
-        if (userStore != null && StringUtils.isNotBlank(userStore.getDomainName())) {
-            domain = userStore.getDomainName();
-        }
-        return domain;
     }
 }
