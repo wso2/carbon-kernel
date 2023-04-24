@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.core.multitenancy.eager;
 
+import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -29,6 +30,8 @@ import org.wso2.carbon.user.core.service.RealmService;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.wso2.carbon.CarbonConstants.EAGER_LOADING;
 
 /**
  * This class responsible of processing/validating and load once server startup completed.
@@ -88,8 +91,10 @@ public class TenantEagerLoader {
                 PrivilegedCarbonContext.startTenantFlow();
                 PrivilegedCarbonContext ctx = PrivilegedCarbonContext.getThreadLocalCarbonContext();
                 ctx.setTenantDomain(tenantDomain, true);
-                TenantAxisUtils
+                ConfigurationContext tenantConfigurationContext = TenantAxisUtils
                         .getTenantConfigurationContext(tenantDomain, carbonCoreDataHolder.getMainServerConfigContext());
+                // Set the eager loading property to the tenant configuration context
+                tenantConfigurationContext.setProperty(EAGER_LOADING, true);
             } catch (OutOfMemoryError e) {
                 // If OutOfMemoryError during tenant loading we will throw a RuntimeException to notify server admin
                 String msg = "OutOfMemoryError while Eager loading tenant : " + tenantDomain;

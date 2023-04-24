@@ -153,6 +153,7 @@ public final class ServerConstants {
     public static final String GENERATED_PAGES = "local_wso2wsas.generated.pages";
     public static final String CONFIGURATION_CONTEXT = "CONFIGURATION_CONTEXT";
     public static final String STS_NAME = "wso2carbon-sts";
+    public static final String DEFAULT_PASSWORD_VALIDITY_PERIOD = "DefaultPasswordValidityPeriod";
 
 
     public static class Axis2ParameterNames {

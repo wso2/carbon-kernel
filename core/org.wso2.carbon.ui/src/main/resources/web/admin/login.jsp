@@ -23,10 +23,12 @@
 <%@ page import="org.wso2.carbon.admin.advisory.mgt.ui.AdminAdvisoryBannerClient"%>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.apache.commons.logging.Log" %>
 <%@ page import="org.apache.commons.logging.LogFactory" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -54,9 +56,6 @@ String userForumURL =
 String userGuideURL =
         (String) config.getServletContext().getAttribute(CarbonConstants.PRODUCT_XML_WSO2CARBON +
                                                          CarbonConstants.PRODUCT_XML_USERGUIDE);
-String mailinglistURL =
-        (String) config.getServletContext().getAttribute(CarbonConstants.PRODUCT_XML_WSO2CARBON +
-                                                         CarbonConstants.PRODUCT_XML_MAILINGLIST);
 String issuetrackerURL =
         (String) config.getServletContext().getAttribute(CarbonConstants.PRODUCT_XML_WSO2CARBON +
                                                          CarbonConstants.PRODUCT_XML_ISSUETRACKER);
@@ -65,9 +64,6 @@ if(userForumURL == null){
 }
 if(userGuideURL == null){
 	userGuideURL = "#";
-}
-if(mailinglistURL == null){
-	mailinglistURL = "#";
 }
 if(issuetrackerURL == null){
 	issuetrackerURL = "#";
@@ -109,29 +105,32 @@ String bannerContent = adminConfig.getBannerContent();
     <%
         String loginStatus = CharacterEncoder.getSafeText(request.getParameter("loginStatus"));
         String errorCode = CharacterEncoder.getSafeText(request.getParameter("errorCode"));
+        String BUNDLE = "org.wso2.carbon.roles.mgt.ui.i18n.Resources";
 
         if (loginStatus != null && "false".equalsIgnoreCase(loginStatus)) {
-            if (errorCode == null) {
+            if (errorCode == null || (!(StringUtils.isBlank(errorCode)) &&
+                    errorCode.equalsIgnoreCase(CarbonUIUtil.geti18nString(errorCode, BUNDLE, request.getLocale())))) {
                 errorCode = "login.fail.message";
             }
     %>
 
     <script type="text/javascript">
         jQuery(document).ready(function() {
-            CARBON.showWarningDialog('<fmt:message key="<%=errorCode%>"/>');
+            CARBON.showWarningDialog('<fmt:message key="<%=Encode.forJavaScript(errorCode)%>"/>');
         });
     </script>
     <%
         }
 
         if (loginStatus != null && "failed".equalsIgnoreCase(loginStatus)) {
-            if (errorCode == null) {
+            if (errorCode == null || (!(StringUtils.isBlank(errorCode)) &&
+                    errorCode.equalsIgnoreCase(CarbonUIUtil.geti18nString(errorCode, BUNDLE, request.getLocale())))) {
                 errorCode = "login.fail.message1";
             }
      %>
     <script type="text/javascript">
         jQuery(document).ready(function() {
-            CARBON.showWarningDialog('<fmt:message key="<%=errorCode%>"/>');
+            CARBON.showWarningDialog('<fmt:message key="<%=Encode.forJavaScript(errorCode)%>"/>');
         });
     </script>
     <%
@@ -200,18 +199,6 @@ String bannerContent = adminConfig.getBannerContent();
 
                                     <p><fmt:message key="issue.tracker.text"/></p>
 
-                                </td>
-                            </tr>
-                            <tr class="feature">
-                                <td>
-                                    <a target="_blank" href="<%=mailinglistURL %>" rel="noopener noreferrer"><img
-                                            src="../admin/images/mailing-list.gif"/></a>
-                                </td>
-                                <td>
-                                    <h3><a target="_blank" href="<%=mailinglistURL %>" rel="noopener noreferrer">
-                                        <fmt:message key="mailing.list"/></a></h3>
-
-                                    <p><fmt:message key="mailing.list.text"/></p>
                                 </td>
                             </tr>
                         </table>
