@@ -16,8 +16,8 @@
  under the License.
  --%>
 
-<%@page import="org.apache.axis2.context.ConfigurationContext"%>
-<%@page import="org.wso2.carbon.utils.CarbonUtils"%>
+<%@ page import="org.apache.axis2.context.ConfigurationContext"%>
+<%@ page import="org.wso2.carbon.utils.CarbonUtils"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
 <%@ page import="org.wso2.carbon.admin.advisory.mgt.stub.dto.AdminAdvisoryBannerDTO"%>
 <%@ page import="org.wso2.carbon.admin.advisory.mgt.ui.AdminAdvisoryBannerClient"%>
@@ -26,9 +26,9 @@
 <%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.apache.commons.logging.Log" %>
 <%@ page import="org.apache.commons.logging.LogFactory" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <jsp:include page="../dialog/display_messages.jsp"/>
