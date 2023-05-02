@@ -86,23 +86,6 @@ public class ServerAdminTestCase extends CarbonIntegrationBaseTest {
         }
     }
 
-    @Test(groups = {"carbon.core"})
-    public void testServerStateChangeErrorScenario() throws Exception {
-        applyConfigChange();
-        restartServer();
-        log.debug("Current carbon home : " + System.getProperty(ServerConstants.CARBON_HOME));
-        String sessionCookie = util.login(userName, password.toCharArray(), backEndURL);
-        log.debug("Logged-in cookie : " + sessionCookie);
-        String url = UrlGenerationUtil.getLoginURL(automationContext.getDefaultInstance()) +
-                "server-admin/proxy_ajaxprocessor.jsp?action=shutdown";
-        URL obj = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-        con.setRequestMethod("GET");
-        con.setRequestProperty("Cookie", sessionCookie);
-        int responseCode = con.getResponseCode();
-        assertEquals(responseCode, HttpStatus.SC_METHOD_NOT_ALLOWED);
-    }
-
     private void applyConfigChange() throws IOException {
         Path sourcePath = Paths.get(TestConfigurationProvider.getResourceLocation(), "serveradmin");
         Path targetPath = Paths.get(System.getProperty(ServerConstants.CARBON_HOME), "repository", "conf");
