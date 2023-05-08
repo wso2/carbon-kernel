@@ -250,7 +250,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 String errorMessage = e.getCause().getCause().getMessage();
                 if (isClientException) {
                     if (StringUtils.isBlank(errorCode)) {
-                        throw new UserStoreClientException(errorCode, e);
+                        throw new UserStoreClientException(errorMessage, e);
                     }
                     throw new UserStoreClientException(errorMessage, errorCode, e);
                 } else {
