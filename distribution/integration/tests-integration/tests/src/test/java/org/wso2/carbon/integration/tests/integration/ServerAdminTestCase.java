@@ -97,17 +97,14 @@ public class ServerAdminTestCase extends CarbonIntegrationBaseTest {
         log.debug("Logged-in cookie : " + sessionCookie);
         String url = UrlGenerationUtil.getLoginURL(automationContext.getDefaultInstance()) +
                 "server-admin/proxy_ajaxprocessor.jsp?action=shutdown";
-
         HttpClient httpClient = HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_1_1)
                 .build();
-
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create(url))
-                .setHeader("Cookie", sessionCookie) // add request header
+                .setHeader("Cookie", sessionCookie)
                 .build();
-
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         int responseCode = response.statusCode();
         assertTrue(responseCode == HttpStatus.SC_MOVED_TEMPORARILY || responseCode == HttpStatus.SC_METHOD_NOT_ALLOWED);
