@@ -33,8 +33,10 @@ import org.wso2.carbon.server.admin.ui.ServerAdminClient;
 import org.wso2.carbon.utils.ServerConstants;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -84,6 +86,31 @@ public class ServerAdminTestCase extends CarbonIntegrationBaseTest {
         } catch (Exception e) {
             assertTrue(true);
         }
+    }
+
+    @Test(groups = {"carbon.core"})
+    public void testServerStateChangeErrorScenario() throws Exception {
+        applyConfigChange();
+        restartServer();
+        log.debug("Current carbon home : " + System.getProperty(ServerConstants.CARBON_HOME));
+        String sessionCookie = util.login(userName, password.toCharArray(), backEndURL);
+        log.debug("Logged-in cookie : " + sessionCookie);
+        String url = UrlGenerationUtil.getLoginURL(automationContext.getDefaultInstance()) +
+                "server-admin/proxy_ajaxprocessor.jsp?action=shutdown";
+
+        HttpClient httpClient = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
+                .build();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create(url))
+                .setHeader("Cookie", sessionCookie) // add request header
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        int responseCode = response.statusCode();
+        assertTrue(responseCode == HttpStatus.SC_MOVED_TEMPORARILY || responseCode == HttpStatus.SC_METHOD_NOT_ALLOWED);
     }
 
     private void applyConfigChange() throws IOException {
