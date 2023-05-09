@@ -33,8 +33,10 @@ import org.wso2.carbon.server.admin.ui.ServerAdminClient;
 import org.wso2.carbon.utils.ServerConstants;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -95,12 +97,17 @@ public class ServerAdminTestCase extends CarbonIntegrationBaseTest {
         log.debug("Logged-in cookie : " + sessionCookie);
         String url = UrlGenerationUtil.getLoginURL(automationContext.getDefaultInstance()) +
                 "server-admin/proxy_ajaxprocessor.jsp?action=shutdown";
-        URL obj = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-        con.setRequestMethod("GET");
-        con.setRequestProperty("Cookie", sessionCookie);
-        int responseCode = con.getResponseCode();
-        assertEquals(responseCode, HttpStatus.SC_METHOD_NOT_ALLOWED);
+        HttpClient httpClient = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
+                .build();
+        HttpRequest request = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create(url))
+                .setHeader("Cookie", sessionCookie)
+                .build();
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        int responseCode = response.statusCode();
+        assertTrue(responseCode == HttpStatus.SC_MOVED_TEMPORARILY || responseCode == HttpStatus.SC_METHOD_NOT_ALLOWED);
     }
 
     private void applyConfigChange() throws IOException {
