@@ -6274,9 +6274,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     return false;
                 }
             }
-        } else if (!userStore.getDomainName().equalsIgnoreCase(roleDomainName) && !(UserCoreConstants.INTERNAL_DOMAIN.
-                equalsIgnoreCase(roleDomainName) || APPLICATION_DOMAIN.equalsIgnoreCase(roleDomainName)
-                || WORKFLOW_DOMAIN.equalsIgnoreCase(roleDomainName))) {
+        } else if (!userStore.getDomainName().equalsIgnoreCase(roleDomainName) && !UserCoreConstants.INTERNAL_DOMAIN.
+                equalsIgnoreCase(roleDomainName)) {
             return false;
         }
 
