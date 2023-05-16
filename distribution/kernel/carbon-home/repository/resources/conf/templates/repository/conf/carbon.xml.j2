@@ -793,4 +793,9 @@
     {% if jce_provider.provider_name is defined %}
         <JCEProvider>{{jce_provider.provider_name}}</JCEProvider>
     {% endif %}
+
+    <!-- Configure SignatureUtil algorithms -->
+    <SignatureUtil>
+        <EnableSHA256Algo>{{signature_util.enable_sha256_algo}}</EnableSHA256Algo>
+    </SignatureUtil>
 </Server>

@@ -158,6 +158,7 @@ public final class ServerConstants {
     public static final String JCE_PROVIDER = "JCEProvider";
     public static final String JCE_PROVIDER_BC = "BC";
     public static final String JCE_PROVIDER_BCFIPS = "BCFIPS";
+    public static final String SIGNATURE_UTIL_ENABLE_SHA256_ALGO = "SignatureUtil.EnableSHA256Algo";
 
     public static class Axis2ParameterNames {
         public static final String CONTEXT_ROOT = "contextRoot";
