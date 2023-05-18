@@ -28,7 +28,8 @@
             <order>1</order>
             <style-class>manage</style-class>
             <icon>../admin-advisory-mgt/images/admin-adv.png</icon>
-            <require-permission>/permission/admin/login</require-permission>
+            <require-permission>/permission/admin</require-permission>
+            <require-super-tenant>true</require-super-tenant>
         </menu>
     </menus>
 </component>

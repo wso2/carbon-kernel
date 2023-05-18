@@ -27,7 +27,7 @@
             org.wso2.carbon.admin.advisory.mgt.service.AdminAdvisoryManagementService
         </parameter>
         <operation name="saveAdminAdvisoryConfig">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin</parameter>
         </operation>
         <operation name="getAdminAdvisoryConfig">
             <parameter name="DoAuthentication" locked="true">false</parameter>
@@ -36,7 +36,7 @@
         <parameter name="adminService" locked="true">true</parameter>
     </service>
 
-    <parameter name="AuthorizationAction" locked="false">/permission/admin/login</parameter>
+    <parameter name="AuthorizationAction" locked="false">/permission/admin</parameter>
     <parameter name="hiddenService" locked="false">false</parameter>
 
 </serviceGroup>
