@@ -380,9 +380,23 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
         return true;
     }
 
+    public boolean doPostGetUserClaimValueWithID(String userID, String claim, List<String> claimValue,
+                                                 String profileName, UserStoreManager userStoreManager, String initiator)
+            throws UserStoreException {
+
+        return true;
+    }
+
     @Override
     public boolean doPostGetUserClaimValuesWithID(String userID, String[] claims, String profileName,
             Map<String, String> claimMap, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    public boolean doPostGetUserClaimValuesWithID(String userID, String[] claims, String profileName,
+                                                  Map<String, String> claimMap, UserStoreManager userStoreManager,
+                                                  String initiator) throws UserStoreException {
 
         return true;
     }
@@ -827,6 +841,19 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
     @Override
     public boolean doPostGetUserListOfGroup(String groupID, List<User> userList, UserStoreManager userStoreManager)
             throws UserStoreException {
+
+        return true;
+    }
+
+    public boolean doPostGetUserClaimValues(String userName, String[] claims, String profileName,
+                                            Map<String, String> claimMap, UserStoreManager storeManager,
+                                            String initiator) throws UserStoreException {
+
+        return true;
+    }
+
+    public boolean doPostGetUserClaimValue(String userName, String claim, List<String> claimValue, String profileName,
+                                            UserStoreManager storeManager, String initiator) throws UserStoreException {
 
         return true;
     }

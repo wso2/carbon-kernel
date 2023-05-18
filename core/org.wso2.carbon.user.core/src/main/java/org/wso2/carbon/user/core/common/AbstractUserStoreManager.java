@@ -1947,7 +1947,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
                 if (listener instanceof AbstractUserOperationEventListener) {
                     AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
-                    if (!newListener.doPostGetUserClaimValue(userName, claim, list, profileName, this)) {
+                    if (!newListener.doPostGetUserClaimValue(userName, claim, list, profileName, this,
+                            initiator)) {
                         handleGetUserClaimValueFailure(
                                 ErrorMessages.ERROR_CODE_ERROR_DURING_POST_GET_USER_CLAIM_VALUE.getCode(),
                                 String.format(
@@ -2169,7 +2170,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
                     if (!newListener
                             .doPostGetUserClaimValues(userStore.getDomainFreeName(), claims, profileName, finalValues,
-                                    this)) {
+                                    this, initiator)) {
                         handleGetUserClaimValuesFailure(
                                 ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getCode(),
                                 String.format(ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getMessage(),
@@ -12110,7 +12111,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
                 if (listener instanceof AbstractUserOperationEventListener) {
                     AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
-                    if (!newListener.doPostGetUserClaimValueWithID(userID, claim, list, profileName, this)) {
+                    if (!newListener.doPostGetUserClaimValueWithID(userID, claim, list, profileName, this,
+                                initiator)) {
                         handleGetUserClaimValueFailureWithID(
                                 ErrorMessages.ERROR_CODE_ERROR_DURING_POST_GET_USER_CLAIM_VALUE.getCode(),
                                 String.format(
@@ -12210,7 +12212,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (listener instanceof AbstractUserOperationEventListener) {
                     AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
                     if (!newListener.doPostGetUserClaimValuesWithID(userStore.getDomainFreeUserId(), claims, profileName,
-                            finalValues, this)) {
+                            finalValues, this, initiator)) {
                         handleGetUserClaimValuesFailureWithID(
                                 ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getCode(),
                                 String.format(ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getMessage(),
