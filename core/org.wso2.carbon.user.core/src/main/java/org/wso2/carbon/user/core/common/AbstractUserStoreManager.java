@@ -2098,6 +2098,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public final Map<String, String> getUserClaimValues(String userName, String[] claims,
                                                         String profileName) throws UserStoreException {
 
+        return getUserClaimValues(userName, claims, profileName, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public final Map<String, String> getUserClaimValues(String userName, String[] claims,
+                                                        String profileName, String initiator) throws UserStoreException {
+
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class, String[].class, String.class};
             Object object = callSecure("getUserClaimValues", new Object[]{userName, claims, profileName}, argTypes);
