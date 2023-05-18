@@ -162,11 +162,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected static final String USERNAME_CLAIM_URI = "http://wso2.org/claims/username";
     private static final String APPLICATION_DOMAIN = "Application";
     private static final String WORKFLOW_DOMAIN = "Workflow";
-    private static final String INVALID_CLAIM_URL = "InvalidClaimUrl";
-    private static final String INVALID_USER_NAME = "InvalidUserName";
-    private static final String READ_ONLY_STORE = "ReadOnlyUserStoreManager";
-    private static final String READ_ONLY_PRIMARY_STORE = "ReadOnlyPrimaryUserStoreManager";
-    private static final String ADMIN_USER = "AdminUser";
     private static final String PROPERTY_PASSWORD_ERROR_MSG = "PasswordJavaRegExViolationErrorMsg";
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     private static final String LOCATION_CLAIM_URI = "http://wso2.org/claims/location";
@@ -193,6 +188,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private Map<String, Integer> maxUserListCount = null;
     private Map<String, Integer> maxRoleListCount = null;
     private List<UserStoreManagerConfigurationListener> listener = new ArrayList<UserStoreManagerConfigurationListener>();
+    private String UNDEFINED_INITIATOR = "undefined";
     private static final ThreadLocal<Boolean> isSecureCall = new ThreadLocal<Boolean>() {
         @Override
         protected Boolean initialValue() {
@@ -1881,6 +1877,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public final String getUserClaimValue(String userName, String claim, String profileName)
             throws UserStoreException {
 
+        return getUserClaimValue(userName, claim, profileName, UNDEFINED_INITIATOR);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public final String getUserClaimValue(String userName, String claim, String profileName, String initiator)
+            throws UserStoreException {
+
         if (!isSecureCall.get()) {
             Class[] argTypes = new Class[]{String.class, String.class, String.class};
             Object object = callSecure("getUserClaimValue", new Object[]{userName, claim, profileName}, argTypes);
@@ -2098,7 +2103,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public final Map<String, String> getUserClaimValues(String userName, String[] claims,
                                                         String profileName) throws UserStoreException {
 
-        return getUserClaimValues(userName, claims, profileName, null);
+        return getUserClaimValues(userName, claims, profileName, UNDEFINED_INITIATOR);
     }
 
     /**
@@ -12032,6 +12037,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public final String getUserClaimValueWithID(String userID, String claim, String profileName)
             throws UserStoreException {
 
+        return getUserClaimValueWithID(userID, claim, profileName, UNDEFINED_INITIATOR);
+    }
+
+    public final String getUserClaimValueWithID(String userID, String claim, String profileName, String initiator)
+            throws UserStoreException {
+
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[] { String.class, String.class, String.class };
             Object object = callSecure("getUserClaimValueWithID", new Object[] { userID, claim, profileName },
@@ -12127,6 +12138,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     @Override
     public final Map<String, String> getUserClaimValuesWithID(String userID, String[] claims, String profileName)
+            throws UserStoreException {
+
+        return getUserClaimValuesWithID(userID, claims, profileName, UNDEFINED_INITIATOR);
+    }
+
+    public final Map<String, String> getUserClaimValuesWithID(String userID, String[] claims, String profileName,
+                                                              String initiator)
             throws UserStoreException {
 
         if (!isSecureCall.get()) {
