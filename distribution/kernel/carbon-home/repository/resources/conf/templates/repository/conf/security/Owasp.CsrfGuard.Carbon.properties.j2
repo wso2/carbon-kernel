@@ -326,9 +326,9 @@ org.owasp.csrfguard.TokenLength={{owasp.csrfguard.token_length}}
 # The pseudo-random number generator property (org.owasp.csrfguard.PRNG) defines what PRNG should be used
 # to generate the OWASP CSRFGuard token. Always ensure this value references a cryptographically strong
 # pseudo-random number generator algorithm. The following configuration snippet sets the pseudo-random number
-# generator to SHA1PRNG:
+# generator to DRBG:
 #
-# org.owasp.csrfguard.PRNG=SHA1PRNG
+# org.owasp.csrfguard.PRNG=DRBG
 org.owasp.csrfguard.PRNG={{owasp.csrfguard.random_number_generator_algo}}
 
 # Pseudo-random Number Generator Provider
