@@ -102,7 +102,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private static final String SQL_FILTER_CHAR_ESCAPE = "\\";
     public static final String QUERY_BINDING_SYMBOL = "?";
     private static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
-    private static final String SHA_1_PRNG = "SHA1PRNG";
+    private static final String RANDOM_ALG_DRBG = "DRBG";
 
     protected DataSource jdbcds = null;
     protected Random random = new Random();
@@ -2641,13 +2641,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private String generateSaltValue() {
         String saltValue = null;
         try {
-            SecureRandom secureRandom = SecureRandom.getInstance(SHA_1_PRNG);
+            SecureRandom secureRandom = SecureRandom.getInstance(RANDOM_ALG_DRBG);
             byte[] bytes = new byte[16];
             //secureRandom is automatically seeded by calling nextBytes
             secureRandom.nextBytes(bytes);
             saltValue = Base64.encode(bytes);
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("SHA1PRNG algorithm could not be found.");
+            throw new RuntimeException("DRBG algorithm could not be found.");
         }
         return saltValue;
     }
