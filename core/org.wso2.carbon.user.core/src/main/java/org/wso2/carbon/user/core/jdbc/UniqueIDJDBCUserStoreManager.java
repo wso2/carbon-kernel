@@ -90,7 +90,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     private static final String QUERY_FILTER_STRING_ANY = "*";
     private static final String SQL_FILTER_STRING_ANY = "%";
     private static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
-    private static final String SHA_1_PRNG = "SHA1PRNG";
+    private static final String RANDOM_ALG_DRBG = "DRBG";
     private static final String DB2 = "db2";
     private static final String H2 = "h2";
     private static final String MSSQL = "mssql";
@@ -2118,13 +2118,13 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
         String saltValue;
         try {
-            SecureRandom secureRandom = SecureRandom.getInstance(SHA_1_PRNG);
+            SecureRandom secureRandom = SecureRandom.getInstance(RANDOM_ALG_DRBG);
             byte[] bytes = new byte[16];
             //secureRandom is automatically seeded by calling nextBytes
             secureRandom.nextBytes(bytes);
             saltValue = Base64.encode(bytes);
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("SHA1PRNG algorithm could not be found.");
+            throw new RuntimeException("DRBG algorithm could not be found.");
         }
         return saltValue;
     }
