@@ -12728,8 +12728,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 userID = doGetUserIDFromUserNameWithID(userName);
                 if (StringUtils.isEmpty(userID)) {
                     if (log.isDebugEnabled()) {
-                        log.debug(String.format("User with userName %s is not available in cache or database.",
-                                userName));
+                        log.debug("User with username " + userName + " is not available in cache or database.");
                     }
                     return null;
                 }
