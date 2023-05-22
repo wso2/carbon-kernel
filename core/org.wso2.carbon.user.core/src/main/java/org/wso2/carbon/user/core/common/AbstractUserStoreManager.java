@@ -16238,7 +16238,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         log.debug("Could not resolve the user for user id: " + userID);
                     }
                 }
-
             }
         }
 
