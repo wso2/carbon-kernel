@@ -4535,7 +4535,24 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             if (DB2.equals(dbType)) {
                 sqlBuilder.setTail(") AS p) WHERE rn BETWEEN ? AND ?", limit, offset);
             } else if (MSSQL.equals(dbType)) {
-                sqlBuilder.setTail(") AS R) AS P WHERE P.RowNum BETWEEN ? AND ?", limit, offset);
+                if (isClaimFiltering && !isGroupFiltering && totalMulitClaimFitlers > 1) {
+                    StringBuilder alias = new StringBuilder(") As Q0");
+                    /*
+                     * x is used to count the number of sub queries.
+                     * (totalMultiClaimFilters * 2) --> totalMultiClaims are multiplied by 2 as 2 sub queries for
+                     * every new claim.
+                     * (totalMultiClaimFilters * 2) - 1 is deducted as there is 1 sub query in the SQL query.
+                     */
+                    int x;
+                    for ( x = 1; x <= (totalMulitClaimFitlers * 2 - 1); x++) {
+                        alias = alias.append(" ) AS Q" + x );
+                    }
+                    String tail = alias.toString().concat(" WHERE Q" + String.valueOf(x-1) + ".RowNum BETWEEN ? AND ?");
+                    // Handle multi attribute filtering without group filtering.
+                    sqlBuilder.setTail(tail, limit, offset);
+                } else {
+                    sqlBuilder.setTail(") AS R) AS P WHERE P.RowNum BETWEEN ? AND ?", limit, offset);
+                }
             } else if (ORACLE.equals(dbType)) {
                 sqlBuilder.setTail(" ORDER BY UM_USER_NAME) where rownum <= ?) WHERE  rnum > ?", limit, offset);
             } else {
