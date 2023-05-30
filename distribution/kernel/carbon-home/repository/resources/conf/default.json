@@ -154,7 +154,7 @@
   "admin_console.authenticator.mutual_ssl_authenticator.config.WhiteListEnabled": false,
   "owasp.csrfguard.create_token_per_page": false,
   "owasp.csrfguard.token_length": "32",
-  "owasp.csrfguard.random_number_generator_algo": "SHA1PRNG",
+  "owasp.csrfguard.random_number_generator_algo": "DRBG",
   "owasp.csrfguard.js_servlet.x_request_with_header": "WSO2 CSRF Protection",
   "tomcat.global.session_timeout": "30m",
   "tomcat.management_console.session_timeout": "15m",
@@ -219,6 +219,7 @@
   "versioning_configuration.enable_version_resources_on_change" : false,
   "sts.callback_handler" : "org.wso2.carbon.identity.sts.common.identity.provider.AttributeCallbackHandler",
   "tenant_mgt.enable_tenant_theme_mgt" : true,
-  "jce_provider.provider_name" : "BC"
+  "jce_provider.provider_name" : "BC",
+  "signature_util.enable_sha256_algo" : true
 
 }
