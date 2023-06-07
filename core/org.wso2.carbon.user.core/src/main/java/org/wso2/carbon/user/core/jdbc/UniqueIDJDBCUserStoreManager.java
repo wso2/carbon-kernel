@@ -3767,25 +3767,25 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             if (isCaseSensitiveUsername()) {
                 sqlBuilder.where("UA.UM_ATTR_VALUE = ?", attributeValue);
             } else {
-                sqlBuilder.where("LOWER(UA.UM_ATTR_VALUE) = ?", attributeValue.toLowerCase());
+                sqlBuilder.where("LOWER(UA.UM_ATTR_VALUE) = LOWER(?)", attributeValue);
             }
         } else if (ExpressionOperation.EW.toString().equals(operation)) {
             if (isCaseSensitiveUsername()) {
                 sqlBuilder.where("UA.UM_ATTR_VALUE LIKE ?", "%" + attributeValue);
             } else {
-                sqlBuilder.where("LOWER(UA.UM_ATTR_VALUE) LIKE ?", "%" + attributeValue.toLowerCase());
+                sqlBuilder.where("LOWER(UA.UM_ATTR_VALUE) LIKE LOWER(?)", "%" + attributeValue);
             }
         } else if (ExpressionOperation.CO.toString().equals(operation)) {
             if (isCaseSensitiveUsername()) {
                 sqlBuilder.where("UA.UM_ATTR_VALUE LIKE ?", "%" + attributeValue + "%");
             } else {
-                sqlBuilder.where("LOWER(UA.UM_ATTR_VALUE) LIKE ?", "%" + attributeValue.toLowerCase() + "%");
+                sqlBuilder.where("LOWER(UA.UM_ATTR_VALUE) LIKE LOWER(?)", "%" + attributeValue + "%");
             }
         } else if (ExpressionOperation.SW.toString().equals(operation)) {
             if (isCaseSensitiveUsername()) {
                 sqlBuilder.where("UA.UM_ATTR_VALUE LIKE ?", attributeValue + "%");
             } else {
-                sqlBuilder.where("LOWER(UA.UM_ATTR_VALUE) LIKE ?", attributeValue.toLowerCase() + "%");
+                sqlBuilder.where("LOWER(UA.UM_ATTR_VALUE) LIKE LOWER(?)", attributeValue + "%");
             }
         }
     }
@@ -3811,25 +3811,25 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             if (isCaseSensitiveUsername()) {
                 sqlBuilder.where("UA.UM_ATTR_VALUE = ?", attributeValue);
             } else {
-                sqlBuilder.where("LOWER(UA.UM_ATTR_VALUE) = ?", attributeValue.toLowerCase());
+                sqlBuilder.where("LOWER(UA.UM_ATTR_VALUE) = LOWER(?)", attributeValue);
             }
         } else if (ExpressionOperation.EW.toString().equals(operation)) {
             if (isCaseSensitiveUsername()) {
                 sqlBuilder.where("UA.UM_ATTR_VALUE LIKE ?", "%" + attributeValue);
             } else {
-                sqlBuilder.where("LOWER(UA.UM_ATTR_VALUE) LIKE ?", "%" + attributeValue.toLowerCase());
+                sqlBuilder.where("LOWER(UA.UM_ATTR_VALUE) LIKE LOWER(?)", "%" + attributeValue);
             }
         } else if (ExpressionOperation.CO.toString().equals(operation)) {
             if (isCaseSensitiveUsername()) {
                 sqlBuilder.where("UA.UM_ATTR_VALUE LIKE ?", "%" + attributeValue + "%");
             } else {
-                sqlBuilder.where("LOWER(UA.UM_ATTR_VALUE) LIKE ?", "%" + attributeValue.toLowerCase() + "%");
+                sqlBuilder.where("LOWER(UA.UM_ATTR_VALUE) LIKE LOWER(?)", "%" + attributeValue + "%");
             }
         } else if (ExpressionOperation.SW.toString().equals(operation)) {
             if (isCaseSensitiveUsername()) {
                 sqlBuilder.where("UA.UM_ATTR_VALUE LIKE ?", attributeValue + "%");
             } else {
-                sqlBuilder.where("LOWER(UA.UM_ATTR_VALUE) LIKE ?", attributeValue.toLowerCase() + "%");
+                sqlBuilder.where("LOWER(UA.UM_ATTR_VALUE) LIKE LOWER(?)", attributeValue + "%");
             }
         }
     }
