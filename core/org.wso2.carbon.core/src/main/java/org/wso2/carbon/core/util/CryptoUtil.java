@@ -607,7 +607,7 @@ public class CryptoUtil {
      * @return jce provider identifier name
      */
     private String getPreferredJceProviderIdentifier() {
-        String provider = System.getProperty("security.jce.provider");
+        String provider = System.getProperty(ServerConstants.JCE_PROVIDER_PARAMETER);
         if (provider != null && provider.equalsIgnoreCase(ServerConstants.BOUNCY_CASTLE_FIPS_PROVIDER_IDENTIFIER)) {
             return ServerConstants.BOUNCY_CASTLE_FIPS_PROVIDER_IDENTIFIER;
         }
