@@ -174,7 +174,7 @@ public class SignatureUtil {
      */
     private static String getPreferredJceProviderIdentifier() {
         String provider = System.getProperty(ServerConstants.JCE_PROVIDER_PARAMETER);
-        if (provider != null && provider.equalsIgnoreCase(ServerConstants.BOUNCY_CASTLE_FIPS_PROVIDER_IDENTIFIER)) {
+        if (ServerConstants.BOUNCY_CASTLE_FIPS_PROVIDER_IDENTIFIER.equalsIgnoreCase(provider)) {
             return ServerConstants.BOUNCY_CASTLE_FIPS_PROVIDER_IDENTIFIER;
         }
         return ServerConstants.BOUNCY_CASTLE_PROVIDER_IDENTIFIER;
