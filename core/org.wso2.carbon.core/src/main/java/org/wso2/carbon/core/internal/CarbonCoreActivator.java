@@ -100,13 +100,13 @@ public class CarbonCoreActivator implements BundleActivator {
      *
      * @return jce provider identifier name
      */
-    private static String getPreferredJceProviderClass(String providerIdentifier) throws Exception {
+    private static String getPreferredJceProviderClass(String providerIdentifier) {
         if (ServerConstants.BOUNCY_CASTLE_PROVIDER_IDENTIFIER.equalsIgnoreCase(providerIdentifier)) {
             return ServerConstants.BOUNCY_CASTLE_PROVIDER_CLASS;
         } else if (ServerConstants.BOUNCY_CASTLE_FIPS_PROVIDER_IDENTIFIER.equalsIgnoreCase(providerIdentifier)) {
             return ServerConstants.BOUNCY_CASTLE_FIPS_PROVIDER_CLASS;
         } else {
-            throw new Exception("Unsupported JCE provider: " + providerIdentifier);
+            throw new IllegalArgumentException("Unsupported JCE provider: " + providerIdentifier);
         }
     }
 }
