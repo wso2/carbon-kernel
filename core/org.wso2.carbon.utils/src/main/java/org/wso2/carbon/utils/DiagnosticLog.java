@@ -38,6 +38,7 @@ public class DiagnosticLog {
     private final Map<String, Object> configurations;
     private final LogLevel logLevel;
 
+    @Deprecated
     public DiagnosticLog(String logId, Instant recordedAt, String requestId, String flowId,
                          String resultStatus, String resultMessage, String actionId, String componentId,
                          Map<String, Object> input, Map<String, Object> configurations) {
@@ -122,13 +123,22 @@ public class DiagnosticLog {
         return configurations;
     }
 
-    public LogLevel getPersona() {
+    /**
+     * Get the log level of the diagnostic log.
+     *
+     * @return log level
+     */
+    public LogLevel getLogLevel() {
 
         return logLevel;
     }
 
+    /**
+     * Log levels of the diagnostic log.
+     */
     public enum LogLevel {
+
         BASIC, // This level is intended for App Developers (and Internal Developers).
-        ADVANCE // This level is intended only for Internal Developers.
+        ADVANCED // This level is intended only for Internal Developers.
     }
 }
