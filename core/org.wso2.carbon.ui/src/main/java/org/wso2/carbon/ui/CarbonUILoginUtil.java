@@ -338,6 +338,15 @@ public final class CarbonUILoginUtil {
         // This condition is evaluated when users are logged out in SAML2 based SSO
         if (request.getAttribute("logoutRequest") != null) {
         	log.debug("Loging out from SSO session");
+		
+	    try {
+                invalidateSession(session);
+            } catch (Exception ignored) {
+                // Ignore exception when invalidating and invalidated session
+                if (log.isDebugEnabled()) {
+                    log.debug("Error in invalidating frontend session ", ignored);
+                }
+            }
             response.sendRedirect(contextPath + "/carbon/sso-acs/redirect_ajaxprocessor.jsp?logout=true");
             return false;
         }
