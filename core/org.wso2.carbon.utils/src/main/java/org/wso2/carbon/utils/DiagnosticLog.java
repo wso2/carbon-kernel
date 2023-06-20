@@ -36,6 +36,7 @@ public class DiagnosticLog {
     private final String componentId;
     private final Map<String, Object> input;
     private final Map<String, Object> configurations;
+    private final LogLevel logLevel;
 
     public DiagnosticLog(String logId, Instant recordedAt, String requestId, String flowId,
                          String resultStatus, String resultMessage, String actionId, String componentId,
@@ -51,6 +52,24 @@ public class DiagnosticLog {
         this.componentId = componentId;
         this.input = input;
         this.configurations = configurations;
+        this.logLevel = LogLevel.BASIC;
+    }
+
+    public DiagnosticLog(String logId, Instant recordedAt, String requestId, String flowId,
+            String resultStatus, String resultMessage, String actionId, String componentId,
+            Map<String, Object> input, Map<String, Object> configurations, LogLevel logLevel) {
+
+        this.logId = logId;
+        this.recordedAt = recordedAt;
+        this.requestId = requestId;
+        this.flowId = flowId;
+        this.resultStatus = resultStatus;
+        this.resultMessage = resultMessage;
+        this.actionId = actionId;
+        this.componentId = componentId;
+        this.input = input;
+        this.configurations = configurations;
+        this.logLevel = logLevel;
     }
 
     public String getLogId() {
@@ -101,5 +120,15 @@ public class DiagnosticLog {
     public Map<String, Object> getConfigurations() {
 
         return configurations;
+    }
+
+    public LogLevel getPersona() {
+
+        return logLevel;
+    }
+
+    public enum LogLevel {
+        BASIC, // This level is intended for App Developers (and Internal Developers).
+        ADVANCE // This level is intended only for Internal Developers.
     }
 }
