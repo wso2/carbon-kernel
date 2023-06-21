@@ -25,14 +25,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.wso2.carbon.utils.DiagnosticLogUtils.CORRELATION_ID_MDC;
-import static org.wso2.carbon.utils.DiagnosticLogUtils.FLOW_ID_MDC;
-import static org.wso2.carbon.utils.DiagnosticLogUtils.parseDateTime;
-
 /**
  * Diagnostic log.
  */
 public class DiagnosticLog {
+
+    public static final String CORRELATION_ID_MDC = "Correlation-ID";
+    public static final String FLOW_ID_MDC = "Flow-ID";
 
     private final String logId;
     private final Instant recordedAt;
@@ -70,7 +69,7 @@ public class DiagnosticLog {
         this.recordedAt = builder.recordedAt;
         this.requestId = builder.requestId;
         this.flowId = builder.flowId;
-        this.resultStatus = builder.resultStatus;
+        this.resultStatus = String.valueOf(builder.resultStatus);
         this.resultMessage = builder.resultMessage;
         this.actionId = builder.actionId;
         this.componentId = builder.componentId;
@@ -149,6 +148,17 @@ public class DiagnosticLog {
     }
 
     /**
+     * Result status of the diagnostic log.
+     */
+    public enum ResultStatus {
+
+        SUCCESS, // Successful execution.
+        FAILED, // Failed execution.
+        PENDING, // Pending execution.
+        NONE // No result status.
+    }
+
+    /**
      * Builder class for DiagnosticLog.
      * This class follows the Builder design pattern, providing a way to construct a DiagnosticLog object step by step.
      */
@@ -158,27 +168,18 @@ public class DiagnosticLog {
         private Instant recordedAt;
         private String requestId;
         private String flowId;
-        private final String resultStatus;
-        private final String resultMessage;
+        private ResultStatus resultStatus;
+        private String resultMessage;
         private final String actionId;
         private final String componentId;
         private Map<String, Object> input;
         private Map<String, Object> configurations;
         private LogLevel logLevel;
 
-        /**
-         * Creates a DiagnosticLogBuilder instance.
-         * @param resultStatus the result status of the DiagnosticLog.
-         * @param resultMessage the result message of the DiagnosticLog.
-         * @param actionId the action ID of the DiagnosticLog.
-         * @param componentId the component ID of the DiagnosticLog.
-         */
-        public DiagnosticLogBuilder(String resultStatus, String resultMessage, String actionId, String componentId) {
+        public DiagnosticLogBuilder(String componentId, String actionId) {
 
-            this.resultStatus = resultStatus;
-            this.resultMessage = resultMessage;
-            this.actionId = actionId;
             this.componentId = componentId;
+            this.actionId = actionId;
         }
 
         /**
@@ -226,6 +227,30 @@ public class DiagnosticLog {
         public DiagnosticLogBuilder flowId(String flowId) {
 
             this.flowId = flowId;
+            return this;
+        }
+
+        /**
+         * Sets the result status of the DiagnosticLog.
+         *
+         * @param resultStatus the result message to be set.
+         * @return the current DiagnosticLogBuilder instance.
+         */
+        public DiagnosticLogBuilder resultStatus(ResultStatus resultStatus) {
+
+            this.resultStatus = resultStatus;
+            return this;
+        }
+
+        /**
+         * Sets the result message of the DiagnosticLog.
+         *
+         * @param resultMessage the action ID to be set.
+         * @return the current DiagnosticLogBuilder instance.
+         */
+        public DiagnosticLogBuilder resultMessage(String resultMessage) {
+
+            this.resultMessage = resultMessage;
             return this;
         }
 
@@ -314,11 +339,20 @@ public class DiagnosticLog {
          */
         public DiagnosticLog build() {
 
+            if (componentId == null || actionId == null) {
+                throw new IllegalStateException("componentId and actionId must not be null");
+            }
+            if (resultMessage == null && input == null) {
+                // There can be a DiagnosticLog without a result message, but there can be some inputs related to the
+                // action. In this case, input must be provided. But if there is a result message, input is not
+                // required. There shouldn't be a diagnostic log without a result message and input.
+                throw new IllegalStateException("Either resultMessage or input must be provided");
+            }
             if (this.logId == null) {
                 logId = UUID.randomUUID().toString();
             }
             if (this.recordedAt == null) {
-                recordedAt = parseDateTime(Instant.now().toString());
+                recordedAt = Instant.now();
             }
             if (this.requestId == null) {
                 requestId = MDC.get(CORRELATION_ID_MDC);
@@ -328,6 +362,9 @@ public class DiagnosticLog {
             }
             if (this.logLevel == null) {
                 logLevel = LogLevel.BASIC;
+            }
+            if (this.resultStatus == null) {
+                resultStatus = ResultStatus.NONE;
             }
             return new DiagnosticLog(this);
         }
