@@ -18,9 +18,16 @@
 
 package org.wso2.carbon.utils;
 
+import org.slf4j.MDC;
+
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+
+import static org.wso2.carbon.utils.DiagnosticLogUtils.CORRELATION_ID_MDC;
+import static org.wso2.carbon.utils.DiagnosticLogUtils.FLOW_ID_MDC;
+import static org.wso2.carbon.utils.DiagnosticLogUtils.parseDateTime;
 
 /**
  * Diagnostic log.
@@ -309,6 +316,21 @@ public class DiagnosticLog {
          */
         public DiagnosticLog build() {
 
+            if (this.logId != null) {
+                logId = UUID.randomUUID().toString();
+            }
+            if (this.recordedAt != null) {
+                recordedAt = parseDateTime(Instant.now().toString());
+            }
+            if (this.requestId != null) {
+                requestId = MDC.get(CORRELATION_ID_MDC);
+            }
+            if (this.flowId != null) {
+                flowId = MDC.get(FLOW_ID_MDC);
+            }
+            if (this.logLevel == null) {
+                logLevel = LogLevel.BASIC;
+            }
             return new DiagnosticLog(logId, recordedAt, requestId, flowId, resultStatus, resultMessage, actionId,
                     componentId, input, configurations, logLevel);
         }
