@@ -64,21 +64,19 @@ public class DiagnosticLog {
         this.logLevel = LogLevel.BASIC;
     }
 
-    public DiagnosticLog(String logId, Instant recordedAt, String requestId, String flowId,
-            String resultStatus, String resultMessage, String actionId, String componentId,
-            Map<String, Object> input, Map<String, Object> configurations, LogLevel logLevel) {
+    private DiagnosticLog(DiagnosticLogBuilder builder) {
 
-        this.logId = logId;
-        this.recordedAt = recordedAt;
-        this.requestId = requestId;
-        this.flowId = flowId;
-        this.resultStatus = resultStatus;
-        this.resultMessage = resultMessage;
-        this.actionId = actionId;
-        this.componentId = componentId;
-        this.input = input;
-        this.configurations = configurations;
-        this.logLevel = logLevel;
+        this.logId = builder.logId;
+        this.recordedAt = builder.recordedAt;
+        this.requestId = builder.requestId;
+        this.flowId = builder.flowId;
+        this.resultStatus = builder.resultStatus;
+        this.resultMessage = builder.resultMessage;
+        this.actionId = builder.actionId;
+        this.componentId = builder.componentId;
+        this.input = builder.input;
+        this.configurations = builder.configurations;
+        this.logLevel = builder.logLevel;
     }
 
     public String getLogId() {
@@ -316,23 +314,22 @@ public class DiagnosticLog {
          */
         public DiagnosticLog build() {
 
-            if (this.logId != null) {
+            if (this.logId == null) {
                 logId = UUID.randomUUID().toString();
             }
-            if (this.recordedAt != null) {
+            if (this.recordedAt == null) {
                 recordedAt = parseDateTime(Instant.now().toString());
             }
-            if (this.requestId != null) {
+            if (this.requestId == null) {
                 requestId = MDC.get(CORRELATION_ID_MDC);
             }
-            if (this.flowId != null) {
+            if (this.flowId == null) {
                 flowId = MDC.get(FLOW_ID_MDC);
             }
             if (this.logLevel == null) {
                 logLevel = LogLevel.BASIC;
             }
-            return new DiagnosticLog(logId, recordedAt, requestId, flowId, resultStatus, resultMessage, actionId,
-                    componentId, input, configurations, logLevel);
+            return new DiagnosticLog(this);
         }
     }
 }
