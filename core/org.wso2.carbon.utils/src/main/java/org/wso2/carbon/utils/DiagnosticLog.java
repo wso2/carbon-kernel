@@ -18,13 +18,20 @@
 
 package org.wso2.carbon.utils;
 
+import org.slf4j.MDC;
+
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Diagnostic log.
  */
 public class DiagnosticLog {
+
+    public static final String CORRELATION_ID_MDC = "Correlation-ID";
+    public static final String FLOW_ID_MDC = "Flow-ID";
 
     private final String logId;
     private final Instant recordedAt;
@@ -36,7 +43,9 @@ public class DiagnosticLog {
     private final String componentId;
     private final Map<String, Object> input;
     private final Map<String, Object> configurations;
+    private final LogLevel logLevel;
 
+    @Deprecated
     public DiagnosticLog(String logId, Instant recordedAt, String requestId, String flowId,
                          String resultStatus, String resultMessage, String actionId, String componentId,
                          Map<String, Object> input, Map<String, Object> configurations) {
@@ -51,6 +60,22 @@ public class DiagnosticLog {
         this.componentId = componentId;
         this.input = input;
         this.configurations = configurations;
+        this.logLevel = LogLevel.BASIC;
+    }
+
+    private DiagnosticLog(DiagnosticLogBuilder builder) {
+
+        this.logId = builder.logId;
+        this.recordedAt = builder.recordedAt;
+        this.requestId = builder.requestId;
+        this.flowId = builder.flowId;
+        this.resultStatus = String.valueOf(builder.resultStatus);
+        this.resultMessage = builder.resultMessage;
+        this.actionId = builder.actionId;
+        this.componentId = builder.componentId;
+        this.input = builder.input;
+        this.configurations = builder.configurations;
+        this.logLevel = builder.logLevel;
     }
 
     public String getLogId() {
@@ -101,5 +126,242 @@ public class DiagnosticLog {
     public Map<String, Object> getConfigurations() {
 
         return configurations;
+    }
+
+    /**
+     * Get the log level of the diagnostic log.
+     *
+     * @return log level
+     */
+    public LogLevel getLogLevel() {
+
+        return logLevel;
+    }
+
+    /**
+     * Log levels of the diagnostic log.
+     */
+    public enum LogLevel {
+
+        BASIC, // This level is intended for App Developers (and Internal Developers).
+        ADVANCED // This level is intended only for Internal Developers.
+    }
+
+    /**
+     * Result status of the diagnostic log.
+     */
+    public enum ResultStatus {
+
+        SUCCESS, // Successful execution.
+        FAILED, // Failed execution.
+    }
+
+    /**
+     * Builder class for DiagnosticLog.
+     * This class follows the Builder design pattern, providing a way to construct a DiagnosticLog object step by step.
+     */
+    public static class DiagnosticLogBuilder {
+
+        private String logId;
+        private Instant recordedAt;
+        private String requestId;
+        private String flowId;
+        private ResultStatus resultStatus;
+        private String resultMessage;
+        private final String actionId;
+        private final String componentId;
+        private Map<String, Object> input;
+        private Map<String, Object> configurations;
+        private LogLevel logLevel;
+
+        public DiagnosticLogBuilder(String componentId, String actionId) {
+
+            this.componentId = componentId;
+            this.actionId = actionId;
+        }
+
+        /**
+         * Sets the log ID of the DiagnosticLog.
+         *
+         * @param logId the log ID to be set.
+         * @return the current DiagnosticLogBuilder instance.
+         */
+        public DiagnosticLogBuilder logId(String logId) {
+
+            this.logId = logId;
+            return this;
+        }
+
+        /**
+         * Sets the recordedAt timestamp of the DiagnosticLog.
+         *
+         * @param recordedAt the timestamp to be set.
+         * @return the current DiagnosticLogBuilder instance.
+         */
+        public DiagnosticLogBuilder recordedAt(Instant recordedAt) {
+
+            this.recordedAt = recordedAt;
+            return this;
+        }
+
+        /**
+         * Sets the request ID of the DiagnosticLog.
+         *
+         * @param requestId the request ID to be set.
+         * @return the current DiagnosticLogBuilder instance.
+         */
+        public DiagnosticLogBuilder requestId(String requestId) {
+
+            this.requestId = requestId;
+            return this;
+        }
+
+        /**
+         * Sets the flow ID of the DiagnosticLog.
+         *
+         * @param flowId the flow ID to be set.
+         * @return the current DiagnosticLogBuilder instance.
+         */
+        public DiagnosticLogBuilder flowId(String flowId) {
+
+            this.flowId = flowId;
+            return this;
+        }
+
+        /**
+         * Sets the result status of the DiagnosticLog.
+         *
+         * @param resultStatus the result message to be set.
+         * @return the current DiagnosticLogBuilder instance.
+         */
+        public DiagnosticLogBuilder resultStatus(ResultStatus resultStatus) {
+
+            this.resultStatus = resultStatus;
+            return this;
+        }
+
+        /**
+         * Sets the result message of the DiagnosticLog.
+         *
+         * @param resultMessage the action ID to be set.
+         * @return the current DiagnosticLogBuilder instance.
+         */
+        public DiagnosticLogBuilder resultMessage(String resultMessage) {
+
+            this.resultMessage = resultMessage;
+            return this;
+        }
+
+        /**
+         * Adds a new key-value pair to the input map of the DiagnosticLog.
+         * If the input map has not been initialized yet, this method will initialize it.
+         *
+         * @param key   the key to be added to the input map.
+         * @param value the value to be associated with the key in the input map.
+         * @return the current DiagnosticLogBuilder instance.
+         */
+        public DiagnosticLogBuilder putParams(String key, Object value) {
+
+            if (this.input == null) {
+                this.input = new HashMap<>();
+            }
+            this.input.put(key, value);
+            return this;
+        }
+
+        /**
+         * Adds a new key-value pair to the configurations map of the DiagnosticLog.
+         * If the configurations map has not been initialized yet, this method will initialize it.
+         *
+         * @param key   the key to be added to the configurations map.
+         * @param value the value to be associated with the key in the configurations map.
+         * @return the current DiagnosticLogBuilder instance.
+         */
+        public DiagnosticLogBuilder putConfigurations(String key, Object value) {
+
+            if (this.configurations == null) {
+                this.configurations = new HashMap<>();
+            }
+            this.configurations.put(key, value);
+            return this;
+        }
+
+        /**
+         * Adds all entries from the provided map to the input map of the DiagnosticLog.
+         * If the input map has not been initialized yet, this method will initialize it.
+         *
+         * @param input the map containing entries to be added to the input map.
+         * @return the current DiagnosticLogBuilder instance.
+         */
+        public DiagnosticLogBuilder addAllParams(Map<String, ?> input) {
+
+            if (this.input == null) {
+                this.input = new HashMap<>();
+            }
+            this.input.putAll(input);
+            return this;
+        }
+
+        /**
+         * Adds all entries from the provided map to the configurations map of the DiagnosticLog.
+         * If the configurations map has not been initialized yet, this method will initialize it.
+         *
+         * @param configurations the map containing entries to be added to the configurations map.
+         * @return the current DiagnosticLogBuilder instance.
+         */
+        public DiagnosticLogBuilder addAllConfigurations(Map<String, ?> configurations) {
+
+            if (this.configurations == null) {
+                this.configurations = new HashMap<>();
+            }
+            this.configurations.putAll(configurations);
+            return this;
+        }
+
+        /**
+         * Sets the log level of the DiagnosticLog.
+         *
+         * @param logLevel the log level to be set.
+         * @return the current DiagnosticLogBuilder instance.
+         */
+        public DiagnosticLogBuilder logLevel(LogLevel logLevel) {
+
+            this.logLevel = logLevel;
+            return this;
+        }
+
+        /**
+         * Constructs a DiagnosticLog object using the set parameters.
+         *
+         * @return a new DiagnosticLog object.
+         */
+        public DiagnosticLog build() {
+
+            if (componentId == null || actionId == null) {
+                throw new IllegalStateException("componentId and actionId must not be null.");
+            }
+            if (resultMessage == null && input == null) {
+                // There can be a DiagnosticLog without a result message, but there can be some inputs related to the
+                // action. In this case, input must be provided. But if there is a result message, input is not
+                // required. There shouldn't be a diagnostic log without a result message and input.
+                throw new IllegalStateException("Either resultMessage or input must be provided.");
+            }
+            if (this.logId == null) {
+                logId = UUID.randomUUID().toString();
+            }
+            if (this.recordedAt == null) {
+                recordedAt = Instant.now();
+            }
+            if (this.requestId == null) {
+                requestId = MDC.get(CORRELATION_ID_MDC);
+            }
+            if (this.flowId == null) {
+                flowId = MDC.get(FLOW_ID_MDC);
+            }
+            if (this.logLevel == null) {
+                logLevel = LogLevel.BASIC;
+            }
+            return new DiagnosticLog(this);
+        }
     }
 }
