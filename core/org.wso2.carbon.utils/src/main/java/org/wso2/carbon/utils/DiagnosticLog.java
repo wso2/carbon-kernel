@@ -154,8 +154,6 @@ public class DiagnosticLog {
 
         SUCCESS, // Successful execution.
         FAILED, // Failed execution.
-        PENDING, // Pending execution.
-        NONE // No result status.
     }
 
     /**
@@ -340,13 +338,13 @@ public class DiagnosticLog {
         public DiagnosticLog build() {
 
             if (componentId == null || actionId == null) {
-                throw new IllegalStateException("componentId and actionId must not be null");
+                throw new IllegalStateException("componentId and actionId must not be null.");
             }
             if (resultMessage == null && input == null) {
                 // There can be a DiagnosticLog without a result message, but there can be some inputs related to the
                 // action. In this case, input must be provided. But if there is a result message, input is not
                 // required. There shouldn't be a diagnostic log without a result message and input.
-                throw new IllegalStateException("Either resultMessage or input must be provided");
+                throw new IllegalStateException("Either resultMessage or input must be provided.");
             }
             if (this.logId == null) {
                 logId = UUID.randomUUID().toString();
@@ -362,9 +360,6 @@ public class DiagnosticLog {
             }
             if (this.logLevel == null) {
                 logLevel = LogLevel.BASIC;
-            }
-            if (this.resultStatus == null) {
-                resultStatus = ResultStatus.NONE;
             }
             return new DiagnosticLog(this);
         }
