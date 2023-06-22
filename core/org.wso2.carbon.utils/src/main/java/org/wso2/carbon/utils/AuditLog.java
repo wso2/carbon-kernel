@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.utils;
 
+import com.google.gson.JsonObject;
+
 import java.time.Instant;
 
 /**
@@ -25,49 +27,43 @@ import java.time.Instant;
  */
 public class AuditLog {
 
-    private String logId;
+    private String id;
     private Instant recordedAt;
-    private String clientComponent;
-    private String correlationId;
-    private String initiatorId;
-    private String initiatorName;
-    private String initiatorType;
-    private String eventType;
-    private String targetId;
-    private String targetName;
-    private String targetType;
-    private String dataChange;
+    private String requestId;
+    private String organization;
+    private JsonObject initiator;
+    private JsonObject target;
+    private String action;
 
-    public AuditLog(String logId, Instant recordedAt, String clientComponent, String correlationId,
-                    String initiatorId, String initiatorName, String initiatorType, String eventType,
-                    String targetId, String targetName, String targetType, String dataChange) {
+    private String resultStatus;
+    private JsonObject data;
 
-        this.logId = logId;
+    public AuditLog(String id, Instant recordedAt, String requestId, String organization, JsonObject initiator, JsonObject target,
+                    String action, JsonObject data, String resultStatus) {
+
+        this.id = id;
         this.recordedAt = recordedAt;
-        this.clientComponent = clientComponent;
-        this.correlationId = correlationId;
-        this.initiatorId = initiatorId;
-        this.initiatorName = initiatorName;
-        this.initiatorType = initiatorType;
-        this.eventType = eventType;
-        this.targetId = targetId;
-        this.targetName = targetName;
-        this.targetType = targetType;
-        this.dataChange = dataChange;
+        this.requestId = requestId;
+        this.organization = organization;
+        this.initiator = initiator;
+        this.target = target;
+        this.action = action;
+        this.resultStatus = resultStatus;
+        this.data = data;
     }
 
     public AuditLog() {
 
     }
 
-    public String getLogId() {
+    public String getId() {
 
-        return logId;
+        return id;
     }
 
-    public void setLogId(String logId) {
+    public void setId(String id) {
 
-        this.logId = logId;
+        this.id = id;
     }
 
     public Instant getRecordedAt() {
@@ -80,103 +76,43 @@ public class AuditLog {
         this.recordedAt = recordedAt;
     }
 
-    public String getClientComponent() {
+    public String getRequestId() {
 
-        return clientComponent;
+        return requestId;
     }
 
-    public void setClientComponent(String clientComponent) {
+    public void setRequestId(String requestId) {
 
-        this.clientComponent = clientComponent;
+        this.requestId = requestId;
     }
 
-    public String getCorrelationId() {
+    public JsonObject getInitiator() {
 
-        return correlationId;
+        return initiator;
     }
 
-    public void setCorrelationId(String correlationId) {
+    public void setInitiator(JsonObject initiator) {
 
-        this.correlationId = correlationId;
+        this.initiator = initiator;
     }
 
-    public String getInitiatorId() {
+    public String getAction() {
 
-        return initiatorId;
+        return action;
     }
 
-    public void setInitiatorId(String initiatorId) {
+    public void setAction(String action) {
 
-        this.initiatorId = initiatorId;
+        this.action = action;
     }
 
-    public String getInitiatorName() {
+    public JsonObject getData() {
 
-        return initiatorName;
+        return data;
     }
 
-    public void setInitiatorName(String initiatorName) {
+    public void setData(JsonObject data) {
 
-        this.initiatorName = initiatorName;
-    }
-
-    public String getInitiatorType() {
-
-        return initiatorType;
-    }
-
-    public void setInitiatorType(String initiatorType) {
-
-        this.initiatorType = initiatorType;
-    }
-
-    public String getEventType() {
-
-        return eventType;
-    }
-
-    public void setEventType(String eventType) {
-
-        this.eventType = eventType;
-    }
-
-    public String getTargetId() {
-
-        return targetId;
-    }
-
-    public void setTargetId(String targetId) {
-
-        this.targetId = targetId;
-    }
-
-    public String getTargetName() {
-
-        return targetName;
-    }
-
-    public void setTargetName(String targetName) {
-
-        this.targetName = targetName;
-    }
-
-    public String getTargetType() {
-
-        return targetType;
-    }
-
-    public void setTargetType(String targetType) {
-
-        this.targetType = targetType;
-    }
-
-    public String getDataChange() {
-
-        return dataChange;
-    }
-
-    public void setDataChange(String dataChange) {
-
-        this.dataChange = dataChange;
+        this.data = data;
     }
 }
