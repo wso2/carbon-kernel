@@ -293,7 +293,7 @@ public class DiagnosticLog {
          * @param input the map containing entries to be added to the input map.
          * @return the current DiagnosticLogBuilder instance.
          */
-        public DiagnosticLogBuilder addAllParams(Map<String, Object> input) {
+        public DiagnosticLogBuilder addAllParams(Map<String, ?> input) {
 
             if (this.input == null) {
                 this.input = new HashMap<>();
@@ -309,7 +309,7 @@ public class DiagnosticLog {
          * @param configurations the map containing entries to be added to the configurations map.
          * @return the current DiagnosticLogBuilder instance.
          */
-        public DiagnosticLogBuilder addAllConfigurations(Map<String, Object> configurations) {
+        public DiagnosticLogBuilder addAllConfigurations(Map<String, ?> configurations) {
 
             if (this.configurations == null) {
                 this.configurations = new HashMap<>();
