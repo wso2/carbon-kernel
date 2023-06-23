@@ -30,21 +30,18 @@ public class AuditLog {
     private String id;
     private Instant recordedAt;
     private String requestId;
-    private String organization;
     private JsonObject initiator;
     private JsonObject target;
     private String action;
-
     private String resultStatus;
     private JsonObject data;
 
-    public AuditLog(String id, Instant recordedAt, String requestId, String organization, JsonObject initiator, JsonObject target,
+    public AuditLog(String id, Instant recordedAt, String requestId, JsonObject initiator, JsonObject target,
                     String action, JsonObject data, String resultStatus) {
 
         this.id = id;
         this.recordedAt = recordedAt;
         this.requestId = requestId;
-        this.organization = organization;
         this.initiator = initiator;
         this.target = target;
         this.action = action;
@@ -94,6 +91,16 @@ public class AuditLog {
     public void setInitiator(JsonObject initiator) {
 
         this.initiator = initiator;
+    }
+
+    public JsonObject getTarget() {
+
+        return target;
+    }
+
+    public void setTarget(JsonObject initiator) {
+
+        this.target = target;
     }
 
     public String getAction() {
