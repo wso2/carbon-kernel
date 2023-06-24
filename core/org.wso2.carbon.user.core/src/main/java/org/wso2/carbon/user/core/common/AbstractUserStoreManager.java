@@ -12649,7 +12649,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             userName = getUserNameFromUserID(userID);
         }
 
-        if (StringUtils.isEmpty(userID) || StringUtils.isEmpty(userName)) {
+        if (StringUtils.isEmpty(userID) && StringUtils.isEmpty(userName)) {
             throw new UserStoreClientException("User not found in the cache or database");
         }
 
@@ -12727,9 +12727,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (isUniqueUserIdEnabledInUserStore(userStore)) {
                 userID = doGetUserIDFromUserNameWithID(userName);
                 if (StringUtils.isEmpty(userID)) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("User with username " + userName + " is not available in cache or database.");
-                    }
+                    log.debug("User is not available in cache or database.");
                     return null;
                 }
                 addToUserIDCache(userID, userName, userStore);
