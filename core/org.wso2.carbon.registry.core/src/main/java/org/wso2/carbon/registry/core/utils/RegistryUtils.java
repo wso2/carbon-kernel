@@ -1125,9 +1125,14 @@ public final class RegistryUtils {
                 if (targetSubPath != null) {
                     registerHandlerForRemoteLinks(systemRegistry.getRegistryContext(), path,
                             target, targetSubPath, author);
-                } else {
+                } else if (target != null) {
                     registerHandlerForSymbolicLinks(systemRegistry.getRegistryContext(),
                             path, target, author);
+                } else {
+                    if(log.isDebugEnabled()) {
+                        log.debug("Unable to add mount. The mount point " + mountPointString +
+                                " has no target or target sub path.");
+                    }
                 }
             } catch (RegistryException e) {
                 log.warn("Couldn't mount " + target + ".");
