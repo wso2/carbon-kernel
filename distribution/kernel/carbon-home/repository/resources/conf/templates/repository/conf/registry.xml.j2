@@ -27,13 +27,14 @@
     <enableCache>true</enableCache>
     <registryRoot>/</registryRoot>
 
-    {% if registry.local_carbon_db_enabled is sameas true %}
-        <dataSource>jdbc/WSO2CarbonDB</dataSource>
-    {% else %}
+    <dbConfig name="wso2registry">
+    {% if registry.carbon_db_disabled is sameas true %}
         <dataSource>jdbc/SHARED_DB</dataSource>
+    {% else %}
+        <dataSource>jdbc/WSO2CarbonDB</dataSource>
     {% endif %}
     </dbConfig>
-    {% if registry.mount_enabled is sameas true %}
+    {% if registry.mount_enabled is not defined or registry.mount_enabled is sameas true %}
     <dbConfig name="govregistry">
         <dataSource>jdbc/SHARED_DB</dataSource>
     </dbConfig>

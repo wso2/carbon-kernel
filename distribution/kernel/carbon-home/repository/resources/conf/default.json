@@ -220,7 +220,5 @@
   "sts.callback_handler" : "org.wso2.carbon.identity.sts.common.identity.provider.AttributeCallbackHandler",
   "tenant_mgt.enable_tenant_theme_mgt" : true,
   "jce_provider.provider_name" : "BC",
-  "signature_util.enable_sha256_algo" : true,
-  "registry.mount_enabled": true,
-  "registry.local_carbon_db_enabled": true
+  "signature_util.enable_sha256_algo" : true
 }
