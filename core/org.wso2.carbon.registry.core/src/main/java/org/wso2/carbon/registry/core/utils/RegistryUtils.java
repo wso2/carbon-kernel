@@ -1129,10 +1129,8 @@ public final class RegistryUtils {
                     registerHandlerForSymbolicLinks(systemRegistry.getRegistryContext(),
                             path, target, author);
                 } else {
-                    if(log.isDebugEnabled()) {
-                        log.debug("Unable to add mount. The mount point " + mountPointString +
-                                " has no target or target sub path.");
-                    }
+                    log.warn("Unable to add mount. The mount point " + mountPointString + " has no target or " +
+                            "target sub path.");
                 }
             } catch (RegistryException e) {
                 log.warn("Couldn't mount " + target + ".");
