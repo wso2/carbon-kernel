@@ -28,13 +28,13 @@
     <registryRoot>/</registryRoot>
 
     <dbConfig name="wso2registry">
-    {% if registry.carbon_db_disabled is sameas true %}
+    {% if registry.use_shared_db_as_datasource is sameas true %}
         <dataSource>jdbc/SHARED_DB</dataSource>
     {% else %}
         <dataSource>jdbc/WSO2CarbonDB</dataSource>
     {% endif %}
     </dbConfig>
-    {% if registry.mount_enabled is not defined or registry.mount_enabled is sameas true %}
+    {% if registry.enable_mount is not defined or registry.enable_mount is sameas true %}
     <dbConfig name="govregistry">
         <dataSource>jdbc/SHARED_DB</dataSource>
     </dbConfig>
