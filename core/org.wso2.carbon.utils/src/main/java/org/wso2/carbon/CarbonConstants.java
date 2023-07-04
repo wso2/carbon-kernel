@@ -466,6 +466,8 @@ public final class CarbonConstants {
         // keys for data change details in audit logs.
         public static final String DATA_CHANGE = "data.change";
 
+        public static final String CORRELATION_ID_MDC = "Correlation-ID";
+
         public enum EventCatalog {
 
             CREATE_APPLICATION("CREATE APPLICATION", "Create Application"),
