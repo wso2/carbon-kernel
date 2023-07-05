@@ -28,8 +28,13 @@
     <registryRoot>/</registryRoot>
 
     <dbConfig name="wso2registry">
+    {% if registry.use_shared_db_as_datasource is sameas true %}
+        <dataSource>jdbc/SHARED_DB</dataSource>
+    {% else %}
         <dataSource>jdbc/WSO2CarbonDB</dataSource>
+    {% endif %}
     </dbConfig>
+    {% if registry.enable_mount is not defined or registry.enable_mount is sameas true %}
     <dbConfig name="govregistry">
         <dataSource>jdbc/SHARED_DB</dataSource>
     </dbConfig>
@@ -67,6 +72,7 @@
         <instanceId>conf</instanceId>
         <targetPath>{{config_data.path}}</targetPath>
     </mount>
+    {% endif %}
    <!--<handler class="org.wso2.carbon.registry.extensions.handlers.SynapseRepositoryHandler">
         <filter class="org.wso2.carbon.registry.core.jdbc.handlers.filters.MediaTypeMatcher">
             <property name="mediaType">application/vnd.apache.synapse</property>
