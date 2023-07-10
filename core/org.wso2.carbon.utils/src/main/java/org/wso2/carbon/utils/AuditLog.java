@@ -18,10 +18,11 @@
 
 package org.wso2.carbon.utils;
 
-import com.google.gson.JsonObject;
 import org.slf4j.MDC;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.wso2.carbon.CarbonConstants.LogEventConstants.CORRELATION_ID_MDC;
@@ -32,20 +33,26 @@ import static org.wso2.carbon.CarbonConstants.LogEventConstants.CORRELATION_ID_M
 public class AuditLog {
 
     private final String id;
-    private final Instant recordedAt;
+    private final String recordedAt;
     private final String requestId;
-    private final JsonObject initiator;
-    private final JsonObject target;
+    private final String initiatorId;
+    private final String targetId;
+
+    private final String initiatorType;
+
+    private final String targetType;
     private final String action;
-    private final JsonObject data;
+    private final Map<String, Object> data;
 
     private AuditLog(AuditLogBuilder auditLogBuilder) {
 
         this.id = auditLogBuilder.id;
         this.recordedAt = auditLogBuilder.recordedAt;
         this.requestId = auditLogBuilder.requestId;
-        this.initiator = auditLogBuilder.initiator;
-        this.target = auditLogBuilder.target;
+        this.initiatorId = auditLogBuilder.initiatorId;
+        this.initiatorType = auditLogBuilder.initiatorType;
+        this.targetId = auditLogBuilder.targetId;
+        this.targetType = auditLogBuilder.targetType;
         this.action = auditLogBuilder.action;
         this.data = auditLogBuilder.data;
     }
@@ -55,7 +62,7 @@ public class AuditLog {
         return id;
     }
 
-    public Instant getRecordedAt() {
+    public String getRecordedAt() {
 
         return recordedAt;
     }
@@ -65,14 +72,25 @@ public class AuditLog {
         return requestId;
     }
 
-    public JsonObject getInitiator() {
+    public String getInitiatorId() {
 
-        return initiator;
+        return initiatorId;
     }
 
-    public JsonObject getTarget() {
 
-        return target;
+    public String getInitiatorType() {
+
+        return initiatorType;
+    }
+
+    public String getTargetId() {
+
+        return targetId;
+    }
+
+    public String getTargetType() {
+
+        return targetType;
     }
 
     public String getAction() {
@@ -80,7 +98,7 @@ public class AuditLog {
         return action;
     }
 
-    public JsonObject getData() {
+    public Map<String, Object> getData() {
 
         return data;
     }
@@ -92,23 +110,43 @@ public class AuditLog {
     public static class AuditLogBuilder {
 
         private String id;
-        private Instant recordedAt;
+        private String recordedAt;
         private String requestId;
-        private final JsonObject initiator;
-        private final JsonObject target;
+        private final String initiatorId;
+        private final String targetId;
+
+        private final String initiatorType;
+        private final String targetType;
         private final String action;
-        private JsonObject data;
+        private Map<String, Object> data;
 
-        public AuditLogBuilder(JsonObject initiator, JsonObject target, String action) {
+        public AuditLogBuilder(String initiatorId, String initiatorType, String targetId, String targetType, String action) {
 
-            this.initiator = initiator;
-            this.target = target;
+            this.initiatorId = initiatorId;
+            this.targetId = targetId;
+            this.initiatorType = initiatorType;
+            this.targetType = targetType;
             this.action = action;
         }
 
-        public AuditLogBuilder data(JsonObject data) {
+        public AuditLog.AuditLogBuilder putData(String key, Object value) {
 
-            this.data = data;
+            if (this.data == null) {
+                this.data = new HashMap<>();
+            } else {
+                this.data.put(key, value);
+            }
+            return this;
+        }
+
+        public AuditLog.AuditLogBuilder addAllData(Map<String, ?> data) {
+
+            if (this.data == null) {
+                this.data = new HashMap<>();
+            } else {
+                this.data.putAll(data);
+            }
+
             return this;
         }
 
@@ -119,7 +157,7 @@ public class AuditLog {
          */
         public AuditLog build() {
 
-            if (action == null || initiator == null || target == null) {
+            if (action == null || initiatorId == null || targetId == null) {
                 throw new IllegalStateException("action, initiator and target must not be null.");
             }
 
@@ -127,7 +165,7 @@ public class AuditLog {
                 id = UUID.randomUUID().toString();
             }
             if (this.recordedAt == null) {
-                recordedAt = Instant.now();
+                recordedAt = Instant.now().toString();
             }
             if (this.requestId == null) {
                 requestId = (String) MDC.get(CORRELATION_ID_MDC);
