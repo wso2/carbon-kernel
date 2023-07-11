@@ -46,6 +46,10 @@ public class DiagnosticLog {
     private final LogDetailLevel logDetailLevel;
 
     @Deprecated
+    /*
+     * This constructor is deprecated and will be removed in a future release.
+     * Please use the DiagnosticLogBuilder class to create the log.
+     */
     public DiagnosticLog(String logId, Instant recordedAt, String requestId, String flowId,
                          String resultStatus, String resultMessage, String actionId, String componentId,
                          Map<String, Object> input, Map<String, Object> configurations) {
@@ -60,7 +64,8 @@ public class DiagnosticLog {
         this.componentId = componentId;
         this.input = input;
         this.configurations = configurations;
-        // Making all of current logs as implementation details.
+        // By default, the log detail level for all logs created using this constructor will be set to INTERNAL_SYSTEM.
+        // If a different log detail level is required, please use the builder class to create the log.
         this.logDetailLevel = LogDetailLevel.INTERNAL_SYSTEM;
     }
 
@@ -79,74 +84,65 @@ public class DiagnosticLog {
         this.logDetailLevel = builder.logDetailLevel;
     }
 
-    @Deprecated
-    // This method is deprecated and will be removed in a future release.
     public String getLogId() {
 
         return logId;
     }
 
-    @Deprecated
-    // This method is deprecated and will be removed in a future release.
     public Instant getRecordedAt() {
 
         return recordedAt;
     }
 
-    @Deprecated
-    // This method is deprecated and will be removed in a future release.
     public String getRequestId() {
 
         return requestId;
     }
 
-    @Deprecated
-    // This method is deprecated and will be removed in a future release.
     public String getFlowId() {
 
         return flowId;
     }
 
-    @Deprecated
-    // This method is deprecated and will be removed in a future release.
     public String getResultStatus() {
 
         return resultStatus;
     }
 
-    @Deprecated
-    // This method is deprecated and will be removed in a future release.
     public String getResultMessage() {
 
         return resultMessage;
     }
 
-    @Deprecated
-    // This method is deprecated and will be removed in a future release.
     public String getActionId() {
 
         return actionId;
     }
 
-    @Deprecated
-    // This method is deprecated and will be removed in a future release.
     public String getComponentId() {
 
         return componentId;
     }
 
-    @Deprecated
-    // This method is deprecated and will be removed in a future release.
     public Map<String, Object> getInput() {
 
         return input;
     }
 
-    @Deprecated
-    // This method is deprecated and will be removed in a future release.
     public Map<String, Object> getConfigurations() {
 
         return configurations;
+    }
+
+    /**
+     * Returns the log detail level of the diagnostic log.
+     * This is used to categorize and filter the diagnostic logs.
+     *
+     * @return the log detail level of the diagnostic log.
+     */
+    public LogDetailLevel getLogDetailLevel() {
+
+        return logDetailLevel;
     }
 
 
@@ -310,18 +306,10 @@ public class DiagnosticLog {
                 // required. There shouldn't be a diagnostic log without a result message and input.
                 throw new IllegalStateException("Either resultMessage or input must be provided.");
             }
-            if (this.logId == null) {
-                logId = UUID.randomUUID().toString();
-            }
-            if (this.recordedAt == null) {
-                recordedAt = Instant.now();
-            }
-            if (this.requestId == null) {
-                requestId = MDC.get(CORRELATION_ID_MDC);
-            }
-            if (this.flowId == null) {
-                flowId = MDC.get(FLOW_ID_MDC);
-            }
+            logId = UUID.randomUUID().toString();
+            recordedAt = Instant.now();
+            requestId = MDC.get(CORRELATION_ID_MDC);
+            flowId = MDC.get(FLOW_ID_MDC);
             if (this.logDetailLevel == null) {
                 logDetailLevel = LogDetailLevel.INTERNAL_SYSTEM;
             }
