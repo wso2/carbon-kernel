@@ -152,7 +152,7 @@ public class CryptoUtil {
      * Encrypt a given plain text with custom secret key.
      * @param plainTextBytes                The plaintext bytes to be encrypted.
      * @param cipherTransformation          The transformation that need to encrypt.
-     * @param returnSelfContainedCipherText  Create self-contained cipher text if true, return simple encrypted
+     * @param returnSelfContainedCipherText  Create self-contained cipher text if true, return simple encrypted.
      * @param secretKey         The secret key to be used for encryption.
      * @return The cipher text bytes.
      * @throws CryptoException  On error during encryption.
@@ -319,11 +319,11 @@ public class CryptoUtil {
     }
 
     /**
-     * Decrypt the given cipher text value using the custom key
+     * Decrypt the given cipher text value using the custom key.
      *
-     * @param cipherTextBytes The cipher text to be decrypted
-     * @return Decrypted bytes
-     * @throws CryptoException On an error during decryption
+     * @param cipherTextBytes The cipher text to be decrypted.
+     * @return Decrypted bytes.
+     * @throws CryptoException On an error during decryption.
      */
     public byte[] decryptWithCustomKey(byte[] cipherTextBytes, String secretKey) throws CryptoException {
 
@@ -546,7 +546,15 @@ public class CryptoUtil {
         return decrypt(Base64.decode(base64CipherText));
     }
 
-    public byte[] customBase64DecodeAndDecrypt(String base64CipherText, String secretKey) throws
+    /**
+     * Base64 decode the given value and decrypt using the custom param.
+     *
+     * @param base64CipherText  Base64 encoded cipher text.
+     * @param secretKey         Secret key.
+     * @return Base64 decoded, decrypted bytes.
+     * @throws CryptoException On an error during decryption.
+     */
+    public byte[] base64DecodeAndDecryptWithCustomKey(String base64CipherText, String secretKey) throws
             CryptoException {
 
         return decryptWithCustomKey(Base64.decode(base64CipherText), secretKey);
