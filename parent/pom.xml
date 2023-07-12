@@ -538,7 +538,7 @@
         <version.xml-resolver>1.2</version.xml-resolver>
         <version.XmlSchema>1.4.7.wso2v6</version.XmlSchema>
         <orbit.version.xmlschema>1.4.7.wso2v6</orbit.version.xmlschema>
-        <version.commons.codec>1.14.0.wso2v1</version.commons.codec>
+        <version.commons.codec>1.16.0.wso2v1</version.commons.codec>
         <version.annogen>0.1.0.wso2v1</version.annogen>
         <version.backport.util.concurrent>3.1.0.wso2v1</version.backport.util.concurrent>
         <version.commons.fileupload>1.5.0.wso2v2</version.commons.fileupload>
