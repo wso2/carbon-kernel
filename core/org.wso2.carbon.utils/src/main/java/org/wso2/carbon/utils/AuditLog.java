@@ -36,10 +36,8 @@ public class AuditLog {
     private final String recordedAt;
     private final String requestId;
     private final String initiatorId;
-    private final String targetId;
-
     private final String initiatorType;
-
+    private final String targetId;
     private final String targetType;
     private final String action;
     private final Map<String, Object> data;
@@ -77,7 +75,6 @@ public class AuditLog {
         return initiatorId;
     }
 
-
     public String getInitiatorType() {
 
         return initiatorType;
@@ -114,7 +111,6 @@ public class AuditLog {
         private String requestId;
         private final String initiatorId;
         private final String targetId;
-
         private final String initiatorType;
         private final String targetType;
         private final String action;
@@ -133,7 +129,9 @@ public class AuditLog {
 
             if (this.data == null) {
                 this.data = new HashMap<>();
-            } else {
+            }
+
+            if (value != null) {
                 this.data.put(key, value);
             }
             return this;
@@ -143,10 +141,10 @@ public class AuditLog {
 
             if (this.data == null) {
                 this.data = new HashMap<>();
-            } else {
+            }
+            if (data != null) {
                 this.data.putAll(data);
             }
-
             return this;
         }
 
@@ -160,7 +158,6 @@ public class AuditLog {
             if (action == null || initiatorId == null || targetId == null) {
                 throw new IllegalStateException("action, initiator and target must not be null.");
             }
-
             if (this.id == null) {
                 id = UUID.randomUUID().toString();
             }
@@ -168,14 +165,9 @@ public class AuditLog {
                 recordedAt = Instant.now().toString();
             }
             if (this.requestId == null) {
-                requestId = (String) MDC.get(CORRELATION_ID_MDC);
+                requestId = MDC.get(CORRELATION_ID_MDC);
             }
-
             return new AuditLog(this);
         }
     }
 }
-
-
-
-
