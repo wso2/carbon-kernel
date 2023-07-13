@@ -175,15 +175,15 @@ public class CryptoUtil {
             }
 
             String algorithm = null;
-            if (!StringUtils.isBlank(System.getProperty(cipherTransformation))) {
-                algorithm = System.getProperty(cipherTransformation);
+            if (!StringUtils.isBlank(cipherTransformation)) {
+                algorithm = cipherTransformation;
                 if (log.isDebugEnabled()) {
                     log.debug(String.format("Cipher transformation is enabled. Crypto algorithm: '%s'", algorithm));
                 }
             }
             // Pass custom secret key.
             encryptedKey = cryptoService
-                    .encrypt(plainTextBytes, algorithm, getJCEProvider(), returnSelfContainedCipherText, secretKey);
+                    .customEncrypt(plainTextBytes, algorithm, getJCEProvider(), returnSelfContainedCipherText, secretKey);
         } catch (Exception e) {
             throw new CryptoException("An error occurred while encrypting data.", e);
         }
