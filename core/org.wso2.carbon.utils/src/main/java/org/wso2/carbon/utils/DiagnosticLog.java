@@ -43,9 +43,13 @@ public class DiagnosticLog {
     private final String componentId;
     private final Map<String, Object> input;
     private final Map<String, Object> configurations;
-    private final LogLevel logLevel;
+    private final LogDetailLevel logDetailLevel;
 
     @Deprecated
+    /*
+     * This constructor is deprecated and will be removed in a future release.
+     * Please use the DiagnosticLogBuilder class to create the log.
+     */
     public DiagnosticLog(String logId, Instant recordedAt, String requestId, String flowId,
                          String resultStatus, String resultMessage, String actionId, String componentId,
                          Map<String, Object> input, Map<String, Object> configurations) {
@@ -60,7 +64,9 @@ public class DiagnosticLog {
         this.componentId = componentId;
         this.input = input;
         this.configurations = configurations;
-        this.logLevel = LogLevel.BASIC;
+        // By default, the log detail level for all logs created using this constructor will be set to INTERNAL_SYSTEM.
+        // If a different log detail level is required, please use the builder class to create the log.
+        this.logDetailLevel = LogDetailLevel.INTERNAL_SYSTEM;
     }
 
     private DiagnosticLog(DiagnosticLogBuilder builder) {
@@ -75,7 +81,7 @@ public class DiagnosticLog {
         this.componentId = builder.componentId;
         this.input = builder.input;
         this.configurations = builder.configurations;
-        this.logLevel = builder.logLevel;
+        this.logDetailLevel = builder.logDetailLevel;
     }
 
     public String getLogId() {
@@ -129,22 +135,24 @@ public class DiagnosticLog {
     }
 
     /**
-     * Get the log level of the diagnostic log.
+     * Returns the log detail level of the diagnostic log.
+     * This is used to categorize and filter the diagnostic logs.
      *
-     * @return log level
+     * @return the log detail level of the diagnostic log.
      */
-    public LogLevel getLogLevel() {
+    public LogDetailLevel getLogDetailLevel() {
 
-        return logLevel;
+        return logDetailLevel;
     }
 
-    /**
-     * Log levels of the diagnostic log.
-     */
-    public enum LogLevel {
 
-        BASIC, // This level is intended for App Developers (and Internal Developers).
-        ADVANCED // This level is intended only for Internal Developers.
+    /**
+     * Log detail levels of the diagnostic log. This is used to categorize and filter the diagnostic logs.
+     */
+    public enum LogDetailLevel {
+
+        APPLICATION, // Represents common application logs.
+        INTERNAL_SYSTEM, // Represents internal implementation details.
     }
 
     /**
@@ -172,60 +180,12 @@ public class DiagnosticLog {
         private final String componentId;
         private Map<String, Object> input;
         private Map<String, Object> configurations;
-        private LogLevel logLevel;
+        private LogDetailLevel logDetailLevel;
 
         public DiagnosticLogBuilder(String componentId, String actionId) {
 
             this.componentId = componentId;
             this.actionId = actionId;
-        }
-
-        /**
-         * Sets the log ID of the DiagnosticLog.
-         *
-         * @param logId the log ID to be set.
-         * @return the current DiagnosticLogBuilder instance.
-         */
-        public DiagnosticLogBuilder logId(String logId) {
-
-            this.logId = logId;
-            return this;
-        }
-
-        /**
-         * Sets the recordedAt timestamp of the DiagnosticLog.
-         *
-         * @param recordedAt the timestamp to be set.
-         * @return the current DiagnosticLogBuilder instance.
-         */
-        public DiagnosticLogBuilder recordedAt(Instant recordedAt) {
-
-            this.recordedAt = recordedAt;
-            return this;
-        }
-
-        /**
-         * Sets the request ID of the DiagnosticLog.
-         *
-         * @param requestId the request ID to be set.
-         * @return the current DiagnosticLogBuilder instance.
-         */
-        public DiagnosticLogBuilder requestId(String requestId) {
-
-            this.requestId = requestId;
-            return this;
-        }
-
-        /**
-         * Sets the flow ID of the DiagnosticLog.
-         *
-         * @param flowId the flow ID to be set.
-         * @return the current DiagnosticLogBuilder instance.
-         */
-        public DiagnosticLogBuilder flowId(String flowId) {
-
-            this.flowId = flowId;
-            return this;
         }
 
         /**
@@ -260,7 +220,7 @@ public class DiagnosticLog {
          * @param value the value to be associated with the key in the input map.
          * @return the current DiagnosticLogBuilder instance.
          */
-        public DiagnosticLogBuilder putParams(String key, Object value) {
+        public DiagnosticLogBuilder inputParam(String key, Object value) {
 
             if (this.input == null) {
                 this.input = new HashMap<>();
@@ -277,7 +237,7 @@ public class DiagnosticLog {
          * @param value the value to be associated with the key in the configurations map.
          * @return the current DiagnosticLogBuilder instance.
          */
-        public DiagnosticLogBuilder putConfigurations(String key, Object value) {
+        public DiagnosticLogBuilder configParam(String key, Object value) {
 
             if (this.configurations == null) {
                 this.configurations = new HashMap<>();
@@ -293,7 +253,7 @@ public class DiagnosticLog {
          * @param input the map containing entries to be added to the input map.
          * @return the current DiagnosticLogBuilder instance.
          */
-        public DiagnosticLogBuilder addAllParams(Map<String, ?> input) {
+        public DiagnosticLogBuilder inputParams(Map<String, ?> input) {
 
             if (this.input == null) {
                 this.input = new HashMap<>();
@@ -309,7 +269,7 @@ public class DiagnosticLog {
          * @param configurations the map containing entries to be added to the configurations map.
          * @return the current DiagnosticLogBuilder instance.
          */
-        public DiagnosticLogBuilder addAllConfigurations(Map<String, ?> configurations) {
+        public DiagnosticLogBuilder configParams(Map<String, ?> configurations) {
 
             if (this.configurations == null) {
                 this.configurations = new HashMap<>();
@@ -319,14 +279,14 @@ public class DiagnosticLog {
         }
 
         /**
-         * Sets the log level of the DiagnosticLog.
+         * Sets the log detail level of the DiagnosticLog.
          *
-         * @param logLevel the log level to be set.
+         * @param logDetailLevel the log detail level to be set.
          * @return the current DiagnosticLogBuilder instance.
          */
-        public DiagnosticLogBuilder logLevel(LogLevel logLevel) {
+        public DiagnosticLogBuilder logDetailLevel(LogDetailLevel logDetailLevel) {
 
-            this.logLevel = logLevel;
+            this.logDetailLevel = logDetailLevel;
             return this;
         }
 
@@ -346,20 +306,12 @@ public class DiagnosticLog {
                 // required. There shouldn't be a diagnostic log without a result message and input.
                 throw new IllegalStateException("Either resultMessage or input must be provided.");
             }
-            if (this.logId == null) {
-                logId = UUID.randomUUID().toString();
-            }
-            if (this.recordedAt == null) {
-                recordedAt = Instant.now();
-            }
-            if (this.requestId == null) {
-                requestId = MDC.get(CORRELATION_ID_MDC);
-            }
-            if (this.flowId == null) {
-                flowId = MDC.get(FLOW_ID_MDC);
-            }
-            if (this.logLevel == null) {
-                logLevel = LogLevel.BASIC;
+            logId = UUID.randomUUID().toString();
+            recordedAt = Instant.now();
+            requestId = MDC.get(CORRELATION_ID_MDC);
+            flowId = MDC.get(FLOW_ID_MDC);
+            if (this.logDetailLevel == null) {
+                logDetailLevel = LogDetailLevel.INTERNAL_SYSTEM;
             }
             return new DiagnosticLog(this);
         }
