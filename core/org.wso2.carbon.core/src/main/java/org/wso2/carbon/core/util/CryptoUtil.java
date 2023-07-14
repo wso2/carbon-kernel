@@ -303,6 +303,7 @@ public class CryptoUtil {
      * Decrypt the given cipher text value using the custom key.
      *
      * @param cipherTextBytes The cipher text to be decrypted.
+     * @param secretKey       The secret key to be used for decryption.
      * @return Decrypted bytes.
      * @throws CryptoException On an error during decryption.
      */
