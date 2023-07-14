@@ -10,6 +10,7 @@ public class HTTPClientUtils {
 
     public static final String DEFAULT_AND_LOCALHOST = "DefaultAndLocalhost";
     public static final String HOST_NAME_VERIFIER = "httpclient.hostnameVerifier";
+
     private HTTPClientUtils() {
         //disable external instantiation
     }
