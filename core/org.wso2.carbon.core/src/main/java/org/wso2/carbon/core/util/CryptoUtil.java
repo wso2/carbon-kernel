@@ -368,7 +368,7 @@ public class CryptoUtil {
      */
     public byte[] decrypt(byte[] cipherTextBytes) throws CryptoException {
 
-        return decrypt(cipherTextBytes, null);
+        return decryptWithCustomKey(cipherTextBytes, null);
     }
 
     /**
