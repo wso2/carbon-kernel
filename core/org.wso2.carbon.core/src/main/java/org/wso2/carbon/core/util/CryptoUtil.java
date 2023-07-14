@@ -120,32 +120,7 @@ public class CryptoUtil {
     public byte[] encrypt(byte[] plainTextBytes, String cipherTransformation, boolean returnSelfContainedCipherText)
             throws CryptoException {
 
-        if (plainTextBytes == null) {
-            throw new CryptoException("Plaintext can't be null.");
-        }
-
-        byte[] encryptedKey;
-        try {
-
-            CryptoService cryptoService = CarbonCoreDataHolder.getInstance().getCryptoService();
-
-            if(cryptoService == null){
-                throw new CryptoException("A crypto service implementation has not been registered.");
-            }
-
-            String algorithm = null;
-            if (!StringUtils.isBlank(cipherTransformation)) {
-                algorithm = cipherTransformation;
-                if (log.isDebugEnabled()) {
-                    log.debug(String.format("Cipher transformation is enabled. Crypto algorithm: '%s'", algorithm));
-                }
-            }
-            encryptedKey = cryptoService
-                    .encrypt(plainTextBytes, algorithm, getJCEProvider(), returnSelfContainedCipherText);
-        } catch (Exception e) {
-            throw new CryptoException("An error occurred while encrypting data.", e);
-        }
-        return encryptedKey;
+        return encrypt(plainTextBytes, cipherTransformation, null, returnSelfContainedCipherText);
     }
 
     /**
@@ -182,9 +157,14 @@ public class CryptoUtil {
                     log.debug(String.format("Cipher transformation is enabled. Crypto algorithm: '%s'", algorithm));
                 }
             }
-            // Pass custom secret key.
-            encryptedKey = cryptoService
-                    .customEncrypt(plainTextBytes, algorithm, getJCEProvider(), returnSelfContainedCipherText, secretKey);
+            if (secretKey != null && !secretKey.isEmpty()) {
+                encryptedKey = cryptoService
+                        .customEncrypt(plainTextBytes, algorithm, getJCEProvider(), returnSelfContainedCipherText, secretKey);
+            } else {
+                encryptedKey = cryptoService
+                        .encrypt(plainTextBytes, algorithm, getJCEProvider(), returnSelfContainedCipherText);
+            }
+
         } catch (Exception e) {
             throw new CryptoException("An error occurred while encrypting data.", e);
         }
@@ -366,8 +346,10 @@ public class CryptoUtil {
                 if (log.isDebugEnabled()) {
                     log.debug("Ciphertext is empty. An empty array will be used as the plaintext bytes.");
                 }
-            } else {
+            } else if (secretKey != null && !secretKey.isEmpty()) {
                 decryptedValue = cryptoService.customDecrypt(cipherTextBytes, algorithm, getJCEProvider(), secretKey);
+            } else {
+                decryptedValue = cryptoService.decrypt(cipherTextBytes, algorithm, getJCEProvider());
             }
 
             return decryptedValue;
@@ -386,53 +368,7 @@ public class CryptoUtil {
      */
     public byte[] decrypt(byte[] cipherTextBytes) throws CryptoException {
 
-
-        if (cipherTextBytes == null) {
-            throw new CryptoException("Ciphertext can't be null.");
-        }
-
-        byte[] decryptedValue;
-
-        try {
-            CryptoService cryptoService = CarbonCoreDataHolder.getInstance().getCryptoService();
-
-            if(cryptoService == null){
-                throw new CryptoException("A crypto service implementation has not been registered.");
-            }
-
-            String algorithm = null;
-
-            String cipherTransformation = System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY);
-
-            if (cipherTransformation != null) {
-                CipherMetaDataHolder
-                        cipherMetaDataHolder = cipherTextToCipherMetaDataHolder(cipherTextBytes);
-                if (cipherMetaDataHolder != null) {
-                    //cipher with meta data
-                    if (log.isDebugEnabled()) {
-                        log.debug("Cipher transformation for decryption : " + cipherMetaDataHolder.getTransformation());
-                    }
-                    algorithm = cipherMetaDataHolder.getTransformation();
-                    cipherTextBytes = cipherMetaDataHolder.getCipherBase64Decoded();
-                } else {
-                    algorithm = cipherTransformation;
-                }
-            }
-
-            if (cipherTextBytes.length == 0) {
-                decryptedValue = StringUtils.EMPTY.getBytes();
-                if (log.isDebugEnabled()) {
-                    log.debug("Ciphertext is empty. An empty array will be used as the plaintext bytes.");
-                }
-            } else {
-                decryptedValue = cryptoService.decrypt(cipherTextBytes, algorithm, getJCEProvider());
-            }
-
-            return decryptedValue;
-
-        } catch (Exception e) {
-            throw new CryptoException("An error occurred while decrypting data.", e);
-        }
+        return decrypt(cipherTextBytes, null);
     }
 
     /**
