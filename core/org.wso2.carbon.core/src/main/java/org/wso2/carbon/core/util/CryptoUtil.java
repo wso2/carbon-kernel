@@ -157,7 +157,7 @@ public class CryptoUtil {
                     log.debug(String.format("Cipher transformation is enabled. Crypto algorithm: '%s'", algorithm));
                 }
             }
-            if (secretKey != null && !secretKey.isEmpty()) {
+            if (StringUtils.isNotBlank(secretKey)) {
                 encryptedKey = cryptoService
                         .customEncrypt(plainTextBytes, algorithm, getJCEProvider(), returnSelfContainedCipherText, secretKey);
             } else {
@@ -346,7 +346,7 @@ public class CryptoUtil {
                 if (log.isDebugEnabled()) {
                     log.debug("Ciphertext is empty. An empty array will be used as the plaintext bytes.");
                 }
-            } else if (secretKey != null && !secretKey.isEmpty()) {
+            } else if (StringUtils.isNotBlank(secretKey)) {
                 decryptedValue = cryptoService.customDecrypt(cipherTextBytes, algorithm, getJCEProvider(), secretKey);
             } else {
                 decryptedValue = cryptoService.decrypt(cipherTextBytes, algorithm, getJCEProvider());
