@@ -150,6 +150,7 @@ public class CryptoUtil {
 
     /**
      * Encrypt a given plain text with custom secret key.
+     *
      * @param plainTextBytes                The plaintext bytes to be encrypted.
      * @param cipherTransformation          The transformation that need to encrypt.
      * @param returnSelfContainedCipherText  Create self-contained cipher text if true, return simple encrypted.
@@ -157,8 +158,8 @@ public class CryptoUtil {
      * @return The cipher text bytes.
      * @throws CryptoException  On error during encryption.
      */
-    public byte[] encryptWithCustomKey(byte[] plainTextBytes, String cipherTransformation,
-                                       boolean returnSelfContainedCipherText,  String secretKey)
+    public byte[] encrypt(byte[] plainTextBytes, String cipherTransformation, String secretKey,
+                                       boolean returnSelfContainedCipherText)
             throws CryptoException {
 
         if (plainTextBytes == null) {
@@ -293,11 +294,11 @@ public class CryptoUtil {
      * @return The base64 encoded cipher text
      * @throws CryptoException On error during encryption
      */
-    public String encryptWithCustomKeyAndBase64Encode(byte[] plainText, String secretKey) throws
+    public String encryptAndBase64Encode(byte[] plainText, String secretKey) throws
             CryptoException {
 
-        return Base64.encode(encryptWithCustomKey(plainText, System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY),
-                true, secretKey));
+        return Base64.encode(encrypt(plainText, System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY), secretKey,
+                true));
     }
 
     /**
