@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.utils;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.MDC;
 
 import java.time.Instant;
@@ -125,26 +126,27 @@ public class AuditLog {
             this.action = action;
         }
 
-        public AuditLog.AuditLogBuilder putData(String key, Object value) {
+        public AuditLog.AuditLogBuilder data(String key, Object value) {
 
+            if (value == null) {
+                return this;
+            }
             if (this.data == null) {
                 this.data = new HashMap<>();
             }
-
-            if (value != null) {
-                this.data.put(key, value);
-            }
+            this.data.put(key, value);
             return this;
         }
 
-        public AuditLog.AuditLogBuilder addAllData(Map<String, ?> data) {
+        public AuditLog.AuditLogBuilder data(Map<String, ?> data) {
 
+            if (data == null) {
+                return this;
+            }
             if (this.data == null) {
                 this.data = new HashMap<>();
             }
-            if (data != null) {
-                this.data.putAll(data);
-            }
+            this.data.putAll(data);
             return this;
         }
 
@@ -155,8 +157,11 @@ public class AuditLog {
          */
         public AuditLog build() {
 
-            if (action == null || initiatorId == null || targetId == null) {
-                throw new IllegalStateException("action, initiator and target must not be null.");
+            if (StringUtils.isEmpty(initiatorId) || StringUtils.isEmpty(initiatorType) ||
+                    StringUtils.isEmpty(targetId) || StringUtils.isEmpty(targetType) ||
+                    StringUtils.isEmpty(action)) {
+                throw new IllegalStateException("Action, initiatorId, initiatorType, targetId and targetType " +
+                        "must not be null.");
             }
             if (this.id == null) {
                 id = UUID.randomUUID().toString();
