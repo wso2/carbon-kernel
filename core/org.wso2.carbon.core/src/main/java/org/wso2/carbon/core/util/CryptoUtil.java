@@ -120,6 +120,23 @@ public class CryptoUtil {
     public byte[] encrypt(byte[] plainTextBytes, String cipherTransformation, boolean returnSelfContainedCipherText)
             throws CryptoException {
 
+        return encrypt(plainTextBytes, cipherTransformation, null, returnSelfContainedCipherText);
+    }
+
+    /**
+     * Encrypt a given plain text with custom secret key.
+     *
+     * @param plainTextBytes                The plaintext bytes to be encrypted.
+     * @param cipherTransformation          The transformation that need to encrypt.
+     * @param returnSelfContainedCipherText  Create self-contained cipher text if true, return simple encrypted.
+     * @param secretKey         The secret key to be used for encryption.
+     * @return The cipher text bytes.
+     * @throws CryptoException  On error during encryption.
+     */
+    public byte[] encrypt(byte[] plainTextBytes, String cipherTransformation, String secretKey,
+                                       boolean returnSelfContainedCipherText)
+            throws CryptoException {
+
         if (plainTextBytes == null) {
             throw new CryptoException("Plaintext can't be null.");
         }
@@ -140,8 +157,14 @@ public class CryptoUtil {
                     log.debug(String.format("Cipher transformation is enabled. Crypto algorithm: '%s'", algorithm));
                 }
             }
-            encryptedKey = cryptoService
-                    .encrypt(plainTextBytes, algorithm, getJCEProvider(), returnSelfContainedCipherText);
+            if (StringUtils.isNotBlank(secretKey)) {
+                encryptedKey = cryptoService
+                        .customEncrypt(plainTextBytes, algorithm, getJCEProvider(), returnSelfContainedCipherText, secretKey);
+            } else {
+                encryptedKey = cryptoService
+                        .encrypt(plainTextBytes, algorithm, getJCEProvider(), returnSelfContainedCipherText);
+            }
+
         } catch (Exception e) {
             throw new CryptoException("An error occurred while encrypting data.", e);
         }
@@ -245,6 +268,22 @@ public class CryptoUtil {
     /**
      * Encrypt the given plain text and base64 encode the encrypted content.
      *
+     * @param plainText The plaintext value to be encrypted and base64
+     *                  encoded.
+     * @param secretKey The secret key to be used for encryption.
+     * @return The base64 encoded cipher text
+     * @throws CryptoException On error during encryption
+     */
+    public String encryptAndBase64Encode(byte[] plainText, String secretKey) throws
+            CryptoException {
+
+        return Base64.encode(encrypt(plainText, System.getProperty(CIPHER_TRANSFORMATION_SYSTEM_PROPERTY), secretKey,
+                true));
+    }
+
+    /**
+     * Encrypt the given plain text and base64 encode the encrypted content.
+     *
      * @param plainText                     Plain text bytes that need to be encrypted.
      * @param algorithm                     The encryption algorithm.
      * @param returnSelfContainedCipherText Create self-contained cipher text if true, return simple encrypted
@@ -261,13 +300,14 @@ public class CryptoUtil {
     }
 
     /**
-     * Decrypt the given cipher text value using the WSO2 WSAS key
+     * Decrypt the given cipher text value using the custom key.
      *
-     * @param cipherTextBytes The cipher text to be decrypted
-     * @return Decrypted bytes
-     * @throws CryptoException On an error during decryption
+     * @param cipherTextBytes The cipher text to be decrypted.
+     * @param secretKey       The secret key to be used for decryption.
+     * @return Decrypted bytes.
+     * @throws CryptoException On an error during decryption.
      */
-    public byte[] decrypt(byte[] cipherTextBytes) throws CryptoException {
+    public byte[] decryptWithCustomKey(byte[] cipherTextBytes, String secretKey) throws CryptoException {
 
 
         if (cipherTextBytes == null) {
@@ -307,6 +347,8 @@ public class CryptoUtil {
                 if (log.isDebugEnabled()) {
                     log.debug("Ciphertext is empty. An empty array will be used as the plaintext bytes.");
                 }
+            } else if (StringUtils.isNotBlank(secretKey)) {
+                decryptedValue = cryptoService.customDecrypt(cipherTextBytes, algorithm, getJCEProvider(), secretKey);
             } else {
                 decryptedValue = cryptoService.decrypt(cipherTextBytes, algorithm, getJCEProvider());
             }
@@ -318,6 +360,17 @@ public class CryptoUtil {
         }
     }
 
+    /**
+     * Decrypt the given cipher text value using the WSO2 WSAS key
+     *
+     * @param cipherTextBytes The cipher text to be decrypted
+     * @return Decrypted bytes
+     * @throws CryptoException On an error during decryption
+     */
+    public byte[] decrypt(byte[] cipherTextBytes) throws CryptoException {
+
+        return decryptWithCustomKey(cipherTextBytes, null);
+    }
 
     /**
      * Decrypt the given cipher text value using the WSO2 WSAS key.
@@ -429,6 +482,20 @@ public class CryptoUtil {
     public byte[] base64DecodeAndDecrypt(String base64CipherText) throws
             CryptoException {
         return decrypt(Base64.decode(base64CipherText));
+    }
+
+    /**
+     * Base64 decode the given value and decrypt using the custom param.
+     *
+     * @param base64CipherText  Base64 encoded cipher text.
+     * @param secretKey         Secret key.
+     * @return Base64 decoded, decrypted bytes.
+     * @throws CryptoException On an error during decryption.
+     */
+    public byte[] base64DecodeAndDecryptWithCustomKey(String base64CipherText, String secretKey) throws
+            CryptoException {
+
+        return decryptWithCustomKey(Base64.decode(base64CipherText), secretKey);
     }
 
     /**

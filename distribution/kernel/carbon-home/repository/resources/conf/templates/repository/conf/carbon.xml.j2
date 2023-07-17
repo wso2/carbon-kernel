@@ -419,6 +419,10 @@
         {% if encryption.key is defined %}
         <Secret>{{encryption.key}}</Secret>
         {% endif %}
+
+        {% if encryption.totpKey is defined %}
+        <TotpSecret>{{encryption.totpKey}}</TotpSecret>
+        {% endif %}
         <!--
             The crypto provider which is used for the crypto needs which come when communicating with external parties.
             e.g. Signing, Decrypting.
