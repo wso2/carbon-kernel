@@ -654,6 +654,9 @@
         <config.mapper.version>1.0.13</config.mapper.version>
         <version.stax.ex>1.8.3</version.stax.ex>
         <version.saaj.impl>1.5.0</version.saaj.impl>
+
+        <httpcomponents-httpclient.wso2.version>4.5.13.wso2v1</httpcomponents-httpclient.wso2.version>
+        <httpcomponents-httpclient.imp.pkg.version.range>[4.3.1.wso2v2,5.0.0)</httpcomponents-httpclient.imp.pkg.version.range>
     </properties>
 
     <dependencyManagement>
@@ -1916,6 +1919,11 @@
                 <groupId>org.jvnet.staxex</groupId>
                 <artifactId>stax-ex</artifactId>
                 <version>${version.stax.ex}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${httpcomponents-httpclient.wso2.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
