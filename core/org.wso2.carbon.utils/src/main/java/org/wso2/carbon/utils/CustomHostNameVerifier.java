@@ -17,7 +17,7 @@
  */
 package org.wso2.carbon.utils;
 
-import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.http.conn.ssl.AbstractVerifier;
 import javax.net.ssl.SSLException;
 import java.util.Optional;
@@ -32,15 +32,15 @@ public class CustomHostNameVerifier extends AbstractVerifier {
     @Override
     public void verify(String hostname, String[] commonNames, String[] subjectAlternativeNames) throws SSLException {
 
-        String[] subjectAltsWithLocalhosts = ArrayUtils.addAll(subjectAlternativeNames, LOCALHOSTS);
+        String[] subjectAltsWithLocalhosts = (String[]) ArrayUtils.addAll(subjectAlternativeNames, LOCALHOSTS);
 
-        boolean isValidCommonNames = Optional.ofNullable(commonNames)
+        boolean hasValidCommonNames = Optional.ofNullable(commonNames)
                 .filter(names -> names.length > 0)
                 .map(names -> names[0])
                 .isPresent();
-        if (isValidCommonNames && !ArrayUtils.contains(subjectAlternativeNames, commonNames[0])) {
-            subjectAltsWithLocalhosts = ArrayUtils.add(subjectAltsWithLocalhosts, commonNames[0]);
+        if (hasValidCommonNames && !ArrayUtils.contains(subjectAlternativeNames, commonNames[0])) {
+            subjectAltsWithLocalhosts = (String[]) ArrayUtils.add(subjectAltsWithLocalhosts, commonNames[0]);
         }
-        this.verify(hostname, commonNames, subjectAltsWithLocalhosts, false);
+        super.verify(hostname, commonNames, subjectAltsWithLocalhosts, false);
     }
 }

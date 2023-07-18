@@ -1925,11 +1925,6 @@
                 <artifactId>httpclient</artifactId>
                 <version>${httpcomponents-httpclient.wso2.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.wso2.orbit.org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>${commons-lang3.orbit.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>
