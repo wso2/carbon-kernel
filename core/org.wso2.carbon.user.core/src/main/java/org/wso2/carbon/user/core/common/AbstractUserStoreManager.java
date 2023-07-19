@@ -8498,22 +8498,43 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return (List<String>) object;
         }
 
+        List<String> roleList;
         String username = getUserNameFromUserID(userID);
         if (username != null) {
             String[] roleListOfUserFromCache = getRoleListOfUserFromCache(this.tenantId, username);
             if (roleListOfUserFromCache != null) {
-                List<String> roleList = Arrays.asList(roleListOfUserFromCache);
+                roleList = Arrays.asList(roleListOfUserFromCache);
                 if (!roleList.isEmpty()) {
                     return roleList;
                 }
             }
         }
 
-        return getUserRolesWithID(userID, filter);
+        synchronized (userID.intern()) {
+            if (username != null) {
+                String[] roleListOfUserFromCache = getRoleListOfUserFromCache(this.tenantId, username);
+                if (roleListOfUserFromCache != null) {
+                    roleList = Arrays.asList(roleListOfUserFromCache);
+                    if (!roleList.isEmpty()) {
+                        return roleList;
+                    }
+                }
+            }
+            String[] roleListOfUserFromDatabase = getUserRolesWithIDFromDatabase(userID, filter);
+            roleList = Arrays.asList(roleListOfUserFromDatabase);
+            // Add to user role cache using username.
+            if (username != null) {
+                addToUserRolesCache(this.tenantId, username, roleListOfUserFromDatabase);
+            }
+        }
+        return roleList;
     }
 
-    private List<String> getUserRolesWithID(String userID, String filter) throws UserStoreException {
+    private String[] getUserRolesWithIDFromDatabase(String userID, String filter) throws UserStoreException {
 
+        if (log.isDebugEnabled()) {
+            log.debug("Retrieving user role list for userID: " + userID + " from database");
+        }
         List<String> internalRoles = doGetInternalRoleListOfUserWithID(userID, filter);
         Set<String> modifiedInternalRoles = new HashSet<>();
         String[] modifiedExternalRoleList = new String[0];
@@ -8548,13 +8569,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             }
         }
-
-        // Add to user role cache uisng username.
-        String username = getUserNameFromUserID(userID);
-        if (username != null) {
-            addToUserRolesCache(this.tenantId, username, roleList);
-        }
-        return Arrays.asList(roleList);
+        return roleList;
     }
 
     /**
@@ -8578,11 +8593,23 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return roleList;
         }
 
-        return getUserRoles(userName, filter);
+        String usernameWithTenantDomain = userName + "@" + this.getTenantDomain(this.tenantId);
+        synchronized (usernameWithTenantDomain.intern()) {
+            roleList = getRoleListOfUserFromCache(this.tenantId, userName);
+            if (roleList != null && roleList.length > 0) {
+                return roleList;
+            }
+            roleList = getUserRolesFromDatabase(userName, filter);
+            addToUserRolesCache(this.tenantId, userName, roleList);
+        }
+        return roleList;
     }
 
-    private String[] getUserRoles(String username, String filter) throws UserStoreException {
+    private String[] getUserRolesFromDatabase(String username, String filter) throws UserStoreException {
 
+        if (log.isDebugEnabled()) {
+            log.debug("Retrieving user role list for user: " + username + " from database");
+        }
         String[] internalRoles = doGetInternalRoleListOfUser(username, filter);
         String[] modifiedExternalRoleList = new String[0];
 
@@ -8616,7 +8643,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             }
         }
-        addToUserRolesCache(this.tenantId, username, roleList);
         return roleList;
     }
 
@@ -8643,9 +8669,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 // According to implementation, getRoleListOfUser method would return everyone role name for all users.
                 return new String[]{realmConfig.getEveryOneRoleName()};
             }
-            return getUserRolesWithID(userID, filter).toArray(new String[0]);
+            return getUserRolesWithIDFromDatabase(userID, filter);
         } else {
-            return getUserRoles(username, filter);
+            return getUserRolesFromDatabase(username, filter);
         }
     }
 
