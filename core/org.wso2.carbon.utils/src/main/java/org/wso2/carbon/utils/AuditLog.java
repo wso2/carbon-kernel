@@ -18,86 +18,57 @@
 
 package org.wso2.carbon.utils;
 
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.MDC;
+
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import static org.wso2.carbon.CarbonConstants.LogEventConstants.CORRELATION_ID_MDC;
 
 /**
  * Audit log.
  */
 public class AuditLog {
 
-    private String logId;
-    private Instant recordedAt;
-    private String clientComponent;
-    private String correlationId;
-    private String initiatorId;
-    private String initiatorName;
-    private String initiatorType;
-    private String eventType;
-    private String targetId;
-    private String targetName;
-    private String targetType;
-    private String dataChange;
+    private final String id;
+    private final String recordedAt;
+    private final String requestId;
+    private final String initiatorId;
+    private final String initiatorType;
+    private final String targetId;
+    private final String targetType;
+    private final String action;
+    private final Map<String, Object> data;
 
-    public AuditLog(String logId, Instant recordedAt, String clientComponent, String correlationId,
-                    String initiatorId, String initiatorName, String initiatorType, String eventType,
-                    String targetId, String targetName, String targetType, String dataChange) {
+    private AuditLog(AuditLogBuilder auditLogBuilder) {
 
-        this.logId = logId;
-        this.recordedAt = recordedAt;
-        this.clientComponent = clientComponent;
-        this.correlationId = correlationId;
-        this.initiatorId = initiatorId;
-        this.initiatorName = initiatorName;
-        this.initiatorType = initiatorType;
-        this.eventType = eventType;
-        this.targetId = targetId;
-        this.targetName = targetName;
-        this.targetType = targetType;
-        this.dataChange = dataChange;
+        this.id = auditLogBuilder.id;
+        this.recordedAt = auditLogBuilder.recordedAt;
+        this.requestId = auditLogBuilder.requestId;
+        this.initiatorId = auditLogBuilder.initiatorId;
+        this.initiatorType = auditLogBuilder.initiatorType;
+        this.targetId = auditLogBuilder.targetId;
+        this.targetType = auditLogBuilder.targetType;
+        this.action = auditLogBuilder.action;
+        this.data = auditLogBuilder.data;
     }
 
-    public AuditLog() {
+    public String getId() {
 
+        return id;
     }
 
-    public String getLogId() {
-
-        return logId;
-    }
-
-    public void setLogId(String logId) {
-
-        this.logId = logId;
-    }
-
-    public Instant getRecordedAt() {
+    public String getRecordedAt() {
 
         return recordedAt;
     }
 
-    public void setRecordedAt(Instant recordedAt) {
+    public String getRequestId() {
 
-        this.recordedAt = recordedAt;
-    }
-
-    public String getClientComponent() {
-
-        return clientComponent;
-    }
-
-    public void setClientComponent(String clientComponent) {
-
-        this.clientComponent = clientComponent;
-    }
-
-    public String getCorrelationId() {
-
-        return correlationId;
-    }
-
-    public void setCorrelationId(String correlationId) {
-
-        this.correlationId = correlationId;
+        return requestId;
     }
 
     public String getInitiatorId() {
@@ -105,39 +76,9 @@ public class AuditLog {
         return initiatorId;
     }
 
-    public void setInitiatorId(String initiatorId) {
-
-        this.initiatorId = initiatorId;
-    }
-
-    public String getInitiatorName() {
-
-        return initiatorName;
-    }
-
-    public void setInitiatorName(String initiatorName) {
-
-        this.initiatorName = initiatorName;
-    }
-
     public String getInitiatorType() {
 
         return initiatorType;
-    }
-
-    public void setInitiatorType(String initiatorType) {
-
-        this.initiatorType = initiatorType;
-    }
-
-    public String getEventType() {
-
-        return eventType;
-    }
-
-    public void setEventType(String eventType) {
-
-        this.eventType = eventType;
     }
 
     public String getTargetId() {
@@ -145,38 +86,93 @@ public class AuditLog {
         return targetId;
     }
 
-    public void setTargetId(String targetId) {
-
-        this.targetId = targetId;
-    }
-
-    public String getTargetName() {
-
-        return targetName;
-    }
-
-    public void setTargetName(String targetName) {
-
-        this.targetName = targetName;
-    }
-
     public String getTargetType() {
 
         return targetType;
     }
 
-    public void setTargetType(String targetType) {
+    public String getAction() {
 
-        this.targetType = targetType;
+        return action;
     }
 
-    public String getDataChange() {
+    public Map<String, Object> getData() {
 
-        return dataChange;
+        return data;
     }
 
-    public void setDataChange(String dataChange) {
+    /**
+     * Builder class for AuditLog.
+     * This class follows the Builder design pattern, providing a way to construct a AuditLog object step by step.
+     */
+    public static class AuditLogBuilder {
 
-        this.dataChange = dataChange;
+        private String id;
+        private String recordedAt;
+        private String requestId;
+        private final String initiatorId;
+        private final String targetId;
+        private final String initiatorType;
+        private final String targetType;
+        private final String action;
+        private Map<String, Object> data;
+
+        public AuditLogBuilder(String initiatorId, String initiatorType, String targetId, String targetType, String action) {
+
+            this.initiatorId = initiatorId;
+            this.targetId = targetId;
+            this.initiatorType = initiatorType;
+            this.targetType = targetType;
+            this.action = action;
+        }
+
+        public AuditLog.AuditLogBuilder data(String key, Object value) {
+
+            if (value == null) {
+                return this;
+            }
+            if (this.data == null) {
+                this.data = new HashMap<>();
+            }
+            this.data.put(key, value);
+            return this;
+        }
+
+        public AuditLog.AuditLogBuilder data(Map<String, ?> data) {
+
+            if (data == null) {
+                return this;
+            }
+            if (this.data == null) {
+                this.data = new HashMap<>();
+            }
+            this.data.putAll(data);
+            return this;
+        }
+
+        /**
+         * Constructs a AuditLog object using the set parameters.
+         *
+         * @return a new AuditLog object.
+         */
+        public AuditLog build() {
+
+            if (StringUtils.isEmpty(initiatorId) || StringUtils.isEmpty(initiatorType) ||
+                    StringUtils.isEmpty(targetId) || StringUtils.isEmpty(targetType) ||
+                    StringUtils.isEmpty(action)) {
+                throw new IllegalStateException("Action, initiatorId, initiatorType, targetId and targetType " +
+                        "must not be null.");
+            }
+            if (this.id == null) {
+                id = UUID.randomUUID().toString();
+            }
+            if (this.recordedAt == null) {
+                recordedAt = Instant.now().toString();
+            }
+            if (this.requestId == null) {
+                requestId = MDC.get(CORRELATION_ID_MDC);
+            }
+            return new AuditLog(this);
+        }
     }
 }
