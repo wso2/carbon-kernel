@@ -133,6 +133,9 @@ public class ReadWriteLDAPUserStoreConstants {
         setProperty("BackLinksEnabled", "Enable Back Links", "false",
                 "Whether to allow attributes to be result from references to the object from other objects",
                 new Property[] { GROUP.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
+        setProperty(UserStoreConfigConstants.referral, UserStoreConfigConstants.referralDisplayName, "follow",
+                UserStoreConfigConstants.referralDescription,
+                new Property[] { GROUP.getProperty(), STRING.getProperty(), FALSE.getProperty() });
 
         setProperty(UserStoreConfigConstants.usernameJavaRegEx, "Username RegEx (Java)", "[a-zA-Z0-9._-|//]{3,30}$",
                 UserStoreConfigConstants.usernameJavaRegExDescription,

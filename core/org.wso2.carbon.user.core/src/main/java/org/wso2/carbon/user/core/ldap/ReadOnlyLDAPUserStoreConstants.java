@@ -136,8 +136,8 @@ public class ReadOnlyLDAPUserStoreConstants {
                 " Whether to allow attributes to be result from references to the object from other objects",
                 new Property[] { GROUP.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
 
-        setProperty("Referral", "Referral", "ignore",
-                "Guides the requests to a domain controller in the correct domain",
+        setProperty(UserStoreConfigConstants.referral, UserStoreConfigConstants.referralDisplayName, "follow",
+                UserStoreConfigConstants.referralDescription,
                 new Property[] { GROUP.getProperty(), STRING.getProperty(), FALSE.getProperty() });
         setProperty("ReplaceEscapeCharactersAtUserLogin", "Enable Escape Characters at User Login", "true",
                 "Whether replace escape character when user login",
