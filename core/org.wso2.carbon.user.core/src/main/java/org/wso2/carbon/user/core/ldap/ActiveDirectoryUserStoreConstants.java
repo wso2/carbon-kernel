@@ -168,8 +168,8 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty("BackLinksEnabled", "Enable Back Links", "true",
                 "Whether to allow attributes to be result from references to the object from other objects",
                 new Property[] { GROUP.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
-        setProperty("Referral", "Referral", "ignore",
-                "Guides the requests to a domain controller in the correct domain",
+        setProperty(UserStoreConfigConstants.referral, UserStoreConfigConstants.referralDisplayName, "follow",
+                UserStoreConfigConstants.referralDescription,
                 new Property[] { GROUP.getProperty(), STRING.getProperty(), FALSE.getProperty() });
 
         setProperty(UserStoreConfigConstants.usernameJavaRegEx, "Username RegEx (Java)", "[a-zA-Z0-9._-|//]{3,30}$",

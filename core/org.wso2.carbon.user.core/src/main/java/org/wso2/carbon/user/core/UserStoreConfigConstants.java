@@ -79,7 +79,9 @@ public class UserStoreConfigConstants {
     public static final String userSearchBaseDescription = "DN of the context under which user entries are stored in LDAP";
     public static final String disabled = "Disabled";
     public static final String disabledDescription = "Whether user store is disabled";
-
+    public static final String referral = "Referral";
+    public static final String referralDisplayName = "Referral";
+    public static final String referralDescription = "Guides the requests to a domain controller in the correct domain";
 
     //Write Group Privilege Properties
     public static final String writeGroups = "WriteGroups";
