@@ -1491,10 +1491,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             if (sqlStmt1.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                 this.updateStringValuesToDatabase(dbConnection, sqlStmt1, userID, tenantId, tenantId);
                 this.updateStringValuesToDatabase(dbConnection, sqlStmt2, userID, tenantId, tenantId);
+                dbConnection.commit();
                 this.updateStringValuesToDatabase(dbConnection, sqlStmt3, userID, tenantId);
             } else {
                 this.updateStringValuesToDatabase(dbConnection, sqlStmt1, userID);
                 this.updateStringValuesToDatabase(dbConnection, sqlStmt2, userID);
+                dbConnection.commit();
                 this.updateStringValuesToDatabase(dbConnection, sqlStmt3, userID);
             }
             dbConnection.commit();
