@@ -18,15 +18,18 @@
 package org.wso2.carbon.utils;
 
 import org.apache.http.conn.ssl.X509HostnameVerifier;
+import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.impl.client.HttpClientBuilder;
+
+import static org.wso2.carbon.CarbonConstants.ALLOW_ALL;
+import static org.wso2.carbon.CarbonConstants.DEFAULT_AND_LOCALHOST;
+import static org.wso2.carbon.CarbonConstants.HOST_NAME_VERIFIER;
 
 /**
  * Util methods for HTTP Client.
  */
 public class HTTPClientUtils {
 
-    public static final String DEFAULT_AND_LOCALHOST = "DefaultAndLocalhost";
-    public static final String HOST_NAME_VERIFIER = "httpclient.hostnameVerifier";
 
     private HTTPClientUtils() {
         //disable external instantiation
@@ -43,6 +46,8 @@ public class HTTPClientUtils {
         if (DEFAULT_AND_LOCALHOST.equals(System.getProperty(HOST_NAME_VERIFIER))) {
             X509HostnameVerifier hostnameVerifier = new CustomHostNameVerifier();
             httpClientBuilder.setHostnameVerifier(hostnameVerifier);
+        } else if (ALLOW_ALL.equals(System.getProperty(HOST_NAME_VERIFIER))) {
+            httpClientBuilder.setHostnameVerifier(new AllowAllHostnameVerifier());
         }
 
         return httpClientBuilder;
