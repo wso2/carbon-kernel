@@ -324,6 +324,8 @@ do
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \
     -Djava.net.preferIPv4Stack=true \
+    -Djdk.util.zip.disableZip64ExtraFieldValidation=true \
+    -Djdk.nio.zipfs.allowDotZipEntry=true \
     -Dcom.ibm.cacheLocalHost=true \
     -DworkerNode=false \
     -DenableCorrelationLogs=false \
