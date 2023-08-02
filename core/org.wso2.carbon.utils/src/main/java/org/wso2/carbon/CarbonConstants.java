@@ -451,4 +451,9 @@ public final class CarbonConstants {
         public static final String CORRELATION_ID = "correlationId";
         public static final String CORRELATION_ID_MDC = "Correlation-ID";
     }
+
+    // Constants related to hostname verification
+    public static final String DEFAULT_AND_LOCALHOST = "DefaultAndLocalhost";
+    public static final String ALLOW_ALL = "AllowAll";
+    public static final String HOST_NAME_VERIFIER = "httpclient.hostnameVerifier";
 }
