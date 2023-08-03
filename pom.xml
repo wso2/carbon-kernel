@@ -1758,6 +1758,13 @@
                 <artifactId>xmlbeans</artifactId>
                 <version>${xmlbeans.version}</version>
             </dependency>
+
+            <!-- Identity inbound provisioning scim2 component -->
+            <dependency>
+                <groupId>org.wso2.carbon.identity.inbound.provisioning.scim2</groupId>
+                <artifactId>org.wso2.carbon.identity.scim2.common</artifactId>
+                <version>${org.wso2.carbon.identity.scim2.common.version}</version>
+            </dependency>
         </dependencies>
 
     </dependencyManagement>
@@ -1810,6 +1817,8 @@
         </org.wso2.carbon.identity.organization.management.core.version>
         <org.wso2.carbon.identity.organization.management.core.version.range>[1.0.0, 2.0.0)
         </org.wso2.carbon.identity.organization.management.core.version.range>
+
+        <org.wso2.carbon.identity.scim2.common.version>3.4.18</org.wso2.carbon.identity.scim2.common.version>
 
         <!--Carbon registry version-->
         <org.wso2.carbon.registry.version>4.8.12</org.wso2.carbon.registry.version>
