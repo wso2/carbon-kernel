@@ -488,6 +488,23 @@
             </init-param>
         </filter>
     -->
+    {% for entry in tomcat.custom_response_header_filters %}
+        <filter>
+            <filter-name>ResponseHeaderSetFilter#{{loop.index}}</filter-name>
+            <filter-class>org.wso2.carbon.tomcat.ext.filter.ResponseHeaderSetFilter</filter-class>
+                <init-param>
+                    <param-name>headers</param-name>
+                    <param-value>{{entry.headers}}</param-value>
+                </init-param>
+        </filter>
+
+        <filter-mapping>
+            <filter-name>ResponseHeaderSetFilter#{{loop.index}}</filter-name>
+            <url-pattern>{{entry.filter_url_pattern}}</url-pattern>
+            <dispatcher>REQUEST</dispatcher>
+            <dispatcher>FORWARD</dispatcher>
+        </filter-mapping>
+    {% endfor %}
 
     {% if custom_header_filter.enable is sameas true %}
     <filter>
