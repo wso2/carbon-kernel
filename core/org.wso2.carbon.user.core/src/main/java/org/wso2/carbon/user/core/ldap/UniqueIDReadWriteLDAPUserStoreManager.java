@@ -35,6 +35,7 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.common.User;
+import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
 import org.wso2.carbon.user.core.hybrid.HybridRoleManager;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.tenant.Tenant;
@@ -1931,7 +1932,8 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
-            throw new UserStoreException(errorMessage);
+            throw new UserStoreException(errorMessage,
+                    UserCoreErrorConstants.ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode());
         } finally {
             JNDIUtil.closeContext(groupContext);
             JNDIUtil.closeContext(mainDirContext);
