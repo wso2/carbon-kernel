@@ -27,6 +27,7 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.core.CircuitBreakerException;
 import org.wso2.carbon.user.core.NotImplementedException;
 import org.wso2.carbon.user.core.PaginatedUserStoreManager;
 import org.wso2.carbon.user.core.Permission;
@@ -3224,12 +3225,28 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 // Get the user list and return with domain appended.
                 try {
                     AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager) userManager;
+
+                    if(userStoreManager.isCircuitBreakerOpen()) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Circuit Breaker Triggered for" + extractedDomain);
+                        }
+                        return Collections.emptyList();
+                    }
+
                     List<String> userIDs = userStoreManager
                             .doGetUserListFromPropertiesWithID(property, claimValue, profileName);
                     if (log.isDebugEnabled()) {
                         log.debug("List of filtered users for: " + extractedDomain + " : " + Arrays.asList(userIDs));
                     }
                     return userStoreManager.getUsersFromIDs(userIDs, null, extractedDomain, profileName);
+
+                } catch (CircuitBreakerException ex) {
+                    if(log.isDebugEnabled()) {
+                        log.debug("Circuit Breaker is in open state for "+extractedDomain +" domain. Hence ignore " +
+                                "the userstore and proceed", ex);
+                    }
+                    log.error(String.format("Error occurred while obtaining user store connection."));
+                    return Collections.emptyList();
 
                 } catch (UserStoreException ex) {
                     handleGetUserListFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getCode(),
@@ -17974,4 +17991,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
         return DEFAULT_PASSWORD_VALIDITY_PERIOD_VALUE;
     }
+
+    public abstract Boolean isCircuitBreakerOpen();
+
 }
