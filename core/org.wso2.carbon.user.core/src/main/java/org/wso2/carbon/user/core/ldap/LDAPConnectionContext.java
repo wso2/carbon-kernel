@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.core.CircuitBreakerException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -271,10 +272,10 @@ public class LDAPConnectionContext {
                     if (log.isDebugEnabled()) {
                         log.debug("LDAP connection circuit breaker state set to: " + ldapConnectionCircuitBreakerState);
                     }
-                    throw new UserStoreException("Error occurred while obtaining LDAP connection.", e);
+                    throw new CircuitBreakerException("Error occurred while obtaining LDAP connection.", e);
                 }
             } else {
-                throw new UserStoreException(
+                throw new CircuitBreakerException(
                         "LDAP connection circuit breaker is in open state for " + circuitOpenDuration
                                 + "ms and has not reach the threshold timeout: " + thresholdTimeoutInMilliseconds
                                 + "ms, hence avoid establishing the LDAP connection.");
@@ -299,7 +300,7 @@ public class LDAPConnectionContext {
                     log.error("Error occurred while obtaining connection for the second time.", e1);
                     ldapConnectionCircuitBreakerState = CIRCUIT_STATE_OPEN;
                     thresholdStartTime = System.currentTimeMillis();
-                    throw new UserStoreException("Error occurred while obtaining LDAP connection, LDAP connection "
+                    throw new CircuitBreakerException("Error occurred while obtaining LDAP connection, LDAP connection "
                             + "circuit breaker state set to: " + ldapConnectionCircuitBreakerState, e1);
                 }
             }
@@ -862,4 +863,17 @@ public class LDAPConnectionContext {
                     + UserStoreConfigConstants.CONNECTION_RETRY_DELAY);
         }
     }
+
+    public String getLdapConnectionCircuitBreakerState() {
+        return ldapConnectionCircuitBreakerState;
+    }
+
+    public long getThresholdTimeoutInMilliseconds() {
+        return thresholdTimeoutInMilliseconds;
+    }
+
+    public long getThresholdStartTime() {
+        return thresholdStartTime;
+    }
+
 }

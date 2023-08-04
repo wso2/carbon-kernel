@@ -32,6 +32,7 @@ import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.NotImplementedException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.CircuitBreakerException;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
@@ -118,6 +119,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private static final String POSTGRESQL = "postgresql";
 
     private static final int MAX_ITEM_LIMIT_UNLIMITED = -1;
+
+    private String jdbcConnectionCircuitBreakerState;
+    private long thresholdTimeoutInMilliseconds;
+    private long thresholdStartTime;
+
+    public static final String CIRCUIT_STATE_OPEN = "open";
+    public static final String CIRCUIT_STATE_CLOSE = "close";
 
     public JDBCUserStoreManager() {
 
@@ -1301,7 +1309,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      * @throws SQLException
      * @throws UserStoreException
      */
-    protected Connection getDBConnection() throws SQLException, UserStoreException {
+    protected Connection getConnection() throws SQLException, UserStoreException {
         Connection dbConnection = getJDBCDataSource().getConnection();
         dbConnection.setAutoCommit(false);
         if (dbConnection.getTransactionIsolation() != Connection.TRANSACTION_READ_COMMITTED) {
@@ -4881,5 +4889,99 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private boolean isH2DB(Connection dbConnection) throws Exception {
 
         return H2.equalsIgnoreCase(DatabaseCreator.getDatabaseType(dbConnection));
+    }
+
+    protected Connection getDBConnection() throws UserStoreException, SQLException {
+
+        Connection dbConnection = null;
+
+        switch (jdbcConnectionCircuitBreakerState) {
+            case CIRCUIT_STATE_OPEN:
+                long circuitOpenDuration = System.currentTimeMillis() - thresholdStartTime;
+                if (circuitOpenDuration >= thresholdTimeoutInMilliseconds) {
+                    try {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Trying to obtain JDBC connection for " + getMyDomainName() +" domain" +
+                                    " when circuit breaker state: "
+                                    + jdbcConnectionCircuitBreakerState + " and circuit breaker open duration: "
+                                    + circuitOpenDuration + "ms.");
+                        }
+                        dbConnection = getConnection();
+                        jdbcConnectionCircuitBreakerState = CIRCUIT_STATE_CLOSE;
+                        thresholdStartTime = 0;
+                        break;
+                    } catch (UserStoreException | SQLException e) {
+                        log.error("Error occurred while obtaining connection", e);
+                        thresholdStartTime = System.currentTimeMillis();
+                        if (log.isDebugEnabled()) {
+                            log.debug("JDBC connection circuit breaker state set to: "
+                                    + jdbcConnectionCircuitBreakerState);
+                        }
+                        throw new CircuitBreakerException("Error occurred while obtaining connection.", e);
+                    }
+                } else {
+                    throw new CircuitBreakerException(
+                            "JDBC Connection circuit breaker is in open state for " + circuitOpenDuration
+                                    + "ms and has not reach the threshold timeout: " + thresholdTimeoutInMilliseconds
+                                    + "ms, hence avoid establishing the connection for " + getMyDomainName() + " domain");
+                }
+            case CIRCUIT_STATE_CLOSE:
+                try {
+                    if (log.isDebugEnabled()) {
+                        log.debug("connection circuit breaker state: " + jdbcConnectionCircuitBreakerState
+                                + ", so trying to obtain the connection for " + getMyDomainName() + " domain");
+                    }
+                    dbConnection = getConnection();
+                    break;
+                } catch (UserStoreException | SQLException e) {
+                    log.error("Error occurred while obtaining JDBC connection for " +getMyDomainName() + " domain", e);
+                    log.error("Trying again to get connection.");
+                    try {
+                        dbConnection = getConnection();
+                        break;
+                    } catch (Exception e1) {
+                        log.error("Error occurred while obtaining connection for the second time for "
+                                + getMyDomainName() + "domain", e1);
+                        jdbcConnectionCircuitBreakerState = CIRCUIT_STATE_OPEN;
+                        thresholdStartTime = System.currentTimeMillis();
+                        throw new CircuitBreakerException("Error occurred while obtaining connection."
+                                + " circuit breaker state set to: " + jdbcConnectionCircuitBreakerState, e1);
+                    }
+                }
+            default:
+                throw new UserStoreException("Unknown JDBC connection circuit breaker state.");
+        }
+        return dbConnection;
+    }
+
+    public long getThresholdTimeoutInMilliseconds() {
+        return thresholdTimeoutInMilliseconds;
+    }
+
+    public long getThresholdStartTime() {
+        return thresholdStartTime;
+    }
+
+    public String getCircuitBreakerState() {
+        return jdbcConnectionCircuitBreakerState;
+    }
+
+    //check whether circuit breaker is open
+    public Boolean isCircuitBreakerOpen() {
+
+        long circuitOpenDuration = System.currentTimeMillis() - this.getThresholdStartTime();
+
+        if (this.getCircuitBreakerState().equals(CIRCUIT_STATE_OPEN)
+                && circuitOpenDuration <=  this.getThresholdTimeoutInMilliseconds()) {
+            //can be a warn
+            log.error("CIRCUIT BREAKER: JDBC connection circuit breaker is in open state for" + circuitOpenDuration +
+                    "ms and has not reach the threshold timeout: " +
+                    this.getThresholdTimeoutInMilliseconds() +
+                    "ms, hence avoid establishing the" +getMyDomainName() + " domain JDBC connection.");
+
+            return true;
+        }
+
+        return false;
     }
 }

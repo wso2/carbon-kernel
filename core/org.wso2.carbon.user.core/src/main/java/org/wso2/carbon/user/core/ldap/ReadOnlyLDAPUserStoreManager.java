@@ -109,6 +109,7 @@ import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_CREATED_D
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_ID_ATTRIBUTE;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE;
 import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID;
+import static org.wso2.carbon.user.core.ldap.LDAPConnectionContext.CIRCUIT_STATE_OPEN;
 
 public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
@@ -4831,5 +4832,24 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         OffsetDateTime offsetDateTime = OffsetDateTime.parse(date, dateTimeFormatter);
         Instant instant = offsetDateTime.toInstant();
         return instant.toString();
+    }
+
+    //check whether circuit breaker is open
+    public Boolean isCircuitBreakerOpen() {
+
+        long circuitOpenDuration = System.currentTimeMillis() - this.connectionSource.getThresholdStartTime();
+
+        if (this.connectionSource.getLdapConnectionCircuitBreakerState().equals(CIRCUIT_STATE_OPEN)
+                && circuitOpenDuration <=  this.connectionSource.getThresholdTimeoutInMilliseconds()) {
+            //can be a warn
+            log.error("CIRCUIT BREAKER: LDAP connection circuit breaker is in open state for" + circuitOpenDuration +
+                    "ms and has not reach the threshold timeout: " +
+                    this.connectionSource.getThresholdTimeoutInMilliseconds() +
+                    "ms, hence avoid establishing the LDAP connection.");
+
+            return true;
+        }
+
+        return false;
     }
 }
