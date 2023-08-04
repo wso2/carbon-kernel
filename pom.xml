@@ -1819,6 +1819,7 @@
         </org.wso2.carbon.identity.organization.management.core.version.range>
 
         <org.wso2.carbon.identity.scim2.common.version>3.4.18</org.wso2.carbon.identity.scim2.common.version>
+        <org.wso2.carbon.identity.scim2.common.version.range>[3.0.0, 4.0.0)</org.wso2.carbon.identity.scim2.common.version.range>
 
         <!--Carbon registry version-->
         <org.wso2.carbon.registry.version>4.8.12</org.wso2.carbon.registry.version>
