@@ -685,4 +685,8 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @throws UserStoreException If an error occurs while updating group list of users.
      */
     Map<String, List<Group>> getGroupListOfUsers(List<String> userIDs) throws UserStoreException;
+
+    //MY_CODE
+    Group addRoleWithRoleID(String roleName, String[] userIDList, Permission[] permissions, boolean isSharedRole)
+            throws UserStoreException;
 }
