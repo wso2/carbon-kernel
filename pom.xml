@@ -20,7 +20,7 @@
     <groupId>org.wso2.carbon.identity.framework</groupId>
     <artifactId>identity-framework</artifactId>
     <packaging>pom</packaging>
-    <version>5.25.269-SNAPSHOT</version>
+    <version>5.25.271-SNAPSHOT</version>
     <name>WSO2 Carbon - Platform Aggregator Pom</name>
     <url>http://wso2.org</url>
 
@@ -1788,7 +1788,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon kernel version -->
-        <carbon.kernel.version>4.9.10</carbon.kernel.version>
+        <carbon.kernel.version>4.9.11</carbon.kernel.version>
         <carbon.kernel.feature.version>4.7.0</carbon.kernel.feature.version>
         <carbon.kernel.package.import.version.range>[4.5.0, 5.0.0)</carbon.kernel.package.import.version.range>
         <carbon.kernel.registry.imp.pkg.version>[1.0.1, 2.0.0)</carbon.kernel.registry.imp.pkg.version>
@@ -2068,12 +2068,6 @@
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
         <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>
 
-        <siddhi.version>4.1.17</siddhi.version>
-        <siddhi.version.range>[4.1.17,5.0.0)</siddhi.version.range>
-        <quartz.version>2.1.1.wso2v1</quartz.version>
-        <disruptor.orbit.version>3.3.2.wso2v2</disruptor.orbit.version>
-        <antlr.version>4.5</antlr.version>
-        <snakeyaml.version>1.11</snakeyaml.version>
         <h2database.version>2.1.210</h2database.version>
 
         <maven.checkstyleplugin.version>3.1.0</maven.checkstyleplugin.version>
