@@ -2059,12 +2059,6 @@
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
         <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>
 
-        <siddhi.version>4.1.17</siddhi.version>
-        <siddhi.version.range>[4.1.17,5.0.0)</siddhi.version.range>
-        <quartz.version>2.1.1.wso2v1</quartz.version>
-        <disruptor.orbit.version>3.3.2.wso2v2</disruptor.orbit.version>
-        <antlr.version>4.5</antlr.version>
-        <snakeyaml.version>1.11</snakeyaml.version>
         <h2database.version>2.1.210</h2database.version>
 
         <maven.checkstyleplugin.version>3.1.0</maven.checkstyleplugin.version>
