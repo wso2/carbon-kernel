@@ -52,6 +52,9 @@ import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.CIRCUIT_STATE_CLOSE;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.CIRCUIT_STATE_OPEN;
+
 public class LDAPConnectionContext {
 
     private static Log log = LogFactory.getLog(LDAPConnectionContext.class);
@@ -79,8 +82,6 @@ public class LDAPConnectionContext {
     private static final int CORRELATION_LOG_INITIALIZATION_ARGS_LENGTH = 0;
     private static final String CORRELATION_LOG_SEPARATOR = "|";
     private static final String CORRELATION_LOG_SYSTEM_PROPERTY = "enableCorrelationLogs";
-    public static final String CIRCUIT_STATE_OPEN = "open";
-    public static final String CIRCUIT_STATE_CLOSE = "close";
 
     private String ldapConnectionCircuitBreakerState;
     private long thresholdTimeoutInMilliseconds;

@@ -105,11 +105,11 @@ import javax.naming.ldap.Rdn;
 import javax.naming.ldap.SortControl;
 import javax.sql.DataSource;
 
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.CIRCUIT_STATE_OPEN;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_ID_ATTRIBUTE;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE;
 import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID;
-import static org.wso2.carbon.user.core.ldap.LDAPConnectionContext.CIRCUIT_STATE_OPEN;
 
 public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
@@ -4834,18 +4834,22 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         return instant.toString();
     }
 
-    //check whether circuit breaker is open
+    /**
+     * Verify Circuit Breaker state for user store
+     *
+     * @return true if CircuitBreaker Open, false otherwise.
+     */
     public Boolean isCircuitBreakerOpen() {
 
         long circuitOpenDuration = System.currentTimeMillis() - this.connectionSource.getThresholdStartTime();
 
         if (this.connectionSource.getLdapConnectionCircuitBreakerState().equals(CIRCUIT_STATE_OPEN)
                 && circuitOpenDuration <=  this.connectionSource.getThresholdTimeoutInMilliseconds()) {
-            //can be a warn
-            log.error("CIRCUIT BREAKER: LDAP connection circuit breaker is in open state for" + circuitOpenDuration +
-                    "ms and has not reach the threshold timeout: " +
+
+            log.warn("Circuit Breaker Triggered: LDAP connection circuit breaker is in open state for "
+                    + circuitOpenDuration + "ms and has not reach the threshold timeout: " +
                     this.connectionSource.getThresholdTimeoutInMilliseconds() +
-                    "ms, hence avoid establishing the LDAP connection.");
+                    " ms, hence avoid establishing the LDAP connection.");
 
             return true;
         }

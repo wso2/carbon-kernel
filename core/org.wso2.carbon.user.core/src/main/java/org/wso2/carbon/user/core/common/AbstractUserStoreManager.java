@@ -3226,6 +3226,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 try {
                     AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager) userManager;
 
+                    //verify whether circuit breaker is open for userstore
                     if(userStoreManager.isCircuitBreakerOpen()) {
                         if (log.isDebugEnabled()) {
                             log.debug("Circuit Breaker Triggered for" + extractedDomain);
@@ -3245,7 +3246,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         log.debug("Circuit Breaker is in open state for "+extractedDomain +" domain. Hence ignore " +
                                 "the userstore and proceed", ex);
                     }
-                    log.error(String.format("Error occurred while obtaining user store connection."));
+                    log.error("Error occurred while obtaining user store connection.");
                     return Collections.emptyList();
 
                 } catch (UserStoreException ex) {
@@ -17992,6 +17993,23 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return DEFAULT_PASSWORD_VALIDITY_PERIOD_VALUE;
     }
 
-    public abstract Boolean isCircuitBreakerOpen();
+    /**
+     * Convert retry waiting time string to long.
+     *
+     * @param retryWaitingTime Retry waiting time as a string.
+     * @return Retry waiting time in milliseconds.
+     *
+     * @throws UserStoreException
+     */
+    protected long getThresholdTimeoutInMilliseconds(String retryWaitingTime) throws UserStoreException {
 
+        try {
+            return Long.parseLong(retryWaitingTime);
+        } catch (NumberFormatException e) {
+            throw new UserStoreException("Error occurred while parsing ConnectionRetryDelay property value. value: "
+                    + UserStoreConfigConstants.CONNECTION_RETRY_DELAY);
+        }
+    }
+
+    public abstract Boolean isCircuitBreakerOpen();
 }

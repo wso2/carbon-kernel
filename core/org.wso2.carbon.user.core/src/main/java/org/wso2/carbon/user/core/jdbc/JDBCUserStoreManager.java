@@ -88,6 +88,7 @@ import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
 
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.*;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
@@ -120,12 +121,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
     private static final int MAX_ITEM_LIMIT_UNLIMITED = -1;
 
+    //params added to implement Circuit Breaker
     private String jdbcConnectionCircuitBreakerState;
     private long thresholdTimeoutInMilliseconds;
     private long thresholdStartTime;
-
-    public static final String CIRCUIT_STATE_OPEN = "open";
-    public static final String CIRCUIT_STATE_CLOSE = "close";
 
     public JDBCUserStoreManager() {
 
@@ -249,6 +248,24 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         if (log.isDebugEnabled()) {
             log.debug("Ended " + System.currentTimeMillis());
         }
+
+        /** Set waiting time to re-establish connection after couple of failure attempts if specified
+                otherwise set default time.
+         connectionRetryDelay is not defined by default in the JDBC User store, hence verifying
+                           and applying the default values defined for ldap user store
+         */
+        if(StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(CONNECTION_RETRY_DELAY))) {
+
+            thresholdTimeoutInMilliseconds = getThresholdTimeoutInMilliseconds(
+                    realmConfig.getUserStoreProperty(CONNECTION_RETRY_DELAY));
+        } else {
+
+            thresholdTimeoutInMilliseconds = DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS;
+        }
+
+        // Used for Circuit breaker: By-default set to close state.
+        jdbcConnectionCircuitBreakerState = CIRCUIT_STATE_CLOSE;
+        thresholdStartTime = 0;
     }
 
     /**
@@ -330,6 +347,24 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         if (dataSource == null) {
             throw new UserStoreException("User Management Data Source is null");
         }
+
+        /** Set waiting time to re-establish connection after couple of failure attempts if specified
+         otherwise set default time.
+         connectionRetryDelay is not defined by default in the JDBC User store, hence verifying
+         and applying the default values defined for ldap user store
+         */
+        if(StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(CONNECTION_RETRY_DELAY))) {
+
+            thresholdTimeoutInMilliseconds = getThresholdTimeoutInMilliseconds(
+                    realmConfig.getUserStoreProperty(CONNECTION_RETRY_DELAY));
+        } else {
+
+            thresholdTimeoutInMilliseconds = DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS;
+        }
+
+        // Used for Circuit breaker: By-default set to close state.
+        jdbcConnectionCircuitBreakerState = CIRCUIT_STATE_CLOSE;
+        thresholdStartTime = 0;
 
         properties.put(UserCoreConstants.DATA_SOURCE, dataSource);
 
@@ -4891,6 +4926,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         return H2.equalsIgnoreCase(DatabaseCreator.getDatabaseType(dbConnection));
     }
 
+    /**
+     * Circuit Breaker pattern added for DB connection retrieval
+     *
+     * @return DB Connection
+     * @throws UserStoreException if unknown occurred while getting database connection.
+     * @throws SQLException if error occurred while retrieving database connection
+     */
     protected Connection getDBConnection() throws UserStoreException, SQLException {
 
         Connection dbConnection = null;
@@ -4923,7 +4965,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     throw new CircuitBreakerException(
                             "JDBC Connection circuit breaker is in open state for " + circuitOpenDuration
                                     + "ms and has not reach the threshold timeout: " + thresholdTimeoutInMilliseconds
-                                    + "ms, hence avoid establishing the connection for " + getMyDomainName() + " domain");
+                                    + "ms, hence avoid establishing the connection for " + getMyDomainName() +
+                                    " domain");
                 }
             case CIRCUIT_STATE_CLOSE:
                 try {
@@ -4934,7 +4977,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     dbConnection = getConnection();
                     break;
                 } catch (UserStoreException | SQLException e) {
-                    log.error("Error occurred while obtaining JDBC connection for " +getMyDomainName() + " domain", e);
+                    log.error("Error occurred while obtaining JDBC connection for " +getMyDomainName() +
+                            " domain", e);
                     log.error("Trying again to get connection.");
                     try {
                         dbConnection = getConnection();
@@ -4954,10 +4998,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         return dbConnection;
     }
 
-    public long getThresholdTimeoutInMilliseconds() {
-        return thresholdTimeoutInMilliseconds;
-    }
-
     public long getThresholdStartTime() {
         return thresholdStartTime;
     }
@@ -4966,16 +5006,24 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         return jdbcConnectionCircuitBreakerState;
     }
 
-    //check whether circuit breaker is open
+    public long getThresholdTimeoutInMilliseconds() {
+        return thresholdTimeoutInMilliseconds;
+    }
+
+    /**
+     * Verify Circuit Breaker state for user store
+     *
+     * @return true if CircuitBreaker Open, false otherwise.
+     */
     public Boolean isCircuitBreakerOpen() {
 
         long circuitOpenDuration = System.currentTimeMillis() - this.getThresholdStartTime();
 
         if (this.getCircuitBreakerState().equals(CIRCUIT_STATE_OPEN)
                 && circuitOpenDuration <=  this.getThresholdTimeoutInMilliseconds()) {
-            //can be a warn
-            log.error("CIRCUIT BREAKER: JDBC connection circuit breaker is in open state for" + circuitOpenDuration +
-                    "ms and has not reach the threshold timeout: " +
+
+            log.warn("Circuit Breaker Triggered: JDBC connection circuit breaker is in open state for"
+                    + circuitOpenDuration + "ms and has not reach the threshold timeout: " +
                     this.getThresholdTimeoutInMilliseconds() +
                     "ms, hence avoid establishing the" +getMyDomainName() + " domain JDBC connection.");
 
