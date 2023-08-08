@@ -190,7 +190,4 @@ public class UserStoreConfigConstants {
     public static final String singleValuedAttributesDescription = "Comma-separated list of attributes that need to " +
             "skip multi-valued attribute separation";
     public static final String singleValuedAttributesDisplayName = "Single Valued Attributes";
-
-    public static final String CIRCUIT_STATE_OPEN = "open";
-    public static final String CIRCUIT_STATE_CLOSE = "close";
 }

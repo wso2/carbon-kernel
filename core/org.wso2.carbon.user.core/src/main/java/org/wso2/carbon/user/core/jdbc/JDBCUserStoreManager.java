@@ -92,6 +92,8 @@ import static org.wso2.carbon.user.core.UserStoreConfigConstants.*;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
+import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.CIRCUIT_STATE_OPEN;
+import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.CIRCUIT_STATE_CLOSE;
 import static org.wso2.carbon.user.core.util.DatabaseUtil.getLoggableSqlString;
 
 public class JDBCUserStoreManager extends AbstractUserStoreManager {
@@ -121,7 +123,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
     private static final int MAX_ITEM_LIMIT_UNLIMITED = -1;
 
-    //params added to implement Circuit Breaker
+    // Params added to implement Circuit Breaker
     private String jdbcConnectionCircuitBreakerState;
     private long thresholdTimeoutInMilliseconds;
     private long thresholdStartTime;
@@ -4928,6 +4930,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
     /**
      * Circuit Breaker pattern added for DB connection retrieval
+     *          Renamed original getDBConnection() method to getConnection() to minimize changes
      *
      * @return DB Connection
      * @throws UserStoreException if unknown occurred while getting database connection.
@@ -4977,7 +4980,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     dbConnection = getConnection();
                     break;
                 } catch (UserStoreException | SQLException e) {
-                    log.error("Error occurred while obtaining JDBC connection for " +getMyDomainName() +
+                    log.error("Error occurred while obtaining JDBC connection for " + getMyDomainName() +
                             " domain", e);
                     log.error("Trying again to get connection.");
                     try {
@@ -5011,7 +5014,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Verify Circuit Breaker state for user store
+     * Verify Circuit Breaker state for user store.
      *
      * @return true if CircuitBreaker Open, false otherwise.
      */
@@ -5022,10 +5025,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         if (this.getCircuitBreakerState().equals(CIRCUIT_STATE_OPEN)
                 && circuitOpenDuration <=  this.getThresholdTimeoutInMilliseconds()) {
 
-            log.warn("Circuit Breaker Triggered: JDBC connection circuit breaker is in open state for"
+            log.warn("Circuit Breaker Triggered: JDBC connection circuit breaker is in open state for "
                     + circuitOpenDuration + "ms and has not reach the threshold timeout: " +
                     this.getThresholdTimeoutInMilliseconds() +
-                    "ms, hence avoid establishing the" +getMyDomainName() + " domain JDBC connection.");
+                    "ms, hence avoid establishing the " + getMyDomainName() + " domain JDBC connection.");
 
             return true;
         }

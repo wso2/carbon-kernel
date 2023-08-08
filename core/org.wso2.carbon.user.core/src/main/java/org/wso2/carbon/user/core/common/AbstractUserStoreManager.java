@@ -3226,7 +3226,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 try {
                     AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager) userManager;
 
-                    //verify whether circuit breaker is open for userstore
+                    // Verify whether circuit breaker is open for user store.
                     if(userStoreManager.isCircuitBreakerOpen()) {
                         if (log.isDebugEnabled()) {
                             log.debug("Circuit Breaker Triggered for" + extractedDomain);
@@ -3243,8 +3243,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
                 } catch (CircuitBreakerException ex) {
                     if(log.isDebugEnabled()) {
-                        log.debug("Circuit Breaker is in open state for "+extractedDomain +" domain. Hence ignore " +
-                                "the userstore and proceed", ex);
+                        log.debug("Circuit Breaker is in open state for " + extractedDomain +
+                                " domain. Hence ignore " + "the userstore and proceed", ex);
                     }
                     log.error("Error occurred while obtaining user store connection.");
                     return Collections.emptyList();
@@ -18011,5 +18011,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
-    public abstract Boolean isCircuitBreakerOpen();
+    // Default assigned as false.
+    protected Boolean isCircuitBreakerOpen() {
+        return false;
+    }
 }

@@ -105,7 +105,7 @@ import javax.naming.ldap.Rdn;
 import javax.naming.ldap.SortControl;
 import javax.sql.DataSource;
 
-import static org.wso2.carbon.user.core.UserStoreConfigConstants.CIRCUIT_STATE_OPEN;
+import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.CIRCUIT_STATE_OPEN;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_ID_ATTRIBUTE;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE;
