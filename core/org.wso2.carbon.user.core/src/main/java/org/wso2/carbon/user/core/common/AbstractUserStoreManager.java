@@ -17979,4 +17979,191 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
         return DEFAULT_PASSWORD_VALIDITY_PERIOD_VALUE;
     }
+
+    @Override
+    public Group addGroupWithID(String groupName, String[] userIDList, Permission[] permissions,
+                                      boolean isSharedRole) throws UserStoreException {
+
+        if (StringUtils.isEmpty(groupName)) {
+            handleAddRoleFailureWithID(ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.getCode(),
+                    ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.getMessage(), groupName, userIDList, permissions);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.toString());
+        }
+
+        if (userIDList == null) {
+            userIDList = new String[0];
+        }
+        UserStore userStore = getUserStore(groupName);
+
+        if (isSharedRole && !isSharedGroupEnabled()) {
+            handleAddRoleFailureWithID(ErrorMessages.ERROR_CODE_SHARED_ROLE_NOT_SUPPORTED.getCode(),
+                    ErrorMessages.ERROR_CODE_SHARED_ROLE_NOT_SUPPORTED.getMessage(), groupName, userIDList, permissions);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_SHARED_ROLE_NOT_SUPPORTED.toString());
+        }
+        String[] userList = new String[0];
+        if (!isUniqueUserIdEnabledInUserStore(userStore)) {
+            userList = userUniqueIDManger.getUsers(Arrays.asList(userIDList), this)
+                    .stream()
+                    .map(User::getDomainQualifiedUsername)
+                    .toArray(String[]::new);
+        }
+
+        if (userStore.isHybridRole()) {
+            //Invoke Pre listeners for hybrid roles.
+            if (!handlePreAddRoleWithID(groupName, userIDList, permissions, false)) {
+                return null;
+            }
+
+            if (isUniqueUserIdEnabledInUserStore(userStore)) {
+                doAddInternalRoleWithID(groupName, userIDList, permissions);
+            } else {
+                doAddInternalRole(groupName, userList, permissions);
+            }
+            // Calling only the audit logger, to maintain the back-ward compatibility
+            handlePostAddRoleWithID(groupName, userIDList, permissions, false);
+            return null;
+        }
+
+        if (userStore.isRecurssive()) {
+            return ((UniqueIDUserStoreManager) userStore.getUserStoreManager())
+                    .addGroupWithID(userStore.getDomainFreeName(), UserCoreUtil.removeDomainFromNames(userIDList),
+                            permissions, isSharedRole);
+
+        }
+
+        // #################### Domain Name Free Zone Starts Here ################################
+        if (userIDList == null) {
+            userIDList = new String[0];
+        }
+        if (permissions == null) {
+            permissions = new Permission[0];
+        }
+        // This happens only once during first startup - adding administrator user/role.
+        if (groupName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
+            groupName = userStore.getDomainFreeName();
+            userIDList = UserCoreUtil.removeDomainFromNames(userIDList);
+        }
+
+        // #################### <Listeners> #####################################################
+        if (!handlePreAddRoleWithID(groupName, userIDList, permissions, false)) {
+            return null;
+        }
+        // #################### </Listeners> #####################################################
+
+        // Check for validations
+        if (isReadOnly()) {
+            handleAddRoleFailureWithID(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), groupName, userIDList, permissions);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+        }
+
+        if (!isRoleNameValid(groupName)) {
+            String regEx = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_ROLE_NAME_JAVA_REG_EX);
+            String errorMessage = String
+                    .format(ErrorMessages.ERROR_CODE_INVALID_ROLE_NAME.getMessage(), groupName, regEx);
+            String errorCode = ErrorMessages.ERROR_CODE_INVALID_ROLE_NAME.getCode();
+            handleAddRoleFailureWithID(errorCode, errorMessage, groupName, userIDList, permissions);
+            throw new UserStoreException(errorCode + " - " + errorMessage);
+        }
+
+        if (doCheckExistingRole(groupName)) {
+            handleRoleAlreadyExistExceptionWithID(groupName, userIDList, permissions);
+        }
+
+        String roleWithDomain;
+        Group group = null;
+        if (writeGroupsEnabled) {
+            try {
+                // add role in to actual user store
+                if (!isUniqueUserIdEnabledInUserStore(userStore)) {
+                    List<User> users = userUniqueIDManger.getUsers(Arrays.asList(userIDList), this);
+                    doAddGroup(groupName, users.stream().map(User::getUsername).toArray(String[]::new), isSharedRole);
+                    //TODO - when underline userstore does not support unique ID
+                } else {
+                    group = doAddGroupWithID(groupName, userIDList, isSharedRole);
+                }
+                roleWithDomain = UserCoreUtil.addDomainToName(groupName, getMyDomainName());
+            } catch (UserStoreException ex) {
+                handleAddRoleFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_ADDING_ROLE.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_ADDING_ROLE.getMessage(), ex.getMessage()),
+                        groupName, userIDList, permissions);
+                throw ex;
+            }
+        } else {
+            handleAddRoleFailureWithID(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getCode(),
+                    ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getMessage(), groupName, userIDList,
+                    permissions);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.toString());
+        }
+
+        // add permission in to the the permission store
+        for (org.wso2.carbon.user.api.Permission permission : permissions) {
+            String resourceId = permission.getResourceId();
+            String action = permission.getAction();
+            if (resourceId == null || resourceId.trim().length() == 0) {
+                continue;
+            }
+
+            if (action == null || action.trim().length() == 0) {
+                // default action value
+                action = "read";
+            }
+            // This is a special case. We need to pass domain aware name.
+            userRealm.getAuthorizationManager().authorizeRole(roleWithDomain, resourceId, action);
+        }
+
+        // if existing users are added to role, need to update user role cache
+        if ((userIDList != null) && (userIDList.length > 0)) {
+            clearUserRolesCacheByTenant(tenantId);
+        }
+
+        // #################### <Listeners> #####################################################
+        handlePostAddRoleWithID(groupName, userIDList, permissions, false);
+        // #################### </Listeners> #####################################################
+        return group;
+
+    }
+
+    protected Group doAddGroupWithID(String groupName, String[] userIDList, boolean isSharedRole)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doAddGroupWithID operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException("doAddGroupWithID operation is not implemented in: " + this.getClass());
+
+    }
+
+    protected void doAddGroup(String groupName, String[] userIDList, boolean isSharedRole)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doAddGroup operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException("doAddGroup operation is not implemented in: " + this.getClass());
+    }
+
+    public Group generateGroup(String groupID, String groupName) throws UserStoreException {
+
+        if (groupID == null && groupName == null) {
+            throw new UserStoreException("Both groupID and groupName cannot be null.");
+        }
+
+        String domain = getMyDomainName();
+        if (groupID == null) {
+            groupID = getGroupIdByGroupName(groupName);
+        }
+
+        if (groupName == null) {
+            groupName = getGroupNameById(groupID);
+        }
+
+        if (StringUtils.isEmpty(groupID) && StringUtils.isEmpty(groupName)) {
+            throw new UserStoreClientException("Group not found in the cache or database");
+        }
+
+        Group group = new Group(groupID, groupName);
+        return group;
+    }
 }

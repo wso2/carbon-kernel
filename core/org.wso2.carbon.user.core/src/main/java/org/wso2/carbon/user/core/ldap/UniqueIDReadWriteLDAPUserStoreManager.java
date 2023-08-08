@@ -33,6 +33,7 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
+import org.wso2.carbon.user.core.common.Group;
 import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
@@ -2616,5 +2617,161 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
             Arrays.stream(immutableAttributes).forEach(userStorePropertyValues::remove);
         }
+    }
+
+    @Override
+    protected Group doAddGroupWithID(String groupName, String[] userIDList, boolean isSharedRole) throws UserStoreException {
+
+        List<String> userList = getUserNamesFromUserIDs(Arrays.asList(userIDList));
+        String userStoreDomain = getMyDomainName();
+        boolean containsInvalidUsernames = userList.stream()
+                .anyMatch(username -> !UserCoreUtil.extractDomainFromName(username).equalsIgnoreCase(userStoreDomain));
+
+        if (containsInvalidUsernames) {
+            throw new UserStoreException("One or more users in the users list: " + userList + " do not belong to the" +
+                    " user store: " + userStoreDomain);
+        }
+
+        userList = userList.stream().map(UserCoreUtil::removeDomainFromName).collect(Collectors.toList());
+
+        //TODO write new method to get the group ID
+        String groupID = getUniqueUserID();
+        persistGroup(groupName, groupID, userList.toArray(new String[0]));
+
+        if (isSharedRole && isSharedGroupEnabled()) {
+            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            groupName = groupName + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
+            persistGroup(groupName, groupID, userList.toArray(new String[0]));
+        }
+
+        if (isGroupIdGeneratedByUserStore()) {
+            //If the group Id attribute is immutable then we need to retrieve the userId from the user store.
+            return generateGroup(null,groupName);
+        }
+        return generateGroup(groupID, groupName);
+    }
+
+    @Override
+    public void doAddGroup(String groupName, String[] userIDList, boolean isSharedRole) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+    protected void persistGroup(String groupName, String groupID, String[] userList) throws UserStoreException {
+
+        RoleContext roleContext = createRoleContext(groupName);
+        String groupEntryObjectClass = ((LDAPRoleContext) roleContext).getGroupEntryObjectClass();
+        String groupNameAttribute = ((LDAPRoleContext) roleContext).getRoleNameProperty();
+        String searchBase = ((LDAPRoleContext) roleContext).getSearchBase();
+
+        if ((ArrayUtils.isEmpty(userList)) && !emptyRolesAllowed) {
+            String errorMessage = "Can not create empty group. There should be at least " + "one user for the group.";
+            throw new UserStoreException(errorMessage);
+        } else if (userList == null && emptyRolesAllowed
+                || userList != null && userList.length > 0 && !emptyRolesAllowed || emptyRolesAllowed) {
+
+            // if (userList.length > 0) {
+            DirContext mainDirContext = this.connectionSource.getContext();
+            DirContext groupContext = null;
+            NamingEnumeration<SearchResult> results = null;
+
+            try {
+                // create the attribute set for group entry
+                Attributes groupAttributes = new BasicAttributes(true);
+
+                // create group entry's object class attribute
+                Attribute objectClassAttribute = new BasicAttribute(LDAPConstants.OBJECT_CLASS_NAME);
+                objectClassAttribute.add(groupEntryObjectClass);
+                groupAttributes.put(objectClassAttribute);
+
+                //TODO Configure from FE
+                String groupEntryObjectClass1 = "uidObject";
+                objectClassAttribute.add(groupEntryObjectClass1);
+
+                // create cn attribute
+                Attribute cnAttribute = new BasicAttribute(groupNameAttribute);
+                cnAttribute.add(groupName);
+                groupAttributes.put(cnAttribute);
+                // following check is for if emptyRolesAllowed made this
+                // code executed.
+                if (userList != null && userList.length > 0) {
+
+                    String memberAttributeName = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
+                    Attribute memberAttribute = new BasicAttribute(memberAttributeName);
+                    for (String userName : userList) {
+
+                        if (userName == null || userName.trim().length() == 0) {
+                            continue;
+                        }
+                        // search the user in user search base
+                        String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+                        searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
+                        results = searchInUserBase(searchFilter, new String[] {}, SearchControls.SUBTREE_SCOPE,
+                                mainDirContext);
+                        // we assume only one user with the given user
+                        // name under user search base.
+                        SearchResult userResult = null;
+                        if (results.hasMore()) {
+                            userResult = results.next();
+                        } else {
+                            String errorMsg =
+                                    "There is no user with the user name: " + userName + " to be added to this role.";
+                            logger.error(errorMsg);
+                            throw new UserStoreException(errorMsg);
+                        }
+                        // get his DN
+                        String userEntryDN = userResult.getNameInNamespace();
+                        // put it as member-attribute value
+                        memberAttribute.add(userEntryDN);
+                    }
+                    groupAttributes.put(memberAttribute);
+                }
+
+                // Add groupID attribute.
+                String immutableAttributesProperty = Optional.ofNullable(realmConfig
+                        .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse(StringUtils.EMPTY);
+                String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
+                String groupIdAttributeName = realmConfig.getUserStoreProperty("GroupIdAttribute");
+                //Skipping if the userId attribute is immutable.
+                if (StringUtils.isNotBlank(groupIdAttributeName)
+                        && !ArrayUtils.contains(immutableAttributes, groupAttributes)) {
+                    Attribute groupIdAttribute = new BasicAttribute(groupIdAttributeName);
+                    groupIdAttribute.add(groupID);
+                    groupAttributes.put(groupIdAttribute);
+                }
+
+                groupContext = (DirContext) mainDirContext.lookup(escapeDNForSearch(searchBase));
+                NameParser ldapParser = groupContext.getNameParser("");
+                /*
+                 * Name compoundGroupName = ldapParser.parse(groupNameAttributeName + "=" +
+                 * roleName);
+                 */
+                Name compoundGroupName = ldapParser.parse("cn=" + groupName);
+                groupContext.bind(compoundGroupName, null, groupAttributes);
+
+            } catch (NamingException e) {
+                String errorMsg = "Group: " + groupName + " could not be added.";
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMsg, e);
+                }
+                throw new UserStoreException(errorMsg, e);
+            } catch (Exception e) {
+                String errorMsg = "Group: " + groupName + " could not be added.";
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMsg, e);
+                }
+                throw new UserStoreException(errorMsg, e);
+            } finally {
+                JNDIUtil.closeNamingEnumeration(results);
+                JNDIUtil.closeContext(groupContext);
+                JNDIUtil.closeContext(mainDirContext);
+            }
+        }
+    }
+
+    //TODO Do the implementation
+    private boolean isGroupIdGeneratedByUserStore() {
+
+        return false;
     }
 }
