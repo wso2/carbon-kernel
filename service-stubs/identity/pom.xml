@@ -26,16 +26,42 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>security-mgt-feature</artifactId>
+    <artifactId>carbon-service-stubs</artifactId>
     <packaging>pom</packaging>
-    <name>WSO2 Carbon - Security Management Feature Aggregator Module</name>
+    <name>WSO2 Carbon - Service Stubs - Aggregator Module</name>
     <url>http://wso2.org</url>
 
     <modules>
-        <module>org.wso2.carbon.security.mgt.feature</module>
-        <module>org.wso2.carbon.security.mgt.server.feature</module>
-        <module>org.wso2.carbon.security.mgt.ui.feature</module>
+        <module>org.wso2.carbon.security.mgt.stub</module>
     </modules>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.wso2.orbit.javax.activation</groupId>
+            <artifactId>activation</artifactId>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.7</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
-
