@@ -3001,11 +3001,27 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 // Get the user list and return with domain appended.
                 try {
                     AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager) userManager;
+
+                    if(userStoreManager.isCircuitBreakerOpen()) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Circuit Breaker Triggered for" + extractedDomain);
+                        }
+                        return Collections.emptyList();
+                    }
                     String[] userArray = userStoreManager.getUserListFromProperties(property, claimValue, profileName);
                     if (log.isDebugEnabled()) {
                         log.debug("List of filtered users for: " + extractedDomain + " : " + Arrays.asList(userArray));
                     }
                     return Arrays.asList(UserCoreUtil.addDomainToNames(userArray, extractedDomain));
+
+                } catch (CircuitBreakerException ex) {
+                    if(log.isDebugEnabled()) {
+                        log.debug("Circuit Breaker is in open state for " + extractedDomain +
+                                " domain. Hence ignore " + "the userstore and proceed", ex);
+                    }
+                    log.error("Error occurred while obtaining user store connection.");
+                    return Collections.emptyList();
+
                 } catch (UserStoreException ex) {
                     handleGetUserListFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getMessage(),
@@ -6451,6 +6467,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             }
         } else if (index == 0) {
+
             if (!isUniqueUserIdEnabled()) {
                 userList = doListUsers(filter.substring(1), maxItemLimit);
             } else {
@@ -6464,6 +6481,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         try {
+            // Verify whether circuit breaker is open for user store.
+            if (this.isCircuitBreakerOpen()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Circuit Breaker is in open state for " + this.getMyDomainName() +
+                            " domain. Hence ignore " + "the userstore and proceed");
+                }
+                userList = new String[0];
+                return userList;
+            }
             if (!isUniqueUserIdEnabled()) {
                 userList = doListUsers(filter, maxItemLimit);
             } else {
@@ -6472,6 +6498,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         .map(User::getUsername)
                         .toArray(String[]::new);
             }
+        } catch (CircuitBreakerException ex) {
+            if(log.isDebugEnabled()) {
+                log.debug("Circuit Breaker is in open state for " + this.getMyDomainName() +
+                        " domain. Hence ignore " + "the userstore and proceed", ex);
+            }
+            log.error("Error occurred while obtaining user store connection.");
+            userList = new String[0];
+            return userList;
+
         } catch (UserStoreException ex) {
             handleGetUserListFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getMessage(), ex.getMessage()),

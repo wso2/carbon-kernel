@@ -88,12 +88,13 @@ import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
 
-import static org.wso2.carbon.user.core.UserStoreConfigConstants.*;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.CIRCUIT_STATE_OPEN;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.CIRCUIT_STATE_CLOSE;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.CONNECTION_RETRY_DELAY;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS;
 import static org.wso2.carbon.user.core.util.DatabaseUtil.getLoggableSqlString;
 
 public class JDBCUserStoreManager extends AbstractUserStoreManager {
@@ -4979,7 +4980,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     }
                     dbConnection = getConnection();
                     break;
-                } catch (UserStoreException | SQLException e) {
+                } catch (Exception e) {
                     log.error("Error occurred while obtaining JDBC connection for " + getMyDomainName() +
                             " domain", e);
                     log.error("Trying again to get connection.");

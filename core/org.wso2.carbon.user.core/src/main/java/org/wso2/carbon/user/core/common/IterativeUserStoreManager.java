@@ -499,4 +499,5 @@ public class IterativeUserStoreManager extends AbstractUserStoreManager {
 
         return this.abstractUserStoreManager.doGetUserIDFromUserNameWithID(userName);
     }
+
 }

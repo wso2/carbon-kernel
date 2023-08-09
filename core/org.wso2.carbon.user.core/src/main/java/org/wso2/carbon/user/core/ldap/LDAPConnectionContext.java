@@ -52,8 +52,8 @@ import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import static org.wso2.carbon.user.core.UserStoreConfigConstants.CIRCUIT_STATE_CLOSE;
-import static org.wso2.carbon.user.core.UserStoreConfigConstants.CIRCUIT_STATE_OPEN;
+import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.CIRCUIT_STATE_CLOSE;
+import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.CIRCUIT_STATE_OPEN;
 
 public class LDAPConnectionContext {
 
