@@ -3475,19 +3475,25 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     private List<User> getMatchUsers(ExpressionCondition expressionCondition, List<User> users) {
 
         List<User> newUsersList = new ArrayList<>();
+        String attributeValue = (expressionCondition.getAttributeValue() != null) ?
+                expressionCondition.getAttributeValue().toLowerCase() : expressionCondition.getAttributeValue();
+
         for (User user : users) {
-            if (ExpressionOperation.SW.toString().equals(expressionCondition.getOperation())
-                    && user.getUsername().startsWith(expressionCondition.getAttributeValue()) && !newUsersList.contains(user)) {
-                newUsersList.add(user);
-            } else if (ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation())
-                    && user.getUsername().equals(expressionCondition.getAttributeValue()) && !newUsersList.contains(user)) {
-                newUsersList.add(user);
-            } else if (ExpressionOperation.CO.toString().equals(expressionCondition.getOperation())
-                    && user.getUsername().contains(expressionCondition.getAttributeValue()) && !newUsersList.contains(user)) {
-                newUsersList.add(user);
-            } else if (ExpressionOperation.EW.toString().equals(expressionCondition.getOperation())
-                    && user.getUsername().endsWith(expressionCondition.getAttributeValue()) && !newUsersList.contains(user)) {
-                newUsersList.add(user);
+            if (StringUtils.isNotBlank(user.getUsername())) {
+                String username = user.getUsername().toLowerCase();
+                if (ExpressionOperation.SW.toString().equals(expressionCondition.getOperation())
+                        && username.startsWith(attributeValue) && !newUsersList.contains(user)) {
+                    newUsersList.add(user);
+                } else if (ExpressionOperation.EQ.toString().equals(expressionCondition.getOperation())
+                        && username.equals(attributeValue) && !newUsersList.contains(user)) {
+                    newUsersList.add(user);
+                } else if (ExpressionOperation.CO.toString().equals(expressionCondition.getOperation())
+                        && username.contains(attributeValue) && !newUsersList.contains(user)) {
+                    newUsersList.add(user);
+                } else if (ExpressionOperation.EW.toString().equals(expressionCondition.getOperation())
+                        && username.endsWith(attributeValue) && !newUsersList.contains(user)) {
+                    newUsersList.add(user);
+                }
             }
         }
         return newUsersList;
