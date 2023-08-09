@@ -2769,6 +2769,71 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         }
     }
 
+    @Override
+    public void doDeleteGroup(String userName) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+   @Override
+    public void doDeleteGroupWithID(String groupID) throws UserStoreException {
+
+       String groupName = UserCoreUtil.removeDomainFromName(doGetGroupNameFromGroupId(groupID));
+
+       RoleContext roleContext = createRoleContext(groupName);
+
+       String groupSearchFilter = ((LDAPRoleContext) roleContext).getSearchFilter();
+       groupSearchFilter = groupSearchFilter.replace("?", escapeSpecialCharactersForFilter(roleContext.getRoleName()));
+       String[] returningAttributes = { ((LDAPRoleContext) roleContext).getRoleNameProperty() };
+       String searchBase = ((LDAPRoleContext) roleContext).getSearchBase();
+
+       DirContext mainDirContext = null;
+       DirContext groupContext = null;
+       NamingEnumeration<SearchResult> groupSearchResults = null;
+
+       try {
+
+           mainDirContext = this.connectionSource.getContext();
+           groupSearchResults = searchInGroupBase(groupSearchFilter, returningAttributes, SearchControls.SUBTREE_SCOPE,
+                   mainDirContext, searchBase);
+           SearchResult resultedGroup = null;
+           while (groupSearchResults.hasMoreElements()) {
+               resultedGroup = groupSearchResults.next();
+           }
+
+           if (resultedGroup == null) {
+               throw new UserStoreException("Could not find specified group - " + groupName);
+           }
+
+           groupContext = (DirContext) mainDirContext.lookup(escapeDNForSearch(groupSearchBase));
+           String groupNameAttributeValue = (String) resultedGroup.getAttributes()
+                   .get(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE)).get();
+           String attributeNameAppendedGroupName = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE) + "="
+                   + groupNameAttributeValue;
+           if (groupNameAttributeValue.equals(groupName)) {
+               groupContext.destroySubcontext(attributeNameAppendedGroupName);
+           }
+       } catch (NamingException e) {
+           String errorMessage = "Error occurred while deleting the group: " + groupName;
+           if (log.isDebugEnabled()) {
+               log.debug(errorMessage, e);
+           }
+           throw new UserStoreException(errorMessage, e);
+       } finally {
+           JNDIUtil.closeNamingEnumeration(groupSearchResults);
+           JNDIUtil.closeContext(groupContext);
+           JNDIUtil.closeContext(mainDirContext);
+       }
+//       TODO: need check that this shared thing is required
+
+//        if (roleContext.isShared()) {
+//            roleName = roleName + UserCoreConstants.TENANT_DOMAIN_COMBINER + CarbonContext.getThreadLocalCarbonContext()
+//                    .getTenantDomain();
+//            roleContext = createRoleContext(roleName);
+//            deleteLDAPRole(roleContext);
+//        }
+    }
+
     //TODO Do the implementation
     private boolean isGroupIdGeneratedByUserStore() {
 

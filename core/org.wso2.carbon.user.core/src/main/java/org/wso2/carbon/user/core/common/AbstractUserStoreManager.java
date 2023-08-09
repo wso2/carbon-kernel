@@ -18166,4 +18166,126 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         Group group = new Group(groupID, groupName);
         return group;
     }
+
+    @Override
+    public void deleteGroupWithID(String groupID) throws UserStoreException {
+
+        //TODO: Remove this group name usages and continue only with group ID
+        String groupName = getGroupNameByGroupId(groupID);
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class};
+            callSecure("deleteGroupWithID", new Object[]{groupID}, argTypes);
+            return;
+        }
+
+        if (UserCoreUtil.isPrimaryAdminRole(groupName, realmConfig)) {
+            handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_CANNOT_DELETE_ADMIN_ROLE.getCode(),
+                    ErrorMessages.ERROR_CODE_CANNOT_DELETE_ADMIN_ROLE.getMessage(), groupName);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_DELETE_ADMIN_ROLE.toString());
+        }
+        if (UserCoreUtil.isEveryoneRole(groupName, realmConfig)) {
+            handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_CANNOT_DELETE_EVERYONE_ROLE.getCode(),
+                    ErrorMessages.ERROR_CODE_CANNOT_DELETE_EVERYONE_ROLE.getMessage(), groupName);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_DELETE_EVERYONE_ROLE.toString());
+        }
+
+        UserStore userStore = getUserStoreWithGroupId(groupID);
+
+        if (userStore.isRecurssive()) {
+            ((AbstractUserStoreManager)userStore.getUserStoreManager())
+                    .deleteGroupWithID(userStore.getDomainFreeGroupId());
+            return;
+        }
+
+        String roleWithDomain = UserCoreUtil.addDomainToName(groupName, getMyDomainName());
+        // #################### Domain Name Free Zone Starts Here ################################
+
+        if (userStore.isHybridRole()) {
+            // Invoke pre listeners.
+            if (!handleDoPreDeleteRole(groupName, false)) {
+                return;
+            }
+            try {
+                if (APPLICATION_DOMAIN.equalsIgnoreCase(userStore.getDomainName()) || WORKFLOW_DOMAIN
+                        .equalsIgnoreCase(userStore.getDomainName())) {
+                    hybridRoleManager.deleteHybridRole(groupName);
+                } else {
+                    hybridRoleManager.deleteHybridRole(userStore.getDomainFreeName());
+                }
+            } catch (UserStoreException ex) {
+                handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_DELETE_ROLE.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_DELETE_ROLE.getMessage(), ex.getMessage()),
+                        groupName);
+                throw ex;
+            }
+            handleDoPostDeleteRole(groupName, false);
+            clearUserRolesCacheByTenant(tenantId);
+            return;
+        }
+        //TODO This is to check there is a group existing with group ID. If not we get an error at the beginning since
+        // we call for get group name by ID this check is not required. once group name is removed do this check with group ID
+//        if (!doCheckExistingRole(groupName)) {
+//            handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_CANNOT_DELETE_NON_EXISTING_ROLE.getCode(),
+//                    ErrorMessages.ERROR_CODE_CANNOT_DELETE_NON_EXISTING_ROLE.getMessage(), groupName);
+//            throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_DELETE_NON_EXISTING_ROLE.toString());
+//        }
+
+
+
+        // #################### <Listeners> #####################################################
+        if (!handleDoPreDeleteRole(groupName, false)) {
+            return;
+        }
+        // #################### </Listeners> #####################################################
+        if (isReadOnly()) {
+            handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), groupName);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+        }
+
+        if (!writeGroupsEnabled) {
+            handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getCode(),
+                    ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getMessage(), groupName);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.toString());
+        }
+        try {
+
+            //TODO How to handle when unique ID not supported/not enabled
+            if (isUniqueGroupIdEnabled()) {
+                doDeleteGroupWithID(groupID);
+            } else {
+                doDeleteGroup(groupName);
+            }
+        } catch (UserStoreException ex) {
+            handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_DELETE_ROLE.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_DELETE_ROLE.getMessage(), ex.getMessage()),
+                    groupName);
+            throw ex;
+        }
+
+        // clear role authorization
+        userRealm.getAuthorizationManager().clearRoleAuthorization(roleWithDomain);
+
+        // clear cache
+        clearUserRolesCacheByTenant(tenantId);
+
+        // Call relevant listeners after deleting the role.
+        handleDoPostDeleteRole(groupName, false);
+    }
+
+    protected void doDeleteGroup(String groupName) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doDeleteGroup operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException("doDeleteGroup operation is not implemented in: " + this.getClass());
+    }
+
+    protected void doDeleteGroupWithID(String groupID) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doDeleteGroupWithID operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException("doDeleteGroupWithID operation is not implemented in: " + this.getClass());
+    }
 }

@@ -688,4 +688,6 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
 
     Group addGroupWithID(String groupID, String[] userIDList, Permission[] permissions, boolean isSharedRole)
             throws UserStoreException;
+
+    void deleteGroupWithID(String groupID) throws UserStoreException;
 }
