@@ -1303,7 +1303,7 @@
                 <version>${version.commons.cli}</version>
             </dependency>
             <dependency>
-                <groupId>wrapper</groupId>
+                <groupId>tanukisoft</groupId>
                 <artifactId>wrapper</artifactId>
                 <version>${version.wrapper}</version>
             </dependency>

@@ -37,7 +37,7 @@
             <artifactId>pax-logging-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>wrapper</groupId>
+            <groupId>tanukisoft</groupId>
             <artifactId>wrapper</artifactId>
             <scope>compile</scope>
         </dependency>
