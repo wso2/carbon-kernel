@@ -26,15 +26,15 @@
 > Link to drafts of marketing content that will describe and promote this feature, including product page changes, technical articles, blog posts, videos, etc., if applicable
 
 ## Automation tests
- - Unit tests 
-   > Code coverage information
- - Integration tests
-   > Details about the test cases and coverage
+- Unit tests
+  > Code coverage information
+- Integration tests
+  > Details about the test cases and coverage
 
 ## Security checks
- - Followed secure coding standards in http://wso2.com/technical-reports/wso2-secure-engineering-guidelines? yes/no
- - Ran FindSecurityBugs plugin and verified report? yes/no
- - Confirmed that this PR doesn't commit any keys, passwords, tokens, usernames, or other secrets? yes/no
+- Followed secure coding standards in http://wso2.com/technical-reports/wso2-secure-engineering-guidelines? yes/no
+- Ran FindSecurityBugs plugin and verified report? yes/no
+- Confirmed that this PR doesn't commit any keys, passwords, tokens, usernames, or other secrets? yes/no
 
 ## Samples
 > Provide high-level details about the samples related to this feature
@@ -47,6 +47,6 @@
 
 ## Test environment
 > List all JDK versions, operating systems, databases, and browser/versions on which this feature/fix was tested
- 
+
 ## Learning
 > Describe the research phase and any blog posts, patterns, libraries, or add-ons you used to solve the problem.
