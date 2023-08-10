@@ -99,6 +99,4 @@ public class CertData {
         this.publicKey = publicKey;
     }
 
-
 }
-
