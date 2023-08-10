@@ -4956,7 +4956,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                         jdbcConnectionCircuitBreakerState = CIRCUIT_STATE_CLOSE;
                         thresholdStartTime = 0;
                         break;
-                    } catch (UserStoreException | SQLException e) {
+                    } catch (Exception e) {
                         log.error("Error occurred while obtaining connection", e);
                         thresholdStartTime = System.currentTimeMillis();
                         if (log.isDebugEnabled()) {
