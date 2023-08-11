@@ -114,6 +114,7 @@ public final class JDBCRealmConstants {
     public static final String COUNT_USERS_WITH_CLAIM = "CountUsersWithClaimSQL";
     public static final String COUNT_USERS = "CountUsersSQL";
     public static final String COUNT_ROLES = "CountRolesSQL";
+    public static final String COUNT_USERS_WITH_FILTER = "CountUsersWithFilterSQL";
     public static final String COUNT_APPLICATION_ROLES = "CountApplicationRolesSQL";
     public static final String COUNT_INTERNAL_ROLES = "CountInternalRolesSQL";
     public static final String ON_DELETE_USER_REMOVE_ATTRIBUTE = "OnDeleteUserRemoveUserAttributeSQL";
@@ -140,6 +141,7 @@ public final class JDBCRealmConstants {
             "AND UM_TENANT_ID = ? AND UM_ATTR_VALUE LIKE ? AND UM_PROFILE_ID = ?";
     public static final String COUNT_USERS_SQL = "SELECT COUNT(UM_USER_NAME) AS RESULT FROM UM_USER WHERE UM_USER_NAME LIKE ? " + "AND UM_TENANT_ID = ?";
     public static final String SELECT_USER_SQL = "SELECT * FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?";
+    public static final String COUNT_USERS_WITH_FILTER_SQL = "SELECT COUNT(UM_USER_NAME) AS RESULT FROM UM_USER WHERE UM_USER_NAME = ? " + "AND UM_TENANT_ID = ?";
     public static final String SELECT_USER_NAME_SQL =
             "SELECT UM_USER_ID, UM_USER_NAME, UM_USER_PASSWORD, UM_SALT_VALUE, "
                     + "UM_REQUIRE_CHANGE, UM_CHANGED_TIME FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?";

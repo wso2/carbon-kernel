@@ -608,6 +608,8 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(JDBCRealmConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE,
                 "On Delete User, Remove User Attribute SQL", JDBCRealmConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE_SQL, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCRealmConstants.COUNT_USERS_WITH_FILTER, "Count Users SQL With Filter", JDBCRealmConstants.COUNT_USERS_WITH_FILTER_SQL, "",
+                new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCRealmConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE_WITH_ID,
                 "On Delete User, Remove User Attribute SQL With ID",
                 JDBCRealmConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE_WITH_ID_SQL, "",
