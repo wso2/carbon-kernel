@@ -12660,6 +12660,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         User user = new User(userID, userName, userName);
         user.setTenantDomain(getTenantDomain(tenantId));
         user.setUserStoreDomain(domain);
+
+        if (StringUtils.isNotEmpty(userID) &&
+                StringUtils.isEmpty(userUniqueIDDomainResolver.getDomainForUserId(userID, tenantId))) {
+            userUniqueIDDomainResolver.setDomainForUserId(userID, domain, tenantId);
+        }
         return user;
     }
 
