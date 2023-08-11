@@ -11323,40 +11323,48 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         .getAttributeName(getMyDomainName(), preferredUserNameClaim);
                 // Let's authenticate with the primary UserStoreManager.
 
-                if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
-                    authenticationResult = abstractUserStoreManager
-                            .doAuthenticateWithID(preferredUserNameProperty, preferredUserNameValue, credentialObj,
-                                    profileName);
+                if (abstractUserStoreManager.isCircuitBreakerOpen()) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Circuit Breaker is in open state for:  "
+                                + abstractUserStoreManager.getMyDomainName());
+                    }
+                    authenticated = false;
                 } else {
-                    List<String> users = doGetUserList(preferredUserNameClaim, preferredUserNameValue, profileName,
-                            abstractUserStoreManager.getMyDomainName(), abstractUserStoreManager);
-                    if (users.size() != 1) {
-                        String message = "Users count matching to claim: " + preferredUserNameClaim + " and value: "
-                                + preferredUserNameValue + " is: " + users.size();
-                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
-                        authenticationResult.setFailureReason(new FailureReason(message));
-                        if (log.isDebugEnabled()) {
-                            log.debug(message);
-                        }
+                    if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
+                        authenticationResult = abstractUserStoreManager
+                                .doAuthenticateWithID(preferredUserNameProperty, preferredUserNameValue, credentialObj,
+                                        profileName);
                     } else {
-                        boolean status = abstractUserStoreManager.doAuthenticate(UserCoreUtil.removeDomainFromName(
-                                users.get(0)), credentialObj);
-                        authenticationResult = new AuthenticationResult(status ?
-                                AuthenticationResult.AuthenticationStatus.SUCCESS :
-                                AuthenticationResult.AuthenticationStatus.FAIL);
-                        if (status) {
-                            String userID = userUniqueIDManger.getUniqueId(users.get(0), this);
-                            User user = userUniqueIDManger.getUser(userID, this);
-                            user.setTenantDomain(getTenantDomain(tenantId));
-                            authenticationResult.setAuthenticatedUser(user);
+                        List<String> users = doGetUserList(preferredUserNameClaim, preferredUserNameValue, profileName,
+                                abstractUserStoreManager.getMyDomainName(), abstractUserStoreManager);
+                        if (users.size() != 1) {
+                            String message = "Users count matching to claim: " + preferredUserNameClaim + " and value: "
+                                    + preferredUserNameValue + " is: " + users.size();
+                            authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
+                            authenticationResult.setFailureReason(new FailureReason(message));
+                            if (log.isDebugEnabled()) {
+                                log.debug(message);
+                            }
                         } else {
-                            authenticationResult.setFailureReason(new FailureReason("Invalid credentials."));
+                            boolean status = abstractUserStoreManager.doAuthenticate(UserCoreUtil.removeDomainFromName(
+                                    users.get(0)), credentialObj);
+                            authenticationResult = new AuthenticationResult(status ?
+                                    AuthenticationResult.AuthenticationStatus.SUCCESS :
+                                    AuthenticationResult.AuthenticationStatus.FAIL);
+                            if (status) {
+                                String userID = userUniqueIDManger.getUniqueId(users.get(0), this);
+                                User user = userUniqueIDManger.getUser(userID, this);
+                                user.setTenantDomain(getTenantDomain(tenantId));
+                                authenticationResult.setAuthenticatedUser(user);
+                            } else {
+                                authenticationResult.setFailureReason(new FailureReason("Invalid credentials."));
+                            }
                         }
                     }
-                }
-                if (authenticationResult.getAuthenticationStatus()
-                        == AuthenticationResult.AuthenticationStatus.SUCCESS) {
-                    authenticated = true;
+                    if (authenticationResult.getAuthenticationStatus()
+                            == AuthenticationResult.AuthenticationStatus.SUCCESS) {
+                        authenticated = true;
+                    }
                 }
             } catch (Exception e) {
                 handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
@@ -11369,6 +11377,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         log.debug("Error occurred while authenticating user: " + preferredUserNameValue, e);
                     }
                     throw (UserStoreClientException) e;
+
+                } else if (e instanceof CircuitBreakerException) {   // Handle Circuit breaker if user store is down
+
+                    if (log.isDebugEnabled()) {
+                        log.debug("Circuit Breaker is in open state for " +
+                                abstractUserStoreManager.getMyDomainName() + " domain. Hence ignore the userstore " +
+                                "and proceed");
+                    }
+                    log.error("Error occurred while obtaining user store connection.");
                 }
                 log.error("Error occurred while authenticating user: " + preferredUserNameValue, e);
                 authenticated = false;
