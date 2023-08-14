@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.user.core.common;
 
+import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.listener.GroupOperationEventListener;
@@ -115,6 +116,34 @@ public class AbstractGroupOperationEventListener implements GroupOperationEventL
     @Override
     public boolean postListGroups(Condition condition, int limit, int offset, String domain, String sortBy,
                                   String sortOrder, List<Group> groupsList, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean preAddGroupWithID(String roleName, String[] userList,
+                              UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean postAddGroupWithID(String roleName, String[] userList, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean preDeleteGroupWithID(String roleName, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean postDeleteGroupWithID(String roleName, UserStoreManager userStoreManager)
             throws UserStoreException {
 
         return true;

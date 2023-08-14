@@ -2620,7 +2620,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     }
 
     @Override
-    protected Group doAddGroupWithID(String groupName, String[] userIDList, boolean isSharedRole) throws UserStoreException {
+    protected Group doAddGroupWithID(String groupName, String[] userIDList) throws UserStoreException {
 
         List<String> userList = getUserNamesFromUserIDs(Arrays.asList(userIDList));
         String userStoreDomain = getMyDomainName();
@@ -2634,15 +2634,8 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
         userList = userList.stream().map(UserCoreUtil::removeDomainFromName).collect(Collectors.toList());
 
-        //TODO write new method to get the group ID
-        String groupID = getUniqueUserID();
+        String groupID = getUniqueGroupID();
         persistGroup(groupName, groupID, userList.toArray(new String[0]));
-
-        if (isSharedRole && isSharedGroupEnabled()) {
-            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            groupName = groupName + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
-            persistGroup(groupName, groupID, userList.toArray(new String[0]));
-        }
 
         if (isGroupIdGeneratedByUserStore()) {
             //If the group Id attribute is immutable then we need to retrieve the userId from the user store.
@@ -2652,7 +2645,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     }
 
     @Override
-    public void doAddGroup(String groupName, String[] userIDList, boolean isSharedRole) throws UserStoreException {
+    public void doAddGroup(String groupName, String[] userIDList) throws UserStoreException {
 
         throw new UserStoreException("Operation is not supported.");
     }
@@ -2684,7 +2677,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                 objectClassAttribute.add(groupEntryObjectClass);
                 groupAttributes.put(objectClassAttribute);
 
-                //TODO Configure from FE
+                //TODO - Configure from FE side added temporarily
                 String groupEntryObjectClass1 = "uidObject";
                 objectClassAttribute.add(groupEntryObjectClass1);
 
@@ -2824,14 +2817,6 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
            JNDIUtil.closeContext(groupContext);
            JNDIUtil.closeContext(mainDirContext);
        }
-//       TODO: need check that this shared thing is required
-
-//        if (roleContext.isShared()) {
-//            roleName = roleName + UserCoreConstants.TENANT_DOMAIN_COMBINER + CarbonContext.getThreadLocalCarbonContext()
-//                    .getTenantDomain();
-//            roleContext = createRoleContext(roleName);
-//            deleteLDAPRole(roleContext);
-//        }
     }
 
     //TODO Do the implementation

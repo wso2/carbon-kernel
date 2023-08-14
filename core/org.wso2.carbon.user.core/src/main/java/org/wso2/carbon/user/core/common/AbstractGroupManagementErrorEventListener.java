@@ -176,4 +176,20 @@ public class AbstractGroupManagementErrorEventListener implements GroupManagemen
 
         return true;
     }
+
+    @Override
+    public boolean onAddGroupWithIDFailure(String errorCode, String errorMessage, String groupName,
+                                           String[] userIDList, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean onDeleteGroupWithIDFailure(String errorCode, String errorMessage, String groupName,
+                                       UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
 }

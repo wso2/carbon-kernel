@@ -314,4 +314,12 @@ public interface GroupManagementErrorEventListener {
     boolean onListGroupsFailure(String errorCode, String errorMessage, Condition condition, int limit, int offset,
                                 String domain, String sortBy, String sortOrder, UserStoreManager userStoreManager)
             throws UserStoreException;
+
+    boolean onAddGroupWithIDFailure(String errorCode, String errorMessage, String groupName,
+                                    String[] userIDList, UserStoreManager userStoreManager)
+            throws UserStoreException;
+
+    boolean onDeleteGroupWithIDFailure(String errorCode, String errorMessage, String groupName,
+                                    UserStoreManager userStoreManager)
+            throws UserStoreException;
 }

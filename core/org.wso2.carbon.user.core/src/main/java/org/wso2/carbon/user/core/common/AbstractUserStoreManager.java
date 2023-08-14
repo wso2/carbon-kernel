@@ -125,12 +125,16 @@ import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMe
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_GROUP_ALREADY_EXISTS;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_POST_ADD_GROUP_WITH_ID;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_POST_GET_GROUP;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_POST_GET_GROUPS_LIST_BY_USER_ID;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_POST_GET_GROUP_BY_ID;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_POST_GET_GROUP_BY_NAME;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_POST_GET_GROUP_ID_BY_NAME;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_POST_GET_GROUP_NAME_BY_ID;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_PRE_ADD_GROUP_WITH_ID;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_PRE_DELETE_GROUP_WITH_ID;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_PRE_GET_GROUP;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_PRE_GET_GROUPS_LIST_BY_USER_ID;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_PRE_GET_GROUP_BY_ID;
@@ -14937,6 +14941,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // #################### Domain Name Free Zone Starts Here ################################
         if (userIDList == null) {
+
             userIDList = new String[0];
         }
         if (permissions == null) {
@@ -17981,152 +17986,97 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public Group addGroupWithID(String groupName, String[] userIDList, Permission[] permissions,
-                                      boolean isSharedRole) throws UserStoreException {
+    public Group addGroupWithID(String groupName, String[] userIDList) throws UserStoreException {
 
         if (StringUtils.isEmpty(groupName)) {
-            handleAddRoleFailureWithID(ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.getCode(),
-                    ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.getMessage(), groupName, userIDList, permissions);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_ADD_EMPTY_ROLE.toString());
+            handleAddGroupFailureWithID(ErrorMessages.ERROR_EMPTY_GROUP_NAME.getCode(),
+                    ErrorMessages.ERROR_EMPTY_GROUP_NAME.getMessage(), groupName, userIDList);
+            throw new UserStoreException(ErrorMessages.ERROR_EMPTY_GROUP_NAME.toString());
         }
 
         if (userIDList == null) {
             userIDList = new String[0];
         }
-        UserStore userStore = getUserStore(groupName);
 
-        if (isSharedRole && !isSharedGroupEnabled()) {
-            handleAddRoleFailureWithID(ErrorMessages.ERROR_CODE_SHARED_ROLE_NOT_SUPPORTED.getCode(),
-                    ErrorMessages.ERROR_CODE_SHARED_ROLE_NOT_SUPPORTED.getMessage(), groupName, userIDList, permissions);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_SHARED_ROLE_NOT_SUPPORTED.toString());
-        }
-        String[] userList = new String[0];
-        if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-            userList = userUniqueIDManger.getUsers(Arrays.asList(userIDList), this)
-                    .stream()
-                    .map(User::getDomainQualifiedUsername)
-                    .toArray(String[]::new);
-        }
-
-        if (userStore.isHybridRole()) {
-            //Invoke Pre listeners for hybrid roles.
-            if (!handlePreAddRoleWithID(groupName, userIDList, permissions, false)) {
-                return null;
-            }
-
-            if (isUniqueUserIdEnabledInUserStore(userStore)) {
-                doAddInternalRoleWithID(groupName, userIDList, permissions);
-            } else {
-                doAddInternalRole(groupName, userList, permissions);
-            }
-            // Calling only the audit logger, to maintain the back-ward compatibility
-            handlePostAddRoleWithID(groupName, userIDList, permissions, false);
-            return null;
-        }
+        UserStore userStore = getUserStoreWithGroupName(groupName);
 
         if (userStore.isRecurssive()) {
             return ((UniqueIDUserStoreManager) userStore.getUserStoreManager())
-                    .addGroupWithID(userStore.getDomainFreeName(), UserCoreUtil.removeDomainFromNames(userIDList),
-                            permissions, isSharedRole);
+                    .addGroupWithID(userStore.getDomainFreeGroupName(), UserCoreUtil.removeDomainFromNames(userIDList));
 
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
-        if (userIDList == null) {
-            userIDList = new String[0];
-        }
-        if (permissions == null) {
-            permissions = new Permission[0];
-        }
         // This happens only once during first startup - adding administrator user/role.
+        //TODO - Check whether this is required
         if (groupName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
             groupName = userStore.getDomainFreeName();
             userIDList = UserCoreUtil.removeDomainFromNames(userIDList);
         }
 
         // #################### <Listeners> #####################################################
-        if (!handlePreAddRoleWithID(groupName, userIDList, permissions, false)) {
+        //TODO - Go through Listeners implementation if required create a task
+        if (!handlePreAddGroupWithID(groupName, userIDList, false)) {
             return null;
         }
         // #################### </Listeners> #####################################################
 
         // Check for validations
         if (isReadOnly()) {
-            handleAddRoleFailureWithID(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
-                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), groupName, userIDList, permissions);
+            handleAddGroupFailureWithID(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), groupName, userIDList);
             throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
         }
 
-        if (!isRoleNameValid(groupName)) {
+        if (!isGroupNameValid(groupName)) {
             String regEx = realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_ROLE_NAME_JAVA_REG_EX);
             String errorMessage = String
-                    .format(ErrorMessages.ERROR_CODE_INVALID_ROLE_NAME.getMessage(), groupName, regEx);
-            String errorCode = ErrorMessages.ERROR_CODE_INVALID_ROLE_NAME.getCode();
-            handleAddRoleFailureWithID(errorCode, errorMessage, groupName, userIDList, permissions);
+                    .format(ErrorMessages.ERROR_CODE_INVALID_GROUP_NAME.getMessage(), groupName, regEx);
+            String errorCode = ErrorMessages.ERROR_CODE_INVALID_GROUP_NAME.getCode();
+            handleAddGroupFailureWithID(errorCode, errorMessage, groupName, userIDList);
             throw new UserStoreException(errorCode + " - " + errorMessage);
         }
 
-        if (doCheckExistingRole(groupName)) {
-            handleRoleAlreadyExistExceptionWithID(groupName, userIDList, permissions);
+        if (doGetGroupIdFromGroupName(groupName) != null) {
+            handleGroupAlreadyExistExceptionWithID(groupName, userIDList);
         }
 
-        String roleWithDomain;
         Group group = null;
         if (writeGroupsEnabled) {
             try {
-                // add role in to actual user store
+                // add group in to actual user store
                 if (!isUniqueUserIdEnabledInUserStore(userStore)) {
                     List<User> users = userUniqueIDManger.getUsers(Arrays.asList(userIDList), this);
-                    doAddGroup(groupName, users.stream().map(User::getUsername).toArray(String[]::new), isSharedRole);
-                    //TODO - when underline userstore does not support unique ID
+                    doAddGroup(groupName, users.stream().map(User::getUsername).toArray(String[]::new));
                 } else {
-                    group = doAddGroupWithID(groupName, userIDList, isSharedRole);
+                    group = doAddGroupWithID(groupName, userIDList);
                 }
-                roleWithDomain = UserCoreUtil.addDomainToName(groupName, getMyDomainName());
             } catch (UserStoreException ex) {
-                handleAddRoleFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_ADDING_ROLE.getCode(),
-                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_ADDING_ROLE.getMessage(), ex.getMessage()),
-                        groupName, userIDList, permissions);
+                handleAddGroupFailureWithID(ErrorMessages.ERROR_CODE_WHILE_ADDING_GROUP.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_WHILE_ADDING_GROUP.getMessage(), ex.getMessage()),
+                        groupName, userIDList);
                 throw ex;
             }
         } else {
-            handleAddRoleFailureWithID(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getCode(),
-                    ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getMessage(), groupName, userIDList,
-                    permissions);
+            handleAddGroupFailureWithID(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getCode(),
+                    ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getMessage(), groupName, userIDList);
             throw new UserStoreException(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.toString());
         }
 
-        // add permission in to the the permission store
-        for (org.wso2.carbon.user.api.Permission permission : permissions) {
-            String resourceId = permission.getResourceId();
-            String action = permission.getAction();
-            if (resourceId == null || resourceId.trim().length() == 0) {
-                continue;
-            }
-
-            if (action == null || action.trim().length() == 0) {
-                // default action value
-                action = "read";
-            }
-            // This is a special case. We need to pass domain aware name.
-            userRealm.getAuthorizationManager().authorizeRole(roleWithDomain, resourceId, action);
-        }
-
         // if existing users are added to role, need to update user role cache
+        //TODO - Revisit cache implementation for groups and add change this accordingly
         if ((userIDList != null) && (userIDList.length > 0)) {
             clearUserRolesCacheByTenant(tenantId);
         }
 
         // #################### <Listeners> #####################################################
-        handlePostAddRoleWithID(groupName, userIDList, permissions, false);
+        handlePostAddGroupWithID(groupName, userIDList, false);
         // #################### </Listeners> #####################################################
         return group;
-
     }
 
-    protected Group doAddGroupWithID(String groupName, String[] userIDList, boolean isSharedRole)
-            throws UserStoreException {
+    protected Group doAddGroupWithID(String groupName, String[] userIDList) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("doAddGroupWithID operation is not implemented in: " + this.getClass());
@@ -18135,8 +18085,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     }
 
-    protected void doAddGroup(String groupName, String[] userIDList, boolean isSharedRole)
-            throws UserStoreException {
+    protected void doAddGroup(String groupName, String[] userIDList) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("doAddGroup operation is not implemented in: " + this.getClass());
@@ -18150,7 +18099,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throw new UserStoreException("Both groupID and groupName cannot be null.");
         }
 
-        String domain = getMyDomainName();
         if (groupID == null) {
             groupID = getGroupIdByGroupName(groupName);
         }
@@ -18170,24 +18118,23 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public void deleteGroupWithID(String groupID) throws UserStoreException {
 
-        //TODO: Remove this group name usages and continue only with group ID
-        String groupName = getGroupNameByGroupId(groupID);
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class};
             callSecure("deleteGroupWithID", new Object[]{groupID}, argTypes);
             return;
         }
 
-        if (UserCoreUtil.isPrimaryAdminRole(groupName, realmConfig)) {
-            handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_CANNOT_DELETE_ADMIN_ROLE.getCode(),
-                    ErrorMessages.ERROR_CODE_CANNOT_DELETE_ADMIN_ROLE.getMessage(), groupName);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_DELETE_ADMIN_ROLE.toString());
-        }
-        if (UserCoreUtil.isEveryoneRole(groupName, realmConfig)) {
-            handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_CANNOT_DELETE_EVERYONE_ROLE.getCode(),
-                    ErrorMessages.ERROR_CODE_CANNOT_DELETE_EVERYONE_ROLE.getMessage(), groupName);
-            throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_DELETE_EVERYONE_ROLE.toString());
-        }
+        //TODO - Check whether this is required for groups
+//        if (UserCoreUtil.isPrimaryAdminRole(groupName, realmConfig)) {
+//            handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_CANNOT_DELETE_ADMIN_ROLE.getCode(),
+//                    ErrorMessages.ERROR_CODE_CANNOT_DELETE_ADMIN_ROLE.getMessage(), groupName);
+//            throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_DELETE_ADMIN_ROLE.toString());
+//        }
+//        if (UserCoreUtil.isEveryoneRole(groupName, realmConfig)) {
+//            handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_CANNOT_DELETE_EVERYONE_ROLE.getCode(),
+//                    ErrorMessages.ERROR_CODE_CANNOT_DELETE_EVERYONE_ROLE.getMessage(), groupName);
+//            throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_DELETE_EVERYONE_ROLE.toString());
+//        }
 
         UserStore userStore = getUserStoreWithGroupId(groupID);
 
@@ -18197,80 +18144,55 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return;
         }
 
-        String roleWithDomain = UserCoreUtil.addDomainToName(groupName, getMyDomainName());
         // #################### Domain Name Free Zone Starts Here ################################
+        String groupName = getGroupNameById(groupID);
 
-        if (userStore.isHybridRole()) {
-            // Invoke pre listeners.
-            if (!handleDoPreDeleteRole(groupName, false)) {
-                return;
+        if(groupName == null) {
+
+            handleDeleteGroupWithIDFailure(ErrorMessages.ERROR_CODE_CANNOT_DELETE_NON_EXISTING_GROUP.getCode(),
+                    ErrorMessages.ERROR_CODE_CANNOT_DELETE_NON_EXISTING_GROUP.getMessage(), groupName);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_DELETE_NON_EXISTING_GROUP.toString());
             }
-            try {
-                if (APPLICATION_DOMAIN.equalsIgnoreCase(userStore.getDomainName()) || WORKFLOW_DOMAIN
-                        .equalsIgnoreCase(userStore.getDomainName())) {
-                    hybridRoleManager.deleteHybridRole(groupName);
-                } else {
-                    hybridRoleManager.deleteHybridRole(userStore.getDomainFreeName());
-                }
-            } catch (UserStoreException ex) {
-                handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_DELETE_ROLE.getCode(),
-                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_DELETE_ROLE.getMessage(), ex.getMessage()),
-                        groupName);
-                throw ex;
-            }
-            handleDoPostDeleteRole(groupName, false);
-            clearUserRolesCacheByTenant(tenantId);
-            return;
-        }
-        //TODO This is to check there is a group existing with group ID. If not we get an error at the beginning since
-        // we call for get group name by ID this check is not required. once group name is removed do this check with group ID
-//        if (!doCheckExistingRole(groupName)) {
-//            handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_CANNOT_DELETE_NON_EXISTING_ROLE.getCode(),
-//                    ErrorMessages.ERROR_CODE_CANNOT_DELETE_NON_EXISTING_ROLE.getMessage(), groupName);
-//            throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_DELETE_NON_EXISTING_ROLE.toString());
-//        }
-
-
 
         // #################### <Listeners> #####################################################
-        if (!handleDoPreDeleteRole(groupName, false)) {
+        if (!handlePreDeleteGroupWithID(groupName, false)) {
             return;
         }
         // #################### </Listeners> #####################################################
+
         if (isReadOnly()) {
-            handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
+            handleDeleteGroupWithIDFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
                     ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), groupName);
             throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
         }
 
         if (!writeGroupsEnabled) {
-            handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getCode(),
+            handleDeleteGroupWithIDFailure(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getCode(),
                     ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getMessage(), groupName);
             throw new UserStoreException(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.toString());
         }
         try {
-
-            //TODO How to handle when unique ID not supported/not enabled
-            if (isUniqueGroupIdEnabled()) {
+          if(isUniqueUserIdEnabledInUserStore(userStore)) {
                 doDeleteGroupWithID(groupID);
-            } else {
+          } else {
                 doDeleteGroup(groupName);
-            }
+          }
         } catch (UserStoreException ex) {
-            handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_DELETE_ROLE.getCode(),
+            handleDeleteGroupWithIDFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_DELETE_ROLE.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_DELETE_ROLE.getMessage(), ex.getMessage()),
                     groupName);
             throw ex;
         }
 
         // clear role authorization
-        userRealm.getAuthorizationManager().clearRoleAuthorization(roleWithDomain);
+        //userRealm.getAuthorizationManager().clearRoleAuthorization(roleWithDomain);
 
         // clear cache
-        clearUserRolesCacheByTenant(tenantId);
+        //TODO - revisit cache implementation for groups and change this accordingly
+        //clearUserRolesCacheByTenant(tenantId);
 
         // Call relevant listeners after deleting the role.
-        handleDoPostDeleteRole(groupName, false);
+        handlePostDeleteGroupWithID(groupName, false);
     }
 
     protected void doDeleteGroup(String groupName) throws UserStoreException {
@@ -18287,5 +18209,181 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             log.debug("doDeleteGroupWithID operation is not implemented in: " + this.getClass());
         }
         throw new NotImplementedException("doDeleteGroupWithID operation is not implemented in: " + this.getClass());
+    }
+
+    private void handleAddGroupFailureWithID(String errorCode, String errorMessage, String groupName,
+                                             String[] userIDList) throws UserStoreException {
+
+        for (GroupManagementErrorEventListener listener : UMListenerServiceComponent
+                .getGroupManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
+                    && !listener.onAddGroupWithIDFailure(errorCode,
+                    errorMessage, groupName, userIDList, this)) {
+                log.error("'onAddGroupWithIdFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
+                return;
+            }
+        }
+    }
+
+    private boolean handlePreAddGroupWithID(String groupName, String[] userIDList,
+                                            boolean isAuditLogOnly) throws UserStoreException {
+
+        try {
+            for (GroupOperationEventListener listener : UMListenerServiceComponent
+                    .getGroupOperationEventListeners()) {
+                if (isAuditLogOnly && !listener.getClass().getName()
+                        .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+                if (listener instanceof AbstractGroupOperationEventListener) {
+                    AbstractGroupOperationEventListener newListener = (AbstractGroupOperationEventListener) listener;
+                    if (!newListener.preAddGroupWithID(groupName, userIDList, this)) {
+                        handleAddGroupFailureWithID(ERROR_DURING_PRE_ADD_GROUP_WITH_ID.getCode(),
+                                String.format(ERROR_DURING_PRE_ADD_GROUP_WITH_ID.getMessage(),
+                                        UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), groupName, userIDList);
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleAddGroupFailureWithID(ERROR_DURING_PRE_ADD_GROUP_WITH_ID.getCode(),
+                    String.format(ERROR_DURING_PRE_ADD_GROUP_WITH_ID.getMessage(),
+                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), groupName, userIDList);
+            throw ex;
+        }
+        return true;
+    }
+
+    protected boolean isGroupNameValid(String groupName) {
+
+        if (groupName == null) {
+            return false;
+        }
+
+        if (groupName.length() < 1) {
+            return false;
+        }
+
+        //TODO - Group name java regex should be used.
+        String regularExpression = realmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_ROLE_NAME_JAVA_REG_EX);
+        if (regularExpression != null) {
+            return isFormatCorrect(regularExpression, groupName);
+        }
+        return true;
+    }
+
+    private void handleGroupAlreadyExistExceptionWithID(String groupName, String[] userIDList)
+            throws UserStoreException {
+
+        String errorCode = ErrorMessages.ERROR_CODE_GROUP_ALREADY_EXISTS.getCode();
+        String errorMessage = String.format(ErrorMessages.ERROR_CODE_GROUP_ALREADY_EXISTS.getMessage(), groupName);
+        handleAddGroupFailureWithID(errorCode, errorMessage, groupName, userIDList);
+        throw new UserStoreException(errorCode + " - " + errorMessage);
+    }
+
+    private void handlePostAddGroupWithID(String groupName, String[] userIDList, boolean isAuditLogOnly)
+            throws UserStoreException {
+
+        try {
+            for (GroupOperationEventListener listener : UMListenerServiceComponent
+                    .getGroupOperationEventListeners()) {
+                if (isAuditLogOnly && !listener.getClass().getName()
+                        .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+                if (listener instanceof AbstractGroupOperationEventListener) {
+                    AbstractGroupOperationEventListener newListener = (AbstractGroupOperationEventListener) listener;
+                    if (!newListener.postAddGroupWithID(groupName, userIDList, this)) {
+                        handleAddGroupFailureWithID(ERROR_DURING_POST_ADD_GROUP_WITH_ID.getCode(),
+                                String.format(ERROR_DURING_POST_ADD_GROUP_WITH_ID.getMessage(),
+                                        UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), groupName, userIDList);
+                        return;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleAddGroupFailureWithID(ERROR_DURING_POST_ADD_GROUP_WITH_ID.getCode(),
+                    String.format(ERROR_DURING_POST_ADD_GROUP_WITH_ID.getMessage(),
+                            UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), groupName, userIDList);
+            throw ex;
+        }
+    }
+
+    private void handleDeleteGroupWithIDFailure(String errorCode, String errorMessage, String groupName)
+            throws UserStoreException {
+
+        for (GroupManagementErrorEventListener listener : UMListenerServiceComponent
+                .getGroupManagementErrorEventListeners()) {
+            if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
+                    && !listener.onDeleteGroupWithIDFailure(errorCode,
+                    errorMessage, groupName, this)) {
+                log.error("'onDeleteGroupWithIdFailure' event invocation failed for listener: " +
+                        listener.getClass().getName());
+                return;
+            }
+        }
+    }
+
+    private boolean handlePreDeleteGroupWithID(String groupName, boolean isAuditLogOnly) throws UserStoreException {
+
+        try {
+            for (GroupOperationEventListener listener : UMListenerServiceComponent
+                    .getGroupOperationEventListeners()) {
+                if (isAuditLogOnly && !listener.getClass().getName()
+                        .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+                if (listener instanceof AbstractGroupOperationEventListener) {
+                    AbstractGroupOperationEventListener newListener = (AbstractGroupOperationEventListener) listener;
+                    if (!newListener.preDeleteGroupWithID(groupName, this)) {
+                        handleDeleteGroupWithIDFailure(ERROR_DURING_PRE_DELETE_GROUP_WITH_ID.getCode(),
+                                String.format(ERROR_DURING_PRE_DELETE_GROUP_WITH_ID.getMessage(),
+                                        UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), groupName);
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleDeleteGroupWithIDFailure(ERROR_DURING_PRE_DELETE_GROUP_WITH_ID.getCode(),
+                    String.format(ERROR_DURING_PRE_DELETE_GROUP_WITH_ID.getMessage(),
+                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), groupName);
+            throw ex;
+        }
+        return true;
+    }
+
+    private boolean handlePostDeleteGroupWithID(String groupName, boolean isAuditLogOnly) throws UserStoreException {
+
+        try {
+            for (GroupOperationEventListener listener : UMListenerServiceComponent
+                    .getGroupOperationEventListeners()) {
+                if (isAuditLogOnly && !listener.getClass().getName()
+                        .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+                if (listener instanceof AbstractGroupOperationEventListener) {
+                    AbstractGroupOperationEventListener newListener = (AbstractGroupOperationEventListener) listener;
+                    if (!newListener.postDeleteGroupWithID(groupName, this)) {
+                        handleDeleteGroupWithIDFailure(ERROR_DURING_PRE_DELETE_GROUP_WITH_ID.getCode(),
+                                String.format(ERROR_DURING_PRE_DELETE_GROUP_WITH_ID.getMessage(),
+                                        UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), groupName);
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleDeleteGroupWithIDFailure(ERROR_DURING_PRE_DELETE_GROUP_WITH_ID.getCode(),
+                    String.format(ERROR_DURING_PRE_DELETE_GROUP_WITH_ID.getMessage(),
+                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), groupName);
+            throw ex;
+        }
+        return true;
+    }
+
+    protected String getUniqueGroupID() {
+
+        return UUID.randomUUID().toString();
     }
 }

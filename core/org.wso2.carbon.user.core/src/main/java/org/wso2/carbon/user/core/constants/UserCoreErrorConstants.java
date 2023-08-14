@@ -234,6 +234,11 @@ public class UserCoreErrorConstants {
         ERROR_EMPTY_USER_ID("60006", "User id cannot be empty"),
         ERROR_NO_USER_WITH_USERNAME("60007", "No user found with username: %s in " +
                 "userstore domain: %s"),
+        ERROR_CODE_INVALID_GROUP_NAME("60008",  INVALID_GROUP + " Group name %s is not valid. Group name must be a "
+                + "non null string with following format, %s"),
+        ERROR_CODE_GROUP_ALREADY_EXISTS("60009", EXISTING_GROUP + "Group name: %s exists in the system. Please pick "
+                + "another group name."),
+        ERROR_CODE_CANNOT_DELETE_NON_EXISTING_GROUP("60009", "Cannot delete non-existing group"),
 
         // Server error codes related to group operations.
         ERROR_DURING_PRE_GET_GROUP_BY_ID("65001",
@@ -268,7 +273,17 @@ public class UserCoreErrorConstants {
                 "response in userstore: %s in tenant: %s"),
         ERROR_WHILE_GETTING_GROUPS("65016", "Error occurred while getting the groups"),
         ERROR_WHILE_PERFORMING_PAGINATED_SEARCH("65017", "Error occurred while performing the " +
-                "paginated search");
+                "paginated search"),
+        ERROR_DURING_PRE_ADD_GROUP_WITH_ID("65018",
+                "Un-expected error during pre add groups with ID with condition, %s"),
+        ERROR_DURING_POST_ADD_GROUP_WITH_ID("65019",
+                "Un-expected error during post add groups with ID with condition, %s"),
+        // Error code while adding group
+        ERROR_CODE_WHILE_ADDING_GROUP("65020", "Constrain violation while adding a group."),
+        ERROR_DURING_PRE_DELETE_GROUP_WITH_ID("65021",
+                "Un-expected error during pre delete groups with ID with condition, %s"),
+        ERROR_DURING_POST_DELETE_GROUP_WITH_ID("65022",
+                "Un-expected error during post delete groups with ID with condition, %s");
 
         private final String code;
         private final String message;
@@ -309,4 +324,6 @@ public class UserCoreErrorConstants {
     public static final String AUDIT_LOGGER_CLASS_NAME = "AuditLogger";
     public static final String PRE_LISTENER_TASKS_FAILED_MESSAGE = "Pre-listener tasks failed";
     public static final String POST_LISTENER_TASKS_FAILED_MESSAGE = "Post-listener tasks failed";
+    private static final String INVALID_GROUP = "InvalidGroup";
+    private static final String EXISTING_GROUP = "GroupExisting";
 }
