@@ -1,8 +1,26 @@
+/*
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com).
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.security.keystore.dao.impl;
 
 import org.wso2.carbon.database.utils.jdbc.NamedPreparedStatement;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
-import org.wso2.carbon.security.SecurityConfigException;
+import org.wso2.carbon.security.keystore.KeyStoreManagementException;
 import org.wso2.carbon.security.keystore.dao.PubCertDAO;
 import org.wso2.carbon.security.keystore.dao.constants.PubCertDAOConstants;
 import org.wso2.carbon.security.keystore.dao.constants.PubCertDAOConstants.PubCertTableColumns;
@@ -14,19 +32,18 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.wso2.carbon.security.keystore.dao.DAOUtils.getTenantUUID;
-
+/**
+ * This class provides the implementation of the PubCertDAO interface.
+ */
 public class PubCertDAOImpl extends PubCertDAO {
 
-    private final String tenantUUID;
+    public PubCertDAOImpl(String tenantUUID) {
 
-    public PubCertDAOImpl(int tenantId) throws SecurityConfigException {
-        super(tenantId);
-        this.tenantUUID = getTenantUUID(tenantId);
+        super(tenantUUID);
     }
 
     @Override
-    public String addPubCert(PubCertModel pubCertModel) throws SecurityConfigException {
+    public String addPubCert(PubCertModel pubCertModel) throws KeyStoreManagementException {
 
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
             try {
@@ -35,17 +52,15 @@ public class PubCertDAOImpl extends PubCertDAO {
                 return uuid;
             } catch (SQLException e) {
                 IdentityDatabaseUtil.rollbackTransaction(connection);
-                // TODO: Check whether this exception type is okay. Also see if we need to use a server exception type. i.e something like SecurityConfigServerException
-                throw new SecurityConfigException("Error while adding public certificate.", e);
+                throw new KeyStoreManagementException("Error while adding public certificate.", e);
             }
         } catch (SQLException e) {
-            // TODO: Check whether this exception type is okay. Also see if we need to use a server exception type. i.e something like SecurityConfigServerException
-            throw new SecurityConfigException("Error while adding public certificate.", e);
+            throw new KeyStoreManagementException("Error while adding public certificate.", e);
         }
     }
 
     @Override
-    public Optional<PubCertModel> getPubCert(String uuid) throws SecurityConfigException {
+    public Optional<PubCertModel> getPubCert(String uuid) throws KeyStoreManagementException {
 
         PubCertModel pubCertModel = null;
 
@@ -64,10 +79,10 @@ public class PubCertDAOImpl extends PubCertDAO {
                     }
                 }
             } catch (SQLException e) {
-                throw new SecurityConfigException("Error while retrieving notification template types.", e);
+                throw new KeyStoreManagementException("Error while retrieving notification template types.", e);
             }
         } catch (SQLException e) {
-            throw new SecurityConfigException("Error while retrieving notification template types.", e);
+            throw new KeyStoreManagementException("Error while retrieving notification template types.", e);
         }
         return Optional.ofNullable(pubCertModel);
     }

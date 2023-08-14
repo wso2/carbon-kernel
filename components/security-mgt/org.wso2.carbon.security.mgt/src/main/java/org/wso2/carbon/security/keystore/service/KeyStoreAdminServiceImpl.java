@@ -24,6 +24,9 @@ import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.security.SecurityConfigException;
 import org.wso2.carbon.security.keystore.KeyStoreAdmin;
 
+/**
+ * Key Store Admin Service implementation class.
+ */
 public class KeyStoreAdminServiceImpl extends AbstractAdmin implements KeyStoreAdminInterface {
 
     @Override
@@ -53,10 +56,10 @@ public class KeyStoreAdminServiceImpl extends AbstractAdmin implements KeyStoreA
 
     @Override
     public void deleteStore(String keyStoreName) throws SecurityConfigException {
+
         KeyStoreAdmin admin = new KeyStoreAdmin(CarbonContext.getThreadLocalCarbonContext().getTenantId(),
                 getGovernanceSystemRegistry());
         admin.deleteStore(keyStoreName);
-
     }
 
     @Override

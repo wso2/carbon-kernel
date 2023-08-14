@@ -1,8 +1,26 @@
+/*
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com).
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.security.keystore.dao.impl;
 
 import org.wso2.carbon.database.utils.jdbc.NamedPreparedStatement;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
-import org.wso2.carbon.security.SecurityConfigException;
+import org.wso2.carbon.security.keystore.KeyStoreManagementException;
 import org.wso2.carbon.security.keystore.dao.KeyStoreDAO;
 import org.wso2.carbon.security.keystore.dao.constants.KeyStoreDAOConstants;
 import org.wso2.carbon.security.keystore.dao.constants.KeyStoreDAOConstants.KeyStoreTableColumns;
@@ -20,22 +38,22 @@ import java.util.Optional;
 import java.util.TimeZone;
 import java.util.UUID;
 
-import static org.wso2.carbon.security.keystore.dao.DAOUtils.getTenantUUID;
-
 import static java.time.ZoneOffset.UTC;
 
+/**
+ * This class provides the implementation of the KeyStoreDAO interface.
+ */
 public class KeyStoreDAOImpl extends KeyStoreDAO {
 
-    private final String tenantUUID;
-    private static final Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(UTC));
+    private final Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(UTC));
 
-    public KeyStoreDAOImpl(int tenantId) throws SecurityConfigException {
-        super(tenantId);
-        this.tenantUUID = getTenantUUID(tenantId);
+    public KeyStoreDAOImpl(String tenantUUID) {
+
+        super(tenantUUID);
     }
 
     @Override
-    public void addKeyStore(KeyStoreModel keyStoreModel) throws SecurityConfigException {
+    public void addKeyStore(KeyStoreModel keyStoreModel) throws KeyStoreManagementException {
 
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
             try {
@@ -43,17 +61,15 @@ public class KeyStoreDAOImpl extends KeyStoreDAO {
                 IdentityDatabaseUtil.commitTransaction(connection);
             } catch (SQLException e) {
                 IdentityDatabaseUtil.rollbackTransaction(connection);
-                // TODO: Check whether this exception type is okay. Also see if we need to use a server exception type. i.e something like SecurityConfigServerException
-                throw new SecurityConfigException("Error while adding key store.", e);
+                throw new KeyStoreManagementException("Error while adding key store.", e);
             }
         } catch (SQLException e) {
-            // TODO: Check whether this exception type is okay. Also see if we need to use a server exception type. i.e something like SecurityConfigServerException
-            throw new SecurityConfigException("Error while adding key store.", e);
+            throw new KeyStoreManagementException("Error while adding key store.", e);
         }
     }
 
     @Override
-    public List<KeyStoreModel> getKeyStores() throws SecurityConfigException {
+    public List<KeyStoreModel> getKeyStores() throws KeyStoreManagementException {
 
         List<KeyStoreModel> keyStores = new ArrayList<>();
 
@@ -67,17 +83,17 @@ public class KeyStoreDAOImpl extends KeyStoreDAO {
                     }
                 }
             } catch (SQLException e) {
-                throw new SecurityConfigException("Error while retrieving key stores.", e);
+                throw new KeyStoreManagementException("Error while retrieving key stores.", e);
             }
         } catch (SQLException e) {
-            throw new SecurityConfigException("Error while retrieving key stores.", e);
+            throw new KeyStoreManagementException("Error while retrieving key stores.", e);
         }
 
         return keyStores;
     }
 
     @Override
-    public Optional<KeyStoreModel> getKeyStore(String fileName) throws SecurityConfigException {
+    public Optional<KeyStoreModel> getKeyStore(String fileName) throws KeyStoreManagementException {
 
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(false)) {
             try (NamedPreparedStatement statement = new NamedPreparedStatement(connection,
@@ -90,16 +106,16 @@ public class KeyStoreDAOImpl extends KeyStoreDAO {
                     }
                 }
             } catch (SQLException e) {
-                throw new SecurityConfigException("Error while retrieving key stores.", e);
+                throw new KeyStoreManagementException("Error while retrieving key stores.", e);
             }
         } catch (SQLException e) {
-            throw new SecurityConfigException("Error while retrieving key stores.", e);
+            throw new KeyStoreManagementException("Error while retrieving key stores.", e);
         }
         return Optional.empty();
     }
 
     @Override
-    public void deleteKeyStore(String fileName) throws SecurityConfigException {
+    public void deleteKeyStore(String fileName) throws KeyStoreManagementException {
 
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
             try (NamedPreparedStatement statement = new NamedPreparedStatement(connection,
@@ -111,15 +127,15 @@ public class KeyStoreDAOImpl extends KeyStoreDAO {
                 IdentityDatabaseUtil.commitTransaction(connection);
             } catch (SQLException e) {
                 IdentityDatabaseUtil.rollbackTransaction(connection);
-                throw new SecurityConfigException("Error while deleting key store.", e);
+                throw new KeyStoreManagementException("Error while deleting key store.", e);
             }
         } catch (SQLException e) {
-            throw new SecurityConfigException("Error while deleting key store.", e);
+            throw new KeyStoreManagementException("Error while deleting key store.", e);
         }
     }
 
     @Override
-    public void updateKeyStore(KeyStoreModel keyStoreModel) throws SecurityConfigException {
+    public void updateKeyStore(KeyStoreModel keyStoreModel) throws KeyStoreManagementException {
 
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
             try {
@@ -127,17 +143,15 @@ public class KeyStoreDAOImpl extends KeyStoreDAO {
                 IdentityDatabaseUtil.commitTransaction(connection);
             } catch (SQLException e) {
                 IdentityDatabaseUtil.rollbackTransaction(connection);
-                // TODO: Check whether this exception type is okay. Also see if we need to use a server exception type. i.e something like SecurityConfigServerException
-                throw new SecurityConfigException("Error while updating key store.", e);
+                throw new KeyStoreManagementException("Error while updating key store.", e);
             }
         } catch (SQLException e) {
-            // TODO: Check whether this exception type is okay. Also see if we need to use a server exception type. i.e something like SecurityConfigServerException
-            throw new SecurityConfigException("Error while updating key store.", e);
+            throw new KeyStoreManagementException("Error while updating key store.", e);
         }
     }
 
     @Override
-    public void addPubCertIdToKeyStore(String fileName, String pubCertId) throws SecurityConfigException {
+    public void addPubCertIdToKeyStore(String fileName, String pubCertId) throws KeyStoreManagementException {
 
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
             try (NamedPreparedStatement statement = new NamedPreparedStatement(connection,
@@ -151,15 +165,15 @@ public class KeyStoreDAOImpl extends KeyStoreDAO {
                 IdentityDatabaseUtil.commitTransaction(connection);
             } catch (SQLException e) {
                 IdentityDatabaseUtil.rollbackTransaction(connection);
-                throw new SecurityConfigException("Error while linking public certificate to key store.", e);
+                throw new KeyStoreManagementException("Error while linking public certificate to key store.", e);
             }
         } catch (SQLException e) {
-            throw new SecurityConfigException("Error while linking public certificate to key store.", e);
+            throw new KeyStoreManagementException("Error while linking public certificate to key store.", e);
         }
     }
 
     @Override
-    public Optional<String> getPubCertIdFromKeyStore(String fileName) throws SecurityConfigException {
+    public Optional<String> getPubCertIdFromKeyStore(String fileName) throws KeyStoreManagementException {
 
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(false)) {
             try (NamedPreparedStatement statement = new NamedPreparedStatement(connection,
@@ -172,10 +186,10 @@ public class KeyStoreDAOImpl extends KeyStoreDAO {
                     }
                 }
             } catch (SQLException e) {
-                throw new SecurityConfigException("Error while retrieving public certificate of key store.", e);
+                throw new KeyStoreManagementException("Error while retrieving public certificate of key store.", e);
             }
         } catch (SQLException e) {
-            throw new SecurityConfigException("Error while retrieving public certificate of key store.", e);
+            throw new KeyStoreManagementException("Error while retrieving public certificate of key store.", e);
         }
         return Optional.empty();
     }

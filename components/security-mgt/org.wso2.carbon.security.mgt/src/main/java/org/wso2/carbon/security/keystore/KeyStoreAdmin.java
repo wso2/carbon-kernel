@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.core.RegistryResources;
+import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.core.util.KeyStoreUtil;
@@ -59,6 +60,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -71,6 +73,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Key Store Admin class.
+ */
 public class KeyStoreAdmin {
 
     //trust store
@@ -86,29 +91,25 @@ public class KeyStoreAdmin {
     private static final String PRIMARY_KEYSTORE_FILE_NAME = "carbon-primary-ks";
 
     private static final Log log = LogFactory.getLog(KeyStoreAdmin.class);
-    private Registry registry = null;
     private int tenantId;
     private boolean includeCert = false;
     private KeyStoreDAO keyStoreDAO;
     private PubCertDAO pubCertDAO;
-
-    private static String TRUST_STORE_LOCATION;
-    private static String TRUST_STORE_PASSWORD;
+    private final String trustStoreLocation;
+    private final String trustStorePassword;
 
     public KeyStoreAdmin(int tenantId, Registry registry) {
 
         ServerConfiguration config = ServerConfiguration.getInstance();
-        TRUST_STORE_LOCATION = config.getFirstProperty("Security.TrustStore.Location");
-        TRUST_STORE_PASSWORD = config.getFirstProperty("Security.TrustStore.Password");
-        this.registry = registry;
-        // TODO: maybe convert this itself to UUID
+        trustStoreLocation = config.getFirstProperty(SERVER_TRUSTSTORE_FILE);
+        trustStorePassword = config.getFirstProperty(SERVER_TRUSTSTORE_PASSWORD);
         this.tenantId = tenantId;
         try {
-            keyStoreDAO = new KeyStoreDAOImpl(tenantId);
-            pubCertDAO = new PubCertDAOImpl(tenantId);
+            String tenantUUID = KeyStoreMgtUtil.getTenantUUID(tenantId);
+            keyStoreDAO = new KeyStoreDAOImpl(tenantUUID);
+            pubCertDAO = new PubCertDAOImpl(tenantUUID);
         } catch (SecurityConfigException e) {
-            // TODO: handle exception
-            throw new RuntimeException(e);
+            log.error("Error while retrieving the tenant ID.", e);
         }
     }
 
@@ -121,7 +122,7 @@ public class KeyStoreAdmin {
     }
 
     /**
-     * Method to retrive keystore data.
+     * Method to retrieve keystore data.
      *
      * @param isSuperTenant - Indication whether the querying super tennat data
      * @return
@@ -201,7 +202,7 @@ public class KeyStoreAdmin {
                 names[count] = data;
             }
             return names;
-        } catch (SecurityConfigException e) {
+        } catch (KeyStoreManagementException e) {
             // TODO: see if we can remove this catch block
             String msg = "Error when getting keyStore data";
             log.error(msg, e);
@@ -271,9 +272,8 @@ public class KeyStoreAdmin {
             }
 
             keyStoreDAO.addKeyStore(data);
-        } catch (SecurityConfigException e) {
-            throw e;
-        } catch (Exception e) {
+        } catch (KeyStoreManagementException | CryptoException | IOException | NoSuchAlgorithmException |
+                 CertificateException | UnrecoverableKeyException | KeyStoreException e) {
             String msg = "Error when adding a keyStore";
             log.error(msg, e);
             throw new SecurityConfigException(msg, e);
@@ -317,29 +317,30 @@ public class KeyStoreAdmin {
     }
 
     public void deleteStore(String keyStoreName) throws SecurityConfigException {
+
         try {
 
             if (StringUtils.isBlank(keyStoreName)) {
-                throw new SecurityConfigException("Key Store name can't be null");
+                throw new KeyStoreManagementException("Key Store name can't be null");
             }
 
             if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
-                throw new SecurityConfigException("Not allowed to delete the primary key store : "
+                throw new KeyStoreManagementException("Not allowed to delete the primary key store : "
                         + keyStoreName);
             }
             if (isTrustStore(keyStoreName)) {
-                throw new SecurityConfigException("Not allowed to delete the trust store : "
+                throw new KeyStoreManagementException("Not allowed to delete the trust store : "
                         + keyStoreName);
             }
 
             // TODO: verify that this behaves as expected
             if (keyStoreDAO.getPubCertIdFromKeyStore(keyStoreName).isPresent()) {
-                throw new SecurityConfigException("Key store : " + keyStoreName +
+                throw new KeyStoreManagementException("Key store : " + keyStoreName +
                         " is already in use and can't be deleted");
             }
 
             keyStoreDAO.deleteKeyStore(keyStoreName);
-        } catch (SecurityConfigException e) {
+        } catch (KeyStoreManagementException e) {
             // TODO: check if we can eliminate this catch block altogether
             String msg = "Error when deleting a keyStore";
             log.error(msg, e);
@@ -835,7 +836,7 @@ public class KeyStoreAdmin {
      * @throws SecurityConfigException
      * @throws RegistryException
      */
-    private String getKeyStoreType(String keyStoreName) throws SecurityConfigException, RegistryException {
+    private String getKeyStoreType(String keyStoreName) throws KeyStoreManagementException {
     
         String keyStoreType;
         if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
@@ -847,7 +848,7 @@ public class KeyStoreAdmin {
             keyStoreType = serverConfig.getFirstProperty(SERVER_TRUSTSTORE_TYPE);
         } else {
             if (!isExistKeyStore(keyStoreName)) {
-                throw new SecurityConfigException("Keystore " + keyStoreName + " not found.");
+                throw new KeyStoreManagementException("Keystore " + keyStoreName + " not found.");
             }
             KeyStoreModel keyStoreModel = keyStoreDAO.getKeyStore(keyStoreName).get();
             keyStoreType = keyStoreModel.getType();
@@ -1035,12 +1036,12 @@ public class KeyStoreAdmin {
         String outputStream1;
         String path;
         if (isTrustStore(name)) {
-            path = (new File(TRUST_STORE_LOCATION)).getAbsolutePath();
+            path = (new File(trustStoreLocation)).getAbsolutePath();
             resource1 = null;
 
             try {
                 resource1 = new FileOutputStream(path);
-                outputStream1 = TRUST_STORE_PASSWORD;
+                outputStream1 = trustStorePassword;
                 keyStore.store(resource1, outputStream1.toCharArray());
             } finally {
                 if (resource1 != null) {
@@ -1077,7 +1078,7 @@ public class KeyStoreAdmin {
         return cert;
     }
 
-    private boolean isExistKeyStore(String fileName) throws SecurityConfigException {
+    private boolean isExistKeyStore(String fileName) throws KeyStoreManagementException {
 
         return keyStoreDAO.getKeyStore(fileName).isPresent();
     }
