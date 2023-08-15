@@ -262,6 +262,13 @@ public class JDBCCaseInsensitiveConstants {
             ".UM_TENANT_ID=? AND UM_HYBRID_USER_ROLE.UM_DOMAIN_ID=(SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE " +
             "UM_TENANT_ID=? AND UM_DOMAIN_NAME=?)";
 
+    public static final String GET_INTERNAL_ROLE_LIST_OF_USERS_SQL_CASE_INSENSITIVE_IN_LAST =
+            "SELECT UM_USER_NAME, UM_ROLE_NAME FROM " +
+                    "UM_HYBRID_USER_ROLE, UM_HYBRID_ROLE WHERE UM_HYBRID_USER_ROLE" +
+                    ".UM_ROLE_ID=UM_HYBRID_ROLE.UM_ID AND UM_HYBRID_USER_ROLE.UM_TENANT_ID=? AND UM_HYBRID_ROLE" +
+                    ".UM_TENANT_ID=? AND UM_HYBRID_USER_ROLE.UM_DOMAIN_ID=(SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE " +
+                    "UM_TENANT_ID=? AND UM_DOMAIN_NAME=?) AND LOWER(UM_USER_NAME) IN (?)";
+
     @Deprecated
     public static final String CASE_SENSITIVE_USERNAME = "CaseInsensitiveUsername";
     public static final String CASE_SENSITIVE_USERNAME_DESCRIPTION = "Whether the username is case sensitive or not";

@@ -44,6 +44,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -648,7 +649,7 @@ public class HybridRoleManager {
         StringBuilder usernameParameter = new StringBuilder();
         if (isCaseSensitiveUsername()) {
             if (StringUtils.isEmpty(sqlStmt)) {
-                sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLE_LIST_OF_USERS_SQL;
+                sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLE_LIST_OF_USERS_SQL_WITH_IN_LAST;
             }
             for (int i = 0; i < userNames.size(); i++) {
 
@@ -661,17 +662,20 @@ public class HybridRoleManager {
             }
         } else {
             if (sqlStmt == null) {
-                sqlStmt = JDBCCaseInsensitiveConstants.GET_INTERNAL_ROLE_LIST_OF_USERS_SQL_CASE_INSENSITIVE;
+                sqlStmt = JDBCCaseInsensitiveConstants.GET_INTERNAL_ROLE_LIST_OF_USERS_SQL_CASE_INSENSITIVE_IN_LAST;
             }
             for (int i = 0; i < userNames.size(); i++) {
 
-                userNames.set(i, userNames.get(i).replaceAll("'", "''"));
-                usernameParameter.append("LOWER('").append(userNames.get(i)).append("')");
 
-                if (i != userNames.size() - 1) {
-                    usernameParameter.append(",");
-                }
+                userNames.set(i, "LOWER('" +
+                        userNames.get(i).replaceAll("'", "''") + "')");
+
+                usernameParameter.append("LOWER('").append(userNames.get(i)).append("')");
             }
+
+            String userNamePlaceHolder = String.join(", ", Collections.nCopies(userNames.size(), "?"));
+
+            sqlStmt = sqlStmt.concat(userNamePlaceHolder).concat(")");
         }
 
         sqlStmt = sqlStmt.replaceFirst("\\?", Matcher.quoteReplacement(usernameParameter.toString()));
@@ -681,6 +685,11 @@ public class HybridRoleManager {
             prepStmt.setInt(2, tenantId);
             prepStmt.setInt(3, tenantId);
             prepStmt.setString(4, domainName);
+
+            for (int i = 0; i < userNames.size(); i++) {
+                prepStmt.setString(i + 5,  userNames.get(i));
+            }
+
             try (ResultSet resultSet = prepStmt.executeQuery()) {
                 while (resultSet.next()) {
                     String userName = resultSet.getString(1);
