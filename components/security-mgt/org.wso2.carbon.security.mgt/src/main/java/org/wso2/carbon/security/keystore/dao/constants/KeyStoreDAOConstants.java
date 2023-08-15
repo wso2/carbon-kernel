@@ -49,6 +49,13 @@ public class KeyStoreDAOConstants {
             "(ID, FILE_NAME, TYPE, PROVIDER, PASSWORD, PRIVATE_KEY_ALIAS, PRIVATE_KEY_PASS, TENANT_UUID, LAST_UPDATED, CONTENT) " +
             "VALUES (:ID;, :FILE_NAME;, :TYPE;, :PROVIDER;, :PASSWORD;, :PRIVATE_KEY_ALIAS;, :PRIVATE_KEY_PASS;, :TENANT_UUID;, :LAST_UPDATED;, ?)";
 
+        public static final String UPDATE_KEY_STORE_BY_FILE_NAME = "UPDATE IDN_KEY_STORE SET TYPE = :TYPE;, " +
+                "PROVIDER = :PROVIDER;, PASSWORD = :PASSWORD;, PRIVATE_KEY_ALIAS = :PRIVATE_KEY_ALIAS;, " +
+                "PRIVATE_KEY_PASS = :PRIVATE_KEY_PASS;, LAST_UPDATED = :LAST_UPDATED;, CONTENT = ? " +
+                "WHERE FILE_NAME = :FILE_NAME; AND TENANT_UUID = :TENANT_UUID;";
+
+
+
         // TODO: do we really need to qualify this with tenant id?
         public static final String GET_KEY_STORE_BY_ID =
                 "SELECT * FROM IDN_KEY_STORE WHERE ID = :ID; AND TENANT_UUID = :TENANT_UUID;";
@@ -67,11 +74,6 @@ public class KeyStoreDAOConstants {
                 "DELETE FROM IDN_KEY_STORE WHERE FILE_NAME = :FILE_NAME; AND TENANT_UUID = :TENANT_UUID;";
 
         // TODO: refactor to use named prep statement after adding a method to set named bytes in named prep statement.
-        public static final String UPDATE_KEY_STORE_BY_FILE_NAME =
-                "UPDATE IDN_KEY_STORE SET TYPE = ?, PROVIDER = ?, " +
-                        "PASSWORD = ?, PRIVATE_KEY_ALIAS = ?, " +
-                        "PRIVATE_KEY_PASS = ?, LAST_UPDATED = ?, CONTENT = ? " +
-                        "WHERE FILE_NAME = ? AND TENANT_UUID = ?";
 
         public static final String GET_PUB_CERT_ID_OF_KEY_STORE =
                 "SELECT PUB_CERT_ID FROM IDN_KEY_STORE WHERE FILE_NAME = :FILE_NAME; AND TENANT_UUID = :TENANT_UUID;";

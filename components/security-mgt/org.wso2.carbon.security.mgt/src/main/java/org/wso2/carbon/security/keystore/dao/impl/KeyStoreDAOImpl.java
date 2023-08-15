@@ -234,15 +234,15 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
 
         try (NamedPreparedStatement statement = new NamedPreparedStatement(connection,
                 KeyStoreDAOConstants.SqlQueries.UPDATE_KEY_STORE_BY_FILE_NAME)) {
-            statement.setString(1, keyStoreModel.getType());
-            statement.setString(2, keyStoreModel.getProvider());
-            statement.setString(3, String.valueOf(keyStoreModel.getPassword()));
-            statement.setString(4, keyStoreModel.getPrivateKeyAlias());
-            statement.setString(5, String.valueOf(keyStoreModel.getPrivateKeyPass()));
-            statement.setTimestamp(6, new Timestamp(new Date().getTime()), CALENDAR);
+            statement.setString(KeyStoreTableColumns.TYPE, keyStoreModel.getType());
+            statement.setString(KeyStoreTableColumns.PROVIDER, keyStoreModel.getProvider());
+            statement.setString(KeyStoreTableColumns.PASSWORD, String.valueOf(keyStoreModel.getPassword()));
+            statement.setString(KeyStoreTableColumns.PRIVATE_KEY_ALIAS, keyStoreModel.getPrivateKeyAlias());
+            statement.setString(KeyStoreTableColumns.PRIVATE_KEY_PASS, String.valueOf(keyStoreModel.getPrivateKeyPass()));
+            statement.setTimeStamp(KeyStoreTableColumns.LAST_UPDATED, new Timestamp(new Date().getTime()), CALENDAR);
             statement.setBytes(7, keyStoreModel.getContent());
-            statement.setString(8, keyStoreModel.getFileName());
-            statement.setString(9, tenantUUID);
+            statement.setString(KeyStoreTableColumns.FILE_NAME, keyStoreModel.getFileName());
+            statement.setString(KeyStoreTableColumns.TENANT_UUID, tenantUUID);
             statement.executeUpdate();
         }
     }

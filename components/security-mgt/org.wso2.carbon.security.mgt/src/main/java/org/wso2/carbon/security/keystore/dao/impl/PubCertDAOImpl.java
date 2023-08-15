@@ -97,7 +97,7 @@ public class PubCertDAOImpl implements PubCertDAO {
                 PubCertDAOConstants.SQLQueries.ADD_PUB_CERT)) {
             statement.setString(PubCertTableColumns.ID, id);
             statement.setString(PubCertTableColumns.FILE_NAME_APPENDER, pubCertModel.getFileNameAppender());
-            statement.setString("TENANT_UUID", tenantUUID);
+            statement.setString(PubCertTableColumns.TENANT_UUID, tenantUUID);
             statement.setBytes(4, pubCertModel.getContent());
             statement.executeUpdate();
         }
