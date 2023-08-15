@@ -646,39 +646,24 @@ public class HybridRoleManager {
         }
         Map<String, List<String>> hybridRoleListOfUsers = new HashMap<>();
         String sqlStmt = realmConfig.getRealmProperty(HybridJDBCConstants.GET_ROLE_LIST_OF_USERS);
-        StringBuilder usernameParameter = new StringBuilder();
         if (isCaseSensitiveUsername()) {
             if (StringUtils.isEmpty(sqlStmt)) {
                 sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLE_LIST_OF_USERS_SQL_WITH_IN_LAST;
             }
-            for (int i = 0; i < userNames.size(); i++) {
-
-                userNames.set(i, userNames.get(i).replaceAll("'", "''"));
-                usernameParameter.append("'").append(userNames.get(i)).append("'");
-
-                if (i != userNames.size() - 1) {
-                    usernameParameter.append(",");
-                }
-            }
+            userNames.replaceAll(s -> s.replaceAll("'", "''") );
+            String userNamePlaceHolder = String.join(", ", Collections.nCopies(userNames.size(), "?"));
+            sqlStmt = sqlStmt.concat(userNamePlaceHolder).concat(")");
         } else {
             if (sqlStmt == null) {
                 sqlStmt = JDBCCaseInsensitiveConstants.GET_INTERNAL_ROLE_LIST_OF_USERS_SQL_CASE_INSENSITIVE_IN_LAST;
             }
-            for (int i = 0; i < userNames.size(); i++) {
-
-
-                userNames.set(i, "LOWER('" +
-                        userNames.get(i).replaceAll("'", "''") + "')");
-
-                usernameParameter.append("LOWER('").append(userNames.get(i)).append("')");
-            }
+            userNames.replaceAll(s -> "LOWER('" +
+                    s.replaceAll("'", "''") + "')");
 
             String userNamePlaceHolder = String.join(", ", Collections.nCopies(userNames.size(), "?"));
-
             sqlStmt = sqlStmt.concat(userNamePlaceHolder).concat(")");
         }
 
-        sqlStmt = sqlStmt.replaceFirst("\\?", Matcher.quoteReplacement(usernameParameter.toString()));
         try (Connection connection = DatabaseUtil.getDBConnection(dataSource);
                 PreparedStatement prepStmt = connection.prepareStatement(sqlStmt)) {
             prepStmt.setInt(1, tenantId);
