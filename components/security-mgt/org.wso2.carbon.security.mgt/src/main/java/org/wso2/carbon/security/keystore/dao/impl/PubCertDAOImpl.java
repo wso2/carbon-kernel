@@ -37,6 +37,8 @@ import java.util.UUID;
  */
 public class PubCertDAOImpl implements PubCertDAO {
 
+    private static final String DB_CONN_RETRIEVAL_ERROR_MSG = "Error while getting the DB connection.";
+
     public PubCertDAOImpl() {
         // Default constructor.
     }
@@ -54,7 +56,7 @@ public class PubCertDAOImpl implements PubCertDAO {
                 throw new KeyStoreManagementException("Error while adding public certificate.", e);
             }
         } catch (SQLException e) {
-            throw new KeyStoreManagementException("Error while adding public certificate.", e);
+            throw new KeyStoreManagementException(DB_CONN_RETRIEVAL_ERROR_MSG, e);
         }
     }
 
@@ -81,7 +83,7 @@ public class PubCertDAOImpl implements PubCertDAO {
                 throw new KeyStoreManagementException("Error while retrieving notification template types.", e);
             }
         } catch (SQLException e) {
-            throw new KeyStoreManagementException("Error while retrieving notification template types.", e);
+            throw new KeyStoreManagementException(DB_CONN_RETRIEVAL_ERROR_MSG, e);
         }
         return Optional.ofNullable(pubCertModel);
     }

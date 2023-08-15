@@ -46,6 +46,7 @@ import static java.time.ZoneOffset.UTC;
 public class KeyStoreDAOImpl implements KeyStoreDAO {
 
     private final Calendar CALENDAR = Calendar.getInstance(TimeZone.getTimeZone(UTC));
+    private static final String DB_CONN_RETRIEVAL_ERROR_MSG = "Error while getting the DB connection.";
 
     public KeyStoreDAOImpl() {
         // Default constructor.
@@ -63,7 +64,7 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
                 throw new KeyStoreManagementException("Error while adding key store.", e);
             }
         } catch (SQLException e) {
-            throw new KeyStoreManagementException("Error while adding key store.", e);
+            throw new KeyStoreManagementException(DB_CONN_RETRIEVAL_ERROR_MSG, e);
         }
     }
 
@@ -85,7 +86,7 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
                 throw new KeyStoreManagementException("Error while retrieving key stores.", e);
             }
         } catch (SQLException e) {
-            throw new KeyStoreManagementException("Error while retrieving key stores.", e);
+            throw new KeyStoreManagementException(DB_CONN_RETRIEVAL_ERROR_MSG, e);
         }
 
         return keyStores;
@@ -105,10 +106,10 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
                     }
                 }
             } catch (SQLException e) {
-                throw new KeyStoreManagementException("Error while retrieving key stores.", e);
+                throw new KeyStoreManagementException("Error while retrieving key store.", e);
             }
         } catch (SQLException e) {
-            throw new KeyStoreManagementException("Error while retrieving key stores.", e);
+            throw new KeyStoreManagementException(DB_CONN_RETRIEVAL_ERROR_MSG, e);
         }
         return Optional.empty();
     }
@@ -129,7 +130,7 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
                 throw new KeyStoreManagementException("Error while deleting key store.", e);
             }
         } catch (SQLException e) {
-            throw new KeyStoreManagementException("Error while deleting key store.", e);
+            throw new KeyStoreManagementException(DB_CONN_RETRIEVAL_ERROR_MSG, e);
         }
     }
 
@@ -145,7 +146,7 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
                 throw new KeyStoreManagementException("Error while updating key store.", e);
             }
         } catch (SQLException e) {
-            throw new KeyStoreManagementException("Error while updating key store.", e);
+            throw new KeyStoreManagementException(DB_CONN_RETRIEVAL_ERROR_MSG, e);
         }
     }
 
@@ -167,7 +168,7 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
                 throw new KeyStoreManagementException("Error while linking public certificate to key store.", e);
             }
         } catch (SQLException e) {
-            throw new KeyStoreManagementException("Error while linking public certificate to key store.", e);
+            throw new KeyStoreManagementException(DB_CONN_RETRIEVAL_ERROR_MSG, e);
         }
     }
 
@@ -188,7 +189,7 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
                 throw new KeyStoreManagementException("Error while retrieving public certificate of key store.", e);
             }
         } catch (SQLException e) {
-            throw new KeyStoreManagementException("Error while retrieving public certificate of key store.", e);
+            throw new KeyStoreManagementException(DB_CONN_RETRIEVAL_ERROR_MSG, e);
         }
         return Optional.empty();
     }
