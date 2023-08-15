@@ -25,17 +25,10 @@ public class PubCertModel {
 
     private String fileNameAppender;
 
-    // TODO: check whether we can eliminate retrieving content when not needed.
     private byte[] content;
 
-    public PubCertModel(String fileNameAppender, byte[] content) {
-
-        this.fileNameAppender = fileNameAppender;
-        this.content = content;
-    }
-
     public PubCertModel() {
-
+        // Empty constructor for default initialization
     }
 
     public String getFileNameAppender() {
