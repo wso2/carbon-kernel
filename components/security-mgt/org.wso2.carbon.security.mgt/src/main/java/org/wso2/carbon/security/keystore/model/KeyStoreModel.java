@@ -26,15 +26,15 @@ import java.util.Date;
 public class KeyStoreModel {
 
     // TODO: check whether we need the uuid.
-    private String id;
-    private String fileName;
-    private String type;
-    private String provider;
-    private String password;
-    private String privateKeyAlias;
-    private String privateKeyPass;
-    private Date lastUpdated;
-    private byte[] content;
+    private final String id;
+    private final String fileName;
+    private final String type;
+    private final String provider;
+    private final char[] password;
+    private final String privateKeyAlias;
+    private final char[] privateKeyPass;
+    private final Date lastUpdated;
+    private final byte[] content;
 
     public KeyStoreModel(KeyStoreModelBuilder  builder) {
 
@@ -69,7 +69,7 @@ public class KeyStoreModel {
         return provider;
     }
 
-    public String getPassword() {
+    public char[] getPassword() {
 
         return password;
     }
@@ -79,7 +79,7 @@ public class KeyStoreModel {
         return privateKeyAlias;
     }
 
-    public String getPrivateKeyPass() {
+    public char[] getPrivateKeyPass() {
 
         return privateKeyPass;
     }
@@ -100,13 +100,15 @@ public class KeyStoreModel {
         private String fileName;
         private String type;
         private String provider;
-        private String password;
+        private char[] password;
         private String privateKeyAlias;
-        private String privateKeyPass;
+        private char[] privateKeyPass;
         private Date lastUpdated;
         private byte[] content;
 
-        public KeyStoreModelBuilder() {}
+        public KeyStoreModelBuilder() {
+            // Default constructor.
+        }
 
         public KeyStoreModelBuilder id(String id) {
 
@@ -132,7 +134,7 @@ public class KeyStoreModel {
             return this;
         }
 
-        public KeyStoreModelBuilder password(String password) {
+        public KeyStoreModelBuilder password(char[] password) {
 
             this.password = password;
             return this;
@@ -144,7 +146,7 @@ public class KeyStoreModel {
             return this;
         }
 
-        public KeyStoreModelBuilder privateKeyPass(String privateKeyPass) {
+        public KeyStoreModelBuilder privateKeyPass(char[] privateKeyPass) {
 
             this.privateKeyPass = privateKeyPass;
             return this;

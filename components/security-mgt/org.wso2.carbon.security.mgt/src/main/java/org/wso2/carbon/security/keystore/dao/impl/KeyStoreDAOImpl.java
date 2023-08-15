@@ -200,9 +200,9 @@ public class KeyStoreDAOImpl extends KeyStoreDAO {
                 .type(resultSet.getString(KeyStoreTableColumns.TYPE))
                 .provider(resultSet.getString(KeyStoreTableColumns.PROVIDER))
                 .fileName(resultSet.getString(KeyStoreTableColumns.FILE_NAME))
-                .password(resultSet.getString(KeyStoreTableColumns.PASSWORD))
+                .password(resultSet.getString(KeyStoreTableColumns.PASSWORD).toCharArray())
                 .privateKeyAlias(resultSet.getString(KeyStoreTableColumns.PRIVATE_KEY_ALIAS))
-                .privateKeyPass(resultSet.getString(KeyStoreTableColumns.PRIVATE_KEY_PASS))
+                .privateKeyPass(resultSet.getString(KeyStoreTableColumns.PRIVATE_KEY_PASS).toCharArray())
                 .content(resultSet.getBytes(KeyStoreTableColumns.CONTENT))
                 .lastUpdated(resultSet.getTimestamp(KeyStoreTableColumns.LAST_UPDATED))
                 .build();
@@ -219,9 +219,11 @@ public class KeyStoreDAOImpl extends KeyStoreDAO {
             statement.setString(KeyStoreTableColumns.FILE_NAME, keyStoreModel.getFileName());
             statement.setString(KeyStoreTableColumns.TYPE, keyStoreModel.getType());
             statement.setString(KeyStoreTableColumns.PROVIDER, keyStoreModel.getProvider());
-            statement.setString(KeyStoreTableColumns.PASSWORD, keyStoreModel.getPassword());
+            statement.setString(KeyStoreTableColumns.PASSWORD, String.valueOf(keyStoreModel.getPassword()));
+            // todo: check whether are we storing a null when the field is not set?
             statement.setString(KeyStoreTableColumns.PRIVATE_KEY_ALIAS, keyStoreModel.getPrivateKeyAlias());
-            statement.setString(KeyStoreTableColumns.PRIVATE_KEY_PASS, keyStoreModel.getPrivateKeyPass());
+            statement.setString(KeyStoreTableColumns.PRIVATE_KEY_PASS,
+                    String.valueOf(keyStoreModel.getPrivateKeyPass()));
             statement.setString(KeyStoreTableColumns.TENANT_UUID, tenantUUID);
             statement.setTimeStamp(KeyStoreTableColumns.LAST_UPDATED, new Timestamp(new Date().getTime()), calendar);
             statement.setBytes(10, keyStoreModel.getContent());
@@ -237,9 +239,9 @@ public class KeyStoreDAOImpl extends KeyStoreDAO {
                 KeyStoreDAOConstants.SqlQueries.UPDATE_KEY_STORE_BY_FILE_NAME)) {
             statement.setString(1, keyStoreModel.getType());
             statement.setString(2, keyStoreModel.getProvider());
-            statement.setString(3, keyStoreModel.getPassword());
+            statement.setString(3, String.valueOf(keyStoreModel.getPassword()));
             statement.setString(4, keyStoreModel.getPrivateKeyAlias());
-            statement.setString(5, keyStoreModel.getPrivateKeyPass());
+            statement.setString(5, String.valueOf(keyStoreModel.getPrivateKeyPass()));
             statement.setTimestamp(6, new Timestamp(new Date().getTime()), calendar);
             statement.setBytes(7, keyStoreModel.getContent());
             statement.setString(8, keyStoreModel.getFileName());

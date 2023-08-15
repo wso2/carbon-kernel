@@ -264,7 +264,7 @@ public class KeyStoreAdmin {
                         .fileName(filename)
                         .type(type)
                         .provider(provider)
-                        .password(cryptoUtil.encryptAndBase64Encode(password.getBytes()))
+                        .password(cryptoUtil.encryptAndBase64Encode(password.getBytes()).toCharArray())
                         .content(content)
                         .build();
             } else {
@@ -272,9 +272,9 @@ public class KeyStoreAdmin {
                         .fileName(filename)
                         .type(type)
                         .provider(provider)
-                        .password(cryptoUtil.encryptAndBase64Encode(password.getBytes()))
+                        .password(cryptoUtil.encryptAndBase64Encode(password.getBytes()).toCharArray())
                         .privateKeyAlias(pvtKeyAlias)
-                        .privateKeyPass(cryptoUtil.encryptAndBase64Encode(pvtkeyPass.getBytes()))
+                        .privateKeyPass(cryptoUtil.encryptAndBase64Encode(pvtkeyPass.getBytes()).toCharArray())
                         .content(content)
                         .build();
             }
@@ -315,7 +315,7 @@ public class KeyStoreAdmin {
                     .fileName(filename)
                     .type(type)
                     .provider(provider)
-                    .password(cryptoUtil.encryptAndBase64Encode(password.getBytes()))
+                    .password(cryptoUtil.encryptAndBase64Encode(password.getBytes()).toCharArray())
                     .content(content)
                     .build();
             keyStoreDAO.addKeyStore(data);
@@ -526,8 +526,9 @@ public class KeyStoreAdmin {
                 keyStore = getKeyStore(keyStoreName);
                 keyStoreType = resource.getType();
 
-                String encpass = resource.getPrivateKeyPass();
-                if (encpass != null) {
+                String encpass = String.valueOf(resource.getPrivateKeyPass());
+                // todo: check the actual value is empty or null
+                if (encpass != null || encpass.isEmpty()) {
                     CryptoUtil util = CryptoUtil.getDefaultCryptoUtil();
                     privateKeyPassword = new String(util.base64DecodeAndDecrypt(encpass));
                 }
