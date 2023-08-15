@@ -648,14 +648,14 @@ public class HybridRoleManager {
         String sqlStmt = realmConfig.getRealmProperty(HybridJDBCConstants.GET_ROLE_LIST_OF_USERS);
         if (isCaseSensitiveUsername()) {
             if (StringUtils.isEmpty(sqlStmt)) {
-                sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLE_LIST_OF_USERS_SQL_WITH_IN_LAST;
+                sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLE_LIST_OF_USERS_SQL;
             }
             userNames.replaceAll(s -> s.replaceAll("'", "''") );
             String userNamePlaceHolder = String.join(", ", Collections.nCopies(userNames.size(), "?"));
             sqlStmt = sqlStmt.concat(userNamePlaceHolder).concat(")");
         } else {
             if (sqlStmt == null) {
-                sqlStmt = JDBCCaseInsensitiveConstants.GET_INTERNAL_ROLE_LIST_OF_USERS_SQL_CASE_INSENSITIVE_IN_LAST;
+                sqlStmt = JDBCCaseInsensitiveConstants.GET_INTERNAL_ROLE_LIST_OF_USERS_SQL_CASE_INSENSITIVE;
             }
             userNames.replaceAll(s -> "LOWER('" +
                     s.replaceAll("'", "''") + "')");
