@@ -28,7 +28,7 @@ import java.util.Optional;
  */
 public interface PubCertDAO {
 
-    String addPubCert(String tenantUUID, PubCertModel pubCertModel) throws KeyStoreManagementException;
+    String addPubCert(PubCertModel pubCertModel) throws KeyStoreManagementException;
 
-    Optional<PubCertModel> getPubCert(String tenantUUID, String uuid) throws KeyStoreManagementException;
+    Optional<PubCertModel> getPubCert(String uuid) throws KeyStoreManagementException;
 }

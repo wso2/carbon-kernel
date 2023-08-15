@@ -38,15 +38,11 @@ public class PubCertDAOConstants {
 
         private SQLQueries() {}
 
-        public static final String ADD_PUB_CERT = "INSERT INTO IDN_PUB_CERT " +
-            "(ID, FILE_NAME_APPENDER, TENANT_UUID, CONTENT) " +
-            "VALUES (:ID;, :FILE_NAME_APPENDER;, :TENANT_UUID;, ?)";
+        public static final String ADD_PUB_CERT = "INSERT INTO IDN_PUB_CERT (ID, FILE_NAME_APPENDER, CONTENT) " +
+            "VALUES (:ID;, :FILE_NAME_APPENDER;, ?)";
 
-        // TODO: think whether we need to qualify this using tenant id?
-        //  First impression is not needed.
-        //  Maybe we won't need tenant id in this table at all
         public static final String GET_PUB_CERT =
-                "SELECT * FROM IDN_PUB_CERT WHERE ID = :ID; AND TENANT_UUID = :TENANT_UUID;";
+                "SELECT * FROM IDN_PUB_CERT WHERE ID = :ID;";
     }
 
 }

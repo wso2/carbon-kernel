@@ -44,11 +44,11 @@ public class PubCertDAOImpl implements PubCertDAO {
     }
 
     @Override
-    public String addPubCert(String tenantUUID, PubCertModel pubCertModel) throws KeyStoreManagementException {
+    public String addPubCert(PubCertModel pubCertModel) throws KeyStoreManagementException {
 
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
             try {
-                String uuid = processAddPubCert(connection, pubCertModel, tenantUUID);
+                String uuid = processAddPubCert(connection, pubCertModel);
                 IdentityDatabaseUtil.commitTransaction(connection);
                 return uuid;
             } catch (SQLException e) {
@@ -61,7 +61,7 @@ public class PubCertDAOImpl implements PubCertDAO {
     }
 
     @Override
-    public Optional<PubCertModel> getPubCert(String tenantUUID, String uuid) throws KeyStoreManagementException {
+    public Optional<PubCertModel> getPubCert(String uuid) throws KeyStoreManagementException {
 
         PubCertModel pubCertModel = null;
 
@@ -69,8 +69,6 @@ public class PubCertDAOImpl implements PubCertDAO {
             try (NamedPreparedStatement statement = new NamedPreparedStatement(connection,
                     PubCertDAOConstants.SQLQueries.GET_PUB_CERT)) {
                 statement.setString(PubCertTableColumns.ID, uuid);
-                statement.setString(PubCertTableColumns.TENANT_UUID, tenantUUID);
-                // T
                 statement.setMaxRows(1);
                 try (ResultSet resultSet = statement.executeQuery()) {
                     if (resultSet.next()) {
@@ -88,7 +86,7 @@ public class PubCertDAOImpl implements PubCertDAO {
         return Optional.ofNullable(pubCertModel);
     }
 
-    private String processAddPubCert(Connection connection, PubCertModel pubCertModel, String tenantUUID)
+    private String processAddPubCert(Connection connection, PubCertModel pubCertModel)
             throws SQLException {
 
         String id = UUID.randomUUID().toString();
@@ -97,8 +95,7 @@ public class PubCertDAOImpl implements PubCertDAO {
                 PubCertDAOConstants.SQLQueries.ADD_PUB_CERT)) {
             statement.setString(PubCertTableColumns.ID, id);
             statement.setString(PubCertTableColumns.FILE_NAME_APPENDER, pubCertModel.getFileNameAppender());
-            statement.setString(PubCertTableColumns.TENANT_UUID, tenantUUID);
-            statement.setBytes(4, pubCertModel.getContent());
+            statement.setBytes(3, pubCertModel.getContent());
             statement.executeUpdate();
         }
         return id;

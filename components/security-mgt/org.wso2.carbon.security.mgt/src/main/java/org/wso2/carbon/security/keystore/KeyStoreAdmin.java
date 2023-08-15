@@ -156,7 +156,7 @@ public class KeyStoreAdmin {
                     if (!isSuperTenant) {
                         Optional<String> pubCertId = keyStoreDAO.getPubCertIdFromKeyStore(tenantUUID, keyStoreModel.getFileName());
                         if (pubCertId.isPresent()) {
-                            Optional<PubCertModel> pubCert = pubCertDAO.getPubCert(tenantUUID, pubCertId.get());
+                            Optional<PubCertModel> pubCert = pubCertDAO.getPubCert(pubCertId.get());
                             if (pubCert.isPresent()) {
                                 String fileName = generatePubCertFileName(
                                         SecurityConstants.KEY_STORES + PATH_SEPARATOR +
