@@ -27,26 +27,20 @@ import java.util.Optional;
 /**
  * Data Access Object for KeyStore.
  */
-public abstract class KeyStoreDAO {
+public interface KeyStoreDAO {
 
-    protected final String tenantUUID;
-
-    protected KeyStoreDAO(String tenantUUID) {
-        this.tenantUUID = tenantUUID;
-    }
-
-    public abstract void addKeyStore(KeyStoreModel keyStoreModel) throws
+    void addKeyStore(String tenantUUID, KeyStoreModel keyStoreModel) throws
             KeyStoreManagementException;
 
-    public abstract List<KeyStoreModel> getKeyStores() throws KeyStoreManagementException;
+    List<KeyStoreModel> getKeyStores(String tenantUUID) throws KeyStoreManagementException;
 
-    public abstract Optional<KeyStoreModel> getKeyStore(String fileName) throws KeyStoreManagementException;
+    Optional<KeyStoreModel> getKeyStore(String tenantUUID, String fileName) throws KeyStoreManagementException;
 
-    public abstract void deleteKeyStore(String fileName) throws KeyStoreManagementException;
+    void deleteKeyStore(String tenantUUID, String fileName) throws KeyStoreManagementException;
 
-    public abstract void updateKeyStore(KeyStoreModel keyStoreModel) throws KeyStoreManagementException;
+    void updateKeyStore(String tenantUUID, KeyStoreModel keyStoreModel) throws KeyStoreManagementException;
 
-    public abstract void addPubCertIdToKeyStore(String fileName, String pubCertId) throws KeyStoreManagementException;
+    void addPubCertIdToKeyStore(String tenantUUID, String fileName, String pubCertId) throws KeyStoreManagementException;
 
-    public abstract Optional<String> getPubCertIdFromKeyStore(String fileName) throws KeyStoreManagementException;
+    Optional<String> getPubCertIdFromKeyStore(String tenantUUID, String fileName) throws KeyStoreManagementException;
 }

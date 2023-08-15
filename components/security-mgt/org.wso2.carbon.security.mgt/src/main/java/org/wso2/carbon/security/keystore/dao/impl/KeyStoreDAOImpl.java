@@ -43,21 +43,20 @@ import static java.time.ZoneOffset.UTC;
 /**
  * This class provides the implementation of the KeyStoreDAO interface.
  */
-public class KeyStoreDAOImpl extends KeyStoreDAO {
+public class KeyStoreDAOImpl implements KeyStoreDAO {
 
     private final Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(UTC));
 
-    public KeyStoreDAOImpl(String tenantUUID) {
-
-        super(tenantUUID);
+    public KeyStoreDAOImpl() {
+        // Default constructor.
     }
 
     @Override
-    public void addKeyStore(KeyStoreModel keyStoreModel) throws KeyStoreManagementException {
+    public void addKeyStore(String tenantUUID, KeyStoreModel keyStoreModel) throws KeyStoreManagementException {
 
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
             try {
-                processAddKeyStore(connection, keyStoreModel);
+                processAddKeyStore(connection, keyStoreModel, tenantUUID);
                 IdentityDatabaseUtil.commitTransaction(connection);
             } catch (SQLException e) {
                 IdentityDatabaseUtil.rollbackTransaction(connection);
@@ -69,7 +68,7 @@ public class KeyStoreDAOImpl extends KeyStoreDAO {
     }
 
     @Override
-    public List<KeyStoreModel> getKeyStores() throws KeyStoreManagementException {
+    public List<KeyStoreModel> getKeyStores(String tenantUUID) throws KeyStoreManagementException {
 
         List<KeyStoreModel> keyStores = new ArrayList<>();
 
@@ -93,7 +92,7 @@ public class KeyStoreDAOImpl extends KeyStoreDAO {
     }
 
     @Override
-    public Optional<KeyStoreModel> getKeyStore(String fileName) throws KeyStoreManagementException {
+    public Optional<KeyStoreModel> getKeyStore(String tenantUUID, String fileName) throws KeyStoreManagementException {
 
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(false)) {
             try (NamedPreparedStatement statement = new NamedPreparedStatement(connection,
@@ -115,7 +114,7 @@ public class KeyStoreDAOImpl extends KeyStoreDAO {
     }
 
     @Override
-    public void deleteKeyStore(String fileName) throws KeyStoreManagementException {
+    public void deleteKeyStore(String tenantUUID, String fileName) throws KeyStoreManagementException {
 
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
             try (NamedPreparedStatement statement = new NamedPreparedStatement(connection,
@@ -135,11 +134,11 @@ public class KeyStoreDAOImpl extends KeyStoreDAO {
     }
 
     @Override
-    public void updateKeyStore(KeyStoreModel keyStoreModel) throws KeyStoreManagementException {
+    public void updateKeyStore(String tenantUUID, KeyStoreModel keyStoreModel) throws KeyStoreManagementException {
 
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
             try {
-                processUpdateKeyStore(connection, keyStoreModel);
+                processUpdateKeyStore(connection, keyStoreModel, tenantUUID);
                 IdentityDatabaseUtil.commitTransaction(connection);
             } catch (SQLException e) {
                 IdentityDatabaseUtil.rollbackTransaction(connection);
@@ -151,7 +150,7 @@ public class KeyStoreDAOImpl extends KeyStoreDAO {
     }
 
     @Override
-    public void addPubCertIdToKeyStore(String fileName, String pubCertId) throws KeyStoreManagementException {
+    public void addPubCertIdToKeyStore(String tenantUUID, String fileName, String pubCertId) throws KeyStoreManagementException {
 
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
             try (NamedPreparedStatement statement = new NamedPreparedStatement(connection,
@@ -173,7 +172,7 @@ public class KeyStoreDAOImpl extends KeyStoreDAO {
     }
 
     @Override
-    public Optional<String> getPubCertIdFromKeyStore(String fileName) throws KeyStoreManagementException {
+    public Optional<String> getPubCertIdFromKeyStore(String tenantUUID, String fileName) throws KeyStoreManagementException {
 
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(false)) {
             try (NamedPreparedStatement statement = new NamedPreparedStatement(connection,
@@ -208,7 +207,7 @@ public class KeyStoreDAOImpl extends KeyStoreDAO {
                 .build();
     }
 
-    private String processAddKeyStore(Connection connection, KeyStoreModel keyStoreModel)
+    private String processAddKeyStore(Connection connection, KeyStoreModel keyStoreModel, String tenantUUID)
             throws SQLException {
 
         String id = UUID.randomUUID().toString();
@@ -232,7 +231,7 @@ public class KeyStoreDAOImpl extends KeyStoreDAO {
         return id;
     }
 
-    private void processUpdateKeyStore(Connection connection, KeyStoreModel keyStoreModel)
+    private void processUpdateKeyStore(Connection connection, KeyStoreModel keyStoreModel, String tenantUUID)
             throws SQLException {
 
         try (NamedPreparedStatement statement = new NamedPreparedStatement(connection,

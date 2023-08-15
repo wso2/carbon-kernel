@@ -35,15 +35,14 @@ import java.util.UUID;
 /**
  * This class provides the implementation of the PubCertDAO interface.
  */
-public class PubCertDAOImpl extends PubCertDAO {
+public class PubCertDAOImpl implements PubCertDAO {
 
-    public PubCertDAOImpl(String tenantUUID) {
-
-        super(tenantUUID);
+    public PubCertDAOImpl() {
+        // Default constructor.
     }
 
     @Override
-    public String addPubCert(PubCertModel pubCertModel) throws KeyStoreManagementException {
+    public String addPubCert(String tenantUUID, PubCertModel pubCertModel) throws KeyStoreManagementException {
 
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
             try {
@@ -60,7 +59,7 @@ public class PubCertDAOImpl extends PubCertDAO {
     }
 
     @Override
-    public Optional<PubCertModel> getPubCert(String uuid) throws KeyStoreManagementException {
+    public Optional<PubCertModel> getPubCert(String tenantUUID, String uuid) throws KeyStoreManagementException {
 
         PubCertModel pubCertModel = null;
 

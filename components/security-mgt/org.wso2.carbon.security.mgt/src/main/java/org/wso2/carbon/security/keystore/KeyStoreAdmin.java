@@ -91,6 +91,7 @@ public class KeyStoreAdmin {
 
     private static final Log log = LogFactory.getLog(KeyStoreAdmin.class);
     private int tenantId;
+    private String tenantUUID;
     private boolean includeCert = false;
     private KeyStoreDAO keyStoreDAO;
     private PubCertDAO pubCertDAO;
@@ -104,9 +105,9 @@ public class KeyStoreAdmin {
         trustStorePassword = config.getFirstProperty(SERVER_TRUSTSTORE_PASSWORD);
         this.tenantId = tenantId;
         try {
-            String tenantUUID = KeyStoreMgtUtil.getTenantUUID(tenantId);
-            keyStoreDAO = new KeyStoreDAOImpl(tenantUUID);
-            pubCertDAO = new PubCertDAOImpl(tenantUUID);
+            tenantUUID = KeyStoreMgtUtil.getTenantUUID(tenantId);
+            keyStoreDAO = new KeyStoreDAOImpl();
+            pubCertDAO = new PubCertDAOImpl();
         } catch (SecurityConfigRuntimeException e) {
             log.error("Error while retrieving the tenant ID.", e);
         }
@@ -132,7 +133,7 @@ public class KeyStoreAdmin {
         KeyStoreData[] names = new KeyStoreData[0];
 
         try {
-            List<KeyStoreModel> keyStores = keyStoreDAO.getKeyStores();
+            List<KeyStoreModel> keyStores = keyStoreDAO.getKeyStores(tenantUUID);
             List<KeyStoreData> lst = new ArrayList<>();
             if (keyStores != null && !keyStores.isEmpty()) {
                 for (KeyStoreModel keyStoreModel : keyStores) {
@@ -153,9 +154,9 @@ public class KeyStoreAdmin {
                     }
 
                     if (!isSuperTenant) {
-                        Optional<String> pubCertId = keyStoreDAO.getPubCertIdFromKeyStore(keyStoreModel.getFileName());
+                        Optional<String> pubCertId = keyStoreDAO.getPubCertIdFromKeyStore(tenantUUID, keyStoreModel.getFileName());
                         if (pubCertId.isPresent()) {
-                            Optional<PubCertModel> pubCert = pubCertDAO.getPubCert(pubCertId.get());
+                            Optional<PubCertModel> pubCert = pubCertDAO.getPubCert(tenantUUID, pubCertId.get());
                             if (pubCert.isPresent()) {
                                 String fileName = generatePubCertFileName(
                                         SecurityConstants.KEY_STORES + PATH_SEPARATOR +
@@ -279,7 +280,7 @@ public class KeyStoreAdmin {
                         .build();
             }
 
-            keyStoreDAO.addKeyStore(data);
+            keyStoreDAO.addKeyStore(tenantUUID, data);
         } catch (KeyStoreManagementException | CryptoException | IOException | NoSuchAlgorithmException |
                  CertificateException | UnrecoverableKeyException | KeyStoreException e) {
             String msg = "Error when adding a keyStore";
@@ -318,7 +319,7 @@ public class KeyStoreAdmin {
                     .password(cryptoUtil.encryptAndBase64Encode(password.getBytes()).toCharArray())
                     .content(content)
                     .build();
-            keyStoreDAO.addKeyStore(data);
+            keyStoreDAO.addKeyStore(tenantUUID, data);
         } catch (SecurityConfigException e) {
             throw e;
         } catch (Exception e) {
@@ -346,12 +347,12 @@ public class KeyStoreAdmin {
             }
 
             // TODO: verify that this behaves as expected
-            if (keyStoreDAO.getPubCertIdFromKeyStore(keyStoreName).isPresent()) {
+            if (keyStoreDAO.getPubCertIdFromKeyStore(tenantUUID, keyStoreName).isPresent()) {
                 throw new KeyStoreManagementException("Key store : " + keyStoreName +
                         " is already in use and can't be deleted");
             }
 
-            keyStoreDAO.deleteKeyStore(keyStoreName);
+            keyStoreDAO.deleteKeyStore(tenantUUID, keyStoreName);
         } catch (KeyStoreManagementException e) {
             // Catch KeyStoreManagementException and throw the expected SecurityConfigException.
             String msg = "Error when deleting a keyStore";
@@ -522,7 +523,7 @@ public class KeyStoreAdmin {
                 if (!isExistKeyStore(keyStoreName)) {
                     throw new SecurityConfigException("Key Store not found");
                 }
-                KeyStoreModel resource = keyStoreDAO.getKeyStore(keyStoreName).get();
+                KeyStoreModel resource = keyStoreDAO.getKeyStore(tenantUUID, keyStoreName).get();
                 keyStore = getKeyStore(keyStoreName);
                 keyStoreType = resource.getType();
 
@@ -863,7 +864,7 @@ public class KeyStoreAdmin {
             if (!isExistKeyStore(keyStoreName)) {
                 throw new KeyStoreManagementException("Keystore " + keyStoreName + " not found.");
             }
-            KeyStoreModel keyStoreModel = keyStoreDAO.getKeyStore(keyStoreName).get();
+            KeyStoreModel keyStoreModel = keyStoreDAO.getKeyStore(tenantUUID, keyStoreName).get();
             keyStoreType = keyStoreModel.getType();
         }
         return keyStoreType;
@@ -1093,6 +1094,6 @@ public class KeyStoreAdmin {
 
     private boolean isExistKeyStore(String fileName) throws KeyStoreManagementException {
 
-        return keyStoreDAO.getKeyStore(fileName).isPresent();
+        return keyStoreDAO.getKeyStore(tenantUUID, fileName).isPresent();
     }
 }

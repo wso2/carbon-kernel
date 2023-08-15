@@ -26,15 +26,9 @@ import java.util.Optional;
 /**
  * Data Access Object for PubCert.
  */
-public abstract class PubCertDAO {
+public interface PubCertDAO {
 
-    protected final String tenantUUID;
+    String addPubCert(String tenantUUID, PubCertModel pubCertModel) throws KeyStoreManagementException;
 
-    public PubCertDAO(String tenantUUID) {
-        this.tenantUUID = tenantUUID;
-    }
-
-    public abstract String addPubCert(PubCertModel pubCertModel) throws KeyStoreManagementException;
-
-    public abstract Optional<PubCertModel> getPubCert(String uuid) throws KeyStoreManagementException;
+    Optional<PubCertModel> getPubCert(String tenantUUID, String uuid) throws KeyStoreManagementException;
 }
