@@ -18058,8 +18058,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         groupResolver.addGroup(groupID, createdDate, lastModifiedDate,  location,
                                 displayName, tenantId);
                         //TODO -  Rollback logic to remove the created group in SCIM GROUP table.
-                        doAddGroup(groupName, userIDList);
                     }
+                    doAddGroup(groupName, userIDList);
                 }
             } catch (UserStoreException ex) {
                 handleAddGroupFailureWithID(ErrorMessages.ERROR_CODE_WHILE_ADDING_GROUP.getCode(),
@@ -18184,7 +18184,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
           if(isUniqueGroupIdEnabled(this)) {
                 doDeleteGroupWithID(groupID);
           } else {
-                doDeleteGroup(groupName);
+              //when group ID is not enabled delete from IDN table and userstore with name
+              doDeleteGroup(UserCoreUtil.removeDomainFromName(groupName));
+              GroupResolver groupResolver = UserStoreMgtDataHolder.getInstance().getGroupResolver();
+              if (groupResolver != null && groupResolver.isEnable()) {
+                  groupResolver.deleteGroup(groupName, tenantId);
+              }
           }
         } catch (UserStoreException ex) {
             handleDeleteGroupWithIDFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_DELETE_ROLE.getCode(),

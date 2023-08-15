@@ -98,4 +98,9 @@ public class AbstractGroupResolver implements GroupResolver {
                             String displayName, int tenantId) throws UserStoreException {
 
     }
+
+    @Override
+    public void deleteGroup(String groupName, int tenantID) throws UserStoreException {
+
+    }
 }

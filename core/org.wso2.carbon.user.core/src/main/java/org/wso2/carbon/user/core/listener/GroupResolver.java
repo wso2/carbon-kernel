@@ -138,4 +138,6 @@ public interface GroupResolver {
 
     void addGroup(String groupID, Date createdDate, Date lastModifiedDate, String location,
                      String displayName, int tenantId) throws UserStoreException;
+
+    void deleteGroup(String groupName, int tenantID) throws UserStoreException;
 }
