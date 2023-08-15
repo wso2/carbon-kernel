@@ -26,7 +26,7 @@ import java.util.Date;
 public class KeyStoreModel {
 
     // TODO: check whether we need the uuid.
-//    private String id;
+    private String id;
     private String fileName;
     private String type;
     private String provider;
@@ -34,31 +34,24 @@ public class KeyStoreModel {
     private String privateKeyAlias;
     private String privateKeyPass;
     private Date lastUpdated;
-
-    // TODO: check whether we can eliminate retrieving content when not needed.
     private byte[] content;
 
-    public KeyStoreModel() {
+    public KeyStoreModel(KeyStoreModelBuilder  builder) {
 
-        this(null, null, null, null, null);
+        this.id = builder.id;
+        this.fileName = builder.fileName;
+        this.type = builder.type;
+        this.provider = builder.provider;
+        this.password = builder.password;
+        this.privateKeyAlias = builder.privateKeyAlias;
+        this.privateKeyPass = builder.privateKeyPass;
+        this.lastUpdated = builder.lastUpdated;
+        this.content = builder.content;
     }
 
-    public KeyStoreModel(String fileName, String type, String provider, String password, byte[] content) {
+    public String getId() {
 
-        this(fileName, type, provider, password, null, null, content);
-    }
-
-    public KeyStoreModel(String fileName, String type, String provider, String password,
-                         String privateKeyAlias,
-                         String privateKeyPass, byte[] content) {
-
-        this.fileName = fileName;
-        this.type = type;
-        this.provider = provider;
-        this.password = password;
-        this.content = content;
-        this.privateKeyAlias = privateKeyAlias;
-        this.privateKeyPass = privateKeyPass;
+        return id;
     }
 
     public String getFileName() {
@@ -66,19 +59,9 @@ public class KeyStoreModel {
         return fileName;
     }
 
-    public void setFileName(String fileName) {
-
-        this.fileName = fileName;
-    }
-
     public String getType() {
 
         return type;
-    }
-
-    public void setType(String type) {
-
-        this.type = type;
     }
 
     public String getProvider() {
@@ -86,19 +69,9 @@ public class KeyStoreModel {
         return provider;
     }
 
-    public void setProvider(String provider) {
-
-        this.provider = provider;
-    }
-
     public String getPassword() {
 
         return password;
-    }
-
-    public void setPassword(String password) {
-
-        this.password = password;
     }
 
     public String getPrivateKeyAlias() {
@@ -106,19 +79,9 @@ public class KeyStoreModel {
         return privateKeyAlias;
     }
 
-    public void setPrivateKeyAlias(String privateKeyAlias) {
-
-        this.privateKeyAlias = privateKeyAlias;
-    }
-
     public String getPrivateKeyPass() {
 
         return privateKeyPass;
-    }
-
-    public void setPrivateKeyPass(String privateKeyPass) {
-
-        this.privateKeyPass = privateKeyPass;
     }
 
     public byte[] getContent() {
@@ -126,19 +89,82 @@ public class KeyStoreModel {
         return content;
     }
 
-    public void setContent(byte[] content) {
-
-        this.content = content;
-    }
-
-
     public Date getLastUpdated() {
 
         return lastUpdated;
     }
 
-    public void setLastUpdated(Date lastUpdated) {
+    public static class KeyStoreModelBuilder {
 
-        this.lastUpdated = lastUpdated;
+        private String id;
+        private String fileName;
+        private String type;
+        private String provider;
+        private String password;
+        private String privateKeyAlias;
+        private String privateKeyPass;
+        private Date lastUpdated;
+        private byte[] content;
+
+        public KeyStoreModelBuilder() {}
+
+        public KeyStoreModelBuilder id(String id) {
+
+            this.id = id;
+            return this;
+        }
+
+        public KeyStoreModelBuilder fileName(String fileName) {
+
+            this.fileName = fileName;
+            return this;
+        }
+
+        public KeyStoreModelBuilder type(String type) {
+
+            this.type = type;
+            return this;
+        }
+
+        public KeyStoreModelBuilder provider(String provider) {
+
+            this.provider = provider;
+            return this;
+        }
+
+        public KeyStoreModelBuilder password(String password) {
+
+            this.password = password;
+            return this;
+        }
+
+        public KeyStoreModelBuilder privateKeyAlias(String privateKeyAlias) {
+
+            this.privateKeyAlias = privateKeyAlias;
+            return this;
+        }
+
+        public KeyStoreModelBuilder privateKeyPass(String privateKeyPass) {
+
+            this.privateKeyPass = privateKeyPass;
+            return this;
+        }
+
+        public KeyStoreModelBuilder lastUpdated(Date lastUpdated) {
+
+            this.lastUpdated = lastUpdated;
+            return this;
+        }
+
+        public KeyStoreModelBuilder content(byte[] content) {
+
+            this.content = content;
+            return this;
+        }
+
+        public KeyStoreModel build() {
+
+            return new KeyStoreModel(this);
+        }
     }
 }

@@ -196,16 +196,16 @@ public class KeyStoreDAOImpl extends KeyStoreDAO {
 
     private KeyStoreModel mapResultToKeyStoreModel(ResultSet resultSet) throws SQLException {
 
-        KeyStoreModel keyStoreModel = new KeyStoreModel();
-        keyStoreModel.setType(resultSet.getString(KeyStoreTableColumns.TYPE));
-        keyStoreModel.setProvider(resultSet.getString(KeyStoreTableColumns.PROVIDER));
-        keyStoreModel.setFileName(resultSet.getString(KeyStoreTableColumns.FILE_NAME));
-        keyStoreModel.setPassword(resultSet.getString(KeyStoreTableColumns.PASSWORD));
-        keyStoreModel.setPrivateKeyAlias(resultSet.getString(KeyStoreTableColumns.PRIVATE_KEY_ALIAS));
-        keyStoreModel.setPrivateKeyPass(resultSet.getString(KeyStoreTableColumns.PRIVATE_KEY_PASS));
-        keyStoreModel.setContent(resultSet.getBytes(KeyStoreTableColumns.CONTENT));
-        keyStoreModel.setLastUpdated(resultSet.getTimestamp(KeyStoreTableColumns.LAST_UPDATED));
-        return keyStoreModel;
+        return new KeyStoreModel.KeyStoreModelBuilder()
+                .type(resultSet.getString(KeyStoreTableColumns.TYPE))
+                .provider(resultSet.getString(KeyStoreTableColumns.PROVIDER))
+                .fileName(resultSet.getString(KeyStoreTableColumns.FILE_NAME))
+                .password(resultSet.getString(KeyStoreTableColumns.PASSWORD))
+                .privateKeyAlias(resultSet.getString(KeyStoreTableColumns.PRIVATE_KEY_ALIAS))
+                .privateKeyPass(resultSet.getString(KeyStoreTableColumns.PRIVATE_KEY_PASS))
+                .content(resultSet.getBytes(KeyStoreTableColumns.CONTENT))
+                .lastUpdated(resultSet.getTimestamp(KeyStoreTableColumns.LAST_UPDATED))
+                .build();
     }
 
     private String processAddKeyStore(Connection connection, KeyStoreModel keyStoreModel)

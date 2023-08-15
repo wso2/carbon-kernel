@@ -33,6 +33,7 @@ import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.security.SecurityConfigException;
+import org.wso2.carbon.security.SecurityConfigRuntimeException;
 import org.wso2.carbon.security.SecurityConstants;
 import org.wso2.carbon.security.keystore.dao.KeyStoreDAO;
 import org.wso2.carbon.security.keystore.dao.PubCertDAO;
@@ -263,12 +264,23 @@ public class KeyStoreAdmin {
             KeyStoreModel data;
 
             if (pvtKeyAlias == null) {
-                data = new KeyStoreModel(filename, type, provider,
-                        cryptoUtil.encryptAndBase64Encode(password.getBytes()), content);
+                data = new KeyStoreModel.KeyStoreModelBuilder()
+                        .fileName(filename)
+                        .type(type)
+                        .provider(provider)
+                        .password(cryptoUtil.encryptAndBase64Encode(password.getBytes()))
+                        .content(content)
+                        .build();
             } else {
-                data = new KeyStoreModel(filename, type, provider,
-                        cryptoUtil.encryptAndBase64Encode(password.getBytes()), pvtKeyAlias,
-                        cryptoUtil.encryptAndBase64Encode(pvtkeyPass.getBytes()), content);
+                data = new KeyStoreModel.KeyStoreModelBuilder()
+                        .fileName(filename)
+                        .type(type)
+                        .provider(provider)
+                        .password(cryptoUtil.encryptAndBase64Encode(password.getBytes()))
+                        .privateKeyAlias(pvtKeyAlias)
+                        .privateKeyPass(cryptoUtil.encryptAndBase64Encode(pvtkeyPass.getBytes()))
+                        .content(content)
+                        .build();
             }
 
             keyStoreDAO.addKeyStore(data);
@@ -303,9 +315,13 @@ public class KeyStoreAdmin {
             keyStore.load(new ByteArrayInputStream(content), password.toCharArray());
             CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
 
-
-            KeyStoreModel data = new KeyStoreModel(filename, type, provider,
-                    cryptoUtil.encryptAndBase64Encode(password.getBytes()), content);
+            KeyStoreModel data = new KeyStoreModel.KeyStoreModelBuilder()
+                    .fileName(filename)
+                    .type(type)
+                    .provider(provider)
+                    .password(cryptoUtil.encryptAndBase64Encode(password.getBytes()))
+                    .content(content)
+                    .build();
             keyStoreDAO.addKeyStore(data);
         } catch (SecurityConfigException e) {
             throw e;
