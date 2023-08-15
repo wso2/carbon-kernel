@@ -45,7 +45,7 @@ import static java.time.ZoneOffset.UTC;
  */
 public class KeyStoreDAOImpl implements KeyStoreDAO {
 
-    private final Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(UTC));
+    private final Calendar CALENDAR = Calendar.getInstance(TimeZone.getTimeZone(UTC));
 
     public KeyStoreDAOImpl() {
         // Default constructor.
@@ -156,7 +156,7 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
             try (NamedPreparedStatement statement = new NamedPreparedStatement(connection,
                     KeyStoreDAOConstants.SqlQueries.ADD_PUB_CERT_ID_TO_KEY_STORE)) {
                 statement.setString(KeyStoreTableColumns.PUB_CERT_ID, pubCertId);
-                statement.setTimeStamp(KeyStoreTableColumns.LAST_UPDATED, new Timestamp(new Date().getTime()), calendar);
+                statement.setTimeStamp(KeyStoreTableColumns.LAST_UPDATED, new Timestamp(new Date().getTime()), CALENDAR);
                 statement.setString(KeyStoreTableColumns.FILE_NAME, fileName);
                 statement.setString(KeyStoreTableColumns.TENANT_UUID, tenantUUID);
                 statement.executeUpdate();
@@ -224,7 +224,7 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
             statement.setString(KeyStoreTableColumns.PRIVATE_KEY_PASS,
                     String.valueOf(keyStoreModel.getPrivateKeyPass()));
             statement.setString(KeyStoreTableColumns.TENANT_UUID, tenantUUID);
-            statement.setTimeStamp(KeyStoreTableColumns.LAST_UPDATED, new Timestamp(new Date().getTime()), calendar);
+            statement.setTimeStamp(KeyStoreTableColumns.LAST_UPDATED, new Timestamp(new Date().getTime()), CALENDAR);
             statement.setBytes(10, keyStoreModel.getContent());
             statement.executeUpdate();
         }
@@ -241,7 +241,7 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
             statement.setString(3, String.valueOf(keyStoreModel.getPassword()));
             statement.setString(4, keyStoreModel.getPrivateKeyAlias());
             statement.setString(5, String.valueOf(keyStoreModel.getPrivateKeyPass()));
-            statement.setTimestamp(6, new Timestamp(new Date().getTime()), calendar);
+            statement.setTimestamp(6, new Timestamp(new Date().getTime()), CALENDAR);
             statement.setBytes(7, keyStoreModel.getContent());
             statement.setString(8, keyStoreModel.getFileName());
             statement.setString(9, tenantUUID);
