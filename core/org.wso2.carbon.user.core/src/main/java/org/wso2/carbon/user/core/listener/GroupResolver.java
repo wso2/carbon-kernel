@@ -23,6 +23,8 @@ import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.Group;
 import org.wso2.carbon.user.core.model.Condition;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -133,4 +135,7 @@ public interface GroupResolver {
      */
     boolean listGroups(Condition condition, int limit, int offset, String sortBy, String domain, String sortOrder,
                        List<Group> groupsList, UserStoreManager userStoreManager) throws UserStoreException;
+
+    void addGroup(String groupID, Date createdDate, Date lastModifiedDate, String location,
+                     String displayName, int tenantId) throws UserStoreException;
 }

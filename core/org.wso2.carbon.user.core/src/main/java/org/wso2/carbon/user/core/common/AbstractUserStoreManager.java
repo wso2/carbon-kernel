@@ -88,6 +88,7 @@ import java.nio.CharBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -17986,7 +17987,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public Group addGroupWithID(String groupName, String[] userIDList) throws UserStoreException {
+    public Group addGroupWithID(String groupName, String[] userIDList, String displayName, String groupID, Date createdDate,
+                                Date lastModifiedDate, String location) throws UserStoreException {
 
         if (StringUtils.isEmpty(groupName)) {
             handleAddGroupFailureWithID(ErrorMessages.ERROR_EMPTY_GROUP_NAME.getCode(),
@@ -18002,7 +18004,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         if (userStore.isRecurssive()) {
             return ((UniqueIDUserStoreManager) userStore.getUserStoreManager())
-                    .addGroupWithID(userStore.getDomainFreeGroupName(), UserCoreUtil.removeDomainFromNames(userIDList));
+                    .addGroupWithID(userStore.getDomainFreeGroupName(), UserCoreUtil.removeDomainFromNames(userIDList),
+                            displayName, groupID,createdDate, lastModifiedDate, location);
 
         }
 
@@ -18046,11 +18049,17 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (writeGroupsEnabled) {
             try {
                 // add group in to actual user store
-                if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-                    List<User> users = userUniqueIDManger.getUsers(Arrays.asList(userIDList), this);
-                    doAddGroup(groupName, users.stream().map(User::getUsername).toArray(String[]::new));
-                } else {
+                if (isUniqueGroupIdEnabled(this)) {
                     group = doAddGroupWithID(groupName, userIDList);
+
+                } else {
+                    GroupResolver groupResolver = UserStoreMgtDataHolder.getInstance().getGroupResolver();
+                    if (groupResolver != null && groupResolver.isEnable()) {
+                        groupResolver.addGroup(groupID, createdDate, lastModifiedDate,  location,
+                                displayName, tenantId);
+                        //TODO -  Rollback logic to remove the created group in SCIM GROUP table.
+                        doAddGroup(groupName, userIDList);
+                    }
                 }
             } catch (UserStoreException ex) {
                 handleAddGroupFailureWithID(ErrorMessages.ERROR_CODE_WHILE_ADDING_GROUP.getCode(),
@@ -18172,7 +18181,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throw new UserStoreException(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.toString());
         }
         try {
-          if(isUniqueUserIdEnabledInUserStore(userStore)) {
+          if(isUniqueGroupIdEnabled(this)) {
                 doDeleteGroupWithID(groupID);
           } else {
                 doDeleteGroup(groupName);

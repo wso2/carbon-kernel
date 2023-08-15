@@ -23,6 +23,8 @@ import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.listener.GroupResolver;
 import org.wso2.carbon.user.core.model.Condition;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -89,5 +91,11 @@ public class AbstractGroupResolver implements GroupResolver {
             throws UserStoreException {
 
         return true;
+    }
+
+    @Override
+    public void addGroup(String groupID, Date createdDate, Date lastModifiedDate, String location,
+                            String displayName, int tenantId) throws UserStoreException {
+
     }
 }

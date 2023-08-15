@@ -26,6 +26,7 @@ import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.model.Condition;
 import org.wso2.carbon.user.core.model.UniqueIDUserClaimSearchEntry;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -686,7 +687,8 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      */
     Map<String, List<Group>> getGroupListOfUsers(List<String> userIDs) throws UserStoreException;
 
-    Group addGroupWithID(String groupID, String[] userIDList) throws UserStoreException;
+    Group addGroupWithID(String groupName, String[] userIDList, String displayName, String groupID, Date createdDate,
+                         Date lastModifiedDate, String location) throws UserStoreException;
 
     void deleteGroupWithID(String groupID) throws UserStoreException;
 }

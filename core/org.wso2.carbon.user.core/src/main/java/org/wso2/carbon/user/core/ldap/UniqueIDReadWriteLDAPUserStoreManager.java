@@ -2647,7 +2647,19 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     @Override
     public void doAddGroup(String groupName, String[] userIDList) throws UserStoreException {
 
-        throw new UserStoreException("Operation is not supported.");
+        List<String> userList = getUserNamesFromUserIDs(Arrays.asList(userIDList));
+        String userStoreDomain = getMyDomainName();
+        boolean containsInvalidUsernames = userList.stream()
+                .anyMatch(username -> !UserCoreUtil.extractDomainFromName(username).equalsIgnoreCase(userStoreDomain));
+
+        if (containsInvalidUsernames) {
+            throw new UserStoreException("One or more users in the users list: " + userList + " do not belong to the" +
+                    " user store: " + userStoreDomain);
+        }
+
+        userList = userList.stream().map(UserCoreUtil::removeDomainFromName).collect(Collectors.toList());
+
+        persistGroup(groupName, null, userList.toArray(new String[0]));
     }
 
     protected void persistGroup(String groupName, String groupID, String[] userList) throws UserStoreException {
@@ -2676,10 +2688,6 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                 Attribute objectClassAttribute = new BasicAttribute(LDAPConstants.OBJECT_CLASS_NAME);
                 objectClassAttribute.add(groupEntryObjectClass);
                 groupAttributes.put(objectClassAttribute);
-
-                //TODO - Configure from FE side added temporarily
-                String groupEntryObjectClass1 = "uidObject";
-                objectClassAttribute.add(groupEntryObjectClass1);
 
                 // create cn attribute
                 Attribute cnAttribute = new BasicAttribute(groupNameAttribute);
@@ -2725,12 +2733,21 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                         .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse(StringUtils.EMPTY);
                 String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
                 String groupIdAttributeName = realmConfig.getUserStoreProperty("GroupIdAttribute");
-                //Skipping if the userId attribute is immutable.
-                if (StringUtils.isNotBlank(groupIdAttributeName)
-                        && !ArrayUtils.contains(immutableAttributes, groupAttributes)) {
-                    Attribute groupIdAttribute = new BasicAttribute(groupIdAttributeName);
-                    groupIdAttribute.add(groupID);
-                    groupAttributes.put(groupIdAttribute);
+
+                //If groupID is null don't add the attribute.
+                if(groupID != null) {
+
+                    //TODO - Configure from FE side added temporarily
+                    String groupEntryObjectClass1 = "uidObject";
+                    objectClassAttribute.add(groupEntryObjectClass1);
+
+                    //Skipping if the userId attribute is immutable.
+                    if (StringUtils.isNotBlank(groupIdAttributeName)
+                            && !ArrayUtils.contains(immutableAttributes, groupAttributes)) {
+                        Attribute groupIdAttribute = new BasicAttribute(groupIdAttributeName);
+                        groupIdAttribute.add(groupID);
+                        groupAttributes.put(groupIdAttribute);
+                    }
                 }
 
                 groupContext = (DirContext) mainDirContext.lookup(escapeDNForSearch(searchBase));
