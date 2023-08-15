@@ -84,12 +84,10 @@ public class KeyStoreAdmin {
     public static final String SERVER_TRUSTSTORE_PASSWORD = "Security.TrustStore.Password";
     public static final String SERVER_TRUSTSTORE_TYPE = "Security.TrustStore.Type";
 
-    // TODO: replace with a proper solution
     private static final String PATH_SEPARATOR = "/";
 
-    // TODO: figure out a proper name.
     // This is used as the alternative for RegistryResources.SecurityManagement.PRIMARY_KEYSTORE_PHANTOM_RESOURCE.
-    private static final String PRIMARY_KEYSTORE_FILE_NAME = "carbon-primary-ks";
+    private static final String ALTERNATE_PRIMARY_KEYSTORE_PHANTOM_RESOURCE = "carbon-primary-ks";
 
     private static final Log log = LogFactory.getLog(KeyStoreAdmin.class);
     private int tenantId;
@@ -109,7 +107,7 @@ public class KeyStoreAdmin {
             String tenantUUID = KeyStoreMgtUtil.getTenantUUID(tenantId);
             keyStoreDAO = new KeyStoreDAOImpl(tenantUUID);
             pubCertDAO = new PubCertDAOImpl(tenantUUID);
-        } catch (SecurityConfigException e) {
+        } catch (SecurityConfigRuntimeException e) {
             log.error("Error while retrieving the tenant ID.", e);
         }
     }
@@ -138,7 +136,7 @@ public class KeyStoreAdmin {
             List<KeyStoreData> lst = new ArrayList<>();
             if (keyStores != null && !keyStores.isEmpty()) {
                 for (KeyStoreModel keyStoreModel : keyStores) {
-                    if (PRIMARY_KEYSTORE_FILE_NAME.equals(keyStoreModel.getFileName())) {
+                    if (ALTERNATE_PRIMARY_KEYSTORE_PHANTOM_RESOURCE.equals(keyStoreModel.getFileName())) {
                         continue;
                     }
 
@@ -154,7 +152,6 @@ public class KeyStoreAdmin {
                         data.setPrivateStore(false);
                     }
 
-                    // TODO: Dump the generated public key to the file system for sub tenants
                     if (!isSuperTenant) {
                         Optional<String> pubCertId = keyStoreDAO.getPubCertIdFromKeyStore(keyStoreModel.getFileName());
                         if (pubCertId.isPresent()) {
@@ -177,8 +174,7 @@ public class KeyStoreAdmin {
                 }
             }
 
-            // TODO: see if these also need to be done only if keyStores is not empty
-
+            // Prepare the next position for the super tenant keystore data.
             names = new KeyStoreData[lst.size() + 1];
             Iterator<KeyStoreData> ite = lst.iterator();
             int count = 0;
@@ -204,7 +200,7 @@ public class KeyStoreAdmin {
             }
             return names;
         } catch (KeyStoreManagementException e) {
-            // TODO: see if we can remove this catch block
+            // Catch KeyStoreManagementException and throw the expected SecurityConfigException.
             String msg = "Error when getting keyStore data";
             log.error(msg, e);
             throw new SecurityConfigException(msg, e);
@@ -357,7 +353,7 @@ public class KeyStoreAdmin {
 
             keyStoreDAO.deleteKeyStore(keyStoreName);
         } catch (KeyStoreManagementException e) {
-            // TODO: check if we can eliminate this catch block altogether
+            // Catch KeyStoreManagementException and throw the expected SecurityConfigException.
             String msg = "Error when deleting a keyStore";
             log.error(msg, e);
             throw new SecurityConfigException(msg, e);

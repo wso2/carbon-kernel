@@ -23,7 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.core.util.IdentityIOStreamUtils;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
-import org.wso2.carbon.security.SecurityConfigException;
+import org.wso2.carbon.security.SecurityConfigRuntimeException;
 import org.wso2.carbon.user.api.Tenant;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.WSO2Constants;
@@ -121,24 +121,22 @@ public class KeyStoreMgtUtil {
      * Get the tenant UUID for the given tenant ID.
      * @param tenantId Tenant ID
      * @return Tenant UUID
-     * @throws SecurityConfigException If an error occurs while getting the tenant UUID.
+     * @throws SecurityConfigRuntimeException If an error occurs while getting the tenant UUID.
      */
-    public static String getTenantUUID(int tenantId) throws SecurityConfigException {
+    public static String getTenantUUID(int tenantId) throws SecurityConfigRuntimeException {
 
         // Super tenant does not have a tenant UUID. Therefore, set a hard coded value.
         if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
-            // Set a hard length of 32 characters for super tenant ID.
+            // Set a hard length of 36 characters for super tenant ID.
             // This is to avoid the database column length constraint violation.
-            // TODO: shouldn't the length be 36 ?
-            return String.format("%1$-32d", tenantId);
+            return String.format("%1$-36d", tenantId);
         }
 
-        // TODO: getTenant also seems to throw a runtime exception if tenant does not exist. Figure out a way to use that, or catch that and convert to SecurityConfigException
         if (tenantId != MultitenantConstants.INVALID_TENANT_ID) {
             Tenant tenant = IdentityTenantUtil.getTenant(tenantId);
             return tenant.getTenantUniqueID();
         }
 
-        throw new SecurityConfigException("Invalid tenant id: " + tenantId);
+        throw new SecurityConfigRuntimeException("Invalid tenant id: " + tenantId);
     }
 }
