@@ -208,19 +208,17 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
                 .build();
     }
 
-    private String processAddKeyStore(Connection connection, KeyStoreModel keyStoreModel, String tenantUUID)
+    private void processAddKeyStore(Connection connection, KeyStoreModel keyStoreModel, String tenantUUID)
             throws SQLException {
-
-        String id = UUID.randomUUID().toString();
 
         try (NamedPreparedStatement statement = new NamedPreparedStatement(connection,
                 KeyStoreDAOConstants.SqlQueries.ADD_KEY_STORE)) {
-            statement.setString(KeyStoreTableColumns.ID, id);
+            statement.setString(KeyStoreTableColumns.ID, UUID.randomUUID().toString());
             statement.setString(KeyStoreTableColumns.FILE_NAME, keyStoreModel.getFileName());
             statement.setString(KeyStoreTableColumns.TYPE, keyStoreModel.getType());
             statement.setString(KeyStoreTableColumns.PROVIDER, keyStoreModel.getProvider());
             statement.setString(KeyStoreTableColumns.PASSWORD, String.valueOf(keyStoreModel.getPassword()));
-            // todo: check whether are we storing a null when the field is not set?
+            // todo: check whether are we storing a null or an empty string when the field is not set?
             statement.setString(KeyStoreTableColumns.PRIVATE_KEY_ALIAS, keyStoreModel.getPrivateKeyAlias());
             statement.setString(KeyStoreTableColumns.PRIVATE_KEY_PASS,
                     String.valueOf(keyStoreModel.getPrivateKeyPass()));
@@ -229,7 +227,6 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
             statement.setBytes(10, keyStoreModel.getContent());
             statement.executeUpdate();
         }
-        return id;
     }
 
     private void processUpdateKeyStore(Connection connection, KeyStoreModel keyStoreModel, String tenantUUID)
