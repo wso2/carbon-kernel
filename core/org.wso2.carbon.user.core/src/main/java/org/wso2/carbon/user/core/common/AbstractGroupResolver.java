@@ -24,7 +24,6 @@ import org.wso2.carbon.user.core.listener.GroupResolver;
 import org.wso2.carbon.user.core.model.Condition;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 /**
