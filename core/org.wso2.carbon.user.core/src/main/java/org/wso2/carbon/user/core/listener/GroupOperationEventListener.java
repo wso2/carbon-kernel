@@ -186,6 +186,7 @@ public interface GroupOperationEventListener {
      */
     boolean postListGroups(Condition condition, int limit, int offset, String sortBy, String domain, String sortOrder,
                            List<Group> groupsList, UserStoreManager userStoreManager) throws UserStoreException;
+
     boolean preAddGroupWithID(String roleName, String[] userList, UserStoreManager userStoreManager)
             throws UserStoreException;
 
