@@ -76,6 +76,8 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.sql.DataSource;
 
+import static org.wso2.carbon.user.core.ldap.LDAPConstants.GROUP_ID_ATTRIBUTE;
+
 /**
  * This class is capable of get connected to an external or internal LDAP based user store in
  * read/write mode. Create, Update, Delete users and groups are supported.
@@ -2638,7 +2640,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         persistGroup(groupName, groupID, userList.toArray(new String[0]));
 
         if (isGroupIdGeneratedByUserStore()) {
-            //If the group Id attribute is immutable then we need to retrieve the userId from the user store.
+            //If the group ID attribute is immutable then we need to retrieve the group ID from the user store.
             return generateGroup(null,groupName);
         }
         return generateGroup(groupID, groupName);
@@ -2707,7 +2709,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                         // search the user in user search base
                         String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
                         searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
-                        results = searchInUserBase(searchFilter, new String[] {}, SearchControls.SUBTREE_SCOPE,
+                        results = searchInUserBase(searchFilter, new String[]{}, SearchControls.SUBTREE_SCOPE,
                                 mainDirContext);
                         // we assume only one user with the given user
                         // name under user search base.
@@ -2728,14 +2730,13 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                     groupAttributes.put(memberAttribute);
                 }
 
-                // Add groupID attribute.
-                String immutableAttributesProperty = Optional.ofNullable(realmConfig
-                        .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse(StringUtils.EMPTY);
-                String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
-                String groupIdAttributeName = realmConfig.getUserStoreProperty("GroupIdAttribute");
+                //Add group ID attribute if it is not null.
+                if (groupID != null) {
 
-                //If groupID is null don't add the attribute.
-                if(groupID != null) {
+                    String immutableAttributesProperty = Optional.ofNullable(realmConfig
+                            .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse(StringUtils.EMPTY);
+                    String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
+                    String groupIdAttributeName = realmConfig.getUserStoreProperty(GROUP_ID_ATTRIBUTE);
 
                     //TODO - Configure from FE side added temporarily
                     String groupEntryObjectClass1 = "uidObject";
@@ -2782,11 +2783,23 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     @Override
     public void doDeleteGroup(String groupName) throws UserStoreException {
 
+        removeGroup(groupName);
+    }
+
+   @Override
+    public void doDeleteGroupWithID(String groupID) throws UserStoreException {
+
+       String groupName = UserCoreUtil.removeDomainFromName(doGetGroupNameFromGroupId(groupID));
+       removeGroup(groupName);
+    }
+
+    protected void removeGroup (String groupName) throws UserStoreException {
+
         RoleContext roleContext = createRoleContext(groupName);
 
         String groupSearchFilter = ((LDAPRoleContext) roleContext).getSearchFilter();
         groupSearchFilter = groupSearchFilter.replace("?", escapeSpecialCharactersForFilter(roleContext.getRoleName()));
-        String[] returningAttributes = {((LDAPRoleContext) roleContext).getRoleNameProperty()};
+        String[] returningAttributes = { ((LDAPRoleContext) roleContext).getRoleNameProperty() };
         String searchBase = ((LDAPRoleContext) roleContext).getSearchBase();
 
         DirContext mainDirContext = null;
@@ -2828,60 +2841,15 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         }
     }
 
-   @Override
-    public void doDeleteGroupWithID(String groupID) throws UserStoreException {
+    @Override
+    public boolean isGroupIdGeneratedByUserStore() {
 
-       String groupName = UserCoreUtil.removeDomainFromName(doGetGroupNameFromGroupId(groupID));
+        String immutableAttributesProperty = Optional.ofNullable(realmConfig
+                .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse("");
 
-       RoleContext roleContext = createRoleContext(groupName);
+        String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
+        String userIdProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
 
-       String groupSearchFilter = ((LDAPRoleContext) roleContext).getSearchFilter();
-       groupSearchFilter = groupSearchFilter.replace("?", escapeSpecialCharactersForFilter(roleContext.getRoleName()));
-       String[] returningAttributes = { ((LDAPRoleContext) roleContext).getRoleNameProperty() };
-       String searchBase = ((LDAPRoleContext) roleContext).getSearchBase();
-
-       DirContext mainDirContext = null;
-       DirContext groupContext = null;
-       NamingEnumeration<SearchResult> groupSearchResults = null;
-
-       try {
-
-           mainDirContext = this.connectionSource.getContext();
-           groupSearchResults = searchInGroupBase(groupSearchFilter, returningAttributes, SearchControls.SUBTREE_SCOPE,
-                   mainDirContext, searchBase);
-           SearchResult resultedGroup = null;
-           while (groupSearchResults.hasMoreElements()) {
-               resultedGroup = groupSearchResults.next();
-           }
-
-           if (resultedGroup == null) {
-               throw new UserStoreException("Could not find specified group - " + groupName);
-           }
-
-           groupContext = (DirContext) mainDirContext.lookup(escapeDNForSearch(groupSearchBase));
-           String groupNameAttributeValue = (String) resultedGroup.getAttributes()
-                   .get(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE)).get();
-           String attributeNameAppendedGroupName = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE) + "="
-                   + groupNameAttributeValue;
-           if (groupNameAttributeValue.equals(groupName)) {
-               groupContext.destroySubcontext(attributeNameAppendedGroupName);
-           }
-       } catch (NamingException e) {
-           String errorMessage = "Error occurred while deleting the group: " + groupName;
-           if (log.isDebugEnabled()) {
-               log.debug(errorMessage, e);
-           }
-           throw new UserStoreException(errorMessage, e);
-       } finally {
-           JNDIUtil.closeNamingEnumeration(groupSearchResults);
-           JNDIUtil.closeContext(groupContext);
-           JNDIUtil.closeContext(mainDirContext);
-       }
-    }
-
-    //TODO Do the implementation
-    private boolean isGroupIdGeneratedByUserStore() {
-
-        return false;
+        return ArrayUtils.contains(immutableAttributes, userIdProperty);
     }
 }

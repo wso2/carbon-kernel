@@ -106,6 +106,7 @@ public class LDAPConstants {
     public static final String DEFAULT_GROUP_ID_ATTRIBUTE = "entryUUID";
     public static final String DEFAULT_GROUP_CREATED_DATE_ATTRIBUTE = "createTimestamp";
     public static final String DEFAULT_GROUP_LAST_MODIFIED_DATE_ATTRIBUTE = "modifyTimestamp";
+    public static final String GROUP_ID_ATTRIBUTE = "GroupIdAttribute";
     /*
      * The following pattern includes datatime formats like `20090813145607.0Z`, `20210806093122.833Z`, `
      * 199412161032Z`, 20090813145607-0200.

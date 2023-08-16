@@ -94,13 +94,15 @@ public class AbstractGroupResolver implements GroupResolver {
     }
 
     @Override
-    public void addGroup(String groupID, Date createdDate, Date lastModifiedDate, String location,
-                            String displayName, int tenantId) throws UserStoreException {
+    public boolean addGroup(String displayName, String groupID, LocalDateTime createdDate,
+                            LocalDateTime lastModifiedDate, String location, int tenantId) throws UserStoreException {
 
+        return true;
     }
 
     @Override
-    public void deleteGroup(String groupName, int tenantID) throws UserStoreException {
+    public boolean deleteGroup(String groupName, int tenantID) throws UserStoreException {
 
+        return true;
     }
 }

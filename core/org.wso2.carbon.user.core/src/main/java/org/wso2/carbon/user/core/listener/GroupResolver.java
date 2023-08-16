@@ -136,8 +136,8 @@ public interface GroupResolver {
     boolean listGroups(Condition condition, int limit, int offset, String sortBy, String domain, String sortOrder,
                        List<Group> groupsList, UserStoreManager userStoreManager) throws UserStoreException;
 
-    void addGroup(String groupID, Date createdDate, Date lastModifiedDate, String location,
-                     String displayName, int tenantId) throws UserStoreException;
+    boolean addGroup(String displayName, String groupID, LocalDateTime createdDate,
+                     LocalDateTime lastModifiedDate, String location, int tenantId) throws UserStoreException;
 
-    void deleteGroup(String groupName, int tenantID) throws UserStoreException;
+    boolean deleteGroup(String groupName, int tenantID) throws UserStoreException;
 }

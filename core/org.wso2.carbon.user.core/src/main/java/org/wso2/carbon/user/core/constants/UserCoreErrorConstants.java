@@ -278,8 +278,7 @@ public class UserCoreErrorConstants {
                 "Un-expected error during pre add groups with ID with condition, %s"),
         ERROR_DURING_POST_ADD_GROUP_WITH_ID("65019",
                 "Un-expected error during post add groups with ID with condition, %s"),
-        // Error code while adding group
-        ERROR_CODE_WHILE_ADDING_GROUP("65020", "Constrain violation while adding a group."),
+        ERROR_CODE_WHILE_ADDING_GROUP("65020", "Constrain violation while adding a group, %s"),
         ERROR_DURING_PRE_DELETE_GROUP_WITH_ID("65021",
                 "Un-expected error during pre delete groups with ID with condition, %s"),
         ERROR_DURING_POST_DELETE_GROUP_WITH_ID("65022",

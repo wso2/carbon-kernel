@@ -687,8 +687,8 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      */
     Map<String, List<Group>> getGroupListOfUsers(List<String> userIDs) throws UserStoreException;
 
-    Group addGroupWithID(String groupName, String[] userIDList, String displayName, String groupID, Date createdDate,
-                         Date lastModifiedDate, String location) throws UserStoreException;
+    Group addGroupWithID(String groupName, String groupID, String[] userIDList, LocalDateTime createdDate,
+                         LocalDateTime lastModifiedDate, String location) throws UserStoreException;
 
     void deleteGroupWithID(String groupID) throws UserStoreException;
 }
