@@ -650,7 +650,8 @@ public class HybridRoleManager {
             if (StringUtils.isEmpty(sqlStmt)) {
                 sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLE_LIST_OF_USERS_SQL;
             }
-            userNames.replaceAll(s -> s.replaceAll("'", "''") );
+            //The single quote is replaced by the double quote to escape the single quotes.
+            userNames.replaceAll(s -> "'" + s.replaceAll("'", "''") + "'");
             String userNamePlaceHolder = String.join(", ", Collections.nCopies(userNames.size(), "?"));
             sqlStmt = sqlStmt.concat(userNamePlaceHolder).concat(")");
         } else {
