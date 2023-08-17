@@ -92,7 +92,7 @@ public class AuthenticationAdmin implements CarbonServerAuthenticator {
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setTenantDomain(tenantDomain);
             carbonContext.setTenantId(tenantId);
-            username = MultitenantUtils.getTenantAwareUsername(username);
+            username = getTenantAwareUsername(username);
             UserRealm realm = AnonymousSessionUtil.getRealmByTenantDomain(registryService,
                     realmService, tenantDomain);
 
@@ -144,6 +144,14 @@ public class AuthenticationAdmin implements CarbonServerAuthenticator {
         }
     }
 
+    private String getTenantAwareUsername(String username) {
+
+        if (username.contains("@")) {
+            username = username.substring(0, username.lastIndexOf('@'));
+        }
+        return username;
+    }
+
 
     public RememberMeData loginWithRememberMeOption(String username, String password, String remoteAddress)
             throws AuthenticationException {
@@ -159,7 +167,7 @@ public class AuthenticationAdmin implements CarbonServerAuthenticator {
                 String tenantDomain = MultitenantUtils.getTenantDomain(username);
                 int tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
                 UserRealm realm = realmService.getTenantUserRealm(tenantId);
-                realm.getUserStoreManager().addRememberMe(MultitenantUtils.getTenantAwareUsername(username), uuid);
+                realm.getUserStoreManager().addRememberMe(getTenantAwareUsername(username), uuid);
                 data.setAuthenticated(true);
             }
         } catch (Exception e) {
@@ -332,7 +340,7 @@ public class AuthenticationAdmin implements CarbonServerAuthenticator {
             int tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
             handleAuthenticationStarted(tenantId);
 
-            String userName = MultitenantUtils.getTenantAwareUsername(userNameWithTenant);
+            String userName = getTenantAwareUsername(userNameWithTenant);
             String uuid = cookie.substring(index + 1);
             UserRealm realm = realmService.getTenantUserRealm(tenantId);
             
