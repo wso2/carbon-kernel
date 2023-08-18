@@ -129,7 +129,7 @@ public class KeyStoreAdmin {
     /**
      * Method to retrieve keystore data.
      *
-     * @param isSuperTenant - Indication whether the querying super tenant data.
+     * @param isSuperTenant Indication whether the querying super tenant data.
      * @return A key store data array.
      * @throws SecurityConfigException Throws if an error occurred while getting the key stores.
      */
@@ -218,13 +218,13 @@ public class KeyStoreAdmin {
     /**
      * Method to add keystore when a file path is given instead of file data.
      *
-     * @param filePath   - File path of the keystore data.
-     * @param filename   - Name of the keystore.
-     * @param password   - Password of the keystore.
-     * @param provider   - Provider of the keystore.
-     * @param type       - Type of the keystore.
-     * @param pvtKeyPass - Password of the private key.
-     * @throws SecurityConfigException - Throws if an error occurred while adding the keystore.
+     * @param filePath   File path of the keystore data.
+     * @param filename   Name of the keystore.
+     * @param password   Password of the keystore.
+     * @param provider   Provider of the keystore.
+     * @param type       Type of the keystore.
+     * @param pvtKeyPass Password of the private key.
+     * @throws SecurityConfigException Throws if an error occurred while adding the keystore.
      */
     public void addKeyStoreWithFilePath(String filePath, String filename, String password,
                                         String provider, String type, String pvtKeyPass)
@@ -241,13 +241,13 @@ public class KeyStoreAdmin {
     /**
      * Method to add keystore when a file data is given.
      *
-     * @param fileData   - File data of the keystore.
-     * @param filename   - Name of the keystore.
-     * @param password   - Password of the keystore.
-     * @param provider   - Provider of the keystore.
-     * @param type       - Type of the keystore.
-     * @param pvtKeyPass - Password of the private key.
-     * @throws SecurityConfigException - Throws if an error occurred while adding the keystore.
+     * @param fileData   File data of the keystore.
+     * @param filename   Name of the keystore.
+     * @param password   Password of the keystore.
+     * @param provider   Provider of the keystore.
+     * @param type       Type of the keystore.
+     * @param pvtKeyPass Password of the private key.
+     * @throws SecurityConfigException Throws if an error occurred while adding the keystore.
      */
     public void addKeyStore(String fileData, String filename, String password, String provider,
                             String type, String pvtKeyPass) throws SecurityConfigException {
@@ -259,13 +259,13 @@ public class KeyStoreAdmin {
     /**
      * Method to add keystore when a byte array is given for the file data.
      *
-     * @param content    - Byte array of the keystore data.
-     * @param filename   - Name of the keystore.
-     * @param password   - Password of the keystore.
-     * @param provider   - Provider of the keystore.
-     * @param type       - Type of the keystore.
-     * @param pvtKeyPass - Password of the private key.
-     * @throws SecurityConfigException - Throws if an error occurred while adding the keystore.
+     * @param content    Byte array of the keystore data.
+     * @param filename   Name of the keystore.
+     * @param password   Password of the keystore.
+     * @param provider   Provider of the keystore.
+     * @param type       Type of the keystore.
+     * @param pvtKeyPass Password of the private key.
+     * @throws SecurityConfigException Throws if an error occurred while adding the keystore.
      */
     public void addKeyStore(byte[] content, String filename, String password, String provider,
                             String type, String pvtKeyPass) throws SecurityConfigException {
@@ -336,12 +336,12 @@ public class KeyStoreAdmin {
     /**
      * Method to add trust store when trust store file data is given.
      *
-     * @param fileData - File data of the trust store.
-     * @param filename - Name of the trust store.
-     * @param password - Password of the trust store.
-     * @param provider - Provider of the trust store.
-     * @param type     - Type of the trust store.
-     * @throws SecurityConfigException - Throws if an error occurred while adding the trust store.
+     * @param fileData File data of the trust store.
+     * @param filename Name of the trust store.
+     * @param password Password of the trust store.
+     * @param provider Provider of the trust store.
+     * @param type     Type of the trust store.
+     * @throws SecurityConfigException Throws if an error occurred while adding the trust store.
      */
     public void addTrustStore(String fileData, String filename, String password, String provider,
                               String type) throws SecurityConfigException {
@@ -353,12 +353,12 @@ public class KeyStoreAdmin {
     /**
      * Method to add trust store when trust store file path is given for the file data.
      *
-     * @param content  - Byte array of the trust store data.
-     * @param filename - Name of the trust store.
-     * @param password - Password of the trust store.
-     * @param provider - Provider of the trust store.
-     * @param type     - Type of the trust store.
-     * @throws SecurityConfigException - Throws if an error occurred while adding the trust store.
+     * @param content  Byte array of the trust store data.
+     * @param filename Name of the trust store.
+     * @param password Password of the trust store.
+     * @param provider Provider of the trust store.
+     * @param type     Type of the trust store.
+     * @throws SecurityConfigException Throws if an error occurred while adding the trust store.
      */
     public void addTrustStore(byte[] content, String filename, String password, String provider, String type)
             throws SecurityConfigException {
@@ -399,8 +399,8 @@ public class KeyStoreAdmin {
     /**
      * Method to delete a key store when a store data file name is given.
      *
-     * @param keyStoreName - Name of the key store.
-     * @throws SecurityConfigException - Throws if an error occurred while adding the trust store.
+     * @param keyStoreName Name of the key store.
+     * @throws SecurityConfigException Throws if an error occurred while adding the trust store.
      */
     public void deleteStore(String keyStoreName) throws SecurityConfigException {
 
@@ -437,10 +437,10 @@ public class KeyStoreAdmin {
     /**
      * Method to import a public certificate to the keystore.
      *
-     * @param fileName     - Name of the certificate.
-     * @param certData     - Certificate data.
-     * @param keyStoreName - Name of the keystore.
-     * @throws SecurityConfigException - Throws if an error occurred while importing the public certificate to the
+     * @param fileName     Name of the certificate.
+     * @param certData     Certificate data.
+     * @param keyStoreName Name of the keystore.
+     * @throws SecurityConfigException Throws if an error occurred while importing the public certificate to the
      *                                 trust store.
      */
     public void importCertToStore(String fileName, String certData, String keyStoreName)
@@ -481,10 +481,10 @@ public class KeyStoreAdmin {
     /**
      * Method to import a public certificate to the keystore when a public certificate filename is not given.
      *
-     * @param certData     - Certificate data.
-     * @param keyStoreName - Name of the keystore.
-     * @return - Returns the alias or the filename of the certificate.
-     * @throws SecurityConfigException - Throws if an error occurred while importing the public certificate to the
+     * @param certData     Certificate data.
+     * @param keyStoreName Name of the keystore.
+     * @return Returns the alias or the filename of the certificate.
+     * @throws SecurityConfigException Throws if an error occurred while importing the public certificate to the
      *                                 trust store.
      */
     public String importCertToStore(String certData, String keyStoreName)
@@ -528,9 +528,9 @@ public class KeyStoreAdmin {
     /**
      * Remove public certificate from store.
      *
-     * @param alias        - Alias of the certificate.
-     * @param keyStoreName - Name of the keystore.
-     * @throws SecurityConfigException - Throws if an error occurred while removing the public certificate from the
+     * @param alias        Alias of the certificate.
+     * @param keyStoreName Name of the keystore.
+     * @throws SecurityConfigException Throws if an error occurred while removing the public certificate from the
      *                                 trust store.
      */
     public void removeCertFromStore(String alias, String keyStoreName)
@@ -565,9 +565,9 @@ public class KeyStoreAdmin {
     /**
      * Retrieve list of alias entries of a given keystore.
      *
-     * @param keyStoreName - Name of the keystore.
-     * @return - Returns the list of alias entries of a given keystore.
-     * @throws SecurityConfigException - Throws if an error occurred while getting the store entries.
+     * @param keyStoreName Name of the keystore.
+     * @return Returns the list of alias entries of a given keystore.
+     * @throws SecurityConfigException Throws if an error occurred while getting the store entries.
      */
     public String[] getStoreEntries(String keyStoreName) throws SecurityConfigException {
 
@@ -602,7 +602,7 @@ public class KeyStoreAdmin {
      * This method will list 1. Certificate aliases 2. Private key alise 3. Private key value to a
      * given keystore.
      *
-     * @param keyStoreName - The name of the keystore
+     * @param keyStoreName The name of the keystore
      * @return Instance of KeyStoreData.
      * @throws SecurityConfigException will be thrown if an error occurs while getting the keystore.
      */
@@ -698,10 +698,10 @@ public class KeyStoreAdmin {
     /**
      * Retrieve private key of a given alias.
      *
-     * @param alias         - Alias of the key.
-     * @param isSuperTenant - Indication whether the querying super tenant data.
-     * @return - Returns the private key of a given alias.
-     * @throws SecurityConfigException - Throws if an error occurred while getting the private key.
+     * @param alias         Alias of the key.
+     * @param isSuperTenant Indication whether the querying super tenant data.
+     * @return Returns the private key of a given alias.
+     * @throws SecurityConfigException Throws if an error occurred while getting the private key.
      */
     public Key getPrivateKey(String alias, boolean isSuperTenant) throws SecurityConfigException {
 
