@@ -20,6 +20,7 @@ package org.wso2.carbon.security.keystore;
 
 import org.apache.axiom.om.util.Base64;
 import org.apache.axis2.context.MessageContext;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -139,8 +140,8 @@ public class KeyStoreAdmin {
 
         try {
             List<KeyStoreModel> keyStores = keyStoreDAO.getKeyStores(tenantUUID);
-            List<KeyStoreData> lst = new ArrayList<>();
-            if (keyStores != null && !keyStores.isEmpty()) {
+            List<KeyStoreData> keyStoreDataList = new ArrayList<>();
+            if (!CollectionUtils.isEmpty(keyStoreDataList)) {
                 for (KeyStoreModel keyStoreModel : keyStores) {
                     if (ALTERNATE_PRIMARY_KEYSTORE_PHANTOM_RESOURCE.equals(keyStoreModel.getFileName())) {
                         continue;
@@ -177,16 +178,16 @@ public class KeyStoreAdmin {
                             }
                         }
                     }
-                    lst.add(data);
+                    keyStoreDataList.add(data);
                 }
             }
 
             // Prepare the next position for the super tenant keystore data.
-            names = new KeyStoreData[lst.size() + 1];
-            Iterator<KeyStoreData> ite = lst.iterator();
+            names = new KeyStoreData[keyStoreDataList.size() + 1];
+            Iterator<KeyStoreData> keyStoreDataIterator = keyStoreDataList.iterator();
             int count = 0;
-            while (ite.hasNext()) {
-                names[count] = ite.next();
+            while (keyStoreDataIterator.hasNext()) {
+                names[count] = keyStoreDataIterator.next();
                 count++;
             }
 
@@ -637,11 +638,11 @@ public class KeyStoreAdmin {
                 keyStore = getKeyStore(keyStoreName);
                 keyStoreType = resource.getType();
 
-                String encpass = String.valueOf(resource.getPrivateKeyPass());
+                String encryptionPassphrase = String.valueOf(resource.getPrivateKeyPass());
                 // todo: check the actual value is empty or null
-                if (encpass != null || encpass.isEmpty()) {
+                if (encryptionPassphrase != null || encryptionPassphrase.isEmpty()) {
                     CryptoUtil util = CryptoUtil.getDefaultCryptoUtil();
-                    privateKeyPassword = new String(util.base64DecodeAndDecrypt(encpass));
+                    privateKeyPassword = new String(util.base64DecodeAndDecrypt(encryptionPassphrase));
                 }
             }
             // Fill the information about the certificates
