@@ -86,4 +86,22 @@ public class KeyStoreDAOConstants {
                 "UPDATE IDN_KEY_STORE SET PUB_CERT_ID = :PUB_CERT_ID;, LAST_UPDATED = :LAST_UPDATED; " +
                         "WHERE FILE_NAME = :FILE_NAME; AND TENANT_UUID = :TENANT_UUID;";
     }
+
+    public static class ErrorMessages {
+
+        private ErrorMessages() {
+
+        }
+
+        public static final String ERROR_ADD_KEY_STORE = "Error while adding key store.";
+        public static final String ERROR_UPDATE_KEY_STORE = "Error while updating key store.";
+        public static final String ERROR_GET_KEY_STORES = "Error while retrieving key stores.";
+        public static final String ERROR_GET_KEY_STORE = "Error while retrieving the key store.";
+        public static final String ERROR_DELETE_KEY_STORE_BY_FILE_NAME = "Error while deleting key store by file name.";
+        public static final String ERROR_LINK_PUB_CERT_TO_KEY_STORE = "Error while linking public certificate to key " +
+                "store.";
+        public static final String ERROR_GET_PUB_CERT_OF_KEY_STORE = "Error while retrieving public certificate of " +
+                "key store.";
+        public static final String ERROR_CANNOT_RETRIEVE_DB_CONN = "Error while retrieving database connection.";
+    }
 }

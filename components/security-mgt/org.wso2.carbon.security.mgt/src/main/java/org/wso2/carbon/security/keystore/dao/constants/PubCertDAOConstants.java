@@ -45,4 +45,13 @@ public class PubCertDAOConstants {
                 "SELECT * FROM IDN_PUB_CERT WHERE ID = :ID;";
     }
 
+    public static class ErrorMessages {
+
+        private ErrorMessages() {}
+
+        public static final String ERROR_MESSAGE_ADDING_PUB_CERT = "Error while adding public certificate.";
+        public static final String ERROR_MESSAGE_RETRIEVING_PUB_CERT = "Error while retrieving public certificate.";
+        public static final String DB_CONN_RETRIEVAL_ERROR_MSG = "Error while getting the DB connection.";
+    }
+
 }
