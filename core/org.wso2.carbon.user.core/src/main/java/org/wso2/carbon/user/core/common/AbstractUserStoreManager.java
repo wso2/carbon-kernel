@@ -18052,18 +18052,19 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     group = doAddGroupWithID(groupName, userIDList);
                 } else {
                     GroupResolver groupResolver = UserStoreMgtDataHolder.getInstance().getGroupResolver();
+                    if (groupResolver != null && groupResolver.isEnable()) {
+                        groupResolver.addGroup(userStore.getDomainAwareGroupName(),
+                                groupID, createdDate, lastModifiedDate, location,
+                                tenantId);
+                    }
                     try {
-                        if (groupResolver != null && groupResolver.isEnable()) {
-                            groupResolver.addGroup(userStore.getDomainAwareGroupName(),
-                                    groupID, createdDate, lastModifiedDate, location,
-                                    tenantId);
-                        }
                         doAddGroup(groupName, userIDList);
-                    } catch (UserStoreException ex) {
+                    } catch (Exception ex) {
                         //Rollback the saved group in IDN_SCIM_GROUP table
                         if (groupResolver != null && groupResolver.isEnable()) {
-                            groupResolver.deleteGroup(groupName, tenantId);
+                            groupResolver.deleteGroup(userStore.getDomainAwareGroupName(), tenantId);
                         }
+                        throw ex;
                     }
                 }
             } catch (UserStoreException ex) {
