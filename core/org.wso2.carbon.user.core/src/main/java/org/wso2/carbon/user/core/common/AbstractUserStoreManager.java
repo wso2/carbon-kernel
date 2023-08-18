@@ -18039,7 +18039,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throw new UserStoreException(errorCode + " - " + errorMessage);
         }
 
-        if (doGetGroupIdFromGroupName(groupName) != null) {
+        if (doCheckExistingGroup(groupName)) {
             handleGroupAlreadyExistExceptionWithID(groupName, userIDList);
         }
 
@@ -18398,5 +18398,38 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected boolean isGroupIdGeneratedByUserStore() {
 
         return false;
+    }
+
+    protected boolean doCheckExistingGroup(String groupName) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doCheckExistingGroup operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "doCheckExistingGroup operation is not implemented in: " + this.getClass());
+
+    }
+
+    @Override
+    public boolean isExistingGroup(String groupName) throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class};
+            Object object = callSecure("isExistingGroup", new Object[]{groupName}, argTypes);
+            return (Boolean) object;
+        }
+
+        UserStore userStore = getUserStoreWithGroupName(groupName);
+
+        if (userStore.isRecurssive()) {
+            return userStore.getUserStoreManager().isExistingGroup(userStore.getDomainFreeGroupName());
+        }
+
+        // #################### Domain Name Free Zone Starts Here ################################
+
+        // This happens only once during first startup - adding administrator user/role.
+        groupName = userStore.getDomainFreeGroupName();
+
+        return doCheckExistingGroup(groupName);
     }
 }

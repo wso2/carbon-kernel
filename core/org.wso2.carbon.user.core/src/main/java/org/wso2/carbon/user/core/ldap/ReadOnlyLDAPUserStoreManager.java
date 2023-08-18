@@ -4838,4 +4838,82 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         Instant instant = offsetDateTime.toInstant();
         return instant.toString();
     }
+
+    @Override
+    protected boolean doCheckExistingGroup(String groupName) throws UserStoreException {
+
+        RoleContext context = createRoleContext(groupName);
+
+        boolean debug = log.isDebugEnabled();
+        boolean isExisting = false;
+
+        if (debug) {
+            log.debug("Searching for role: " + groupName);
+        }
+        String searchFilter = ((LDAPRoleContext) context).getListFilter();
+        String groupNameProperty = ((LDAPRoleContext) context).getRoleNameProperty();
+        searchFilter = "(&" + searchFilter + "(" + groupNameProperty + "=" +
+                escapeSpecialCharactersForFilter(groupName) + "))";
+        String searchBases = ((LDAPRoleContext) context).getSearchBase();
+
+        if (debug) {
+            log.debug("Using search filter: " + searchFilter);
+        }
+        SearchControls searchCtls = new SearchControls();
+        searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        searchCtls.setReturningAttributes(new String[]{groupNameProperty});
+        NamingEnumeration<SearchResult> answer = null;
+        DirContext dirContext = null;
+
+        try {
+            dirContext = connectionSource.getContext();
+            // with DN patterns
+            if (((LDAPRoleContext) context).getRoleDNPatterns().size() > 0) {
+                for (String pattern : ((LDAPRoleContext) context).getRoleDNPatterns()) {
+                    if (debug) {
+                        log.debug("Using pattern: " + pattern);
+                    }
+                    pattern = MessageFormat.format(pattern.trim(), escapeSpecialCharactersForDN(groupName));
+                    try {
+                        answer = dirContext.search(escapeDNForSearch(pattern), searchFilter, searchCtls);
+                    } catch (NamingException e) {
+                        if (log.isDebugEnabled()) {
+                            log.debug(e);
+                        }
+                        // ignore
+                    }
+                    if (answer != null && answer.hasMoreElements()) {
+                        return true;
+                    }
+                }
+            }
+            //try out with handle multiple search bases
+            String[] groupSearchBaseArray = searchBases.split("#");
+            for (String searchBase : groupSearchBaseArray) {
+                // no DN Patterns found
+                if (debug) {
+                    log.debug("Searching in " + searchBase);
+                }
+                try {
+                    answer = dirContext.search(escapeDNForSearch(searchBase), searchFilter, searchCtls);
+                    if (answer.hasMoreElements()) {
+                        isExisting = true;
+                        break;
+                    }
+                } catch (NamingException e) {
+                    if (log.isDebugEnabled()) {
+                        log.debug(e);
+                    }
+                    // ignore
+                }
+            }
+        } finally {
+            JNDIUtil.closeNamingEnumeration(answer);
+            JNDIUtil.closeContext(dirContext);
+        }
+        if (debug) {
+            log.debug("Is Group: " + groupName + " exist: " + isExisting);
+        }
+        return isExisting;
+    }
 }
