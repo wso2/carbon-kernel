@@ -39,6 +39,9 @@ public class PubCertDAOImpl implements PubCertDAO {
 
     private static final String DB_CONN_RETRIEVAL_ERROR_MSG = "Error while getting the DB connection.";
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String addPubCert(PubCertModel pubCertModel) throws KeyStoreManagementException {
 
@@ -57,6 +60,9 @@ public class PubCertDAOImpl implements PubCertDAO {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Optional<PubCertModel> getPubCert(String uuid) throws KeyStoreManagementException {
 

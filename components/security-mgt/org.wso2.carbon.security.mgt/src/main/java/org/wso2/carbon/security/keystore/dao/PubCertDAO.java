@@ -28,7 +28,20 @@ import java.util.Optional;
  */
 public interface PubCertDAO {
 
+    /**
+     * Add a new Public Certificate.
+     *
+     * @param pubCertModel PubCert model where the PubCert data is maintained.
+     * @throws KeyStoreManagementException If an error occurs while adding the PubCert.
+     */
     String addPubCert(PubCertModel pubCertModel) throws KeyStoreManagementException;
 
+    /**
+     * Get a Public Certificate.
+     *
+     * @param uuid UUID of the PubCert.
+     * @return PubCertModel.
+     * @throws KeyStoreManagementException If an error occurs while retrieving the PubCert.
+     */
     Optional<PubCertModel> getPubCert(String uuid) throws KeyStoreManagementException;
 }

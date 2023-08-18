@@ -47,6 +47,9 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
 
     private final Calendar CALENDAR = Calendar.getInstance(TimeZone.getTimeZone(UTC));
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void addKeyStore(String tenantUUID, KeyStoreModel keyStoreModel) throws KeyStoreManagementException {
 
@@ -63,6 +66,9 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<KeyStoreModel> getKeyStores(String tenantUUID) throws KeyStoreManagementException {
 
@@ -87,6 +93,9 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
         return keyStores;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Optional<KeyStoreModel> getKeyStore(String tenantUUID, String fileName) throws KeyStoreManagementException {
 
@@ -109,6 +118,9 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
         return Optional.empty();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void deleteKeyStore(String tenantUUID, String fileName) throws KeyStoreManagementException {
 
@@ -129,6 +141,9 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void updateKeyStore(String tenantUUID, KeyStoreModel keyStoreModel) throws KeyStoreManagementException {
 
@@ -145,6 +160,9 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void addPubCertIdToKeyStore(String tenantUUID, String fileName, String pubCertId) throws KeyStoreManagementException {
 
@@ -168,6 +186,9 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Optional<String> getPubCertIdFromKeyStore(String tenantUUID, String fileName) throws KeyStoreManagementException {
 
