@@ -18046,26 +18046,30 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         Group group = null;
         if (writeGroupsEnabled) {
             try {
-                // add group in to actual user store
-                // If unique ID for groups is not enabled follow the legacy approach
-                if (isUniqueGroupIdEnabled(this)) {
-                    group = doAddGroupWithID(groupName, userIDList);
-                } else {
-                    GroupResolver groupResolver = UserStoreMgtDataHolder.getInstance().getGroupResolver();
-                    if (groupResolver != null && groupResolver.isEnable()) {
-                        groupResolver.addGroup(userStore.getDomainAwareGroupName(),
-                                groupID, createdDate, lastModifiedDate, location,
-                                tenantId);
-                    }
-                    try {
-                        doAddGroup(groupName, userIDList);
-                    } catch (Exception ex) {
-                        //Rollback the saved group in IDN_SCIM_GROUP table
+                if (isUniqueUserIdEnabledInUserStore(userStore)) {
+                    // add group in to actual user store
+                    // If unique ID for groups is not enabled follow the legacy approach
+                    if (isUniqueGroupIdEnabled(this)) {
+                        group = doAddGroupWithID(groupName, userIDList);
+                    } else {
+                        GroupResolver groupResolver = UserStoreMgtDataHolder.getInstance().getGroupResolver();
                         if (groupResolver != null && groupResolver.isEnable()) {
-                            groupResolver.deleteGroup(userStore.getDomainAwareGroupName(), tenantId);
+                            groupResolver.addGroup(userStore.getDomainAwareGroupName(),
+                                    groupID, createdDate, lastModifiedDate, location,
+                                    tenantId);
                         }
-                        throw ex;
+                        try {
+                            doAddGroup(groupName, userIDList);
+                        } catch (Exception ex) {
+                            //Rollback the saved group in IDN_SCIM_GROUP table
+                            if (groupResolver != null && groupResolver.isEnable()) {
+                                groupResolver.deleteGroup(userStore.getDomainAwareGroupName(), tenantId);
+                            }
+                            throw ex;
+                        }
                     }
+                } else {
+                    //TODO : Then we have to pass username list instead of IDs
                 }
             } catch (UserStoreException ex) {
                 handleAddGroupFailureWithID(ErrorMessages.ERROR_CODE_WHILE_ADDING_GROUP.getCode(),
