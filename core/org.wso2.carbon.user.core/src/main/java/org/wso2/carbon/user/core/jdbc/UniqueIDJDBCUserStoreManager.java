@@ -35,6 +35,7 @@ import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AuthenticationResult;
 import org.wso2.carbon.user.core.common.FailureReason;
+import org.wso2.carbon.user.core.common.Group;
 import org.wso2.carbon.user.core.common.LoginIdentifier;
 import org.wso2.carbon.user.core.common.PaginatedSearchResult;
 import org.wso2.carbon.user.core.common.RoleBreakdown;
@@ -78,6 +79,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_ID_ATTRIBUTE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
@@ -3886,5 +3888,108 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     public boolean isUniqueUserIdEnabled() {
 
         return true;
+    }
+
+    @Override
+    public Group doAddGroupWithID(String groupName, String[] userIDList) throws UserStoreException {
+
+        persistGroup(groupName, userIDList);
+        String groupID = doGetGroupIdFromGroupName(groupName);
+
+        return new Group(groupID, groupName);
+    }
+
+    @Override
+    public void doAddGroup(String groupName, String[] userIDList) throws UserStoreException {
+
+        persistGroup(groupName, userIDList);
+    }
+
+    protected void persistGroup(String roleName, String[] userIDList) throws UserStoreException {
+
+        Connection dbConnection = null;
+
+        try {
+            dbConnection = getDBConnection();
+            String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_ROLE);
+            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt, roleName, tenantId);
+            } else {
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt, roleName);
+            }
+            if (userIDList != null) {
+                // add group to user
+                String type = DatabaseCreator.getDatabaseType(dbConnection);
+                String sqlStmt2 = realmConfig
+                        .getUserStoreProperty(JDBCRealmConstants.ADD_USER_TO_ROLE_WITH_ID + "-" + type);
+
+                if (sqlStmt2 == null) {
+                    sqlStmt2 = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_USER_TO_ROLE_WITH_ID);
+                }
+                if (sqlStmt2.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                    if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
+                        DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, tenantId, userIDList,
+                                tenantId, roleName, tenantId);
+                    } else {
+                        DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, userIDList, tenantId,
+                                roleName, tenantId, tenantId);
+                    }
+                } else {
+                    DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, userIDList, roleName);
+                }
+            }
+            dbConnection.commit();
+        } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
+            String msg = "Error occurred while adding role : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } catch (Exception e) {
+            String errorMessage = "Error occurred while getting database type from DB connection";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            if (e instanceof UserStoreException && ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE.getCode()
+                    .equals(((UserStoreException) e).getErrorCode())) {
+                // Duplicate entry
+                throw new UserStoreException(errorMessage, ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE.getCode(), e);
+            } else {
+                // Other SQL Exception
+                throw new UserStoreException(errorMessage, e);
+            }
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection);
+        }
+    }
+
+    @Override
+    public String doGetGroupIdFromGroupName(String groupName) throws UserStoreException {
+
+        Connection dbConnection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        //TODO - Add the query to xml properties file
+        String sqlStmt = "SELECT UM_ID FROM UM_ROLE WHERE UM_ROLE_NAME = ? AND UM_TENANT_ID = ?";
+        try {
+            dbConnection = getDBConnection();
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, groupName);
+            prepStmt.setInt(2, tenantId);
+            rs = prepStmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString(1);
+            }
+            return null;
+        } catch (SQLException e) {
+            String msg = "Error occurred while retrieving group id for group : " + groupName;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+        }
     }
 }

@@ -4882,4 +4882,25 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         return H2.equalsIgnoreCase(DatabaseCreator.getDatabaseType(dbConnection));
     }
+
+    @Override
+    public boolean doCheckExistingGroup(String groupName) throws UserStoreException {
+
+        boolean isExisting;
+
+        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_IS_ROLE_EXISTING);
+        if (sqlStmt == null) {
+            throw new UserStoreException("The sql statement is not found for the isExistingGroup operation");
+        }
+
+        if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+            isExisting =
+                    isValueExisting(sqlStmt, null, groupName, tenantId);
+        } else {
+            isExisting = isValueExisting(sqlStmt, null, groupName);
+        }
+
+        return isExisting;
+    }
+
 }
