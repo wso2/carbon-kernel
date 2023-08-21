@@ -10739,6 +10739,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         credentialArgument = credential;
                     }
 
+                    if (log.isDebugEnabled()) {
+                        log.debug("Executing pre-authentication operations for listener: " + listener.getClass());
+                    }
                     if (!((AbstractUserOperationEventListener) listener)
                             .doPreAuthenticateWithID(loginIdentifiers, credentialArgument, abstractUserStoreManager)) {
                         handleOnAuthenticateFailureWithID(
@@ -10749,6 +10752,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
                         authenticationResult.setFailureReason(new FailureReason(
                                 ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage()));
+                        if (log.isDebugEnabled()) {
+                            log.debug("Authentication failed due to pre-authentication failure.");
+                        }
                         return authenticationResult;
                     }
                 }
@@ -10763,6 +10769,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             try {
 
+                if (log.isDebugEnabled()) {
+                    log.debug("Mapping login identifier claims to login identifier attributes.");
+                }
                 for (LoginIdentifier loginIdentifier : loginIdentifiers) {
                     if (loginIdentifier.getLoginIdentifierType()
                             .equals(LoginIdentifier.LoginIdentifierType.CLAIM_URI)) {
@@ -10777,6 +10786,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
                 RealmService realmService = UserCoreUtil.getRealmService();
                 if (realmService != null) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Checking the status of tenant: " + tenantId);
+                    }
                     boolean tenantActive = realmService.getTenantManager().isTenantActive(tenantId);
 
                     if (!tenantActive) {
@@ -10787,6 +10799,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         handleOnAuthenticateFailureWithID(errorCode, errorMessage, loginIdentifiers, credential);
                         authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
                         authenticationResult.setFailureReason(new FailureReason("Inactive Tenant: " + tenantId));
+                        if (log.isDebugEnabled()) {
+                            log.debug("Authentication failed due to inactive tenant: " + tenantId);
+                        }
                         return authenticationResult;
                     }
                 }
@@ -10794,24 +10809,43 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(),
                         String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
                                 e.getMessage()), loginIdentifiers, credential);
-                throw new UserStoreException("Error while trying to check tenant status for Tenant : " + tenantId, e);
+                throw new UserStoreException("Error while trying to check tenant status for Tenant: " + tenantId, e);
             }
 
             if (StringUtils.isNotEmpty(domain)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Getting secondary user store of user store manager for the specified user store domain: "
+                            + domain);
+                }
                 UserStoreManager secUserStoreManager = abstractUserStoreManager.getSecondaryUserStoreManager(domain);
                 if (isUniqueUserIdEnabled(secUserStoreManager)) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Unique user id is enabled for the secondary user store manager with tenant id: "
+                                + secUserStoreManager.getTenantId() + ". Attempting to validate authentication.");
+                    }
                     authenticationResult = ((AbstractUserStoreManager) secUserStoreManager)
                             .doAuthenticateWithID(loginIdentifiers, credential);
                 } else {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Unique user id is not enabled for the secondary user store manager with tenant id: "
+                                + secUserStoreManager.getTenantId() + ". Attempting to validate authentication by " +
+                                "getting user's unique id from claims.");
+                    }
                     String userName = getUsernameByClaims(loginIdentifiers);
                     String userID = userUniqueIDManger.getUniqueId(userName, this);
                     boolean status = ((AbstractUserStoreManager) secUserStoreManager)
                             .doAuthenticate(userName, credential);
                     if (status) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("User with id " + userID + " and username " + userName + " is authenticated successfully.");
+                        }
                         User user = getUser(userID, userName);
                         authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.SUCCESS);
                         authenticationResult.setAuthenticatedUser(user);
                     } else {
+                        if (log.isDebugEnabled()) {
+                            log.debug("User with id " + userID + " and username " + userName + " failed to authenticate.");
+                        }
                         authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
                         authenticationResult.setFailureReason(new FailureReason("Authentication failed."));
                     }
@@ -10819,25 +10853,51 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
                 if (authenticationResult.getAuthenticationStatus()
                         == AuthenticationResult.AuthenticationStatus.SUCCESS) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Authentication validated.");
+                    }
                     authenticated = true;
                 }
                 if (authenticated) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("User store domain set to: " + domain +
+                                " in thread local variable for subsequent operations");
+                    }
                     // Set domain in thread local variable for subsequent operations
                     UserCoreUtil.setDomainInThreadLocal(domain);
                 }
             } else {
                 // Domain is not provided. Try to authenticate with the current user store manager.
+                if (log.isDebugEnabled()) {
+                    log.debug("No user store domain specified. Attempting to validate authentication with the current " +
+                            "user store manager with tenant id: " + tenantId);
+                }
                 if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Unique user id is enabled for the current user store manager with tenant id: "
+                                + tenantId + ". Attempting to validate authentication.");
+                    }
                     authenticationResult = abstractUserStoreManager.doAuthenticateWithID(loginIdentifiers, credential);
                 } else {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Unique user id is not enabled for the secondary user store manager with tenant id: "
+                                + tenantId + ". Attempting to validate authentication by getting user's unique id " +
+                                "from claims.");
+                    }
                     String userName = getUsernameByClaims(loginIdentifiers);
                     String userID = userUniqueIDManger.getUniqueId(userName, abstractUserStoreManager);
                     boolean status = abstractUserStoreManager.doAuthenticate(userName, credential);
                     if (status) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("User with id " + userID + " and username " + userName + " is authenticated successfully.");
+                        }
                         User user = getUser(userID, userName);
                         authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.SUCCESS);
                         authenticationResult.setAuthenticatedUser(user);
                     } else {
+                        if (log.isDebugEnabled()) {
+                            log.debug("User with id " + userID + " and username " + userName + " failed to authenticate.");
+                        }
                         authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
                         authenticationResult.setFailureReason(new FailureReason("Authentication failed."));
                     }
@@ -10845,12 +10905,20 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
                 if (authenticationResult.getAuthenticationStatus()
                         == AuthenticationResult.AuthenticationStatus.SUCCESS) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Authentication validated.");
+                    }
                     authenticated = true;
                 }
                 if (authenticated) {
+                    String domainName = UserCoreUtil.getDomainName(abstractUserStoreManager.realmConfig);
+                    if (log.isDebugEnabled()) {
+                        log.debug("User store domain set to: " + domainName +
+                                " in thread local variable for subsequent operations");
+                    }
                     // Set domain in thread local variable for subsequent operations
                     UserCoreUtil
-                            .setDomainInThreadLocal(UserCoreUtil.getDomainName(abstractUserStoreManager.realmConfig));
+                            .setDomainInThreadLocal(domainName);
                 }
             }
         } finally {
@@ -10860,6 +10928,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // If authentication fails in the previous step and if the user has not specified a
         // domain- then we need to execute chained UserStoreManagers recursively.
         if (!authenticated && StringUtils.isEmpty(domain)) {
+            if (log.isDebugEnabled()) {
+                log.debug("Authentication could not be validated and a domain has not been specified. " +
+                        "Attempting to validate authentication by executing chained user manager stores recursively.");
+            }
             AbstractUserStoreManager userStoreManager;
             if (this instanceof IterativeUserStoreManager) {
                 IterativeUserStoreManager iterativeUserStoreManager = (IterativeUserStoreManager) this;
@@ -10871,6 +10943,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 authenticationResult = userStoreManager.authenticateWithID(loginIdentifiers, null, credential);
                 if (authenticationResult.getAuthenticationStatus()
                         == AuthenticationResult.AuthenticationStatus.SUCCESS) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Authentication validated.");
+                    }
                     authenticated = true;
                 }
             }
@@ -10885,6 +10960,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         try {
             // You cannot change authentication decision in post handler to TRUE
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Executing post-authentication operations for listener " + listener.getClass());
+                }
                 if (!((AbstractUserOperationEventListener) listener)
                         .doPostAuthenticateWithID(loginIdentifiers, authenticationResult, abstractUserStoreManager)) {
                     handleOnAuthenticateFailureWithID(
@@ -10896,6 +10974,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
                     authenticationResult.setFailureReason(
                             new FailureReason(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getMessage()));
+                    if (log.isDebugEnabled()) {
+                        log.debug("Authentication failed due to post-authentication failure.");
+                    }
                     return authenticationResult;
                 }
             }
@@ -11187,6 +11268,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     credentialArgument = credential;
                 }
 
+                if (log.isDebugEnabled()) {
+                    log.debug("Executing authentication operations for listener " + listener.getClass());
+                }
                 if (!((AbstractUserStoreManagerListener) listener)
                         .authenticateWithID(preferredUserNameClaim, preferredUserNameValue, credentialArgument,
                                 abstractUserStoreManager)) {
@@ -11211,6 +11295,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         credentialArgument = credential;
                     }
 
+                    if (log.isDebugEnabled()) {
+                        log.debug("Executing pre-authentication operations for listener " + listener.getClass());
+                    }
                     if (!((AbstractUserOperationEventListener) listener)
                             .doPreAuthenticateWithID(preferredUserNameClaim, preferredUserNameValue, credentialArgument,
                                     abstractUserStoreManager)) {
@@ -11223,6 +11310,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
                         authenticationResult.setFailureReason(new FailureReason(
                                 ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage()));
+                        if (log.isDebugEnabled()) {
+                            log.debug("Authentication failed due to pre-authentication failure.");
+                        }
                         return authenticationResult;
                     }
                 }
@@ -11239,6 +11329,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             try {
                 RealmService realmService = UserCoreUtil.getRealmService();
                 if (realmService != null) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Checking status of tenant: " + tenantId);
+                    }
                     boolean tenantActive = realmService.getTenantManager().isTenantActive(tenantId);
 
                     if (!tenantActive) {
@@ -11252,6 +11345,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
                         authenticationResult.setFailureReason(
                                 new FailureReason(ErrorMessages.ERROR_CODE_TENANT_DEACTIVATED.getMessage()));
+                        if (log.isDebugEnabled()) {
+                            log.debug("Authentication failed due to inactive tenant: " + tenantId);
+                        }
                         return authenticationResult;
                     }
                 }
@@ -11271,10 +11367,18 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 // Let's authenticate with the primary UserStoreManager.
 
                 if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Unique user id is enabled for the current user store manager with tenant id: "
+                                + tenantId + ". Attempting to validate authentication.");
+                    }
                     authenticationResult = abstractUserStoreManager
                             .doAuthenticateWithID(preferredUserNameProperty, preferredUserNameValue, credentialObj,
                                     profileName);
                 } else {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Unique user id is not enabled for the current user store manager with tenant id: "
+                                + tenantId + ". Attempting to validate authentication.");
+                    }
                     List<String> users = doGetUserList(preferredUserNameClaim, preferredUserNameValue, profileName,
                             abstractUserStoreManager.getMyDomainName(), abstractUserStoreManager);
                     if (users.size() != 1) {
@@ -11297,12 +11401,18 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             user.setTenantDomain(getTenantDomain(tenantId));
                             authenticationResult.setAuthenticatedUser(user);
                         } else {
+                            if (log.isDebugEnabled()) {
+                                log.debug("Authentication validation failed due to invalid credentials.");
+                            }
                             authenticationResult.setFailureReason(new FailureReason("Invalid credentials."));
                         }
                     }
                 }
                 if (authenticationResult.getAuthenticationStatus()
                         == AuthenticationResult.AuthenticationStatus.SUCCESS) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Authentication validated.");
+                    }
                     authenticated = true;
                 }
             } catch (Exception e) {
@@ -11326,13 +11436,22 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (authenticated) {
+            String domainName = UserCoreUtil.getDomainName(abstractUserStoreManager.realmConfig);
+            if (log.isDebugEnabled()) {
+                log.debug("User store domain set to: " + domainName +
+                        " in thread local variable for subsequent operations");
+            }
             // Set domain in thread local variable for subsequent operations
-            UserCoreUtil.setDomainInThreadLocal(UserCoreUtil.getDomainName(abstractUserStoreManager.realmConfig));
+            UserCoreUtil.setDomainInThreadLocal(domainName);
         }
 
         // If authentication fails in the previous step and if the user has not specified a
         // domain- then we need to execute chained UserStoreManagers recursively.
         if (!authenticated && !domainProvided) {
+            if (log.isDebugEnabled()) {
+                log.debug("Authentication could not be validated and a domain has not been specified. " +
+                        "Attempting to validate authentication by executing chained user manager stores recursively.");
+            }
             AbstractUserStoreManager userStoreManager;
             if (this instanceof IterativeUserStoreManager) {
                 IterativeUserStoreManager iterativeUserStoreManager = (IterativeUserStoreManager) this;
@@ -11356,6 +11475,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         try {
             // You cannot change authentication decision in post handler to TRUE
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Executing post-authentication operations for listener " + listener.getClass());
+                }
                 if (!((AbstractUserOperationEventListener) listener)
                         .doPostAuthenticateWithID(preferredUserNameClaim, preferredUserNameValue, authenticationResult,
                                 abstractUserStoreManager)) {
