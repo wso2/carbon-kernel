@@ -4903,4 +4903,43 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         return isExisting;
     }
 
+    @Override
+    protected void doDeleteGroup(String groupName) throws UserStoreException {
+
+        String sqlStmt1 = realmConfig
+                .getUserStoreProperty(JDBCRealmConstants.ON_DELETE_ROLE_REMOVE_USER_ROLE);
+        if (sqlStmt1 == null) {
+            throw new UserStoreException("The sql statement for delete user-group mapping is null");
+        }
+
+        String sqlStmt2 = realmConfig.getUserStoreProperty(JDBCRealmConstants.DELETE_ROLE);
+        if (sqlStmt2 == null) {
+            throw new UserStoreException("The sql statement for delete group is null");
+        }
+
+        Connection dbConnection = null;
+        try {
+            dbConnection = getDBConnection();
+            if (sqlStmt1.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, groupName, tenantId,
+                        tenantId);
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt2, groupName, tenantId);
+            } else {
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, groupName);
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt2, groupName);
+            }
+            //this.userRealm.getAuthorizationManager().clearRoleAuthorization(roleName);
+            dbConnection.commit();
+        } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
+            String msg = "Error occurred while deleting group : " + groupName;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection);
+        }
+    }
+
 }

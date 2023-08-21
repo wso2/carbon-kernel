@@ -3992,4 +3992,73 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
     }
+
+    protected void doDeleteGroupWithID(String groupID) throws UserStoreException {
+
+        //TODO - Take query from XML properties file
+        String sqlStmt1 = "DELETE FROM UM_USER_ROLE WHERE UM_ROLE_ID = ? AND UM_TENANT_ID = ?";
+
+        if (sqlStmt1 == null) {
+            throw new UserStoreException("The sql statement for delete users of the role is null");
+        }
+
+        //TODO - Take query from XML properties file
+        String sqlStmt2 = "DELETE FROM UM_ROLE WHERE UM_ID = ? AND UM_TENANT_ID = ?";
+        if (sqlStmt2 == null) {
+            throw new UserStoreException("The sql statement for delete role is null");
+        }
+
+        Connection dbConnection = null;
+        try {
+            dbConnection = getDBConnection();
+            if (sqlStmt1.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, groupID, tenantId);
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt2, groupID, tenantId);
+            } else {
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, groupID);
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt2, groupID);
+            }
+            //this.userRealm.getAuthorizationManager().clearRoleAuthorization(roleName);
+            dbConnection.commit();
+        } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
+            String msg = "Error occurred while deleting group with group ID : " + groupID;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection);
+        }
+    }
+
+    @Override
+    protected String doGetGroupNameFromGroupId(String groupId) throws UserStoreException {
+
+        Connection dbConnection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+
+        //TODO - Add the query to xml properties file
+        String sqlStmt = "SELECT UM_ROLE_NAME FROM UM_ROLE WHERE UM_ID = ? AND UM_TENANT_ID = ?";
+        try {
+            dbConnection = getDBConnection();
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, groupId);
+            prepStmt.setInt(2, tenantId);
+            rs = prepStmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString(1);
+            }
+            return null;
+        } catch (SQLException e) {
+            String msg = "Error occurred while retrieving group name for group with ID: " + groupId;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+        }
+    }
 }
