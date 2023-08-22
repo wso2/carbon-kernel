@@ -4061,4 +4061,36 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
     }
+
+    @Override
+    protected Group doGetGroupFromGroupName(String groupName, List<String> requiredAttributes)
+            throws UserStoreException {
+
+        Group group = new Group();
+        String groupId = doGetGroupIdFromGroupName(groupName);
+        group.setGroupID(groupId);
+        if (!realmConfig.isPrimary()) {
+            groupName = StringUtils.isBlank(groupName) ? null :
+                    getMyDomainName() + UserCoreConstants.DOMAIN_SEPARATOR + groupName;
+        }
+        group.setGroupName(groupName);
+        return group;
+    }
+
+    @Override
+    protected Group doGetGroupFromGroupId(String groupId, List<String> requiredAttributes)
+            throws UserStoreException {
+
+        Group group = new Group();
+        String groupName = doGetGroupNameFromGroupId(groupId);
+        group.setGroupID(groupId);
+        if (!realmConfig.isPrimary()) {
+            groupName = StringUtils.isBlank(groupName) ? null :
+                    getMyDomainName() + UserCoreConstants.DOMAIN_SEPARATOR + groupName;
+        }
+        group.setGroupName(groupName);
+        return group;
+    }
+
+
 }
