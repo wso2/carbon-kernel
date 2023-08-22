@@ -95,6 +95,10 @@
             <artifactId>org.wso2.carbon.utils</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.wso2.carbon.security.mgt</groupId>
+            <artifactId>org.wso2.carbon.security.mgt</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.carbon.crypto</groupId>
             <artifactId>org.wso2.carbon.crypto.api</artifactId>
         </dependency>
@@ -247,6 +251,7 @@
                             javax.xml.stream.*; version=1.0.1,
                             org.wso2.carbon.registry.core.service,
                             org.wso2.carbon.user.core.*; version=0.0.0,
+                            org.wso2.carbon.security.mgt.*; version=${carbon.security.mgt.imp.version.range},
                             org.bouncycastle.*; version="${imp.pkg.version.bcp}",
                             *;resolution:=optional
                         </Import-Package>

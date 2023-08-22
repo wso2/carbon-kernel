@@ -1,7 +1,7 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2005-2010, WSO2 LLC. (https://www.wso2.com).
 *
-*  WSO2 Inc. licenses this file to you under the Apache License,
+*  WSO2 LLC. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
 *  in compliance with the License.
 *  You may obtain a copy of the License at
@@ -27,10 +27,11 @@ import org.wso2.carbon.registry.api.Registry;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.service.RegistryService;
-import org.wso2.carbon.security.SecurityConfigException;
+import org.wso2.carbon.security.keystore.KeyStoreManagementException;
 import org.wso2.carbon.security.keystore.dao.KeyStoreDAO;
 import org.wso2.carbon.security.keystore.dao.impl.KeyStoreDAOImpl;
 import org.wso2.carbon.security.keystore.model.KeyStoreModel;
+import org.wso2.carbon.security.util.KeyStoreMgtUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -83,13 +84,9 @@ public class KeyStoreManager {
         this.tenantId = tenantId;
         try {
             registry = registryService.getGovernanceSystemRegistry(tenantId);
-            keyStoreDAO = new KeyStoreDAOImpl(tenantId);
+            keyStoreDAO = new KeyStoreDAOImpl();
         } catch (RegistryException e) {
             String message = "Error when retrieving the system governance registry";
-            log.error(message, e);
-            throw new SecurityException(message, e);
-        } catch (SecurityConfigException e) {
-            String message = "Error when retrieving the key store DAO";
             log.error(message, e);
             throw new SecurityException(message, e);
         }
@@ -147,17 +144,18 @@ public class KeyStoreManager {
 
         String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
 
-        Optional<KeyStoreModel> optionalKeyStoreModel = keyStoreDAO.getKeyStore(keyStoreName);
+        Optional<KeyStoreModel> optionalKeyStoreModel = keyStoreDAO.getKeyStore(
+                KeyStoreMgtUtil.getTenantUUID(tenantId), keyStoreName);
         if (optionalKeyStoreModel.isPresent()) {
             KeyStoreModel keyStoreModel = optionalKeyStoreModel.get();
 
             byte[] bytes = keyStoreModel.getContent();
             KeyStore keyStore = KeyStore.getInstance(keyStoreModel.getType());
             CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
-            String encryptedPassword = keyStoreModel.getPassword();
-            String password = new String(cryptoUtil.base64DecodeAndDecrypt(encryptedPassword));
+            char[]  encryptedPassword = keyStoreModel.getPassword();
+            char[]  password = new String(cryptoUtil.base64DecodeAndDecrypt(String.valueOf(encryptedPassword))).toCharArray();
             ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
-            keyStore.load(stream, password.toCharArray());
+            keyStore.load(stream, password);
 
             KeyStoreBean keyStoreBean = new KeyStoreBean(keyStore, keyStoreModel.getLastUpdated());
 
@@ -188,7 +186,8 @@ public class KeyStoreManager {
             KeyStoreModel keyStoreModel;
             KeyStore keyStore;
 
-            Optional<KeyStoreModel> optionalKeyStoreModel = keyStoreDAO.getKeyStore(keyStoreName);
+            Optional<KeyStoreModel> optionalKeyStoreModel = keyStoreDAO.getKeyStore(
+                    KeyStoreMgtUtil.getTenantUUID(tenantId), keyStoreName);
             if (optionalKeyStoreModel.isPresent()) {
                 keyStoreModel = optionalKeyStoreModel.get();
             } else {
@@ -196,22 +195,24 @@ public class KeyStoreManager {
             }
 
             CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
-            String encryptedPassword = keyStoreModel.getPrivateKeyPass();
-            String privateKeyPasswd = new String(cryptoUtil.base64DecodeAndDecrypt(encryptedPassword));
+            char[] encryptedPassword = keyStoreModel.getPrivateKeyPass();
+            char[] privateKeyPasswd = new String(cryptoUtil.base64DecodeAndDecrypt(String.valueOf(encryptedPassword)))
+                    .toCharArray();
 
             if (isCachedKeyStoreValid(keyStoreName)) {
                 keyStore = loadedKeyStores.get(keyStoreName).getKeyStore();
-                return keyStore.getKey(alias, privateKeyPasswd.toCharArray());
+                return keyStore.getKey(alias, privateKeyPasswd);
             }
             byte[] bytes = keyStoreModel.getContent();
-            String keyStorePassword = new String(cryptoUtil.base64DecodeAndDecrypt(keyStoreModel.getPassword()));
+            char[] keyStorePassword = new String(cryptoUtil.base64DecodeAndDecrypt(
+                    String.valueOf(keyStoreModel.getPassword()))).toCharArray();
             keyStore = KeyStore.getInstance(keyStoreModel.getType());
             ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
-            keyStore.load(stream, keyStorePassword.toCharArray());
+            keyStore.load(stream, keyStorePassword);
 
             KeyStoreBean keyStoreBean = new KeyStoreBean(keyStore, keyStoreModel.getLastUpdated());
             updateKeyStoreCache(keyStoreName, keyStoreBean);
-            return keyStore.getKey(alias, privateKeyPasswd.toCharArray());
+            return keyStore.getKey(alias, privateKeyPasswd);
         } catch (Exception e) {
             log.error("Error loading the private key from the key store : " + keyStoreName);
             throw new SecurityException("Error loading the private key from the key store : " +
@@ -240,19 +241,22 @@ public class KeyStoreManager {
      * Get the key store password for the given key store name.
      * Note:  Caching has been not implemented for this method
      *
+     * Todo: Change the return type to char[].
+     *
      * @param keyStoreName key store name
      * @return KeyStore object
      * @throws Exception If there is not a key store with the given name
      */
     public String getKeyStorePassword(String keyStoreName) throws Exception {
 
-        Optional<KeyStoreModel> optionalKeyStoreModel = keyStoreDAO.getKeyStore(keyStoreName);
+        Optional<KeyStoreModel> optionalKeyStoreModel = keyStoreDAO.getKeyStore(
+                KeyStoreMgtUtil.getTenantUUID(tenantId), keyStoreName);
         if (optionalKeyStoreModel.isPresent()) {
             KeyStoreModel keyStoreModel = optionalKeyStoreModel.get();
             CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
-            String encryptedPassword = keyStoreModel.getPassword();
+            char[] encryptedPassword = keyStoreModel.getPassword();
             if(encryptedPassword != null){
-                return new String(cryptoUtil.base64DecodeAndDecrypt(encryptedPassword));
+                return new String(cryptoUtil.base64DecodeAndDecrypt(String.valueOf(encryptedPassword)));
             } else {
                 throw new SecurityException("Key Store Password of " + keyStoreName + " does not exist.");                
             }
@@ -290,19 +294,31 @@ public class KeyStoreManager {
             return;
         }
 
-        Optional<KeyStoreModel> optionalKeyStoreModel = keyStoreDAO.getKeyStore(name);
+        Optional<KeyStoreModel> optionalKeyStoreModel = keyStoreDAO.getKeyStore(
+                KeyStoreMgtUtil.getTenantUUID(tenantId), name);
         if (optionalKeyStoreModel.isPresent()) {
             KeyStoreModel keyStoreModel = optionalKeyStoreModel.get();
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
-            String encryptedPassword = keyStoreModel.getPassword();
-            String password = new String(cryptoUtil.base64DecodeAndDecrypt(encryptedPassword));
-            keyStore.store(outputStream, password.toCharArray());
+            char[] encryptedPassword = keyStoreModel.getPassword();
+            char[] password = new String(cryptoUtil.base64DecodeAndDecrypt(
+                    String.valueOf(encryptedPassword))).toCharArray();
+            keyStore.store(outputStream, password);
             outputStream.flush();
             outputStream.close();
 
-            keyStoreModel.setContent(outputStream.toByteArray());
-            keyStoreDAO.updateKeyStore(keyStoreModel);
+            KeyStoreModel updatedKeyStoreModel = new KeyStoreModel.KeyStoreModelBuilder()
+                    .id(keyStoreModel.getId())
+                    .fileName(keyStoreModel.getFileName())
+                    .type(keyStoreModel.getType())
+                    .provider(keyStoreModel.getProvider())
+                    .password(keyStoreModel.getPassword())
+                    .privateKeyAlias(keyStoreModel.getPrivateKeyAlias())
+                    .privateKeyPass(keyStoreModel.getPrivateKeyPass())
+                    .content(outputStream.toByteArray())
+                    .build();
+
+            keyStoreDAO.updateKeyStore(KeyStoreMgtUtil.getTenantUUID(tenantId), updatedKeyStoreModel);
 
             // TODO: is it correct to use new Date() here? The value stored in DB might be different.
             updateKeyStoreCache(name, new KeyStoreBean(keyStore, new Date()));
@@ -500,7 +516,8 @@ public class KeyStoreManager {
         boolean cachedKeyStoreValid = false;
         try {
             if (loadedKeyStores.containsKey(keyStoreName)) {
-                Optional<KeyStoreModel> optionalKeyStoreModel = keyStoreDAO.getKeyStore(keyStoreName);
+                Optional<KeyStoreModel> optionalKeyStoreModel = keyStoreDAO.getKeyStore(
+                        KeyStoreMgtUtil.getTenantUUID(tenantId), keyStoreName);
                 if (optionalKeyStoreModel.isPresent()) {
                     KeyStoreModel keyStoreModel = optionalKeyStoreModel.get();
                     KeyStoreBean keyStoreBean = loadedKeyStores.get(keyStoreName);
@@ -509,7 +526,7 @@ public class KeyStoreManager {
                     }
                 }
             }
-        } catch (SecurityConfigException e) {
+        } catch (KeyStoreManagementException e) {
             String errorMsg = "Error reading key store meta data from Database.";
             log.error(errorMsg, e);
             throw new SecurityException(errorMsg, e);

@@ -606,6 +606,10 @@
 
         <jdbc-pool.version>9.0.65.wso2v1</jdbc-pool.version>
 
+        <!-- Carbon Security Management -->
+        <carbon.security.mgt.version>1.0.0</carbon.security.mgt.version>
+        <carbon.security.mgt.imp.version.range>[1.0.0,2.0.0)</carbon.security.mgt.imp.version.range>
+
         <!-- Test integration -->
         <slf4j.version>1.5.10</slf4j.version>
         <woden.api.version>1.0M9</woden.api.version>
@@ -1705,6 +1709,12 @@
                 <type>zip</type>
             </dependency>
 
+            <!--Other Dependencies-->
+            <dependency>
+                <groupId>org.wso2.carbon.security.mgt</groupId>
+                <artifactId>org.wso2.carbon.security.mgt</artifactId>
+                <version>${carbon.security.mgt.version}</version>
+            </dependency>
 
             <!-- Test integration dependencies -->
             <dependency>
