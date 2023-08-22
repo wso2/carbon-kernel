@@ -32,7 +32,6 @@ import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.core.util.KeyStoreUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.registry.core.Registry;
-import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.security.SecurityConfigException;
 import org.wso2.carbon.security.SecurityConfigRuntimeException;
 import org.wso2.carbon.security.SecurityConstants;
@@ -41,7 +40,6 @@ import org.wso2.carbon.security.keystore.dao.PubCertDAO;
 import org.wso2.carbon.security.keystore.dao.impl.KeyStoreDAOImpl;
 import org.wso2.carbon.security.keystore.dao.impl.PubCertDAOImpl;
 import org.wso2.carbon.security.keystore.model.KeyStoreModel;
-import org.wso2.carbon.security.keystore.model.PubCertModel;
 import org.wso2.carbon.security.keystore.service.CertData;
 import org.wso2.carbon.security.keystore.service.CertDataDetail;
 import org.wso2.carbon.security.keystore.service.KeyStoreData;
@@ -74,6 +72,9 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+
+import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_MESSAGE_RETRIEVE_KEYSTORE;
+import static org.wso2.carbon.security.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_MESSAGE_RETRIEVE_PUBLIC_CERT;
 
 /**
  * Key Store Admin class.
@@ -162,21 +163,25 @@ public class KeyStoreAdmin {
                     if (!isSuperTenant) {
                         Optional<String> pubCertId =
                                 keyStoreDAO.getPubCertIdFromKeyStore(tenantUUID, keyStoreModel.getFileName());
-                        if (pubCertId.isPresent()) {
-                            Optional<PubCertModel> pubCert = pubCertDAO.getPubCert(pubCertId.get());
-                            if (pubCert.isPresent()) {
-                                String fileName = generatePubCertFileName(
-                                        SecurityConstants.KEY_STORES + PATH_SEPARATOR +
-                                                keyStoreModel.getFileName(),
-                                        pubCert.get().getFileNameAppender());
-                                if (MessageContext.getCurrentMessageContext() != null) {
-                                    String pubKeyFilePath = KeyStoreMgtUtil.dumpCert(
-                                            MessageContext.getCurrentMessageContext().getConfigurationContext(),
-                                            pubCert.get().getContent(), fileName);
-                                    data.setPubKeyFilePath(pubKeyFilePath);
-                                }
+
+                        pubCertId.flatMap(id -> {
+                            try {
+                                return pubCertDAO.getPubCert(id);
+                            } catch (KeyStoreManagementException e) {
+                                throw new SecurityConfigRuntimeException(
+                                        ERROR_MESSAGE_RETRIEVE_PUBLIC_CERT.getMessage(), e);
                             }
-                        }
+                        })
+                        .ifPresent(pubCert -> {
+                            String fileName = generatePubCertFileName(SecurityConstants.KEY_STORES + PATH_SEPARATOR +
+                                    keyStoreModel.getFileName(), pubCert.getFileNameAppender());
+                            if (MessageContext.getCurrentMessageContext() != null) {
+                                String pubKeyFilePath = KeyStoreMgtUtil.dumpCert(
+                                        MessageContext.getCurrentMessageContext().getConfigurationContext(),
+                                        pubCert.getContent(), fileName);
+                                data.setPubKeyFilePath(pubKeyFilePath);
+                            }
+                        });
                     }
                     keyStoreDataList.add(data);
                 }
@@ -208,10 +213,8 @@ public class KeyStoreAdmin {
             }
             return names;
         } catch (KeyStoreManagementException e) {
-            // Catch KeyStoreManagementException and throw the expected SecurityConfigException.
-            String msg = "Error when getting keyStore data";
-            log.error(msg, e);
-            throw new SecurityConfigException(msg, e);
+            log.error(ERROR_MESSAGE_RETRIEVE_KEYSTORE.getMessage(), e);
+            throw new SecurityConfigException(ERROR_MESSAGE_RETRIEVE_KEYSTORE.getMessage(), e);
         }
     }
 

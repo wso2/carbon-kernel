@@ -20,11 +20,31 @@ package org.wso2.carbon.security;
 
 import org.wso2.carbon.identity.base.IdentityRuntimeException;
 
+/**
+ * Security Config Runtime Exception.
+ */
 public class SecurityConfigRuntimeException extends IdentityRuntimeException {
 
     private static final long serialVersionUID = 2202942561393644426L;
 
+    /**
+     * Constructs a new exception with the specified message.
+     *
+     * @param message Error Message.
+     */
     public SecurityConfigRuntimeException(String message) {
+
         super(message);
+    }
+
+    /**
+     * Constructs a new exception with the specified message and cause.
+     *
+     * @param message Error Message.
+     * @param cause   Cause of the error.
+     */
+    public SecurityConfigRuntimeException(String message, Throwable cause) {
+
+        super(message, cause);
     }
 }
