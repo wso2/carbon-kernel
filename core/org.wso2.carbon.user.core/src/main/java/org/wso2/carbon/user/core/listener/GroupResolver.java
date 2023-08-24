@@ -140,5 +140,5 @@ public interface GroupResolver {
 
     boolean deleteGroup(String groupName, int tenantID) throws UserStoreException;
 
-    boolean updateGroupName(String oldGroupName, String newRoleName, int tenantID) throws UserStoreException;
+    boolean updateGroupName(String oldGroupName, String newGroupName, int tenantID) throws UserStoreException;
 }
