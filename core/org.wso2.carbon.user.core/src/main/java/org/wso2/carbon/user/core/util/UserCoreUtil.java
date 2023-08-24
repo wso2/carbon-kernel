@@ -1220,4 +1220,15 @@ public final class UserCoreUtil {
                 && Boolean.parseBoolean(realmConfiguration.getAuthorizationManagerProperty(
                 UserCoreConstants.RealmConfig.PROPERTY_GROUP_AND_ROLE_SEPARATION_IMPROVEMENTS_ENABLED));
     }
+
+    public static boolean canGroupBeRenamed(UserStore oldStore, UserStore newStore,
+                                            RealmConfiguration realmConfig) {
+
+        if (oldStore.getDomainName() == null && newStore.getDomainName() != null) {
+            return false;
+        }
+
+        return oldStore.getDomainName() == null
+                || oldStore.getDomainName().equalsIgnoreCase(newStore.getDomainName());
+    }
 }

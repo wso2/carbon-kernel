@@ -121,28 +121,42 @@ public class AbstractGroupOperationEventListener implements GroupOperationEventL
     }
 
     @Override
-    public boolean preAddGroupWithID(String roleName, String[] userList,
+    public boolean preAddGroupWithID(String groupName, String[] userList,
                               UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
     }
 
     @Override
-    public boolean postAddGroupWithID(String roleName, String[] userList, UserStoreManager userStoreManager)
+    public boolean postAddGroupWithID(String groupName, String[] userList, UserStoreManager userStoreManager)
             throws UserStoreException {
 
         return true;
     }
 
     @Override
-    public boolean preDeleteGroupWithID(String roleName, UserStoreManager userStoreManager)
+    public boolean preDeleteGroupWithID(String groupName, UserStoreManager userStoreManager)
             throws UserStoreException {
 
         return true;
     }
 
     @Override
-    public boolean postDeleteGroupWithID(String roleName, UserStoreManager userStoreManager)
+    public boolean postDeleteGroupWithID(String groupName, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean preUpdateGroupName(String groupName, String newGroupName, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean postUpdateGroupName(String groupName, String newGroupName, UserStoreManager userStoreManager)
             throws UserStoreException {
 
         return true;

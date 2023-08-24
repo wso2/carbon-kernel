@@ -282,7 +282,13 @@ public class UserCoreErrorConstants {
         ERROR_DURING_PRE_DELETE_GROUP_WITH_ID("65021",
                 "Un-expected error during pre delete groups with ID with condition, %s"),
         ERROR_DURING_POST_DELETE_GROUP_WITH_ID("65022",
-                "Un-expected error during post delete groups with ID with condition, %s");
+                "Un-expected error during post delete groups with ID with condition, %s"),
+        ERROR_CODE_CANNOT_RENAME_GROUP("65023", "The group cannot renamed"),
+        ERROR_DURING_PRE_UPDATE_GROUP_NAME("65024",
+                "Un-expected error during pre update group name, %s"),
+        ERROR_DURING_POST_UPDATE_GROUP_NAME("65025",
+                "Un-expected error during pre delete group name, %s"),
+        ERROR_CODE_ERROR_WHILE_UPDATING_GROUP_NAME("65026", "Un-expected error while updating group name, %s"),;
 
         private final String code;
         private final String message;

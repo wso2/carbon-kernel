@@ -322,4 +322,8 @@ public interface GroupManagementErrorEventListener {
     boolean onDeleteGroupWithIDFailure(String errorCode, String errorMessage, String groupName,
                                     UserStoreManager userStoreManager)
             throws UserStoreException;
+
+    boolean onUpdateGroupNameFailure(String errorCode, String errorMessage, String groupName, String newGroupName,
+                                       UserStoreManager userStoreManager)
+            throws UserStoreException;
 }

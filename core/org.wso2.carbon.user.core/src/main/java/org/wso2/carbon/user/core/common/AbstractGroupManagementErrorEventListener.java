@@ -192,4 +192,12 @@ public class AbstractGroupManagementErrorEventListener implements GroupManagemen
 
         return true;
     }
+
+    @Override
+    public boolean onUpdateGroupNameFailure(String errorCode, String errorMessage, String groupName,
+                                            String newGroupName, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
 }

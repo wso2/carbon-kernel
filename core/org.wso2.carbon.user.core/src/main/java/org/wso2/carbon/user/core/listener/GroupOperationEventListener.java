@@ -187,15 +187,21 @@ public interface GroupOperationEventListener {
     boolean postListGroups(Condition condition, int limit, int offset, String sortBy, String domain, String sortOrder,
                            List<Group> groupsList, UserStoreManager userStoreManager) throws UserStoreException;
 
-    boolean preAddGroupWithID(String roleName, String[] userList, UserStoreManager userStoreManager)
+    boolean preAddGroupWithID(String groupName, String[] userList, UserStoreManager userStoreManager)
             throws UserStoreException;
 
-    boolean postAddGroupWithID(String roleName, String[] userList, UserStoreManager userStoreManager)
+    boolean postAddGroupWithID(String groupName, String[] userList, UserStoreManager userStoreManager)
             throws UserStoreException;
 
-    boolean preDeleteGroupWithID(String roleName, UserStoreManager userStoreManager)
+    boolean preDeleteGroupWithID(String groupName, UserStoreManager userStoreManager)
             throws UserStoreException;
 
-    boolean postDeleteGroupWithID(String roleName, UserStoreManager userStoreManager)
+    boolean postDeleteGroupWithID(String groupName, UserStoreManager userStoreManager)
+            throws UserStoreException;
+
+    boolean preUpdateGroupName(String groupName, String newGroupName, UserStoreManager userStoreManager)
+            throws UserStoreException;
+
+    boolean postUpdateGroupName(String groupName, String newGroupName, UserStoreManager userStoreManager)
             throws UserStoreException;
 }

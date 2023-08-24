@@ -437,4 +437,6 @@ public interface UserStoreManager extends org.wso2.carbon.user.api.UserStoreMana
     RealmConfiguration getRealmConfiguration();
 
     boolean isExistingGroup(String groupName) throws UserStoreException;
+
+   void updateNameOfGroup(String groupName, String newGroupName) throws UserStoreException;
 }

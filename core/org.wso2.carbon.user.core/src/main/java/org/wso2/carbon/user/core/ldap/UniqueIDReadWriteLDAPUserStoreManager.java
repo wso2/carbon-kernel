@@ -2852,4 +2852,50 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
         return ArrayUtils.contains(immutableAttributes, userIdProperty);
     }
+
+    @Override
+    public void doUpdateGroupName(String groupName, String newGroupName) throws UserStoreException {
+
+        RoleContext context = createRoleContext(groupName);
+
+        String groupSearchFilter = ((LDAPRoleContext) context).getSearchFilter();
+        String groupNameAttributeName = ((LDAPRoleContext) context).getRoleNameProperty();
+        String searchBase = ((LDAPRoleContext) context).getSearchBase();
+
+        DirContext mainContext = this.connectionSource.getContext();
+        DirContext groupContext = null;
+        NamingEnumeration<SearchResult> groupSearchResults = null;
+
+        try {
+            groupSearchFilter = groupSearchFilter.replace("?", escapeSpecialCharactersForFilter(groupName));
+            String[] returningAttributes = {groupNameAttributeName};
+            groupSearchResults = searchInGroupBase(groupSearchFilter, returningAttributes, SearchControls.SUBTREE_SCOPE,
+                    mainContext, searchBase);
+            SearchResult resultedGroup = null;
+            while (groupSearchResults.hasMoreElements()) {
+                resultedGroup = groupSearchResults.next();
+            }
+
+            if (resultedGroup == null) {
+                throw new UserStoreException("Could not find group " + groupName + " in LDAP server.");
+            }
+
+            String groupNameRDN = resultedGroup.getName();
+            String newGroupNameRDN = groupNameAttributeName + "=" + newGroupName;
+
+            groupContext = (DirContext) mainContext.lookup(escapeDNForSearch(groupSearchBase));
+            groupContext.rename(groupNameRDN, newGroupNameRDN);
+
+        } catch (NamingException e) {
+            String errorMessage = "Error occurred while modifying the name of group: " + groupName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            JNDIUtil.closeNamingEnumeration(groupSearchResults);
+            JNDIUtil.closeContext(groupContext);
+            JNDIUtil.closeContext(mainContext);
+        }
+    }
 }

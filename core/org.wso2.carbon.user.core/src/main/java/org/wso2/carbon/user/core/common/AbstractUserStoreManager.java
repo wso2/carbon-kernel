@@ -133,6 +133,7 @@ import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMe
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_POST_GET_GROUP_BY_NAME;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_POST_GET_GROUP_ID_BY_NAME;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_POST_GET_GROUP_NAME_BY_ID;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_POST_UPDATE_GROUP_NAME;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_PRE_ADD_GROUP_WITH_ID;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_PRE_DELETE_GROUP_WITH_ID;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_PRE_GET_GROUP;
@@ -141,6 +142,7 @@ import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMe
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_PRE_GET_GROUP_BY_NAME;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_PRE_GET_GROUP_ID_BY_NAME;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_PRE_GET_GROUP_NAME_BY_ID;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_PRE_UPDATE_GROUP_NAME;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_ID;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_NAME;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_USER_ID;
@@ -2950,10 +2952,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return false;
         }
         // todo implement group uuid support for following UserStoreManagers.
-        //  https://github.com/wso2/product-is/issues/7914
-        if (userManager instanceof JDBCUserStoreManager) {
-            return false;
-        }
+//        //  https://github.com/wso2/product-is/issues/7914
+//        if (userManager instanceof JDBCUserStoreManager) {
+//            return false;
+//        }
         if (userManager instanceof ReadWriteLDAPUserStoreManager) {
             return false;
         }
@@ -18436,5 +18438,174 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         groupName = userStore.getDomainFreeGroupName();
 
         return doCheckExistingGroup(groupName);
+    }
+
+    @Override
+    public final void updateNameOfGroup(String groupName, String newGroupName) throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, String.class};
+            callSecure("updateNameOfGroup", new Object[]{groupName, newGroupName}, argTypes);
+            return;
+        }
+
+        UserStore userStore = getUserStoreWithGroupName(groupName);
+        UserStore userStoreNew = getUserStoreWithGroupName(newGroupName);
+
+        if (!UserCoreUtil.canGroupBeRenamed(userStore, userStoreNew, realmConfig)) {
+            handleUpdateGroupNameFailure(ErrorMessages.ERROR_CODE_CANNOT_RENAME_GROUP.getCode(),
+                    ErrorMessages.ERROR_CODE_CANNOT_RENAME_GROUP.getMessage(), groupName, newGroupName);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_RENAME_GROUP.toString());
+        }
+
+        if (userStore.isRecurssive()) {
+            userStore.getUserStoreManager()
+                    .updateNameOfGroup(userStore.getDomainFreeGroupName(), userStoreNew.getDomainFreeGroupName());
+            return;
+        }
+
+        // #################### Domain Name Free Zone Starts Here ################################
+
+        if (!isGroupNameValid(newGroupName)) {
+            String regEx = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_ROLE_NAME_JAVA_REG_EX);
+            String errorMessage = String
+                    .format(ErrorMessages.ERROR_CODE_INVALID_GROUP_NAME.getMessage(), newGroupName, regEx);
+            String errorCode = ErrorMessages.ERROR_CODE_INVALID_GROUP_NAME.getCode();
+            handleUpdateGroupNameFailure(errorCode, errorMessage, groupName, newGroupName);
+            throw new UserStoreException(errorCode + " - " + errorMessage);
+        }
+
+        /* Adding two different group case-sensitively is not possible. Therefore, the possibility to have an
+        existing group in the newGroupName's name is zero. Hence, case sensitively updating the group name will
+        not give any error. */
+        if (!StringUtils.equalsIgnoreCase(groupName, newGroupName) && isExistingGroup(newGroupName)) {
+            String errorMessage = String.format(ErrorMessages.ERROR_CODE_GROUP_ALREADY_EXISTS.getMessage(), newGroupName);
+            String errorCode = ErrorMessages.ERROR_CODE_GROUP_ALREADY_EXISTS.getCode();
+            handleUpdateGroupNameFailure(errorCode, errorMessage, groupName, newGroupName);
+            throw new UserStoreException(errorCode + " - " + errorMessage);
+        }
+
+        // #################### <Listeners> #####################################################
+        if (!handlePreUpdateGroupName(groupName, newGroupName, false)) {
+            return;
+        }
+        // #################### </Listeners> #####################################################
+
+        if (!isReadOnly() && writeGroupsEnabled) {
+            try {
+                doUpdateGroupName(userStore.getDomainFreeGroupName(), userStoreNew.getDomainFreeGroupName());
+                if (!isUniqueGroupIdEnabled()) {
+                    GroupResolver groupResolver = UserStoreMgtDataHolder.getInstance().getGroupResolver();
+                    if (groupResolver != null && groupResolver.isEnable()) {
+                        groupResolver.updateGroupName(groupName, newGroupName, tenantId);
+                    }
+                }
+            } catch (UserStoreException ex) {
+                handleUpdateGroupNameFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_GROUP_NAME.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_GROUP_NAME.getMessage(),
+                                ex.getMessage()), groupName, newGroupName);
+            }
+        } else {
+            handleUpdateRoleNameFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
+                    ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), groupName, newGroupName);
+            throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+        }
+
+        // This is a special case. We need to pass domain aware name.
+        //TODO - Need to check how permissions are related to groups
+        //userRealm.getAuthorizationManager().resetPermissionOnUpdateRole(
+        //userStore.getDomainAwareName(), userStoreNew.getDomainAwareName());
+
+        // need to update user role cache upon update of role names
+        //TODO - Cache implementation for groups
+        //clearUserRolesCacheByTenant(tenantId);
+
+        // #################### <Listeners> #####################################################
+        handlePostUpdateGroupName(groupName, newGroupName, false);
+        // #################### </Listeners> #####################################################
+    }
+
+    private void handleUpdateGroupNameFailure(String errorCode, String errorMessage, String groupName,
+                                              String newGroupName) throws UserStoreException {
+
+        for (GroupManagementErrorEventListener errorListener : UMListenerServiceComponent
+                .getGroupManagementErrorEventListeners()) {
+            if (errorListener.isEnable() && !errorListener
+                    .onUpdateGroupNameFailure(errorCode, errorMessage, groupName, newGroupName, this)) {
+                return;
+            }
+        }
+    }
+
+    private boolean handlePreUpdateGroupName(String groupName, String newGroupName, boolean isAuditLogOnly)
+            throws UserStoreException {
+
+        try {
+            for (GroupOperationEventListener preListener : UMListenerServiceComponent
+                    .getGroupOperationEventListeners()) {
+                if (isAuditLogOnly && !preListener.getClass().getName()
+                        .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+                if (preListener instanceof AbstractGroupOperationEventListener) {
+                    AbstractGroupOperationEventListener newListener = (AbstractGroupOperationEventListener) preListener;
+                    if (!newListener.preUpdateGroupName(groupName, newGroupName, this)) {
+                        handleUpdateGroupNameFailure(ERROR_DURING_PRE_UPDATE_GROUP_NAME.getCode(),
+                                String.format(ERROR_DURING_PRE_UPDATE_GROUP_NAME.getMessage(),
+                                        UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE),
+                                groupName, newGroupName);
+                        return false;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleUpdateGroupNameFailure(ERROR_DURING_PRE_UPDATE_GROUP_NAME.getCode(),
+                    String.format(ERROR_DURING_PRE_UPDATE_GROUP_NAME.getMessage(),
+                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), groupName, newGroupName);
+            throw ex;
+        }
+        return true;
+    }
+
+    private boolean handlePostUpdateGroupName(String groupName, String newGroupName,
+                                              boolean isAuditLogOnly) throws UserStoreException {
+
+        try {
+            for (GroupOperationEventListener postListener : UMListenerServiceComponent
+                    .getGroupOperationEventListeners()) {
+                if (isAuditLogOnly && !postListener.getClass().getName()
+                        .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+                if (postListener instanceof AbstractGroupOperationEventListener) {
+                    AbstractGroupOperationEventListener newListener = (AbstractGroupOperationEventListener) postListener;
+                    if (!newListener.postUpdateGroupName(groupName, newGroupName, this)) {
+                        handleUpdateGroupNameFailure(ERROR_DURING_POST_UPDATE_GROUP_NAME.getCode(),
+                                String.format(ERROR_DURING_POST_UPDATE_GROUP_NAME.getMessage(),
+                                        UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE),
+                                groupName, newGroupName);
+                        return false;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleUpdateGroupNameFailure(ERROR_DURING_POST_UPDATE_GROUP_NAME.getCode(),
+                    String.format(ERROR_DURING_POST_UPDATE_GROUP_NAME.getMessage(),
+                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), groupName, newGroupName);
+            throw ex;
+        }
+        return true;
+    }
+
+    protected void doUpdateGroupName(String roleName, String newRoleName)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doUpdateGroupName operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "doUpdateGroupName operation is not implemented in: " + this.getClass());
+
     }
 }

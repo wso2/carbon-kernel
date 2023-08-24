@@ -104,4 +104,11 @@ public class AbstractGroupResolver implements GroupResolver {
 
         return true;
     }
+
+    @Override
+    public boolean updateGroupName(String oldGroupName, String newRoleName, int tenantID) throws UserStoreException {
+
+        return true;
+    }
+
 }

@@ -139,4 +139,6 @@ public interface GroupResolver {
                      LocalDateTime lastModifiedDate, String location, int tenantId) throws UserStoreException;
 
     boolean deleteGroup(String groupName, int tenantID) throws UserStoreException;
+
+    boolean updateGroupName(String oldGroupName, String newRoleName, int tenantID) throws UserStoreException;
 }
