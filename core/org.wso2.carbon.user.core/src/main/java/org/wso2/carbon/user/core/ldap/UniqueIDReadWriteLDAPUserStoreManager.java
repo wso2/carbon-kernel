@@ -2622,7 +2622,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     }
 
     @Override
-    protected Group doAddGroupWithID(String groupName, String[] userIDList) throws UserStoreException {
+    protected Group doAddGroupWithID(String groupID, String groupName, String[] userIDList) throws UserStoreException {
 
         List<String> userList = getUserNamesFromUserIDs(Arrays.asList(userIDList));
         String userStoreDomain = getMyDomainName();
@@ -2636,7 +2636,6 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
         userList = userList.stream().map(UserCoreUtil::removeDomainFromName).collect(Collectors.toList());
 
-        String groupID = getUniqueGroupID();
         persistGroup(groupName, groupID, userList.toArray(new String[0]));
 
         if (isGroupIdGeneratedByUserStore()) {

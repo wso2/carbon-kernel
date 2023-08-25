@@ -18052,7 +18052,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     // add group in to actual user store
                     // If unique ID for groups is not enabled follow the legacy approach
                     if (isUniqueGroupIdEnabled(this)) {
-                        group = doAddGroupWithID(groupName, userIDList);
+                        group = doAddGroupWithID(groupID, groupName, userIDList);
                     } else {
                         GroupResolver groupResolver = UserStoreMgtDataHolder.getInstance().getGroupResolver();
                         if (groupResolver != null && groupResolver.isEnable()) {
@@ -18097,7 +18097,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return group;
     }
 
-    protected Group doAddGroupWithID(String groupName, String[] userIDList) throws UserStoreException {
+    protected Group doAddGroupWithID(String groupID, String groupName, String[] userIDList) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("doAddGroupWithID operation is not implemented in: " + this.getClass());
@@ -18182,7 +18182,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (isUniqueGroupIdEnabled(this)) {
                 doDeleteGroupWithID(groupID);
             } else {
-                //when group ID is not enabled delete from IDN_SCIM_GROUP table and userstore
+                //when group ID is not enabled delete from IDN_SCIM_GROUP table and userstore.
                 doDeleteGroup(UserCoreUtil.removeDomainFromName(groupName));
                 GroupResolver groupResolver = UserStoreMgtDataHolder.getInstance().getGroupResolver();
                 if (groupResolver != null && groupResolver.isEnable()) {

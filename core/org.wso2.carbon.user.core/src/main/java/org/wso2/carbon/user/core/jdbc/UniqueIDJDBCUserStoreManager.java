@@ -3891,12 +3891,16 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    public Group doAddGroupWithID(String groupName, String[] userIDList) throws UserStoreException {
+    public Group doAddGroupWithID(String groupID, String groupName, String[] userIDList) throws UserStoreException {
 
         persistGroup(groupName, userIDList);
-        String groupID = doGetGroupIdFromGroupName(groupName);
 
-        return new Group(groupID, groupName);
+        //Since we are not allowed to add UUID to auto incremented UM_ID field in UM_ROLE table
+        // we retrieve the groupID from the DB.
+        //TODO - Add a separate column to keep UM_GROUP_ID
+        String groupIDRetrieved = doGetGroupIdFromGroupName(groupName);
+
+        return new Group(groupIDRetrieved, groupName);
     }
 
     @Override
