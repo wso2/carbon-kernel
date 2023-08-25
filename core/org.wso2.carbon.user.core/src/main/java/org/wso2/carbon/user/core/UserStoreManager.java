@@ -438,5 +438,5 @@ public interface UserStoreManager extends org.wso2.carbon.user.api.UserStoreMana
 
     boolean isExistingGroup(String groupName) throws UserStoreException;
 
-   void updateNameOfGroup(String groupName, String newGroupName) throws UserStoreException;
+   void updateGroupDisplayName(String groupName, String newGroupName) throws UserStoreException;
 }

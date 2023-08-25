@@ -691,4 +691,7 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
                          LocalDateTime lastModifiedDate, String location) throws UserStoreException;
 
     void deleteGroupWithID(String groupID) throws UserStoreException;
+
+    void updateUserIDListOfGroup(String groupName, String[] deletedUserIDs, String[] newUserIDs)
+            throws UserStoreException;
 }

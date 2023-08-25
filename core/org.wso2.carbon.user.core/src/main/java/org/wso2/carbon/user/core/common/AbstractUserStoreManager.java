@@ -134,6 +134,7 @@ import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMe
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_POST_GET_GROUP_ID_BY_NAME;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_POST_GET_GROUP_NAME_BY_ID;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_POST_UPDATE_GROUP_NAME;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_POST_UPDATE_USER_LIST_OF_GROUP;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_PRE_ADD_GROUP_WITH_ID;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_PRE_DELETE_GROUP_WITH_ID;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_PRE_GET_GROUP;
@@ -143,6 +144,7 @@ import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMe
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_PRE_GET_GROUP_ID_BY_NAME;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_PRE_GET_GROUP_NAME_BY_ID;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_PRE_UPDATE_GROUP_NAME;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_PRE_UPDATE_USER_LIST_OF_GROUP;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_ID;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_NAME;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_USER_ID;
@@ -2953,9 +2955,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
         // todo implement group uuid support for following UserStoreManagers.
         //  https://github.com/wso2/product-is/issues/7914
-        if (userManager instanceof JDBCUserStoreManager) {
-            return false;
-        }
+        //Commented for testing purpose of the feature
+//        if (userManager instanceof JDBCUserStoreManager) {
+//            return false;
+//        }
         if (userManager instanceof ReadWriteLDAPUserStoreManager) {
             return false;
         }
@@ -18441,11 +18444,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public final void updateNameOfGroup(String groupName, String newGroupName) throws UserStoreException {
+    public final void updateGroupDisplayName(String groupName, String newGroupName) throws UserStoreException {
 
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[]{String.class, String.class};
-            callSecure("updateNameOfGroup", new Object[]{groupName, newGroupName}, argTypes);
+            callSecure("updateGroupDisplayName", new Object[]{groupName, newGroupName}, argTypes);
             return;
         }
 
@@ -18460,7 +18463,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         if (userStore.isRecurssive()) {
             userStore.getUserStoreManager()
-                    .updateNameOfGroup(userStore.getDomainFreeGroupName(), userStoreNew.getDomainFreeGroupName());
+                    .updateGroupDisplayName(userStore.getDomainFreeGroupName(), userStoreNew.getDomainFreeGroupName());
             return;
         }
 
@@ -18607,5 +18610,180 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         throw new NotImplementedException(
                 "doUpdateGroupName operation is not implemented in: " + this.getClass());
 
+    }
+
+    @Override
+    public final void updateUserIDListOfGroup(final String groupName, String[] deletedUserIDs,
+                                              String[] newUserIDs) throws UserStoreException {
+
+        try {
+            AccessController.doPrivileged((PrivilegedExceptionAction<String>) () -> {
+                // If unique id feature is not enabled, we have to call the legacy methods.
+                UserStore userStore = getUserStoreWithGroupName(groupName);
+                if (isUniqueUserIdEnabledInUserStore(userStore)) {
+                    updateUserIDListOfGroupInternal(groupName, deletedUserIDs, newUserIDs);
+                    if (!isUniqueGroupIdEnabled()) {
+                        //TODO: SCIM handler implementation for user list update in SCIM_GROUP table
+                    }
+
+                } else {
+                    //TODO:
+                }
+                return null;
+            });
+        } catch (PrivilegedActionException e) {
+            if (!(e.getException() instanceof UserStoreException)) {
+                handleUpdateUserIDListOfGroupFailure(
+                        ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_USER_LIST_OF_GROUP.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_USER_LIST_OF_GROUP.getMessage(),
+                                e.getMessage()), groupName, deletedUserIDs, newUserIDs);
+            }
+            throw (UserStoreException) e.getException();
+        }
+    }
+
+    private void updateUserIDListOfGroupInternal(String groupName, String[] deletedUserIDs, String[] newUserIDs)
+            throws UserStoreException {
+
+
+        UserStore userStore = getUserStoreWithGroupName(groupName);
+
+        if (userStore.isRecurssive()) {
+            ((AbstractUserStoreManager) userStore.getUserStoreManager())
+                    .updateUserIDListOfGroupInternal(userStore.getDomainFreeGroupName(),
+                            UserCoreUtil.removeDomainFromNames(deletedUserIDs),
+                            UserCoreUtil.removeDomainFromNames(newUserIDs));
+            return;
+        }
+
+        // #################### Domain Name Free Zone Starts Here ################################
+        if (deletedUserIDs == null) {
+            deletedUserIDs = new String[0];
+        }
+        if (newUserIDs == null) {
+            newUserIDs = new String[0];
+        }
+        if (!handlePreUpdateUserIDListOfGroup(groupName, deletedUserIDs, newUserIDs, false)) {
+            handleUpdateUserIDListOfGroupFailure(ERROR_DURING_PRE_UPDATE_USER_LIST_OF_GROUP.getCode(),
+                    String.format(ERROR_DURING_PRE_UPDATE_USER_LIST_OF_GROUP.getMessage(),
+                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE),
+                    groupName, deletedUserIDs, newUserIDs);
+            return;
+        }
+        // #################### </Listeners> #####################################################
+
+        if (deletedUserIDs.length > 0 || newUserIDs.length > 0) {
+            if (!isReadOnly() && writeGroupsEnabled) {
+                try {
+                    doUpdateUserIDListOfGroup(userStore.getDomainFreeGroupName(),
+                            UserCoreUtil.removeDomainFromNames(deletedUserIDs),
+                            UserCoreUtil.removeDomainFromNames(newUserIDs));
+                } catch (UserStoreException ex) {
+                    handleUpdateUserIDListOfGroupFailure(
+                            ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_USER_LIST_OF_GROUP.getCode(),
+                            String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_USER_LIST_OF_GROUP.getMessage(),
+                                    ex.getMessage()), groupName, deletedUserIDs, newUserIDs);
+                    throw ex;
+                }
+            } else {
+                handleUpdateUserIDListOfGroupFailure(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode(),
+                        ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage(), groupName, deletedUserIDs,
+                        newUserIDs);
+                throw new UserStoreException(ErrorMessages.ERROR_CODE_READONLY_USER_STORE.toString());
+            }
+        }
+
+        // need to clear user group cache upon group update
+        //TODO: Add cache implementation relevant to groups.
+        //clearUserRolesCacheByTenant(this.tenantId);
+
+        // Call relevant listeners after updating user list of group.
+        handlePostUpdateUserIDListOfGroup(groupName, deletedUserIDs, newUserIDs, false);
+    }
+
+    protected void doUpdateUserIDListOfGroup(String groupName, String[] deletedUsers, String[] newUsers)
+            throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doUpdateUserIDListOfGroup operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "doUpdateUserIDListOfGroup operation is not implemented in: " + this.getClass());
+    }
+
+    private void handleUpdateUserIDListOfGroupFailure(String errorCode, String errorMessage, String groupName,
+                                                      String[] deletedUserIDs, String[] addedUserIDs)
+            throws UserStoreException {
+
+        for (GroupManagementErrorEventListener errorListener : UMListenerServiceComponent
+                .getGroupManagementErrorEventListeners()) {
+            if (errorListener.isEnable() && !errorListener
+                    .onUpdateUserIDListOfGroupFailure(errorCode, errorMessage, groupName, deletedUserIDs, addedUserIDs,
+                            this)) {
+                return;
+            }
+        }
+    }
+
+    private boolean handlePreUpdateUserIDListOfGroup(String groupName, String[] deletedUserIDs, String[] newUserIDs,
+                                                     boolean isAuditLogOnly) throws UserStoreException {
+
+        try {
+            for (GroupOperationEventListener preListener : UMListenerServiceComponent
+                    .getGroupOperationEventListeners()) {
+                if (isAuditLogOnly && !preListener.getClass().getName()
+                        .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+                if (preListener instanceof AbstractGroupOperationEventListener) {
+                    AbstractGroupOperationEventListener newListener = (AbstractGroupOperationEventListener) preListener;
+                    if (!newListener.preUpdateUserIDListOfGroup(groupName, deletedUserIDs, newUserIDs, this)) {
+                        handleUpdateUserIDListOfGroupFailure(ERROR_DURING_PRE_UPDATE_USER_LIST_OF_GROUP.getCode(),
+                                String.format(ERROR_DURING_PRE_UPDATE_USER_LIST_OF_GROUP.getMessage(),
+                                        UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE),
+                                groupName, deletedUserIDs, newUserIDs);
+                        return false;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleUpdateUserIDListOfGroupFailure(ERROR_DURING_PRE_UPDATE_USER_LIST_OF_GROUP.getCode(),
+                    String.format(ERROR_DURING_PRE_UPDATE_USER_LIST_OF_GROUP.getMessage(),
+                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), groupName, deletedUserIDs,
+                    newUserIDs);
+            throw ex;
+        }
+        return true;
+    }
+
+    private boolean handlePostUpdateUserIDListOfGroup(String groupName, String[] deletedUserIDs, String[] newUserIDs,
+                                                      boolean isAuditLogOnly) throws UserStoreException {
+
+        try {
+            for (GroupOperationEventListener postListener : UMListenerServiceComponent
+                    .getGroupOperationEventListeners()) {
+                if (isAuditLogOnly && !postListener.getClass().getName()
+                        .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+                if (postListener instanceof AbstractGroupOperationEventListener) {
+                    AbstractGroupOperationEventListener newListener = (AbstractGroupOperationEventListener) postListener;
+                    if (!newListener.postUpdateUserIDListOfGroup(groupName, deletedUserIDs, newUserIDs, this)) {
+                        handleUpdateUserIDListOfGroupFailure(ERROR_DURING_POST_UPDATE_USER_LIST_OF_GROUP.getCode(),
+                                String.format(ERROR_DURING_POST_UPDATE_USER_LIST_OF_GROUP.getMessage(),
+                                        UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE),
+                                groupName, deletedUserIDs, newUserIDs);
+                        return false;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleUpdateUserIDListOfGroupFailure(ERROR_DURING_POST_UPDATE_USER_LIST_OF_GROUP.getCode(),
+                    String.format(ERROR_DURING_POST_UPDATE_USER_LIST_OF_GROUP.getMessage(),
+                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), groupName, deletedUserIDs,
+                    newUserIDs);
+            throw ex;
+        }
+        return true;
     }
 }

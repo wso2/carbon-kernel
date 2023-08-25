@@ -4096,5 +4096,67 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         return group;
     }
 
+    @Override
+    public void doUpdateUserIDListOfGroup(String groupName, String[] deletedUserIDs, String[] newUserIDs)
+            throws UserStoreException {
 
+        JDBCRoleContext ctx = (JDBCRoleContext) createRoleContext(groupName);
+        groupName = ctx.getRoleName();
+
+
+        Connection dbConnection = null;
+        try {
+            dbConnection = getDBConnection();
+            String type = DatabaseCreator.getDatabaseType(dbConnection);
+            String sqlStmt1 = JDBCRealmConstants.REMOVE_USER_FROM_ROLE_WITH_ID;
+            if (sqlStmt1 == null) {
+                throw new UserStoreException("The sql statement for remove user from group is null.");
+            }
+            String sqlStmt2;
+            sqlStmt2 = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_USER_TO_ROLE_WITH_ID + "-" + type);
+            if (sqlStmt2 == null) {
+                sqlStmt2 = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_USER_TO_ROLE_WITH_ID);
+            }
+            if (sqlStmt2 == null) {
+                throw new UserStoreException("The sql statement for add user to group is null.");
+            }
+            if (deletedUserIDs != null) {
+                if (sqlStmt1.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                    DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt1, deletedUserIDs, tenantId,
+                            groupName, tenantId, tenantId);
+                } else {
+                    DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt1, deletedUserIDs, groupName);
+                }
+            }
+            if (newUserIDs != null) {
+                if (sqlStmt1.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                    if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
+                        DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, tenantId, newUserIDs,
+                                tenantId, groupName, tenantId);
+                    } else {
+                        DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, newUserIDs, tenantId,
+                                groupName, tenantId, tenantId);
+                    }
+                } else {
+                    DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, newUserIDs, groupName);
+                }
+            }
+            dbConnection.commit();
+        } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
+            String msg = "Database error occurred while updating user list of group : " + groupName;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } catch (Exception e) {
+            String errorMessage = "Error occurred while getting database type from DB connection";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection);
+        }
+    }
 }

@@ -288,7 +288,14 @@ public class UserCoreErrorConstants {
                 "Un-expected error during pre update group name, %s"),
         ERROR_DURING_POST_UPDATE_GROUP_NAME("65025",
                 "Un-expected error during pre delete group name, %s"),
-        ERROR_CODE_ERROR_WHILE_UPDATING_GROUP_NAME("65026", "Un-expected error while updating group name, %s"),;
+        ERROR_CODE_ERROR_WHILE_UPDATING_GROUP_NAME("65026", "Un-expected error while updating group name, %s"),
+        ERROR_CODE_ERROR_WHILE_UPDATING_USER_LIST_OF_GROUP("65027", "Un-expected error while updating " +
+                "user list of group, %s"),
+        ERROR_DURING_PRE_UPDATE_USER_LIST_OF_GROUP("65028",
+                                                   "Un-expected error during pre updating user list of group, %s"),
+        ERROR_DURING_POST_UPDATE_USER_LIST_OF_GROUP("65029",
+                "Un-expected error during post updating user list of group, %s");
+
 
         private final String code;
         private final String message;

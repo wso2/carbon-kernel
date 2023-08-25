@@ -2897,4 +2897,134 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             JNDIUtil.closeContext(mainContext);
         }
     }
+
+    @Override
+    public void doUpdateUserIDListOfGroup(String groupName, String[] deletedUserIDs, String[] newUserIDs)
+            throws UserStoreException {
+
+        List<String> deletedUsers = getUserNamesFromUserIDs(Arrays.asList(deletedUserIDs)).stream()
+                .map(UserCoreUtil::removeDomainFromName)
+                .collect(Collectors.toList());;
+        List<String> newUsers = getUserNamesFromUserIDs(Arrays.asList(newUserIDs)).stream()
+                .map(UserCoreUtil::removeDomainFromName)
+                .collect(Collectors.toList());
+        String errorMessage;
+        NamingEnumeration<SearchResult> groupSearchResults = null;
+
+        LDAPRoleContext ctx = (LDAPRoleContext) createRoleContext(groupName);
+        String searchFilter = ctx.getSearchFilter();
+
+        if (isExistingLDAPRole(ctx)) {
+
+            DirContext mainDirContext = this.connectionSource.getContext();
+
+            try {
+                searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(groupName));
+                String roleNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
+                String[] returningAttributes = new String[]{roleNameAttribute};
+
+                String searchBase = ctx.getSearchBase();
+                groupSearchResults = searchInGroupBase(searchFilter, returningAttributes, SearchControls.SUBTREE_SCOPE,
+                        mainDirContext, searchBase);
+                SearchResult resultedGroup = null;
+                String groupNameRetrieved = null;
+                while (groupSearchResults.hasMoreElements()) {
+                    resultedGroup = groupSearchResults.next();
+                    groupNameRetrieved = getGroupName(resultedGroup, searchBase);
+                }
+                // check whether update operations are going to violate non
+                // empty group
+                // restriction specified in user-mgt.xml by
+                // checking whether all users are trying to be deleted
+                // before updating LDAP.
+                if (!emptyRolesAllowed) {
+                    errorMessage = "There should be at least one member in the group. "
+                            + "Hence can not delete all the members.";
+                    throw new UserStoreException(errorMessage);
+
+                } else {
+                    List<String> newUserList = new ArrayList<>();
+                    List<String> deleteUserList = new ArrayList<>();
+                    Map<String, String> userDnToUserNameMapping = new HashMap<>();
+
+                    if (!newUsers.isEmpty()) {
+                        String invalidUserList = "";
+                        String existingUserList = "";
+
+                        for (String newUser : newUsers) {
+                            if (StringUtils.isEmpty(newUser)) {
+                                continue;
+                            }
+                            String userNameDN = getNameInSpaceForUserName(newUser);
+                            if (userNameDN == null) {
+                                invalidUserList += newUser + " ";
+                            } else if (isUserInRole(userNameDN, resultedGroup)) {
+                                existingUserList += userNameDN + ",";
+                            } else {
+                                newUserList.add(userNameDN);
+                            }
+                        }
+                        if (!StringUtils.isEmpty(invalidUserList) || !StringUtils.isEmpty(existingUserList)) {
+                            errorMessage = (StringUtils.isEmpty(invalidUserList) ?
+                                    "" :
+                                    "'" + invalidUserList + "' not in the user store. ") + (StringUtils
+                                    .isEmpty(existingUserList) ?
+                                    "" :
+                                    "'" + existingUserList + "' already belong to the group : " + groupName);
+                            throw new UserStoreException(errorMessage);
+                        }
+                    }
+
+                    if (!deletedUsers.isEmpty()) {
+                        StringBuilder invalidUserList = new StringBuilder();
+                        for (String deletedUser : deletedUsers) {
+                            if (StringUtils.isEmpty(deletedUser)) {
+                                continue;
+                            }
+                            String userNameDN = getNameInSpaceForUserName(deletedUser);
+                            if (userNameDN == null) {
+                                invalidUserList.append(deletedUser).append(",");
+                            } else {
+                                deleteUserList.add(userNameDN);
+                                userDnToUserNameMapping.put(userNameDN, deletedUser);
+                            }
+                        }
+                        if (!StringUtils.isEmpty(invalidUserList.toString())) {
+                            errorMessage = "'" + invalidUserList + "' not in the user store.";
+                            throw new UserStoreException(errorMessage);
+                        }
+
+                    }
+
+                    for (String userNameDN : newUserList) {
+                        modifyUserInRole(userNameDN, groupNameRetrieved, DirContext.ADD_ATTRIBUTE, searchBase);
+                    }
+
+                    for (String userNameDN : deleteUserList) {
+                        modifyUserInRole(userNameDN, groupNameRetrieved, DirContext.REMOVE_ATTRIBUTE, searchBase);
+                        // needs to clear authz cache for deleted users
+                        String deletedUserName = userDnToUserNameMapping.get(userNameDN);
+                        String deletedUserNameWithDomain = UserCoreUtil
+                                .addDomainToName(deletedUserName, getMyDomainName());
+                        userRealm.getAuthorizationManager().clearUserAuthorization(deletedUserNameWithDomain);
+                    }
+                }
+            } catch (NamingException e) {
+                errorMessage = "Error occurred while modifying the user list of group: " + groupName;
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+                throw new UserStoreException(errorMessage, e);
+            } finally {
+                JNDIUtil.closeNamingEnumeration(groupSearchResults);
+                JNDIUtil.closeContext(mainDirContext);
+            }
+        } else {
+            errorMessage = "The group: " + groupName + " does not exist.";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage);
+            }
+            throw new UserStoreException(errorMessage);
+        }
+    }
 }

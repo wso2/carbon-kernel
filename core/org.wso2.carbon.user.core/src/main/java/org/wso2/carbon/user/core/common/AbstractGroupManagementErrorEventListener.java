@@ -200,4 +200,13 @@ public class AbstractGroupManagementErrorEventListener implements GroupManagemen
 
         return true;
     }
+
+    @Override
+    public boolean onUpdateUserIDListOfGroupFailure(String errorCode, String errorMessage, String groupName,
+                                             String[] deletedUserIDList, String[] newUserIDList,
+                                             UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
 }

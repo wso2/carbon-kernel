@@ -204,4 +204,12 @@ public interface GroupOperationEventListener {
 
     boolean postUpdateGroupName(String groupName, String newGroupName, UserStoreManager userStoreManager)
             throws UserStoreException;
+
+    boolean preUpdateUserIDListOfGroup(String groupName, String[] deletedUserIDs, String[] newUserIDs,
+                                       UserStoreManager userStoreManager)
+            throws UserStoreException;
+
+    boolean postUpdateUserIDListOfGroup(String groupName, String[] deletedUserIDs, String[] newUserIDs,
+                                       UserStoreManager userStoreManager)
+            throws UserStoreException;
 }
