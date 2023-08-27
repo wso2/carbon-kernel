@@ -21,12 +21,9 @@ package org.wso2.carbon.security.keystore;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.core.util.KeyStoreUtil;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
-import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.security.SecurityConfigException;
 import org.wso2.carbon.security.SecurityConstants;
 import org.wso2.carbon.security.keystore.service.CertData;
@@ -292,8 +289,7 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
 
     private KeyStoreAdmin getKeyStoreAdmin(String tenantDomain) {
 
-        return new KeyStoreAdmin(IdentityTenantUtil.getTenantId(tenantDomain),
-                (Registry) CarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.SYSTEM_GOVERNANCE));
+        return new KeyStoreAdmin(IdentityTenantUtil.getTenantId(tenantDomain));
     }
 
     private boolean isSuperTenant(String tenantDomain) {

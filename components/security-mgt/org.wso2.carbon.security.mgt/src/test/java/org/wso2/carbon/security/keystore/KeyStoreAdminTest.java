@@ -29,7 +29,6 @@ import org.wso2.carbon.core.util.KeyStoreUtil;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.testutil.powermock.PowerMockIdentityBaseTest;
-import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.security.keystore.service.CertData;
 import org.wso2.carbon.security.keystore.service.PaginatedKeyStoreData;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -55,8 +54,6 @@ public class KeyStoreAdminTest extends PowerMockIdentityBaseTest {
     ServerConfiguration serverConfiguration;
     @Mock
     KeyStoreManager keyStoreManager;
-    @Mock
-    Registry registry;
     private KeyStoreAdmin keyStoreAdmin;
     private int tenantID = -1234;
 
@@ -89,7 +86,7 @@ public class KeyStoreAdminTest extends PowerMockIdentityBaseTest {
         when(KeyStoreManager.getInstance(tenantID)).thenReturn(keyStoreManager);
         when(keyStoreManager.getPrimaryKeyStore()).thenReturn(getKeyStoreFromFile("wso2carbon.jks", "wso2carbon"));
 
-        keyStoreAdmin = new KeyStoreAdmin(tenantID, registry);
+        keyStoreAdmin = new KeyStoreAdmin(tenantID);
         PaginatedKeyStoreData result = keyStoreAdmin.getPaginatedKeystoreInfo("wso2carbon.jks", 10);
         int actualKeysNo = findCertDataSetSize(result.getPaginatedKeyData().getCertDataSet());
         assertEquals(actualKeysNo, 3, "Incorrect key numbers");

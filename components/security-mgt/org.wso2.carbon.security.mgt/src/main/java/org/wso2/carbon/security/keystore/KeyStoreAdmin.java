@@ -31,7 +31,6 @@ import org.wso2.carbon.core.util.CryptoUtil;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.core.util.KeyStoreUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.security.SecurityConfigException;
 import org.wso2.carbon.security.SecurityConfigRuntimeException;
 import org.wso2.carbon.security.SecurityConstants;
@@ -102,7 +101,7 @@ public class KeyStoreAdmin {
     private final String trustStoreLocation;
     private final String trustStorePassword;
 
-    public KeyStoreAdmin(int tenantId, Registry registry) {
+    public KeyStoreAdmin(int tenantId) {
 
         ServerConfiguration config = ServerConfiguration.getInstance();
         trustStoreLocation = config.getFirstProperty(SERVER_TRUSTSTORE_FILE);
