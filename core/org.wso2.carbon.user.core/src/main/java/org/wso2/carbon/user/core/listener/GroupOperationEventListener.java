@@ -187,29 +187,101 @@ public interface GroupOperationEventListener {
     boolean postListGroups(Condition condition, int limit, int offset, String sortBy, String domain, String sortOrder,
                            List<Group> groupsList, UserStoreManager userStoreManager) throws UserStoreException;
 
+    /**
+     * Defines any additional action before adding a group with ID.
+     *
+     * @param groupName        Group name.
+     * @param userList         List of users to be added to the group.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
     boolean preAddGroupWithID(String groupName, String[] userList, UserStoreManager userStoreManager)
             throws UserStoreException;
 
+    /**
+     * Defines any additional action after adding a group with ID.
+     *
+     * @param groupName        Group name.
+     * @param userList         List of users to be added to the group.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
     boolean postAddGroupWithID(String groupName, String[] userList, UserStoreManager userStoreManager)
             throws UserStoreException;
 
+    /**
+     * Defines any additional action before deleting a group.
+     *
+     * @param groupName        Group name.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
     boolean preDeleteGroupWithID(String groupName, UserStoreManager userStoreManager)
             throws UserStoreException;
 
+    /**
+     * Defines any additional action after deleting a group.
+     *
+     * @param groupName        Group name.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
     boolean postDeleteGroupWithID(String groupName, UserStoreManager userStoreManager)
             throws UserStoreException;
 
+    /**
+     * Defines any additional action before updating the group name.
+     *
+     * @param groupName        Existing group name.
+     * @param newGroupName     New group name.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
     boolean preUpdateGroupName(String groupName, String newGroupName, UserStoreManager userStoreManager)
             throws UserStoreException;
 
+    /**
+     * Defines any additional action after updating the group name.
+     *
+     * @param groupName        Existing group name.
+     * @param newGroupName     New group name.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
     boolean postUpdateGroupName(String groupName, String newGroupName, UserStoreManager userStoreManager)
             throws UserStoreException;
 
+    /**
+     * Defines any additional action before updating the user list of group.
+     *
+     * @param groupName        Existing group name.
+     * @param deletedUserIDs   Deleted user list of the group.
+     * @param newUserIDs       Newly added user list of the group.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
     boolean preUpdateUserIDListOfGroup(String groupName, String[] deletedUserIDs, String[] newUserIDs,
                                        UserStoreManager userStoreManager)
             throws UserStoreException;
 
+    /**
+     * Defines any additional action after updating the user list of group.
+     *
+     * @param groupName        Existing group name.
+     * @param deletedUserIDs   Deleted user list of the group.
+     * @param newUserIDs       Newly added user list of the group.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
     boolean postUpdateUserIDListOfGroup(String groupName, String[] deletedUserIDs, String[] newUserIDs,
-                                       UserStoreManager userStoreManager)
+                                        UserStoreManager userStoreManager)
             throws UserStoreException;
 }
