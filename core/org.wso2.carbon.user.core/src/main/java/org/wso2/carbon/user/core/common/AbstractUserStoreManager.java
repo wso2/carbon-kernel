@@ -18660,9 +18660,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (deletedUserIDs.length > 0 || newUserIDs.length > 0) {
             if (!isReadOnly() && writeGroupsEnabled) {
                 try {
-                    doUpdateUserIDListOfGroup(userStore.getDomainFreeGroupName(),
-                            UserCoreUtil.removeDomainFromNames(deletedUserIDs),
-                            UserCoreUtil.removeDomainFromNames(newUserIDs));
+                   if (isUniqueUserIdEnabledInUserStore(userStore)) {
+                       doUpdateUserIDListOfGroup(userStore.getDomainFreeGroupName(),
+                               UserCoreUtil.removeDomainFromNames(deletedUserIDs),
+                               UserCoreUtil.removeDomainFromNames(newUserIDs));
+                   } else {
+                       //TODO: When user ID is not enabled
+                   }
                 } catch (UserStoreException ex) {
                     handleUpdateUserIDListOfGroupFailure(
                             ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_USER_LIST_OF_GROUP.getCode(),
