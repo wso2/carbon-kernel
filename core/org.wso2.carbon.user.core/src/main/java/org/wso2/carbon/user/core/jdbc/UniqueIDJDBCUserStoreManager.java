@@ -3997,6 +3997,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
     }
 
+    @Override
     protected void doDeleteGroupWithID(String groupID) throws UserStoreException {
 
         //TODO - Take query from XML properties file.
