@@ -315,20 +315,63 @@ public interface GroupManagementErrorEventListener {
                                 String domain, String sortBy, String sortOrder, UserStoreManager userStoreManager)
             throws UserStoreException;
 
+    /**
+     * Defines any additional actions that need to be done when there is a failure while adding a group with ID.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param groupName        Group name.
+     * @param userStoreManager Userstore manager.
+     * @return True if the handling succeeded.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
     boolean onAddGroupWithIDFailure(String errorCode, String errorMessage, String groupName,
                                     String[] userIDList, UserStoreManager userStoreManager)
             throws UserStoreException;
 
+    /**
+     * Defines any additional actions that need to be done when there is a failure while deleting a group.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param groupName        Group name.
+     * @param userStoreManager Userstore manager.
+     * @return True if the handling succeeded.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
     boolean onDeleteGroupWithIDFailure(String errorCode, String errorMessage, String groupName,
-                                    UserStoreManager userStoreManager)
+                                       UserStoreManager userStoreManager)
             throws UserStoreException;
 
+    /**
+     * Defines any additional actions that need to be done when there is a failure while updating the group name.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param groupName        Existing group name.
+     * @param newGroupName     New group name.
+     * @param userStoreManager Userstore manager.
+     * @return True if the handling succeeded.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
     boolean onUpdateGroupNameFailure(String errorCode, String errorMessage, String groupName, String newGroupName,
-                                       UserStoreManager userStoreManager)
+                                     UserStoreManager userStoreManager)
             throws UserStoreException;
 
+    /**
+     * Defines any additional actions that need to be done when there is a failure while updating user list of the group.
+     *
+     * @param errorCode         Error code.
+     * @param errorMessage      Error message.
+     * @param groupName         Group name.
+     * @param deletedUserIDList List of user IDs to be deleted.
+     * @param newUserIDList     List of user IDs to be added.
+     * @param userStoreManager  Userstore manager.
+     * @return True if the handling succeeded.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
     boolean onUpdateUserIDListOfGroupFailure(String errorCode, String errorMessage, String groupName,
-                                       String[] deletedUserIDList, String[] newUserIDList,
-                                       UserStoreManager userStoreManager)
+                                             String[] deletedUserIDList, String[] newUserIDList,
+                                             UserStoreManager userStoreManager)
             throws UserStoreException;
 }
