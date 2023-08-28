@@ -695,6 +695,7 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @param createdDate      Group created date.
      * @param lastModifiedDate Group's last modified date.
      * @param location         Group's location.
+     * @return Created Group object.
      * @throws UserStoreException If an error occurs while creating the group.
      */
     Group addGroupWithID(String groupName, String groupID, String[] userIDList, LocalDateTime createdDate,

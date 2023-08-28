@@ -436,7 +436,21 @@ public interface UserStoreManager extends org.wso2.carbon.user.api.UserStoreMana
      */
     RealmConfiguration getRealmConfiguration();
 
+    /**
+     * Check whether there is already existing group with the given name.
+     *
+     * @param groupName Group Name.
+     * @return boolean whether there is a group already existing.
+     * @throws UserStoreException If an error occurs while checking the existence of the given group.
+     */
     boolean isExistingGroup(String groupName) throws UserStoreException;
 
-   void updateGroupDisplayName(String groupName, String newGroupName) throws UserStoreException;
+    /**
+     * Update the display name of the group.
+     *
+     * @param groupName    Existing group Name.
+     * @param newGroupName New group name.
+     * @throws UserStoreException If an error occurs while updating the group's display name.
+     */
+    void updateGroupDisplayName(String groupName, String newGroupName) throws UserStoreException;
 }
