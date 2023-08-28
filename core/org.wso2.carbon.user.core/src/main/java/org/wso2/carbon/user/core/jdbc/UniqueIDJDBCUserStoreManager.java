@@ -3895,9 +3895,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
         persistGroup(groupName, userIDList);
 
-        //Since we are not allowed to add UUID to auto incremented UM_ID field in UM_ROLE table
-        // we retrieve the groupID from the DB.
-        //TODO - Add a separate column to keep UM_GROUP_ID
+        // Since we are not allowed to add UUID to auto incremented UM_ID field in UM_ROLE table,
+        // we retrieve the ID from UM_ROLE the DB after saving the group.
+        //TODO - Add a separate column to keep UM_GROUP_ID (UUID).
         String groupIDRetrieved = doGetGroupIdFromGroupName(groupName);
 
         return new Group(groupIDRetrieved, groupName);
@@ -3945,7 +3945,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             dbConnection.commit();
         } catch (SQLException e) {
             DatabaseUtil.rollBack(dbConnection);
-            String msg = "Error occurred while adding role : " + roleName;
+            String msg = "Error occurred while adding group : " + roleName;
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
             }
@@ -3960,7 +3960,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 // Duplicate entry
                 throw new UserStoreException(errorMessage, ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE.getCode(), e);
             } else {
-                // Other SQL Exception
+                // Other SQL Exceptions
                 throw new UserStoreException(errorMessage, e);
             }
         } finally {
@@ -3974,7 +3974,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
-        //TODO - Add the query to xml properties file
+        //TODO - Add the query to xml properties file of the userstore.
         String sqlStmt = "SELECT UM_ID FROM UM_ROLE WHERE UM_ROLE_NAME = ? AND UM_TENANT_ID = ?";
         try {
             dbConnection = getDBConnection();
@@ -3999,17 +3999,17 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     protected void doDeleteGroupWithID(String groupID) throws UserStoreException {
 
-        //TODO - Take query from XML properties file
+        //TODO - Take query from XML properties file.
         String sqlStmt1 = "DELETE FROM UM_USER_ROLE WHERE UM_ROLE_ID = ? AND UM_TENANT_ID = ?";
 
         if (sqlStmt1 == null) {
-            throw new UserStoreException("The sql statement for delete users of the role is null");
+            throw new UserStoreException("The sql statement for delete users of the group is null");
         }
 
-        //TODO - Take query from XML properties file
+        //TODO - Take query from XML properties file.
         String sqlStmt2 = "DELETE FROM UM_ROLE WHERE UM_ID = ? AND UM_TENANT_ID = ?";
         if (sqlStmt2 == null) {
-            throw new UserStoreException("The sql statement for delete role is null");
+            throw new UserStoreException("The sql statement for delete group is null");
         }
 
         Connection dbConnection = null;
@@ -4022,7 +4022,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 this.updateStringValuesToDatabase(dbConnection, sqlStmt1, groupID);
                 this.updateStringValuesToDatabase(dbConnection, sqlStmt2, groupID);
             }
-            //this.userRealm.getAuthorizationManager().clearRoleAuthorization(roleName);
             dbConnection.commit();
         } catch (SQLException e) {
             DatabaseUtil.rollBack(dbConnection);
@@ -4043,7 +4042,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
 
-        //TODO - Add the query to xml properties file
+        //TODO - Add the query to xml properties file.
         String sqlStmt = "SELECT UM_ROLE_NAME FROM UM_ROLE WHERE UM_ID = ? AND UM_TENANT_ID = ?";
         try {
             dbConnection = getDBConnection();
@@ -4113,7 +4112,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 throw new UserStoreException("The sql statement for remove user from group is null.");
             }
             String sqlStmt2;
-            sqlStmt2 = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_USER_TO_ROLE_WITH_ID + "-" + type);
+            sqlStmt2 = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_USER_TO_ROLE_WITH_ID + "-"
+                    + type);
             if (sqlStmt2 == null) {
                 sqlStmt2 = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_USER_TO_ROLE_WITH_ID);
             }
