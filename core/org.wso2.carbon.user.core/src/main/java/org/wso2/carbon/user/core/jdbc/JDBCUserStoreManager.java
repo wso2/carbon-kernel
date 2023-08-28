@@ -4894,12 +4894,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         }
 
         if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-            isExisting =
-                    isValueExisting(sqlStmt, null, groupName, tenantId);
+            isExisting = isValueExisting(sqlStmt, null, groupName, tenantId);
         } else {
             isExisting = isValueExisting(sqlStmt, null, groupName);
         }
-
         return isExisting;
     }
 
@@ -4928,7 +4926,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 this.updateStringValuesToDatabase(dbConnection, sqlStmt1, groupName);
                 this.updateStringValuesToDatabase(dbConnection, sqlStmt2, groupName);
             }
-            //this.userRealm.getAuthorizationManager().clearRoleAuthorization(roleName);
             dbConnection.commit();
         } catch (SQLException e) {
             DatabaseUtil.rollBack(dbConnection);
@@ -4951,7 +4948,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             throw new UserStoreException("Group name: " + newGroupName
                     + " in the system. Please pick another group name.");
         }
-        //TODO: Add group specific SQL statement after introducing separate tables for group
+        //TODO: Add group specific SQL statement after introducing separate tables for group.
         String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_ROLE_NAME);
         if (sqlStmt == null) {
             throw new UserStoreException("The sql statement for update group name is null");
