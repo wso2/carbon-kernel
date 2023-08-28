@@ -4848,7 +4848,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         boolean isExisting = false;
 
         if (debug) {
-            log.debug("Searching for role: " + groupName);
+            log.debug("Searching for group: " + groupName);
         }
         String searchFilter = ((LDAPRoleContext) context).getListFilter();
         String groupNameProperty = ((LDAPRoleContext) context).getRoleNameProperty();
@@ -4880,7 +4880,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         if (log.isDebugEnabled()) {
                             log.debug(e);
                         }
-                        // ignore
                     }
                     if (answer != null && answer.hasMoreElements()) {
                         return true;
@@ -4904,7 +4903,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     if (log.isDebugEnabled()) {
                         log.debug(e);
                     }
-                    // ignore
                 }
             }
         } finally {
