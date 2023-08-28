@@ -18009,7 +18009,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return ((UniqueIDUserStoreManager) userStore.getUserStoreManager())
                     .addGroupWithID(userStore.getDomainFreeGroupName(), groupID,
                             UserCoreUtil.removeDomainFromNames(userIDList), createdDate, lastModifiedDate, location);
-
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
@@ -18053,10 +18052,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             try {
                 if (isUniqueUserIdEnabledInUserStore(userStore)) {
                     // add group in to actual user store
-                    // If unique ID for groups is not enabled follow the legacy approach
                     if (isUniqueGroupIdEnabled(this)) {
                         group = doAddGroupWithID(groupID, groupName, userIDList);
                     } else {
+                        //when group ID is not enabled add to IDN_SCIM_GROUP table and userstore.
                         GroupResolver groupResolver = UserStoreMgtDataHolder.getInstance().getGroupResolver();
                         if (groupResolver != null && groupResolver.isEnable()) {
                             groupResolver.addGroup(userStore.getDomainAwareGroupName(),
@@ -18066,7 +18065,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         try {
                             doAddGroup(groupName, userIDList);
                         } catch (Exception ex) {
-                            //Rollback the saved group in IDN_SCIM_GROUP table
+                            //Rollback the saved group in IDN_SCIM_GROUP table.
                             if (groupResolver != null && groupResolver.isEnable()) {
                                 groupResolver.deleteGroup(userStore.getDomainAwareGroupName(), tenantId);
                             }
@@ -18100,13 +18099,87 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return group;
     }
 
+    private void handleAddGroupFailureWithID(String errorCode, String errorMessage, String groupName,
+                                             String[] userIDList) throws UserStoreException {
+
+        for (GroupManagementErrorEventListener errorListener : UMListenerServiceComponent
+                .getGroupManagementErrorEventListeners()) {
+            if (errorListener.isEnable() && errorListener instanceof AbstractGroupManagementErrorEventListener
+                    && !errorListener.onAddGroupWithIDFailure(errorCode,
+                    errorMessage, groupName, userIDList, this)) {
+                log.error("'onAddGroupWithIdFailure' event invocation failed for listener: " +
+                        errorListener.getClass().getName());
+                return;
+            }
+        }
+    }
+
+    private boolean handlePreAddGroupWithID(String groupName, String[] userIDList,
+                                            boolean isAuditLogOnly) throws UserStoreException {
+
+        try {
+            for (GroupOperationEventListener preListener : UMListenerServiceComponent
+                    .getGroupOperationEventListeners()) {
+                if (isAuditLogOnly && !preListener.getClass().getName()
+                        .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+                if (preListener instanceof AbstractGroupOperationEventListener) {
+                    AbstractGroupOperationEventListener newListener = (AbstractGroupOperationEventListener) preListener;
+                    if (!newListener.preAddGroupWithID(groupName, userIDList, this)) {
+                        handleAddGroupFailureWithID(ERROR_DURING_PRE_ADD_GROUP_WITH_ID.getCode(),
+                                String.format(ERROR_DURING_PRE_ADD_GROUP_WITH_ID.getMessage(),
+                                        UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), groupName,
+                                userIDList);
+                        return false;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleAddGroupFailureWithID(ERROR_DURING_PRE_ADD_GROUP_WITH_ID.getCode(),
+                    String.format(ERROR_DURING_PRE_ADD_GROUP_WITH_ID.getMessage(),
+                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), groupName, userIDList);
+            throw ex;
+        }
+        return true;
+    }
+
+    private void handlePostAddGroupWithID(String groupName, String[] userIDList, boolean isAuditLogOnly)
+            throws UserStoreException {
+
+        try {
+            for (GroupOperationEventListener postListener : UMListenerServiceComponent
+                    .getGroupOperationEventListeners()) {
+                if (isAuditLogOnly && !postListener.getClass().getName()
+                        .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    continue;
+                }
+                if (postListener instanceof AbstractGroupOperationEventListener) {
+                    AbstractGroupOperationEventListener newListener =
+                            (AbstractGroupOperationEventListener) postListener;
+                    if (!newListener.postAddGroupWithID(groupName, userIDList, this)) {
+                        handleAddGroupFailureWithID(ERROR_DURING_POST_ADD_GROUP_WITH_ID.getCode(),
+                                String.format(ERROR_DURING_POST_ADD_GROUP_WITH_ID.getMessage(),
+                                        UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), groupName,
+                                userIDList);
+                        return;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleAddGroupFailureWithID(ERROR_DURING_POST_ADD_GROUP_WITH_ID.getCode(),
+                    String.format(ERROR_DURING_POST_ADD_GROUP_WITH_ID.getMessage(),
+                            UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), groupName, userIDList);
+            throw ex;
+        }
+    }
+
     protected Group doAddGroupWithID(String groupID, String groupName, String[] userIDList) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("doAddGroupWithID operation is not implemented in: " + this.getClass());
         }
         throw new NotImplementedException("doAddGroupWithID operation is not implemented in: " + this.getClass());
-
     }
 
     protected void doAddGroup(String groupName, String[] userIDList) throws UserStoreException {
@@ -18134,7 +18207,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (StringUtils.isEmpty(groupID) && StringUtils.isEmpty(groupName)) {
             throw new UserStoreClientException("Group not found in the cache or database");
         }
-
         return new Group(groupID, groupName);
     }
 
@@ -18206,127 +18278,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         //TODO - revisit cache implementation for groups and change this accordingly
         //clearUserRolesCacheByTenant(tenantId);
 
-        // Call relevant listeners after deleting the role.
+        // Call relevant listeners after deleting the group.
         handlePostDeleteGroupWithID(groupName, false);
-    }
-
-    protected void doDeleteGroup(String groupName) throws UserStoreException {
-
-        if (log.isDebugEnabled()) {
-            log.debug("doDeleteGroup operation is not implemented in: " + this.getClass());
-        }
-        throw new NotImplementedException("doDeleteGroup operation is not implemented in: " + this.getClass());
-    }
-
-    protected void doDeleteGroupWithID(String groupID) throws UserStoreException {
-
-        if (log.isDebugEnabled()) {
-            log.debug("doDeleteGroupWithID operation is not implemented in: " + this.getClass());
-        }
-        throw new NotImplementedException("doDeleteGroupWithID operation is not implemented in: " + this.getClass());
-    }
-
-    private void handleAddGroupFailureWithID(String errorCode, String errorMessage, String groupName,
-                                             String[] userIDList) throws UserStoreException {
-
-        for (GroupManagementErrorEventListener errorListener : UMListenerServiceComponent
-                .getGroupManagementErrorEventListeners()) {
-            if (errorListener.isEnable() && errorListener instanceof AbstractGroupManagementErrorEventListener
-                    && !errorListener.onAddGroupWithIDFailure(errorCode,
-                    errorMessage, groupName, userIDList, this)) {
-                log.error("'onAddGroupWithIdFailure' event invocation failed for listener: " +
-                        errorListener.getClass().getName());
-                return;
-            }
-        }
-    }
-
-    private boolean handlePreAddGroupWithID(String groupName, String[] userIDList,
-                                            boolean isAuditLogOnly) throws UserStoreException {
-
-        try {
-            for (GroupOperationEventListener preListener : UMListenerServiceComponent
-                    .getGroupOperationEventListeners()) {
-                if (isAuditLogOnly && !preListener.getClass().getName()
-                        .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
-                    continue;
-                }
-                if (preListener instanceof AbstractGroupOperationEventListener) {
-                    AbstractGroupOperationEventListener newListener = (AbstractGroupOperationEventListener) preListener;
-                    if (!newListener.preAddGroupWithID(groupName, userIDList, this)) {
-                        handleAddGroupFailureWithID(ERROR_DURING_PRE_ADD_GROUP_WITH_ID.getCode(),
-                                String.format(ERROR_DURING_PRE_ADD_GROUP_WITH_ID.getMessage(),
-                                        UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), groupName,
-                                userIDList);
-                        return false;
-                    }
-                }
-            }
-        } catch (UserStoreException ex) {
-            handleAddGroupFailureWithID(ERROR_DURING_PRE_ADD_GROUP_WITH_ID.getCode(),
-                    String.format(ERROR_DURING_PRE_ADD_GROUP_WITH_ID.getMessage(),
-                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), groupName, userIDList);
-            throw ex;
-        }
-        return true;
-    }
-
-    protected boolean isGroupNameValid(String groupName) {
-
-        if (groupName == null) {
-            return false;
-        }
-
-        if (groupName.length() < 1) {
-            return false;
-        }
-
-        //TODO - Group name specific java regex should be used.
-        String regularExpression = realmConfig
-                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_ROLE_NAME_JAVA_REG_EX);
-        if (regularExpression != null) {
-            return isFormatCorrect(regularExpression, groupName);
-        }
-        return true;
-    }
-
-    private void handleGroupAlreadyExistExceptionWithID(String groupName, String[] userIDList)
-            throws UserStoreException {
-
-        String errorCode = ErrorMessages.ERROR_CODE_GROUP_ALREADY_EXISTS.getCode();
-        String errorMessage = String.format(ErrorMessages.ERROR_CODE_GROUP_ALREADY_EXISTS.getMessage(), groupName);
-        handleAddGroupFailureWithID(errorCode, errorMessage, groupName, userIDList);
-        throw new UserStoreException(errorCode + " - " + errorMessage);
-    }
-
-    private void handlePostAddGroupWithID(String groupName, String[] userIDList, boolean isAuditLogOnly)
-            throws UserStoreException {
-
-        try {
-            for (GroupOperationEventListener postListener : UMListenerServiceComponent
-                    .getGroupOperationEventListeners()) {
-                if (isAuditLogOnly && !postListener.getClass().getName()
-                        .endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
-                    continue;
-                }
-                if (postListener instanceof AbstractGroupOperationEventListener) {
-                    AbstractGroupOperationEventListener newListener =
-                            (AbstractGroupOperationEventListener) postListener;
-                    if (!newListener.postAddGroupWithID(groupName, userIDList, this)) {
-                        handleAddGroupFailureWithID(ERROR_DURING_POST_ADD_GROUP_WITH_ID.getCode(),
-                                String.format(ERROR_DURING_POST_ADD_GROUP_WITH_ID.getMessage(),
-                                        UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), groupName,
-                                userIDList);
-                        return;
-                    }
-                }
-            }
-        } catch (UserStoreException ex) {
-            handleAddGroupFailureWithID(ERROR_DURING_POST_ADD_GROUP_WITH_ID.getCode(),
-                    String.format(ERROR_DURING_POST_ADD_GROUP_WITH_ID.getMessage(),
-                            UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), groupName, userIDList);
-            throw ex;
-        }
     }
 
     private void handleDeleteGroupWithIDFailure(String errorCode, String errorMessage, String groupName)
@@ -18400,24 +18353,53 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return true;
     }
 
-    protected String getUniqueGroupID() {
+    protected void doDeleteGroup(String groupName) throws UserStoreException {
 
-        return UUID.randomUUID().toString();
+        if (log.isDebugEnabled()) {
+            log.debug("doDeleteGroup operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException("doDeleteGroup operation is not implemented in: " + this.getClass());
+    }
+
+    protected void doDeleteGroupWithID(String groupID) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doDeleteGroupWithID operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException("doDeleteGroupWithID operation is not implemented in: " + this.getClass());
+    }
+
+    protected boolean isGroupNameValid(String groupName) {
+
+        if (groupName == null) {
+            return false;
+        }
+
+        if (groupName.length() < 1) {
+            return false;
+        }
+
+        //TODO - Group name specific java regex should be used.
+        String regularExpression = realmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_ROLE_NAME_JAVA_REG_EX);
+        if (regularExpression != null) {
+            return isFormatCorrect(regularExpression, groupName);
+        }
+        return true;
+    }
+
+    private void handleGroupAlreadyExistExceptionWithID(String groupName, String[] userIDList)
+            throws UserStoreException {
+
+        String errorCode = ErrorMessages.ERROR_CODE_GROUP_ALREADY_EXISTS.getCode();
+        String errorMessage = String.format(ErrorMessages.ERROR_CODE_GROUP_ALREADY_EXISTS.getMessage(), groupName);
+        handleAddGroupFailureWithID(errorCode, errorMessage, groupName, userIDList);
+        throw new UserStoreException(errorCode + " - " + errorMessage);
     }
 
     protected boolean isGroupIdGeneratedByUserStore() {
 
         return false;
-    }
-
-    protected boolean doCheckExistingGroup(String groupName) throws UserStoreException {
-
-        if (log.isDebugEnabled()) {
-            log.debug("doCheckExistingGroup operation is not implemented in: " + this.getClass());
-        }
-        throw new NotImplementedException(
-                "doCheckExistingGroup operation is not implemented in: " + this.getClass());
-
     }
 
     @Override
@@ -18441,6 +18423,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         groupName = userStore.getDomainFreeGroupName();
 
         return doCheckExistingGroup(groupName);
+    }
+
+    protected boolean doCheckExistingGroup(String groupName) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doCheckExistingGroup operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "doCheckExistingGroup operation is not implemented in: " + this.getClass());
     }
 
     @Override
@@ -18609,7 +18600,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
         throw new NotImplementedException(
                 "doUpdateGroupName operation is not implemented in: " + this.getClass());
-
     }
 
     @Override
@@ -18640,7 +18630,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     private void updateUserIDListOfGroupInternal(String groupName, String[] deletedUserIDs, String[] newUserIDs)
             throws UserStoreException {
-
 
         UserStore userStore = getUserStoreWithGroupName(groupName);
 
