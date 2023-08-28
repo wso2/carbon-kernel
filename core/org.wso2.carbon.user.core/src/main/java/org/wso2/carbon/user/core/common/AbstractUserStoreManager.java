@@ -18622,12 +18622,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 UserStore userStore = getUserStoreWithGroupName(groupName);
                 if (isUniqueUserIdEnabledInUserStore(userStore)) {
                     updateUserIDListOfGroupInternal(groupName, deletedUserIDs, newUserIDs);
-                    if (!isUniqueGroupIdEnabled()) {
-                        //TODO: SCIM handler implementation for user list update in SCIM_GROUP table
-                    }
-
                 } else {
-                    //TODO:
+                    //TODO: When user ID is not enabled
                 }
                 return null;
             });
@@ -18771,7 +18767,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     if (!newListener.postUpdateUserIDListOfGroup(groupName, deletedUserIDs, newUserIDs, this)) {
                         handleUpdateUserIDListOfGroupFailure(ERROR_DURING_POST_UPDATE_USER_LIST_OF_GROUP.getCode(),
                                 String.format(ERROR_DURING_POST_UPDATE_USER_LIST_OF_GROUP.getMessage(),
-                                        UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE),
+                                        UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE),
                                 groupName, deletedUserIDs, newUserIDs);
                         return false;
                     }
@@ -18780,7 +18776,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         } catch (UserStoreException ex) {
             handleUpdateUserIDListOfGroupFailure(ERROR_DURING_POST_UPDATE_USER_LIST_OF_GROUP.getCode(),
                     String.format(ERROR_DURING_POST_UPDATE_USER_LIST_OF_GROUP.getMessage(),
-                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), groupName, deletedUserIDs,
+                            UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), groupName, deletedUserIDs,
                     newUserIDs);
             throw ex;
         }
