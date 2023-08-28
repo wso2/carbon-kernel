@@ -2640,7 +2640,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
         if (isGroupIdGeneratedByUserStore()) {
             //If the group ID attribute is immutable then we need to retrieve the group ID from the user store.
-            return generateGroup(null,groupName);
+            return generateGroup(null, groupName);
         }
         return generateGroup(groupID, groupName);
     }
@@ -2663,6 +2663,14 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         persistGroup(groupName, null, userList.toArray(new String[0]));
     }
 
+    /**
+     * Persisting Group into the userstore.
+     *
+     * @param groupName Group Name.
+     * @param groupID   Group ID.
+     * @param userList  List of users to be added to the group.
+     * @throws UserStoreException If an error occurs while persisting the group.
+     */
     protected void persistGroup(String groupName, String groupID, String[] userList) throws UserStoreException {
 
         RoleContext roleContext = createRoleContext(groupName);
@@ -2710,9 +2718,8 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                         searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
                         results = searchInUserBase(searchFilter, new String[]{}, SearchControls.SUBTREE_SCOPE,
                                 mainDirContext);
-                        // we assume only one user with the given user
-                        // name under user search base.
-                        SearchResult userResult = null;
+                        // we assume only one user with the given username under user search base.
+                        SearchResult userResult;
                         if (results.hasMore()) {
                             userResult = results.next();
                         } else {
@@ -2721,7 +2728,6 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                             logger.error(errorMsg);
                             throw new UserStoreException(errorMsg);
                         }
-                        // get his DN
                         String userEntryDN = userResult.getNameInNamespace();
                         // put it as member-attribute value
                         memberAttribute.add(userEntryDN);
@@ -2729,11 +2735,12 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                     groupAttributes.put(memberAttribute);
                 }
 
-                //Add group ID attribute if it is not null.
+                //Add group ID attribute if group ID is not null.
                 if (groupID != null) {
 
                     String immutableAttributesProperty = Optional.ofNullable(realmConfig
-                            .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse(StringUtils.EMPTY);
+                                    .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes))
+                            .orElse(StringUtils.EMPTY);
                     String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
                     String groupIdAttributeName = realmConfig.getUserStoreProperty(GROUP_ID_ATTRIBUTE);
 
@@ -2752,20 +2759,10 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
                 groupContext = (DirContext) mainDirContext.lookup(escapeDNForSearch(searchBase));
                 NameParser ldapParser = groupContext.getNameParser("");
-                /*
-                 * Name compoundGroupName = ldapParser.parse(groupNameAttributeName + "=" +
-                 * roleName);
-                 */
                 Name compoundGroupName = ldapParser.parse("cn=" + groupName);
                 groupContext.bind(compoundGroupName, null, groupAttributes);
 
             } catch (NamingException e) {
-                String errorMsg = "Group: " + groupName + " could not be added.";
-                if (log.isDebugEnabled()) {
-                    log.debug(errorMsg, e);
-                }
-                throw new UserStoreException(errorMsg, e);
-            } catch (Exception e) {
                 String errorMsg = "Group: " + groupName + " could not be added.";
                 if (log.isDebugEnabled()) {
                     log.debug(errorMsg, e);
@@ -2785,20 +2782,27 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         removeGroup(groupName);
     }
 
-   @Override
+    @Override
     public void doDeleteGroupWithID(String groupID) throws UserStoreException {
 
-       String groupName = UserCoreUtil.removeDomainFromName(doGetGroupNameFromGroupId(groupID));
-       removeGroup(groupName);
+        String groupName = UserCoreUtil.removeDomainFromName(doGetGroupNameFromGroupId(groupID));
+        removeGroup(groupName);
     }
 
-    protected void removeGroup (String groupName) throws UserStoreException {
+    /**
+     * Removing the group from actual userstore.
+     *
+     * @param groupName Group Name.
+     * @throws UserStoreException If an error occurs while deleting the group.
+     */
+    protected void removeGroup(String groupName) throws UserStoreException {
 
         RoleContext roleContext = createRoleContext(groupName);
 
         String groupSearchFilter = ((LDAPRoleContext) roleContext).getSearchFilter();
-        groupSearchFilter = groupSearchFilter.replace("?", escapeSpecialCharactersForFilter(roleContext.getRoleName()));
-        String[] returningAttributes = { ((LDAPRoleContext) roleContext).getRoleNameProperty() };
+        groupSearchFilter = groupSearchFilter.replace("?", escapeSpecialCharactersForFilter(roleContext
+                .getRoleName()));
+        String[] returningAttributes = {((LDAPRoleContext) roleContext).getRoleNameProperty()};
         String searchBase = ((LDAPRoleContext) roleContext).getSearchBase();
 
         DirContext mainDirContext = null;
@@ -2822,8 +2826,8 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             groupContext = (DirContext) mainDirContext.lookup(escapeDNForSearch(groupSearchBase));
             String groupNameAttributeValue = (String) resultedGroup.getAttributes()
                     .get(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE)).get();
-            String attributeNameAppendedGroupName = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE) + "="
-                    + groupNameAttributeValue;
+            String attributeNameAppendedGroupName = realmConfig
+                    .getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE) + "=" + groupNameAttributeValue;
             if (groupNameAttributeValue.equals(groupName)) {
                 groupContext.destroySubcontext(attributeNameAppendedGroupName);
             }
@@ -2904,7 +2908,8 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
         List<String> deletedUsers = getUserNamesFromUserIDs(Arrays.asList(deletedUserIDs)).stream()
                 .map(UserCoreUtil::removeDomainFromName)
-                .collect(Collectors.toList());;
+                .collect(Collectors.toList());
+        ;
         List<String> newUsers = getUserNamesFromUserIDs(Arrays.asList(newUserIDs)).stream()
                 .map(UserCoreUtil::removeDomainFromName)
                 .collect(Collectors.toList());
@@ -2932,8 +2937,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                     resultedGroup = groupSearchResults.next();
                     groupNameRetrieved = getGroupName(resultedGroup, searchBase);
                 }
-                // check whether update operations are going to violate non
-                // empty group
+                // check whether update operations are going to violate non-empty group
                 // restriction specified in user-mgt.xml by
                 // checking whether all users are trying to be deleted
                 // before updating LDAP.
@@ -3002,7 +3006,6 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
                     for (String userNameDN : deleteUserList) {
                         modifyUserInRole(userNameDN, groupNameRetrieved, DirContext.REMOVE_ATTRIBUTE, searchBase);
-                        // needs to clear authz cache for deleted users
                         String deletedUserName = userDnToUserNameMapping.get(userNameDN);
                         String deletedUserNameWithDomain = UserCoreUtil
                                 .addDomainToName(deletedUserName, getMyDomainName());
