@@ -478,6 +478,9 @@
     {% if tenant_mgt.disable_email_domain_validation is defined %}
       <DisableEmailUserNameValidation>{{tenant_mgt.disable_email_domain_validation}}</DisableEmailUserNameValidation>
     {% endif %}
+    {% if tenant_mgt.enable_tenant_validation_for_nonsaas_username is defined %}
+      <EnableTenantValidationForNonSaaSUsername>{{tenant_mgt.enable_tenant_validation_for_nonsaas_username}}</EnableTenantValidationForNonSaaSUsername>
+    {% endif %}
 
     <!--
       Security configurations
