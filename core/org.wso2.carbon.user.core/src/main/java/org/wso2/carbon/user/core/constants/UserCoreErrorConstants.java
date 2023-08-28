@@ -234,11 +234,11 @@ public class UserCoreErrorConstants {
         ERROR_EMPTY_USER_ID("60006", "User id cannot be empty"),
         ERROR_NO_USER_WITH_USERNAME("60007", "No user found with username: %s in " +
                 "userstore domain: %s"),
-        ERROR_CODE_INVALID_GROUP_NAME("60008",  INVALID_GROUP + " Group name %s is not valid. Group name must be a "
-                + "non null string with following format, %s"),
-        ERROR_CODE_GROUP_ALREADY_EXISTS("60009", EXISTING_GROUP + "Group name: %s exists in the system. Please pick "
-                + "another group name."),
-        ERROR_CODE_CANNOT_DELETE_NON_EXISTING_GROUP("60009", "Cannot delete non-existing group"),
+        ERROR_CODE_INVALID_GROUP_NAME("60008", INVALID_GROUP + " Group name %s is not valid. Group " +
+                "name must be a non null string with following format, %s"),
+        ERROR_CODE_GROUP_ALREADY_EXISTS("60009", EXISTING_GROUP + "Group name: %s exists in the system. "
+                + "Please pick another group name."),
+        ERROR_CODE_CANNOT_DELETE_NON_EXISTING_GROUP("60010", "Cannot delete non-existing group"),
 
         // Server error codes related to group operations.
         ERROR_DURING_PRE_GET_GROUP_BY_ID("65001",
@@ -283,19 +283,20 @@ public class UserCoreErrorConstants {
                 "Un-expected error during pre delete groups with ID with condition, %s"),
         ERROR_DURING_POST_DELETE_GROUP_WITH_ID("65022",
                 "Un-expected error during post delete groups with ID with condition, %s"),
-        ERROR_CODE_CANNOT_RENAME_GROUP("65023", "The group cannot renamed"),
+        ERROR_CODE_CANNOT_RENAME_GROUP("65023", "The group cannot be renamed"),
         ERROR_DURING_PRE_UPDATE_GROUP_NAME("65024",
                 "Un-expected error during pre update group name, %s"),
         ERROR_DURING_POST_UPDATE_GROUP_NAME("65025",
-                "Un-expected error during pre delete group name, %s"),
-        ERROR_CODE_ERROR_WHILE_UPDATING_GROUP_NAME("65026", "Un-expected error while updating group name, %s"),
+                "Un-expected error during pre update group name, %s"),
+        ERROR_CODE_ERROR_WHILE_UPDATING_GROUP_NAME("65026", "Un-expected error while updating group " +
+                "name, %s"),
         ERROR_CODE_ERROR_WHILE_UPDATING_USER_LIST_OF_GROUP("65027", "Un-expected error while updating " +
                 "user list of group, %s"),
         ERROR_DURING_PRE_UPDATE_USER_LIST_OF_GROUP("65028",
-                                                   "Un-expected error during pre updating user list of group, %s"),
+                "Un-expected error during pre updating user list of group," +
+                        " %s"),
         ERROR_DURING_POST_UPDATE_USER_LIST_OF_GROUP("65029",
                 "Un-expected error during post updating user list of group, %s");
-
 
         private final String code;
         private final String message;
