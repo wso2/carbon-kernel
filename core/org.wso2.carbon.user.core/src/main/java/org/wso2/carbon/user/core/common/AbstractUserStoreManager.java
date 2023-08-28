@@ -18492,7 +18492,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (!isUniqueGroupIdEnabled()) {
                     GroupResolver groupResolver = UserStoreMgtDataHolder.getInstance().getGroupResolver();
                     if (groupResolver != null && groupResolver.isEnable()) {
-                        groupResolver.updateGroupName(groupName, newGroupName, tenantId);
+                        groupResolver.updateGroupName(userStore.getDomainAwareGroupName(),
+                                userStoreNew.getDomainAwareGroupName(), tenantId);
                     }
                 }
             } catch (UserStoreException ex) {
