@@ -4108,7 +4108,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         try {
             dbConnection = getDBConnection();
             String type = DatabaseCreator.getDatabaseType(dbConnection);
-            String sqlStmt1 = JDBCRealmConstants.REMOVE_USER_FROM_ROLE_WITH_ID;
+            String sqlStmt1 = realmConfig.getUserStoreProperty(JDBCRealmConstants.REMOVE_USER_FROM_ROLE_WITH_ID);
             if (sqlStmt1 == null) {
                 throw new UserStoreException("The sql statement for remove user from group is null.");
             }
