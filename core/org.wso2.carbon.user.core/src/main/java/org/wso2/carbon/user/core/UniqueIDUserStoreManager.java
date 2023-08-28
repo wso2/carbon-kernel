@@ -687,11 +687,35 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      */
     Map<String, List<Group>> getGroupListOfUsers(List<String> userIDs) throws UserStoreException;
 
+    /**
+     * Create a new group with the group ID.
+     *
+     * @param groupName        Group Name.
+     * @param groupID          Group ID.
+     * @param createdDate      Group created date.
+     * @param lastModifiedDate Group's last modified date.
+     * @param location         Group's location.
+     * @throws UserStoreException If an error occurs while creating the group.
+     */
     Group addGroupWithID(String groupName, String groupID, String[] userIDList, LocalDateTime createdDate,
                          LocalDateTime lastModifiedDate, String location) throws UserStoreException;
 
+    /**
+     * Deleting an existing group with given group ID.
+     *
+     * @param groupID Group ID.
+     * @throws UserStoreException If an error occurs while deleting the group.
+     */
     void deleteGroupWithID(String groupID) throws UserStoreException;
 
+    /**
+     * Updating the user list given by user IDs of an existing group.
+     *
+     * @param groupName      Group name.
+     * @param deletedUserIDs List of user IDs that need to be deleted.
+     * @param newUserIDs     List of user IDs that need to be added.
+     * @throws UserStoreException If an error occurs while updating the group.
+     */
     void updateUserIDListOfGroup(String groupName, String[] deletedUserIDs, String[] newUserIDs)
             throws UserStoreException;
 }
