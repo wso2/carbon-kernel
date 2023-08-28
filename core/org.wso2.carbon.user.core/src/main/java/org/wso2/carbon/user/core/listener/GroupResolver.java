@@ -135,10 +135,39 @@ public interface GroupResolver {
     boolean listGroups(Condition condition, int limit, int offset, String sortBy, String domain, String sortOrder,
                        List<Group> groupsList, UserStoreManager userStoreManager) throws UserStoreException;
 
+    /**
+     * Create a group.
+     *
+     * @param displayName      Group name.
+     * @param groupID          Group ID.
+     * @param createdDate      Created date of the group.
+     * @param lastModifiedDate Last modified date of the group.
+     * @param location         Location of the group.
+     * @param tenantID         Tenant ID.
+     * @return Whether execution of this method happened successfully.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
     boolean addGroup(String displayName, String groupID, LocalDateTime createdDate,
-                     LocalDateTime lastModifiedDate, String location, int tenantId) throws UserStoreException;
+                     LocalDateTime lastModifiedDate, String location, int tenantID) throws UserStoreException;
 
+    /**
+     * Delete a group.
+     *
+     * @param groupName Group name.
+     * @param tenantID  Tenant ID.
+     * @return Whether execution of this method happened successfully.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
     boolean deleteGroup(String groupName, int tenantID) throws UserStoreException;
 
+    /**
+     * Update name of a group.
+     *
+     * @param oldGroupName Existing group name.
+     * @param newGroupName New group name.
+     * @param tenantID     Tenant ID.
+     * @return Whether execution of this method happened successfully.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
     boolean updateGroupName(String oldGroupName, String newGroupName, int tenantID) throws UserStoreException;
 }

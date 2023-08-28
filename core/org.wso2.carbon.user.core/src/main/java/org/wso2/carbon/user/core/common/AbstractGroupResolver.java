@@ -94,7 +94,7 @@ public class AbstractGroupResolver implements GroupResolver {
 
     @Override
     public boolean addGroup(String displayName, String groupID, LocalDateTime createdDate,
-                            LocalDateTime lastModifiedDate, String location, int tenantId) throws UserStoreException {
+                            LocalDateTime lastModifiedDate, String location, int tenantID) throws UserStoreException {
 
         return true;
     }
