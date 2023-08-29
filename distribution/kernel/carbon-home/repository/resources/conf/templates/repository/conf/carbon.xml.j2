@@ -805,4 +805,13 @@
     <SignatureUtil>
         <EnableSHA256Algo>{{signature_util.enable_sha256_algo}}</EnableSHA256Algo>
     </SignatureUtil>
+
+    <!-- KeyStore data persistence manager -->
+    <KeyStoreDataPersistenceManager>
+        <DataSource>
+            <!-- Include a data source name (jndiConfigName) from the set of data
+                sources defined in master-datasources.xml -->
+            <Name>{{keystore_data_persistence_manager.datasource.name}}</Name>
+        </DataSource>
+    </KeyStoreDataPersistenceManager>
 </Server>

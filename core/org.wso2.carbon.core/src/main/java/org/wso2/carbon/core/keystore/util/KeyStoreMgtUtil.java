@@ -16,15 +16,16 @@
  * under the License.
  */
 
-package org.wso2.carbon.security.util;
+package org.wso2.carbon.core.keystore.util;
 
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.core.util.IdentityIOStreamUtils;
-import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
-import org.wso2.carbon.security.SecurityConfigRuntimeException;
+import org.wso2.carbon.core.internal.KeyStoreManagerDataHolder;
+import org.wso2.carbon.core.keystore.KeyStoreManagementException;
 import org.wso2.carbon.user.api.Tenant;
+import org.wso2.carbon.user.api.TenantManager;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.WSO2Constants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -76,8 +77,8 @@ public class KeyStoreMgtUtil {
                 log.error(msg);
                 throw new SecurityException("msg", e);
             } finally {
-                IdentityIOStreamUtils.flushOutputStream(outStream);
-                IdentityIOStreamUtils.closeOutputStream(outStream);
+                KeyStoreIOStreamUtils.flushOutputStream(outStream);
+                KeyStoreIOStreamUtils.closeOutputStream(outStream);
             }
 
             Map fileResourcesMap = (Map) configurationContext.getProperty(WSO2Constants.FILE_RESOURCE_MAP);
@@ -121,9 +122,10 @@ public class KeyStoreMgtUtil {
      * Get the tenant UUID for the given tenant ID.
      * @param tenantId Tenant ID
      * @return Tenant UUID
-     * @throws SecurityConfigRuntimeException If an error occurs while getting the tenant UUID.
+     * @throws KeyStoreManagementException If an error occurs while getting the tenant UUID.
+     * @throws UserStoreException If an error occurs while getting the tenant UUID.
      */
-    public static String getTenantUUID(int tenantId) throws SecurityConfigRuntimeException {
+    public static String getTenantUUID(int tenantId) throws KeyStoreManagementException, UserStoreException {
 
         // Super tenant does not have a tenant UUID. Therefore, set a hard coded value.
         if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
@@ -133,10 +135,11 @@ public class KeyStoreMgtUtil {
         }
 
         if (tenantId != MultitenantConstants.INVALID_TENANT_ID) {
-            Tenant tenant = IdentityTenantUtil.getTenant(tenantId);
+            TenantManager tenantManager = KeyStoreManagerDataHolder.getRealmService().getTenantManager();
+            Tenant tenant = tenantManager.getTenant(tenantId);
             return tenant.getTenantUniqueID();
         }
 
-        throw new SecurityConfigRuntimeException("Invalid tenant id: " + tenantId);
+        throw new KeyStoreManagementException("Invalid tenant id: " + tenantId);
     }
 }
