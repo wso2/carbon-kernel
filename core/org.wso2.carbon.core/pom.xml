@@ -95,6 +95,10 @@
             <artifactId>org.wso2.carbon.utils</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.wso2.carbon.utils</groupId>
+            <artifactId>org.wso2.carbon.database.utils</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.carbon.crypto</groupId>
             <artifactId>org.wso2.carbon.crypto.api</artifactId>
         </dependency>
@@ -248,6 +252,7 @@
                             org.wso2.carbon.registry.core.service,
                             org.wso2.carbon.user.core.*; version=0.0.0,
                             org.bouncycastle.*; version="${imp.pkg.version.bcp}",
+                            org.wso2.carbon.database.utils.*;version="${org.wso2.carbon.database.utils.version.range}",
                             *;resolution:=optional
                         </Import-Package>
                         <Embed-Dependency>

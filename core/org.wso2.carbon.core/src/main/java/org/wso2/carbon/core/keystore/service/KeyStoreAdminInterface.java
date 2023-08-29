@@ -18,27 +18,26 @@
 
 package org.wso2.carbon.core.keystore.service;
 
-
-import org.wso2.carbon.core.SecurityConfigException;
+import org.wso2.carbon.core.keystore.KeyStoreManagementException;
 
 public interface KeyStoreAdminInterface {
 
-    KeyStoreData[] getKeyStores() throws SecurityConfigException;
+    KeyStoreData[] getKeyStores() throws KeyStoreManagementException;
 
     void addKeyStore(String file, String filename,
-                     String password, String provider, String type, String pvtkeyPass) throws SecurityConfigException;
+                     String password, String provider, String type, String pvtkeyPass) throws KeyStoreManagementException;
 
     void addTrustStore(String file, String filename,
-                       String password, String provider, String type) throws SecurityConfigException;
+                       String password, String provider, String type) throws KeyStoreManagementException;
 
-    void deleteStore(String keyStoreName) throws SecurityConfigException;
+    void deleteStore(String keyStoreName) throws KeyStoreManagementException;
 
-    void importCertToStore(String fileName, String fileData, String keyStoreName) throws SecurityConfigException;
+    void importCertToStore(String fileName, String fileData, String keyStoreName) throws KeyStoreManagementException;
 
-    String[] getStoreEntries(String keyStoreName) throws SecurityConfigException;
+    String[] getStoreEntries(String keyStoreName) throws KeyStoreManagementException;
 
-    KeyStoreData getKeystoreInfo(String keyStoreName) throws SecurityConfigException;
+    KeyStoreData getKeystoreInfo(String keyStoreName) throws KeyStoreManagementException;
 
-    void removeCertFromStore(String alias, String keyStoreName) throws SecurityConfigException;
+    void removeCertFromStore(String alias, String keyStoreName) throws KeyStoreManagementException;
 
 }

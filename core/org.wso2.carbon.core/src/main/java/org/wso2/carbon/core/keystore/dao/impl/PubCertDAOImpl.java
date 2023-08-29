@@ -18,13 +18,14 @@
 
 package org.wso2.carbon.core.keystore.dao.impl;
 
+import org.wso2.carbon.core.internal.KeyStoreManagerDataHolder;
 import org.wso2.carbon.database.utils.jdbc.NamedPreparedStatement;
-import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.core.keystore.KeyStoreManagementException;
 import org.wso2.carbon.core.keystore.dao.PubCertDAO;
 import org.wso2.carbon.core.keystore.dao.constants.PubCertDAOConstants;
 import org.wso2.carbon.core.keystore.dao.constants.PubCertDAOConstants.PubCertTableColumns;
 import org.wso2.carbon.core.keystore.model.PubCertModel;
+import org.wso2.carbon.user.core.util.DatabaseUtil;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -32,12 +33,20 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 
+import javax.sql.DataSource;
+import javax.xml.crypto.Data;
+
 /**
  * This class provides the implementation of the PubCertDAO interface.
  */
 public class PubCertDAOImpl implements PubCertDAO {
 
-    private static final String DB_CONN_RETRIEVAL_ERROR_MSG = "Error while getting the DB connection.";
+    private final DataSource dataSource;
+
+    public PubCertDAOImpl() {
+
+        this.dataSource = KeyStoreManagerDataHolder.getDataSource();
+    }
 
     /**
      * {@inheritDoc}
@@ -45,13 +54,13 @@ public class PubCertDAOImpl implements PubCertDAO {
     @Override
     public String addPubCert(PubCertModel pubCertModel) throws KeyStoreManagementException {
 
-        try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
+        try (Connection connection = DatabaseUtil.getDBConnection(this.dataSource)) {
             try {
                 String uuid = processAddPubCert(connection, pubCertModel);
-                IdentityDatabaseUtil.commitTransaction(connection);
+                connection.commit();
                 return uuid;
             } catch (SQLException e) {
-                IdentityDatabaseUtil.rollbackTransaction(connection);
+                connection.rollback();
                 throw new KeyStoreManagementException(PubCertDAOConstants.ErrorMessages.ERROR_MESSAGE_ADDING_PUB_CERT,
                         e);
             }
@@ -68,7 +77,7 @@ public class PubCertDAOImpl implements PubCertDAO {
 
         PubCertModel pubCertModel = null;
 
-        try (Connection connection = IdentityDatabaseUtil.getDBConnection(false)) {
+        try (Connection connection = DatabaseUtil.getDBConnection(this.dataSource)) {
             try (NamedPreparedStatement statement = new NamedPreparedStatement(connection,
                     PubCertDAOConstants.SQLQueries.GET_PUB_CERT)) {
                 statement.setString(PubCertTableColumns.ID, uuid);

@@ -26,14 +26,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.core.RegistryResources;
+import org.wso2.carbon.core.keystore.util.KeyStoreMgtUtil;
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.core.util.KeyStoreUtil;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.core.SecurityConfigException;
-import org.wso2.carbon.core.SecurityConfigRuntimeException;
-import org.wso2.carbon.core.SecurityConstants;
 import org.wso2.carbon.core.keystore.dao.KeyStoreDAO;
 import org.wso2.carbon.core.keystore.dao.PubCertDAO;
 import org.wso2.carbon.core.keystore.dao.impl.KeyStoreDAOImpl;
@@ -44,7 +41,7 @@ import org.wso2.carbon.core.keystore.service.CertDataDetail;
 import org.wso2.carbon.core.keystore.service.KeyStoreData;
 import org.wso2.carbon.core.keystore.service.PaginatedCertData;
 import org.wso2.carbon.core.keystore.service.PaginatedKeyStoreData;
-import org.wso2.carbon.core.util.KeyStoreMgtUtil;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -72,8 +69,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-import static org.wso2.carbon.core.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_MESSAGE_RETRIEVE_KEYSTORE;
-import static org.wso2.carbon.core.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_MESSAGE_RETRIEVE_PUBLIC_CERT;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.CACHING_PAGE_SIZE;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_MESSAGE_RETRIEVE_KEYSTORE;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_MESSAGE_RETRIEVE_PUBLIC_CERT;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ITEMS_PER_PAGE;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.KEY_STORES;
 
 /**
  * Key Store Admin class.
@@ -93,6 +93,8 @@ public class KeyStoreAdmin {
     private static final String ALTERNATE_PRIMARY_KEYSTORE_PHANTOM_RESOURCE = "carbon-primary-ks";
 
     private static final Log log = LogFactory.getLog(KeyStoreAdmin.class);
+    private static final String PROP_TRUST_STORE_UPDATE_REQUIRED =
+            "org.wso2.carbon.identity.core.util.TRUST_STORE_UPDATE_REQUIRED";
     private int tenantId;
     private String tenantUUID;
     private boolean includeCert = false;
@@ -111,8 +113,10 @@ public class KeyStoreAdmin {
             tenantUUID = KeyStoreMgtUtil.getTenantUUID(tenantId);
             keyStoreDAO = new KeyStoreDAOImpl();
             pubCertDAO = new PubCertDAOImpl();
-        } catch (SecurityConfigRuntimeException e) {
+        } catch (KeyStoreManagementException e) {
             log.error("Error while retrieving the tenant ID.", e);
+        } catch (UserStoreException e) {
+            log.error("Error while retrieving the tenant UUID.", e);
         }
     }
 
@@ -131,9 +135,9 @@ public class KeyStoreAdmin {
      *
      * @param isSuperTenant Indication whether the querying super tenant data.
      * @return A key store data array.
-     * @throws SecurityConfigException Throws if an error occurred while getting the key stores.
+     * @throws KeyStoreManagementException Throws if an error occurred while getting the key stores.
      */
-    public KeyStoreData[] getKeyStores(boolean isSuperTenant) throws SecurityConfigException {
+    public KeyStoreData[] getKeyStores(boolean isSuperTenant) throws KeyStoreManagementException {
 
         CarbonUtils.checkSecurity();
         KeyStoreData[] names = new KeyStoreData[0];
@@ -167,12 +171,12 @@ public class KeyStoreAdmin {
                             try {
                                 return pubCertDAO.getPubCert(id);
                             } catch (KeyStoreManagementException e) {
-                                throw new SecurityConfigRuntimeException(
-                                        ERROR_MESSAGE_RETRIEVE_PUBLIC_CERT.getMessage(), e);
+                                log.error(ERROR_MESSAGE_RETRIEVE_PUBLIC_CERT.getMessage(), e);
+                                return Optional.empty();
                             }
                         })
                         .ifPresent(pubCert -> {
-                            String fileName = generatePubCertFileName(SecurityConstants.KEY_STORES + PATH_SEPARATOR +
+                            String fileName = generatePubCertFileName(KEY_STORES + PATH_SEPARATOR +
                                     keyStoreModel.getFileName(), pubCert.getFileNameAppender());
                             if (MessageContext.getCurrentMessageContext() != null) {
                                 String pubKeyFilePath = KeyStoreMgtUtil.dumpCert(
@@ -213,7 +217,7 @@ public class KeyStoreAdmin {
             return names;
         } catch (KeyStoreManagementException e) {
             log.error(ERROR_MESSAGE_RETRIEVE_KEYSTORE.getMessage(), e);
-            throw new SecurityConfigException(ERROR_MESSAGE_RETRIEVE_KEYSTORE.getMessage(), e);
+            throw new KeyStoreManagementException(ERROR_MESSAGE_RETRIEVE_KEYSTORE.getMessage(), e);
         }
     }
 
@@ -226,16 +230,16 @@ public class KeyStoreAdmin {
      * @param provider   Provider of the keystore.
      * @param type       Type of the keystore.
      * @param pvtKeyPass Password of the private key.
-     * @throws SecurityConfigException Throws if an error occurred while adding the keystore.
+     * @throws KeyStoreManagementException Throws if an error occurred while adding the keystore.
      */
     public void addKeyStoreWithFilePath(String filePath, String filename, String password,
                                         String provider, String type, String pvtKeyPass)
-            throws SecurityConfigException {
+            throws KeyStoreManagementException {
 
         try {
             addKeyStore(readBytesFromFile(filePath), filename, password, provider, type, pvtKeyPass);
         } catch (IOException e) {
-            throw new SecurityConfigException("Error while loading keystore from file " + filePath, e);
+            throw new KeyStoreManagementException("Error while loading keystore from file " + filePath, e);
         }
 
     }
@@ -249,10 +253,10 @@ public class KeyStoreAdmin {
      * @param provider   Provider of the keystore.
      * @param type       Type of the keystore.
      * @param pvtKeyPass Password of the private key.
-     * @throws SecurityConfigException Throws if an error occurred while adding the keystore.
+     * @throws KeyStoreManagementException Throws if an error occurred while adding the keystore.
      */
     public void addKeyStore(String fileData, String filename, String password, String provider,
-                            String type, String pvtKeyPass) throws SecurityConfigException {
+                            String type, String pvtKeyPass) throws KeyStoreManagementException {
 
         byte[] content = Base64.decode(fileData);
         addKeyStore(content, filename, password, provider, type, pvtKeyPass);
@@ -267,23 +271,23 @@ public class KeyStoreAdmin {
      * @param provider   Provider of the keystore.
      * @param type       Type of the keystore.
      * @param pvtKeyPass Password of the private key.
-     * @throws SecurityConfigException Throws if an error occurred while adding the keystore.
+     * @throws KeyStoreManagementException Throws if an error occurred while adding the keystore.
      */
     public void addKeyStore(byte[] content, String filename, String password, String provider,
-                            String type, String pvtKeyPass) throws SecurityConfigException {
+                            String type, String pvtKeyPass) throws KeyStoreManagementException {
 
         if (filename == null) {
-            throw new SecurityConfigException("Key Store name can't be null");
+            throw new KeyStoreManagementException("Key Store name can't be null");
         }
         try {
             if (KeyStoreUtil.isPrimaryStore(filename)) {
-                throw new SecurityConfigException("Key store " + filename + " already available");
+                throw new KeyStoreManagementException("Key store " + filename + " already available");
             }
             if (isTrustStore(filename)) {
-                throw new SecurityConfigException("Key store " + filename + " already available");
+                throw new KeyStoreManagementException("Key store " + filename + " already available");
             }
             if (isExistKeyStore(filename)) {
-                throw new SecurityConfigException("Key store " + filename + " already available");
+                throw new KeyStoreManagementException("Key store " + filename + " already available");
             }
 
             KeyStore keyStore = KeyStore.getInstance(type);
@@ -331,7 +335,7 @@ public class KeyStoreAdmin {
                  CertificateException | UnrecoverableKeyException | KeyStoreException e) {
             String msg = "Error when adding a keyStore";
             log.error(msg, e);
-            throw new SecurityConfigException(msg, e);
+            throw new KeyStoreManagementException(msg, e);
         }
     }
 
@@ -343,10 +347,10 @@ public class KeyStoreAdmin {
      * @param password Password of the trust store.
      * @param provider Provider of the trust store.
      * @param type     Type of the trust store.
-     * @throws SecurityConfigException Throws if an error occurred while adding the trust store.
+     * @throws KeyStoreManagementException Throws if an error occurred while adding the trust store.
      */
     public void addTrustStore(String fileData, String filename, String password, String provider,
-                              String type) throws SecurityConfigException {
+                              String type) throws KeyStoreManagementException {
 
         byte[] content = Base64.decode(fileData);
         addTrustStore(content, filename, password, provider, type);
@@ -360,21 +364,21 @@ public class KeyStoreAdmin {
      * @param password Password of the trust store.
      * @param provider Provider of the trust store.
      * @param type     Type of the trust store.
-     * @throws SecurityConfigException Throws if an error occurred while adding the trust store.
+     * @throws KeyStoreManagementException Throws if an error occurred while adding the trust store.
      */
     public void addTrustStore(byte[] content, String filename, String password, String provider, String type)
-            throws SecurityConfigException {
+            throws KeyStoreManagementException {
 
         if (filename == null) {
-            throw new SecurityConfigException("Key Store name can't be null");
+            throw new KeyStoreManagementException("Key Store name can't be null");
         }
         try {
             if (KeyStoreUtil.isPrimaryStore(filename)) {
-                throw new SecurityConfigException("Key store " + filename + " already available");
+                throw new KeyStoreManagementException("Key store " + filename + " already available");
             }
 
             if (isExistKeyStore(filename)) {
-                throw new SecurityConfigException("Key store " + filename + " already available");
+                throw new KeyStoreManagementException("Key store " + filename + " already available");
             }
 
             KeyStore keyStore = KeyStore.getInstance(type);
@@ -389,12 +393,12 @@ public class KeyStoreAdmin {
                     .content(content)
                     .build();
             keyStoreDAO.addKeyStore(tenantUUID, data);
-        } catch (SecurityConfigException e) {
+        } catch (KeyStoreManagementException e) {
             throw e;
         } catch (Exception e) {
             String msg = "Error when adding a trustStore";
             log.error(msg, e);
-            throw new SecurityConfigException(msg, e);
+            throw new KeyStoreManagementException(msg, e);
         }
     }
 
@@ -402,9 +406,9 @@ public class KeyStoreAdmin {
      * Method to delete a key store when a store data file name is given.
      *
      * @param keyStoreName Name of the key store.
-     * @throws SecurityConfigException Throws if an error occurred while adding the trust store.
+     * @throws KeyStoreManagementException Throws if an error occurred while adding the trust store.
      */
-    public void deleteStore(String keyStoreName) throws SecurityConfigException {
+    public void deleteStore(String keyStoreName) throws KeyStoreManagementException {
 
         try {
 
@@ -429,10 +433,10 @@ public class KeyStoreAdmin {
 
             keyStoreDAO.deleteKeyStore(tenantUUID, keyStoreName);
         } catch (KeyStoreManagementException e) {
-            // Catch KeyStoreManagementException and throw the expected SecurityConfigException.
+            // Catch KeyStoreManagementException and throw the expected KeyStoreManagementException.
             String msg = "Error when deleting a keyStore";
             log.error(msg, e);
-            throw new SecurityConfigException(msg, e);
+            throw new KeyStoreManagementException(msg, e);
         }
     }
 
@@ -442,15 +446,15 @@ public class KeyStoreAdmin {
      * @param fileName     Name of the certificate.
      * @param certData     Certificate data.
      * @param keyStoreName Name of the keystore.
-     * @throws SecurityConfigException Throws if an error occurred while importing the public certificate to the
+     * @throws KeyStoreManagementException Throws if an error occurred while importing the public certificate to the
      *                                 trust store.
      */
     public void importCertToStore(String fileName, String certData, String keyStoreName)
-            throws SecurityConfigException {
+            throws KeyStoreManagementException {
 
         try {
             if (keyStoreName == null) {
-                throw new SecurityConfigException("Key Store name can't be null");
+                throw new KeyStoreManagementException("Key Store name can't be null");
             }
 
             KeyStore ks = getKeyStore(keyStoreName);
@@ -467,15 +471,15 @@ public class KeyStoreAdmin {
             updateKeyStore(keyStoreName, ks);
 
             if (isTrustStore(keyStoreName)) {
-                System.setProperty(IdentityUtil.PROP_TRUST_STORE_UPDATE_REQUIRED, "true");
+                System.setProperty(PROP_TRUST_STORE_UPDATE_REQUIRED, "true");
             }
 
-        } catch (SecurityConfigException e) {
+        } catch (KeyStoreManagementException e) {
             throw e;
         } catch (Exception e) {
             String msg = "Error when importing cert to the keyStore";
             log.error(msg, e);
-            throw new SecurityConfigException(msg, e);
+            throw new KeyStoreManagementException(msg, e);
         }
 
     }
@@ -486,17 +490,17 @@ public class KeyStoreAdmin {
      * @param certData     Certificate data.
      * @param keyStoreName Name of the keystore.
      * @return Returns the alias or the filename of the certificate.
-     * @throws SecurityConfigException Throws if an error occurred while importing the public certificate to the
+     * @throws KeyStoreManagementException Throws if an error occurred while importing the public certificate to the
      *                                 trust store.
      */
     public String importCertToStore(String certData, String keyStoreName)
-            throws SecurityConfigException {
+            throws KeyStoreManagementException {
 
         String alias = null;
 
         try {
             if (keyStoreName == null) {
-                throw new SecurityConfigException("Key Store name can't be null");
+                throw new KeyStoreManagementException("Key Store name can't be null");
             }
 
             KeyStore ks = getKeyStore(keyStoreName);
@@ -513,17 +517,17 @@ public class KeyStoreAdmin {
             updateKeyStore(keyStoreName, ks);
 
             if (isTrustStore(keyStoreName)) {
-                System.setProperty(IdentityUtil.PROP_TRUST_STORE_UPDATE_REQUIRED, "true");
+                System.setProperty(PROP_TRUST_STORE_UPDATE_REQUIRED, "true");
             }
 
             return alias;
 
-        } catch (SecurityConfigException e) {
+        } catch (KeyStoreManagementException e) {
             throw e;
         } catch (Exception e) {
             String msg = "Error when importing cert to keyStore";
             log.error(msg, e);
-            throw new SecurityConfigException(msg);
+            throw new KeyStoreManagementException(msg);
         }
     }
 
@@ -532,15 +536,15 @@ public class KeyStoreAdmin {
      *
      * @param alias        Alias of the certificate.
      * @param keyStoreName Name of the keystore.
-     * @throws SecurityConfigException Throws if an error occurred while removing the public certificate from the
+     * @throws KeyStoreManagementException Throws if an error occurred while removing the public certificate from the
      *                                 trust store.
      */
     public void removeCertFromStore(String alias, String keyStoreName)
-            throws SecurityConfigException {
+            throws KeyStoreManagementException {
 
         try {
             if (keyStoreName == null) {
-                throw new SecurityConfigException("Key Store name can't be null");
+                throw new KeyStoreManagementException("Key Store name can't be null");
             }
 
             KeyStore ks = getKeyStore(keyStoreName);
@@ -553,14 +557,14 @@ public class KeyStoreAdmin {
             updateKeyStore(keyStoreName, ks);
 
             if (isTrustStore(keyStoreName)) {
-                System.setProperty(IdentityUtil.PROP_TRUST_STORE_UPDATE_REQUIRED, Boolean.TRUE.toString());
+                System.setProperty(PROP_TRUST_STORE_UPDATE_REQUIRED, Boolean.TRUE.toString());
             }
-        } catch (SecurityConfigException e) {
+        } catch (KeyStoreManagementException e) {
             throw e;
         } catch (Exception e) {
             String msg = "Error when removing cert from store";
             log.error(msg, e);
-            throw new SecurityConfigException(msg);
+            throw new KeyStoreManagementException(msg);
         }
     }
 
@@ -569,9 +573,9 @@ public class KeyStoreAdmin {
      *
      * @param keyStoreName Name of the keystore.
      * @return Returns the list of alias entries of a given keystore.
-     * @throws SecurityConfigException Throws if an error occurred while getting the store entries.
+     * @throws KeyStoreManagementException Throws if an error occurred while getting the store entries.
      */
-    public String[] getStoreEntries(String keyStoreName) throws SecurityConfigException {
+    public String[] getStoreEntries(String keyStoreName) throws KeyStoreManagementException {
 
         String[] names;
         try {
@@ -589,12 +593,12 @@ public class KeyStoreAdmin {
             }
 
             names = lst.toArray(new String[lst.size()]);
-        } catch (SecurityConfigException e) {
+        } catch (KeyStoreManagementException e) {
             throw e;
         } catch (Exception e) {
             String msg = "Error when getting store entries";
             log.error(msg, e);
-            throw new SecurityConfigException(msg);
+            throw new KeyStoreManagementException(msg);
         }
 
         return names;
@@ -606,9 +610,9 @@ public class KeyStoreAdmin {
      *
      * @param keyStoreName The name of the keystore
      * @return Instance of KeyStoreData.
-     * @throws SecurityConfigException will be thrown if an error occurs while getting the keystore.
+     * @throws KeyStoreManagementException will be thrown if an error occurs while getting the keystore.
      */
-    public KeyStoreData getKeystoreInfo(String keyStoreName) throws SecurityConfigException {
+    public KeyStoreData getKeystoreInfo(String keyStoreName) throws KeyStoreManagementException {
 
         try {
 
@@ -634,7 +638,7 @@ public class KeyStoreAdmin {
                 privateKeyPassword = serverConfig.getFirstProperty(SERVER_TRUSTSTORE_PASSWORD);
             } else {
                 if (!isExistKeyStore(keyStoreName)) {
-                    throw new SecurityConfigException("Key Store not found");
+                    throw new KeyStoreManagementException("Key Store not found");
                 }
                 KeyStoreModel resource = keyStoreDAO.getKeyStore(tenantUUID, keyStoreName).get();
                 keyStore = getKeyStore(keyStoreName);
@@ -692,7 +696,7 @@ public class KeyStoreAdmin {
             String msg = "Error has encounted while loading the keystore to the given keystore name "
                     + keyStoreName;
             log.error(msg, e);
-            throw new SecurityConfigException(msg);
+            throw new KeyStoreManagementException(msg);
         }
 
     }
@@ -703,9 +707,9 @@ public class KeyStoreAdmin {
      * @param alias         Alias of the key.
      * @param isSuperTenant Indication whether the querying super tenant data.
      * @return Returns the private key of a given alias.
-     * @throws SecurityConfigException Throws if an error occurred while getting the private key.
+     * @throws KeyStoreManagementException Throws if an error occurred while getting the private key.
      */
-    public Key getPrivateKey(String alias, boolean isSuperTenant) throws SecurityConfigException {
+    public Key getPrivateKey(String alias, boolean isSuperTenant) throws KeyStoreManagementException {
 
         KeyStoreData[] keystores = getKeyStores(isSuperTenant);
         KeyStore keyStore = null;
@@ -726,7 +730,7 @@ public class KeyStoreAdmin {
         } catch (Exception e) {
             String msg = "Error has encounted while loading the key for the given alias " + alias;
             log.error(msg, e);
-            throw new SecurityConfigException(msg);
+            throw new KeyStoreManagementException(msg);
         }
         return null;
     }
@@ -831,15 +835,15 @@ public class KeyStoreAdmin {
             paginatedCertData.setCertDataSet(new CertData[0]);
             return paginatedCertData;
         }
-        int itemsPerPageInt = SecurityConstants.ITEMS_PER_PAGE;
+        int itemsPerPageInt = ITEMS_PER_PAGE;
         int numberOfPages = (int) Math.ceil((double) certDataSet.length / itemsPerPageInt);
         if (pageNumber > numberOfPages - 1) {
             pageNumber = numberOfPages - 1;
         }
         int startIndex = pageNumber * itemsPerPageInt;
         int endIndex = certDataSet.length;
-        if (numberOfPages > SecurityConstants.CACHING_PAGE_SIZE) {
-            endIndex = (pageNumber + SecurityConstants.CACHING_PAGE_SIZE) * itemsPerPageInt;
+        if (numberOfPages > CACHING_PAGE_SIZE) {
+            endIndex = (pageNumber + CACHING_PAGE_SIZE) * itemsPerPageInt;
         }
         CertData[] returnedCertDataSet = new CertData[endIndex];
 
@@ -884,13 +888,13 @@ public class KeyStoreAdmin {
      * @param keyStoreName The name of the keystore.
      * @param pageNumber   Page number.
      * @return Instance of KeyStoreData.
-     * @throws SecurityConfigException If an error occurs while getting the keystore this exception will be thrown.
+     * @throws KeyStoreManagementException If an error occurs while getting the keystore this exception will be thrown.
      */
     public PaginatedKeyStoreData getPaginatedKeystoreInfo(String keyStoreName, int pageNumber)
-            throws SecurityConfigException {
+            throws KeyStoreManagementException {
 
         if (StringUtils.isEmpty(keyStoreName)) {
-            throw new SecurityConfigException("Keystore name cannot be empty or null.");
+            throw new KeyStoreManagementException("Keystore name cannot be empty or null.");
         }
 
         try {
@@ -919,7 +923,7 @@ public class KeyStoreAdmin {
 
             return keyStoreData;
         } catch (Exception e) {
-            throw new SecurityConfigException(e.getMessage());
+            throw new KeyStoreManagementException(e.getMessage());
         }
 
     }
@@ -932,13 +936,13 @@ public class KeyStoreAdmin {
      * @param pageNumber   Page number.
      * @param filter       Filter for certificate alias.
      * @return Instance of KeyStoreData.
-     * @throws SecurityConfigException will be thrown.
+     * @throws KeyStoreManagementException will be thrown.
      */
     public PaginatedKeyStoreData getFilteredPaginatedKeyStoreInfo(String keyStoreName, int pageNumber,
-                                                                  String filter) throws SecurityConfigException {
+                                                                  String filter) throws KeyStoreManagementException {
 
         if (StringUtils.isEmpty(keyStoreName)) {
-            throw new SecurityConfigException("Keystore name cannot be empty or null.");
+            throw new KeyStoreManagementException("Keystore name cannot be empty or null.");
         }
 
         try {
@@ -959,7 +963,7 @@ public class KeyStoreAdmin {
 
             return keyStoreData;
         } catch (Exception e) {
-            throw new SecurityConfigException(e.getMessage());
+            throw new KeyStoreManagementException(e.getMessage());
         }
     }
 
@@ -1106,13 +1110,13 @@ public class KeyStoreAdmin {
      * Load the default trust store (allowed only for super tenant).
      *
      * @return trust store object
-     * @throws SecurityConfigException if retrieving the truststore fails.
+     * @throws KeyStoreManagementException if retrieving the truststore fails.
      */
-    public KeyStore getTrustStore() throws SecurityConfigException {
+    public KeyStore getTrustStore() throws KeyStoreManagementException {
 
         //Allow only the super tenant to access the default trust store.
         if (tenantId != MultitenantConstants.SUPER_TENANT_ID) {
-            throw new SecurityConfigException("Permission denied for accessing trust store");
+            throw new KeyStoreManagementException("Permission denied for accessing trust store");
         }
 
         KeyStore trustStore;
@@ -1123,7 +1127,7 @@ public class KeyStoreAdmin {
         try {
             store = KeyStore.getInstance(serverConfiguration.getFirstProperty(SERVER_TRUSTSTORE_TYPE));
         } catch (KeyStoreException e) {
-            throw new SecurityConfigException("Error occurred while loading keystore.", e);
+            throw new KeyStoreManagementException("Error occurred while loading keystore.", e);
         }
 
         String password = serverConfiguration.getFirstProperty(SERVER_TRUSTSTORE_PASSWORD);
@@ -1132,7 +1136,7 @@ public class KeyStoreAdmin {
             store.load(in, password.toCharArray());
             trustStore = store;
         } catch (CertificateException | NoSuchAlgorithmException | IOException e) {
-            throw new SecurityConfigException("Error occurred while loading trust store", e);
+            throw new KeyStoreManagementException("Error occurred while loading trust store", e);
         }
         return trustStore;
     }
@@ -1222,9 +1226,9 @@ public class KeyStoreAdmin {
      *
      * @param certData encoded certificate.
      * @return {@link X509Certificate} object.
-     * @throws SecurityConfigException if extracting the certificate fails.
+     * @throws KeyStoreManagementException if extracting the certificate fails.
      */
-    public X509Certificate extractCertificate(String certData) throws SecurityConfigException {
+    public X509Certificate extractCertificate(String certData) throws KeyStoreManagementException {
 
         byte[] bytes = Base64.decode(certData);
         X509Certificate cert;
@@ -1236,7 +1240,7 @@ public class KeyStoreAdmin {
             if (log.isDebugEnabled()) {
                 log.debug(e.getMessage(), e);
             }
-            throw new SecurityConfigException("Invalid format of the provided certificate file");
+            throw new KeyStoreManagementException("Invalid format of the provided certificate file");
         }
         return cert;
     }

@@ -21,14 +21,15 @@ package org.wso2.carbon.core.keystore;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.core.internal.KeyStoreManagerDataHolder;
+import org.wso2.carbon.core.keystore.constants.KeyStoreConstants;
 import org.wso2.carbon.core.util.KeyStoreUtil;
-import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
-import org.wso2.carbon.core.SecurityConfigException;
-import org.wso2.carbon.core.SecurityConstants;
 import org.wso2.carbon.core.keystore.service.CertData;
 import org.wso2.carbon.core.keystore.service.CertDataDetail;
 import org.wso2.carbon.core.keystore.service.KeyStoreData;
+import org.wso2.carbon.user.api.TenantManager;
+import org.wso2.carbon.user.api.UserRealmService;
+import org.wso2.carbon.user.api.UserStoreException;
 
 import java.nio.file.Paths;
 import java.security.KeyStore;
@@ -40,27 +41,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.wso2.carbon.core.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_ADD_CERTIFICATE;
-import static org.wso2.carbon.core.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_ALIAS_EXISTS;
-import static org.wso2.carbon.core.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_BAD_VALUE_FOR_FILTER;
-import static org.wso2.carbon.core.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_CANNOT_DELETE_TENANT_CERT;
-import static org.wso2.carbon.core.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_CERTIFICATE_EXISTS;
-import static org.wso2.carbon.core.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_DELETE_CERTIFICATE;
-import static org.wso2.carbon.core.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_INITIALIZE_REGISTRY;
-import static org.wso2.carbon.core.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_EMPTY_ALIAS;
-import static org.wso2.carbon.core.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_INVALID_CERTIFICATE;
-import static org.wso2.carbon.core.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_RETRIEVE_CLIENT_TRUSTSTORE;
-import static org.wso2.carbon.core.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_RETRIEVE_CLIENT_TRUSTSTORE_CERTIFICATE;
-import static org.wso2.carbon.core.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_RETRIEVE_KEYSTORE;
-import static org.wso2.carbon.core.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_RETRIEVE_KEYSTORE_INFORMATION;
-import static org.wso2.carbon.core.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_UNSUPPORTED_FILTER_OPERATION;
-import static org.wso2.carbon.core.SecurityConstants.KeyStoreMgtConstants.ErrorMessage.ERROR_CODE_VALIDATE_CERTIFICATE;
-import static org.wso2.carbon.core.SecurityConstants.KeyStoreMgtConstants.FILTER_FIELD_ALIAS;
-import static org.wso2.carbon.core.SecurityConstants.KeyStoreMgtConstants.FILTER_OPERATION_CONTAINS;
-import static org.wso2.carbon.core.SecurityConstants.KeyStoreMgtConstants.FILTER_OPERATION_ENDS_WITH;
-import static org.wso2.carbon.core.SecurityConstants.KeyStoreMgtConstants.FILTER_OPERATION_EQUALS;
-import static org.wso2.carbon.core.SecurityConstants.KeyStoreMgtConstants.FILTER_OPERATION_STARTS_WITH;
-import static org.wso2.carbon.core.SecurityConstants.KeyStoreMgtConstants.SERVER_TRUSTSTORE_FILE;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_ADD_CERTIFICATE;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_ALIAS_EXISTS;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_BAD_VALUE_FOR_FILTER;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_CANNOT_DELETE_TENANT_CERT;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_CERTIFICATE_EXISTS;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_DELETE_CERTIFICATE;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_EMPTY_ALIAS;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_INITIALIZE_REGISTRY;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_INVALID_CERTIFICATE;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_RETRIEVE_CLIENT_TRUSTSTORE;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_RETRIEVE_CLIENT_TRUSTSTORE_CERTIFICATE;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_RETRIEVE_KEYSTORE;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_RETRIEVE_KEYSTORE_INFORMATION;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_UNSUPPORTED_FILTER_OPERATION;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_VALIDATE_CERTIFICATE;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.FILTER_FIELD_ALIAS;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.FILTER_OPERATION_CONTAINS;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.FILTER_OPERATION_ENDS_WITH;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.FILTER_OPERATION_EQUALS;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.FILTER_OPERATION_STARTS_WITH;
+import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.SERVER_TRUSTSTORE_FILE;
 
 /**
  * This class is used to manage the keystore certificates.
@@ -127,7 +128,7 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
         KeyStore trustStore = null;
         try {
             trustStore = getKeyStoreAdmin(tenantDomain).getTrustStore();
-        } catch (SecurityConfigException e) {
+        } catch (KeyStoreManagementException e) {
             throw handleServerException(ERROR_CODE_RETRIEVE_CLIENT_TRUSTSTORE, tenantDomain, e);
         }
 
@@ -150,11 +151,7 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
         KeyStoreAdmin keyStoreAdmin = getKeyStoreAdmin(tenantDomain);
         String keyStoreName = getKeyStoreName(tenantDomain);
         X509Certificate cert;
-        try {
-            cert = keyStoreAdmin.extractCertificate(certificate);
-        } catch (SecurityConfigException e) {
-            throw handleClientException(ERROR_CODE_INVALID_CERTIFICATE, alias);
-        }
+        cert = keyStoreAdmin.extractCertificate(certificate);
         KeyStore keyStore;
         String certAlias;
         boolean isAliasExists;
@@ -171,11 +168,7 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
         if (certAlias != null) {
             throw handleClientException(ERROR_CODE_CERTIFICATE_EXISTS, certAlias);
         }
-        try {
-            keyStoreAdmin.importCertToStore(alias, certificate, keyStoreName);
-        } catch (SecurityConfigException e) {
-            throw handleServerException(ERROR_CODE_ADD_CERTIFICATE, alias, e);
-        }
+        keyStoreAdmin.importCertToStore(alias, certificate, keyStoreName);
     }
 
     @Override
@@ -187,23 +180,14 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
                 throw handleClientException(ERROR_CODE_CANNOT_DELETE_TENANT_CERT, alias);
             }
             getKeyStoreAdmin(tenantDomain).removeCertFromStore(alias, getKeyStoreName(tenantDomain));
-        } catch (SecurityConfigException e) {
+        } catch (KeyStoreManagementException e) {
             throw handleServerException(ERROR_CODE_DELETE_CERTIFICATE, alias, e);
         }
     }
 
     private String getKeyStoreName(String tenantDomain) throws KeyStoreManagementException {
 
-        KeyStoreData[] keyStoreDataArray = new KeyStoreData[0];
-        try {
-            int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
-            IdentityTenantUtil.initializeRegistry(tenantId);
-            keyStoreDataArray = getKeyStoreAdmin(tenantDomain).getKeyStores(isSuperTenant(tenantDomain));
-        } catch (SecurityConfigException e) {
-            throw handleServerException(ERROR_CODE_RETRIEVE_KEYSTORE, tenantDomain, e);
-        } catch (IdentityException e) {
-            throw handleServerException(ERROR_CODE_INITIALIZE_REGISTRY, tenantDomain, e);
-        }
+        KeyStoreData[] keyStoreDataArray = getKeyStoreAdmin(tenantDomain).getKeyStores(isSuperTenant(tenantDomain));
 
         for (KeyStoreData keyStoreData : keyStoreDataArray) {
             if (keyStoreData == null) {
@@ -231,7 +215,7 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
         keyStoreAdmin.setIncludeCert(true);
         try {
             keyStoreData = keyStoreAdmin.getKeystoreInfo(keyStoreName);
-        } catch (SecurityConfigException e) {
+        } catch (KeyStoreManagementException e) {
             throw handleServerException(ERROR_CODE_RETRIEVE_KEYSTORE_INFORMATION, keyStoreName, e);
         }
         return keyStoreData;
@@ -287,14 +271,25 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
         return aliases;
     }
 
-    private KeyStoreAdmin getKeyStoreAdmin(String tenantDomain) {
+    private int getTenantId(String tenantDomain) throws KeyStoreManagementServerException {
 
-        return new KeyStoreAdmin(IdentityTenantUtil.getTenantId(tenantDomain));
+        try {
+            UserRealmService userRealmService = KeyStoreManagerDataHolder.getRealmService();
+            TenantManager tenantManager = userRealmService.getTenantManager();
+            return tenantManager.getTenantId(tenantDomain);
+        } catch (KeyStoreManagementException | UserStoreException e) {
+            throw handleServerException(ERROR_CODE_INITIALIZE_REGISTRY, tenantDomain, e);
+        }
     }
 
-    private boolean isSuperTenant(String tenantDomain) {
+    private KeyStoreAdmin getKeyStoreAdmin(String tenantDomain) throws KeyStoreManagementServerException {
 
-        return IdentityTenantUtil.getTenantId(tenantDomain) == MultitenantConstants.SUPER_TENANT_ID;
+        return new KeyStoreAdmin(getTenantId(tenantDomain));
+    }
+
+    private boolean isSuperTenant(String tenantDomain) throws KeyStoreManagementServerException {
+
+        return getTenantId(tenantDomain) == MultitenantConstants.SUPER_TENANT_ID;
     }
 
     private String getTrustStoreName() {
@@ -305,14 +300,14 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
     }
 
     private KeyStoreManagementServerException handleServerException(
-            SecurityConstants.KeyStoreMgtConstants.ErrorMessage error, String data) {
+            KeyStoreConstants.ErrorMessage error, String data) {
 
         String message = includeData(error, data);
         return new KeyStoreManagementServerException(error.getCode(), message);
     }
 
     private KeyStoreManagementServerException handleServerException(
-            SecurityConstants.KeyStoreMgtConstants.ErrorMessage error, String data,
+            KeyStoreConstants.ErrorMessage error, String data,
             Throwable e) {
 
         String message = includeData(error, data);
@@ -320,13 +315,13 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
     }
 
     private KeyStoreManagementClientException handleClientException(
-            SecurityConstants.KeyStoreMgtConstants.ErrorMessage error, String data) {
+            KeyStoreConstants.ErrorMessage error, String data) {
 
         String message = includeData(error, data);
         return new KeyStoreManagementClientException(error.getCode(), message);
     }
 
-    private static String includeData(SecurityConstants.KeyStoreMgtConstants.ErrorMessage error, String data) {
+    private static String includeData(KeyStoreConstants.ErrorMessage error, String data) {
 
         String message;
         if (StringUtils.isNotBlank(data)) {

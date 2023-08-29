@@ -18,8 +18,9 @@
 
 package org.wso2.carbon.core.keystore.dao.impl;
 
+import org.wso2.carbon.core.internal.KeyStoreManagerDataHolder;
 import org.wso2.carbon.database.utils.jdbc.NamedPreparedStatement;
-import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.core.keystore.KeyStoreManagementException;
 import org.wso2.carbon.core.keystore.dao.KeyStoreDAO;
 import org.wso2.carbon.core.keystore.dao.constants.KeyStoreDAOConstants;
@@ -38,6 +39,8 @@ import java.util.Optional;
 import java.util.TimeZone;
 import java.util.UUID;
 
+import javax.sql.DataSource;
+
 import static java.time.ZoneOffset.UTC;
 
 /**
@@ -46,6 +49,12 @@ import static java.time.ZoneOffset.UTC;
 public class KeyStoreDAOImpl implements KeyStoreDAO {
 
     private final Calendar CALENDAR = Calendar.getInstance(TimeZone.getTimeZone(UTC));
+    private final DataSource dataSource;
+
+    public KeyStoreDAOImpl() {
+
+        this.dataSource = KeyStoreManagerDataHolder.getDataSource();
+    }
 
     /**
      * {@inheritDoc}
@@ -53,12 +62,12 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
     @Override
     public void addKeyStore(String tenantUUID, KeyStoreModel keyStoreModel) throws KeyStoreManagementException {
 
-        try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
+        try (Connection connection = DatabaseUtil.getDBConnection(this.dataSource)) {
             try {
                 processAddKeyStore(connection, keyStoreModel, tenantUUID);
-                IdentityDatabaseUtil.commitTransaction(connection);
+                connection.commit();
             } catch (SQLException e) {
-                IdentityDatabaseUtil.rollbackTransaction(connection);
+                connection.rollback();
                 throw new KeyStoreManagementException(KeyStoreDAOConstants.ErrorMessages.ERROR_ADD_KEY_STORE, e);
             }
         } catch (SQLException e) {
@@ -74,7 +83,7 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
 
         List<KeyStoreModel> keyStores = new ArrayList<>();
 
-        try (Connection connection = IdentityDatabaseUtil.getDBConnection(false)) {
+        try (Connection connection = DatabaseUtil.getDBConnection(this.dataSource)) {
             try (NamedPreparedStatement statement = new NamedPreparedStatement(connection,
                     KeyStoreDAOConstants.SqlQueries.GET_KEY_STORES)) {
                 statement.setString(KeyStoreTableColumns.TENANT_UUID, tenantUUID);
@@ -99,7 +108,7 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
     @Override
     public Optional<KeyStoreModel> getKeyStore(String tenantUUID, String fileName) throws KeyStoreManagementException {
 
-        try (Connection connection = IdentityDatabaseUtil.getDBConnection(false)) {
+        try (Connection connection = DatabaseUtil.getDBConnection(this.dataSource)) {
             try (NamedPreparedStatement statement = new NamedPreparedStatement(connection,
                     KeyStoreDAOConstants.SqlQueries.GET_KEY_STORE_BY_FILE_NAME)) {
                 statement.setString(KeyStoreTableColumns.FILE_NAME, fileName);
@@ -124,17 +133,18 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
     @Override
     public void deleteKeyStore(String tenantUUID, String fileName) throws KeyStoreManagementException {
 
-        try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
+        try (Connection connection = DatabaseUtil.getDBConnection(this.dataSource)) {
             try (NamedPreparedStatement statement = new NamedPreparedStatement(connection,
                     KeyStoreDAOConstants.SqlQueries.DELETE_KEY_STORE_BY_FILE_NAME)) {
                 statement.setString(KeyStoreTableColumns.FILE_NAME, fileName);
                 statement.setString(KeyStoreTableColumns.TENANT_UUID, tenantUUID);
                 statement.executeUpdate();
 
-                IdentityDatabaseUtil.commitTransaction(connection);
+                connection.commit();
             } catch (SQLException e) {
-                IdentityDatabaseUtil.rollbackTransaction(connection);
-                throw new KeyStoreManagementException(KeyStoreDAOConstants.ErrorMessages.ERROR_DELETE_KEY_STORE_BY_FILE_NAME, e);
+                connection.rollback();
+                throw new KeyStoreManagementException(
+                        KeyStoreDAOConstants.ErrorMessages.ERROR_DELETE_KEY_STORE_BY_FILE_NAME, e);
             }
         } catch (SQLException e) {
             throw new KeyStoreManagementException(KeyStoreDAOConstants.ErrorMessages.ERROR_CANNOT_RETRIEVE_DB_CONN, e);
@@ -147,12 +157,12 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
     @Override
     public void updateKeyStore(String tenantUUID, KeyStoreModel keyStoreModel) throws KeyStoreManagementException {
 
-        try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
+        try (Connection connection = DatabaseUtil.getDBConnection(this.dataSource)) {
             try {
                 processUpdateKeyStore(connection, keyStoreModel, tenantUUID);
-                IdentityDatabaseUtil.commitTransaction(connection);
+                connection.commit();
             } catch (SQLException e) {
-                IdentityDatabaseUtil.rollbackTransaction(connection);
+                connection.rollback();
                 throw new KeyStoreManagementException(KeyStoreDAOConstants.ErrorMessages.ERROR_UPDATE_KEY_STORE, e);
             }
         } catch (SQLException e) {
@@ -164,20 +174,22 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
      * {@inheritDoc}
      */
     @Override
-    public void addPubCertIdToKeyStore(String tenantUUID, String fileName, String pubCertId) throws KeyStoreManagementException {
+    public void addPubCertIdToKeyStore(String tenantUUID, String fileName, String pubCertId)
+            throws KeyStoreManagementException {
 
-        try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
+        try (Connection connection = DatabaseUtil.getDBConnection(this.dataSource)) {
             try (NamedPreparedStatement statement = new NamedPreparedStatement(connection,
                     KeyStoreDAOConstants.SqlQueries.ADD_PUB_CERT_ID_TO_KEY_STORE)) {
                 statement.setString(KeyStoreTableColumns.PUB_CERT_ID, pubCertId);
-                statement.setTimeStamp(KeyStoreTableColumns.LAST_UPDATED, new Timestamp(new Date().getTime()), CALENDAR);
+                statement.setTimeStamp(KeyStoreTableColumns.LAST_UPDATED, new Timestamp(new Date().getTime()),
+                        CALENDAR);
                 statement.setString(KeyStoreTableColumns.FILE_NAME, fileName);
                 statement.setString(KeyStoreTableColumns.TENANT_UUID, tenantUUID);
                 statement.executeUpdate();
 
-                IdentityDatabaseUtil.commitTransaction(connection);
+                connection.commit();
             } catch (SQLException e) {
-                IdentityDatabaseUtil.rollbackTransaction(connection);
+                connection.rollback();
                 throw new KeyStoreManagementException(KeyStoreDAOConstants.ErrorMessages
                         .ERROR_LINK_PUB_CERT_TO_KEY_STORE, e);
             }
@@ -190,9 +202,10 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
      * {@inheritDoc}
      */
     @Override
-    public Optional<String> getPubCertIdFromKeyStore(String tenantUUID, String fileName) throws KeyStoreManagementException {
+    public Optional<String> getPubCertIdFromKeyStore(String tenantUUID, String fileName)
+            throws KeyStoreManagementException {
 
-        try (Connection connection = IdentityDatabaseUtil.getDBConnection(false)) {
+        try (Connection connection = DatabaseUtil.getDBConnection(this.dataSource)) {
             try (NamedPreparedStatement statement = new NamedPreparedStatement(connection,
                     KeyStoreDAOConstants.SqlQueries.GET_PUB_CERT_ID_OF_KEY_STORE)) {
                 statement.setString(KeyStoreTableColumns.FILE_NAME, fileName);
@@ -256,7 +269,8 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
             statement.setString(KeyStoreTableColumns.PROVIDER, keyStoreModel.getProvider());
             statement.setString(KeyStoreTableColumns.PASSWORD, String.valueOf(keyStoreModel.getPassword()));
             statement.setString(KeyStoreTableColumns.PRIVATE_KEY_ALIAS, keyStoreModel.getPrivateKeyAlias());
-            statement.setString(KeyStoreTableColumns.PRIVATE_KEY_PASS, String.valueOf(keyStoreModel.getPrivateKeyPass()));
+            statement.setString(KeyStoreTableColumns.PRIVATE_KEY_PASS,
+                    String.valueOf(keyStoreModel.getPrivateKeyPass()));
             statement.setTimeStamp(KeyStoreTableColumns.LAST_UPDATED, new Timestamp(new Date().getTime()), CALENDAR);
             statement.setBytes(7, keyStoreModel.getContent());
             statement.setString(KeyStoreTableColumns.FILE_NAME, keyStoreModel.getFileName());

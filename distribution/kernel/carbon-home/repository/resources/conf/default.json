@@ -221,6 +221,6 @@
   "tenant_mgt.enable_tenant_theme_mgt" : true,
   "tenant_mgt.enable_tenant_validation_for_nonsaas_username" : true,
   "jce_provider.provider_name" : "BC",
-  "signature_util.enable_sha256_algo" : true
-
+  "signature_util.enable_sha256_algo" : true,
+  "keystore_data_persistence_manager.datasource.name" : "jdbc/SHARED_DB"
 }

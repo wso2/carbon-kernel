@@ -21,8 +21,8 @@ package org.wso2.carbon.core.keystore.service;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
-import org.wso2.carbon.core.SecurityConfigException;
 import org.wso2.carbon.core.keystore.KeyStoreAdmin;
+import org.wso2.carbon.core.keystore.KeyStoreManagementException;
 
 /**
  * Key Store Admin Service implementation class.
@@ -30,7 +30,7 @@ import org.wso2.carbon.core.keystore.KeyStoreAdmin;
 public class KeyStoreAdminServiceImpl extends AbstractAdmin implements KeyStoreAdminInterface {
 
     @Override
-    public KeyStoreData[] getKeyStores() throws SecurityConfigException {
+    public KeyStoreData[] getKeyStores() throws KeyStoreManagementException {
         KeyStoreAdmin admin = new KeyStoreAdmin(CarbonContext.getThreadLocalCarbonContext().getTenantId());
         boolean isSuperTenant = CarbonContext.getThreadLocalCarbonContext().getTenantId() ==
                 MultitenantConstants.SUPER_TENANT_ID;
@@ -39,20 +39,20 @@ public class KeyStoreAdminServiceImpl extends AbstractAdmin implements KeyStoreA
 
     @Override
     public void addKeyStore(String fileData, String filename, String password, String provider,
-                            String type, String pvtkeyPass) throws SecurityConfigException {
+                            String type, String pvtkeyPass) throws KeyStoreManagementException {
         KeyStoreAdmin admin = new KeyStoreAdmin(CarbonContext.getThreadLocalCarbonContext().getTenantId());
         admin.addKeyStore(fileData, filename, password, provider, type, pvtkeyPass);
     }
 
     @Override
     public void addTrustStore(String fileData, String filename, String password, String provider,
-                              String type) throws SecurityConfigException {
+                              String type) throws KeyStoreManagementException {
         KeyStoreAdmin admin = new KeyStoreAdmin(CarbonContext.getThreadLocalCarbonContext().getTenantId());
         admin.addTrustStore(fileData, filename, password, provider, type);
     }
 
     @Override
-    public void deleteStore(String keyStoreName) throws SecurityConfigException {
+    public void deleteStore(String keyStoreName) throws KeyStoreManagementException {
 
         KeyStoreAdmin admin = new KeyStoreAdmin(CarbonContext.getThreadLocalCarbonContext().getTenantId());
         admin.deleteStore(keyStoreName);
@@ -60,33 +60,33 @@ public class KeyStoreAdminServiceImpl extends AbstractAdmin implements KeyStoreA
 
     @Override
     public void importCertToStore(String fileName, String fileData, String keyStoreName)
-            throws SecurityConfigException {
+            throws KeyStoreManagementException {
         KeyStoreAdmin admin = new KeyStoreAdmin(CarbonContext.getThreadLocalCarbonContext().getTenantId());
         admin.importCertToStore(fileName, fileData, keyStoreName);
 
     }
 
     @Override
-    public String[] getStoreEntries(String keyStoreName) throws SecurityConfigException {
+    public String[] getStoreEntries(String keyStoreName) throws KeyStoreManagementException {
         KeyStoreAdmin admin = new KeyStoreAdmin(CarbonContext.getThreadLocalCarbonContext().getTenantId());
         return admin.getStoreEntries(keyStoreName);
 
     }
 
     @Override
-    public KeyStoreData getKeystoreInfo(String keyStoreName) throws SecurityConfigException {
+    public KeyStoreData getKeystoreInfo(String keyStoreName) throws KeyStoreManagementException {
         KeyStoreAdmin admin = new KeyStoreAdmin(CarbonContext.getThreadLocalCarbonContext().getTenantId());
         return admin.getKeystoreInfo(keyStoreName);
 
     }
 
     @Override
-    public void removeCertFromStore(String alias, String keyStoreName) throws SecurityConfigException {
+    public void removeCertFromStore(String alias, String keyStoreName) throws KeyStoreManagementException {
         KeyStoreAdmin admin = new KeyStoreAdmin(CarbonContext.getThreadLocalCarbonContext().getTenantId());
         admin.removeCertFromStore(alias, keyStoreName);
     }
 
-    public PaginatedKeyStoreData getPaginatedKeystoreInfo(String keyStoreName, int pageNumber) throws SecurityConfigException {
+    public PaginatedKeyStoreData getPaginatedKeystoreInfo(String keyStoreName, int pageNumber) throws KeyStoreManagementException {
         KeyStoreAdmin admin = new KeyStoreAdmin(CarbonContext.getThreadLocalCarbonContext().getTenantId());
         return admin.getPaginatedKeystoreInfo(keyStoreName, pageNumber);
 
@@ -99,10 +99,10 @@ public class KeyStoreAdminServiceImpl extends AbstractAdmin implements KeyStoreA
      * @param pageNumber   Page number.
      * @param filter       Filter for certificate alias.
      * @return Paginated keystore data with certificates.
-     * @throws SecurityConfigException
+     * @throws KeyStoreManagementException
      */
     public PaginatedKeyStoreData getFilteredPaginatedKeyStoreInfo(String keyStoreName, int pageNumber,
-                                                                  String filter) throws SecurityConfigException {
+                                                                  String filter) throws KeyStoreManagementException {
 
         KeyStoreAdmin admin = new KeyStoreAdmin(CarbonContext.getThreadLocalCarbonContext().getTenantId());
         return admin.getFilteredPaginatedKeyStoreInfo(keyStoreName, pageNumber, filter);

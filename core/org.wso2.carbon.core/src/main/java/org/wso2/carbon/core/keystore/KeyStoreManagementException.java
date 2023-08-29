@@ -18,19 +18,22 @@
 
 package org.wso2.carbon.core.keystore;
 
-import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.core.keystore.constants.KeyStoreConstants;
 
 /**
  * Handles the Keystore Management errors.
  */
-public class KeyStoreManagementException extends IdentityException {
+public class KeyStoreManagementException extends Exception {
+
+    private String errorCode = null;
 
     public KeyStoreManagementException(String message) {
         super(message);
     }
 
     public KeyStoreManagementException(String errorCode, String message) {
-        super(errorCode, message);
+        super(message);
+        this.errorCode = errorCode;
     }
 
     public KeyStoreManagementException(String message, Throwable cause) {
@@ -38,6 +41,13 @@ public class KeyStoreManagementException extends IdentityException {
     }
 
     public KeyStoreManagementException(String errorCode, String message, Throwable cause) {
-        super(errorCode, message, cause);
+        super(message, cause);
+        this.errorCode = errorCode;
+    }
+
+    public KeyStoreManagementException(KeyStoreConstants.ErrorMessage message,
+                                       KeyStoreManagementException e) {
+
+
     }
 }
