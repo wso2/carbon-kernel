@@ -1379,7 +1379,7 @@
                 <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>
-                <groupId>javax.servlet.jsp.jstl.wso2</groupId>
+                <groupId>org.wso2.orbit.javax.servlet.jsp.jstl</groupId>
                 <artifactId>jstl</artifactId>
                 <version>${orbit.version.jstl}</version>
             </dependency>
