@@ -3002,7 +3002,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 try {
                     AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager) userManager;
 
-                    if(userStoreManager.isCircuitBreakerOpen()) {
+                    if (userStoreManager.isCircuitBreakerOpen()) {
                         if (log.isDebugEnabled()) {
                             log.debug("Circuit Breaker is in open state for:  " + extractedDomain);
                         }
@@ -3010,10 +3010,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     }
                     String[] userArray = userStoreManager.getUserListFromProperties(property, claimValue, profileName);
                     if (log.isDebugEnabled()) {
-                        log.debug("List of filtered users for: " + extractedDomain + " : " + Arrays.asList(userArray));
+                        log.debug("List of filtered users for: " + extractedDomain + " : "
+                                + Arrays.asList(userArray));
                     }
                     return Arrays.asList(UserCoreUtil.addDomainToNames(userArray, extractedDomain));
-
                 } catch (CircuitBreakerException ex) {
                     if(log.isDebugEnabled()) {
                         log.debug("Circuit Breaker is in open state for " + extractedDomain +
@@ -3264,7 +3264,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     }
                     log.error("Error occurred while obtaining user store connection.");
                     return Collections.emptyList();
-
                 } catch (UserStoreException ex) {
                     handleGetUserListFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getMessage(),
@@ -6467,7 +6466,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             }
         } else if (index == 0) {
-
             if (!isUniqueUserIdEnabled()) {
                 userList = doListUsers(filter.substring(1), maxItemLimit);
             } else {
@@ -6506,7 +6504,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             log.error("Error occurred while obtaining user store connection.");
             userList = new String[0];
             return userList;
-
         } catch (UserStoreException ex) {
             handleGetUserListFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getMessage(), ex.getMessage()),
@@ -11377,9 +11374,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         log.debug("Error occurred while authenticating user: " + preferredUserNameValue, e);
                     }
                     throw (UserStoreClientException) e;
-
                 } else if (e instanceof CircuitBreakerException) {   // Handle Circuit breaker if user store is down
-
                     if (log.isDebugEnabled()) {
                         log.debug("Circuit Breaker is in open state for " +
                                 abstractUserStoreManager.getMyDomainName() + " domain. Hence ignore the userstore " +
@@ -11390,7 +11385,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 log.error("Error occurred while authenticating user: " + preferredUserNameValue, e);
                 authenticated = false;
             }
-
         } finally {
             credentialObj.clear();
         }
@@ -18051,7 +18045,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param retryWaitingTime Retry waiting time as a string.
      * @return Retry waiting time in milliseconds.
      *
-     * @throws UserStoreException
+     * @throws UserStoreException An error occurred while parsing the property value
      */
     protected long getThresholdTimeoutInMilliseconds(String retryWaitingTime) throws UserStoreException {
 
@@ -18065,6 +18059,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     // Default assigned as false.
     protected Boolean isCircuitBreakerOpen() {
+
         return false;
     }
 }

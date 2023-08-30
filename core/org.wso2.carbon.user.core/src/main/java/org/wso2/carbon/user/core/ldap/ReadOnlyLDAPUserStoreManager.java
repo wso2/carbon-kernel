@@ -4843,9 +4843,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         long circuitOpenDuration = System.currentTimeMillis() - this.connectionSource.getThresholdStartTime();
 
-        if (this.connectionSource.getLdapConnectionCircuitBreakerState().equals(CIRCUIT_STATE_OPEN)
+        if (CIRCUIT_STATE_OPEN.equals(this.connectionSource.getLdapConnectionCircuitBreakerState())
                 && circuitOpenDuration <=  this.connectionSource.getThresholdTimeoutInMilliseconds()) {
-
             log.warn("Circuit Breaker Triggered: LDAP connection circuit breaker is in open state for "
                     + circuitOpenDuration + "ms and has not reach the threshold timeout: " +
                     this.connectionSource.getThresholdTimeoutInMilliseconds() +

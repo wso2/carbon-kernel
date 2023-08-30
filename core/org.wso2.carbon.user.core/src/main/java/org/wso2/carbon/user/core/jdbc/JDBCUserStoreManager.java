@@ -258,11 +258,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                            and applying the default values defined for ldap user store
          */
         if(StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(CONNECTION_RETRY_DELAY))) {
-
             thresholdTimeoutInMilliseconds = getThresholdTimeoutInMilliseconds(
                     realmConfig.getUserStoreProperty(CONNECTION_RETRY_DELAY));
         } else {
-
             thresholdTimeoutInMilliseconds = DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS;
         }
 
@@ -357,11 +355,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
          and applying the default values defined for ldap user store
          */
         if(StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(CONNECTION_RETRY_DELAY))) {
-
             thresholdTimeoutInMilliseconds = getThresholdTimeoutInMilliseconds(
                     realmConfig.getUserStoreProperty(CONNECTION_RETRY_DELAY));
         } else {
-
             thresholdTimeoutInMilliseconds = DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS;
         }
 
@@ -5003,14 +4999,17 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     public long getThresholdStartTime() {
+
         return thresholdStartTime;
     }
 
     public String getCircuitBreakerState() {
+
         return jdbcConnectionCircuitBreakerState;
     }
 
     public long getThresholdTimeoutInMilliseconds() {
+
         return thresholdTimeoutInMilliseconds;
     }
 
@@ -5023,17 +5022,15 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         long circuitOpenDuration = System.currentTimeMillis() - this.getThresholdStartTime();
 
-        if (this.getCircuitBreakerState().equals(CIRCUIT_STATE_OPEN)
+        if (CIRCUIT_STATE_OPEN.equals(this.getCircuitBreakerState())
                 && circuitOpenDuration <=  this.getThresholdTimeoutInMilliseconds()) {
 
             log.warn("Circuit Breaker Triggered: JDBC connection circuit breaker is in open state for "
                     + circuitOpenDuration + "ms and has not reach the threshold timeout: " +
                     this.getThresholdTimeoutInMilliseconds() +
                     "ms, hence avoid establishing the " + getMyDomainName() + " domain JDBC connection.");
-
             return true;
         }
-
         return false;
     }
 }
