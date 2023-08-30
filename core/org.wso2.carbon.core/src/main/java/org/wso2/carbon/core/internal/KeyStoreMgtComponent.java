@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.core.internal;
 
-import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
@@ -35,7 +34,6 @@ import org.wso2.carbon.core.keystore.KeyStoreManagementService;
 import org.wso2.carbon.core.keystore.KeyStoreManagementServiceImpl;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
-import org.wso2.carbon.utils.ServerConstants;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -48,11 +46,9 @@ import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.KEYSTORE
         name = "security.mgt.service.component",
         immediate = true
 )
-public class KeyStoreManagerComponent {
+public class KeyStoreMgtComponent {
 
-    private static final Log log = LogFactory.getLog(KeyStoreManagerComponent.class);
-    private static ConfigurationContextService configContextService = null;
-    private static RealmService realmService;
+    private static final Log log = LogFactory.getLog(KeyStoreMgtComponent.class);
 
     @Activate
     protected void activate(ComponentContext ctxt) {
@@ -74,11 +70,6 @@ public class KeyStoreManagerComponent {
         log.debug("Security Mgt bundle is deactivated");
     }
 
-    public static ConfigurationContext getServerConfigurationContext() {
-
-        return configContextService.getServerConfigContext();
-    }
-
     @Reference(
             name = "config.context.service",
             service = ConfigurationContextService.class,
@@ -91,8 +82,7 @@ public class KeyStoreManagerComponent {
         if (log.isDebugEnabled()) {
             log.debug("Setting the ConfigurationContext");
         }
-        configContextService = contextService;
-        KeyStoreManagerDataHolder.setConfigurationContextService(contextService);
+        KeyStoreMgtDataHolder.setConfigurationContextService(contextService);
     }
 
     @Reference(
@@ -107,8 +97,7 @@ public class KeyStoreManagerComponent {
         if (log.isDebugEnabled()) {
             log.debug("Setting the RealmService");
         }
-        this.realmService = realmService;
-        KeyStoreManagerDataHolder.setRealmService(realmService);
+        KeyStoreMgtDataHolder.setRealmService(realmService);
     }
 
     protected void unsetRealmService(RealmService realmService) {
@@ -116,8 +105,7 @@ public class KeyStoreManagerComponent {
         if (log.isDebugEnabled()) {
             log.debug("Unsetting the RealmService");
         }
-        this.realmService = null;
-        KeyStoreManagerDataHolder.setRealmService(null);
+        KeyStoreMgtDataHolder.setRealmService(null);
     }
 
     protected void unsetConfigurationContextService(ConfigurationContextService contextService) {
@@ -125,8 +113,7 @@ public class KeyStoreManagerComponent {
         if (log.isDebugEnabled()) {
             log.debug("Unsetting the ConfigurationContext");
         }
-        this.configContextService = null;
-        KeyStoreManagerDataHolder.setConfigurationContextService(contextService);
+        KeyStoreMgtDataHolder.setConfigurationContextService(null);
     }
 
     private void initDataSource() throws KeyStoreManagementException {
@@ -137,7 +124,7 @@ public class KeyStoreManagerComponent {
         try {
             ctx = new InitialContext();
             DataSource dataSource = (DataSource) ctx.lookup(dataSourceName);
-            KeyStoreManagerDataHolder.setDataSource(dataSource);
+            KeyStoreMgtDataHolder.setDataSource(dataSource);
         } catch (NamingException e) {
             throw new KeyStoreManagementException(e.getMessage());
         }

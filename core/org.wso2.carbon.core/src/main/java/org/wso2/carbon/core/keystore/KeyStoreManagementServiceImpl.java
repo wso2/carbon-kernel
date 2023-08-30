@@ -21,7 +21,7 @@ package org.wso2.carbon.core.keystore;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.core.internal.KeyStoreManagerDataHolder;
+import org.wso2.carbon.core.internal.KeyStoreMgtDataHolder;
 import org.wso2.carbon.core.keystore.constants.KeyStoreConstants;
 import org.wso2.carbon.core.util.KeyStoreUtil;
 import org.wso2.carbon.core.keystore.service.CertData;
@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_ADD_CERTIFICATE;
 import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_ALIAS_EXISTS;
 import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_BAD_VALUE_FOR_FILTER;
 import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_CANNOT_DELETE_TENANT_CERT;
@@ -49,7 +48,6 @@ import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMes
 import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_DELETE_CERTIFICATE;
 import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_EMPTY_ALIAS;
 import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_INITIALIZE_REGISTRY;
-import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_INVALID_CERTIFICATE;
 import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_RETRIEVE_CLIENT_TRUSTSTORE;
 import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_RETRIEVE_CLIENT_TRUSTSTORE_CERTIFICATE;
 import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.ErrorMessage.ERROR_CODE_RETRIEVE_KEYSTORE;
@@ -274,7 +272,7 @@ public class KeyStoreManagementServiceImpl implements KeyStoreManagementService 
     private int getTenantId(String tenantDomain) throws KeyStoreManagementServerException {
 
         try {
-            UserRealmService userRealmService = KeyStoreManagerDataHolder.getRealmService();
+            UserRealmService userRealmService = KeyStoreMgtDataHolder.getRealmService();
             TenantManager tenantManager = userRealmService.getTenantManager();
             return tenantManager.getTenantId(tenantDomain);
         } catch (KeyStoreManagementException | UserStoreException e) {

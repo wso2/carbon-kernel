@@ -21,7 +21,7 @@ package org.wso2.carbon.core.keystore.util;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.core.internal.KeyStoreManagerDataHolder;
+import org.wso2.carbon.core.internal.KeyStoreMgtDataHolder;
 import org.wso2.carbon.core.keystore.KeyStoreManagementException;
 import org.wso2.carbon.user.api.Tenant;
 import org.wso2.carbon.user.api.TenantManager;
@@ -135,7 +135,7 @@ public class KeyStoreMgtUtil {
         }
 
         if (tenantId != MultitenantConstants.INVALID_TENANT_ID) {
-            TenantManager tenantManager = KeyStoreManagerDataHolder.getRealmService().getTenantManager();
+            TenantManager tenantManager = KeyStoreMgtDataHolder.getRealmService().getTenantManager();
             Tenant tenant = tenantManager.getTenant(tenantId);
             return tenant.getTenantUniqueID();
         }

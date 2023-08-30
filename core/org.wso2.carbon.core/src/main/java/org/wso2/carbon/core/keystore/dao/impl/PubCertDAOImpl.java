@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.core.keystore.dao.impl;
 
-import org.wso2.carbon.core.internal.KeyStoreManagerDataHolder;
+import org.wso2.carbon.core.internal.KeyStoreMgtDataHolder;
 import org.wso2.carbon.database.utils.jdbc.NamedPreparedStatement;
 import org.wso2.carbon.core.keystore.KeyStoreManagementException;
 import org.wso2.carbon.core.keystore.dao.PubCertDAO;
@@ -34,7 +34,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import javax.sql.DataSource;
-import javax.xml.crypto.Data;
 
 /**
  * This class provides the implementation of the PubCertDAO interface.
@@ -45,7 +44,7 @@ public class PubCertDAOImpl implements PubCertDAO {
 
     public PubCertDAOImpl() {
 
-        this.dataSource = KeyStoreManagerDataHolder.getDataSource();
+        this.dataSource = KeyStoreMgtDataHolder.getDataSource();
     }
 
     /**
