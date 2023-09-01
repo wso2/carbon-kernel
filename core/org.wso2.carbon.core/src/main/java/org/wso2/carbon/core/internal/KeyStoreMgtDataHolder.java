@@ -29,14 +29,14 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-public class KeyStoreManagerDataHolder {
+public class KeyStoreMgtDataHolder {
 
     private static RealmService realmService;
     private static ConfigurationContextService ccService;
     private static DataSource dataSource;
     private static Map<String, Resource> policyResourceMap = new HashMap<>();
 
-    private KeyStoreManagerDataHolder() {
+    private KeyStoreMgtDataHolder() {
 
     }
 
@@ -50,7 +50,7 @@ public class KeyStoreManagerDataHolder {
 
     public static void setRealmService(RealmService realmService) {
 
-        KeyStoreManagerDataHolder.realmService = realmService;
+        KeyStoreMgtDataHolder.realmService = realmService;
     }
 
     public static ConfigurationContext getConfigurationContext() throws Exception {
@@ -63,7 +63,7 @@ public class KeyStoreManagerDataHolder {
 
     public static void setConfigurationContextService(ConfigurationContextService ccService) {
 
-        KeyStoreManagerDataHolder.ccService = ccService;
+        KeyStoreMgtDataHolder.ccService = ccService;
     }
 
     public static void addPolicyResource(String location, Resource resource) {
@@ -78,6 +78,6 @@ public class KeyStoreManagerDataHolder {
 
     public static void setDataSource(DataSource dataSource) {
 
-        KeyStoreManagerDataHolder.dataSource = dataSource;
+        KeyStoreMgtDataHolder.dataSource = dataSource;
     }
 }

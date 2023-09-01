@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.core.keystore.dao.impl;
 
-import org.wso2.carbon.core.internal.KeyStoreManagerDataHolder;
+import org.wso2.carbon.core.internal.KeyStoreMgtDataHolder;
 import org.wso2.carbon.database.utils.jdbc.NamedPreparedStatement;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.core.keystore.KeyStoreManagementException;
@@ -53,7 +53,7 @@ public class KeyStoreDAOImpl implements KeyStoreDAO {
 
     public KeyStoreDAOImpl() {
 
-        this.dataSource = KeyStoreManagerDataHolder.getDataSource();
+        this.dataSource = KeyStoreMgtDataHolder.getDataSource();
     }
 
     /**
