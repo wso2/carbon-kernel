@@ -2622,7 +2622,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     }
 
     @Override
-    protected Group doAddGroupWithID(String groupID, String groupName, String[] userIDList) throws UserStoreException {
+    protected Group doAddGroup(String groupID, String groupName, String[] userIDList) throws UserStoreException {
 
         List<String> userList = getUserNamesFromUserIDs(Arrays.asList(userIDList));
         String userStoreDomain = getMyDomainName();
@@ -2636,31 +2636,17 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
         userList = userList.stream().map(UserCoreUtil::removeDomainFromName).collect(Collectors.toList());
 
-        persistGroup(groupName, groupID, userList.toArray(new String[0]));
-
-        if (isGroupIdGeneratedByUserStore()) {
-            //If the group ID attribute is immutable then we need to retrieve the group ID from the user store.
-            return generateGroup(null, groupName);
+        if (isUniqueGroupIdEnabled()) {
+            persistGroup(groupName, groupID, userList.toArray(new String[0]));
+            if (isGroupIdGeneratedByUserStore()) {
+                //If the group ID attribute is immutable then we need to retrieve the group ID from the user store.
+                return generateGroup(null, groupName);
+            }
+            return new Group(groupID, groupName);
+        } else {
+            persistGroup(groupName, null, userList.toArray(new String[0]));
+            return new Group(null, groupName);
         }
-        return generateGroup(groupID, groupName);
-    }
-
-    @Override
-    public void doAddGroup(String groupName, String[] userIDList) throws UserStoreException {
-
-        List<String> userList = getUserNamesFromUserIDs(Arrays.asList(userIDList));
-        String userStoreDomain = getMyDomainName();
-        boolean containsInvalidUsernames = userList.stream()
-                .anyMatch(username -> !UserCoreUtil.extractDomainFromName(username).equalsIgnoreCase(userStoreDomain));
-
-        if (containsInvalidUsernames) {
-            throw new UserStoreException("One or more users in the users list: " + userList + " do not belong to the" +
-                    " user store: " + userStoreDomain);
-        }
-
-        userList = userList.stream().map(UserCoreUtil::removeDomainFromName).collect(Collectors.toList());
-
-        persistGroup(groupName, null, userList.toArray(new String[0]));
     }
 
     /**

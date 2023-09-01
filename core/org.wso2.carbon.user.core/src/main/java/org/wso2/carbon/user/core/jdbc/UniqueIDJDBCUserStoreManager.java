@@ -3891,18 +3891,17 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    public Group doAddGroupWithID(String groupID, String groupName, String[] userIDList) throws UserStoreException {
+    public Group doAddGroup(String groupID, String groupName, String[] userIDList) throws UserStoreException {
 
-        persistGroup(groupID, groupName, userIDList);
-
-        return new Group(groupID, groupName);
+        if(isUniqueGroupIdEnabled()) {
+            persistGroup(groupID, groupName, userIDList);
+            return new Group(groupID, groupName);
+        } else {
+            persistGroup(null, groupName, userIDList);
+            return new Group(null, groupName);
+        }
     }
 
-    @Override
-    public void doAddGroup(String groupName, String[] userIDList) throws UserStoreException {
-
-        persistGroup(null, groupName, userIDList);
-    }
 
     protected void persistGroup(String groupID, String roleName, String[] userIDList) throws UserStoreException {
 

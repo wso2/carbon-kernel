@@ -698,7 +698,7 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @return Created Group object.
      * @throws UserStoreException If an error occurs while creating the group.
      */
-    Group addGroupWithID(String groupName, String groupID, String[] userIDList, LocalDateTime createdDate,
+    Group addGroup(String groupName, String groupID, String[] userIDList, LocalDateTime createdDate,
                          LocalDateTime lastModifiedDate, String location) throws UserStoreException;
 
     /**

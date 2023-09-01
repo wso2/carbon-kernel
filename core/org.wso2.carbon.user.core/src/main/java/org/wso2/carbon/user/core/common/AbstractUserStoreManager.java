@@ -17990,7 +17990,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
-    public Group addGroupWithID(String groupName, String groupID, String[] userIDList, LocalDateTime createdDate,
+    public Group addGroup(String groupName, String groupID, String[] userIDList, LocalDateTime createdDate,
                                 LocalDateTime lastModifiedDate, String location) throws UserStoreException {
 
         if (StringUtils.isEmpty(groupName)) {
@@ -18007,7 +18007,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         if (userStore.isRecurssive()) {
             return ((UniqueIDUserStoreManager) userStore.getUserStoreManager())
-                    .addGroupWithID(userStore.getDomainFreeGroupName(), groupID,
+                    .addGroup(userStore.getDomainFreeGroupName(), groupID,
                             UserCoreUtil.removeDomainFromNames(userIDList), createdDate, lastModifiedDate, location);
         }
 
@@ -18052,9 +18052,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             try {
                 if (isUniqueUserIdEnabledInUserStore(userStore)) {
                     // add group in to actual user store
-                    if (isUniqueGroupIdEnabled(this)) {
-                        group = doAddGroupWithID(groupID, groupName, userIDList);
-                    } else {
+                    group = doAddGroup(groupID, groupName, userIDList);
+                    if (!isUniqueGroupIdEnabled(this)) {
                         //when group ID is not enabled add to IDN_SCIM_GROUP table and userstore.
                         GroupResolver groupResolver = UserStoreMgtDataHolder.getInstance().getGroupResolver();
                         if (groupResolver != null && groupResolver.isEnable()) {
@@ -18062,18 +18061,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                     groupID, createdDate, lastModifiedDate, location,
                                     tenantId);
                         }
-                        try {
-                            doAddGroup(groupName, userIDList);
-                        } catch (Exception ex) {
-                            //Rollback the saved group in IDN_SCIM_GROUP table.
-                            if (groupResolver != null && groupResolver.isEnable()) {
-                                groupResolver.deleteGroup(userStore.getDomainAwareGroupName(), tenantId);
-                            }
-                            throw ex;
-                        }
                     }
                 } else {
-                    //TODO : Then we have to pass username list instead of IDs
+                    //TODO : Then we have to pass username list instead of IDs.
+                    // when group ID is enabled and user ID is not enabled throw an error saying to work with group ID
+                    // user ID must be enabled.
                 }
             } catch (UserStoreException ex) {
                 handleAddGroupFailureWithID(ErrorMessages.ERROR_CODE_WHILE_ADDING_GROUP.getCode(),
@@ -18174,15 +18166,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
-    protected Group doAddGroupWithID(String groupID, String groupName, String[] userIDList) throws UserStoreException {
-
-        if (log.isDebugEnabled()) {
-            log.debug("doAddGroupWithID operation is not implemented in: " + this.getClass());
-        }
-        throw new NotImplementedException("doAddGroupWithID operation is not implemented in: " + this.getClass());
-    }
-
-    protected void doAddGroup(String groupName, String[] userIDList) throws UserStoreException {
+    protected Group doAddGroup(String groupID, String groupName, String[] userIDList) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("doAddGroup operation is not implemented in: " + this.getClass());
