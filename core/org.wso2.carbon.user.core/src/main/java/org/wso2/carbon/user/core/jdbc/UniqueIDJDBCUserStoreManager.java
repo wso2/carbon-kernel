@@ -3893,33 +3893,41 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     @Override
     public Group doAddGroupWithID(String groupID, String groupName, String[] userIDList) throws UserStoreException {
 
-        persistGroup(groupName, userIDList);
+        persistGroup(groupID, groupName, userIDList);
 
-        // Since we are not allowed to add UUID to auto incremented UM_ID field in UM_ROLE table,
-        // we retrieve the ID from UM_ROLE the DB after saving the group.
-        //TODO - Add a separate column to keep UM_GROUP_ID (UUID).
-        String groupIDRetrieved = doGetGroupIdFromGroupName(groupName);
-
-        return new Group(groupIDRetrieved, groupName);
+        return new Group(groupID, groupName);
     }
 
     @Override
     public void doAddGroup(String groupName, String[] userIDList) throws UserStoreException {
 
-        persistGroup(groupName, userIDList);
+        persistGroup(null, groupName, userIDList);
     }
 
-    protected void persistGroup(String roleName, String[] userIDList) throws UserStoreException {
+    protected void persistGroup(String groupID, String roleName, String[] userIDList) throws UserStoreException {
 
         Connection dbConnection = null;
 
         try {
             dbConnection = getDBConnection();
-            String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_ROLE);
-            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt, roleName, tenantId);
+            if (groupID != null) {
+                // TODO: ADD this query to XML config file.
+                // TODO: UM_ROLE_ID column is not available yet in the UM_ROLE table.
+                //  Need to do the migration. For flow to be worked (testing purpose) add a column manually
+                //  to UM_ROLE table.
+                String sqlStmt = "INSERT INTO UM_ROLE (UM_ROLE_ID, UM_ROLE_NAME, UM_TENANT_ID) VALUES (?, ?, ?)";
+                if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                    this.updateStringValuesToDatabase(dbConnection, sqlStmt, groupID, roleName, tenantId);
+                } else {
+                    this.updateStringValuesToDatabase(dbConnection, sqlStmt, groupID, roleName);
+                }
             } else {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt, roleName);
+                String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_ROLE);
+                if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                    this.updateStringValuesToDatabase(dbConnection, sqlStmt, roleName, tenantId);
+                } else {
+                    this.updateStringValuesToDatabase(dbConnection, sqlStmt, roleName);
+                }
             }
             if (userIDList != null) {
                 // add group to user
@@ -3974,8 +3982,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
+
         //TODO - Add the query to xml properties file of the userstore.
-        String sqlStmt = "SELECT UM_ID FROM UM_ROLE WHERE UM_ROLE_NAME = ? AND UM_TENANT_ID = ?";
+        // TODO: ID UM_ROLE is not available yet in the UM_ROLE table.
+        //  Need to do the migration. For add method to be worked (testing purpose) add a column manually
+        //  to UM_ROLE table.
+        String sqlStmt = "SELECT UM_ROLE_ID FROM UM_ROLE WHERE UM_ROLE_NAME = ? AND UM_TENANT_ID = ?";
         try {
             dbConnection = getDBConnection();
             prepStmt = dbConnection.prepareStatement(sqlStmt);
@@ -4000,6 +4012,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     @Override
     protected void doDeleteGroupWithID(String groupID) throws UserStoreException {
 
+        //Get UM_ID (auto incremented integer) of the group from the groupID (UM_ROLE_ID).
+        String umID = getIDFromGroupID(groupID);
+
         //TODO - Take query from XML properties file.
         String sqlStmt1 = "DELETE FROM UM_USER_ROLE WHERE UM_ROLE_ID = ? AND UM_TENANT_ID = ?";
 
@@ -4007,8 +4022,11 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             throw new UserStoreException("The sql statement for delete users of the group is null");
         }
 
-        //TODO - Take query from XML properties file.
-        String sqlStmt2 = "DELETE FROM UM_ROLE WHERE UM_ID = ? AND UM_TENANT_ID = ?";
+        // TODO - Take query from XML properties file.
+        // TODO: UM_ROLE_ID column is not available yet in the UM_ROLE table.
+        //  Need to do the migration. For flow to be worked (testing purpose) add a column manually
+        //  to UM_ROLE table.
+        String sqlStmt2 = "DELETE FROM UM_ROLE WHERE UM_ROLE_ID = ? AND UM_TENANT_ID = ?";
         if (sqlStmt2 == null) {
             throw new UserStoreException("The sql statement for delete group is null");
         }
@@ -4017,10 +4035,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         try {
             dbConnection = getDBConnection();
             if (sqlStmt1.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, groupID, tenantId);
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, umID, tenantId);
                 this.updateStringValuesToDatabase(dbConnection, sqlStmt2, groupID, tenantId);
             } else {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, groupID);
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, umID);
                 this.updateStringValuesToDatabase(dbConnection, sqlStmt2, groupID);
             }
             dbConnection.commit();
@@ -4043,8 +4061,11 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
 
-        //TODO - Add the query to xml properties file.
-        String sqlStmt = "SELECT UM_ROLE_NAME FROM UM_ROLE WHERE UM_ID = ? AND UM_TENANT_ID = ?";
+        // TODO - Add the query to xml properties file.
+        // TODO: UM_ROLE_ID column is not available yet in the UM_ROLE table.
+        //  Need to do the migration. For flow to be worked (testing purpose) add a column manually
+        //  to UM_ROLE table.
+        String sqlStmt = "SELECT UM_ROLE_NAME FROM UM_ROLE WHERE UM_ROLE_ID = ? AND UM_TENANT_ID = ?";
         try {
             dbConnection = getDBConnection();
             prepStmt = dbConnection.prepareStatement(sqlStmt);
@@ -4158,6 +4179,38 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
+        }
+    }
+
+    private String getIDFromGroupID(String groupID) throws UserStoreException {
+
+        Connection dbConnection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+
+        // TODO - Add the query to xml properties file.
+        // TODO: UM_ROLE_ID column is not available yet in the UM_ROLE table.
+        //  Need to do the migration. For flow to be worked (testing purpose) add a column manually
+        //  to UM_ROLE table.
+        String sqlStmt = "SELECT UM_ID FROM UM_ROLE WHERE UM_ROLE_ID = ? AND UM_TENANT_ID = ?";
+        try {
+            dbConnection = getDBConnection();
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, groupID);
+            prepStmt.setInt(2, tenantId);
+            rs = prepStmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString(1);
+            }
+            return null;
+        } catch (SQLException e) {
+            String msg = "Error occurred while retrieving ID for group with group ID: " + groupID;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
     }
 }
