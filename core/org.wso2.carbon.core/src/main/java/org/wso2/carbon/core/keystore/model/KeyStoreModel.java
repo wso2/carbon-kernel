@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.security.keystore.model;
+package org.wso2.carbon.core.keystore.model;
 
 import java.util.Date;
 

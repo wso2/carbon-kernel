@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.wso2.carbon.security.keystore.dao;
+package org.wso2.carbon.core.keystore.dao;
 
-import org.wso2.carbon.security.keystore.KeyStoreManagementException;
-import org.wso2.carbon.security.keystore.model.KeyStoreModel;
+import org.wso2.carbon.core.keystore.KeyStoreManagementException;
+import org.wso2.carbon.core.keystore.model.KeyStoreModel;
 
 import java.util.List;
 import java.util.Optional;

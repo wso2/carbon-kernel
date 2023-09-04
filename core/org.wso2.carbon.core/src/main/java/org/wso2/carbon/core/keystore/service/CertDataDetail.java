@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.security.keystore.service;
+package org.wso2.carbon.core.keystore.service;
 
 import java.security.cert.X509Certificate;
 

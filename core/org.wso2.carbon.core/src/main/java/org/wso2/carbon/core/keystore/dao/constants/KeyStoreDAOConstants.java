@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.security.keystore.dao.constants;
+package org.wso2.carbon.core.keystore.dao.constants;
 
 /**
  * Constants related to the KeyStoreDAO.

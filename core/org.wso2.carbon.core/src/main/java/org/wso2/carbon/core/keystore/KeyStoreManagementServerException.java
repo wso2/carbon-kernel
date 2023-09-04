@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.security.keystore;
+package org.wso2.carbon.core.keystore;
 
 /**
  * Handles the Keystore Management server level errors.

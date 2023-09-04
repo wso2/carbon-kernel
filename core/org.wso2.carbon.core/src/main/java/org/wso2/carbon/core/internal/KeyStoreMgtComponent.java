@@ -43,7 +43,7 @@ import javax.sql.DataSource;
 import static org.wso2.carbon.core.keystore.constants.KeyStoreConstants.KEYSTORE_DATASOURCE;
 
 @Component(
-        name = "security.mgt.service.component",
+        name = "keystore.mgt.service.component",
         immediate = true
 )
 public class KeyStoreMgtComponent {
