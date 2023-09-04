@@ -27,6 +27,11 @@ public class KeyStoreManagementException extends Exception {
 
     private String errorCode = null;
 
+    public String getErrorCode() {
+
+        return this.errorCode;
+    }
+
     public KeyStoreManagementException(String message) {
         super(message);
     }
