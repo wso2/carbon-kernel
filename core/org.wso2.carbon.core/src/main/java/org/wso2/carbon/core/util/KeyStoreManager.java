@@ -56,7 +56,7 @@ public class KeyStoreManager {
     private KeyStore registryKeyStore = null;
     private KeyStore internalKeyStore = null;
     private static final ConcurrentHashMap<String, KeyStoreManager> mtKeyStoreManagers = new ConcurrentHashMap<>();
-    private static final Log log = LogFactory.getLog(KeyStoreManager.class);
+    private static final Log LOG = LogFactory.getLog(KeyStoreManager.class);
 
     private KeyStoreDAO keyStoreDAO = null;
 
@@ -81,7 +81,7 @@ public class KeyStoreManager {
         try {
             this.tenantUUID = KeyStoreMgtUtil.getTenantUUID(tenantId);
         } catch (KeyStoreManagementException | UserStoreException e) {
-            log.error("Error while getting the tenant UUID for tenant ID : " + tenantId, e);
+            LOG.error("Error while getting the tenant UUID for tenant ID : " + tenantId, e);
         }
 
         keyStoreDAO = new KeyStoreDAOImpl();
@@ -202,28 +202,11 @@ public class KeyStoreManager {
             updateKeyStoreCache(keyStoreName, keyStoreBean);
             return keyStore.getKey(alias, privateKeyPasswd);
         } catch (Exception e) {
-            log.error("Error loading the private key from the key store : " + keyStoreName);
+            LOG.error("Error loading the private key from the key store : " + keyStoreName);
             throw new SecurityException("Error loading the private key from the key store : " +
                     keyStoreName, e);
         }
     }
-
-    /**
-     * Get the key store password of the given key store resource
-     *
-     * @param resource key store resource
-     * @return password of the key store
-     * @throws Exception Error when reading the registry resource of decrypting the password
-     */
-    // TODO: deprecate this method in the future since we are no longer using registry for key store management.
-    public String getPassword(Resource resource) throws Exception {
-        CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
-        String encryptedPassword = resource
-                .getProperty(RegistryResources.SecurityManagement.PROP_PRIVATE_KEY_PASS);
-        return new String(cryptoUtil.base64DecodeAndDecrypt(encryptedPassword));
-
-    }
-
 
     /**
      * Get the key store password for the given key store name.
@@ -504,7 +487,7 @@ public class KeyStoreManager {
             }
         } catch (KeyStoreManagementException e) {
             String errorMsg = "Error reading key store meta data from Database.";
-            log.error(errorMsg, e);
+            LOG.error(errorMsg, e);
             throw new SecurityException(errorMsg, e);
         }
         return cachedKeyStoreValid;
@@ -529,7 +512,7 @@ public class KeyStoreManager {
             return store;
         } catch (Exception e) {
             String errorMsg = "Error loading the key store from the given location.";
-            log.error(errorMsg);
+            LOG.error(errorMsg);
             throw new SecurityException(errorMsg, e);
         } finally {
             try {
@@ -537,7 +520,7 @@ public class KeyStoreManager {
                     inputStream.close();
                 }
             } catch (IOException e) {
-                log.warn("Error when closing the input stream.", e);
+                LOG.warn("Error when closing the input stream.", e);
             }
         }
     }
