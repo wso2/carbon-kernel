@@ -54,10 +54,10 @@ public class KeyStoreMgtComponent {
     protected void activate(ComponentContext ctxt) {
 
         try {
+            initDataSource();
             BundleContext bundleCtx = ctxt.getBundleContext();
             bundleCtx.registerService(KeyStoreManagementService.class.getName(), new KeyStoreManagementServiceImpl(),
                     null);
-            initDataSource();
             log.debug("Security Mgt bundle is activated");
         } catch (KeyStoreManagementException e) {
             log.error("Failed to activate SecurityMgtServiceComponent", e);
