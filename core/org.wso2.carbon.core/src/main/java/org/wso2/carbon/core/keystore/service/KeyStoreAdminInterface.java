@@ -20,6 +20,9 @@ package org.wso2.carbon.core.keystore.service;
 
 import org.wso2.carbon.core.keystore.KeyStoreManagementException;
 
+/**
+ * Key store admin service interface.
+ */
 public interface KeyStoreAdminInterface {
 
     KeyStoreData[] getKeyStores() throws KeyStoreManagementException;

@@ -20,6 +20,9 @@ package org.wso2.carbon.core.keystore.constants;
 
 import org.wso2.carbon.core.RegistryResources;
 
+/**
+ * Constants related to the KeyStore Management.
+ */
 public class KeyStoreConstants {
 
     public static final String FILTER_FIELD_ALIAS = "alias";

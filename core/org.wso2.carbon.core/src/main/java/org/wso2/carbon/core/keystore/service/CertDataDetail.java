@@ -20,6 +20,9 @@ package org.wso2.carbon.core.keystore.service;
 
 import java.security.cert.X509Certificate;
 
+/**
+ * Model class for certificate data with detail.
+ */
 public class CertDataDetail extends CertData {
     private X509Certificate certificate;
 

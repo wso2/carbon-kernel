@@ -20,6 +20,9 @@ package org.wso2.carbon.core.keystore.service;
 
 import java.util.Arrays;
 
+/**
+ * Model class for paginated cert data.
+ */
 public class PaginatedCertData {
     private CertData[] certDataSet;
 

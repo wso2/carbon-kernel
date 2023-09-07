@@ -18,6 +18,9 @@
 
 package org.wso2.carbon.core.keystore.service;
 
+/**
+ * Model class for paginated key store data.
+ */
 public class PaginatedKeyStoreData {
 
     private CertData key;

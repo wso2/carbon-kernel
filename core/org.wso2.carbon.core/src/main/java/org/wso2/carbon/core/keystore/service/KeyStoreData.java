@@ -18,6 +18,9 @@
 
 package org.wso2.carbon.core.keystore.service;
 
+/**
+ * Model class for key store data.
+ */
 public class KeyStoreData {
 
     private CertData[] certs;

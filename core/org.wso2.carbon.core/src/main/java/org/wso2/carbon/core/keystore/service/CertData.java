@@ -21,7 +21,7 @@ package org.wso2.carbon.core.keystore.service;
 import java.math.BigInteger;
 
 /**
- * This will provide cert as well as keystore important data.
+ * Model class for certificate data.
  */
 public class CertData {
 

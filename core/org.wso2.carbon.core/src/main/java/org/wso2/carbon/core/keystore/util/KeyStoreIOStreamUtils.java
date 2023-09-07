@@ -26,6 +26,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 
+/**
+ * Utility class for IO streams.
+ */
 public class KeyStoreIOStreamUtils {
 
     private static final Log log = LogFactory.getLog(KeyStoreIOStreamUtils.class);
