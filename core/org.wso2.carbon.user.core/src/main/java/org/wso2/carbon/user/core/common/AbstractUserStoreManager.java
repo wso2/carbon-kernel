@@ -11281,13 +11281,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             log.debug(message);
                         }
                     } else {
-                        boolean status = abstractUserStoreManager.doAuthenticate(users.get(0), credentialObj);
+                        boolean status = abstractUserStoreManager.doAuthenticate(UserCoreUtil.removeDomainFromName(
+                                users.get(0)), credentialObj);
                         authenticationResult = new AuthenticationResult(status ?
                                 AuthenticationResult.AuthenticationStatus.SUCCESS :
                                 AuthenticationResult.AuthenticationStatus.FAIL);
                         if (status) {
                             String userID = userUniqueIDManger.getUniqueId(users.get(0), this);
                             User user = userUniqueIDManger.getUser(userID, this);
+                            user.setTenantDomain(getTenantDomain(tenantId));
                             authenticationResult.setAuthenticatedUser(user);
                         } else {
                             authenticationResult.setFailureReason(new FailureReason("Invalid credentials."));
