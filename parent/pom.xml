@@ -1247,6 +1247,11 @@
                 <version>${orbit.version.commons.lang}</version>
             </dependency>
             <dependency>
+                <groupId>org.wso2.orbit.org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.orbit.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>ws-commons</groupId>
                 <artifactId>tcpmon</artifactId>
                 <version>${version.tcpmon}</version>
