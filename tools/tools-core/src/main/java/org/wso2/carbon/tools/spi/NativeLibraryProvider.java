@@ -48,6 +48,7 @@ import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
 import static org.wso2.carbon.tools.Constants.BUNDLE_ACTIVATOR;
+import static org.wso2.carbon.tools.Constants.ECLIPSE_OSGI_VERSION;
 import static org.wso2.carbon.tools.Constants.JAR_MANIFEST_FOLDER;
 import static org.wso2.carbon.tools.Constants.MANIFEST_FILE_NAME;
 
@@ -97,7 +98,7 @@ public class NativeLibraryProvider implements CarbonTool {
         String nativeLibString = toolArgs[2];
         String osgiJar = (toolArgs.length == 4 && !toolArgs[3].isEmpty()) ? toolArgs[3] :
                 Paths.get(System.getProperty("carbon.home"), "wso2", "lib", "plugins",
-                        "org.eclipse.osgi_3.14.0").toString();
+                        ECLIPSE_OSGI_VERSION).toString();
 
         Path fileName = jarFile.getFileName();
         if (fileName == null) {

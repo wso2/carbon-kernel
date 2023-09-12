@@ -44,6 +44,8 @@ public class Constants {
     public static final String JAR_FILE_EXTENSION = ".jar";
     public static final String ZIP_FILE_EXTENSION = ".zip";
 
+    public static final String ECLIPSE_OSGI_VERSION = "org.eclipse.osgi_3.14.0.v20190517-1309.jar";
+
     //  create zip file system properties
     public static final String CREATE_NEW_ZIP_FILE_PROPERTY = "create";
     public static final String ENCODING_TYPE_PROPERTY = "encoding";
