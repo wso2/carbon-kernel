@@ -29,6 +29,7 @@ import java.util.jar.JarFile;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.wso2.carbon.tools.Constants.ECLIPSE_OSGI_VERSION;
 
 /**
  * Test class for {@link ICFProviderTool}.
@@ -52,7 +53,7 @@ public class ICFProviderToolTest {
         String spiImpl = "org.wso2.carbon.impl.TestSPIImpl";
         icfProviderTool.execute(spiImpl, sampleJARFile.toString(), converterTestResources.toString(),
                                 converterTestResources.getParent().resolve("lib")
-                                                      .resolve("org.eclipse.osgi_3.14.0.v20190517-1309.jar")
+                                                      .resolve(ECLIPSE_OSGI_VERSION)
                                                       .toString());
 
         String jarFileName = sampleJARFile.getFileName().toString();

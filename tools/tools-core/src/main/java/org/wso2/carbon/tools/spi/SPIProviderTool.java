@@ -47,6 +47,7 @@ import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
 import static org.wso2.carbon.tools.Constants.BUNDLE_ACTIVATOR;
+import static org.wso2.carbon.tools.Constants.ECLIPSE_OSGI_VERSION;
 import static org.wso2.carbon.tools.Constants.JAR_MANIFEST_FOLDER;
 import static org.wso2.carbon.tools.Constants.MANIFEST_FILE_NAME;
 
@@ -100,7 +101,7 @@ public class SPIProviderTool implements CarbonTool {
         Path destination = Paths.get(toolArgs[3]);
         String osgiJar = (toolArgs.length == 5 && !toolArgs[4].isEmpty()) ? toolArgs[4] :
                 Paths.get(System.getProperty("carbon.home"), "wso2", "lib", "plugins",
-                        "org.eclipse.osgi_3.14.0.jar").toString();
+                        ECLIPSE_OSGI_VERSION).toString();
 
         Path fileName = jarFile.getFileName();
         if (fileName == null) {
