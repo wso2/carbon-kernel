@@ -470,5 +470,17 @@ public class CarbonUtilsTest extends BaseTest {
         Integer[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9};
         Assert.assertEquals(CarbonUtils.arrayCopyOf(numbers), numbers);
     }
+
+    @Test(groups = {"org.wso2.carbon.utils.base"}, dependsOnMethods = "testGetServerConfiguration")
+    public void testIsInputValidationEnabledDefault() {
+        ServerConfiguration.getInstance().overrideConfigurationProperty("InputValidationEnabled", null);
+        Assert.assertTrue(CarbonUtils.isInputValidationEnabled());
+    }
+
+    @Test(groups = {"org.wso2.carbon.utils.base"}, dependsOnMethods = "testGetServerConfiguration")
+    public void testIsInputValidationEnabled() {
+        ServerConfiguration.getInstance().overrideConfigurationProperty("InputValidationEnabled", "false");
+        Assert.assertFalse(CarbonUtils.isInputValidationEnabled());
+    }
 }
 

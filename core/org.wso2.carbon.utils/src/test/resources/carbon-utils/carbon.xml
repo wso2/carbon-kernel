@@ -349,6 +349,10 @@
       Enable following config to allow Emails as usernames. 	
     -->
     <!--EnableEmailUserName>true</EnableEmailUserName-->
+    <!--
+        Enable following config to flag input validation configuration.
+    -->
+    <isInputValidationEnabled>true</isInputValidationEnabled>
 
     <!--
       Security configurations

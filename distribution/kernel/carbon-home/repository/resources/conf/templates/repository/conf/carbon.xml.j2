@@ -472,6 +472,10 @@
       Enable following config to allow Emails as usernames.
     -->
     <EnableEmailUserName>{{tenant_mgt.enable_email_domain | default('false')}}</EnableEmailUserName>
+    <!--
+      Enable following config to flag input validation configuration.
+    -->
+    <isInputValidationEnabled>{{tenant_mgt.enable_input_validation}}</isInputValidationEnabled>
     {% if password_trim.enable is defined %}
       <EnablePasswordTrim>{{password_trim.enable}}</EnablePasswordTrim>
     {% endif %}

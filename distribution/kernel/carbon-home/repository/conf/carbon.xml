@@ -427,6 +427,10 @@
       Enable following config to allow Emails as usernames. 	
     -->
     <EnableEmailUserName>false</EnableEmailUserName>
+    <!--
+       Enable following config to flag input validation configuration.
+    -->
+    <isInputValidationEnabled>true</isInputValidationEnabled>
     <!--EnablePasswordTrim>false</EnablePasswordTrim-->
     <!--
       Security configurations
