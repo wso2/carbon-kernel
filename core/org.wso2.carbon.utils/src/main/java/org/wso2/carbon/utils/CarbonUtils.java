@@ -1496,9 +1496,7 @@ public class CarbonUtils {
      * Function to extract InputValidationEnabled configuration from carbon.xml.
      * <pre>
      * {@code
-     * <xml>
      *   <InputValidationEnabled>true</InputValidationEnabled>
-     * </xml>
      * }
      * </pre>
      *
