@@ -1491,4 +1491,26 @@ public class CarbonUtils {
         builder.append(StringUtils.join(inputs.iterator(), ", ")).append(" }");
         return builder.toString();
     }
+
+    /**
+     * Function to extract InputValidationEnabled configuration from carbon.xml.
+     * <pre>
+     * {@code
+     * <xml>
+     *   <InputValidationEnabled>true</InputValidationEnabled>
+     * </xml>
+     * }
+     * </pre>
+     *
+     * @return isInputValidationEnabled.
+     */
+    public static boolean isInputValidationEnabled() {
+        boolean isInputValidationEnabled = true;
+        String isInputValidationEnabledConfig = ServerConfiguration.getInstance().
+                getFirstProperty("InputValidationEnabled");
+        if (isInputValidationEnabledConfig != null) {
+            isInputValidationEnabled = Boolean.parseBoolean(isInputValidationEnabledConfig);
+        }
+        return isInputValidationEnabled;
+    }
 }
