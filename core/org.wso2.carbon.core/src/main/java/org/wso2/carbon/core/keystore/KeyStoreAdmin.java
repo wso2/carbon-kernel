@@ -145,7 +145,7 @@ public class KeyStoreAdmin {
         try {
             List<KeyStoreModel> keyStores = keyStoreDAO.getKeyStores(tenantUUID);
             List<KeyStoreData> keyStoreDataList = new ArrayList<>();
-            if (!CollectionUtils.isEmpty(keyStoreDataList)) {
+            if (!CollectionUtils.isEmpty(keyStores)) {
                 for (KeyStoreModel keyStoreModel : keyStores) {
                     if (ALTERNATE_PRIMARY_KEYSTORE_PHANTOM_RESOURCE.equals(keyStoreModel.getFileName())) {
                         continue;
