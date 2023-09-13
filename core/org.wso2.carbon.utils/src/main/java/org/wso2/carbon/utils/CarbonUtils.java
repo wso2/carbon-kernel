@@ -1503,6 +1503,7 @@ public class CarbonUtils {
      * @return isInputValidationEnabled.
      */
     public static boolean isInputValidationEnabled() {
+
         String isInputValidationEnabledConfig = ServerConfiguration.getInstance().
                 getFirstProperty("InputValidationEnabled");
 
