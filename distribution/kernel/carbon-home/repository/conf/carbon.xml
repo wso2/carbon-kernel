@@ -430,7 +430,7 @@
     <!--
        Enable following config to flag input validation configuration.
     -->
-    <isInputValidationEnabled>true</isInputValidationEnabled>
+    <InputValidationEnabled>true</InputValidationEnabled>
     <!--EnablePasswordTrim>false</EnablePasswordTrim-->
     <!--
       Security configurations
