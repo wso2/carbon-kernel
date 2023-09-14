@@ -352,7 +352,7 @@
     <!--
         Enable following config to flag input validation configuration.
     -->
-    <isInputValidationEnabled>true</isInputValidationEnabled>
+    <InputValidationEnabled>true</InputValidationEnabled>
 
     <!--
       Security configurations
