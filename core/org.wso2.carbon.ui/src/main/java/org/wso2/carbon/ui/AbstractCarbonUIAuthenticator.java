@@ -274,8 +274,8 @@ public abstract class AbstractCarbonUIAuthenticator implements CarbonUIAuthentic
 
 		HttpSession session = request.getSession();
         String tenantDomain;
-        if (session.getAttribute("tenantDomain") != null) {
-            tenantDomain = session.getAttribute("tenantDomain").toString();
+        if (session.getAttribute(MultitenantConstants.TENANT_DOMAIN) != null) {
+            tenantDomain = session.getAttribute(MultitenantConstants.TENANT_DOMAIN).toString();
         } else {
             tenantDomain = MultitenantUtils.getTenantDomain(userName);
         }
