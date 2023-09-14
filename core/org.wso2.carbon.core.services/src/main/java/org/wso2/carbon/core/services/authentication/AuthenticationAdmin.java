@@ -153,27 +153,23 @@ public class AuthenticationAdmin implements CarbonServerAuthenticator {
                 username = username.substring(0, username.lastIndexOf('@'));
             }
             return username;
-        } else {
-            return MultitenantUtils.getTenantAwareUsername(username);
         }
+        return MultitenantUtils.getTenantAwareUsername(username);
     }
 
     private String getTenantDomain(String username) {
 
         if (isInputValidationEnabled()) {
-            String tenantDomain = org.wso2.carbon.utils.multitenancy.MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
             if (!username.contains("@")) {
                 // Should be super tenant alphanumeric username.
-                return tenantDomain;
-            } else {
-                // If input validation is enabled, email type username should be tenant qualified username.
-                // Hence sub string after "@" will be tenant domain.
-                tenantDomain = username.substring(username.lastIndexOf('@') + 1);
+                return MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
             }
-            return tenantDomain;
-        } else {
-            return MultitenantUtils.getTenantDomain(username);
+            // If input validation is enabled, email type username should be tenant qualified username.
+            // sub tenant alpha numeric user names also tenant qualified username.
+            // Hence sub string after "@" will be tenant domain.
+            return username.substring(username.lastIndexOf('@') + 1);
         }
+        return MultitenantUtils.getTenantDomain(username);
     }
 
 
