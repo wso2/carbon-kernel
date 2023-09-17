@@ -3017,7 +3017,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 } catch (CircuitBreakerException ex) {
                     if(log.isDebugEnabled()) {
                         log.debug("Circuit Breaker is in open state for " + extractedDomain +
-                                " domain. Hence ignore " + "the userstore and proceed", ex);
+                                " domain. Hence ignore the userstore and proceed", ex);
                     }
                     log.error("Error occurred while obtaining user store connection.");
                     return Collections.emptyList();
@@ -3260,7 +3260,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 } catch (CircuitBreakerException ex) {
                     if(log.isDebugEnabled()) {
                         log.debug("Circuit Breaker is in open state for " + extractedDomain +
-                                " domain. Hence ignore " + "the userstore and proceed", ex);
+                                " domain. Hence ignore the userstore and proceed", ex);
                     }
                     log.error("Error occurred while obtaining user store connection.");
                     return Collections.emptyList();
@@ -6483,10 +6483,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (this.isCircuitBreakerOpen()) {
                 if (log.isDebugEnabled()) {
                     log.debug("Circuit Breaker is in open state for " + this.getMyDomainName() +
-                            " domain. Hence ignore " + "the userstore and proceed");
+                            " domain. Hence ignore the userstore and proceed");
                 }
-                userList = new String[0];
-                return userList;
+                return new String[0];
             }
             if (!isUniqueUserIdEnabled()) {
                 userList = doListUsers(filter, maxItemLimit);
@@ -6502,8 +6501,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         " domain. Hence ignore " + "the userstore and proceed", ex);
             }
             log.error("Error occurred while obtaining user store connection.");
-            userList = new String[0];
-            return userList;
+            return new String[0];
         } catch (UserStoreException ex) {
             handleGetUserListFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getMessage(), ex.getMessage()),
@@ -11376,9 +11374,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     throw (UserStoreClientException) e;
                 } else if (e instanceof CircuitBreakerException) {   // Handle Circuit breaker if user store is down
                     if (log.isDebugEnabled()) {
-                        log.debug("Circuit Breaker is in open state for " +
-                                abstractUserStoreManager.getMyDomainName() + " domain. Hence ignore the userstore " +
-                                "and proceed");
+                        log.debug("Circuit Breaker is in open state for domain: " + abstractUserStoreManager
+                                .getMyDomainName() + ". Hence ignore the userstore and proceed");
                     }
                     log.error("Error occurred while obtaining user store connection.");
                 }
