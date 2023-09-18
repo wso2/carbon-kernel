@@ -3245,7 +3245,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     // Verify whether circuit breaker is open for user store.
                     if(userStoreManager.isCircuitBreakerOpen()) {
                         if (log.isDebugEnabled()) {
-                            log.debug("Circuit Breaker is in open state for " + extractedDomain);
+                            log.debug("Avoiding user listing as the Circuit Breaker is in open state for domain: "
+                                    + extractedDomain);
                         }
                         return Collections.emptyList();
                     }
@@ -11320,8 +11321,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
                 if (abstractUserStoreManager.isCircuitBreakerOpen()) {
                     if (log.isDebugEnabled()) {
-                        log.debug("Circuit Breaker is in open state for:  "
-                                + abstractUserStoreManager.getMyDomainName());
+                        log.debug("Avoiding searching the " + abstractUserStoreManager.getMyDomainName()
+                                        + " domain as Circuit Breaker is in open state");
                     }
                     authenticated = false;
                 } else {
@@ -18034,24 +18035,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return Integer.parseInt(pwValidityTimeoutStr);
         }
         return DEFAULT_PASSWORD_VALIDITY_PERIOD_VALUE;
-    }
-
-    /**
-     * Convert retry waiting time string to long.
-     *
-     * @param retryWaitingTime Retry waiting time as a string.
-     * @return Retry waiting time in milliseconds.
-     *
-     * @throws UserStoreException An error occurred while parsing the property value
-     */
-    protected long getThresholdTimeoutInMilliseconds(String retryWaitingTime) throws UserStoreException {
-
-        try {
-            return Long.parseLong(retryWaitingTime);
-        } catch (NumberFormatException e) {
-            throw new UserStoreException("Error occurred while parsing ConnectionRetryDelay property value. value: "
-                    + UserStoreConfigConstants.CONNECTION_RETRY_DELAY);
-        }
     }
 
     // Default assigned as false.
