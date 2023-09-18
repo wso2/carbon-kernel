@@ -4505,6 +4505,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DISPLAY_NAME,
                 String.valueOf(UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS),
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DESCRIPTION);
+        // added to implement Circuit Breaker
+        setAdvancedProperty(UserStoreConfigConstants.CONNECTION_RETRY_COUNT,
+                UserStoreConfigConstants.CONNECTION_RETRY_COUNT_DISPLAY_NAME,
+                String.valueOf(UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_COUNT),
+                UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DESCRIPTION);
         setAdvancedProperty(UserStoreConfigConstants.SSLCertificateValidationEnabled, "Enable SSL certificate" +
                 " validation", "true", UserStoreConfigConstants.SSLCertificateValidationEnabledDescription);
         setAdvancedProperty(UserStoreConfigConstants.immutableAttributes,
@@ -4843,10 +4848,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         long circuitOpenDuration = System.currentTimeMillis() - this.connectionSource.getThresholdStartTime();
 
-        if (CIRCUIT_STATE_OPEN.equals(this.connectionSource.getLdapConnectionCircuitBreakerState())
+        if (CIRCUIT_STATE_OPEN.equals(this.connectionSource.getCircuitBreakerState())
                 && circuitOpenDuration <=  this.connectionSource.getThresholdTimeoutInMilliseconds()) {
-            log.warn("Circuit Breaker Triggered: LDAP connection circuit breaker is in open state for "
-                    + circuitOpenDuration + "ms and has not reach the threshold timeout: " +
+            log.warn("LDAP connection circuit breaker is in open state for " + circuitOpenDuration +
+                    "ms and has not reach the threshold timeout: " +
                     this.connectionSource.getThresholdTimeoutInMilliseconds() +
                     " ms, hence avoid establishing the LDAP connection.");
 
