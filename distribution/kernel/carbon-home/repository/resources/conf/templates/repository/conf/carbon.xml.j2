@@ -771,9 +771,13 @@
 
 	<LoadAPIContextsInServerStartup>true</LoadAPIContextsInServerStartup>
    </APIManagement>
-      {% if sts.time_to_live is defined %}
-      <STSTimeToLive>{{sts.time_to_live}}</STSTimeToLive>
-      {% endif %}
+
+    {% if sts.time_to_live is defined %}
+    <STSTimeToLive>{{sts.time_to_live}}</STSTimeToLive>
+    {% endif %}
+    {% if sts.host_name is defined %}
+    <STSHostName>{{sts.host_name}}</STSHostName>
+    {% endif %}
 
 
     <!-- Configure disable/enable shutdown and restart from the Management Console UI -->
