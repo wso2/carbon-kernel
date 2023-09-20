@@ -4844,7 +4844,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      *
      * @return true if CircuitBreaker Open, false otherwise.
      */
-    public Boolean isCircuitBreakerOpen() {
+    public boolean isCircuitBreakerOpen() {
 
         long circuitOpenDuration = System.currentTimeMillis() - this.connectionSource.getThresholdStartTime();
 

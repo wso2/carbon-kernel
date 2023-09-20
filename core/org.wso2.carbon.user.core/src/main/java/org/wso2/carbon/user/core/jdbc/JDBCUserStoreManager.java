@@ -1366,7 +1366,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      * @throws SQLException
      * @throws UserStoreException
      */
-    protected Connection getConnection() throws SQLException, UserStoreException {
+    private Connection getConnection() throws SQLException, UserStoreException {
         Connection dbConnection = getJDBCDataSource().getConnection();
         dbConnection.setAutoCommit(false);
         if (dbConnection.getTransactionIsolation() != Connection.TRANSACTION_READ_COMMITTED) {
@@ -5052,7 +5052,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     public void setCircuitBreakerState(String jdbcConnectionCircuitBreakerState) {
 
         writeLock.lock();
-        try{
+        try {
             this.jdbcConnectionCircuitBreakerState = jdbcConnectionCircuitBreakerState;
         } finally {
             writeLock.unlock();
@@ -5067,7 +5067,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     public void setThresholdTimeoutInMilliseconds(long thresholdTimeoutInMilliseconds) {
 
         writeLock.lock();
-        try{
+        try {
             this.thresholdTimeoutInMilliseconds = thresholdTimeoutInMilliseconds;
         } finally {
             writeLock.unlock();
@@ -5082,7 +5082,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     public void setThresholdStartTime(long thresholdStartTime) {
 
         writeLock.lock();
-        try{
+        try {
             this.thresholdStartTime = thresholdStartTime;
         } finally {
             writeLock.unlock();
@@ -5096,12 +5096,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      */
     public void setConnectionRetryCount(int connectionRetryCount) {
 
-        writeLock.lock();
-        try{
-            this.connectionRetryCount = connectionRetryCount;
-        } finally {
-            writeLock.unlock();
-        }
+        this.connectionRetryCount = connectionRetryCount;
     }
 
     /**
@@ -5174,14 +5169,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      */
     protected long getThresholdTimeoutInMilliseconds(String retryWaitingTime) throws UserStoreException {
 
-        readLock.lock();
         try {
             return Long.parseLong(retryWaitingTime);
         } catch (NumberFormatException e) {
             throw new UserStoreException("Error occurred while parsing ConnectionRetryDelay property value. value: "
                     + CONNECTION_RETRY_DELAY);
-        } finally {
-            readLock.unlock();
         }
     }
 
@@ -5195,14 +5187,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      */
     protected int getConnectionRetryCount(String connectionRetryCount) throws UserStoreException {
 
-        readLock.lock();
         try {
             return Integer.parseInt(connectionRetryCount);
         } catch (NumberFormatException e) {
             throw new UserStoreException("Error occurred while parsing ConnectionRetryCount property value. value: "
                     + CONNECTION_RETRY_COUNT);
-        } finally {
-            readLock.unlock();
         }
     }
 
@@ -5211,9 +5200,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      *
      * @return true if CircuitBreaker Open, false otherwise.
      */
-    public Boolean isCircuitBreakerOpen() {
+    public boolean isCircuitBreakerOpen() {
 
-        long circuitOpenDuration = System.currentTimeMillis() - this.getThresholdStartTime();
+        long circuitOpenDuration = System.currentTimeMillis() - getThresholdStartTime();
 
         if (CIRCUIT_STATE_OPEN.equals(getCircuitBreakerState())
                 && circuitOpenDuration <=  getThresholdTimeoutInMilliseconds()) {

@@ -271,7 +271,7 @@ public class LDAPConnectionContext {
         switch (getCircuitBreakerState()) {
         case CIRCUIT_STATE_OPEN:
             context = getConnectionOnCircuitBreakerOpen();
-            log.info("Successfully retrieved LDAP connection for connection URL: " + environment
+            log.info("Successfully recovered LDAP connection for connection URL: " + environment
                     .get(Context.PROVIDER_URL));
             break;
         case CIRCUIT_STATE_CLOSE:
@@ -301,8 +301,8 @@ public class LDAPConnectionContext {
         if (circuitOpenDuration >= getThresholdTimeoutInMilliseconds()) {
             try {
                 DirContext context = getDirContext();
-                this.setCircuitBreakerState(CIRCUIT_STATE_CLOSE);
-                this.setThresholdStartTime(0);
+                setCircuitBreakerState(CIRCUIT_STATE_CLOSE);
+                setThresholdStartTime(0);
                 return context;
 
             } catch (UserStoreException e) {
@@ -315,7 +315,7 @@ public class LDAPConnectionContext {
         } else {
             throw new CircuitBreakerException(
                     "LDAP connection circuit breaker is in open state for " + circuitOpenDuration
-                            + "ms and has not reach the threshold timeout: " + this.getThresholdTimeoutInMilliseconds()
+                            + "ms and has not reach the threshold timeout: " + getThresholdTimeoutInMilliseconds()
                             + "ms, hence avoid establishing the LDAP connection.");
         }
     }
@@ -899,7 +899,7 @@ public class LDAPConnectionContext {
     public void setCircuitBreakerState(String ldapConnectionCircuitBreakerState) {
 
         writeLock.lock();
-        try{
+        try {
             this.ldapConnectionCircuitBreakerState = ldapConnectionCircuitBreakerState;
         } finally {
             writeLock.unlock();
@@ -913,12 +913,7 @@ public class LDAPConnectionContext {
      */
     public void setThresholdTimeoutInMilliseconds(long thresholdTimeoutInMilliseconds) {
 
-        writeLock.lock();
-        try{
-            this.thresholdTimeoutInMilliseconds = thresholdTimeoutInMilliseconds;
-        } finally {
-            writeLock.unlock();
-        }
+        this.thresholdTimeoutInMilliseconds = thresholdTimeoutInMilliseconds;
     }
 
     /**
@@ -929,7 +924,7 @@ public class LDAPConnectionContext {
     public void setThresholdStartTime(long thresholdStartTime) {
 
         writeLock.lock();
-        try{
+        try {
             this.thresholdStartTime = thresholdStartTime;
         } finally {
             writeLock.unlock();
@@ -943,12 +938,7 @@ public class LDAPConnectionContext {
      */
     public void setConnectionRetryCount(int connectionRetryCount) {
 
-        writeLock.lock();
-        try{
-            this.connectionRetryCount = connectionRetryCount;
-        } finally {
-            writeLock.unlock();
-        }
+        this.connectionRetryCount = connectionRetryCount;
     }
 
     /**
@@ -976,14 +966,11 @@ public class LDAPConnectionContext {
      */
     protected int getConnectionRetryCount(String connectionRetryCount) throws UserStoreException {
 
-        readLock.lock();
         try {
             return Integer.parseInt(connectionRetryCount);
         } catch (NumberFormatException e) {
             throw new UserStoreException("Error occurred while parsing ConnectionRetryCount property value. value: "
                     + UserStoreConfigConstants.CONNECTION_RETRY_COUNT);
-        } finally {
-            readLock.unlock();
         }
     }
 
@@ -1042,14 +1029,11 @@ public class LDAPConnectionContext {
      */
     protected long getThresholdTimeoutInMilliseconds(String retryWaitingTime) throws UserStoreException {
 
-        readLock.lock();
         try {
             return Long.parseLong(retryWaitingTime);
         } catch (NumberFormatException e) {
             throw new UserStoreException("Error occurred while parsing ConnectionRetryDelay property value. value: "
                     + UserStoreConfigConstants.CONNECTION_RETRY_DELAY);
-        } finally {
-            readLock.unlock();
         }
     }
 }
