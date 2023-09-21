@@ -428,6 +428,12 @@
     -->
     <EnableEmailUserName>false</EnableEmailUserName>
     <!--
+      Add extension for UserInfoHandler.
+      UserInfoHandler can used to override getTenantAwareUsername(String username), getTenantDomain(String username)
+      from MultiTenantUtils.   
+    -->
+    <UserInfoHandler/>
+    <!--
        Enable following config to flag input validation configuration.
     -->
     <InputValidationEnabled>true</InputValidationEnabled>

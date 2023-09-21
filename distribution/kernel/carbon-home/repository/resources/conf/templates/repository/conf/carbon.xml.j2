@@ -473,6 +473,12 @@
     -->
     <EnableEmailUserName>{{tenant_mgt.enable_email_domain | default('false')}}</EnableEmailUserName>
     <!--
+      Add extension for UserInfoHandler.
+      UserInfoHandler can used to override getTenantAwareUsername(String username), getTenantDomain(String username)
+      from MultiTenantUtils.
+    -->
+    <UserInfoHandler>{{tenant_mgt.user_info_handler}}</UserInfoHandler>
+    <!--
       Enable following config to flag input validation configuration.
     -->
     <InputValidationEnabled>{{tenant_mgt.enable_input_validation}}</InputValidationEnabled>
