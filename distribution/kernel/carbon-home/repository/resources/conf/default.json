@@ -222,6 +222,5 @@
   "tenant_mgt.enable_tenant_validation_for_nonsaas_username" : true,
   "jce_provider.provider_name" : "BC",
   "signature_util.enable_sha256_algo" : true,
-  "tenant_mgt.enable_input_validation" : false,
-  "tenant_mgt.user_info_handler" : ""
+  "tenant_mgt.enable_input_validation" : false
 }
