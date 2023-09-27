@@ -11545,6 +11545,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 boolean status = ((AbstractUserStoreManager) abstractUserStoreManager)
                         .doAuthenticate(user.getUsername(), credential);
                 if (status) {
+                    user.setTenantDomain(getTenantDomain(tenantId));
                     authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.SUCCESS);
                     authenticationResult.setAuthenticatedUser(user);
                 } else {
