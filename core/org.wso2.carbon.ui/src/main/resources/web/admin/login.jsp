@@ -113,8 +113,11 @@ String bannerContent = adminConfig.getBannerContent();
         String BUNDLE = "org.wso2.carbon.i18n.Resources";
 
         if (loginStatus != null && "false".equalsIgnoreCase(loginStatus)) {
-            if (errorCode == null || (!(StringUtils.isBlank(errorCode)) &&
-                    errorCode.equalsIgnoreCase(CarbonUIUtil.geti18nString(errorCode, BUNDLE, request.getLocale())))) {
+            if (StringUtils.isNotBlank(errorCode)) {
+                if (errorCode.equalsIgnoreCase(CarbonUIUtil.geti18nString(errorCode, BUNDLE, request.getLocale()))){
+                    errorCode = "login.fail.message";
+                }
+            }else{
                 errorCode = "login.fail.message";
             }
     %>
@@ -128,8 +131,11 @@ String bannerContent = adminConfig.getBannerContent();
         }
 
         if (loginStatus != null && "failed".equalsIgnoreCase(loginStatus)) {
-            if (errorCode == null || (!(StringUtils.isBlank(errorCode)) &&
-                    errorCode.equalsIgnoreCase(CarbonUIUtil.geti18nString(errorCode, BUNDLE, request.getLocale())))) {
+            if (StringUtils.isNotBlank(errorCode)) {
+                if (errorCode.equalsIgnoreCase(CarbonUIUtil.geti18nString(errorCode, BUNDLE, request.getLocale()))){
+                    errorCode = "login.fail.message1";
+                }
+            }else{
                 errorCode = "login.fail.message1";
             }
      %>
