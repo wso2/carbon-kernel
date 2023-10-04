@@ -472,11 +472,6 @@
       Enable following config to allow Emails as usernames.
     -->
     <EnableEmailUserName>{{tenant_mgt.enable_email_domain | default('false')}}</EnableEmailUserName>
-    <!--
-      Add extension for UserInfoHandler.
-      UserInfoHandler can used to override getTenantAwareUsername(String username), getTenantDomain(String username)
-      from MultiTenantUtils.
-    -->
     {% if tenant_mgt.user_info_handler is defined %}
     <UserInfoHandler>{{tenant_mgt.user_info_handler}}</UserInfoHandler>
     {% endif %}
