@@ -106,6 +106,10 @@
             <artifactId>xalan</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.wso2.orbit.xalan</groupId>
+            <artifactId>serializer</artifactId>
+        </dependency>
+        <dependency>
             <groupId>xml-apis</groupId>
             <artifactId>xml-apis</artifactId>
         </dependency>
