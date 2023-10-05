@@ -472,6 +472,9 @@
       Enable following config to allow Emails as usernames.
     -->
     <EnableEmailUserName>{{tenant_mgt.enable_email_domain | default('false')}}</EnableEmailUserName>
+    {% if tenant_mgt.user_info_handler is defined %}
+    <UserInfoHandler>{{tenant_mgt.user_info_handler}}</UserInfoHandler>
+    {% endif %}
     <!--
       Enable following config to flag input validation configuration.
     -->
