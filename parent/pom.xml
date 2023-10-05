@@ -642,11 +642,11 @@
         <version.jinjava>2.6.0</version.jinjava>
         <version.cava-toml>0.5.0</version.cava-toml>
         <version.checkstyle>7.8.2</version.checkstyle>
-        <version.jackson>2.13.2</version.jackson>
-        <version.jackson.databind>2.14.0-rc2</version.jackson.databind>
-        <version.jackson.dataformat>2.13.2</version.jackson.dataformat>
+        <version.jackson>2.15.2</version.jackson>
+        <version.jackson.databind>2.15.2</version.jackson.databind>
+        <version.jackson.dataformat>2.15.2</version.jackson.dataformat>
         <version.jsoup>1.15.3</version.jsoup>
-        <version.guava>30.0-jre</version.guava>
+        <version.guava>32.1.1-jre</version.guava>
         <version.ciphertool>1.1.0</version.ciphertool>
         <xml.unit.verions>2.6.2</xml.unit.verions>
         <version.org.apache.felix.scr.ds-annotations>1.2.10</version.org.apache.felix.scr.ds-annotations>
