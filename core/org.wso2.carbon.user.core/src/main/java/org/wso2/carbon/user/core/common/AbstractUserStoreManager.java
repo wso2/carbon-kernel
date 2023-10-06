@@ -11261,8 +11261,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // domain name provided with user name.
 
             try {
-                String preferredUserNameProperty = claimManager
-                        .getAttributeName(getMyDomainName(), preferredUserNameClaim);
+                String preferredUserNameProperty = abstractUserStoreManager.getClaimManager()
+                        .getAttributeName(abstractUserStoreManager.getMyDomainName(), preferredUserNameClaim);
                 // Let's authenticate with the primary UserStoreManager.
 
                 if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
