@@ -715,4 +715,10 @@
         <enableRestart>false</enableRestart>
     </enableShutdownRestartFromAPI>
 
+    <RemoteLogging>
+        <PeriodicDBSync>
+            <Period>15</Period>
+        </PeriodicDBSync>
+    </RemoteLogging>
+
 </Server>
