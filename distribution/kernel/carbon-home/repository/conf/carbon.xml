@@ -726,5 +726,10 @@
     <SignatureUtil>
         <EnableSHA256Algo>true</EnableSHA256Algo>
     </SignatureUtil>
+    <RemoteLogging>
+        <PeriodicDBSync>
+            <Period>15</Period>
+        </PeriodicDBSync>
+    </RemoteLogging>
 
 </Server>
