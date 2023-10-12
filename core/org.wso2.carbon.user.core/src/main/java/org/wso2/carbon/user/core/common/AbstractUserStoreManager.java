@@ -7626,7 +7626,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // First we have to check whether this user store is already resolved and we have it either in the cache or
         // in our local database. If so we can use that.
-        String domainName = userUniqueIDDomainResolver.getDomainForUserId(userId, tenantId);
+        String domainName = null;
+        if (userUniqueIDDomainResolver != null) {
+            domainName = userUniqueIDDomainResolver.getDomainForUserId(userId, tenantId);
+        }
 
         // If we don't have the domain name in our side, then we have to iterate through each user store and find
         // where is this user id from and mark it as the user store domain.
