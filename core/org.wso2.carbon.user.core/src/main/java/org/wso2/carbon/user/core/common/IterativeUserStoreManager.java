@@ -40,6 +40,8 @@ public class IterativeUserStoreManager extends AbstractUserStoreManager {
         this.claimManager = abstractUserStoreManager.getClaimManager();
         this.realmConfig = abstractUserStoreManager.getRealmConfiguration();
         this.tenantId = abstractUserStoreManager.getTenantId();
+        this.userStoreManagerHolder = abstractUserStoreManager.getUserStoreManagerHolder();
+        this.userUniqueIDDomainResolver = abstractUserStoreManager.getUserUniqueIDDomainResolver();
     }
 
     /**
