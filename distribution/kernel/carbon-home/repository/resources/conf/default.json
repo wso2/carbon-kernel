@@ -220,6 +220,7 @@
   "sts.callback_handler" : "org.wso2.carbon.identity.sts.common.identity.provider.AttributeCallbackHandler",
   "tenant_mgt.enable_tenant_theme_mgt" : true,
   "tenant_mgt.enable_tenant_validation_for_nonsaas_username" : true,
+  "tenant_mgt.public_cert_sign_algorithm" : "MD5withRSA",
   "jce_provider.provider_name" : "BC",
   "signature_util.enable_sha256_algo" : true
 
