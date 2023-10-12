@@ -716,9 +716,9 @@
     </enableShutdownRestartFromAPI>
 
     <RemoteLogging>
-        <PeriodicDBSync>
+        <ConfigSync>
             <Period>15</Period>
-        </PeriodicDBSync>
+        </ConfigSync>
     </RemoteLogging>
 
 </Server>

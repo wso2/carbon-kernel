@@ -221,5 +221,5 @@
   "sts.callback_handler" : "org.wso2.carbon.identity.sts.common.identity.provider.AttributeCallbackHandler",
   "tenant_mgt.enable_tenant_theme_mgt" : true,
   "clustering.agent": "org.wso2.carbon.hazelcast.HazelcastClusteringAgent",
-  "remote_logging.periodic_db_sync.period": "15"
+  "remote_logging.config_sync.period": "15"
 }
