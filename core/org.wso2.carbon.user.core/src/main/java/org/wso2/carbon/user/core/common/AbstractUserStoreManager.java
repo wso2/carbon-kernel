@@ -189,7 +189,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private boolean userRolesCacheEnabled = true;
     private String cacheIdentifier;
     private boolean replaceEscapeCharactersAtUserLogin = true;
-    private Map<String, UserStoreManager> userStoreManagerHolder = new HashMap<String, UserStoreManager>();
+    protected Map<String, UserStoreManager> userStoreManagerHolder = new HashMap<String, UserStoreManager>();
     private Map<String, Integer> maxUserListCount = null;
     private Map<String, Integer> maxRoleListCount = null;
     private List<UserStoreManagerConfigurationListener> listener = new ArrayList<UserStoreManagerConfigurationListener>();
@@ -201,7 +201,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     };
 
     private UserUniqueIDManger userUniqueIDManger = new UserUniqueIDManger();
-    private UserUniqueIDDomainResolver userUniqueIDDomainResolver;
+    protected UserUniqueIDDomainResolver userUniqueIDDomainResolver;
     private GroupUniqueIDDomainResolver groupUniqueIDDomainResolver;
 
     private void setClaimManager(ClaimManager claimManager) throws IllegalAccessException {
@@ -17985,5 +17985,25 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return Integer.parseInt(pwValidityTimeoutStr);
         }
         return DEFAULT_PASSWORD_VALIDITY_PERIOD_VALUE;
+    }
+
+    /**
+     * Getter for the user store manager holder.
+     *
+     * @return Map of user store managers.
+     */
+    public Map<String, UserStoreManager> getUserStoreManagerHolder() {
+
+        return userStoreManagerHolder;
+    }
+
+    /**
+     * Getter for the user unique ID domain resolver.
+     *
+     * @return UserUniqueIDDomainResolver.
+     */
+    public UserUniqueIDDomainResolver getUserUniqueIDDomainResolver() {
+
+        return userUniqueIDDomainResolver;
     }
 }
