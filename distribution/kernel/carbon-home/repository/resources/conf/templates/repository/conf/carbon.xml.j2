@@ -303,9 +303,9 @@
         <!--   Flag to enable or disable tenant theming for the management console    -->
         <EnableTenantThemeManagement>{{tenant_mgt.enable_tenant_theme_mgt}}</EnableTenantThemeManagement>
         {% endif %}
-        {% if tenant_mgt.public_cert_sign_algorithm is defined %}
+        {% if tenant_mgt.signing_alg is defined %}
         <!--  Public key certificate signing algorithm for tenants    -->
-        <PublicCertificateSigningAlgorithm>{{tenant_mgt.public_cert_sign_algorithm}}</PublicCertificateSigningAlgorithm>
+        <SigningAlgorithm>{{tenant_mgt.signing_alg}}</SigningAlgorithm>
         {% endif %}
     </Tenant>
 
