@@ -37,6 +37,7 @@ import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
 import org.wso2.carbon.user.core.hybrid.HybridRoleManager;
+import org.wso2.carbon.user.core.hybrid.HybridRoleV2Manager;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
@@ -152,7 +153,8 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                 .get(UserCoreConstants.FIRST_STARTUP_CHECK);
 
         // hybrid role manager used if only users needs to be read-written.
-        hybridRoleManager = new HybridRoleManager(dataSource, tenantId, realmConfig, userRealm);
+        hybridRoleManager = new HybridRoleV2Manager(dataSource, tenantId,
+                "10084a8d-113f-4211-a0d5-efe36b082211", realmConfig, userRealm);
 
         // obtain the ldap connection source that was created in
         // DefaultRealmService.

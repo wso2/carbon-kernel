@@ -28,7 +28,7 @@ import java.io.File;
 
 public class AdvancedHybridRoleManagerTest extends BaseTestCase {
 
-    private HybridRoleManager hybridRoleMan;
+    private HybridRoleV2Manager hybridRoleMan;
 
     public void setUp() throws Exception {
         super.setUp();

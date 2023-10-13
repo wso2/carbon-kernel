@@ -48,6 +48,7 @@ import org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages;
 import org.wso2.carbon.user.core.dto.RoleDTO;
 import org.wso2.carbon.user.core.hash.HashProvider;
 import org.wso2.carbon.user.core.hybrid.HybridRoleManager;
+import org.wso2.carbon.user.core.hybrid.HybridRoleV2Manager;
 import org.wso2.carbon.user.core.internal.UMListenerServiceComponent;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDataHolder;
@@ -178,7 +179,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected RealmConfiguration realmConfig = null;
     protected ClaimManager claimManager = null;
     protected UserRealm userRealm = null;
-    protected HybridRoleManager hybridRoleManager = null;
+    protected HybridRoleV2Manager hybridRoleManager = null;
     protected HashProvider hashProvider = null;
     // User roles cache
     protected UserRolesCache userRolesCache = null;
@@ -9034,7 +9035,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected void doInitialSetup() throws UserStoreException {
 
         systemUserRoleManager = new SystemUserRoleManager(dataSource, tenantId);
-        hybridRoleManager = new HybridRoleManager(dataSource, tenantId, realmConfig, userRealm);
+        hybridRoleManager = new HybridRoleV2Manager(dataSource, tenantId,
+                "10084a8d-113f-4211-a0d5-efe36b082211", realmConfig, userRealm);
         userUniqueIDDomainResolver = new UserUniqueIDDomainResolver(dataSource);
         groupUniqueIDDomainResolver = new GroupUniqueIDDomainResolver(dataSource);
     }
@@ -10021,7 +10023,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
-    public HybridRoleManager getInternalRoleManager() {
+    public HybridRoleV2Manager getInternalRoleManager() {
+        return hybridRoleManager;
+    }
+
+    public HybridRoleV2Manager getInternalRoleV2Manager() {
         return hybridRoleManager;
     }
 

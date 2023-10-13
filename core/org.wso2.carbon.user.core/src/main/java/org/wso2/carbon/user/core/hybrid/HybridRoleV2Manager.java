@@ -13,7 +13,6 @@ import org.wso2.carbon.user.core.authorization.AuthorizationCache;
 import org.wso2.carbon.user.core.common.UserRolesCache;
 import org.wso2.carbon.user.core.constants.UserCoreDBConstants;
 import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
-import org.wso2.carbon.user.core.dto.RoleV2DTO;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
@@ -264,8 +263,6 @@ public class HybridRoleV2Manager {
             if (rs != null) {
                 while (rs.next()) {
                     String name = rs.getString(1);
-                    String audience = rs.getString(2);
-                    String audienceId = rs.getString(3);
                     // Append the domain
                     if (!name.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
                         name = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR
@@ -589,8 +586,6 @@ public class HybridRoleV2Manager {
                     }
 
                     String roleName = resultSet.getString(2);
-                    String audience = resultSet.getString(3);
-                    String audienceId = resultSet.getString(4);
                     List<String> userRoles = hybridRoleListOfUsers.get(userName);
                     if (userRoles == null) {
                         userRoles = new ArrayList<>();
@@ -665,8 +660,6 @@ public class HybridRoleV2Manager {
                     }
 
                     String roleName = resultSet.getString(2);
-                    String audience = resultSet.getString(3);
-                    String audienceId = resultSet.getString(4);
                     List<String> groupRoles = hybridRoleListOfGroups.computeIfAbsent(groupName, k -> new ArrayList<>());
 
                     if (!roleName.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
@@ -981,8 +974,6 @@ public class HybridRoleV2Manager {
             rs = prepStmt.executeQuery();
             while (rs.next()) {
                 String name = rs.getString(1);
-                String audience = rs.getString(2);
-                String audienceId = rs.getString(3);
                 roles.add(name);
             }
             return roles.toArray(new String[0]);
@@ -1154,10 +1145,8 @@ public class HybridRoleV2Manager {
      * @return audience ref id.
      * @throws UserStoreException IdentityRoleManagementException.
      */
-    private int getRoleAudienceRefId(String audience, String audienceId)
-            throws UserStoreException {
+    private int getRoleAudienceRefId(String audience, String audienceId) throws UserStoreException {
 
-        int id = -1;
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -1168,14 +1157,10 @@ public class HybridRoleV2Manager {
             prepStmt.setString(2, audienceId);
             rs = prepStmt.executeQuery();
             if (rs.next()) {
-                int value = rs.getInt(1);
-                if (value > -1) {
-                    return value;
-                } else {
-                    DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.ADD_ROLE_V2_AUDIENCE_SQL,
-                            audience, audienceId);
-                    return getRoleAudienceRefId(audience, audienceId);
-                }
+                return rs.getInt(1);
+            } else {
+                addRoleAudience(audience, audienceId);
+                return getRoleAudienceRefId(audience, audienceId);
             }
         } catch (SQLException e) {
             String errorMessage = "Error occurred while retrieving audience ref id for audience : " + audience
@@ -1185,7 +1170,26 @@ public class HybridRoleV2Manager {
             }
             throw new UserStoreException(errorMessage, e);
         }
-        return id;
+    }
+
+    private void addRoleAudience(String audience, String audienceId) throws UserStoreException {
+
+        Connection dbConnection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        try {
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
+            DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.ADD_ROLE_V2_AUDIENCE_SQL,
+                    audience, audienceId);
+            dbConnection.commit();
+        } catch (SQLException e) {
+            String errorMessage = "Error occurred while retrieving audience ref id for audience : " + audience
+                    + " audienceId : " + audienceId;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        }
     }
 
     private void throwRoleAlreadyExistsError(String roleName) throws UserStoreException{

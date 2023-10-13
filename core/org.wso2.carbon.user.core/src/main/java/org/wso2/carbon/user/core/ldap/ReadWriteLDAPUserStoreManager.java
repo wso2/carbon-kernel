@@ -34,7 +34,7 @@ import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.RoleContext;
-import org.wso2.carbon.user.core.hybrid.HybridRoleManager;
+import org.wso2.carbon.user.core.hybrid.HybridRoleV2Manager;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
@@ -54,7 +54,6 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
-
 import javax.naming.Name;
 import javax.naming.NameAlreadyBoundException;
 import javax.naming.NameParser;
@@ -152,7 +151,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 .get(UserCoreConstants.FIRST_STARTUP_CHECK);
 
         // hybrid role manager used if only users needs to be read-written.
-        hybridRoleManager = new HybridRoleManager(dataSource, tenantId, realmConfig, userRealm);
+        hybridRoleManager = new HybridRoleV2Manager(dataSource, tenantId,
+                "10084a8d-113f-4211-a0d5-efe36b082211", realmConfig, userRealm);
 
         // obtain the ldap connection source that was created in
         // DefaultRealmService.

@@ -50,8 +50,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
-import static org.wso2.carbon.user.core.hybrid.HybridJDBCConstants.COUNT_INTERNAL_ONLY_ROLES_SQL;
-import static org.wso2.carbon.user.core.hybrid.HybridJDBCConstants.COUNT_INTERNAL_ROLES_SQL;
+import static org.wso2.carbon.user.core.hybrid.HybridJDBCConstants.COUNT_INTERNAL_ONLY_ROLES_SQL_WITH_AUDIENCE;
+import static org.wso2.carbon.user.core.hybrid.HybridJDBCConstants.COUNT_INTERNAL_ROLES_SQL_WITH_AUDIENCE;
 
 public class HybridRoleManager {
 
@@ -115,13 +115,13 @@ public class HybridRoleManager {
                 throwRoleAlreadyExistsError(roleName);
             }
             if (userList != null) {
-                String sql = HybridJDBCConstants.ADD_USER_TO_ROLE_SQL;
+                String sql = HybridJDBCConstants.ADD_USER_TO_ROLE_SQL_WITH_AUDIENCE;
                 String type = DatabaseCreator.getDatabaseType(dbConnection);
                 if (UserCoreConstants.MSSQL_TYPE.equals(type)) {
-                    sql = HybridJDBCConstants.ADD_USER_TO_ROLE_SQL_MSSQL;
+                    sql = HybridJDBCConstants.ADD_USER_TO_ROLE_SQL_MSSQL_WITH_AUDIENCE;
                 }
                 if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
-                    sql = HybridJDBCConstants.ADD_USER_TO_ROLE_SQL_OPENEDGE;
+                    sql = HybridJDBCConstants.ADD_USER_TO_ROLE_SQL_OPENEDGE_WITH_AUDIENCE;
                     DatabaseUtil.udpateUserRoleMappingInBatchModeForInternalRoles(dbConnection,
                             sql, primaryDomainName, userList, tenantId, roleName, tenantId);
                 } else {
@@ -188,7 +188,7 @@ public class HybridRoleManager {
             // ########### Domain-less Roles and Domain-aware Users from here onwards #############
 
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
-            prepStmt = dbConnection.prepareStatement(HybridJDBCConstants.GET_ROLE_ID);
+            prepStmt = dbConnection.prepareStatement(HybridJDBCConstants.GET_ROLE_ID_WITH_AUDIENCE);
             prepStmt.setString(1, roleName);
             prepStmt.setInt(2, tenantId);
             rs = prepStmt.executeQuery();
@@ -224,7 +224,7 @@ public class HybridRoleManager {
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
 
-        String sqlStmt = HybridJDBCConstants.GET_ROLES;
+        String sqlStmt = HybridJDBCConstants.GET_ROLES_WITH_AUDIENCE;
         int maxItemLimit = UserCoreConstants.MAX_USER_ROLE_LIST;
         int searchTime = UserCoreConstants.MAX_SEARCH_TIME;
 
@@ -273,9 +273,9 @@ public class HybridRoleManager {
 
             if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
                 if (DB2.equalsIgnoreCase(dbType)) {
-                    sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLES_DB2;
+                    sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLES_DB2_WITH_AUDIENCE;
                 } else {
-                    sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLES;
+                    sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLES_WITH_AUDIENCE;
                 }
             }
 
@@ -353,7 +353,7 @@ public class HybridRoleManager {
 
         // ########### Domain-less Roles and Domain-aware Users from here onwards #############
 
-        String sqlStmt = HybridJDBCConstants.GET_USER_LIST_OF_ROLE_SQL;
+        String sqlStmt = HybridJDBCConstants.GET_USER_LIST_OF_ROLE_SQL_WITH_AUDIENCE;
         Connection dbConnection = null;
         try {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
@@ -380,10 +380,10 @@ public class HybridRoleManager {
     public void updateUserListOfHybridRole(String roleName, String[] deletedUsers, String[] newUsers)
             throws UserStoreException {
 
-        String sqlStmt1 = HybridJDBCConstants.REMOVE_USER_FROM_ROLE_SQL;
-        String sqlStmt2 = HybridJDBCConstants.ADD_USER_TO_ROLE_SQL;
+        String sqlStmt1 = HybridJDBCConstants.REMOVE_USER_FROM_ROLE_SQL_WITH_AUDIENCE;
+        String sqlStmt2 = HybridJDBCConstants.ADD_USER_TO_ROLE_SQL_WITH_AUDIENCE;
         if (!isCaseSensitiveUsername()) {
-            sqlStmt1 = HybridJDBCConstants.REMOVE_USER_FROM_ROLE_SQL_CASE_INSENSITIVE;
+            sqlStmt1 = HybridJDBCConstants.REMOVE_USER_FROM_ROLE_SQL_CASE_INSENSITIVE_WITH_AUDIENCE;
         }
         Connection dbConnection = null;
 
@@ -400,7 +400,7 @@ public class HybridRoleManager {
             String type = DatabaseCreator.getDatabaseType(dbConnection);
 
             if (UserCoreConstants.MSSQL_TYPE.equals(type)) {
-                sqlStmt2 = HybridJDBCConstants.ADD_USER_TO_ROLE_SQL_MSSQL;
+                sqlStmt2 = HybridJDBCConstants.ADD_USER_TO_ROLE_SQL_MSSQL_WITH_AUDIENCE;
             }
 
             if (deletedUsers != null && deletedUsers.length > 0) {
@@ -415,7 +415,7 @@ public class HybridRoleManager {
 
             if (newUsers != null && newUsers.length > 0) {
                 if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
-                    sqlStmt2 = HybridJDBCConstants.ADD_USER_TO_ROLE_SQL_OPENEDGE;
+                    sqlStmt2 = HybridJDBCConstants.ADD_USER_TO_ROLE_SQL_OPENEDGE_WITH_AUDIENCE;
                     DatabaseUtil.udpateUserRoleMappingInBatchModeForInternalRoles(dbConnection,
                             sqlStmt2, primaryDomainName, newUsers, tenantId, roleName, tenantId);
                 } else {
@@ -453,8 +453,8 @@ public class HybridRoleManager {
     public void updateGroupListOfHybridRole(String roleName, String[] deletedGroups, String[] newGroups)
             throws UserStoreException {
 
-        String sqlStmt1 = HybridJDBCConstants.REMOVE_GROUP_FROM_ROLE_SQL;
-        String sqlStmt2 = HybridJDBCConstants.ADD_GROUP_TO_ROLE_SQL;
+        String sqlStmt1 = HybridJDBCConstants.REMOVE_GROUP_FROM_ROLE_SQL_WITH_AUDIENCE;
+        String sqlStmt2 = HybridJDBCConstants.ADD_GROUP_TO_ROLE_SQL_WITH_AUDIENCE;
 
         try (Connection dbConnection = DatabaseUtil.getDBConnection(dataSource)) {
 
@@ -465,7 +465,7 @@ public class HybridRoleManager {
 
             String type = DatabaseCreator.getDatabaseType(dbConnection);
             if (UserCoreConstants.MSSQL_TYPE.equals(type)) {
-                sqlStmt2 = HybridJDBCConstants.ADD_GROUP_TO_ROLE_SQL_MSSQL;
+                sqlStmt2 = HybridJDBCConstants.ADD_GROUP_TO_ROLE_SQL_MSSQL_WITH_AUDIENCE;
             }
 
             if (ArrayUtils.isNotEmpty(deletedGroups)) {
@@ -475,7 +475,7 @@ public class HybridRoleManager {
 
             if (ArrayUtils.isNotEmpty(newGroups)) {
                 if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
-                    sqlStmt2 = HybridJDBCConstants.ADD_GROUP_TO_ROLE_SQL_OPENEDGE;
+                    sqlStmt2 = HybridJDBCConstants.ADD_GROUP_TO_ROLE_SQL_OPENEDGE_WITH_AUDIENCE;
                     DatabaseUtil.udpateUserRoleMappingInBatchModeForInternalRoles(dbConnection, sqlStmt2, domainName,
                             newGroups, tenantId, roleName, tenantId);
                 } else {
@@ -508,7 +508,7 @@ public class HybridRoleManager {
      */
     public String[] getGroupListOfHybridRole(String roleName) throws UserStoreException {
 
-        String sqlStmt = HybridJDBCConstants.GET_GROUP_LIST_OF_ROLE_SQL;
+        String sqlStmt = HybridJDBCConstants.GET_GROUP_LIST_OF_ROLE_SQL_WITH_AUDIENCE;
         try (Connection dbConnection = DatabaseUtil.getDBConnection(dataSource)) {
             return DatabaseUtil
                     .getStringValuesFromDatabaseForInternalRoles(dbConnection, sqlStmt, roleName, tenantId, tenantId);
@@ -543,7 +543,7 @@ public class HybridRoleManager {
             if (StringUtils.isEmpty(filter) || filter.equals("*")) {
                 sqlStmt = getHybridRoleListSqlStatement(
                         realmConfig.getRealmProperty(HybridJDBCConstants.GET_ROLE_LIST_OF_USER),
-                        HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL,
+                        HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL_WITH_AUDIENCE,
                         JDBCCaseInsensitiveConstants.GET_ROLE_LIST_OF_USER_SQL_CASE_INSENSITIVE);
                 roles = DatabaseUtil
                         .getStringValuesFromDatabase(dbConnection, sqlStmt, UserCoreUtil.removeDomainFromName(userName),
@@ -554,8 +554,8 @@ public class HybridRoleManager {
                 filter = filter.replace("?", "_");
                 sqlStmt = getHybridRoleListSqlStatement(
                         realmConfig.getRealmProperty(HybridJDBCConstants.GET_IS_ROLE_EXIST_LIST_OF_USER),
-                        HybridJDBCConstants.GET_ROLE_OF_USER_SQL,
-                        JDBCCaseInsensitiveConstants.GET_IS_USER_ROLE_SQL_CASE_INSENSITIVE);
+                        HybridJDBCConstants.GET_ROLE_OF_USER_SQL_WITH_AUDIENCE,
+                        JDBCCaseInsensitiveConstants.GET_IS_USER_ROLE_SQL_CASE_INSENSITIVE_WITH_AUDIENCE);
 
                 // If the filter contains the internal domain, then here we remove the internal domain from the filter
                 // as the database only has the role name without the internal domain.
@@ -566,8 +566,8 @@ public class HybridRoleManager {
             } else {
                 sqlStmt = getHybridRoleListSqlStatement(
                         realmConfig.getRealmProperty(HybridJDBCConstants.GET_IS_ROLE_EXIST_LIST_OF_USER),
-                        HybridJDBCConstants.GET_USER_ROLE_NAME_SQL,
-                        JDBCCaseInsensitiveConstants.GET_IS_USER_ROLE_SQL_CASE_INSENSITIVE);
+                        HybridJDBCConstants.GET_USER_ROLE_NAME_SQL_WITH_AUDIENCE,
+                        JDBCCaseInsensitiveConstants.GET_IS_USER_ROLE_SQL_CASE_INSENSITIVE_WITH_AUDIENCE);
 
                 filter = truncateInternalDomainFromFilter(filter);
                 roles = DatabaseUtil
@@ -648,7 +648,7 @@ public class HybridRoleManager {
         StringBuilder usernameParameter = new StringBuilder();
         if (isCaseSensitiveUsername()) {
             if (StringUtils.isEmpty(sqlStmt)) {
-                sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLE_LIST_OF_USERS_SQL;
+                sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLE_LIST_OF_USERS_SQL_WITH_AUDIENCE;
             }
             for (int i = 0; i < userNames.size(); i++) {
 
@@ -661,7 +661,8 @@ public class HybridRoleManager {
             }
         } else {
             if (sqlStmt == null) {
-                sqlStmt = JDBCCaseInsensitiveConstants.GET_INTERNAL_ROLE_LIST_OF_USERS_SQL_CASE_INSENSITIVE;
+                sqlStmt = JDBCCaseInsensitiveConstants
+                        .GET_INTERNAL_ROLE_LIST_OF_USERS_SQL_CASE_INSENSITIVE_WITH_AUDIENCE;
             }
             for (int i = 0; i < userNames.size(); i++) {
 
@@ -741,7 +742,7 @@ public class HybridRoleManager {
         StringBuilder groupNameParameter = new StringBuilder();
 
         if (StringUtils.isEmpty(sqlStmt)) {
-            sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLE_LIST_OF_GROUPS_SQL;
+            sqlStmt = HybridJDBCConstants.GET_INTERNAL_ROLE_LIST_OF_GROUPS_SQL_WITH_AUDIENCE;
         }
         for (int i = 0; i < groupNames.size(); i++) {
             groupNames.set(i, groupNames.get(i).replaceAll("'", "''"));
@@ -794,10 +795,10 @@ public class HybridRoleManager {
     public void updateHybridRoleListOfUser(String user, String[] deletedRoles, String[] addRoles)
             throws UserStoreException {
 
-        String sqlStmt1 = HybridJDBCConstants.REMOVE_ROLE_FROM_USER_SQL;
-        String sqlStmt2 = HybridJDBCConstants.ADD_ROLE_TO_USER_SQL;
+        String sqlStmt1 = HybridJDBCConstants.REMOVE_ROLE_FROM_USER_SQL_WITH_AUDIENCE;
+        String sqlStmt2 = HybridJDBCConstants.ADD_ROLE_TO_USER_SQL_WITH_AUDIENCE;
         if(!isCaseSensitiveUsername()){
-            sqlStmt1 = HybridJDBCConstants.REMOVE_ROLE_FROM_USER_SQL_CASE_INSENSITIVE;
+            sqlStmt1 = HybridJDBCConstants.REMOVE_ROLE_FROM_USER_SQL_CASE_INSENSITIVE_WITH_AUDIENCE;
         }
         Connection dbConnection = null;
 
@@ -810,7 +811,7 @@ public class HybridRoleManager {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
             String type = DatabaseCreator.getDatabaseType(dbConnection);
             if (UserCoreConstants.MSSQL_TYPE.equals(type)) {
-                sqlStmt2 = HybridJDBCConstants.ADD_ROLE_TO_USER_SQL_MSSQL;
+                sqlStmt2 = HybridJDBCConstants.ADD_ROLE_TO_USER_SQL_MSSQL_WITH_AUDIENCE;
             }
 
             if (domain != null) {
@@ -836,7 +837,7 @@ public class HybridRoleManager {
                 String[] rolesToAdd = newRoleList.toArray(new String[newRoleList.size()]);
 
                 if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
-                    sqlStmt2 = HybridJDBCConstants.ADD_ROLE_TO_USER_SQL_OPENEDGE;
+                    sqlStmt2 = HybridJDBCConstants.ADD_ROLE_TO_USER_SQL_OPENEDGE_WITH_AUDIENCE;
                     DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, user,
                             tenantId, rolesToAdd, tenantId);
                 } else {
@@ -883,9 +884,10 @@ public class HybridRoleManager {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
             if(isCascadeDeleteEnabled == null || !Boolean.parseBoolean(isCascadeDeleteEnabled)) {
                 DatabaseUtil.updateDatabase(dbConnection,
-                        HybridJDBCConstants.ON_DELETE_ROLE_REMOVE_USER_ROLE_SQL, roleName, tenantId, tenantId);
+                        HybridJDBCConstants.ON_DELETE_ROLE_REMOVE_USER_ROLE_SQL_WITH_AUDIENCE, roleName, tenantId,
+                        tenantId);
             }
-            DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.DELETE_ROLE_SQL,
+            DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.DELETE_ROLE_SQL_WITH_AUDIENCE,
                     roleName, tenantId);
             dbConnection.commit();
         } catch (SQLException e) {
@@ -924,7 +926,7 @@ public class HybridRoleManager {
                     + " in the system. Please pick another role name.");
         }
 
-        String sqlStmt = HybridJDBCConstants.UPDATE_ROLE_NAME_SQL;
+        String sqlStmt = HybridJDBCConstants.UPDATE_ROLE_NAME_SQL_WITH_AUDIENCE;
         if (sqlStmt == null) {
             throw new UserStoreException("The sql statement for update hybrid role name is null");
         }
@@ -975,10 +977,10 @@ public class HybridRoleManager {
         try {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
             if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
-                sqlStmt = COUNT_INTERNAL_ONLY_ROLES_SQL;
+                sqlStmt = COUNT_INTERNAL_ONLY_ROLES_SQL_WITH_AUDIENCE;
                 filter = filter.replace(UserCoreConstants.INTERNAL_DOMAIN, "");
             } else {
-                sqlStmt = COUNT_INTERNAL_ROLES_SQL;
+                sqlStmt = COUNT_INTERNAL_ROLES_SQL_WITH_AUDIENCE;
             }
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, filter);
