@@ -36,6 +36,7 @@ import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.hybrid.HybridRoleManager;
 import org.wso2.carbon.user.core.hybrid.HybridRoleV2Manager;
+import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tenant.Tenant;
@@ -154,7 +155,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
         // hybrid role manager used if only users needs to be read-written.
         if (isUsingRoleV2()) {
-            RealmService realmService = UserCoreUtil.getRealmService();
+            RealmService realmService = UserStoreMgtDSComponent.getRealmService();
             org.wso2.carbon.user.api.Tenant tenant;
             try {
                 tenant = realmService.getTenantManager().getTenant(tenantId);

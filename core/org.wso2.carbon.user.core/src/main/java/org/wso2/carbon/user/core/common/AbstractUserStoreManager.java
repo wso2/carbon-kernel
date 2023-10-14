@@ -9038,17 +9038,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         systemUserRoleManager = new SystemUserRoleManager(dataSource, tenantId);
         if (isUsingRoleV2()) {
-            RealmService realmService = UserCoreUtil.getRealmService();
-            Tenant tenant;
-            try {
-                tenant = realmService.getTenantManager().getTenant(tenantId);
-            } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                throw new UserStoreException("Error while retrieving tenant");
-            }
-            String organizationID = tenant.getAssociatedOrganizationUUID();
-            if (StringUtils.isEmpty(organizationID)) {
-                throw new UserStoreException("Organization id for tenant id : " + tenantId + "not found" );
-            }
+            String organizationID = "10084a8d-113f-4211-a0d5-efe36b082211";
             hybridRoleManager = new HybridRoleV2Manager(dataSource, tenantId,
                     organizationID, realmConfig, userRealm);
         } else {
