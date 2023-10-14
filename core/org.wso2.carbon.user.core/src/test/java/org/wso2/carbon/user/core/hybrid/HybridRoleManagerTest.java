@@ -104,51 +104,51 @@ public class HybridRoleManagerTest extends BaseTestCase {
         int numberOfHybridRoles = hybridRoleMan.getHybridRoles("*").length;
 
         // Test add new internal role
-//        hybridRoleMan.addHybridRole("ThunderCats", null);
-//        assertTrue(hybridRoleMan.isExistingRole("ThunderCats"));
-//        numberOfHybridRoles += 1;
-//
-//        // Assign internal role to users
-//        hybridRoleMan.updateHybridRoleListOfUser("Lionel", null, new String[]{"ThunderCats"});
-//        hybridRoleMan.updateHybridRoleListOfUser("Willykat", null, new String[]{"ThunderCats"});
-//        hybridRoleMan.updateHybridRoleListOfUser("Willykit", null, new String[]{"ThunderCats"});
-//
-//        // Add hybrid role with users
-//        hybridRoleMan.addHybridRole("Siblings", new String[]{"Willykat", "Willykit"});
-//        hybridRoleMan.addHybridRole("Friends", new String[]{"Lionel", "Willykit"});
-//        numberOfHybridRoles += 2;
-//
-//        // Check all existing hybrid roles created
-//        assertEquals(numberOfHybridRoles, hybridRoleMan.getHybridRoles("*").length);
-//
-//        // Check whether hybrid role assigned to user
-//        assertEquals(3, hybridRoleMan.getHybridRoleListOfUser("Lionel", "*").length);
-//
-//        // Check whether users assigned to hybrid role
-//        assertEquals(3, hybridRoleMan.getUserListOfHybridRole("ThunderCats").length);
-//
-//        // Update users of hybrid role add/remove
-//        hybridRoleMan.updateUserListOfHybridRole("ThunderCats", new String[]{"Willykat",
-//                "Willykit"}, new String[]{"Snarf"});
-//        assertEquals(2, hybridRoleMan.getUserListOfHybridRole("ThunderCats").length);
-//
-//        // Update user with lower case remove user; entries should not delete as case sensitive
-//        hybridRoleMan.updateUserListOfHybridRole("ThunderCats", new String[]{"snarf"}, null);
-//        assertEquals(2, hybridRoleMan.getUserListOfHybridRole("ThunderCats").length);
-//
-//        // Delete hybrid role
-//        hybridRoleMan.deleteHybridRole("ThunderCats");
-//        assertEquals(2, hybridRoleMan.getHybridRoleListOfUser("Lionel", "").length);
-//
-//        // Delete user with lower case; entries should not delete as case sensitive
-//        hybridRoleMan.deleteUser("lionel");
-//        assertEquals(2, hybridRoleMan.getUserListOfHybridRole("Friends").length);
-//
-//        // Change realm to pick CaseInSensitive User store configurations
-//        initRealmStuff(JDBC_TEST_CASE_INSENSITIVE_USERMGT_XML);
-//
-//        // Delete user with lower case; entries should not delete as case in-sensitive
-//        hybridRoleMan.deleteUser("lionel");
-//        assertEquals(1, hybridRoleMan.getUserListOfHybridRole("Friends").length);
+        hybridRoleMan.addHybridRole("ThunderCats", null);
+        assertTrue(hybridRoleMan.isExistingRole("ThunderCats"));
+        numberOfHybridRoles += 1;
+
+        // Assign internal role to users
+        hybridRoleMan.updateHybridRoleListOfUser("Lionel", null, new String[]{"ThunderCats"});
+        hybridRoleMan.updateHybridRoleListOfUser("Willykat", null, new String[]{"ThunderCats"});
+        hybridRoleMan.updateHybridRoleListOfUser("Willykit", null, new String[]{"ThunderCats"});
+
+        // Add hybrid role with users
+        hybridRoleMan.addHybridRole("Siblings", new String[]{"Willykat", "Willykit"});
+        hybridRoleMan.addHybridRole("Friends", new String[]{"Lionel", "Willykit"});
+        numberOfHybridRoles += 2;
+
+        // Check all existing hybrid roles created
+        assertEquals(numberOfHybridRoles, hybridRoleMan.getHybridRoles("*").length);
+
+        // Check whether hybrid role assigned to user
+        assertEquals(3, hybridRoleMan.getHybridRoleListOfUser("Lionel", "*").length);
+
+        // Check whether users assigned to hybrid role
+        assertEquals(3, hybridRoleMan.getUserListOfHybridRole("ThunderCats").length);
+
+        // Update users of hybrid role add/remove
+        hybridRoleMan.updateUserListOfHybridRole("ThunderCats", new String[]{"Willykat",
+                "Willykit"}, new String[]{"Snarf"});
+        assertEquals(2, hybridRoleMan.getUserListOfHybridRole("ThunderCats").length);
+
+        // Update user with lower case remove user; entries should not delete as case sensitive
+        hybridRoleMan.updateUserListOfHybridRole("ThunderCats", new String[]{"snarf"}, null);
+        assertEquals(2, hybridRoleMan.getUserListOfHybridRole("ThunderCats").length);
+
+        // Delete hybrid role
+        hybridRoleMan.deleteHybridRole("ThunderCats");
+        assertEquals(2, hybridRoleMan.getHybridRoleListOfUser("Lionel", "").length);
+
+        // Delete user with lower case; entries should not delete as case sensitive
+        hybridRoleMan.deleteUser("lionel");
+        assertEquals(2, hybridRoleMan.getUserListOfHybridRole("Friends").length);
+
+        // Change realm to pick CaseInSensitive User store configurations
+        initRealmStuff(JDBC_TEST_CASE_INSENSITIVE_USERMGT_XML);
+
+        // Delete user with lower case; entries should not delete as case in-sensitive
+        hybridRoleMan.deleteUser("lionel");
+        assertEquals(1, hybridRoleMan.getUserListOfHybridRole("Friends").length);
     }
 }
