@@ -37,7 +37,7 @@ import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMe
 import static org.wso2.carbon.user.core.hybrid.HybridJDBCConstants.COUNT_INTERNAL_ONLY_ROLES_V2_SQL_WITH_AUDIENCE;
 import static org.wso2.carbon.user.core.hybrid.HybridJDBCConstants.COUNT_INTERNAL_ROLES_V2_SQL_WITH_AUDIENCE;
 
-public class HybridRoleV2Manager {
+public class HybridRoleV2Manager implements HybridRoleBasedManager {
 
     private static Log log = LogFactory.getLog(JDBCUserStoreManager.class);
     private final int DEFAULT_MAX_ROLE_LIST_SIZE = 1000;
@@ -75,11 +75,7 @@ public class HybridRoleV2Manager {
 
     }
 
-    /**
-     * @param roleName Domain-less role
-     * @param userList Domain-aware user list
-     * @throws UserStoreException
-     */
+    @Override
     public void addHybridRole(String roleName, String[] userList)
             throws UserStoreException {
         Connection dbConnection = null;
@@ -162,11 +158,7 @@ public class HybridRoleV2Manager {
         }
     }
 
-    /**
-     * @param filter
-     * @return
-     * @throws UserStoreException
-     */
+    @Override
     public String[] getHybridRoles(String filter) throws UserStoreException {
 
         Connection dbConnection = null;
@@ -289,11 +281,7 @@ public class HybridRoleV2Manager {
         }
     }
 
-    /**
-     * @param userName
-     * @return
-     * @throws UserStoreException
-     */
+    @Override
     public String[] getHybridRoleListOfUser(String userName, String filter) throws UserStoreException {
 
         String sqlStmt;
@@ -375,12 +363,7 @@ public class HybridRoleV2Manager {
         }
     }
 
-    /**
-     * @param roleName
-     * @param deletedUsers
-     * @param newUsers
-     * @throws UserStoreException
-     */
+    @Override
     public void updateUserListOfHybridRole(String roleName, String[] deletedUsers,
                                            String[] newUsers) throws UserStoreException {
 
@@ -445,14 +428,7 @@ public class HybridRoleV2Manager {
         }
     }
 
-    /**
-     * Update group list of role.
-     *
-     * @param roleName      Role name.
-     * @param deletedGroups Deleted groups.
-     * @param newGroups     New groups.
-     * @throws UserStoreException UserStoreException.
-     */
+    @Override
     public void updateGroupListOfHybridRole(String roleName, String[] deletedGroups, String[] newGroups)
             throws UserStoreException {
 
@@ -502,13 +478,7 @@ public class HybridRoleV2Manager {
         }
     }
 
-    /**
-     * Get group list of the given hybrid role.
-     *
-     * @param roleName Role name.
-     * @return List og groups.
-     * @throws UserStoreException UserStoreException.
-     */
+    @Override
     public String[] getGroupListOfHybridRole(String roleName) throws UserStoreException {
 
         String sqlStmt = HybridJDBCConstants.GET_GROUP_LIST_OF_ROLE_V2_SQL_WITH_AUDIENCE;
@@ -526,13 +496,7 @@ public class HybridRoleV2Manager {
         }
     }
 
-    /**
-     * Get hybrid role list of users
-     *
-     * @param userNames user name list
-     * @return map of hybrid role list of users
-     * @throws UserStoreException userStoreException
-     */
+    @Override
     public Map<String, List<String>> getHybridRoleListOfUsers(List<String> userNames, String domainName) throws
             UserStoreException {
 
@@ -616,13 +580,7 @@ public class HybridRoleV2Manager {
         return hybridRoleListOfUsers;
     }
 
-    /**
-     * Get hybrid role list of groups.
-     *
-     * @param groupNames group name list.
-     * @return map of hybrid role list of groups.
-     * @throws UserStoreException userStoreException.
-     */
+    @Override
     public Map<String, List<String>> getHybridRoleListOfGroups(List<String> groupNames, String domainName)
             throws UserStoreException {
 
@@ -678,11 +636,7 @@ public class HybridRoleV2Manager {
         return hybridRoleListOfGroups;
     }
 
-    /**
-     * @param roleName
-     * @return
-     * @throws UserStoreException
-     */
+    @Override
     public String[] getUserListOfHybridRole(String roleName) throws UserStoreException {
 
         if (UserCoreUtil.isEveryoneRole(roleName, realmConfig)) {
@@ -710,12 +664,7 @@ public class HybridRoleV2Manager {
         }
     }
 
-    /**
-     * @param user
-     * @param deletedRoles
-     * @param addRoles
-     * @throws UserStoreException
-     */
+    @Override
     public void updateHybridRoleListOfUser(String user, String[] deletedRoles, String[] addRoles)
             throws UserStoreException {
 
@@ -762,9 +711,9 @@ public class HybridRoleV2Manager {
                 String[] rolesToAdd = newRoleList.toArray(new String[newRoleList.size()]);
 
                 if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
-                    sqlStmt2 = HybridJDBCConstants.ADD_ROLE_TO_USER_SQL_OPENEDGE_WITH_AUDIENCE;
+                    sqlStmt2 = HybridJDBCConstants.ADD_ROLE_V2_TO_USER_SQL_OPENEDGE_WITH_AUDIENCE;
                     DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, user,
-                            tenantId, rolesToAdd, tenantId);
+                            tenantId, rolesToAdd, tenantId, audienceRefId);
                 } else {
                     DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, rolesToAdd, tenantId,
                             audienceRefId, UserCoreUtil.removeDomainFromName(user), tenantId, tenantId, domain);
@@ -792,10 +741,7 @@ public class HybridRoleV2Manager {
         }
     }
 
-    /**
-     * @param roleName
-     * @throws UserStoreException
-     */
+    @Override
     public void deleteHybridRole(String roleName) throws UserStoreException {
 
         // ########### Domain-less Roles and Domain-aware Users from here onwards #############
@@ -836,11 +782,7 @@ public class HybridRoleV2Manager {
         userRealm.getAuthorizationManager().clearRoleAuthorization(roleName);
     }
 
-    /**
-     * @param roleName
-     * @param newRoleName
-     * @throws UserStoreException
-     */
+    @Override
     public void updateHybridRoleName(String roleName, String newRoleName) throws UserStoreException {
 
         // ########### Domain-less Roles and Domain-aware Users from here onwards #############
@@ -886,12 +828,7 @@ public class HybridRoleV2Manager {
         }
     }
 
-    /**
-     * Get hybrid role count for the given filter.
-     *
-     * @param filter The domain qualified filter. If the domain is 'Internal', all the 'Application' roles are skipped.
-     * @throws UserStoreException If an error occur while getting the hybrid role count using the filter.
-     */
+    @Override
     public Long countHybridRoles(String filter) throws UserStoreException {
 
         Connection dbConnection = null;
@@ -988,6 +925,7 @@ public class HybridRoleV2Manager {
         }
     }
 
+    @Override
     public boolean isExistingRole(String roleName) throws UserStoreException {
 
         Connection dbConnection = null;
@@ -1027,14 +965,7 @@ public class HybridRoleV2Manager {
         }
     }
 
-    /**
-     * ##### This method is not used anywhere
-     *
-     * @param userName
-     * @param roleName
-     * @return
-     * @throws UserStoreException
-     */
+    @Override
     public boolean isUserInRole(String userName, String roleName) throws UserStoreException {
         // TODO
         String[] roles = getHybridRoleListOfUser(userName, "*");
@@ -1067,6 +998,7 @@ public class HybridRoleV2Manager {
      * @param userName
      * @throws UserStoreException
      */
+    @Override
     public void deleteUser(String userName) throws UserStoreException {
 
         Connection dbConnection = null;
@@ -1169,6 +1101,8 @@ public class HybridRoleV2Manager {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection);
         }
     }
 
@@ -1237,6 +1171,7 @@ public class HybridRoleV2Manager {
      * @param groupName        The group name.
      * @throws UserStoreException An unexpected exception has occurred.
      */
+    @Override
     public boolean isGroupAssignedToHybridRoles(String groupName) throws UserStoreException {
 
         PreparedStatement prepStmt = null;
@@ -1273,6 +1208,7 @@ public class HybridRoleV2Manager {
      * @param newGroupName     The new group name.
      * @throws UserStoreException An unexpected exception has occurred.
      */
+    @Override
     public void updateGroupName(String groupName, String newGroupName) throws UserStoreException {
 
         if (!this.isGroupAssignedToHybridRoles(groupName)) {
@@ -1296,6 +1232,7 @@ public class HybridRoleV2Manager {
      * @param groupName        The group name.
      * @throws UserStoreException An unexpected exception has occurred.
      */
+    @Override
     public void removeGroupRoleMappingByGroupName(String groupName) throws UserStoreException {
 
         if (!this.isGroupAssignedToHybridRoles(groupName)) {

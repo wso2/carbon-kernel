@@ -27,6 +27,7 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.api.Tenant;
 import org.wso2.carbon.user.core.NotImplementedException;
 import org.wso2.carbon.user.core.PaginatedUserStoreManager;
 import org.wso2.carbon.user.core.Permission;
@@ -47,6 +48,7 @@ import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
 import org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages;
 import org.wso2.carbon.user.core.dto.RoleDTO;
 import org.wso2.carbon.user.core.hash.HashProvider;
+import org.wso2.carbon.user.core.hybrid.HybridRoleBasedManager;
 import org.wso2.carbon.user.core.hybrid.HybridRoleManager;
 import org.wso2.carbon.user.core.hybrid.HybridRoleV2Manager;
 import org.wso2.carbon.user.core.internal.UMListenerServiceComponent;
@@ -179,7 +181,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected RealmConfiguration realmConfig = null;
     protected ClaimManager claimManager = null;
     protected UserRealm userRealm = null;
-    protected HybridRoleV2Manager hybridRoleManager = null;
+    protected HybridRoleBasedManager hybridRoleManager = null;
     protected HashProvider hashProvider = null;
     // User roles cache
     protected UserRolesCache userRolesCache = null;
@@ -9035,10 +9037,32 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected void doInitialSetup() throws UserStoreException {
 
         systemUserRoleManager = new SystemUserRoleManager(dataSource, tenantId);
-        hybridRoleManager = new HybridRoleV2Manager(dataSource, tenantId,
-                "10084a8d-113f-4211-a0d5-efe36b082211", realmConfig, userRealm);
+        if (isUsingRoleV2()) {
+            RealmService realmService = UserCoreUtil.getRealmService();
+            Tenant tenant;
+            try {
+                tenant = realmService.getTenantManager().getTenant(tenantId);
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                throw new UserStoreException("Error while retrieving tenant");
+            }
+            String organizationID = tenant.getAssociatedOrganizationUUID();
+            if (StringUtils.isEmpty(organizationID)) {
+                throw new UserStoreException("Organization id for tenant id : " + tenantId + "not found" );
+            }
+            hybridRoleManager = new HybridRoleV2Manager(dataSource, tenantId,
+                    organizationID, realmConfig, userRealm);
+        } else {
+            hybridRoleManager = new HybridRoleManager(dataSource, tenantId, realmConfig, userRealm);
+        }
+
         userUniqueIDDomainResolver = new UserUniqueIDDomainResolver(dataSource);
         groupUniqueIDDomainResolver = new GroupUniqueIDDomainResolver(dataSource);
+    }
+    
+    private boolean isUsingRoleV2() {
+        
+        // TODO: whether we use v2 or v1 roles
+        return true;
     }
 
     /**
@@ -10023,11 +10047,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
-    public HybridRoleV2Manager getInternalRoleManager() {
-        return hybridRoleManager;
+    public HybridRoleManager getInternalRoleManager() {
+        if (hybridRoleManager instanceof HybridRoleManager) {
+            return (HybridRoleManager) hybridRoleManager;
+        }
+        return null;
     }
 
-    public HybridRoleV2Manager getInternalRoleV2Manager() {
+    public HybridRoleBasedManager getInternalRoleBasedManager() {
         return hybridRoleManager;
     }
 

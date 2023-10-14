@@ -39,6 +39,7 @@ import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
 import org.wso2.carbon.user.core.hybrid.HybridRoleManager;
 import org.wso2.carbon.user.core.hybrid.HybridRoleV2Manager;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
+import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.JNDIUtil;
@@ -153,8 +154,23 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                 .get(UserCoreConstants.FIRST_STARTUP_CHECK);
 
         // hybrid role manager used if only users needs to be read-written.
-        hybridRoleManager = new HybridRoleV2Manager(dataSource, tenantId,
-                "10084a8d-113f-4211-a0d5-efe36b082211", realmConfig, userRealm);
+        if (isUsingRoleV2()) {
+            RealmService realmService = UserCoreUtil.getRealmService();
+            org.wso2.carbon.user.api.Tenant tenant;
+            try {
+                tenant = realmService.getTenantManager().getTenant(tenantId);
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                throw new UserStoreException("Error while retrieving tenant");
+            }
+            String organizationID = tenant.getAssociatedOrganizationUUID();
+            if (StringUtils.isEmpty(organizationID)) {
+                throw new UserStoreException("Organization id for tenant id : " + tenantId + "not found" );
+            }
+            hybridRoleManager = new HybridRoleV2Manager(dataSource, tenantId,
+                    organizationID, realmConfig, userRealm);
+        } else {
+            hybridRoleManager = new HybridRoleManager(dataSource, tenantId, realmConfig, userRealm);
+        }
 
         // obtain the ldap connection source that was created in
         // DefaultRealmService.
@@ -193,6 +209,12 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         if (log.isDebugEnabled()) {
             log.debug("Read-Write UserStoreManager initialization ended " + System.currentTimeMillis());
         }
+    }
+
+    private boolean isUsingRoleV2() {
+
+        // TODO: whether we use v2 or v1 roles
+        return true;
     }
 
     /**
