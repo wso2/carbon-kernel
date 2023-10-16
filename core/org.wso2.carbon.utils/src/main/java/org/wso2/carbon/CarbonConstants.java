@@ -432,6 +432,9 @@ public final class CarbonConstants {
     // parameter to indicate whether HTTP access to Admin Console is enabled
     public static final String ENABLE_HTTP_ADMIN_CONSOLE = "EnableHTTPAdminConsole";
 
+    // Parameter to indicate default management ui path.
+    public static final String DEFAULT_MANAGEMENT_UI_PATH = "DefaultManagementUIPath";
+
     /**
      * Constants for Logging events.
      */
