@@ -348,8 +348,10 @@ public class JDBCTenantManager implements TenantManager {
             prepStmt.setTimestamp(3, new Timestamp(createdTimeMs));
             if (tenant.getAssociatedOrganizationUUID() != null) {
                 prepStmt.setString(4, tenant.getAssociatedOrganizationUUID());
+                prepStmt.setInt(5, tenant.getId());
+            } else {
+                prepStmt.setInt(4, tenant.getId());
             }
-            prepStmt.setInt(5, tenant.getId());
 
             prepStmt.executeUpdate();
 
