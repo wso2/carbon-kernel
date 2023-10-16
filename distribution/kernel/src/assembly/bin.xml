@@ -125,6 +125,7 @@
             <includes>
                 <include>org.wso2.orbit.xerces:xercesImpl:jar</include>
                 <include>org.wso2.orbit.xalan:xalan:jar</include>
+                <include>org.wso2.orbit.xalan:serializer:jar</include>
                 <include>xml-apis:xml-apis:jar</include>
                 <include>xml-resolver:xml-resolver:jar</include>
                 <include>org.codehaus.woodstox:woodstox-core-asl</include>

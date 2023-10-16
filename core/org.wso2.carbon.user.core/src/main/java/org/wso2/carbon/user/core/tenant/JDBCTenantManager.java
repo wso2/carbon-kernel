@@ -332,6 +332,9 @@ public class JDBCTenantManager implements TenantManager {
         try {
             dbConnection = getDBConnection();
             String sqlStmt = TenantConstants.UPDATE_TENANT_SQL;
+            if (tenant.getAssociatedOrganizationUUID() != null) {
+                sqlStmt = TenantConstants.UPDATE_TENANT_WITH_ASSOCIATE_UUID_SQL;
+            }
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, tenant.getDomain().toLowerCase());
             prepStmt.setString(2, tenant.getEmail());
@@ -343,7 +346,12 @@ public class JDBCTenantManager implements TenantManager {
                 createdTimeMs = createdTime.getTime();
             }
             prepStmt.setTimestamp(3, new Timestamp(createdTimeMs));
-            prepStmt.setInt(4, tenant.getId());
+            if (tenant.getAssociatedOrganizationUUID() != null) {
+                prepStmt.setString(4, tenant.getAssociatedOrganizationUUID());
+                prepStmt.setInt(5, tenant.getId());
+            } else {
+                prepStmt.setInt(4, tenant.getId());
+            }
 
             prepStmt.executeUpdate();
 

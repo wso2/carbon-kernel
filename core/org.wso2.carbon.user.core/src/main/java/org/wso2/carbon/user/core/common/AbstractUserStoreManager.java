@@ -189,7 +189,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private boolean userRolesCacheEnabled = true;
     private String cacheIdentifier;
     private boolean replaceEscapeCharactersAtUserLogin = true;
-    private Map<String, UserStoreManager> userStoreManagerHolder = new HashMap<String, UserStoreManager>();
+    protected Map<String, UserStoreManager> userStoreManagerHolder = new HashMap<String, UserStoreManager>();
     private Map<String, Integer> maxUserListCount = null;
     private Map<String, Integer> maxRoleListCount = null;
     private List<UserStoreManagerConfigurationListener> listener = new ArrayList<UserStoreManagerConfigurationListener>();
@@ -201,7 +201,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     };
 
     private UserUniqueIDManger userUniqueIDManger = new UserUniqueIDManger();
-    private UserUniqueIDDomainResolver userUniqueIDDomainResolver;
+    protected UserUniqueIDDomainResolver userUniqueIDDomainResolver;
     private GroupUniqueIDDomainResolver groupUniqueIDDomainResolver;
 
     private void setClaimManager(ClaimManager claimManager) throws IllegalAccessException {
@@ -7626,7 +7626,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // First we have to check whether this user store is already resolved and we have it either in the cache or
         // in our local database. If so we can use that.
-        String domainName = userUniqueIDDomainResolver.getDomainForUserId(userId, tenantId);
+        String domainName = null;
+        if (userUniqueIDDomainResolver != null) {
+            domainName = userUniqueIDDomainResolver.getDomainForUserId(userId, tenantId);
+        }
 
         // If we don't have the domain name in our side, then we have to iterate through each user store and find
         // where is this user id from and mark it as the user store domain.
@@ -11545,6 +11548,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 boolean status = ((AbstractUserStoreManager) abstractUserStoreManager)
                         .doAuthenticate(user.getUsername(), credential);
                 if (status) {
+                    user.setTenantDomain(getTenantDomain(tenantId));
                     authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.SUCCESS);
                     authenticationResult.setAuthenticatedUser(user);
                 } else {
@@ -17981,5 +17985,25 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return Integer.parseInt(pwValidityTimeoutStr);
         }
         return DEFAULT_PASSWORD_VALIDITY_PERIOD_VALUE;
+    }
+
+    /**
+     * Getter for the user store manager holder.
+     *
+     * @return Map of user store managers.
+     */
+    public Map<String, UserStoreManager> getUserStoreManagerHolder() {
+
+        return userStoreManagerHolder;
+    }
+
+    /**
+     * Getter for the user unique ID domain resolver.
+     *
+     * @return UserUniqueIDDomainResolver.
+     */
+    public UserUniqueIDDomainResolver getUserUniqueIDDomainResolver() {
+
+        return userUniqueIDDomainResolver;
     }
 }

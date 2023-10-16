@@ -303,6 +303,10 @@
         <!--   Flag to enable or disable tenant theming for the management console    -->
         <EnableTenantThemeManagement>{{tenant_mgt.enable_tenant_theme_mgt}}</EnableTenantThemeManagement>
         {% endif %}
+        {% if tenant_mgt.signing_alg is defined %}
+        <!--  Public key certificate signing algorithm for tenants    -->
+        <SigningAlgorithm>{{tenant_mgt.signing_alg}}</SigningAlgorithm>
+        {% endif %}
     </Tenant>
 
     <!--
@@ -472,6 +476,9 @@
       Enable following config to allow Emails as usernames.
     -->
     <EnableEmailUserName>{{tenant_mgt.enable_email_domain | default('false')}}</EnableEmailUserName>
+    {% if tenant_mgt.user_info_handler is defined %}
+    <UserInfoHandler>{{tenant_mgt.user_info_handler}}</UserInfoHandler>
+    {% endif %}
     <!--
       Enable following config to flag input validation configuration.
     -->
@@ -778,9 +785,13 @@
 
 	<LoadAPIContextsInServerStartup>true</LoadAPIContextsInServerStartup>
    </APIManagement>
-      {% if sts.time_to_live is defined %}
-      <STSTimeToLive>{{sts.time_to_live}}</STSTimeToLive>
-      {% endif %}
+
+    {% if sts.time_to_live is defined %}
+    <STSTimeToLive>{{sts.time_to_live}}</STSTimeToLive>
+    {% endif %}
+    {% if sts.host_name is defined %}
+    <STSHostName>{{sts.host_name}}</STSHostName>
+    {% endif %}
 
 
     <!-- Configure disable/enable shutdown and restart from the Management Console UI -->
@@ -809,4 +820,9 @@
     <SignatureUtil>
         <EnableSHA256Algo>{{signature_util.enable_sha256_algo}}</EnableSHA256Algo>
     </SignatureUtil>
+    <RemoteLogging>
+        <ConfigSync>
+      	    <Period>{{remote_logging.config_sync.period}}</Period>
+        </ConfigSync>
+    </RemoteLogging>
 </Server>
