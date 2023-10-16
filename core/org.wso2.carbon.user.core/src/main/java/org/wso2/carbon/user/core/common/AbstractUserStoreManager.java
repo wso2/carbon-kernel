@@ -9046,6 +9046,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 Tenant tenant = null;
                 try {
                     tenant = realmService.getTenantManager().getTenant(tenantId);
+                    if (StringUtils.isEmpty(tenant.getAssociatedOrganizationUUID())) {
+                        tenant.setAssociatedOrganizationUUID(UUID.randomUUID().toString());
+                    }
                     organizationID = tenant.getAssociatedOrganizationUUID();
                 } catch (org.wso2.carbon.user.api.UserStoreException e) {
                     throw new UserStoreException("Error while loading tenant.", e);
