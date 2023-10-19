@@ -825,4 +825,9 @@
       	    <Period>{{remote_logging.config_sync.period}}</Period>
         </ConfigSync>
     </RemoteLogging>
+
+    {% if default_management_ui.path is defined %}
+    <!-- Configure default management ui path for server -->
+    <DefaultManagementUIPath>{{default_management_ui.path}}</DefaultManagementUIPath>
+    {% endif %}
 </Server>

@@ -732,4 +732,7 @@
         </ConfigSync>
     </RemoteLogging>
 
+    <!-- Configure default management ui path for server -->
+    <DefaultManagementUIPath>carbon</DefaultManagementUIPath>
+
 </Server>
