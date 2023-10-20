@@ -225,5 +225,5 @@
   "signature_util.enable_sha256_algo" : true,
   "tenant_mgt.enable_input_validation" : false,
   "remote_logging.config_sync.period": "15",
-  "legacy_authz_runtime.enable": false
+  "legacy_authz_runtime.enable": true
 }
