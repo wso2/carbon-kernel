@@ -402,6 +402,8 @@ public final class CarbonConstants {
         }
     }
 
+    public static Boolean ENABLE_LEGACY_AUTHZ_RUNTIME;
+
     public static final String NAME_COMBINER = "|";
 
     /*Constants used in handling shared group operations. There must be a separator to separate role name and tenant domain*/
