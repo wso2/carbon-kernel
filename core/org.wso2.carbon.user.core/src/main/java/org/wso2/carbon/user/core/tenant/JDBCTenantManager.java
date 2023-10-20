@@ -1165,6 +1165,12 @@ public class JDBCTenantManager implements TenantManager {
             prepStmt = dbConnection.prepareStatement(sqlQuery);
             prepStmt.setInt(1, offset + limit);
             prepStmt.setInt(2, offset);
+        } else if (dbType.equalsIgnoreCase("Microsoft")) {
+            sqlTail = String.format(TenantConstants.LIST_TENANTS_MSSQL_TAIL, sortedOrder);
+            sqlQuery = sqlQuery + sqlTail;
+            prepStmt = dbConnection.prepareStatement(sqlQuery);
+            prepStmt.setInt(1, offset);
+            prepStmt.setInt(2, limit);
         } else if (dbType.equalsIgnoreCase("Microsoft SQL Server")) {
             sqlTail = String.format(TenantConstants.LIST_TENANTS_MSSQL_TAIL, sortedOrder);
             sqlQuery = sqlQuery + sqlTail;
