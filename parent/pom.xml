@@ -498,7 +498,7 @@
 
         <version.eclipse.ecj>3.28.0</version.eclipse.ecj>
 
-        <orbit.version.hazelcast>5.3.2.wso2v1</orbit.version.hazelcast>
+        <orbit.version.hazelcast>4.2.6.wso2v1</orbit.version.hazelcast>
         <version.apacheds.shared.ldap>0.9.18</version.apacheds.shared.ldap>
 
         <!-- hibernate -->
