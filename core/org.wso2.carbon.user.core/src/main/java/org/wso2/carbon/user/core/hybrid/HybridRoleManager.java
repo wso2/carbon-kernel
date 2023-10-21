@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.api.Tenant;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -30,8 +31,10 @@ import org.wso2.carbon.user.core.authorization.AuthorizationCache;
 import org.wso2.carbon.user.core.common.UserRolesCache;
 import org.wso2.carbon.user.core.constants.UserCoreDBConstants;
 import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
+import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
+import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
@@ -47,6 +50,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Matcher;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
@@ -72,7 +76,7 @@ public class HybridRoleManager {
 
     private static final String DB2 = "db2";
 
-    private static final boolean isRoleV2Using = !CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME;;
+    private static final boolean isRoleV2Using = !CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME;
 
     public HybridRoleManager(DataSource dataSource, int tenantId, RealmConfiguration realmConfig,
                              UserRealm realm) throws UserStoreException {
@@ -95,6 +99,12 @@ public class HybridRoleManager {
      * @throws UserStoreException
      */
     public void addHybridRole(String roleName, String[] userList) throws UserStoreException {
+
+        if (isRoleV2Using) {
+            addHybridRoleV2(roleName, userList);
+            return;
+        }
+
         Connection dbConnection = null;
         try {
 
@@ -159,6 +169,129 @@ public class HybridRoleManager {
             throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
+        }
+    }
+
+    public void addHybridRoleV2(String roleName, String[] userList)
+            throws UserStoreException {
+        Connection dbConnection = null;
+        try {
+
+            // ########### Domain-less Roles and Domain-aware Users from here onwards #############
+
+            // This method is always invoked by the primary user store manager.
+            String primaryDomainName = getMyDomainName();
+
+            if (primaryDomainName != null) {
+                primaryDomainName = primaryDomainName.toUpperCase();
+            }
+
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
+            int audienceRefId = getRoleAudienceRefId(getOrganizationId(tenantId));
+            if (!this.isExistingRole(roleName)) {
+
+                String roleId = UUID.randomUUID().toString();
+                DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.ADD_ROLE_V2_SQL,
+                        roleName, tenantId, audienceRefId, roleId);
+                dbConnection.commit();
+            } else {
+                throwRoleAlreadyExistsError(roleName);
+            }
+            if (userList != null) {
+                String sql = HybridJDBCConstants.ADD_USER_TO_ROLE_V2_SQL;
+                String type = DatabaseCreator.getDatabaseType(dbConnection);
+                if (UserCoreConstants.MSSQL_TYPE.equals(type)) {
+                    sql = HybridJDBCConstants.ADD_USER_TO_ROLE_V2_SQL_MSSQL;
+                }
+                if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
+                    sql = HybridJDBCConstants.ADD_USER_TO_ROLE_V2_SQL_OPENEDGE;
+                    DatabaseUtil.udpateUserRoleMappingInBatchModeForInternalRoles(dbConnection,
+                            sql, primaryDomainName, userList, tenantId, roleName, tenantId, audienceRefId);
+                } else {
+                    DatabaseUtil.udpateUserRoleMappingInBatchModeForInternalRoles(dbConnection,
+                            sql, primaryDomainName, userList, roleName, tenantId, audienceRefId, tenantId, tenantId);
+                }
+            }
+            dbConnection.commit();
+        } catch (UserStoreException e) {
+            String errorMessage = "Error occurred while adding hybrid role : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            // handle duplicate entry.
+            if (ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE.getCode().equals(e.getErrorCode())) {
+                throwRoleAlreadyExistsError(roleName);
+            }
+
+            // Propagate any other.
+            throw e;
+        } catch (SQLException e) {
+            String errorMessage = "Error occurred while adding hybrid role : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            // Other SQL Exception
+            throw new UserStoreException(e.getMessage(), e);
+        } catch (Exception e) {
+            String errorMessage = "Error occurred while getting database type from DB connection";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection);
+        }
+    }
+
+    /**
+     * Get role audience ref id.
+     *
+     * @param audienceId Audience ID.
+     * @return audience ref id.
+     * @throws UserStoreException IdentityRoleManagementException.
+     */
+    private int getRoleAudienceRefId(String audienceId) throws UserStoreException {
+
+        Connection dbConnection = null;
+        PreparedStatement prepStmt;
+        ResultSet rs;
+        try {
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
+            prepStmt = dbConnection.prepareStatement(HybridJDBCConstants.GET_ROLE_V2_AUDIENCE_SQL);
+            prepStmt.setString(1, audienceId);
+            rs = prepStmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            } else {
+                addRoleAudience(audienceId);
+                return getRoleAudienceRefId(audienceId);
+            }
+        } catch (SQLException e) {
+            String errorMessage = "Error occurred while retrieving audience ref id for audience : organization " +
+                    "audienceId : " + audienceId;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection);
+        }
+    }
+
+    private void addRoleAudience(String audienceId) throws UserStoreException {
+
+        Connection dbConnection;
+        try {
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
+            DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.ADD_ROLE_V2_AUDIENCE_SQL, audienceId);
+            dbConnection.commit();
+        } catch (SQLException e) {
+            String errorMessage = "Error occurred while retrieving audience ref id for audience : organization " +
+                    "audienceId : " + audienceId;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         }
     }
 
@@ -1294,5 +1427,26 @@ public class HybridRoleManager {
             String errorMessage = "Error occurred while deleting the group : " + groupName;
             throw new UserStoreException(errorMessage, e);
         }
+    }
+
+    private String getOrganizationId(int tenantId) throws UserStoreException {
+
+        String organizationID;
+        RealmService realmService =  UserStoreMgtDSComponent.getRealmService();
+        if (realmService == null) {
+            organizationID = "10084a8d-113f-4211-a0d5-efe36b082211";
+        } else {
+            Tenant tenant;
+            try {
+                tenant = realmService.getTenantManager().getTenant(tenantId);
+                if (StringUtils.isEmpty(tenant.getAssociatedOrganizationUUID())) {
+                    tenant.setAssociatedOrganizationUUID(UUID.randomUUID().toString());
+                }
+                organizationID = tenant.getAssociatedOrganizationUUID();
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                throw new UserStoreException("Error while loading tenant.", e);
+            }
+        }
+        return organizationID;
     }
 }
