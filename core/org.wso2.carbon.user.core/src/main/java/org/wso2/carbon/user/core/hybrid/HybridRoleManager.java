@@ -30,8 +30,6 @@ import org.wso2.carbon.user.core.authorization.AuthorizationCache;
 import org.wso2.carbon.user.core.common.UserRolesCache;
 import org.wso2.carbon.user.core.constants.UserCoreDBConstants;
 import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
-import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
-import org.wso2.carbon.user.core.internal.UserStoreMgtDataHolder;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
@@ -73,6 +71,8 @@ public class HybridRoleManager {
     private static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
 
     private static final String DB2 = "db2";
+
+    private static final boolean isRoleV2Using = !CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME;;
 
     public HybridRoleManager(DataSource dataSource, int tenantId, RealmConfiguration realmConfig,
                              UserRealm realm) throws UserStoreException {
@@ -225,8 +225,6 @@ public class HybridRoleManager {
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
-
-        boolean isRoleV2Using = isRoleV2Using();
 
         String sqlStmt = isRoleV2Using ? HybridJDBCConstants.GET_ROLES_V2 : HybridJDBCConstants.GET_ROLES;
         int maxItemLimit = UserCoreConstants.MAX_USER_ROLE_LIST;
@@ -540,7 +538,6 @@ public class HybridRoleManager {
         userName = UserCoreUtil.addDomainToName(userName, getMyDomainName());
         String domain = UserCoreUtil.extractDomainFromName(userName);
 
-        boolean isRoleV2Using = isRoleV2Using();
         // ########### Domain-less Roles and Domain-aware Users from here onwards #############
         try {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
@@ -659,7 +656,6 @@ public class HybridRoleManager {
     public Map<String, List<String>> getHybridRoleListOfUsers(List<String> userNames, String domainName) throws
             UserStoreException {
 
-        boolean isRoleV2Using = isRoleV2Using();
         if (CollectionUtils.isEmpty(userNames)) {
             return new HashMap<>();
         }
@@ -757,7 +753,6 @@ public class HybridRoleManager {
     public Map<String, List<String>> getHybridRoleListOfGroups(List<String> groupNames, String domainName)
             throws UserStoreException {
 
-        boolean isRoleV2Using = isRoleV2Using();
         if (CollectionUtils.isEmpty(groupNames)) {
             return new HashMap<>();
         }
@@ -998,7 +993,6 @@ public class HybridRoleManager {
         String sqlStmt = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet = null;
-        boolean isRoleV2Using = isRoleV2Using();
         try {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
             if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
@@ -1300,16 +1294,5 @@ public class HybridRoleManager {
             String errorMessage = "Error occurred while deleting the group : " + groupName;
             throw new UserStoreException(errorMessage, e);
         }
-    }
-
-    private boolean isRoleV2Using() {
-
-        String enableLegacyAuthzRuntime = UserStoreMgtDSComponent.getServerConfigurationService()
-                .getFirstProperty("EnableLegacyAuthzRuntime");
-        if ("false".equals(enableLegacyAuthzRuntime)) {
-            return true;
-        }
-        return false;
-
     }
 }
