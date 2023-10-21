@@ -735,4 +735,6 @@
     <!-- Configure default management ui path for server -->
     <DefaultManagementUIPath>carbon</DefaultManagementUIPath>
 
+    <!-- Configure legacy identity server authorization runtime -->
+    <EnableLegacyAuthzRuntime>false</EnableLegacyAuthzRuntime>
 </Server>
