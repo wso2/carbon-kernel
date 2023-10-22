@@ -22,6 +22,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.Tenant;
 import org.wso2.carbon.user.core.UserCoreConstants;
@@ -37,6 +38,7 @@ import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstan
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 import org.wso2.carbon.utils.xml.StringUtils;
 
@@ -76,7 +78,7 @@ public class HybridRoleManager {
 
     private static final String DB2 = "db2";
 
-    private static final boolean isRoleV2Using = !CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME;
+    private final boolean isRoleV2Using;
 
     public HybridRoleManager(DataSource dataSource, int tenantId, RealmConfiguration realmConfig,
                              UserRealm realm) throws UserStoreException {
@@ -86,6 +88,7 @@ public class HybridRoleManager {
         this.realmConfig = realmConfig;
         this.isCascadeDeleteEnabled = realmConfig.getRealmProperty(UserCoreDBConstants.CASCADE_DELETE_ENABLED);
         this.userRealm = realm;
+        this.isRoleV2Using = isRoleV2Using();
         //persist internal domain
         UserCoreUtil.persistDomain(UserCoreConstants.INTERNAL_DOMAIN, tenantId, dataSource);
         UserCoreUtil.persistDomain(APPLICATION_DOMAIN, tenantId, dataSource);
@@ -278,6 +281,12 @@ public class HybridRoleManager {
         }
     }
 
+    /**
+     * Add role audience.
+     *
+     * @param audienceId Audience ID.
+     * @throws UserStoreException IdentityRoleManagementException.
+     */
     private void addRoleAudience(String audienceId) throws UserStoreException {
 
         Connection dbConnection;
@@ -792,6 +801,7 @@ public class HybridRoleManager {
         if (CollectionUtils.isEmpty(userNames)) {
             return new HashMap<>();
         }
+
         Map<String, List<String>> hybridRoleListOfUsers = new HashMap<>();
         String sqlStmt = realmConfig.getRealmProperty(isRoleV2Using ? HybridJDBCConstants.GET_ROLE_V2_LIST_OF_USERS :
                 HybridJDBCConstants.GET_ROLE_LIST_OF_USERS);
@@ -1429,24 +1439,51 @@ public class HybridRoleManager {
         }
     }
 
+    /**
+     * Get Organization Id from Tenant.
+     *
+     * @param tenantId The tenant id.
+     * @return The organization id.
+     * @throws UserStoreException An unexpected exception has occurred.
+     */
     private String getOrganizationId(int tenantId) throws UserStoreException {
 
-        String organizationID;
+        String organizationId = "10084a8d-113f-4211-a0d5-efe36b082211";
         RealmService realmService =  UserStoreMgtDSComponent.getRealmService();
-        if (realmService == null) {
-            organizationID = "10084a8d-113f-4211-a0d5-efe36b082211";
-        } else {
+        if (realmService != null) {
             Tenant tenant;
             try {
                 tenant = realmService.getTenantManager().getTenant(tenantId);
-                if (StringUtils.isEmpty(tenant.getAssociatedOrganizationUUID())) {
-                    tenant.setAssociatedOrganizationUUID(UUID.randomUUID().toString());
+                if (tenant != null) {
+                    if (StringUtils.isEmpty(tenant.getAssociatedOrganizationUUID())) {
+                        tenant.setAssociatedOrganizationUUID(UUID.randomUUID().toString());
+                    }
+                    organizationId = tenant.getAssociatedOrganizationUUID();
                 }
-                organizationID = tenant.getAssociatedOrganizationUUID();
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
                 throw new UserStoreException("Error while loading tenant.", e);
             }
         }
-        return organizationID;
+        return organizationId;
+    }
+
+    /**
+     * Check whether the role is using V2 or not.
+     *
+     * @return boolean - true if role is using V2, false otherwise
+     */
+    private boolean isRoleV2Using() {
+
+        if (CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME == null) {
+            String enableLegacyAuthzRuntime = ServerConfiguration.getInstance().
+                    getFirstProperty(ServerConstants.ENABLE_LEGACY_AUTHZ_RUNTIME);
+
+            if (enableLegacyAuthzRuntime != null) {
+                return !Boolean.parseBoolean(enableLegacyAuthzRuntime.trim());
+            } else {
+                return true;
+            }
+        }
+        return !CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME;
     }
 }
