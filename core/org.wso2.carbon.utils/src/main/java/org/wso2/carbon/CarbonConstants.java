@@ -402,7 +402,7 @@ public final class CarbonConstants {
         }
     }
 
-    public static Boolean ENABLE_LEGACY_AUTHZ_RUNTIME;
+    public static boolean ENABLE_LEGACY_AUTHZ_RUNTIME;
 
     public static final String NAME_COMBINER = "|";
 
