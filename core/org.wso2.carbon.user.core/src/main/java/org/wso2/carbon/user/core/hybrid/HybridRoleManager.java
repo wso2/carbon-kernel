@@ -1473,17 +1473,14 @@ public class HybridRoleManager {
      * @return boolean - true if role is using V2, false otherwise
      */
     private boolean isRoleV2Using() {
+        Boolean legacyAuthzRuntime = CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME;
 
-        if (CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME == null) {
-            String enableLegacyAuthzRuntime = ServerConfiguration.getInstance().
-                    getFirstProperty(ServerConstants.ENABLE_LEGACY_AUTHZ_RUNTIME);
-
-            if (enableLegacyAuthzRuntime != null) {
-                return !Boolean.parseBoolean(enableLegacyAuthzRuntime.trim());
-            } else {
-                return true;
-            }
+        if (legacyAuthzRuntime != null) {
+            return !legacyAuthzRuntime;
         }
-        return !CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME;
+
+        String enableLegacyAuthzRuntimeStr = ServerConfiguration.getInstance()
+                .getFirstProperty(ServerConstants.ENABLE_LEGACY_AUTHZ_RUNTIME);
+        return enableLegacyAuthzRuntimeStr == null || !Boolean.parseBoolean(enableLegacyAuthzRuntimeStr.trim());
     }
 }
