@@ -1448,7 +1448,7 @@ public class HybridRoleManager {
      */
     private String getOrganizationId(int tenantId) throws UserStoreException {
 
-        String organizationId = "10084a8d-113f-4211-a0d5-efe36b082211";
+        String organizationId = CarbonConstants.SUPER_TENANT_ORG_ID;
         RealmService realmService =  UserStoreMgtDSComponent.getRealmService();
         if (realmService != null) {
             Tenant tenant;
