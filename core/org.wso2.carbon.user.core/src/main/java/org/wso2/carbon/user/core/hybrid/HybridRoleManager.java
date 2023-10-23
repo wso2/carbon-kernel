@@ -175,24 +175,19 @@ public class HybridRoleManager {
         }
     }
 
-    public void addHybridRoleV2(String roleName, String[] userList)
-            throws UserStoreException {
-        Connection dbConnection = null;
-        try {
+    public void addHybridRoleV2(String roleName, String[] userList) throws UserStoreException {
 
-            // ########### Domain-less Roles and Domain-aware Users from here onwards #############
+        // ########### Domain-less Roles and Domain-aware Users from here onwards #############
 
-            // This method is always invoked by the primary user store manager.
-            String primaryDomainName = getMyDomainName();
+        // This method is always invoked by the primary user store manager.
+        String primaryDomainName = getMyDomainName();
 
-            if (primaryDomainName != null) {
-                primaryDomainName = primaryDomainName.toUpperCase();
-            }
-
-            dbConnection = DatabaseUtil.getDBConnection(dataSource);
-            int audienceRefId = getRoleAudienceRefId(getOrganizationId(tenantId));
+        if (primaryDomainName != null) {
+            primaryDomainName = primaryDomainName.toUpperCase();
+        }
+        int audienceRefId = getRoleAudienceRefId(getOrganizationId(tenantId));
+        try (Connection dbConnection = DatabaseUtil.getDBConnection(dataSource)) {
             if (!this.isExistingRole(roleName)) {
-
                 String roleId = UUID.randomUUID().toString();
                 DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.ADD_ROLE_V2_SQL,
                         roleName, tenantId, audienceRefId, roleId);
@@ -225,7 +220,6 @@ public class HybridRoleManager {
             if (ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE.getCode().equals(e.getErrorCode())) {
                 throwRoleAlreadyExistsError(roleName);
             }
-
             // Propagate any other.
             throw e;
         } catch (SQLException e) {
@@ -241,8 +235,6 @@ public class HybridRoleManager {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
-        } finally {
-            DatabaseUtil.closeAllConnections(dbConnection);
         }
     }
 
@@ -255,29 +247,25 @@ public class HybridRoleManager {
      */
     private int getRoleAudienceRefId(String audienceId) throws UserStoreException {
 
-        Connection dbConnection = null;
-        PreparedStatement prepStmt;
-        ResultSet rs;
-        try {
-            dbConnection = DatabaseUtil.getDBConnection(dataSource);
-            prepStmt = dbConnection.prepareStatement(HybridJDBCConstants.GET_ROLE_V2_AUDIENCE_SQL);
+        try (Connection dbConnection = DatabaseUtil.getDBConnection(dataSource);
+             PreparedStatement prepStmt = dbConnection.prepareStatement(HybridJDBCConstants.GET_ROLE_V2_AUDIENCE_SQL)) {
             prepStmt.setString(1, audienceId);
-            rs = prepStmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1);
-            } else {
-                addRoleAudience(audienceId);
-                return getRoleAudienceRefId(audienceId);
+            try (ResultSet rs = prepStmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                } else {
+                    addRoleAudience(audienceId);
+                    return getRoleAudienceRefId(audienceId);
+                }
             }
+
         } catch (SQLException e) {
-            String errorMessage = "Error occurred while retrieving audience ref id for audience : organization " +
-                    "audienceId : " + audienceId;
+            String errorMessage = "Error occurred while retrieving audience ref id for audience: organization " +
+                    "audienceId: " + audienceId;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
-        } finally {
-            DatabaseUtil.closeAllConnections(dbConnection);
         }
     }
 
@@ -289,18 +277,18 @@ public class HybridRoleManager {
      */
     private void addRoleAudience(String audienceId) throws UserStoreException {
 
-        Connection dbConnection;
-        try {
-            dbConnection = DatabaseUtil.getDBConnection(dataSource);
+        try (Connection dbConnection = DatabaseUtil.getDBConnection(dataSource)) {
+
             DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.ADD_ROLE_V2_AUDIENCE_SQL, audienceId);
             dbConnection.commit();
         } catch (SQLException e) {
-            String errorMessage = "Error occurred while retrieving audience ref id for audience : organization " +
-                    "audienceId : " + audienceId;
+            String errorMessage = "Error occurred while retrieving audience ref id for audience: organization " +
+                    "audienceId: " + audienceId;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+
         }
     }
 
@@ -1451,9 +1439,8 @@ public class HybridRoleManager {
         String organizationId = CarbonConstants.SUPER_TENANT_ORG_ID;
         RealmService realmService =  UserStoreMgtDSComponent.getRealmService();
         if (realmService != null) {
-            Tenant tenant;
             try {
-                tenant = realmService.getTenantManager().getTenant(tenantId);
+                Tenant tenant = realmService.getTenantManager().getTenant(tenantId);
                 if (tenant != null) {
                     if (StringUtils.isEmpty(tenant.getAssociatedOrganizationUUID())) {
                         tenant.setAssociatedOrganizationUUID(UUID.randomUUID().toString());
@@ -1473,12 +1460,13 @@ public class HybridRoleManager {
      * @return boolean - true if role is using V2, false otherwise
      */
     private boolean isRoleV2Using() {
+
         Boolean legacyAuthzRuntime = CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME;
 
         if (legacyAuthzRuntime != null) {
             return !legacyAuthzRuntime;
         }
-
+        // Retrieve config from server configuration if the Carbon Constants value hasn't been set yet.
         String enableLegacyAuthzRuntimeStr = ServerConfiguration.getInstance()
                 .getFirstProperty(ServerConstants.ENABLE_LEGACY_AUTHZ_RUNTIME);
         return enableLegacyAuthzRuntimeStr == null || !Boolean.parseBoolean(enableLegacyAuthzRuntimeStr.trim());
