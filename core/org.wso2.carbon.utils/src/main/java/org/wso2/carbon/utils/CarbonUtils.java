@@ -1509,4 +1509,14 @@ public class CarbonUtils {
 
         return isInputValidationEnabledConfig == null || Boolean.parseBoolean(isInputValidationEnabledConfig);
     }
+
+    /**
+     * Function to return whether the legacy authorization runtime is enabled.
+     *
+     * @return isLegacyAuthzRuntimeEnabled.
+     */
+    public static boolean isLegacyAuthzRuntimeEnabled() {
+
+        return CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME;
+    }
 }
