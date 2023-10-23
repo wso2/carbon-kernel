@@ -403,6 +403,8 @@ public final class CarbonConstants {
     }
 
     public static String SUPER_TENANT_ORG_ID = "10084a8d-113f-4211-a0d5-efe36b082211";
+    public static boolean ENABLE_LEGACY_AUTHZ_RUNTIME;
+
     public static final String NAME_COMBINER = "|";
 
     /*Constants used in handling shared group operations. There must be a separator to separate role name and tenant domain*/
