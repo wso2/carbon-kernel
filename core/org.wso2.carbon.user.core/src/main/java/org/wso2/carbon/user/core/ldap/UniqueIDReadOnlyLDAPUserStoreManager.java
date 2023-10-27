@@ -112,6 +112,14 @@ import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMe
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_WHILE_GETTING_GROUP_BY_ID;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_WHILE_GETTING_GROUP_BY_NAME;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_WHILE_PERFORMING_PAGINATED_SEARCH;
+import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataCategory.CONNECTION;
+import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataCategory.GROUP;
+import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataCategory.USER;
+import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataImportance.FALSE;
+import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataImportance.TRUE;
+import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.BOOLEAN;
+import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.NUMBER;
+import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.STRING;
 import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID;
 import static org.wso2.carbon.user.core.ldap.LDAPConstants.DEFAULT_LDAP_TIME_FORMATS_PATTERN;
 
@@ -2614,56 +2622,76 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         // Set Advanced Properties.
         UNIQUE_ID_RO_LDAP_UM_ADVANCED_PROPERTIES.clear();
         setAdvancedProperty(UserStoreConfigConstants.passwordHashMethod, "Password Hashing Algorithm", "PLAIN_TEXT",
-                UserStoreConfigConstants.passwordHashMethodDescription);
+                UserStoreConfigConstants.passwordHashMethodDescription,
+                new Property[] { USER.getProperty(), STRING.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",",
-                MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION);
+                MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION,
+                new Property[] { USER.getProperty(), STRING.getProperty(), FALSE.getProperty() });
 
         setAdvancedProperty(UserStoreConfigConstants.maxUserNameListLength, "Maximum User List Length", "100",
-                UserStoreConfigConstants.maxUserNameListLengthDescription);
+                UserStoreConfigConstants.maxUserNameListLengthDescription,
+                new Property[] { USER.getProperty(), NUMBER.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(UserStoreConfigConstants.maxRoleNameListLength, "Maximum Role List Length", "100",
-                UserStoreConfigConstants.maxRoleNameListLengthDescription);
+                UserStoreConfigConstants.maxRoleNameListLengthDescription,
+                new Property[] { GROUP.getProperty(), NUMBER.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(UserStoreConfigConstants.userRolesCacheEnabled, "Enable User Role Cache", "true",
-                UserStoreConfigConstants.userRolesCacheEnabledDescription);
+                UserStoreConfigConstants.userRolesCacheEnabledDescription,
+                new Property[] { USER.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
 
         setAdvancedProperty(UserStoreConfigConstants.connectionPoolingEnabled, "Enable LDAP Connection Pooling",
-                "false", UserStoreConfigConstants.connectionPoolingEnabledDescription);
-        setAdvancedProperty(LDAPConnectionTimeout, "LDAP Connection Timeout", "5000", LDAPConnectionTimeoutDescription);
+                "false", UserStoreConfigConstants.connectionPoolingEnabledDescription,
+                new Property[] { CONNECTION.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(LDAPConnectionTimeout, "LDAP Connection Timeout", "5000", LDAPConnectionTimeoutDescription,
+                new Property[] { CONNECTION.getProperty(), NUMBER.getProperty(), FALSE.getProperty() });
 
-        setAdvancedProperty(readTimeout, "LDAP Read Timeout", "5000", readTimeoutDescription);
+        setAdvancedProperty(readTimeout, "LDAP Read Timeout", "5000", readTimeoutDescription,
+                new Property[] { CONNECTION.getProperty(), NUMBER.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(RETRY_ATTEMPTS, "Retry Attempts", "0",
-                "Number of retries for" + " authentication in case ldap read timed out.");
+                "Number of retries for" + " authentication in case ldap read timed out.",
+                new Property[] { CONNECTION.getProperty(), NUMBER.getProperty(), FALSE.getProperty() });
         setAdvancedProperty("CountRetrieverClass", "Count Implementation", "",
-                "Name of the class that implements the count functionality");
+                "Name of the class that implements the count functionality",
+                new Property[] { CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(LDAPConstants.LDAP_ATTRIBUTES_BINARY, "LDAP binary attributes", " ",
-                LDAPBinaryAttributesDescription);
+                LDAPBinaryAttributesDescription,
+                new Property[] { CONNECTION.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setAdvancedProperty(UserStoreConfigConstants.claimOperationsSupported,
                 UserStoreConfigConstants.getClaimOperationsSupportedDisplayName, "false",
-                UserStoreConfigConstants.claimOperationsSupportedDescription);
+                UserStoreConfigConstants.claimOperationsSupportedDescription,
+                new Property[] { USER.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(MEMBERSHIP_ATTRIBUTE_RANGE, MEMBERSHIP_ATTRIBUTE_RANGE_DISPLAY_NAME,
                 String.valueOf(MEMBERSHIP_ATTRIBUTE_RANGE_VALUE),
-                "Number of maximum users of role returned by the LDAP");
+                "Number of maximum users of role returned by the LDAP",
+                new Property[] { GROUP.getProperty(), NUMBER.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(LDAPConstants.USER_CACHE_EXPIRY_MILLISECONDS, USER_CACHE_EXPIRY_TIME_ATTRIBUTE_NAME, "",
-                USER_CACHE_EXPIRY_TIME_ATTRIBUTE_DESCRIPTION);
+                USER_CACHE_EXPIRY_TIME_ATTRIBUTE_DESCRIPTION,
+                new Property[] { USER.getProperty(), NUMBER.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(LDAPConstants.USER_DN_CACHE_ENABLED, USER_DN_CACHE_ENABLED_ATTRIBUTE_NAME, "true",
-                USER_DN_CACHE_ENABLED_ATTRIBUTE_DESCRIPTION);
+                USER_DN_CACHE_ENABLED_ATTRIBUTE_DESCRIPTION,
+                new Property[] { USER.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(UserStoreConfigConstants.STARTTLS_ENABLED,
                 UserStoreConfigConstants.STARTTLS_ENABLED_DISPLAY_NAME, "false",
-                UserStoreConfigConstants.STARTTLS_ENABLED_DESCRIPTION);
+                UserStoreConfigConstants.STARTTLS_ENABLED_DESCRIPTION,
+                new Property[] { CONNECTION.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
         setAdvancedProperty(UserStoreConfigConstants.CONNECTION_RETRY_DELAY,
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DISPLAY_NAME,
                 String.valueOf(UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS),
-                UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DESCRIPTION);
+                UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DESCRIPTION,
+                new Property[] { CONNECTION.getProperty(), NUMBER.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(UserStoreConfigConstants.immutableAttributes,
                 UserStoreConfigConstants.immutableAttributesDisplayName, " ",
-                UserStoreConfigConstants.immutableAttributesDescription);
+                UserStoreConfigConstants.immutableAttributesDescription,
+                new Property[] { CONNECTION.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setAdvancedProperty(UserStoreConfigConstants.timestampAttributes,
                 UserStoreConfigConstants.timestampAttributesDisplayName, " ",
-                UserStoreConfigConstants.timestampAttributesDescription);
+                UserStoreConfigConstants.timestampAttributesDescription,
+                new Property[] { CONNECTION.getProperty(), STRING.getProperty(), TRUE.getProperty() });
     }
 
-    private static void setAdvancedProperty(String name, String displayName, String value, String description) {
+    private static void setAdvancedProperty(String name, String displayName, String value, String description,
+                                            Property[] childProperties) {
 
-        Property property = new Property(name, value, displayName + "#" + description, null);
+        Property property = new Property(name, value, displayName + "#" + description, childProperties);
         UNIQUE_ID_RO_LDAP_UM_ADVANCED_PROPERTIES.add(property);
 
     }

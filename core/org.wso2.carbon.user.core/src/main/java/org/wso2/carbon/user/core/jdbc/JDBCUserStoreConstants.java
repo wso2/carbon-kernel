@@ -49,7 +49,8 @@ public class JDBCUserStoreConstants {
     private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim "
             + "values";
     private static final String VALIDATION_INTERVAL = "validationInterval";
-    private static final String DISPLAY_NAME_ATTRIBUTE_DESCRIPTION = "This is the attribute name to display as the Display Name";
+    private static final String DISPLAY_NAME_ATTRIBUTE_DESCRIPTION = "This is the attribute name to display as the " +
+            "display name of the user";
     public static final String DISPLAY_NAME_ATTRIBUTE = "DisplayNameAttribute";
 
     static {
@@ -150,7 +151,7 @@ public class JDBCUserStoreConstants {
                 new Property[] { USER.getProperty(), NUMBER.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(UserStoreConfigConstants.maxRoleNameListLength, "Maximum Group List Length", "100",
                 UserStoreConfigConstants.maxRoleNameListLengthDescription,
-                new Property[] { GROUP.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
+                new Property[] { GROUP.getProperty(), NUMBER.getProperty(), FALSE.getProperty() });
 
         setAdvancedProperty(UserStoreConfigConstants.userRolesCacheEnabled, "Enable User Group Cache", "true",
                 UserStoreConfigConstants.userRolesCacheEnabledDescription,
@@ -732,7 +733,7 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(UserStoreConfigConstants.claimOperationsSupported,
                 UserStoreConfigConstants.getClaimOperationsSupportedDisplayName, "true",
                 UserStoreConfigConstants.claimOperationsSupportedDescription,
-                new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+                new Property[] { USER.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
         setProperty("UniqueID", "", "", "",
                 new Property[] { USER.getProperty(), STRING.getProperty(), FALSE.getProperty() });
     }
