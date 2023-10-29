@@ -1195,10 +1195,12 @@ public class HybridRoleManager {
 
     /**
      * Check whether the group exists in the UM_HYBRID_GROUP_ROLE table.
+     * @deprecated Use {@link #isGroupAssignedToHybridRoles(String, String)} instead.
      *
      * @param groupName        The group name.
      * @throws UserStoreException An unexpected exception has occurred.
      */
+    @Deprecated
     public boolean isGroupAssignedToHybridRoles(String groupName) throws UserStoreException {
 
         PreparedStatement prepStmt = null;
@@ -1229,6 +1231,44 @@ public class HybridRoleManager {
     }
 
     /**
+     * Check whether the group exists in the UM_HYBRID_GROUP_ROLE table.
+     *
+     * @param groupNameWithoutDomain The group name without userstore domain.
+     * @param domainName             The userstore domain name.
+     * @throws UserStoreException An unexpected exception has occurred.
+     */
+    public boolean isGroupAssignedToHybridRoles(String groupNameWithoutDomain, String domainName)
+            throws UserStoreException {
+
+        boolean isGroupAssignedToHybridRoles = false;
+
+        try (Connection dbConnection = DatabaseUtil.getDBConnection(dataSource)) {
+            PreparedStatement prepStmt = dbConnection.prepareStatement(
+                    HybridJDBCConstants.GET_GROUP_ROLE_MAPPING_ID_WITH_DOMAIN);
+            prepStmt.setString(1, groupNameWithoutDomain);
+            prepStmt.setInt(2, tenantId);
+            prepStmt.setInt(3, tenantId);
+            prepStmt.setString(4, domainName);
+            ResultSet rs = prepStmt.executeQuery();
+
+            if (rs.next()) {
+                int value = rs.getInt(1);
+                if (value > -1) {
+                    isGroupAssignedToHybridRoles = true;
+                }
+            }
+            return isGroupAssignedToHybridRoles;
+        } catch (SQLException e) {
+            String errorMessage = String.format("Error occurred while checking the group: %s in userstore: %s " +
+                    "has assigned hybrid roles.", groupNameWithoutDomain, domainName);
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        }
+    }
+
+    /**
      * Update group name in the UM_HYBRID_GROUP_ROLE table.
      *
      * @param groupName        The current group name.
@@ -1237,13 +1277,17 @@ public class HybridRoleManager {
      */
     public void updateGroupName(String groupName, String newGroupName) throws UserStoreException {
 
-        if (!this.isGroupAssignedToHybridRoles(groupName)) {
+        String domain = UserCoreUtil.extractDomainFromName(groupName);
+        String groupNameWithoutDomain = UserCoreUtil.removeDomainFromName(groupName);
+        String newGroupNameWithoutDomain = UserCoreUtil.removeDomainFromName(newGroupName);
+
+        if (!this.isGroupAssignedToHybridRoles(groupNameWithoutDomain, domain)) {
             return;
         }
 
         try (Connection dbConnection = DatabaseUtil.getDBConnection(dataSource)) {
-            DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.UPDATE_GROUP_NAME_SQL,
-                    newGroupName, groupName, tenantId);
+            DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.UPDATE_GROUP_NAME_SQL_WITH_DOMAIN,
+                    newGroupNameWithoutDomain, groupNameWithoutDomain, tenantId, tenantId, domain);
             dbConnection.commit();
         } catch (SQLException e) {
             String errorMessage = "Error occurred while updating group name : " + groupName +
@@ -1260,12 +1304,16 @@ public class HybridRoleManager {
      */
     public void removeGroupRoleMappingByGroupName(String groupName) throws UserStoreException {
 
-        if (!this.isGroupAssignedToHybridRoles(groupName)) {
+        String domain = UserCoreUtil.extractDomainFromName(groupName);
+        String groupNameWithoutDomain = UserCoreUtil.removeDomainFromName(groupName);
+
+        if (!this.isGroupAssignedToHybridRoles(groupNameWithoutDomain, domain)) {
             return;
         }
 
         try (Connection dbConnection = DatabaseUtil.getDBConnection(dataSource)) {
-            DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.DELETE_GROUP_SQL, groupName, tenantId);
+            DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.DELETE_GROUP_SQL_WITH_DOMAIN,
+                    groupNameWithoutDomain, tenantId, tenantId, domain);
             dbConnection.commit();
         } catch (SQLException e) {
             String errorMessage = "Error occurred while deleting the group : " + groupName;
