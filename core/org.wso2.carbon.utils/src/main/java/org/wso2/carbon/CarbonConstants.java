@@ -402,6 +402,9 @@ public final class CarbonConstants {
         }
     }
 
+    public static String SUPER_TENANT_ORG_ID = "10084a8d-113f-4211-a0d5-efe36b082211";
+    public static Boolean ENABLE_LEGACY_AUTHZ_RUNTIME;
+
     public static final String NAME_COMBINER = "|";
 
     /*Constants used in handling shared group operations. There must be a separator to separate role name and tenant domain*/
@@ -431,6 +434,9 @@ public final class CarbonConstants {
 
     // parameter to indicate whether HTTP access to Admin Console is enabled
     public static final String ENABLE_HTTP_ADMIN_CONSOLE = "EnableHTTPAdminConsole";
+
+    // Parameter to indicate default management ui path.
+    public static final String DEFAULT_MANAGEMENT_UI_PATH = "DefaultManagementUIPath";
 
     /**
      * Constants for Logging events.

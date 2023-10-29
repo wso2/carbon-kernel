@@ -17,6 +17,7 @@
 package org.wso2.carbon.user.core;
 
 import junit.framework.TestCase;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -42,6 +43,8 @@ public class BaseTestCase extends TestCase {
             }
 		
         }
+
+        CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME = true;
 
     	PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(MultitenantConstants.SUPER_TENANT_ID);

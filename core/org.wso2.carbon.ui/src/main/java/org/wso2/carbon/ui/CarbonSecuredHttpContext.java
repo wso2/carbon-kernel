@@ -38,6 +38,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 
+import static org.wso2.carbon.ui.CarbonUIUtil.getDefaultManagementUIPath;
+
 public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
 
     public static final String LOGGED_USER = CarbonConstants.LOGGED_USER;
@@ -462,7 +464,11 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
                     + defaultContext.getContextName() + "/";
             response.sendRedirect(defaultContextUrl);
         } else {
-            response.sendRedirect("carbon");
+            String defaultManagementUIPath = getDefaultManagementUIPath();
+            if (StringUtils.isBlank(defaultManagementUIPath)) {
+                defaultManagementUIPath = "carbon";
+            }
+            response.sendRedirect(defaultManagementUIPath);
         }
         return false;
     }
