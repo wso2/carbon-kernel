@@ -162,14 +162,11 @@ public class HybridJDBCConstants {
     public static final String COUNT_INTERNAL_ONLY_ROLES_SQL = "SELECT COUNT(UM_ID) AS RESULT FROM UM_HYBRID_ROLE " +
             "WHERE UM_ROLE_NAME NOT LIKE 'Application%' AND UM_ROLE_NAME LIKE ? AND UM_TENANT_ID = ?";
 
-<<<<<<< Updated upstream
-=======
     public static final String COUNT_INTERNAL_ONLY_ROLES_V2_SQL = "SELECT COUNT(UM_HYBRID_ROLE.UM_ID) AS RESULT FROM " +
             "UM_HYBRID_ROLE INNER JOIN UM_HYBRID_ROLE_AUDIENCE ON UM_HYBRID_ROLE.UM_AUDIENCE_REF_ID = UM_HYBRID_ROLE_AUDIENCE.UM_ID " +
             "WHERE UM_ROLE_NAME NOT LIKE 'Application%' AND UM_ROLE_NAME LIKE ? AND UM_TENANT_ID = ?";
 
     @Deprecated
->>>>>>> Stashed changes
     public static final String GET_GROUP_ROLE_MAPPING_ID = "SELECT UM_ID FROM UM_HYBRID_GROUP_ROLE WHERE UM_GROUP_NAME = ? " +
             "AND UM_TENANT_ID = ?";
 
