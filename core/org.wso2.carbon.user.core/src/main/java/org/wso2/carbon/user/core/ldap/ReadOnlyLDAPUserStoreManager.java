@@ -3377,7 +3377,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     String attr = (String) attrs.next();
                     if (StringUtils.isNotEmpty(attr.trim())) {
                         String attrSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
-                        if (StringUtils.isNotEmpty(attrSeparator.trim())) {
+                        if (StringUtils.isNotBlank(attrSeparator)) {
                             userAttributeSeparator = attrSeparator;
                         }
                         attrBuffer.append(attr + userAttributeSeparator);
