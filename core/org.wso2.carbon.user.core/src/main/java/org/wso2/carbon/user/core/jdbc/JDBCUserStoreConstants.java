@@ -52,6 +52,7 @@ public class JDBCUserStoreConstants {
     private static final String DISPLAY_NAME_ATTRIBUTE_DESCRIPTION = "This is the attribute name to display as the " +
             "display name of the user";
     public static final String DISPLAY_NAME_ATTRIBUTE = "DisplayNameAttribute";
+    public static final String STORE_USER_ATTRIBUTE_VALUE_AS_UNICODE = "storeUserAttributeValueAsUnicode";
 
     static {
 
