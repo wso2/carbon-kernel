@@ -171,6 +171,16 @@ public class CarbonContext {
     }
 
     /**
+     * Method to obtain the user's resident organization id on this CarbonContext instance.
+     *
+     * @return the user's resident organization id.
+     */
+    public String getUserResidentOrganizationId() {
+
+        return getCarbonContextDataHolder().getUserResidentOrganizationId();
+    }
+
+    /**
      * Method to obtain an instance of a registry on this CarbonContext instance.
      *
      * @param type the type of registry required.
