@@ -30,6 +30,7 @@
       "user_store.properties.StoreSaltedPassword": true,
       "user_store.properties.UserRolesCacheEnabled": true,
       "user_store.properties.UserNameUniqueAcrossTenants": false,
+      "user_store.properties.StoreUserAttributeValueAsUnicode": false,
       "tenant_mgt.tenant_manager.type": "jdbc"
     },
     "read_only_ldap": {

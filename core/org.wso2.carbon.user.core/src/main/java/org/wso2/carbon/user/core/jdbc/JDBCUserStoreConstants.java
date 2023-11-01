@@ -52,7 +52,7 @@ public class JDBCUserStoreConstants {
     private static final String DISPLAY_NAME_ATTRIBUTE_DESCRIPTION = "This is the attribute name to display as the " +
             "display name of the user";
     public static final String DISPLAY_NAME_ATTRIBUTE = "DisplayNameAttribute";
-    public static final String STORE_USER_ATTRIBUTE_VALUE_AS_UNICODE = "storeUserAttributeValueAsUnicode";
+    public static final String STORE_USER_ATTRIBUTE_VALUE_AS_UNICODE = "StoreUserAttributeValueAsUnicode";
 
     static {
 
@@ -284,6 +284,10 @@ public class JDBCUserStoreConstants {
                 "org.wso2.carbon.identity.user.store.count.jdbc.JDBCUserStoreCountRetriever",
                 "Name of the class that implements the count functionality",
                 new Property[] { CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty() });
+
+        setAdvancedProperty(STORE_USER_ATTRIBUTE_VALUE_AS_UNICODE, "Store User Attribute Value As Unicode", "false",
+                "Store user attribute value as unicode",
+                new Property[] { CONNECTION.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
 
         //Advanced Properties (No descriptions added for each property)
         setAdvancedProperty(JDBCRealmConstants.SELECT_USER, "Select User SQL", JDBCRealmConstants.SELECT_USER_SQL, "",
