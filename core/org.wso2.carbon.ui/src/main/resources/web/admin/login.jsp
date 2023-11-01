@@ -27,6 +27,8 @@
 <%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.apache.commons.logging.Log" %>
 <%@ page import="org.apache.commons.logging.LogFactory" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="java.util.ResourceBundle" %>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -109,29 +111,32 @@ String bannerContent = adminConfig.getBannerContent();
     <%
         String loginStatus = CharacterEncoder.getSafeText(request.getParameter("loginStatus"));
         String errorCode = CharacterEncoder.getSafeText(request.getParameter("errorCode"));
+        String BUNDLE = "org.wso2.carbon.i18n.Resources";
 
         if (loginStatus != null && "false".equalsIgnoreCase(loginStatus)) {
-            if (errorCode == null) {
+            if (StringUtils.isBlank(errorCode) ||
+                    errorCode.equalsIgnoreCase(CarbonUIUtil.geti18nString(errorCode, BUNDLE, request.getLocale()))) {
                 errorCode = "login.fail.message";
             }
     %>
 
     <script type="text/javascript">
         jQuery(document).ready(function() {
-            CARBON.showWarningDialog('<fmt:message key="<%=errorCode%>"/>');
+            CARBON.showWarningDialog('<fmt:message key="<%=Encode.forJavaScript(errorCode)%>"/>');
         });
     </script>
     <%
         }
 
         if (loginStatus != null && "failed".equalsIgnoreCase(loginStatus)) {
-            if (errorCode == null) {
+            if (StringUtils.isBlank(errorCode) ||
+                    errorCode.equalsIgnoreCase(CarbonUIUtil.geti18nString(errorCode, BUNDLE, request.getLocale()))) {
                 errorCode = "login.fail.message1";
             }
      %>
     <script type="text/javascript">
         jQuery(document).ready(function() {
-            CARBON.showWarningDialog('<fmt:message key="<%=errorCode%>"/>');
+            CARBON.showWarningDialog('<fmt:message key="<%=Encode.forJavaScript(errorCode)%>"/>');
         });
     </script>
     <%
