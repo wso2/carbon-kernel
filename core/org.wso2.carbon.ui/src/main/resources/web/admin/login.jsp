@@ -28,7 +28,6 @@
 <%@ page import="org.apache.commons.logging.Log" %>
 <%@ page import="org.apache.commons.logging.LogFactory" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
-<%@ page import="java.util.ResourceBundle" %>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <jsp:include page="../dialog/display_messages.jsp"/>
