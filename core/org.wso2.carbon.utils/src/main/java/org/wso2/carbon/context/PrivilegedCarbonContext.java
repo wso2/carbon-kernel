@@ -151,9 +151,9 @@ public class PrivilegedCarbonContext extends CarbonContext {
     }
 
     /**
-     * Method to set the user resident organization id on this CarbonContext instance.
+     * Method to set the user resident organization ID on this CarbonContext instance.
      *
-     * @param userResidentOrganizationId the user's resident organization ID.
+     * @param userResidentOrganizationId The user's resident organization ID.
      */
     public void setUserResidentOrganizationId(String userResidentOrganizationId) {
 

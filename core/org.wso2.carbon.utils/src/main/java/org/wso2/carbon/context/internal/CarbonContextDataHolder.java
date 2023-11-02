@@ -1362,7 +1362,7 @@ public final class CarbonContextDataHolder {
     /**
      * Method to set the organization id on this CarbonContext instance.
      *
-     * @param organizationId the organization id.
+     * @param organizationId The organization id.
      */
     public void setOrganizationId(String organizationId) {
 
@@ -1371,9 +1371,9 @@ public final class CarbonContextDataHolder {
     }
 
     /**
-     * Method to obtain the user resident organization id on this CarbonContext instance.
+     * Method to obtain the user resident organization ID on this CarbonContext instance.
      *
-     * @return the organization id.
+     * @return The organization ID.
      */
     public String getUserResidentOrganizationId() {
 
@@ -1383,7 +1383,7 @@ public final class CarbonContextDataHolder {
     /**
      * Method to set the user's resident organization id on this CarbonContext instance.
      *
-     * @param userResidentOrganizationId the user's resident organization id.
+     * @param userResidentOrganizationId The user's resident organization id.
      */
     public void setUserResidentOrganizationId(String userResidentOrganizationId) {
 
