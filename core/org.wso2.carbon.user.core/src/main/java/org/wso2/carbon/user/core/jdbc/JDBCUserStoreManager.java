@@ -2674,7 +2674,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     if (param == null) {
                         throw new UserStoreException("Invalid data provided");
                     } else if (param instanceof String) {
-                        prepStmt.setString(i + 1, (String) param);
+                        if (isStoreUserAttributeAsUnicode()) {
+                            prepStmt.setNString(i + 1, (String) param);
+                        } else {
+                            prepStmt.setString(i + 1, (String) param);
+                        }
                     } else if (param instanceof Integer) {
                         prepStmt.setInt(i + 1, (Integer) param);
                     } else if (param instanceof Date) {
@@ -3137,7 +3141,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             int count = 0;
             prepStmt.setString(++count, property);
-            prepStmt.setString(++count, value);
+            if (isStoreUserAttributeAsUnicode()){
+                prepStmt.setNString(++count, value);
+            } else {
+                prepStmt.setString(++count, value);
+            }
             if (sqlStmt.toUpperCase().contains(UserCoreConstants.SQL_ESCAPE_KEYWORD)) {
                 prepStmt.setString(++count, SQL_FILTER_CHAR_ESCAPE);
             }
@@ -3702,7 +3710,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     if (param == null) {
                         throw new UserStoreException("Invalid data provided");
                     } else if (param instanceof String) {
-                        prepStmt.setString(i + 1, (String) param);
+                        if (isStoreUserAttributeAsUnicode()) {
+                            prepStmt.setNString(i + 1, (String) param);
+                        } else {
+                            prepStmt.setString(i + 1, (String) param);
+                        }
                     } else if (param instanceof Integer) {
                         prepStmt.setInt(i + 1, (Integer) param);
                     } else if (param instanceof Date) {
@@ -3956,7 +3968,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             } else {
                 prepStmt.setString(1, userRealm.getClaimManager().getAttributeName(domainName, claimUri));
                 prepStmt.setInt(2, tenantId);
-                prepStmt.setString(3, valueFilter);
+                if (isStoreUserAttributeAsUnicode()) {
+                    prepStmt.setNString(3, valueFilter);
+                } else {
+                    prepStmt.setString(3, valueFilter);
+                }
                 prepStmt.setString(4, UserCoreConstants.DEFAULT_PROFILE);
             }
 
@@ -4168,7 +4184,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, property);
-            prepStmt.setString(2, value);
+            if (isStoreUserAttributeAsUnicode()) {
+                prepStmt.setNString(2, value);
+            } else {
+                prepStmt.setString(2, value);
+            }
             prepStmt.setString(3, profileName);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                 prepStmt.setInt(4, tenantId);
@@ -4340,7 +4360,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         for (Map.Entry<Integer, String> entry : stringParameters.entrySet()) {
             if (entry.getKey() > startIndex && entry.getKey() <= endIndex) {
-                prepStmt.setString(entry.getKey() - startIndex, entry.getValue());
+                if (isStoreUserAttributeAsUnicode()){
+                    prepStmt.setNString(entry.getKey() - startIndex, entry.getValue());
+                } else {
+                    prepStmt.setString(entry.getKey() - startIndex, entry.getValue());
+                }
             }
         }
 
@@ -4767,7 +4791,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_PAGINATED_USERS_COUNT_FOR_PROP);
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, property);
-            prepStmt.setString(2, value);
+            if (isStoreUserAttributeAsUnicode()) {
+                prepStmt.setNString(2, value);
+            } else {
+                prepStmt.setString(2, value);
+            }
             prepStmt.setString(3, profileName);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                 prepStmt.setInt(4, tenantId);
@@ -4881,5 +4909,16 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private boolean isH2DB(Connection dbConnection) throws Exception {
 
         return H2.equalsIgnoreCase(DatabaseCreator.getDatabaseType(dbConnection));
+    }
+
+    /**
+     * Check if storing user attribute values as unicode is enabled.
+     *
+     * @return true if DB2, false otherwise.
+     */
+    public boolean isStoreUserAttributeAsUnicode() {
+
+        return Boolean.parseBoolean(realmConfig.getUserStoreProperty(
+                JDBCUserStoreConstants.STORE_USER_ATTRIBUTE_VALUE_AS_UNICODE));
     }
 }

@@ -839,7 +839,11 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
             prepStmt = dbConnection.prepareStatement(sqlstmt);
             prepStmt.setString(1, preferredUserNameProperty);
-            prepStmt.setString(2, preferredUserNameValue);
+            if (isStoreUserAttributeAsUnicode()) {
+                prepStmt.setNString(2, preferredUserNameValue);
+            } else {
+                prepStmt.setString(2, preferredUserNameValue);
+            }
             prepStmt.setString(3, profileName);
             if (sqlstmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                 prepStmt.setInt(4, tenantId);
@@ -2166,7 +2170,11 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     if (param == null) {
                         throw new UserStoreException("Invalid data provided");
                     } else if (param instanceof String) {
-                        prepStmt.setString(i + 1, (String) param);
+                        if (isStoreUserAttributeAsUnicode()) {
+                            prepStmt.setNString(i + 1, (String) param);
+                        } else {
+                            prepStmt.setString(i + 1, (String) param);
+                        }
                     } else if (param instanceof Integer) {
                         prepStmt.setInt(i + 1, (Integer) param);
                     } else if (param instanceof Date) {
@@ -2375,7 +2383,11 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             dbConnection = getDBConnection();
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, property);
-            prepStmt.setString(2, value);
+            if (isStoreUserAttributeAsUnicode()) {
+                prepStmt.setNString(2, value);
+            } else {
+                prepStmt.setString(2, value);
+            }
             prepStmt.setString(3, profileName);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                 prepStmt.setInt(4, tenantId);
@@ -2870,7 +2882,11 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     if (param == null) {
                         throw new UserStoreException("Invalid data provided");
                     } else if (param instanceof String) {
-                        prepStmt.setString(i + 1, (String) param);
+                        if (isStoreUserAttributeAsUnicode()) {
+                            prepStmt.setNString(i + 1, (String) param);
+                        } else {
+                            prepStmt.setString(i + 1, (String) param);
+                        }
                     } else if (param instanceof Integer) {
                         prepStmt.setInt(i + 1, (Integer) param);
                     } else if (param instanceof Date) {
@@ -3178,7 +3194,11 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, property);
-            prepStmt.setString(2, value);
+            if (isStoreUserAttributeAsUnicode()) {
+                prepStmt.setNString(2, value);
+            } else {
+                prepStmt.setString(2, value);
+            }
             prepStmt.setString(3, profileName);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                 prepStmt.setInt(4, tenantId);
@@ -3247,7 +3267,11 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_PAGINATED_USERS_COUNT_FOR_PROP_WITH_ID);
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, property);
-            prepStmt.setString(2, value);
+            if (isStoreUserAttributeAsUnicode()) {
+                prepStmt.setNString(2, value);
+            } else {
+                prepStmt.setString(2, value);
+            }
             prepStmt.setString(3, profileName);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                 prepStmt.setInt(4, tenantId);
@@ -3423,7 +3447,11 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
         for (Map.Entry<Integer, String> entry : stringParameters.entrySet()) {
             if (entry.getKey() > startIndex && entry.getKey() <= endIndex) {
-                prepStmt.setString(entry.getKey() - startIndex, entry.getValue());
+                if (isStoreUserAttributeAsUnicode()) {
+                    prepStmt.setNString(entry.getKey() - startIndex, entry.getValue());
+                } else {
+                    prepStmt.setString(entry.getKey() - startIndex, entry.getValue());
+                }
             }
         }
 
