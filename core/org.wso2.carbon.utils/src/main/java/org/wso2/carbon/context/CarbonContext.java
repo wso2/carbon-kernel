@@ -163,11 +163,21 @@ public class CarbonContext {
     /**
      * Method to obtain the organization id on this CarbonContext instance.
      *
-     * @return the organization id.
+     * @return The organization id.
      */
     public String getOrganizationId() {
 
         return getCarbonContextDataHolder().getOrganizationId();
+    }
+
+    /**
+     * Method to obtain the user's resident organization ID on this CarbonContext instance.
+     *
+     * @return The user's resident organization ID.
+     */
+    public String getUserResidentOrganizationId() {
+
+        return getCarbonContextDataHolder().getUserResidentOrganizationId();
     }
 
     /**

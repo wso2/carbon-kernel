@@ -149,6 +149,17 @@ public class PrivilegedCarbonContext extends CarbonContext {
 
         getCarbonContextDataHolder().setOrganizationId(organizationId);
     }
+
+    /**
+     * Method to set the user resident organization ID on this CarbonContext instance.
+     *
+     * @param userResidentOrganizationId The user's resident organization ID.
+     */
+    public void setUserResidentOrganizationId(String userResidentOrganizationId) {
+
+        getCarbonContextDataHolder().setUserResidentOrganizationId(userResidentOrganizationId);
+    }
+
     /**
      * Method to set the tenant domain on this CarbonContext instance. This method will not
      * automatically calculate the tenant id based on the tenant domain.
