@@ -3942,7 +3942,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         String sqlStmt;
         if (isUserNameClaim(claimUri)) {
             sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.COUNT_USERS);
-
+        } else if (ExpressionOperation.EQ.toString().equalsIgnoreCase(valueFilter)) {
+            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.COUNT_USERS_WITH_FILTER);
         } else {
             sqlStmt = JDBCRealmConstants.COUNT_USERS_WITH_CLAIM_SQL;
         }
@@ -3964,6 +3965,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
             if (isUserNameClaim(claimUri)) {
                 prepStmt.setString(1, valueFilter);
+                prepStmt.setInt(2, tenantId);
+            } else if (ExpressionOperation.EQ.toString().equalsIgnoreCase(valueFilter)) {
+                prepStmt.setString(1, claimUri);
                 prepStmt.setInt(2, tenantId);
             } else {
                 prepStmt.setString(1, userRealm.getClaimManager().getAttributeName(domainName, claimUri));

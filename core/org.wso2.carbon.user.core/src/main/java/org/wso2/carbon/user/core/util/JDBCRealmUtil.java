@@ -399,6 +399,10 @@ public class JDBCRealmUtil {
             properties.put(JDBCRealmConstants.COUNT_USERS,
                     JDBCRealmConstants.COUNT_USERS_SQL);
         }
+        if (!properties.containsKey(JDBCRealmConstants.COUNT_USERS_WITH_FILTER)) {
+            properties.put(JDBCRealmConstants.COUNT_USERS_WITH_FILTER,
+                    JDBCRealmConstants.COUNT_USERS_WITH_FILTER_SQL);
+        }
         if (!properties.containsKey(JDBCRealmConstants.COUNT_INTERNAL_ROLES)) {
             properties.put(JDBCRealmConstants.COUNT_INTERNAL_ROLES,
                     JDBCRealmConstants.COUNT_INTERNAL_ROLES_SQL);
