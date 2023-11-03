@@ -7203,8 +7203,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             callSecure("deleteRole", new Object[]{roleName}, argTypes);
             return;
         }
-
-        if (UserCoreUtil.isPrimaryAdminRole(roleName, realmConfig)) {
+        if (UserCoreUtil.isPrimaryAdminRole(roleName, realmConfig)
+                && !StringUtils.equals(getTenantDomain(tenantId), realmConfig.getAssociatedOrganizationUUID())) {
             handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_CANNOT_DELETE_ADMIN_ROLE.getCode(),
                     ErrorMessages.ERROR_CODE_CANNOT_DELETE_ADMIN_ROLE.getMessage(), roleName);
             throw new UserStoreException(ErrorMessages.ERROR_CODE_CANNOT_DELETE_ADMIN_ROLE.toString());
