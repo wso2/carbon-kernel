@@ -2654,7 +2654,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 new Property[] { CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(LDAPConstants.LDAP_ATTRIBUTES_BINARY, "LDAP binary attributes", " ",
                 LDAPBinaryAttributesDescription,
-                new Property[] { CONNECTION.getProperty(), STRING.getProperty(), TRUE.getProperty() });
+                new Property[] { CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(UserStoreConfigConstants.claimOperationsSupported,
                 UserStoreConfigConstants.getClaimOperationsSupportedDisplayName, "false",
                 UserStoreConfigConstants.claimOperationsSupportedDescription,
@@ -2681,11 +2681,11 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         setAdvancedProperty(UserStoreConfigConstants.immutableAttributes,
                 UserStoreConfigConstants.immutableAttributesDisplayName, " ",
                 UserStoreConfigConstants.immutableAttributesDescription,
-                new Property[] { CONNECTION.getProperty(), STRING.getProperty(), TRUE.getProperty() });
+                new Property[] { CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(UserStoreConfigConstants.timestampAttributes,
                 UserStoreConfigConstants.timestampAttributesDisplayName, " ",
                 UserStoreConfigConstants.timestampAttributesDescription,
-                new Property[] { CONNECTION.getProperty(), STRING.getProperty(), TRUE.getProperty() });
+                new Property[] { CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty() });
     }
 
     private static void setAdvancedProperty(String name, String displayName, String value, String description,
