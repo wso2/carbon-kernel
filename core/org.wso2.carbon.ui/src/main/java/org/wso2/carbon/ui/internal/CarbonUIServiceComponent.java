@@ -125,9 +125,6 @@ public class CarbonUIServiceComponent {
                         "WebContextRoot can't be null or empty. It should be either '/' or '/[some value]'");
             }
             String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(webContextRoot);
-            if (adminConsoleURL != null) {
-                log.info("Mgt Console URL  : " + adminConsoleURL);
-            }
 
             //Retrieving available contexts
             ServiceReference reference =
