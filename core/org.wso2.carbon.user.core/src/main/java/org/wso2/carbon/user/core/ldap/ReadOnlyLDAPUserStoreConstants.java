@@ -31,6 +31,9 @@ import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.STRING;
 import static org.wso2.carbon.user.core.ldap.LDAPConstants.DEFAULT_LDAP_TIME_FORMATS_PATTERN;
 
+/**
+ * This class contains the constants related to the Read Only LDAP User Store Manager.
+ */
 public class ReadOnlyLDAPUserStoreConstants {
 
     //Properties for Read Write LDAP User Store Manager
@@ -40,7 +43,8 @@ public class ReadOnlyLDAPUserStoreConstants {
 
     //For multiple attribute separation
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
-    private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim values";
+    private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION
+            = "This is the separator for multiple claim values";
     private static final String DisplayNameAttributeDescription = "Attribute name to display as the Display Name";
     private static final String DisplayNameAttribute = "DisplayNameAttribute";
     private static final String roleDNPattern = "RoleDNPattern";
@@ -72,7 +76,7 @@ public class ReadOnlyLDAPUserStoreConstants {
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdAttribute,
                 UserStoreConfigConstants.userIdAttributeName, "scimId",
-                UserStoreConfigConstants.userIdAttributeDescription,false,
+                UserStoreConfigConstants.userIdAttributeDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdSearchFilter,
                 UserStoreConfigConstants.userIdSearchFilterAttributeName, "(&(objectClass=person)(scimId=?))",
@@ -152,6 +156,8 @@ public class ReadOnlyLDAPUserStoreConstants {
                 new Property[]{CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty()});
         setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "true",
                 UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION,
+                new Property[] { USER.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
+        setProperty("ReadOnly", "", "true", "",
                 new Property[] { USER.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
     }
 
