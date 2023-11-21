@@ -2961,6 +2961,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         } else {
             passwordHash = new String(credentialObj.getChars());
         }
+        credentialObj.clear();
         return passwordHash;
     }
 
