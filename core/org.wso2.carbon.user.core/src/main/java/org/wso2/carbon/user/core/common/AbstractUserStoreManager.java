@@ -15895,8 +15895,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
             for (ExpressionCondition expressionCondition : expressionConditions) {
                 List<org.wso2.carbon.user.api.ClaimMapping> mappedClaim =
-                        Arrays.stream(claimMapping).filter(mapping -> mapping.getMappedAttribute() ==
-                                expressionCondition.getAttributeName()).collect(Collectors.toList());
+                        Arrays.stream(claimMapping).filter(mapping -> mapping.getMappedAttribute()
+                                .equals(expressionCondition.getAttributeName())).collect(Collectors.toList());
 
                 //Obtaining relevant URI for the mapped attribute.
                 if (mappedClaim.size() == 1) {
