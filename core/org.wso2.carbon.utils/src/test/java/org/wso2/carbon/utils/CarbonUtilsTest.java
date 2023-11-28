@@ -446,12 +446,12 @@ public class CarbonUtilsTest extends BaseTest {
         try {
             CarbonUtils.getDeployer("com.fake.Deployer");
         } catch (CarbonException e) {
-            Assert.assertTrue(e.getMessage().contains("Deployer class not found"));
+            Assert.assertTrue(e.getMessage().contains("Invalid deployer class found"));
         }
         try {
             CarbonUtils.getDeployer(MockDeployer.class.getName());
         } catch (CarbonException e) {
-            Assert.assertTrue(e.getMessage().contains("Cannot create new deployer instance"));
+            Assert.assertTrue(e.getMessage().contains("Invalid deployer class found"));
         }
         deployer = CarbonUtils.getDeployer("org.apache.axis2.deployment.ServiceDeployer");
         Assert.assertTrue(deployer instanceof ServiceDeployer);

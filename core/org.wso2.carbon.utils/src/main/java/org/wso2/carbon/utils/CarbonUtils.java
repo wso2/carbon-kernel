@@ -108,6 +108,9 @@ public class CarbonUtils {
     private static boolean isServerConfigInitialized;
     private static Log audit = CarbonConstants.AUDIT_LOG;
     private static Gson gson = new Gson();
+    private static final List<String> allowedDeployers = new ArrayList<String>() {{
+        add("org.apache.axis2.deployment.ServiceDeployer");
+    }};
 
     public static boolean isAdminConsoleEnabled() {
         boolean enableAdminConsole = false;
@@ -1266,9 +1269,12 @@ public class CarbonUtils {
     public static Deployer getDeployer(String className) throws CarbonException {
         Deployer deployer;
         try {
-            Class deployerClass = Class.forName(className);
-            deployer = (Deployer) deployerClass.newInstance();
-
+            if (allowedDeployers.contains(className)) {
+                Class deployerClass = Class.forName(className);
+                deployer = (Deployer) deployerClass.newInstance();
+            } else {
+                throw new CarbonException("Invalid deployer class found " + className);
+            }
         } catch (ClassNotFoundException e) {
             throw new CarbonException("Deployer class not found ", e);
         } catch (InstantiationException e) {
