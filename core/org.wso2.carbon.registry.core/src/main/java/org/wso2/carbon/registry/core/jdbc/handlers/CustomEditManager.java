@@ -113,16 +113,5 @@ public class CustomEditManager {
             path = request.getParameter("parentPath");
             responseSent = editProcessor.processNewContent(path, viewKey, request, response);
         }
-
-        if (!responseSent) {
-            String redirectURL = request.getParameter("redirectURL");
-            if (redirectURL != null) {
-                RegistryUtils.redirect(response, redirectURL);
-            } else {
-                ResourcePath resourcePath = new ResourcePath(path);
-                RegistryUtils.redirect(
-                        response, "/wso2registry/web" + resourcePath.getPathWithVersion());
-            }
-        }
     }
 }
