@@ -288,6 +288,18 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
     }
 
+    @Override
+    protected boolean isUserIdGeneratedByUserStore(String userID, Map<String, String> userAttributes) {
+
+        String immutableAttributesProperty = Optional.ofNullable(realmConfig
+                .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse("");
+
+        String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
+        String userIdProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
+
+        return ArrayUtils.contains(immutableAttributes, userIdProperty);
+    }
+
     /**
      * This method persists the user information in the user store.
      */
