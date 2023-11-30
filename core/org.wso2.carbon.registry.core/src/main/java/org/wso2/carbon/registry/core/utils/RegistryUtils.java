@@ -411,6 +411,7 @@ public final class RegistryUtils {
      * @param response the HTTP Response.
      * @param url      The URL to redirect to.
      */
+    @Deprecated
     public static void redirect(HttpServletResponse response, String url) {
 
         try {
