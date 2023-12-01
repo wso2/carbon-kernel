@@ -29,9 +29,11 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.config.UserStoreConfigXMLProcessor;
 import org.wso2.carbon.user.core.tenant.TenantCache;
 import org.wso2.carbon.user.core.tenant.TenantIdKey;
+import org.wso2.carbon.user.core.util.DatasourceDataHolder;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.io.File;
+import java.util.AbstractMap;
 import java.util.regex.Pattern;
 
 public class UserStoreDeploymentManager {
@@ -165,6 +167,10 @@ public class UserStoreDeploymentManager {
 
             if (!isDisabled) {
                 userStoreManager.removeSecondaryUserStoreManager(domainName);
+                DatasourceDataHolder dataHolder = DatasourceDataHolder.getInstance();
+                AbstractMap.SimpleEntry<String, String> key
+                        = new AbstractMap.SimpleEntry<>(String.valueOf(tenantId), domainName.toUpperCase());
+                dataHolder.removeDomainDataSources(key);
             }
         } catch (Exception ex) {
             String errorMessage = "Error occurred at undeploying " + domainName + " from tenant:" +
