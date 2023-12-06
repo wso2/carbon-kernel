@@ -228,5 +228,6 @@
   "tenant_mgt.enable_input_validation" : false,
   "remote_logging.config_sync.period": "15",
   "legacy_authz_runtime.enable": true,
-  "jdbc_user_store.enable_optimized_jdbc_search": false
+  "jdbc_user_store.enable_optimized_jdbc_search": false,
+  "clustering.agent": "org.wso2.carbon.hazelcast.HazelcastClusteringAgent"
 }
