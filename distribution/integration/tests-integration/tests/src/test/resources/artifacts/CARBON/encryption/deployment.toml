@@ -29,12 +29,12 @@ default_auto_commit = true
 
 
 [keystore.primary]
-file_name = "wso2carbon.jks"
-type ="JKS"
+file_name = "wso2carbon.p12"
+type ="PKCS12"
 password ="wso2carbon"
 alias ="wso2carbon"
 key_password = "wso2carbon"
 [truststore]
-file_name = "client-truststore.jks"
-type = "JKS"
+file_name = "client-truststore.p12"
+type = "PKCS12"
 password = "wso2carbon"
