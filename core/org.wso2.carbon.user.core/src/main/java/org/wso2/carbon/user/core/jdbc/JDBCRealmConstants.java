@@ -130,6 +130,7 @@ public final class JDBCRealmConstants {
     public static final String ADD_USER_PROPERTY_WITH_ID = "AddUserPropertyWithIDSQL";
     public static final String UPDATE_USER_PROPERTY = "UpdateUserPropertySQL";
     public static final String UPDATE_USER_PROPERTY_WITH_ID = "UpdateUserPropertyWithIDSQL";
+    public static final String SELECT_USER_PROPERTIES_WITH_ID = "SelectUserPropertiesWithIDSQL";
     public static final String DELETE_USER_PROPERTY = "DeleteUserPropertySQL";
     public static final String DELETE_USER_PROPERTY_WITH_ID = "DeleteUserPropertyWWithIDSQL";
     public static final String USER_NAME_UNIQUE = "UserNameUniqueAcrossTenantsSQL";
@@ -440,6 +441,7 @@ public final class JDBCRealmConstants {
     public static final String UPDATE_USER_PROPERTY_WITH_ID_SQL = "UPDATE UM_USER_ATTRIBUTE SET UM_ATTR_VALUE=? WHERE "
             + "UM_USER_ID=(SELECT UM_ID FROM UM_USER WHERE UM_USER_ID=? AND UM_TENANT_ID=?) AND UM_ATTR_NAME=? AND "
             + "UM_PROFILE_ID=? AND UM_TENANT_ID=?";
+    public static final String SELECT_USER_PROPERTIES_WITH_ID_SQL = "SELECT * FROM UM_USER_ATTRIBUTE WITH (UPDLOCK) WHERE UM_USER_ID=(SELECT UM_ID FROM UM_USER WHERE UM_USER_ID=? AND UM_TENANT_ID=?) ORDER BY UM_ID;";
     public static final String DELETE_USER_PROPERTY_SQL = "DELETE FROM UM_USER_ATTRIBUTE WHERE UM_USER_ID=(SELECT UM_ID FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?) AND UM_ATTR_NAME=? AND UM_PROFILE_ID=? AND UM_TENANT_ID=?";
     public static final String DELETE_USER_PROPERTY_WITH_ID_SQL = "DELETE FROM UM_USER_ATTRIBUTE WHERE UM_USER_ID="
             + "(SELECT UM_ID FROM UM_USER WHERE UM_USER_ID=? AND UM_TENANT_ID=?) AND UM_ATTR_NAME=? AND "
