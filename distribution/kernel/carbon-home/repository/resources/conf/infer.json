@@ -263,7 +263,7 @@
     },
     "db2": {
       "database.$1.driver": "com.ibm.db2.jcc.DB2Driver",
-      "database.$1.url": "jdbc:db2://$ref{database.$1.hostname}:$ref{database.$1.port}/$ref{database.$1.name}",
+      "database.$1.url": "jdbc:db2://$ref{database.$1.hostname}:$ref{database.$1.port}/$ref{database.$1.name}:progressiveStreaming=2;",
       "database.$1.validationQuery": "SELECT 1 FROM sysibm.sysdummy1"
     },
     "postgre": {
