@@ -3956,8 +3956,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             } else if (DISAPLAY_NAME_CLAIM.equals(claimURI)) {
                 attributeName = this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
             } else {
-                throw new UserStoreException("Mapped attribute cannot be found for claim : " + claimURI + " in user " +
-                        "store : " + getMyDomainName());
+                throw new UserStoreClientException("Mapped attribute cannot be found for claim : " + claimURI +
+                        " in user store : " + getMyDomainName());
             }
         }
 
