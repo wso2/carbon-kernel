@@ -463,6 +463,10 @@ public class JDBCRealmUtil {
             properties.put(JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID,
                     JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID_SQL);
         }
+        if (!properties.containsKey(JDBCRealmConstants.SELECT_USER_PROPERTIES_WITH_ID)) {
+            properties.put(JDBCRealmConstants.SELECT_USER_PROPERTIES_WITH_ID,
+                    JDBCRealmConstants.SELECT_USER_PROPERTIES_WITH_ID_SQL);
+        }
         if (!properties.containsKey(JDBCRealmConstants.DELETE_USER_PROPERTY)) {
             properties.put(JDBCRealmConstants.DELETE_USER_PROPERTY,
                     JDBCRealmConstants.DELETE_USER_PROPERTY_SQL);

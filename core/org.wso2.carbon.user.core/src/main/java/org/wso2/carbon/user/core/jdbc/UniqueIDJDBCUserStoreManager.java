@@ -2839,6 +2839,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 }
             }
 
+            // Select and update lock the rows to be updated in a particular order before the actual update operation to
+            // prevent the deadlock scenario in issue https://github.com/wso2-enterprise/asgardeo-product/issues/21031
+            selectRowsForUpdate(dbConnection, userID);
             int[] counts = prepStmt.executeBatch();
             if (log.isDebugEnabled()) {
                 int totalUpdated = 0;
@@ -3914,5 +3917,28 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     public boolean isUniqueUserIdEnabled() {
 
         return true;
+    }
+
+    /**
+     * Select and update lock the user attribute rows before the update operation.
+     *
+     * @param dbConnection Database connection.
+     * @param userID       User id of the user.
+     * @throws UserStoreException If an error occurred while executing statement.
+     */
+    private void selectRowsForUpdate(Connection dbConnection, String userID) throws UserStoreException {
+
+        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.SELECT_USER_PROPERTIES_WITH_ID);
+        try (PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
+            prepStmt.setString(1, userID);
+            prepStmt.setInt(2, tenantId);
+            prepStmt.executeQuery();
+        } catch (SQLException e) {
+            String errorMessage = "Error while selecting rows for updating user attributes";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        }
     }
 }
