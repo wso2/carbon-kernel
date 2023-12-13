@@ -2840,8 +2840,11 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
 
             // Select and update lock the rows to be updated in a particular order before the actual update operation to
-            // prevent the deadlock scenario in issue https://github.com/wso2-enterprise/asgardeo-product/issues/21031
-            selectRowsForUpdate(dbConnection, userID);
+            // prevent the deadlock scenario in issue https://github.com/wso2-enterprise/asgardeo-product/issues/21031.
+            // Currently, this issue is only reproduced in SQL Server.
+            if (isMSSQLDB(dbConnection)) {
+                selectRowsForUpdate(dbConnection, userID);
+            }
             int[] counts = prepStmt.executeBatch();
             if (log.isDebugEnabled()) {
                 int totalUpdated = 0;
@@ -3939,6 +3942,21 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+        }
+    }
+
+    /**
+     * Check if the DB is MSSQL.
+     *
+     * @return true if MSSQL, false otherwise.
+     * @throws UserStoreException if error occurred while getting database type.
+     */
+    private boolean isMSSQLDB(Connection dbConnection) throws UserStoreException {
+
+        try {
+            return MSSQL.equalsIgnoreCase(DatabaseCreator.getDatabaseType(dbConnection));
+        } catch (Exception e) {
+            throw new UserStoreException("Error while retrieving the DB type. ", e);
         }
     }
 }
