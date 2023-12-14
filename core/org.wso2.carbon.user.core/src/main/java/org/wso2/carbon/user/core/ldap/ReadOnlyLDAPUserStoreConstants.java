@@ -154,6 +154,8 @@ public class ReadOnlyLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.dateAndTimePattern, UserStoreConfigConstants.dateAndTimePatternDisplayName,
                 DEFAULT_LDAP_TIME_FORMATS_PATTERN, UserStoreConfigConstants.dateAndTimePatternDescription,
                 new Property[]{CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty()});
+        setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "true",
+                UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION, null);
         setProperty("ReadOnly", "", "true", "",
                 new Property[] { USER.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
     }
