@@ -33,6 +33,9 @@ import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.SQL;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.STRING;
 
+/**
+ * This class contains the constants related to the JDBC User Store Manager.
+ */
 public class JDBCUserStoreConstants {
 
     //Properties for Read Active Directory User Store Manager
@@ -108,6 +111,10 @@ public class JDBCUserStoreConstants {
         setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "false",
                 UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION,
                 new Property[] { USER.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
+        setProperty(UserStoreConfigConstants.USE_CASE_SENSITIVE_USERNAME_FOR_CACHE_KEYS,
+                "Use Case Sensitive Username for Cache Keys", "true",
+                UserStoreConfigConstants.USE_CASE_SENSITIVE_USERNAME_FOR_CACHE_KEYS_DESCRIPTION,
+                new Property[] { USER.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
 
         //set Advanced properties
         setAdvancedProperty("IsBulkImportSupported", "Is Bulk Import Supported", "false",
@@ -463,7 +470,8 @@ public class JDBCUserStoreConstants {
                 JDBCRealmConstants.GET_USERS_FOR_PROP_WITH_ID_SQL, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCRealmConstants.GET_USERS_FOR_CLAIM_VALUE_WITH_ID,
-                "Get User List for Claim Value With ID SQL", JDBCRealmConstants.GET_USERS_FOR_CLAIM_VALUE_WITH_ID_SQL, "",
+                "Get User List for Claim Value With ID SQL",
+                JDBCRealmConstants.GET_USERS_FOR_CLAIM_VALUE_WITH_ID_SQL, "",
                 new Property[]{USER.getProperty(), SQL.getProperty(), FALSE.getProperty()});
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_USERS_FOR_PROP_WITH_ID_CASE_INSENSITIVE,
                 "Get User List For Property With ID SQL With Case Insensitive Username",
@@ -614,7 +622,8 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(JDBCRealmConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE,
                 "On Delete User, Remove User Attribute SQL", JDBCRealmConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE_SQL, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
-        setAdvancedProperty(JDBCRealmConstants.COUNT_USERS_WITH_FILTER, "Count Users SQL With Filter", JDBCRealmConstants.COUNT_USERS_WITH_FILTER_SQL, "",
+        setAdvancedProperty(JDBCRealmConstants.COUNT_USERS_WITH_FILTER, "Count Users SQL With Filter",
+                JDBCRealmConstants.COUNT_USERS_WITH_FILTER_SQL, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCRealmConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE_WITH_ID,
                 "On Delete User, Remove User Attribute SQL With ID",
