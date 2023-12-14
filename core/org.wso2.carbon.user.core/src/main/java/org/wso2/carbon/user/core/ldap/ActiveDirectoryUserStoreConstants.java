@@ -102,6 +102,8 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty(UserStoreConfigConstants.disabled, "Disabled", "false",
                 UserStoreConfigConstants.disabledDescription,
                 new Property[] { BASIC.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
+        setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "true",
+                UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION, null);
 
         setProperty(UserStoreConfigConstants.USE_CASE_SENSITIVE_USERNAME_FOR_CACHE_KEYS,
                 "Use Case Sensitive Username for Cache Keys", "true",
