@@ -426,9 +426,10 @@ public class JDBCTenantManager implements TenantManager {
     @SuppressWarnings("unchecked")
     public Tenant getTenant(int tenantId) throws UserStoreException {
 
-
+        if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
+            return null;
+        }
         TenantCacheEntry<Tenant> entry = tenantCacheManager.getValueFromCache(new TenantIdKey(tenantId));
-
         if ((entry != null) && (entry.getTenant() != null)) {
             return entry.getTenant();
         }
