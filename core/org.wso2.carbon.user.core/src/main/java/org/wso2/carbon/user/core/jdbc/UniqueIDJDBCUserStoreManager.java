@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
@@ -2353,6 +2354,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             throw new IllegalArgumentException("Filter value cannot be null");
         }
 
+        boolean isOptimizedSearchEnabled = Boolean.parseBoolean(ServerConfiguration.getInstance()
+                .getFirstProperty(JDBCRealmConstants.PROP_ENABLE_OPTIMIZED_JDBC_SEARCH));
+        boolean useOptimizedProcess = isOptimizedSearchEnabled && UID.equals(property);
+
         String sqlStmt;
         if (value.contains(QUERY_FILTER_STRING_ANY)) {
             // This is to support LDAP like queries. Value having only * is restricted except one *.
@@ -2360,18 +2365,36 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 // Convert all the * to % except \*.
                 value = value.replaceAll("(?<!\\\\)\\*", SQL_FILTER_STRING_ANY);
             }
-            if (!isCaseSensitiveUsername() && UID.equals(property)) {
-                sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.
-                        GET_USERS_FOR_PROP_WITH_ID_CASE_INSENSITIVE);
+            if (useOptimizedProcess) {
+                if (!isCaseSensitiveUsername()) {
+                    sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.
+                            GET_USERS_FOR_UID_WITH_ID_CASE_INSENSITIVE);
+                } else {
+                    sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_FOR_UID);
+                }
             } else {
-                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_FOR_PROP_WITH_ID);
+                if (!isCaseSensitiveUsername() && UID.equals(property)) {
+                    sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.
+                            GET_USERS_FOR_PROP_WITH_ID_CASE_INSENSITIVE);
+                } else {
+                    sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_FOR_PROP_WITH_ID);
+                }
             }
         } else {
-            if (!isCaseSensitiveUsername() && UID.equals(property)) {
-                sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.
-                        GET_USERS_FOR_CLAIM_VALUE_WITH_ID_CASE_INSENSITIVE);
+            if (useOptimizedProcess) {
+                if (!isCaseSensitiveUsername()) {
+                    sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants
+                            .GET_USER_FOR_UID_WITH_ID_CASE_INSENSITIVE);
+                } else {
+                    sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USER_FOR_UID_SQL);
+                }
             } else {
-                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_FOR_CLAIM_VALUE_WITH_ID);
+                if (!isCaseSensitiveUsername() && UID.equals(property)) {
+                    sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.
+                            GET_USERS_FOR_CLAIM_VALUE_WITH_ID_CASE_INSENSITIVE);
+                } else {
+                    sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_FOR_CLAIM_VALUE_WITH_ID);
+                }
             }
         }
 
@@ -2382,18 +2405,22 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         try {
             dbConnection = getDBConnection();
             prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setString(1, property);
-            if (isStoreUserAttributeAsUnicode()) {
-                prepStmt.setNString(2, value);
+            if (useOptimizedProcess) {
+                prepStmt.setString(1, value);
+                prepStmt.setInt(2, tenantId);
             } else {
-                prepStmt.setString(2, value);
+                prepStmt.setString(1, property);
+                if (isStoreUserAttributeAsUnicode()) {
+                    prepStmt.setNString(2, value);
+                } else {
+                    prepStmt.setString(2, value);
+                }
+                prepStmt.setString(3, profileName);
+                if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                    prepStmt.setInt(4, tenantId);
+                    prepStmt.setInt(5, tenantId);
+                }
             }
-            prepStmt.setString(3, profileName);
-            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                prepStmt.setInt(4, tenantId);
-                prepStmt.setInt(5, tenantId);
-            }
-
             int searchTime;
             int maxItemLimit;
             try {

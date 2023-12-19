@@ -71,6 +71,8 @@ public final class JDBCRealmConstants {
     public static final String GET_USERS_FOR_PROP_WITH_ESCAPE = "GetUserListForPropertySQLWithEscape";
     public static final String GET_USERS_FOR_CLAIM_VALUE = "GetUserListForClaimValueSQL";
     public static final String GET_USERS_FOR_PROP_WITH_ID = "GetUserLisForPropertyWithIDSQL";
+    public static final String GET_USERS_FOR_UID = "GetUserListForUserIDSQL";
+    public static final String GET_USER_FOR_UID = "GetUserForUserIDSQL";
     public static final String GET_USERS_FOR_CLAIM_VALUE_WITH_ID = "GetUserListForClaimValueWithIDSQL";
     public static final String GET_PAGINATED_USERS_FOR_PROP = "GetPaginatedUserLisForPropertySQL";
     public static final String GET_PAGINATED_USERS_FOR_PROP_WITH_ID = "GetPaginatedUserLisForPropertyWithIDSQL";
@@ -309,6 +311,10 @@ public final class JDBCRealmConstants {
             + "UM_USER_ATTRIBUTE WHERE UM_USER_ATTRIBUTE.UM_USER_ID = UM_USER.UM_ID AND UM_USER_ATTRIBUTE.UM_ATTR_NAME =? " +
             "AND UM_USER_ATTRIBUTE.UM_ATTR_VALUE LIKE ? AND UM_USER_ATTRIBUTE.UM_PROFILE_ID=? " +
             "AND UM_USER_ATTRIBUTE.UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?";
+    public static final String GET_USERS_FOR_UID_SQL = "SELECT DISTINCT UM_USER.UM_USER_ID " +
+            "FROM UM_USER WHERE UM_USER.UM_USER_ID LIKE ? AND UM_USER.UM_TENANT_ID=?";
+    public static final String GET_USER_FOR_UID_SQL = "SELECT DISTINCT UM_USER.UM_USER_ID " +
+            "FROM UM_USER WHERE UM_USER.UM_USER_ID=? AND UM_USER.UM_TENANT_ID=?";
     public static final String GET_USERS_FOR_CLAIM_VALUE_WITH_ID_SQL = "SELECT DISTINCT UM_USER.UM_USER_ID FROM " +
             "UM_USER, UM_USER_ATTRIBUTE WHERE UM_USER_ATTRIBUTE.UM_USER_ID = UM_USER.UM_ID AND " +
             "UM_USER_ATTRIBUTE.UM_ATTR_NAME =? AND UM_USER_ATTRIBUTE.UM_ATTR_VALUE =? AND " +
@@ -532,6 +538,7 @@ public final class JDBCRealmConstants {
     public static final String ADD_USER_TO_ROLE_OPENEDGE = "AddUserToRoleSQL-openedge";
     public static final String ADD_ROLE_TO_USER_OPENEDGE = "AddRoleToUserSQL-openedge";
     public static final String ADD_USER_PROPERTY_OPENEDGE = "AddUserPropertySQL-openedge";
+    public static final String PROP_ENABLE_OPTIMIZED_JDBC_SEARCH = "JDBCUserStore.enableOptimizedJDBCSearch";
     private JDBCRealmConstants() {
     }
 }

@@ -833,4 +833,10 @@
 
     <!-- Configure legacy identity server authorization runtime -->
     <EnableLegacyAuthzRuntime>{{legacy_authz_runtime.enable}}</EnableLegacyAuthzRuntime>
+
+    <!-- Optimize the user search through UIDs in UniqueJDBCUserStore -->
+    <JDBCUserStore>
+        <enableOptimizedJDBCSearch>{{jdbc_user_store.enable_optimized_jdbc_search}}</enableOptimizedJDBCSearch>
+    </JDBCUserStore>
+
 </Server>
