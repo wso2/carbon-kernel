@@ -324,10 +324,11 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         /* setting claims */
         setUserClaimsWithID(claims, basicAttributes, userID, userName);
 
+        Name compoundName;
         try {
 
             NameParser ldapParser = dirContext.getNameParser("");
-            Name compoundName = ldapParser
+            compoundName = ldapParser
                     .parse(realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE) + "="
                             + escapeSpecialCharactersForDN(userName));
 
@@ -351,13 +352,19 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
         if (roleList != null && roleList.length > 0) {
             try {
+                if (isUserIdGeneratedByUserStore(userID, claims)) {
+                    String userIdAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
+                    Attributes userAttributes = dirContext.getAttributes(compoundName, new String[]{userIdAttribute});
+                    userID = resolveLdapAttributeValue(userAttributes.get(userIdAttribute).get());
+                }
                 /* update the user roles */
                 doUpdateRoleListOfUserWithID(userID, null, roleList);
                 if (log.isDebugEnabled()) {
-                    log.debug("Roles are added for user  : " + userName + " successfully.");
+                    log.debug("Roles are added for user with user ID : " + userID + " successfully.");
                 }
-            } catch (UserStoreException e) {
-                String errorMessage = "User is added. But error while updating role list of user : " + userName;
+            } catch (UserStoreException | NamingException e) {
+                String errorMessage =
+                        "User is added. But error while updating role list of user with user ID : " + userID;
                 if (log.isDebugEnabled()) {
                     log.debug(errorMessage, e);
                 }
