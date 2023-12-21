@@ -19,6 +19,9 @@ package org.wso2.carbon.user.core;
 
 import org.wso2.carbon.user.core.ldap.LDAPConstants;
 
+/**
+ * This class contains the constants related to User Store Configurations.
+ */
 public class UserStoreConfigConstants {
     public static final String PRIMARY = "PRIMARY";
     public static final String DOMAIN_NAME = "DomainName";
@@ -180,6 +183,11 @@ public class UserStoreConfigConstants {
     // Property for specify case insensitivity for User stores.
     public static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
     public static final String CASE_INSENSITIVE_USERNAME_DESCRIPTION = "Whether the username is case sensitive or not";
+
+    // Property for specify whether case-sensitive username can be used as the cache key.
+    public static final String USE_CASE_SENSITIVE_USERNAME_FOR_CACHE_KEYS = "UseCaseSensitiveUsernameForCacheKeys";
+    public static final String USE_CASE_SENSITIVE_USERNAME_FOR_CACHE_KEYS_DESCRIPTION =
+            "Whether case-sensitive username can be used as the cache key or not.";
 
     // Property to bypass account locking for the userstore.
     public static final String BYPASS_ACCOUNT_LOCK = "BypassAccountLock";
