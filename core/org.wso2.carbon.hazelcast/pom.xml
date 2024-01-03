@@ -21,7 +21,7 @@
     <parent>
         <artifactId>carbon-kernel</artifactId>
         <groupId>org.wso2.carbon</groupId>
-        <version>4.9.15-SNAPSHOT</version>
+        <version>4.9.21-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
