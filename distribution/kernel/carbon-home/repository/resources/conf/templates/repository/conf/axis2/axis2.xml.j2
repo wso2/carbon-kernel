@@ -572,7 +572,7 @@
         <phase name="StatReporting"/>
     </phaseOrder>
 
-    <clustering class="org.wso2.carbon.core.clustering.hazelcast.HazelcastClusteringAgent"
+    <clustering class="{{clustering.agent}}"
                 enable="{{clustering.membership_scheme is defined}}">
 
         <!--
@@ -695,7 +695,7 @@
         <groupManagement enable="false">
             <applicationDomain name="wso2.as.domain"
                                description="AS group"
-                               agent="org.wso2.carbon.core.clustering.hazelcast.HazelcastGroupManagementAgent"
+                               agent="org.wso2.carbon.hazelcast.HazelcastGroupManagementAgent"
                                subDomain="worker"
                                port="2222"/>
         </groupManagement>
