@@ -57,7 +57,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * Responsible for finalizing startup of the Carbon server. This component will run after all other
+ * Responsible test for finalizing startup of the Carbon server. This component will run after all other
  * components & service required for the Carbon server to reach a stable state become available.
  *
  * This service component is mainly responsible for starting the Axis2 Transport ListenerManager
