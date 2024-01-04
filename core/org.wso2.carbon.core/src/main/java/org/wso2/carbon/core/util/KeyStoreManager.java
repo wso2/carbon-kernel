@@ -26,6 +26,7 @@ import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.registry.api.Registry;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.registry.core.exceptions.ResourceNotFoundException;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -499,6 +500,12 @@ public class KeyStoreManager {
             }
         } catch (org.wso2.carbon.registry.api.RegistryException e) {
             String errorMsg = "Error reading key store meta data from registry.";
+            if (e instanceof ResourceNotFoundException) {
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMsg, e);
+                }
+                return false;
+            }
             log.error(errorMsg, e);
             throw new SecurityException(errorMsg, e);
         }
