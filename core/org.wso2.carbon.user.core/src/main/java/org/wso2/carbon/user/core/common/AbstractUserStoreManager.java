@@ -848,6 +848,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 log.debug(errorMessage, e);
             }
 
+            if (e instanceof UserStoreClientException) {
+                throw new UserStoreClientException(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         }
         return userStoreAttributeValueMap;
