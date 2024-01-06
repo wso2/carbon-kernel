@@ -17,6 +17,7 @@ package org.wso2.carbon.utils.security;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -55,11 +56,11 @@ public class KeyImporter {
         try (FileOutputStream fileOutputStream = new FileOutputStream(new File(targetStorePath).getAbsolutePath());
              FileInputStream fis = new FileInputStream(new File(sourceStorePath).getAbsolutePath());) {
 
-            KeyStore sourceStore = KeyStore.getInstance("JKS");
+            KeyStore sourceStore = KeyStore.getInstance(CarbonUtils.getKeyStoreFileType());
             sourceStore.load(fis, sourceStorePass.toCharArray());
 
             Certificate cert = sourceStore.getCertificateChain(keyAlias)[0];
-            KeyStore targetStore = KeyStore.getInstance("JKS");
+            KeyStore targetStore = KeyStore.getInstance(CarbonUtils.getKeyStoreFileType());
 
             File targetStoreFile = new File(targetStorePath);
             if (targetStoreFile.exists()) {

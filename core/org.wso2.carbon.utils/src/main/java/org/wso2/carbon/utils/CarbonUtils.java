@@ -50,6 +50,7 @@ import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.context.internal.OSGiDataHolder;
 import org.wso2.carbon.utils.component.xml.config.DeployerConfig;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.resolver.CarbonEntityResolver;
@@ -108,6 +109,10 @@ public class CarbonUtils {
     private static boolean isServerConfigInitialized;
     private static Log audit = CarbonConstants.AUDIT_LOG;
     private static Gson gson = new Gson();
+    private static final HashMap<String, String> fileExtensions = new HashMap<String, String>() {{
+        put("JKS", ".jks");
+        put("PKCS12", ".p12");
+    }};
 
     public static boolean isAdminConsoleEnabled() {
         boolean enableAdminConsole = false;
@@ -1508,5 +1513,26 @@ public class CarbonUtils {
                 getFirstProperty("InputValidationEnabled");
 
         return isInputValidationEnabledConfig == null || Boolean.parseBoolean(isInputValidationEnabledConfig);
+    }
+
+    public static String getKeyStoreFileType() {
+
+        return OSGiDataHolder.getInstance().getServerConfigurationService().getFirstProperty("Security.KeyStore.Type");
+    }
+
+    public static String getKeyStoreFileExtension() {
+
+        return fileExtensions.get(getKeyStoreFileType());
+    }
+
+    public static String getTrustStoreFileType() {
+
+        return OSGiDataHolder.getInstance().getServerConfigurationService()
+                .getFirstProperty("Security.truststore.Type");
+    }
+
+    public static String getTrustStoreFileExtension() {
+
+        return fileExtensions.get(getTrustStoreFileType());
     }
 }
