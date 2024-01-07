@@ -2353,10 +2353,17 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         if (value == null) {
             throw new IllegalArgumentException("Filter value cannot be null");
         }
+        boolean uidIsUsername = false;
+        try {
+            String usernameMappedAttribute = claimManager.getClaimMapping(USERNAME_CLAIM_URI).getMappedAttribute();
+            uidIsUsername = usernameMappedAttribute.equals(UID);
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException("Error occurred while retrieving claim mapping.", e);
+        }
 
         boolean isOptimizedSearchEnabled = Boolean.parseBoolean(ServerConfiguration.getInstance()
                 .getFirstProperty(JDBCRealmConstants.PROP_ENABLE_OPTIMIZED_JDBC_SEARCH));
-        boolean useOptimizedProcess = isOptimizedSearchEnabled && UID.equals(property);
+        boolean useOptimizedProcess = isOptimizedSearchEnabled && UID.equals(property) && uidIsUsername;
 
         String sqlStmt;
         if (value.contains(QUERY_FILTER_STRING_ANY)) {
@@ -2368,9 +2375,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             if (useOptimizedProcess) {
                 if (!isCaseSensitiveUsername()) {
                     sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.
-                            GET_USERS_FOR_UID_WITH_ID_CASE_INSENSITIVE);
+                            GET_USERS_FOR_USERNAME_WITH_USERNAME_CASE_INSENSITIVE);
                 } else {
-                    sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_FOR_UID);
+                    sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_FOR_USERNAME);
                 }
             } else {
                 if (!isCaseSensitiveUsername() && UID.equals(property)) {
@@ -2384,9 +2391,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             if (useOptimizedProcess) {
                 if (!isCaseSensitiveUsername()) {
                     sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants
-                            .GET_USER_FOR_UID_WITH_ID_CASE_INSENSITIVE);
+                            .GET_USER_FOR_USERNAME_WITH_USERNAME_CASE_INSENSITIVE);
                 } else {
-                    sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USER_FOR_UID_SQL);
+                    sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USER_FOR_USERNAME);
                 }
             } else {
                 if (!isCaseSensitiveUsername() && UID.equals(property)) {
