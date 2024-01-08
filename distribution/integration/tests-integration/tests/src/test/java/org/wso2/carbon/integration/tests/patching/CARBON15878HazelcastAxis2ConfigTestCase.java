@@ -132,9 +132,9 @@ public class CARBON15878HazelcastAxis2ConfigTestCase extends CarbonIntegrationBa
             this.carbonHome = serverManager.setUpCarbonHome(carbonZipLocation);
 
             System.setProperty("javax.net.ssl.trustStore",
-                    Paths.get(this.carbonHome, "repository", "resources", "security", "wso2carbon.jks").toString());
+                    Paths.get(this.carbonHome, "repository", "resources", "security", "wso2carbon.p12").toString());
             System.setProperty("javax.net.ssl.trustStorePassword", "wso2carbon");
-            System.setProperty("javax.net.ssl.trustStoreType", "JKS");
+            System.setProperty("javax.net.ssl.trustStoreType", "PKCS12");
         }
 
         public String getCarbonHome() {
