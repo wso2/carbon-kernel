@@ -79,6 +79,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.apache.commons.lang3.StringEscapeUtils.unescapeJava;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
@@ -1290,6 +1291,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
         if (userName == null) {
             throw new IllegalArgumentException("userName cannot be null.");
+        }
+        if (userName.contains("\\")) {
+            // Remove escape characters from the username since it can be an encoded username.
+            userName = unescapeJava(userName);
         }
 
         Connection dbConnection = null;
