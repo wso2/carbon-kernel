@@ -1292,10 +1292,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         if (userName == null) {
             throw new IllegalArgumentException("userName cannot be null.");
         }
-        if (userName.contains("\\")) {
-            // Remove escape characters from the username since it can be an encoded username.
-            userName = unescapeJava(userName);
-        }
+        // Remove escape characters from the username since it can be an encoded username.
+        userName = unescapeJava(userName);
 
         Connection dbConnection = null;
         String sqlStmt;
