@@ -229,5 +229,15 @@
   "remote_logging.config_sync.period": "15",
   "legacy_authz_runtime.enable": true,
   "jdbc_user_store.enable_optimized_jdbc_search": false,
-  "clustering.agent": "org.wso2.carbon.hazelcast.HazelcastClusteringAgent"
+  "clustering.agent": "org.wso2.carbon.hazelcast.HazelcastClusteringAgent",
+  "database.registry_db.url" : "jdbc:h2:async:./repository/database/WSO2CARBON_DB;DB_CLOSE_ON_EXIT=FALSE",
+  "database.registry_db.username" : "wso2carbon",
+  "database.registry_db.password" : "wso2carbon",
+  "database.registry_db.driver" : "org.h2.Driver",
+  "database.registry_db.pool_options.maxActive" : "50",
+  "database.registry_db.pool_options.maxWait" : "60000",
+  "database.registry_db.pool_options.testOnBorrow" : "true",
+  "database.registry_db.pool_options.validationQuery" : "SELECT 1",
+  "database.registry_db.pool_options.validationInterval" : "30000",
+  "database.registry_db.pool_options.defaultAutoCommit" : "true"
 }
