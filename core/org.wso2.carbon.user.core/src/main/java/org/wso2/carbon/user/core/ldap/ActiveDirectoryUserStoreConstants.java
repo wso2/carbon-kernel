@@ -182,7 +182,7 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty(UserStoreConfigConstants.usernameJavaRegEx, "Username RegEx (Java)", "[a-zA-Z0-9._-|//]{3,30}$",
                 UserStoreConfigConstants.usernameJavaRegExDescription,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        setProperty(UserStoreConfigConstants.usernameJavaScriptRegEx, "Username RegEx (Javascript)", "^[^\\s*?%]{3,50}$",
+        setProperty(UserStoreConfigConstants.usernameJavaScriptRegEx, "Username RegEx (Javascript)", "^[\\S]{3,30}$",
                 UserStoreConfigConstants.usernameJavaScriptRegExDescription,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
 
