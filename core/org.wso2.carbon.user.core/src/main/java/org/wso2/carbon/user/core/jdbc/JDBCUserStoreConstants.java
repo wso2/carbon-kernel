@@ -87,7 +87,7 @@ public class JDBCUserStoreConstants {
         setProperty("UsernameJavaRegEx", "Username RegEx (Java)", "[a-zA-Z0-9._\\-|//]{3,30}$",
                 "A regular expression to validate user names",
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        setProperty("UsernameJavaScriptRegEx", "Username RegEx (Javascript)", "^[^\\s*?%]{5,30}$",
+        setProperty("UsernameJavaScriptRegEx", "Username RegEx (Javascript)", "[a-zA-Z0-9._\\-|//]{3,30}$",
                 "The regular expression used by the font-end components for username validation",
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setProperty(usernameJavaRegExViolationErrorMsg, "Username RegEx Violation Error Message",
