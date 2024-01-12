@@ -470,7 +470,7 @@
 
         <!-- Jettison Version -->
         <version.jettison>1.5.4</version.jettison>
-        <orbit.version.jettison>1.3.4.wso2v1</orbit.version.jettison>
+        <orbit.version.jettison>1.5.4.wso2v1</orbit.version.jettison>
 
         <orbit.version.hsqldb>1.8.0.7wso2v1</orbit.version.hsqldb>
         <orbit.version.commons.beanutils>1.8.0.wso2v1</orbit.version.commons.beanutils>
