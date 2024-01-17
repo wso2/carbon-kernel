@@ -542,7 +542,7 @@ public class KeyStoreBasedExternalCryptoProvider implements ExternalCryptoProvid
 
     private String getTenantKeyStoreName(String tenantDomain) {
 
-        return tenantDomain.trim().replace(".", "-") + KeystoreUtils.getKeyStoreFileExtension();
+        return KeystoreUtils.getKeyStoreFileLocation(tenantDomain);
     }
 
     protected byte[] symmetricEncryptData(HybridEncryptionInput hybridEncryptionInput, String jceSecurityProvider,

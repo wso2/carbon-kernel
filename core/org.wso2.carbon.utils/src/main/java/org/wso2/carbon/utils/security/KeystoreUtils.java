@@ -1,11 +1,40 @@
+/*
+ * Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.utils.security;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonException;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.context.RegistryType;
+import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 /**
  * A collection of key store and trust store related utility methods.
  */
 public class KeystoreUtils {
+
+    private static Log LOG = LogFactory.getLog(KeystoreUtils.class);
+    private static final String FALLBACK_TENANTED_KEYSTORE_FILE_TYPE = "JKS";
+    private static final String KEY_STORES = "/repository/security/key-stores";
 
     /**
      * A collection of file type extensions against the store file type.
@@ -22,6 +51,19 @@ public class KeystoreUtils {
         }
 
         /**
+         * Check the configured store file type is supporting (ex: JKS, PKCS12).
+         *
+         * @throws IllegalArgumentException the File type .
+         */
+        public static void validateFileType(String fileType) throws CarbonException {
+            try {
+                StoreFileType.valueOf(fileType);
+            } catch (IllegalArgumentException e) {
+                throw new CarbonException("Unsupported store file type:" + fileType);
+            }
+        }
+
+        /**
          * Get the file extension for give store file type (ex: .jks, .p12).
          *
          * @return File extension.
@@ -30,6 +72,21 @@ public class KeystoreUtils {
 
             return StoreFileType.valueOf(fileType).extension;
         }
+
+        /**
+         * Get the file type for give store file extension (ex: JKS, PKCS12).
+         *
+         * @return File type.
+         */
+        public static String getExtensionByFileType(String extension) throws CarbonException {
+
+            for (StoreFileType fileTypes: StoreFileType.values()) {
+                if (fileTypes.extension.equals(extension)) {
+                    return fileTypes.name();
+                }
+            }
+            throw new CarbonException("Unsupported store file extension type:" + extension);
+        }
     }
 
     /**
@@ -37,19 +94,39 @@ public class KeystoreUtils {
      *
      * @return File location.
      */
-    public static String getKeyStoreFileLocation() {
+    public static String getKeyStoreFileLocation(String tenantDomain) {
 
-        return CarbonUtils.getServerConfiguration().getFirstProperty("Security.KeyStore.Location");
+        if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
+            return CarbonUtils.getServerConfiguration().getFirstProperty("Security.KeyStore.Location");
+        }
+        return tenantDomain.trim().replace(".", "-") + getKeyStoreFileExtension(tenantDomain);
     }
 
     /**
      * Retrieve keystore file type (ex: JKS, PKCS12).
+     * @param tenantDomain  Tenant domain the keystore need to be resolved.
      *
      * @return File type.
      */
-    public static String getKeyStoreFileType() {
+    public static String getKeyStoreFileType(String tenantDomain) {
 
-        return CarbonUtils.getServerConfiguration().getFirstProperty("Security.KeyStore.Type");
+        String keystoreType = CarbonUtils.getServerConfiguration().getFirstProperty("Security.KeyStore.Type");
+        try {
+            StoreFileType.validateFileType(keystoreType);
+        } catch (CarbonException e) {
+            LOG.error("Unsupported file type for key store file", e);
+        }
+
+        if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
+            return keystoreType;
+        }
+
+        String ksName = tenantDomain.trim().replace(".", "-");
+        if (isFileExistInRegistry(ksName + StoreFileType.getFileTypeByExtension(keystoreType))) {
+            return keystoreType;
+        }
+
+        return FALLBACK_TENANTED_KEYSTORE_FILE_TYPE;
     }
 
     /**
@@ -57,9 +134,9 @@ public class KeystoreUtils {
      *
      * @return File extension.
      */
-    public static String getKeyStoreFileExtension() {
+    public static String getKeyStoreFileExtension(String tenantDomain) {
 
-        return StoreFileType.getFileTypeByExtension(getKeyStoreFileType());
+        return StoreFileType.getFileTypeByExtension(getKeyStoreFileType(tenantDomain));
     }
 
     /**
@@ -79,7 +156,13 @@ public class KeystoreUtils {
      */
     public static String getTrustStoreFileType() {
 
-        return CarbonUtils.getServerConfiguration().getFirstProperty("Security.TrustStore.Type");
+        String truststore = CarbonUtils.getServerConfiguration().getFirstProperty("Security.TrustStore.Type");
+        try {
+            StoreFileType.validateFileType(truststore);
+        } catch (CarbonException e) {
+            LOG.error("Unsupported file type for trust store file", e);
+        }
+        return truststore;
     }
 
     /**
@@ -90,5 +173,17 @@ public class KeystoreUtils {
     public static String getTrustStoreFileExtension() {
 
         return StoreFileType.getFileTypeByExtension(getTrustStoreFileType());
+    }
+    private static boolean isFileExistInRegistry(String keyStoreName) {
+
+        boolean isKeyStoreExists = false;
+        try {
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.USER_GOVERNANCE)
+                    .resourceExists(KEY_STORES + "/" + keyStoreName);
+        } catch (RegistryException e) {
+            String msg = "Error while checking the existance of keystore.  ";
+            LOG.error(msg + e.getMessage());
+        }
+        return isKeyStoreExists;
     }
 }
