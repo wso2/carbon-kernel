@@ -44,10 +44,25 @@ public class KeystoreUtils {
         PKCS12(".p12");
 
         private final String extension;
+        private static final String defaultFileType = "PKCS12";
 
         StoreFileType(String extension) {
 
             this.extension = extension;
+        }
+
+        /**
+         * Get extension of the store file type (ex: .jks, .p12).
+         *
+         * @throws IllegalArgumentException the File type .
+         */
+        public static String getExtension(StoreFileType tileType) {
+
+            return tileType.extension;
+        }
+
+        public static String defaultFileType() {
+            return defaultFileType;
         }
 
         /**
@@ -62,31 +77,31 @@ public class KeystoreUtils {
                 throw new CarbonException("Unsupported store file type:" + fileType);
             }
         }
+    }
 
-        /**
-         * Get the file extension for give store file type (ex: .jks, .p12).
-         *
-         * @return File extension.
-         */
-        public static String getFileTypeByExtension(String fileType) {
+    /**
+     * Get the file extension for give store file type (ex: .jks, .p12).
+     *
+     * @return File extension.
+     */
+    public static String getExtensionByFileType(String fileType) {
 
-            return StoreFileType.valueOf(fileType).extension;
-        }
+        return StoreFileType.getExtension(StoreFileType.valueOf(fileType)) ;
+    }
 
-        /**
-         * Get the file type for give store file extension (ex: JKS, PKCS12).
-         *
-         * @return File type.
-         */
-        public static String getExtensionByFileType(String extension) throws CarbonException {
+    /**
+     * Get the file type for give store file extension (ex: JKS, PKCS12).
+     *
+     * @return File type.
+     */
+    public static String getFileTypeByExtension(String extension) throws CarbonException {
 
-            for (StoreFileType fileTypes: StoreFileType.values()) {
-                if (fileTypes.extension.equals(extension)) {
-                    return fileTypes.name();
-                }
+        for (StoreFileType fileTypes: StoreFileType.values()) {
+            if (StoreFileType.getExtension(fileTypes).equals(extension)) {
+                return fileTypes.name();
             }
-            throw new CarbonException("Unsupported store file extension type:" + extension);
         }
+        throw new CarbonException("Unsupported store file extension type:" + extension);
     }
 
     /**
@@ -122,7 +137,7 @@ public class KeystoreUtils {
         }
 
         String ksName = tenantDomain.trim().replace(".", "-");
-        if (isFileExistInRegistry(ksName + StoreFileType.getFileTypeByExtension(keystoreType))) {
+        if (isFileExistInRegistry(ksName + getExtensionByFileType(keystoreType))) {
             return keystoreType;
         }
 
@@ -136,7 +151,7 @@ public class KeystoreUtils {
      */
     public static String getKeyStoreFileExtension(String tenantDomain) {
 
-        return StoreFileType.getFileTypeByExtension(getKeyStoreFileType(tenantDomain));
+        return getExtensionByFileType(getKeyStoreFileType(tenantDomain));
     }
 
     /**
@@ -172,14 +187,17 @@ public class KeystoreUtils {
      */
     public static String getTrustStoreFileExtension() {
 
-        return StoreFileType.getFileTypeByExtension(getTrustStoreFileType());
+        return getExtensionByFileType(getTrustStoreFileType());
     }
+
     private static boolean isFileExistInRegistry(String keyStoreName) {
 
         boolean isKeyStoreExists = false;
         try {
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.USER_GOVERNANCE)
-                    .resourceExists(KEY_STORES + "/" + keyStoreName);
+            if (PrivilegedCarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.USER_GOVERNANCE)
+                    .resourceExists(KEY_STORES + "/" + keyStoreName)) {
+                isKeyStoreExists = true;
+            }
         } catch (RegistryException e) {
             String msg = "Error while checking the existance of keystore.  ";
             LOG.error(msg + e.getMessage());

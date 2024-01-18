@@ -84,8 +84,8 @@ public class KeyImporter {
     }
 
     private static String getFileType(String filePath) throws CarbonException {
-        String[] filePathComponents = filePath.split("\\.");
-        String fileExtension = filePathComponents[filePathComponents.length - 1];
-        return KeystoreUtils.StoreFileType.getExtensionByFileType(fileExtension);
+
+        String fileExtension = filePath.substring(filePath.lastIndexOf("."));
+        return KeystoreUtils.getFileTypeByExtension(fileExtension);
     }
 }
