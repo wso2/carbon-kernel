@@ -17,6 +17,8 @@ package org.wso2.carbon.utils.security;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonException;
+import org.wso2.carbon.utils.security.KeystoreUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -55,11 +57,11 @@ public class KeyImporter {
         try (FileOutputStream fileOutputStream = new FileOutputStream(new File(targetStorePath).getAbsolutePath());
              FileInputStream fis = new FileInputStream(new File(sourceStorePath).getAbsolutePath());) {
 
-            KeyStore sourceStore = KeyStore.getInstance("JKS");
+            KeyStore sourceStore = KeyStore.getInstance(getFileType(sourceStorePath));
             sourceStore.load(fis, sourceStorePass.toCharArray());
 
             Certificate cert = sourceStore.getCertificateChain(keyAlias)[0];
-            KeyStore targetStore = KeyStore.getInstance("JKS");
+            KeyStore targetStore = KeyStore.getInstance(getFileType(targetStorePath));
 
             File targetStoreFile = new File(targetStorePath);
             if (targetStoreFile.exists()) {
@@ -79,5 +81,11 @@ public class KeyImporter {
             throw e;
 
         }
+    }
+
+    private static String getFileType(String filePath) throws CarbonException {
+
+        String fileExtension = filePath.substring(filePath.lastIndexOf("."));
+        return KeystoreUtils.getFileTypeByExtension(fileExtension);
     }
 }
