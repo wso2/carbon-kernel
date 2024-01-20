@@ -44,7 +44,7 @@ public class KeystoreUtils {
         PKCS12(".p12");
 
         private final String extension;
-        private static final String defaultFileType = "PKCS12";
+        private static final String defaultFileType = "JKS";
 
         StoreFileType(String extension) {
 
