@@ -77,13 +77,13 @@
                     protocols="+TLSv1,+TLSv1.1,+TLSv1.2"
                     sslProtocol="TLS"
                     certificateVerification="false"
-                    truststoreFile="${carbon.home}/repository/resources/security/client-truststore.jks"
+                    truststoreFile="${carbon.home}/repository/resources/security/client-truststore.p12"
                     truststorePassword="wso2carbon"
-                    truststoreType="JKS"
+                    truststoreType="PKCS12"
             >
-                <Certificate certificateKeystoreFile="${carbon.home}/repository/resources/security/wso2carbon.jks"
+                <Certificate certificateKeystoreFile="${carbon.home}/repository/resources/security/wso2carbon.p12"
                              certificateKeystorePassword="wso2carbon"
-                             certificateKeystoreType="JKS"
+                             certificateKeystoreType="PKCS12"
                              certificateKeyAlias="wso2carbon"
                              certificateKeyPassword="wso2carbon"
                              />
