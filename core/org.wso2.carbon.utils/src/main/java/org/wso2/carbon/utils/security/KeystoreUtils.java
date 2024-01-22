@@ -37,7 +37,7 @@ public class KeystoreUtils {
     private static final String KEY_STORES = "/repository/security/key-stores";
 
     /**
-     * A collection of file type extensions against the store file type.
+     * A collection of file type extensions against the store file type for key store and trust store.
      */
     public enum StoreFileType {
         JKS(".jks"),
