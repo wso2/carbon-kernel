@@ -92,6 +92,7 @@ public class ClusterCacheInvalidationRequest extends ClusteringMessage {
     }
 
     private void triggerPropagation(ClusterCacheInvalidationRequest request) {
+
         if (Util.isCacheInvalidationPropagationEnabled()) {
             List<CacheInvalidationRequestPropagator> propagatorList = DataHolder.getInstance()
                     .getCacheInvalidationRequestPropagators();

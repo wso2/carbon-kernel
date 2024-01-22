@@ -19,7 +19,14 @@ package javax.cache;
 
 import org.wso2.carbon.caching.impl.clustering.ClusterCacheInvalidationRequest;
 
+/**
+ * Invoked if Cache invalidation message is recieved from local cluster and need to propagate the message further.
+ */
 public interface CacheInvalidationRequestPropagator {
 
+    /**
+     * Propage the ClusterCacheInvalidationRequest to subsequent listeners.
+     * @param invalidationRequest ClusterCacheInvalidationRequest.
+     */
     void propagate(ClusterCacheInvalidationRequest invalidationRequest);
 }
