@@ -391,9 +391,9 @@
         <imp.pkg.version.javax.servlet.jsp>[2.2.0, 2.3.0)</imp.pkg.version.javax.servlet.jsp>
 
         <!-- JSTL -->
-        <version.jstl>1.2.1</version.jstl>
-        <orbit.version.jstl>1.2.1.wso2v3</orbit.version.jstl>
-        <exp.pkg.version.javax.servlet.jsp.jstl>1.2.1</exp.pkg.version.javax.servlet.jsp.jstl>
+        <version.jstl>1.2.2</version.jstl>
+        <orbit.version.jstl>1.2.2.wso2v1</orbit.version.jstl>
+        <exp.pkg.version.javax.servlet.jsp.jstl>1.2.2</exp.pkg.version.javax.servlet.jsp.jstl>
         <imp.pkg.version.javax.servlet.jsp.jstl>[1.2.1, 1.3.0)</imp.pkg.version.javax.servlet.jsp.jstl>
 
         <!-- Apache Tiles -->
