@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.cache.CacheInvalidationRequestPropagator;
 import javax.cache.CacheInvalidationRequestSender;
 import javax.cache.event.CacheEntryListener;
 import javax.cache.spi.AnnotationProvider;
@@ -47,6 +48,8 @@ public class DataHolder {
     private List<CacheEntryListener> cacheEntryListeners = new ArrayList<>();
     private Map<String, CacheInvalidationRequestSender> cacheInvalidationRequestSenders = new HashMap<>();
     private CacheInvalidationRequestSender configuredCacheInvalidationSender;
+    private List<CacheInvalidationRequestPropagator> cacheInvalidationRequestPropagators = new ArrayList<>();
+
     public static DataHolder getInstance() {
 
         return instance;
@@ -146,5 +149,22 @@ public class DataHolder {
             }
         }
         return configuredCacheInvalidationSender;
+    }
+
+    public List<CacheInvalidationRequestPropagator> getCacheInvalidationRequestPropagators() {
+
+        return cacheInvalidationRequestPropagators;
+    }
+
+    public void addCacheInvalidationRequestPropagator(
+            CacheInvalidationRequestPropagator cacheInvalidationRequestPropagator) {
+
+        this.cacheInvalidationRequestPropagators.add(cacheInvalidationRequestPropagator);
+    }
+
+    public void removeCacheInvalidationRequestPropagator(
+            CacheInvalidationRequestPropagator cacheInvalidationRequestPropagator) {
+
+        this.cacheInvalidationRequestPropagators.remove(cacheInvalidationRequestPropagator);
     }
 }

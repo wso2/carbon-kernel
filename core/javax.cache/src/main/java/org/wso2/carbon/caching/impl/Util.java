@@ -151,6 +151,25 @@ public final class Util {
         }
         return new ClusterCacheInvalidationRequestSender();
     }
+
+    /**
+     * Return the cache invalidation message propagation enabled or not.
+     *
+     * @return boolean.
+     */
+    public static boolean isCacheInvalidationPropagationEnabled() {
+
+        ServerConfigurationService serverConfigService = DataHolder.getInstance().getServerConfigurationService();
+        if (serverConfigService != null) {
+            String cacheInvalidation = serverConfigService.getFirstProperty(
+                    CachingConstants.CACHE_INVALIDATION_PROPAGATION_ENABLED);
+            if (StringUtils.isNotEmpty(cacheInvalidation)) {
+                return Boolean.parseBoolean(cacheInvalidation.trim());
+            }
+        }
+        return false;
+    }
+
     private Util() {
     }
 }
