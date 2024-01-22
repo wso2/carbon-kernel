@@ -310,6 +310,7 @@
         {% else %}
          <CacheInvalidationImpl>org.wso2.carbon.caching.impl.clustering.ClusterCacheInvalidationRequestSender</CacheInvalidationImpl>
         {% endif %}
+        <CachePropagationEnabled>{{server.cache.propagation_enabled}}</CachePropagationEnabled>
     </Cache>
 
     <!--
