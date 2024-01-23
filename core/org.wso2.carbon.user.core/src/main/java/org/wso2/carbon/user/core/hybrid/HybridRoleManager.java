@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2005-2024, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.carbon.user.core.hybrid;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -44,6 +45,7 @@ import org.wso2.carbon.utils.xml.StringUtils;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -78,7 +80,7 @@ public class HybridRoleManager {
 
     private static final String DB2 = "db2";
 
-    private final boolean isRoleV2Using;
+    private static boolean hybridRoleAudienceTableExists = false;
 
     public HybridRoleManager(DataSource dataSource, int tenantId, RealmConfiguration realmConfig,
                              UserRealm realm) throws UserStoreException {
@@ -88,7 +90,6 @@ public class HybridRoleManager {
         this.realmConfig = realmConfig;
         this.isCascadeDeleteEnabled = realmConfig.getRealmProperty(UserCoreDBConstants.CASCADE_DELETE_ENABLED);
         this.userRealm = realm;
-        this.isRoleV2Using = isRoleV2Using();
         //persist internal domain
         UserCoreUtil.persistDomain(UserCoreConstants.INTERNAL_DOMAIN, tenantId, dataSource);
         UserCoreUtil.persistDomain(APPLICATION_DOMAIN, tenantId, dataSource);
@@ -103,7 +104,7 @@ public class HybridRoleManager {
      */
     public void addHybridRole(String roleName, String[] userList) throws UserStoreException {
 
-        if (isRoleV2Using) {
+        if (isRoleV2Using()) {
             addHybridRoleV2(roleName, userList);
             return;
         }
@@ -356,7 +357,7 @@ public class HybridRoleManager {
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
 
-        String sqlStmt = isRoleV2Using ? HybridJDBCConstants.GET_ROLES_V2 : HybridJDBCConstants.GET_ROLES;
+        String sqlStmt = isRoleV2Using() ? HybridJDBCConstants.GET_ROLES_V2 : HybridJDBCConstants.GET_ROLES;
         int maxItemLimit = UserCoreConstants.MAX_USER_ROLE_LIST;
         int searchTime = UserCoreConstants.MAX_SEARCH_TIME;
 
@@ -405,10 +406,10 @@ public class HybridRoleManager {
 
             if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
                 if (DB2.equalsIgnoreCase(dbType)) {
-                    sqlStmt = isRoleV2Using ? HybridJDBCConstants.GET_INTERNAL_ROLES_V2_DB2 :
+                    sqlStmt = isRoleV2Using() ? HybridJDBCConstants.GET_INTERNAL_ROLES_V2_DB2 :
                             HybridJDBCConstants.GET_INTERNAL_ROLES_DB2;
                 } else {
-                    sqlStmt = isRoleV2Using ? HybridJDBCConstants.GET_INTERNAL_ROLES_V2 :
+                    sqlStmt = isRoleV2Using() ? HybridJDBCConstants.GET_INTERNAL_ROLES_V2 :
                             HybridJDBCConstants.GET_INTERNAL_ROLES;
                 }
             }
@@ -677,11 +678,11 @@ public class HybridRoleManager {
             }
             if (StringUtils.isEmpty(filter) || filter.equals("*")) {
                 sqlStmt = getHybridRoleListSqlStatement(
-                        realmConfig.getRealmProperty(isRoleV2Using ? HybridJDBCConstants.GET_ROLE_V2_LIST_OF_USER
+                        realmConfig.getRealmProperty(isRoleV2Using() ? HybridJDBCConstants.GET_ROLE_V2_LIST_OF_USER
                                 : HybridJDBCConstants.GET_ROLE_LIST_OF_USER),
-                        isRoleV2Using ? HybridJDBCConstants.GET_ROLE_V2_LIST_OF_USER_SQL
+                        isRoleV2Using() ? HybridJDBCConstants.GET_ROLE_V2_LIST_OF_USER_SQL
                                 : HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL,
-                        isRoleV2Using ? JDBCCaseInsensitiveConstants.GET_ROLE_V2_LIST_OF_USER_SQL_CASE_INSENSITIVE
+                        isRoleV2Using() ? JDBCCaseInsensitiveConstants.GET_ROLE_V2_LIST_OF_USER_SQL_CASE_INSENSITIVE
                                 : JDBCCaseInsensitiveConstants.GET_ROLE_LIST_OF_USER_SQL_CASE_INSENSITIVE);
                 roles = DatabaseUtil
                         .getStringValuesFromDatabase(dbConnection, sqlStmt, UserCoreUtil.removeDomainFromName(userName),
@@ -691,12 +692,12 @@ public class HybridRoleManager {
                 filter = filter.replace("*", "%");
                 filter = filter.replace("?", "_");
                 sqlStmt = getHybridRoleListSqlStatement(
-                        realmConfig.getRealmProperty(isRoleV2Using ?
+                        realmConfig.getRealmProperty(isRoleV2Using() ?
                                 HybridJDBCConstants.GET_IS_ROLE_V2_EXIST_LIST_OF_USER
                                 : HybridJDBCConstants.GET_IS_ROLE_EXIST_LIST_OF_USER),
-                        isRoleV2Using ? HybridJDBCConstants.GET_ROLE_V2_OF_USER_SQL
+                        isRoleV2Using() ? HybridJDBCConstants.GET_ROLE_V2_OF_USER_SQL
                                 : HybridJDBCConstants.GET_ROLE_OF_USER_SQL,
-                        isRoleV2Using ? JDBCCaseInsensitiveConstants.GET_IS_USER_ROLE_V2_SQL_CASE_INSENSITIVE
+                        isRoleV2Using() ? JDBCCaseInsensitiveConstants.GET_IS_USER_ROLE_V2_SQL_CASE_INSENSITIVE
                                 : JDBCCaseInsensitiveConstants.GET_IS_USER_ROLE_SQL_CASE_INSENSITIVE);
 
                 // If the filter contains the internal domain, then here we remove the internal domain from the filter
@@ -707,12 +708,12 @@ public class HybridRoleManager {
                                 tenantId, tenantId, tenantId, domain, filter);
             } else {
                 sqlStmt = getHybridRoleListSqlStatement(
-                        realmConfig.getRealmProperty(isRoleV2Using ?
+                        realmConfig.getRealmProperty(isRoleV2Using() ?
                                 HybridJDBCConstants.GET_IS_ROLE_V2_EXIST_LIST_OF_USER
                                 : HybridJDBCConstants.GET_IS_ROLE_EXIST_LIST_OF_USER),
-                        isRoleV2Using ? HybridJDBCConstants.GET_USER_ROLE_V2_NAME_SQL
+                        isRoleV2Using() ? HybridJDBCConstants.GET_USER_ROLE_V2_NAME_SQL
                                 : HybridJDBCConstants.GET_USER_ROLE_NAME_SQL,
-                        isRoleV2Using ? JDBCCaseInsensitiveConstants.GET_IS_USER_ROLE_V2_SQL_CASE_INSENSITIVE
+                        isRoleV2Using() ? JDBCCaseInsensitiveConstants.GET_IS_USER_ROLE_V2_SQL_CASE_INSENSITIVE
                                 : JDBCCaseInsensitiveConstants.GET_IS_USER_ROLE_SQL_CASE_INSENSITIVE);
 
                 filter = truncateInternalDomainFromFilter(filter);
@@ -791,12 +792,12 @@ public class HybridRoleManager {
         }
 
         Map<String, List<String>> hybridRoleListOfUsers = new HashMap<>();
-        String sqlStmt = realmConfig.getRealmProperty(isRoleV2Using ? HybridJDBCConstants.GET_ROLE_V2_LIST_OF_USERS :
+        String sqlStmt = realmConfig.getRealmProperty(isRoleV2Using() ? HybridJDBCConstants.GET_ROLE_V2_LIST_OF_USERS :
                 HybridJDBCConstants.GET_ROLE_LIST_OF_USERS);
         StringBuilder usernameParameter = new StringBuilder();
         if (isCaseSensitiveUsername()) {
             if (StringUtils.isEmpty(sqlStmt)) {
-                sqlStmt = isRoleV2Using ? HybridJDBCConstants.GET_INTERNAL_ROLE_V2_LIST_OF_USERS_SQL
+                sqlStmt = isRoleV2Using() ? HybridJDBCConstants.GET_INTERNAL_ROLE_V2_LIST_OF_USERS_SQL
                         : HybridJDBCConstants.GET_INTERNAL_ROLE_LIST_OF_USERS_SQL;
             }
             for (int i = 0; i < userNames.size(); i++) {
@@ -810,7 +811,7 @@ public class HybridRoleManager {
             }
         } else {
             if (sqlStmt == null) {
-                sqlStmt = isRoleV2Using ?
+                sqlStmt = isRoleV2Using() ?
                         JDBCCaseInsensitiveConstants.GET_INTERNAL_ROLE_V2_LIST_OF_USERS_SQL_CASE_INSENSITIVE
                         : JDBCCaseInsensitiveConstants.GET_INTERNAL_ROLE_LIST_OF_USERS_SQL_CASE_INSENSITIVE;
             }
@@ -888,12 +889,12 @@ public class HybridRoleManager {
             return new HashMap<>();
         }
         Map<String, List<String>> hybridRoleListOfGroups = new HashMap<>();
-        String sqlStmt = realmConfig.getRealmProperty(isRoleV2Using ? HybridJDBCConstants.GET_ROLE_V2_LIST_OF_GROUPS
+        String sqlStmt = realmConfig.getRealmProperty(isRoleV2Using() ? HybridJDBCConstants.GET_ROLE_V2_LIST_OF_GROUPS
                 : HybridJDBCConstants.GET_ROLE_LIST_OF_GROUPS);
         StringBuilder groupNameParameter = new StringBuilder();
 
         if (StringUtils.isEmpty(sqlStmt)) {
-            sqlStmt = isRoleV2Using ? HybridJDBCConstants.GET_INTERNAL_ROLE_V2_LIST_OF_GROUPS_SQL
+            sqlStmt = isRoleV2Using() ? HybridJDBCConstants.GET_INTERNAL_ROLE_V2_LIST_OF_GROUPS_SQL
                     : HybridJDBCConstants.GET_INTERNAL_ROLE_LIST_OF_GROUPS_SQL;
         }
         for (int i = 0; i < groupNames.size(); i++) {
@@ -1127,11 +1128,11 @@ public class HybridRoleManager {
         try {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
             if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
-                sqlStmt = isRoleV2Using ? HybridJDBCConstants.COUNT_INTERNAL_ONLY_ROLES_V2_SQL
+                sqlStmt = isRoleV2Using() ? HybridJDBCConstants.COUNT_INTERNAL_ONLY_ROLES_V2_SQL
                         : COUNT_INTERNAL_ONLY_ROLES_SQL;
                 filter = filter.replace(UserCoreConstants.INTERNAL_DOMAIN, "");
             } else {
-                sqlStmt = isRoleV2Using ? HybridJDBCConstants.COUNT_INTERNAL_ROLES_V2_SQL
+                sqlStmt = isRoleV2Using() ? HybridJDBCConstants.COUNT_INTERNAL_ROLES_V2_SQL
                         : COUNT_INTERNAL_ROLES_SQL;
             }
             prepStmt = dbConnection.prepareStatement(sqlStmt);
@@ -1509,14 +1510,42 @@ public class HybridRoleManager {
      */
     private boolean isRoleV2Using() {
 
-        Boolean legacyAuthzRuntime = CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME;
-
-        if (legacyAuthzRuntime != null) {
-            return !legacyAuthzRuntime;
+        boolean legacyAuthzEnabled;
+        if (CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME != null) {
+            legacyAuthzEnabled = CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME;
+        } else {
+            // Retrieve config from server configuration if the Carbon Constants value hasn't been set yet.
+            String enableLegacyAuthzRuntimeStr = ServerConfiguration.getInstance()
+                    .getFirstProperty(ServerConstants.ENABLE_LEGACY_AUTHZ_RUNTIME);
+            legacyAuthzEnabled = enableLegacyAuthzRuntimeStr == null ||
+                    Boolean.parseBoolean(enableLegacyAuthzRuntimeStr.trim());
         }
-        // Retrieve config from server configuration if the Carbon Constants value hasn't been set yet.
-        String enableLegacyAuthzRuntimeStr = ServerConfiguration.getInstance()
-                .getFirstProperty(ServerConstants.ENABLE_LEGACY_AUTHZ_RUNTIME);
-        return enableLegacyAuthzRuntimeStr == null || !Boolean.parseBoolean(enableLegacyAuthzRuntimeStr.trim());
+
+        if (!legacyAuthzEnabled && !hybridRoleAudienceTableExists) {
+            hybridRoleAudienceTableExists = isTableExists(HybridJDBCConstants.UM_HYBRID_ROLE_AUDIENCE);
+        }
+        return !legacyAuthzEnabled && hybridRoleAudienceTableExists;
+    }
+
+    private boolean isTableExists(String tableName) {
+
+        try (Connection connection = DatabaseUtil.getDBConnection(dataSource)) {
+            DatabaseMetaData metaData = connection.getMetaData();
+            if (metaData.storesLowerCaseIdentifiers()) {
+                tableName = tableName.toLowerCase();
+            }
+            String schemaName = connection.getSchema();
+            String catalogName = connection.getCatalog();
+            try (ResultSet resultSet = metaData.getTables(catalogName, schemaName, tableName, new String[]{"TABLE"})) {
+                if (resultSet.next()) {
+                    return true;
+                }
+            } catch (SQLException e) {
+                return false;
+            }
+        } catch (SQLException e) {
+            return false;
+        }
+        return false;
     }
 }
