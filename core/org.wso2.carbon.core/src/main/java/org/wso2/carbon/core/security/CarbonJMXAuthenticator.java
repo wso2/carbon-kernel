@@ -32,6 +32,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import javax.management.remote.JMXAuthenticator;
 import javax.management.remote.JMXPrincipal;
 import javax.security.auth.Subject;
+import java.util.Arrays;
 import java.util.Collections;
 
 import static org.wso2.carbon.utils.CarbonUtils.isLegacyAuditLogsDisabled;
@@ -105,6 +106,8 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
             }
             if (authenticator.authenticate(userName, password)) {
 
+                // Clear the sensitive information from memory
+                clearCredentials((String[]) credentials);
                 UserRealmService userRealmService = CarbonCoreDataHolder.getInstance().getRealmService();
                 TenantManager tenantManager = userRealmService.getTenantManager();
                 String tenantDomain = MultitenantUtils.getTenantDomain(userName);
@@ -167,6 +170,12 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
             return userName.substring(userName.lastIndexOf('@') + 1);
         }
         return null;
+    }
+
+    private void clearCredentials(String[] credentials) {
+
+        // Clear the sensitive information stored in the string array
+        Arrays.fill(credentials, null);
     }
 
 }
