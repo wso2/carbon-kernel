@@ -33,7 +33,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 public class KeystoreUtils {
 
     private static Log LOG = LogFactory.getLog(KeystoreUtils.class);
-    private static final String FALLBACK_TENANTED_KEYSTORE_FILE_TYPE = "PKCS12";
+    private static final String FALLBACK_TENANTED_KEYSTORE_FILE_TYPE = "JKS";
     private static final String KEY_STORES = "/repository/security/key-stores";
 
     /**
@@ -44,7 +44,7 @@ public class KeystoreUtils {
         PKCS12(".p12");
 
         private final String extension;
-        private static final String defaultFileType = "JKS";
+        private static final String defaultFileType = "PKCS12";
 
         StoreFileType(String extension) {
 
