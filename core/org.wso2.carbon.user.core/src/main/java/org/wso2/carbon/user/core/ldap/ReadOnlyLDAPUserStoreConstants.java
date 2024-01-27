@@ -87,7 +87,7 @@ public class ReadOnlyLDAPUserStoreConstants {
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.GROUP_ID_ENABLED,
                 UserStoreConfigConstants.GROUP_ID_ENABLED_DISPLAY_NAME, Boolean.toString(false),
                 UserStoreConfigConstants.GROUP_ID_ENABLED_DESCRIPTION, false,
-                new Property[]{GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty()});
+                new Property[]{GROUP.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty()});
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE,
                 UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_DISPLAY_NAME, LDAPConstants.DEFAULT_GROUP_ID_ATTRIBUTE,
                 UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_DESCRIPTION, false,
