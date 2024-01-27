@@ -794,6 +794,13 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
     }
 
+    @Override
+    protected boolean doCheckExistingGroupName(String groupName) throws UserStoreException {
+
+        RoleContext roleContext = createRoleContext(groupName);
+        return isExistingLDAPRole(roleContext);
+    }
+
     protected boolean isExistingLDAPRole(RoleContext context) throws UserStoreException {
 
         boolean debug = log.isDebugEnabled();

@@ -727,6 +727,21 @@ public final class UserCoreUtil {
     }
 
     /**
+     * Remove the domain part from the list of names.
+     *
+     * @param names Names list.
+     * @return Domain free names list.
+     */
+    public static List<String> removeDomainFromNames(List<String> names) {
+
+        String[] nameList = removeDomainFromNames(names.toArray(new String[0]));
+        if (ArrayUtils.isEmpty(nameList)) {
+            return new ArrayList<>();
+        }
+        return Arrays.asList(nameList);
+    }
+
+    /**
      * @param domainName
      * @param userName
      * @param displayName

@@ -91,6 +91,16 @@ public class ActiveDirectoryUserStoreConstants {
                 UserStoreConfigConstants.usernameListFilterDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
 
+        // Group Id Related Userstore Configurations - By default this will be disabled.
+        setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.GROUP_ID_ENABLED,
+                UserStoreConfigConstants.GROUP_ID_ENABLED_DISPLAY_NAME, Boolean.toString(false),
+                UserStoreConfigConstants.GROUP_ID_ENABLED_DESCRIPTION, false,
+                new Property[]{GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty()});
+        setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_DISPLAY_NAME, LDAPConstants.DEFAULT_GROUP_ID_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_DESCRIPTION, false,
+                new Property[]{GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty()});
+
         //Set optional properties
 
         setProperty(UserStoreConfigConstants.userDNPattern, "User DN Pattern", "",
@@ -160,6 +170,16 @@ public class ActiveDirectoryUserStoreConstants {
                 new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setProperty(UserStoreConfigConstants.groupNameListFilter, "Group List Filter", "(objectcategory=group)",
                 UserStoreConfigConstants.groupNameListFilterDescription,
+                new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
+        setProperty(UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE_DISPLAY_NAME,
+                LDAPConstants.DEFAULT_GROUP_CREATED_DATE_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE_DESCRIPTION,
+                new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
+        setProperty(UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE_DISPLAY_NAME,
+                LDAPConstants.DEFAULT_GROUP_LAST_MODIFIED_DATE_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE_DESCRIPTION,
                 new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
 
         setProperty(roleDNPattern, "Group DN Pattern", "", roleDNPatternDescription,

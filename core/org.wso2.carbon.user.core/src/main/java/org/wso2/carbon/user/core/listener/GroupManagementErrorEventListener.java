@@ -18,8 +18,11 @@
 
 package org.wso2.carbon.user.core.listener;
 
+import org.wso2.carbon.user.core.NotImplementedException;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.common.Claim;
+import org.wso2.carbon.user.core.common.Group;
 import org.wso2.carbon.user.core.model.Condition;
 
 import java.util.List;
@@ -314,4 +317,177 @@ public interface GroupManagementErrorEventListener {
     boolean onListGroupsFailure(String errorCode, String errorMessage, Condition condition, int limit, int offset,
                                 String domain, String sortBy, String sortOrder, UserStoreManager userStoreManager)
             throws UserStoreException;
+
+    /**
+     * Defines any additional actions that need to be done when there is a failure while adding a group.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param groupName        Group name.
+     * @param userIDs          User id list.
+     * @param claims           Claims list.
+     * @param userStoreManager Userstore manager.
+     * @return True if the handling succeeded.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
+    default boolean onAddGroupFailure(String errorCode, String errorMessage, String groupName, List<String> userIDs,
+                                      List<Claim> claims, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        throw new NotImplementedException("onAddGroupWithIDFailure is not implemented");
+    }
+
+    /**
+     * Defines any additional actions that need to be done when there is a failure while adding a group.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param userIDs          User id list.
+     * @param group            Group object.
+     * @param userStoreManager Userstore manager.
+     * @return True if the handling succeeded.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
+    default boolean onAddGroupFailure(String errorCode, String errorMessage, List<String> userIDs,
+                                      Group group, UserStoreManager userStoreManager) throws UserStoreException {
+
+        throw new NotImplementedException("onAddGroupWithIDFailure is not implemented");
+    }
+
+    /**
+     * Defines any additional actions that need to be done when there is a failure before adding a group with group id.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param groupName        Group name.
+     * @param userIDs          User id list.
+     * @param claims           Claims list.
+     * @param userStoreManager Userstore manager.
+     * @return True if the handling succeeded.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
+    default boolean onPreAddGroupFailure(String errorCode, String errorMessage, String groupName, List<String> userIDs,
+                                         List<Claim> claims, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        throw new NotImplementedException("onAddGroupWithIDFailure is not implemented");
+    }
+
+    /**
+     * Defines any additional actions that need to be done when there is a failure after adding a group with group id.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param userIDs          User id list.
+     * @param group            Group object.
+     * @param userStoreManager Userstore manager.
+     * @return True if the handling succeeded.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
+    default boolean onPostAddGroupFailure(String errorCode, String errorMessage, List<String> userIDs, Group group,
+                                          UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        throw new NotImplementedException("onAddGroupWithIDFailure is not implemented");
+    }
+
+    /**
+     * Defines any additional actions that need to be done when there is a failure before deleting a group.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param groupId          Group id.
+     * @param userStoreManager Userstore manager.
+     * @return True if the handling succeeded.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
+    default boolean onPreDeleteGroupFailure(String errorCode, String errorMessage, String groupId,
+                                            UserStoreManager userStoreManager) throws UserStoreException {
+
+        throw new NotImplementedException("onPreDeleteGroupFailure is not implemented");
+    }
+
+    /**
+     * Defines any additional actions that need to be done when there is a failure after deleting a group.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param groupId          Group id.
+     * @param groupName        Group name.
+     * @param userStoreManager Userstore manager.
+     * @return True if the handling succeeded.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
+    default boolean onPostDeleteGroupFailure(String errorCode, String errorMessage, String groupId, String groupName,
+                                             UserStoreManager userStoreManager) throws UserStoreException {
+
+        throw new NotImplementedException("onPostDeleteGroupFailure is not implemented");
+    }
+
+    /**
+     * Defines any additional actions that need to be done when there is a failure while deleting a group.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param groupId          Group id.
+     * @param userStoreManager Userstore manager.
+     * @return True if the handling succeeded.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
+    default boolean onDeleteGroupFailure(String errorCode, String errorMessage, String groupId,
+                                         UserStoreManager userStoreManager) throws UserStoreException {
+
+        throw new NotImplementedException("onDeleteGroupFailure is not implemented");
+    }
+
+    /**
+     * Defines any additional actions that need to be done when there is a failure before renaming a group.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param groupId          Group id.
+     * @param newGroupName     New group name.
+     * @param userStoreManager Userstore manager.
+     * @return True if the handling succeeded.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
+    default boolean onPreRenameGroupFailure(String errorCode, String errorMessage, String groupId, String newGroupName,
+                                            UserStoreManager userStoreManager) throws UserStoreException {
+
+        throw new NotImplementedException("onPreRenameGroupFailure is not implemented");
+    }
+
+    /**
+     * Defines any additional actions that need to be done when there is a failure after renaming a group.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param groupId          Group id.
+     * @param newGroupName     New group name.
+     * @param userStoreManager Userstore manager.
+     * @return True if the handling succeeded.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
+    default boolean onPostRenameGroupFailure(String errorCode, String errorMessage, String groupId, String newGroupName,
+                                             UserStoreManager userStoreManager) throws UserStoreException {
+
+        throw new NotImplementedException("onPostRenameGroupFailure is not implemented");
+    }
+
+    /**
+     * Defines any additional actions that need to be done when there is a failure while renaming a group.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param groupId          Group id.
+     * @param newGroupName     New group name.
+     * @param userStoreManager Userstore manager.
+     * @return True if the handling succeeded.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
+    default boolean onRenameGroupFailure(String errorCode, String errorMessage, String groupId, String newGroupName,
+                                         UserStoreManager userStoreManager) throws UserStoreException {
+
+        throw new NotImplementedException("onRenameGroupFailure is not implemented");
+    }
 }

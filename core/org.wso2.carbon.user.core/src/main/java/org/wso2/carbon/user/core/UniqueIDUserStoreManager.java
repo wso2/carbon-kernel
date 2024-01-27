@@ -605,6 +605,18 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
     boolean isGroupExist(String groupID) throws UserStoreException;
 
     /**
+     * Check whether a group exists with the given name.
+     *
+     * @param groupName Group name.
+     * @return Return true if group exists in the system.
+     * @throws UserStoreException If an error occurs while checking whether a group exists in the system.
+     */
+    default boolean isGroupExistWithName(String groupName) throws UserStoreException {
+
+        throw new NotImplementedException("Operation is not supported.");
+    }
+
+    /**
      * Delete a group.
      *
      * @param groupID Group ID.

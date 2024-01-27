@@ -176,4 +176,75 @@ public class AbstractGroupManagementErrorEventListener implements GroupManagemen
 
         return true;
     }
+
+    @Override
+    public boolean onAddGroupFailure(String errorCode, String errorMessage, String groupName, List<String> userIDs,
+                                     List<Claim> claims, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean onAddGroupFailure(String errorCode, String errorMessage, List<String> userIDs,
+                                     Group group, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean onPreAddGroupFailure(String errorCode, String errorMessage, String groupName, List<String> userIDs,
+                                        List<Claim> claims, UserStoreManager userStoreManager) {
+
+        return true;
+    }
+
+    @Override
+    public boolean onPostAddGroupFailure(String errorCode, String errorMessage, List<String> userIDs, Group group,
+                                         UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean onPreDeleteGroupFailure(String errorCode, String errorMessage, String groupId,
+                                           UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean onPostDeleteGroupFailure(String errorCode, String errorMessage, String groupId, String groupName,
+                                            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean onDeleteGroupFailure(String errorCode, String errorMessage, String groupId,
+                                        UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean onPreRenameGroupFailure(String errorCode, String errorMessage, String groupId, String newGroupName,
+                                           UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean onPostRenameGroupFailure(String errorCode, String errorMessage, String groupId, String newGroupName,
+                                            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean onRenameGroupFailure(String errorCode, String errorMessage, String groupId, String newGroupName,
+                                        UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
 }
