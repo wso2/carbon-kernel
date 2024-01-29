@@ -6411,7 +6411,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // Using the short-circuit. User name comes with the domain name.
             String domain = filter.substring(0, index);
 
-            UserStoreManager secManager = getSecondaryUserStoreManager(domain);
+            UserStoreManager secManager = this;
+            if (StringUtils.isNotEmpty(domain) && !StringUtils.equals(getMyDomainName(), domain)) {
+                secManager = getSecondaryUserStoreManager(domain);
+            }
+
             if (secManager != null) {
                 // We have a secondary UserStoreManager registered for this domain.
                 filter = filter.substring(index + 1);
