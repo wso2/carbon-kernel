@@ -1683,7 +1683,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
                 if (!listener.authenticate(userName, credentialArgument, abstractUserStoreManager)) {
                     handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
-                            ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(), userName,
+                            String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(),
+                            StringUtils.EMPTY), userName,
                             credentialArgument);
                     return false;
                 }
@@ -11201,12 +11202,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         .authenticateWithID(preferredUserNameClaim, preferredUserNameValue, credentialArgument,
                                 abstractUserStoreManager)) {
                     handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
-                            ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(), preferredUserNameClaim,
+                            String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(),
+                            StringUtils.EMPTY), preferredUserNameClaim,
                             preferredUserNameValue, credentialArgument);
 
                     authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
                     authenticationResult.setFailureReason(
-                            new FailureReason(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage()));
+                            new FailureReason(String.format(
+                                    ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(),
+                                    StringUtils.EMPTY)));
                     return authenticationResult;
                 }
             }
