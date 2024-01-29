@@ -6412,7 +6412,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             String domain = filter.substring(0, index);
 
             UserStoreManager secManager = this;
-            if (StringUtils.isNotEmpty(domain) && !StringUtils.equals(getMyDomainName(), domain)) {
+            if (!StringUtils.equalsIgnoreCase(getMyDomainName(), domain)) {
                 secManager = getSecondaryUserStoreManager(domain);
             }
 
