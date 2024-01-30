@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.utils.security;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonException;
@@ -61,8 +62,18 @@ public class KeystoreUtils {
             return tileType.extension;
         }
 
+        /**
+         * If the `Security.TenantKeyStore.Type` is defined, return the type,
+         * otherwise return FALLBACK_TENANTED_KEYSTORE_FILE_TYPE.
+         */
         public static String defaultFileType() {
-            return defaultFileType;
+
+            String keystoreTypesForNewTenants = CarbonUtils.getServerConfiguration().getFirstProperty(
+                    "Security.TenantKeyStore.Type");
+            if (StringUtils.isNotBlank(keystoreTypesForNewTenants)) {
+                return keystoreTypesForNewTenants;
+            }
+            return FALLBACK_TENANTED_KEYSTORE_FILE_TYPE;
         }
 
         /**

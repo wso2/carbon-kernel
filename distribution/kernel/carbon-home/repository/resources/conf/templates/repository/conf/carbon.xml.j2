@@ -502,6 +502,7 @@
             KeyStore which will be used for encrypting/decrypting passwords
             and other sensitive information.
         -->
+        <!-- KeyStore configurations for super tenant.-->
         <KeyStore>
             <!-- Keystore file location-->
             <Location>${carbon.home}/repository/resources/security/{{keystore.primary.file_name}}</Location>
@@ -514,6 +515,12 @@
             <!-- Private Key password-->
             <KeyPassword>{{keystore.primary.key_password}}</KeyPassword>
         </KeyStore>
+        <!-- KeyStore configurations for newly created tenants (not applicable to existing tenants). -->
+        <TenantKeyStore>
+            <!-- Keystore type (JKS/PKCS12 etc.)-->
+            <Type>{{keystore.tenant.type}}</Type>
+        </TenantKeyStore>
+
 
         <!--
             The KeyStore which is used for encrypting/decrypting internal data.
