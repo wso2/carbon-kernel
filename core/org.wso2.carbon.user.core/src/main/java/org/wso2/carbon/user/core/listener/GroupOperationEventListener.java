@@ -272,7 +272,7 @@ public interface GroupOperationEventListener {
      * Defines any additional action after renaming the group.
      *
      * @param groupId          Group unique id.
-     * @param newGroupName     Group name.
+     * @param newGroupName     New group name.
      * @param userStoreManager The underlying UserStoreManager.
      * @return Whether execution of this method of the underlying UserStoreManager must happen.
      */
