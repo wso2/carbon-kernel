@@ -32,4 +32,13 @@ public class AWSConstants {
     public static final String TAG_VALUE = "tag-value";
     public static final String IAM_ROLE = "iam-role";
     public static final String NETWORK_INTERFACE = "networkInterface";
+    public static final String ACCESS_KEY_LOCAL_PARAM = "accessKey";
+    public static final String SECRET_KEY_LOCAL_PARAM = "secretKey";
+    public static final String SECURITY_GROUP_LOCAL_PARAM = "securityGroup" ;
+    public static final String CONNECTION_TIMEOUT_LOCAL_PARAM ="connTimeout" ;
+    public static final String HOST_HEADER_LOCAL_PARAM = "hostHeader";
+    public static final String REGION_LOCAL_PARAM = "region";
+    public static final String TAG_KEY_LOCAL_PARAM = "tagKey";
+    public static final String TAG_VALUE_LOCAL_PARAM = "tagValue";
+    public static final String IAM_ROLE_LOCAL_PARAM = "iamRole";
 }
