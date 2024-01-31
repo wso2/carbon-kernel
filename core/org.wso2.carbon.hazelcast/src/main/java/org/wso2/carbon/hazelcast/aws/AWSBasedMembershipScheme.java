@@ -102,15 +102,15 @@ public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
         AwsConfig awsConfig = networkConfig.getJoin().getAwsConfig();
         awsConfig.setEnabled(true);
 
-        Parameter accessKey = getParameter(AWSConstants.ACCESS_KEY);
-        Parameter secretKey = getParameter(AWSConstants.SECRET_KEY);
-        Parameter iamRole = getParameter(AWSConstants.IAM_ROLE);
-        Parameter securityGroup = getParameter(AWSConstants.SECURITY_GROUP);
-        Parameter connTimeout = getParameter(AWSConstants.CONNECTION_TIMEOUT);
-        Parameter hostHeader = getParameter(AWSConstants.HOST_HEADER);
-        Parameter region = getParameter(AWSConstants.REGION);
-        Parameter tagKey = getParameter(AWSConstants.TAG_KEY);
-        Parameter tagValue = getParameter(AWSConstants.TAG_VALUE);
+        Parameter accessKey = getParameter(AWSConstants.ACCESS_KEY_LOCAL_PARAM);
+        Parameter secretKey = getParameter(AWSConstants.SECRET_KEY_LOCAL_PARAM);
+        Parameter iamRole = getParameter(AWSConstants.IAM_ROLE_LOCAL_PARAM);
+        Parameter securityGroup = getParameter(AWSConstants.SECURITY_GROUP_LOCAL_PARAM);
+        Parameter connTimeout = getParameter(AWSConstants.CONNECTION_TIMEOUT_LOCAL_PARAM);
+        Parameter hostHeader = getParameter(AWSConstants.HOST_HEADER_LOCAL_PARAM);
+        Parameter region = getParameter(AWSConstants.REGION_LOCAL_PARAM);
+        Parameter tagKey = getParameter(AWSConstants.TAG_KEY_LOCAL_PARAM);
+        Parameter tagValue = getParameter(AWSConstants.TAG_VALUE_LOCAL_PARAM);
 
         SecretResolver secretResolver = getAxis2SecretResolver();
 
