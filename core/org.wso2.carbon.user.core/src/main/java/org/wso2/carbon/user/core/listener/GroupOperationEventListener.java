@@ -209,13 +209,15 @@ public interface GroupOperationEventListener {
     /**
      * Defines any additional action after adding the group.
      *
+     * @param groupName        Group unique name
+     * @param groupId          Group Id.
      * @param userIds          List of user ids.
-     * @param group            Group object.
+     * @param claims           List of claims.
      * @param userStoreManager The underlying UserStoreManager.
      * @return Whether execution of this method of the underlying UserStoreManager must happen.
      */
-    default boolean postAddGroup(List<String> userIds, Group group, UserStoreManager userStoreManager)
-            throws UserStoreException {
+    default boolean postAddGroup(String groupName, String groupId, List<String> userIds, List<Claim> claims,
+                                 UserStoreManager userStoreManager) throws UserStoreException {
 
         throw new NotImplementedException(
                 "Post add group operation is not implemented for " + this.getClass().getName());
@@ -270,7 +272,7 @@ public interface GroupOperationEventListener {
      * Defines any additional action after renaming the group.
      *
      * @param groupId          Group unique id.
-     * @param groupName        Group name.
+     * @param newGroupName     Group name.
      * @param userStoreManager The underlying UserStoreManager.
      * @return Whether execution of this method of the underlying UserStoreManager must happen.
      */

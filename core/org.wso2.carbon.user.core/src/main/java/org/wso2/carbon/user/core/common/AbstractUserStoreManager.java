@@ -1337,7 +1337,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
-     * Update the name of the groupw with id.
+     * Update the name of the group with id.
      *
      * @param groupId   Group ID.
      * @param groupName New group name.
@@ -5941,7 +5941,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // #################### </Listeners> #####################################################
         if (!isReadOnly() && writeGroupsEnabled) {
             try {
-                doUpdateRoleName(userStore.getDomainFreeName(), userStoreNew.getDomainFreeName());
+                if (isUniqueGroupIdEnabled()) {
+                    String groupID = getGroupIdByGroupName(userStore.getDomainFreeGroupName());
+                    clearGroupIDResolverCache(groupID, tenantId);
+                    doUpdateGroupName(groupID, userStore.getDomainFreeGroupName());
+                    addGroupNameToGroupIdCache(groupID, newRoleName, getMyDomainName());
+                } else {
+                    doUpdateRoleName(userStore.getDomainFreeName(), userStoreNew.getDomainFreeName());
+                }
             } catch (UserStoreException ex) {
                 handleUpdateRoleNameFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_ROLE_NAME.getCode(),
                         String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_ROLE_NAME.getMessage(),
@@ -6899,42 +6906,20 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param errorCode    Error code.
      * @param errorMessage Error message.
      * @param groupName    Name of the group.
+     * @param groupId      ID of the group.
      * @param usersIDs     List of users to be assigned to the group.
      * @param claims       Claims of the group.
      * @throws UserStoreException Exception that will be thrown by relevant listeners.
      */
-    private void handleAddGroupFailure(String errorCode, String errorMessage, String groupName, List<String> usersIDs,
-                                       List<org.wso2.carbon.user.core.common.Claim> claims) throws UserStoreException {
+    private void handleAddGroupFailure(String errorCode, String errorMessage, String groupName, String groupId,
+                                       List<String> usersIDs, List<org.wso2.carbon.user.core.common.Claim> claims)
+            throws UserStoreException {
 
         for (GroupManagementErrorEventListener listener : UMListenerServiceComponent
                 .getGroupManagementErrorEventListeners()) {
             if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
                     && !listener.onAddGroupFailure(errorCode, errorMessage, groupName, usersIDs, claims,
                     this)) {
-                log.error("'onAddGroupFailure' event invocation failed for listener: " +
-                        listener.getClass().getName());
-                return;
-            }
-        }
-    }
-
-    /**
-     * This method is responsible for calling relevant listener methods when there is a failure while trying to
-     * add a group.
-     *
-     * @param errorCode    Error code.
-     * @param errorMessage Error message.
-     * @param usersIDs     List of users to be assigned to the group.
-     * @param group        Group object.
-     * @throws UserStoreException Exception that will be thrown by relevant listeners.
-     */
-    private void handleAddGroupFailure(String errorCode, String errorMessage, List<String> usersIDs, Group group)
-            throws UserStoreException {
-
-        for (GroupManagementErrorEventListener listener : UMListenerServiceComponent
-                .getGroupManagementErrorEventListeners()) {
-            if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
-                    && !listener.onAddGroupFailure(errorCode, errorMessage, usersIDs, group, this)) {
                 log.error("'onAddGroupFailure' event invocation failed for listener: " +
                         listener.getClass().getName());
                 return;
@@ -6975,17 +6960,20 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      *
      * @param errorCode    Error code.
      * @param errorMessage Error message.
+     * @param groupName    Name of the group.
+     * @param groupID      ID of the group.
      * @param usersIDs     List of users to be assigned to the group.
-     * @param group        Group object.
+     * @param claims       Claims of the group.
      * @throws UserStoreException Exception that will be thrown by relevant listeners.
      */
-    private void handlePostAddGroupFailure(String errorCode, String errorMessage, List<String> usersIDs, Group group)
+    private void handlePostAddGroupFailure(String errorCode, String errorMessage, String groupName, String groupID,
+                                           List<String> usersIDs, List<org.wso2.carbon.user.core.common.Claim> claims)
             throws UserStoreException {
 
         for (GroupManagementErrorEventListener listener : UMListenerServiceComponent
                 .getGroupManagementErrorEventListeners()) {
-            if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener
-                    && !listener.onPostAddGroupFailure(errorCode, errorMessage, usersIDs, group,
+            if (listener.isEnable() && listener instanceof AbstractGroupManagementErrorEventListener &&
+                    !listener.onPostAddGroupFailure(errorCode, errorMessage, groupName, groupID, usersIDs, claims,
                     this)) {
                 log.error("'onPostAddGroupFailure' event invocation failed for listener: " +
                         listener.getClass().getName());
@@ -7437,7 +7425,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     doAddRole(roleName, userList, isSharedRole);
                 } else {
                     List<String> userIDs = getUserIDsFromUserNames(Arrays.asList(userList));
-                    doAddRoleWithID(roleName, userIDs.toArray(new String[0]), isSharedRole);
+                    if (isUniqueGroupIdEnabled()) {
+                        Group group = doAddGroup(roleName, userIDs, null);
+                        groupUniqueIDDomainResolver.setDomainForGroupId(group.getGroupID(), getMyDomainName(), tenantId,
+                                false);
+                    } else {
+                        doAddRoleWithID(roleName, userIDs.toArray(new String[0]), isSharedRole);
+                    }
                 }
                 roleWithDomain = UserCoreUtil.addDomainToName(roleName, getMyDomainName());
             } catch (UserStoreException ex) {
@@ -7691,7 +7685,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throw new UserStoreException(ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.toString());
         }
         try {
-            doDeleteRole(roleName);
+            if (isUniqueGroupIdEnabled()) {
+                String groupID = doGetGroupIdFromGroupName(UserCoreUtil.removeDomainFromName(roleName));
+                groupUniqueIDDomainResolver.removeDomainForGroupId(groupID, getMyDomainName(), tenantId, false);
+                doDeleteGroupByGroupId(groupID);
+            } else {
+                doDeleteRole(roleName);
+            }
         } catch (UserStoreException ex) {
             handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_DELETE_ROLE.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_DELETE_ROLE.getMessage(), ex.getMessage()),
@@ -15433,7 +15433,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     List<User> users = userUniqueIDManger.getUsers(Arrays.asList(userIDList), this);
                     doAddRole(roleName, users.stream().map(User::getUsername).toArray(String[]::new), isSharedRole);
                 } else {
-                    doAddRoleWithID(roleName, userIDList, isSharedRole);
+                    if (isUniqueGroupIdEnabled()) {
+                        Group group = doAddGroup(roleName, Arrays.asList(userIDList), null);
+                        groupUniqueIDDomainResolver.setDomainForGroupId(group.getGroupID(), getMyDomainName(), tenantId,
+                                false);
+                    } else {
+                        doAddRoleWithID(roleName, userIDList, isSharedRole);
+                    }
                 }
                 roleWithDomain = UserCoreUtil.addDomainToName(roleName, getMyDomainName());
             } catch (UserStoreException ex) {
@@ -15551,7 +15557,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         } catch (UserStoreException ex) {
             handleAddGroupFailure(ErrorMessages.ERROR_DURING_PRE_ADD_GROUP.getCode(),
                     String.format(ErrorMessages.ERROR_DURING_PRE_ADD_GROUP.getMessage(), ex.getMessage()), groupName,
-                    userIds, claims);
+                    null, userIds, claims);
             throw ex;
         }
         return true;
@@ -15560,29 +15566,33 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * This method is responsible for calling relevant postAddGroup listener methods after successfully adding a group.
      *
-     * @param userIds List of users.
-     * @param group   Group object.
+     * @param groupName Name of the group.
+     * @param groupId   Id of the group.
+     * @param userIds   List of users.
+     * @param claims    List of claims.
      * @throws UserStoreException Exception that will be thrown by relevant listeners.
      */
-    private void handlePostAddGroup(List<String> userIds, Group group) throws UserStoreException {
+    private void handlePostAddGroup(String groupName, String groupId, List<String> userIds,
+                                    List<org.wso2.carbon.user.core.common.Claim> claims) throws UserStoreException {
 
         try {
             for (GroupOperationEventListener listener : UMListenerServiceComponent
                     .getGroupOperationEventListeners()) {
                 if (listener instanceof AbstractGroupOperationEventListener) {
                     AbstractGroupOperationEventListener newListener = (AbstractGroupOperationEventListener) listener;
-                    if (!newListener.postAddGroup(userIds, group, this)) {
+                    if (!newListener.postAddGroup(groupName, groupId, userIds, claims, this)) {
                         handlePostAddGroupFailure(ErrorMessages.ERROR_DURING_POST_ADD_GROUP.getCode(),
                                 String.format(ErrorMessages.ERROR_DURING_POST_ADD_GROUP.getMessage(),
-                                        UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userIds, group);
+                                        UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), groupName, groupId,
+                                userIds, claims);
                         return;
                     }
                 }
             }
         } catch (UserStoreException ex) {
             handleAddGroupFailure(ErrorMessages.ERROR_DURING_POST_ADD_GROUP.getCode(),
-                    String.format(ErrorMessages.ERROR_DURING_POST_ADD_GROUP.getMessage(), ex.getMessage()), userIds,
-                    group);
+                    String.format(ErrorMessages.ERROR_DURING_POST_ADD_GROUP.getMessage(), ex.getMessage()), groupName,
+                    groupId, userIds, claims);
             throw ex;
         }
     }
@@ -16975,7 +16985,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (StringUtils.isEmpty(groupName)) {
             String errorCode = ErrorMessages.ERROR_EMPTY_GROUP_NAME.getCode();
             String errorMessage = ErrorMessages.ERROR_EMPTY_GROUP_NAME.getMessage();
-            handleAddGroupFailure(errorCode, errorMessage, groupName, usersIds, claims);
+            handleAddGroupFailure(errorCode, errorMessage, groupName, null, usersIds, claims);
             throw new UserStoreClientException(errorMessage, errorCode);
         }
         if (usersIds == null) {
@@ -17008,13 +17018,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isReadOnly()) {
             String errorCode = ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getCode();
             String errorMessage = ErrorMessages.ERROR_CODE_READONLY_USER_STORE.getMessage();
-            handleAddGroupFailure(errorCode, errorMessage, groupName, usersIds, claims);
+            handleAddGroupFailure(errorCode, errorMessage, groupName, null, usersIds, claims);
             throw new UserStoreClientException(errorMessage, errorCode);
         }
         if (!writeGroupsEnabled) {
             String errorCode = ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getCode();
             String errorMessage = ErrorMessages.ERROR_CODE_WRITE_GROUPS_NOT_ENABLED.getMessage();
-            handleAddGroupFailure(errorCode, errorMessage, groupName, usersIds, claims);
+            handleAddGroupFailure(errorCode, errorMessage, groupName, null, usersIds, claims);
             throw new UserStoreClientException(errorMessage, errorCode);
         }
         // Perform validation on the name.
@@ -17024,13 +17034,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             String errorMessage = String
                     .format(ErrorMessages.ERROR_CODE_INVALID_GROUP_NAME.getMessage(), groupName, regEx);
             String errorCode = ErrorMessages.ERROR_CODE_INVALID_GROUP_NAME.getCode();
-            handleAddGroupFailure(errorCode, errorMessage, groupName, usersIds, claims);
+            handleAddGroupFailure(errorCode, errorMessage, groupName, null, usersIds, claims);
             throw new UserStoreClientException(errorMessage, errorCode);
         }
         if (doCheckExistingGroupName(groupName)) {
             String errorCode = ErrorMessages.ERROR_CODE_GROUP_ALREADY_EXISTS.getCode();
             String errorMessage = String.format(ErrorMessages.ERROR_CODE_GROUP_ALREADY_EXISTS.getMessage(), groupName);
-            handleAddGroupFailure(errorCode, errorMessage, groupName, usersIds, claims);
+            handleAddGroupFailure(errorCode, errorMessage, groupName, null, usersIds, claims);
             throw new UserStoreClientException(errorMessage, errorCode);
         }
         Group group;
@@ -17038,7 +17048,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (!isUniqueUserIdEnabledInUserStore(userStore)) {
                 String errorCode = ErrorMessages.ERROR_CODE_GROUP_UUID_NOT_SUPPORTED.getCode();
                 String errorMessage = ErrorMessages.ERROR_CODE_GROUP_UUID_NOT_SUPPORTED.getMessage();
-                handleAddGroupFailure(errorCode, errorMessage, groupName, usersIds, claims);
+                handleAddGroupFailure(errorCode, errorMessage, groupName, null, usersIds, claims);
                 throw new UserStoreException(errorCode + "-" + errorMessage);
             }
             group = doAddGroup(groupName, usersIds, buildClaimsList(claims));
@@ -17065,7 +17075,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         }
         // #################### <Post-Listeners> #####################################################
-        handlePostAddGroup(usersIds, group);
+        handlePostAddGroup(group.getGroupName(), group.getGroupID(), usersIds, claims);
         // Invoke legacy listeners to maintain backward compatibility.
         handlePostAddRoleWithID(groupName, usersIds.toArray(new String[0]), null, false);
         // #################### </Post-Listeners> #####################################################
@@ -17547,8 +17557,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         } catch (UserStoreException e) {
             // Add the deleted mapping back to the cache and the DB.
-            addGroupNameToGroupIdCache(groupID, UserCoreUtil.extractDomainFromName(currentGroupName),
-                    getMyDomainName());
+            addGroupNameToGroupIdCache(groupID, UserCoreUtil.removeDomainFromName(currentGroupName), getMyDomainName());
             handleRenameGroupFailure(ErrorMessages.ERROR_WHILE_RENAME_GROUP.getCode(),
                     String.format(ErrorMessages.ERROR_WHILE_RENAME_GROUP.getMessage(), e.getMessage()), groupID,
                     newGroupName);

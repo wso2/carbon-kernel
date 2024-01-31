@@ -22,7 +22,6 @@ import org.wso2.carbon.user.core.NotImplementedException;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.Claim;
-import org.wso2.carbon.user.core.common.Group;
 import org.wso2.carbon.user.core.model.Condition;
 
 import java.util.List;
@@ -150,7 +149,7 @@ public interface GroupManagementErrorEventListener {
      * @throws UserStoreException If an error occurred while performing the operation.
      */
     boolean onPostGetGroupsListByUserIdFailure(String errorCode, String errorMessage, String userId,
-                                              UserStoreManager userStoreManager) throws UserStoreException;
+                                               UserStoreManager userStoreManager) throws UserStoreException;
 
     /**
      * Defines any additional actions that need to be done when there is a failure after getting the group by id.
@@ -331,25 +330,7 @@ public interface GroupManagementErrorEventListener {
      * @throws UserStoreException If an error occurred while performing the operation.
      */
     default boolean onAddGroupFailure(String errorCode, String errorMessage, String groupName, List<String> userIDs,
-                                      List<Claim> claims, UserStoreManager userStoreManager)
-            throws UserStoreException {
-
-        throw new NotImplementedException("onAddGroupWithIDFailure is not implemented");
-    }
-
-    /**
-     * Defines any additional actions that need to be done when there is a failure while adding a group.
-     *
-     * @param errorCode        Error code.
-     * @param errorMessage     Error message.
-     * @param userIDs          User id list.
-     * @param group            Group object.
-     * @param userStoreManager Userstore manager.
-     * @return True if the handling succeeded.
-     * @throws UserStoreException If an error occurred while performing the operation.
-     */
-    default boolean onAddGroupFailure(String errorCode, String errorMessage, List<String> userIDs,
-                                      Group group, UserStoreManager userStoreManager) throws UserStoreException {
+                                      List<Claim> claims, UserStoreManager userStoreManager) throws UserStoreException {
 
         throw new NotImplementedException("onAddGroupWithIDFailure is not implemented");
     }
@@ -378,14 +359,16 @@ public interface GroupManagementErrorEventListener {
      *
      * @param errorCode        Error code.
      * @param errorMessage     Error message.
+     * @param groupName        Group name.
+     * @param groupId          Group id.
      * @param userIDs          User id list.
-     * @param group            Group object.
+     * @param claims           Claims list.
      * @param userStoreManager Userstore manager.
      * @return True if the handling succeeded.
      * @throws UserStoreException If an error occurred while performing the operation.
      */
-    default boolean onPostAddGroupFailure(String errorCode, String errorMessage, List<String> userIDs, Group group,
-                                          UserStoreManager userStoreManager)
+    default boolean onPostAddGroupFailure(String errorCode, String errorMessage, String groupName, String groupId,
+                                          List<String> userIDs, List<Claim> claims, UserStoreManager userStoreManager)
             throws UserStoreException {
 
         throw new NotImplementedException("onAddGroupWithIDFailure is not implemented");

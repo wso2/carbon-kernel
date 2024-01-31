@@ -128,8 +128,8 @@ public class AbstractGroupOperationEventListener implements GroupOperationEventL
     }
 
     @Override
-    public boolean postAddGroup(List<String> userIds, Group group, UserStoreManager userStoreManager)
-            throws UserStoreException {
+    public boolean postAddGroup(String groupName, String groupId, List<String> userIds, List<Claim> claims,
+                                UserStoreManager userStoreManager) throws UserStoreException {
 
         return true;
     }

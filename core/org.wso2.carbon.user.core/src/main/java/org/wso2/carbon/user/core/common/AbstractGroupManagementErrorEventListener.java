@@ -186,13 +186,6 @@ public class AbstractGroupManagementErrorEventListener implements GroupManagemen
     }
 
     @Override
-    public boolean onAddGroupFailure(String errorCode, String errorMessage, List<String> userIDs,
-                                     Group group, UserStoreManager userStoreManager) throws UserStoreException {
-
-        return true;
-    }
-
-    @Override
     public boolean onPreAddGroupFailure(String errorCode, String errorMessage, String groupName, List<String> userIDs,
                                         List<Claim> claims, UserStoreManager userStoreManager) {
 
@@ -200,8 +193,9 @@ public class AbstractGroupManagementErrorEventListener implements GroupManagemen
     }
 
     @Override
-    public boolean onPostAddGroupFailure(String errorCode, String errorMessage, List<String> userIDs, Group group,
-                                         UserStoreManager userStoreManager) throws UserStoreException {
+    public boolean onPostAddGroupFailure(String errorCode, String errorMessage, String groupName, String groupId,
+                                         List<String> userIDs, List<Claim> claims, UserStoreManager userStoreManager)
+            throws UserStoreException {
 
         return true;
     }
