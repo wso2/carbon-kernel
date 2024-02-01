@@ -945,22 +945,22 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
     protected boolean isExistingJDBCRole(RoleContext context) throws UserStoreException {
 
-        boolean isExisting;
         String roleName = context.getRoleName();
-
         String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_IS_ROLE_EXISTING);
-        if (sqlStmt == null) {
+        if (StringUtils.isBlank(sqlStmt)) {
             throw new UserStoreException("The sql statement for is role existing role null");
         }
-
         if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-            isExisting =
-                    isValueExisting(sqlStmt, null, roleName, ((JDBCRoleContext) context).getTenantId());
-        } else {
-            isExisting = isValueExisting(sqlStmt, null, roleName);
+            return isValueExisting(sqlStmt, null, roleName, ((JDBCRoleContext) context).getTenantId());
         }
+        return isValueExisting(sqlStmt, null, roleName);
+    }
 
-        return isExisting;
+    @Override
+    protected boolean doCheckExistingGroupName(String groupName) throws UserStoreException {
+
+        RoleContext roleContext = createRoleContext(groupName);
+        return isExistingJDBCRole(roleContext);
     }
 
     /**

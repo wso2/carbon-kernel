@@ -17,6 +17,8 @@
  */
 package org.wso2.carbon.user.core.ldap;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -30,9 +32,11 @@ import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.NotImplementedException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.UserStoreClientException;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
+import org.wso2.carbon.user.core.common.Group;
 import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
@@ -55,6 +59,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.StringTokenizer;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -75,6 +80,10 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.sql.DataSource;
 
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_ID_ATTRIBUTE;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_ID;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_NAME;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_NO_GROUP_FOUND_WITH_ID;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataCategory.CONNECTION;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataCategory.GROUP;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataCategory.USER;
@@ -83,6 +92,7 @@ import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataImpor
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.BOOLEAN;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.NUMBER;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.STRING;
+import static org.wso2.carbon.user.core.ldap.LDAPConstants.USER_ID_ATTRIBUTE;
 
 /**
  * This class is capable of get connected to an external or internal LDAP based user store in
@@ -295,7 +305,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                 .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse("");
 
         String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
-        String userIdProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
+        String userIdProperty = realmConfig.getUserStoreProperty(USER_ID_ATTRIBUTE);
 
         return ArrayUtils.contains(immutableAttributes, userIdProperty);
     }
@@ -353,7 +363,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         if (roleList != null && roleList.length > 0) {
             try {
                 if (isUserIdGeneratedByUserStore(userID, claims)) {
-                    String userIdAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
+                    String userIdAttribute = realmConfig.getUserStoreProperty(USER_ID_ATTRIBUTE);
                     Attributes userAttributes = dirContext.getAttributes(compoundName, new String[]{userIdAttribute});
                     userID = resolveLdapAttributeValue(userAttributes.get(userIdAttribute).get());
                 }
@@ -449,7 +459,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             }
         }
         // Add userID attribute.
-        String userIDAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
+        String userIDAttribute = realmConfig.getUserStoreProperty(USER_ID_ATTRIBUTE);
         //Skipping if the userId attribute is a immutable attribute
         if (StringUtils.isNotBlank(userIDAttribute) &&
                 !ArrayUtils.contains(immutableAttributes, userIDAttribute)) {
@@ -1009,7 +1019,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         // Search the relevant user entry by user name.
         String userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
         String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_SEARCH_FILTER);
-        String userIDAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
+        String userIDAttribute = realmConfig.getUserStoreProperty(USER_ID_ATTRIBUTE);
 
         userSearchFilter = userSearchFilter.replaceAll(LDAPConstants.UID_EXACT_MATCH, userIDAttribute);
 
@@ -1115,7 +1125,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         // Search the relevant user entry by user name.
         String userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
         String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_SEARCH_FILTER);
-        String userIDAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
+        String userIDAttribute = realmConfig.getUserStoreProperty(USER_ID_ATTRIBUTE);
 
         userSearchFilter = userSearchFilter.replaceAll(LDAPConstants.UID_EXACT_MATCH, userIDAttribute);
 
@@ -1229,7 +1239,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         // Search the relevant user entry by user name.
         String userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
         String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_SEARCH_FILTER);
-        String userIDAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
+        String userIDAttribute = realmConfig.getUserStoreProperty(USER_ID_ATTRIBUTE);
 
         userSearchFilter = userSearchFilter.replaceAll(LDAPConstants.UID_EXACT_MATCH, userIDAttribute);
         userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userID));
@@ -1465,6 +1475,142 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         }
     }
 
+    @Override
+    public void doUpdateGroupName(String groupId, String groupName) throws UserStoreException {
+
+        if (!isUniqueGroupIdEnabled()) {
+            throw new UserStoreException("Group ID is not supported for userstore: " + getMyDomainName());
+        }
+        if (StringUtils.isBlank(groupId)) {
+            throw new UserStoreException(ERROR_EMPTY_GROUP_ID.getMessage());
+        }
+        if (StringUtils.isBlank(groupName)) {
+            throw new UserStoreException(ERROR_EMPTY_GROUP_NAME.getMessage());
+        }
+        String oldGroupName = doGetGroupNameFromGroupId(groupId);
+        if (StringUtils.isBlank(oldGroupName)) {
+            throw new UserStoreException(
+                    String.format(ERROR_NO_GROUP_FOUND_WITH_ID.getMessage(), groupId, tenantDomain));
+        }
+        doUpdateRoleName(UserCoreUtil.removeDomainFromName(oldGroupName), UserCoreUtil.removeDomainFromName(groupName));
+    }
+
+    @Override
+    public void doDeleteGroupByGroupId(String groupId) throws UserStoreException {
+
+        if (!isUniqueGroupIdEnabled()) {
+            throw new UserStoreException("Group ID is not supported for userstore: " + getMyDomainName());
+        }
+        if (StringUtils.isBlank(groupId)) {
+            throw new UserStoreException(ERROR_EMPTY_GROUP_ID.getMessage());
+        }
+        String groupName = doGetGroupNameFromGroupId(groupId);
+        if (StringUtils.isBlank(groupId)) {
+            throw new UserStoreException(
+                    String.format(ERROR_NO_GROUP_FOUND_WITH_ID.getMessage(), groupId, tenantDomain));
+        }
+        doDeleteRole(UserCoreUtil.removeDomainFromName(groupName));
+    }
+
+    @Override
+    public Group doAddGroup(String groupName, List<String> userIds, Map<String, String> claims)
+            throws UserStoreException {
+
+        if (CollectionUtils.isEmpty(userIds) && !emptyRolesAllowed) {
+            throw new UserStoreClientException(
+                    "Can not create an empty group. There should be at least one user for the group");
+        }
+        List<String> userList = getUserNamesFromUserIDs(userIds);
+        String userStoreDomain = getMyDomainName();
+        // Check whether the users belong to the same user store.
+        boolean containsInvalidUsers = userList.stream()
+                .anyMatch(username -> !UserCoreUtil.extractDomainFromName(username).equalsIgnoreCase(userStoreDomain));
+
+        if (containsInvalidUsers) {
+            throw new UserStoreException(String.format("One or more users in the users list: %s do not " +
+                    "belong to the user store: %s", userList, userStoreDomain));
+        }
+        userList = userList.stream().map(UserCoreUtil::removeDomainFromName).collect(Collectors.toList());
+        if (!isUniqueGroupIdEnabled()) {
+            throw new UserStoreException("Group ID is not supported for userstore: " + userStoreDomain);
+        }
+        persistGroup(groupName, userStoreDomain, userList.toArray(new String[0]), claims);
+        return doGetGroupFromGroupName(groupName, null);
+    }
+
+    protected void persistGroup(String groupName, String domainName, String[] userList, Map<String, String> claimList)
+            throws UserStoreException {
+
+        RoleContext roleContext = createRoleContext(groupName);
+        String groupEntryObjectClass = ((LDAPRoleContext) roleContext).getGroupEntryObjectClass();
+        String groupNameAttribute = ((LDAPRoleContext) roleContext).getRoleNameProperty();
+        String searchBase = ((LDAPRoleContext) roleContext).getSearchBase();
+
+        DirContext mainDirContext = this.connectionSource.getContext();
+        DirContext groupContext = null;
+        NamingEnumeration<SearchResult> results = null;
+
+        // Create the attribute set for group entry.
+        Attributes groupAttributes = new BasicAttributes(true);
+
+        // Create group entry's object class attribute.
+        Attribute objectClassAttribute = new BasicAttribute(LDAPConstants.OBJECT_CLASS_NAME);
+        objectClassAttribute.add(groupEntryObjectClass);
+        groupAttributes.put(objectClassAttribute);
+
+        // Create cn attribute.
+        Attribute cnAttribute = new BasicAttribute(groupNameAttribute);
+        cnAttribute.add(groupName);
+        groupAttributes.put(cnAttribute);
+        // Set group attributes.
+        setGroupAttributes(groupName, groupNameAttribute, domainName, claimList, groupAttributes);
+
+        try {
+            if (ArrayUtils.isNotEmpty(userList)) {
+                String memberAttributeName = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
+                Attribute memberAttribute = new BasicAttribute(memberAttributeName);
+                for (String userName : userList) {
+                    if (StringUtils.isBlank(userName)) {
+                        continue;
+                    }
+                    // Search the user in user search base.
+                    String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+                    searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
+                    results = searchInUserBase(searchFilter, new String[]{}, SearchControls.SUBTREE_SCOPE,
+                            mainDirContext);
+                    // We assume only one user with the given username under user search base.
+                    SearchResult userResult;
+                    if (results.hasMore()) {
+                        userResult = results.next();
+                    } else {
+                        throw new UserStoreException(
+                                "There is no user with the user name: " + userName + " to be added to this role");
+                    }
+                    // Get the DN.
+                    String userEntryDN = userResult.getNameInNamespace();
+                    // Put it as member-attribute value.
+                    memberAttribute.add(userEntryDN);
+                }
+                groupAttributes.put(memberAttribute);
+            }
+            groupContext = (DirContext) mainDirContext.lookup(escapeDNForSearch(searchBase));
+            NameParser ldapParser = groupContext.getNameParser("");
+            /*
+             * Name compoundGroupName = ldapParser.parse(groupNameAttributeName + "=" +
+             * roleName);
+             */
+            Name compoundGroupName = ldapParser.parse("cn=" + groupName);
+            groupContext.bind(compoundGroupName, null, groupAttributes);
+        } catch (NamingException e) {
+            throw new UserStoreException(
+                    String.format("Error adding group: %s to userstore: %s", groupName, domainName), e);
+        } finally {
+            JNDIUtil.closeNamingEnumeration(results);
+            JNDIUtil.closeContext(groupContext);
+            JNDIUtil.closeContext(mainDirContext);
+        }
+    }
+
     protected void addLDAPRole(RoleContext context) throws UserStoreException {
 
         String roleName = context.getRoleName();
@@ -1560,7 +1706,78 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             }
 
         }
+    }
 
+    private void setGroupAttributes(String groupName, String groupNameAttribute, String domain,
+                                    Map<String, String> claims, Attributes basicAttributes) throws UserStoreException {
+
+        String immutableAttributesProperty = Optional.ofNullable(realmConfig
+                .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse(StringUtils.EMPTY);
+        String groupIDAttribute = realmConfig.getUserStoreProperty(GROUP_ID_ATTRIBUTE);
+        String userIDAttribute = realmConfig.getUserStoreProperty(USER_ID_ATTRIBUTE);
+        String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
+        boolean isGroupIdImmutable = ArrayUtils.contains(immutableAttributes, groupIDAttribute);
+        boolean generateGroupUUID = true;
+
+        if (MapUtils.isNotEmpty(claims)) {
+            for (Map.Entry<String, String> entry : claims.entrySet()) {
+                if (EMPTY_ATTRIBUTE_STRING.equals(entry.getValue())) {
+                    continue;
+                }
+                String claimValue = entry.getValue();
+                String attributeName;
+                try {
+                    attributeName = getClaimAtrribute(entry.getKey(), groupName, null);
+                    if (StringUtils.isBlank(attributeName)) {
+                        continue;
+                    }
+                } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                    throw new UserStoreException("Error in obtaining claim mapping for userstore: " + domain, e);
+                }
+                if (groupNameAttribute.equals(attributeName)) {
+                    // CN is added separately.
+                    continue;
+                }
+                // Skip in case of immutable attribute passing via the claim map.
+                if (ArrayUtils.contains(immutableAttributes, attributeName)) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Skipped Immutable attribute: " + attributeName);
+                    }
+                    continue;
+                }
+                // We only get mutable attributes here.
+                // Here we have to compare the attribute name with the user id since we are using the same attribute
+                // for group uuid.
+                if (userIDAttribute.equals(attributeName)) {
+                    if (isGroupIdImmutable) {
+                        continue;
+                    }
+                    if (StringUtils.isNotBlank(claimValue)) {
+                        // No need to generate a uuid as it is present in the claim map.
+                        generateGroupUUID = false;
+                        BasicAttribute claim = new BasicAttribute(groupIDAttribute);
+                        claim.add(claimValue);
+                        basicAttributes.put(claim);
+                        continue;
+                    }
+                }
+                BasicAttribute claim = new BasicAttribute(attributeName);
+                claim.add(claimValue);
+                basicAttributes.put(claim);
+            }
+        }
+        if (isGroupIdImmutable) {
+            return;
+        }
+        if (generateGroupUUID) {
+            String uuid = UUID.randomUUID().toString();
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Generated group UUID: %s for group: %s", uuid, groupName));
+            }
+            BasicAttribute claim = new BasicAttribute(groupIDAttribute);
+            claim.add(uuid);
+            basicAttributes.put(claim);
+        }
     }
 
     @Override

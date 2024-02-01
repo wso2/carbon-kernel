@@ -234,6 +234,11 @@ public class UserCoreErrorConstants {
         ERROR_EMPTY_USER_ID("60006", "User id cannot be empty"),
         ERROR_NO_USER_WITH_USERNAME("60007", "No user found with username: %s in " +
                 "userstore domain: %s"),
+        ERROR_EMPTY_GROUP("60008", "Group cannot be empty"),
+        ERROR_GROUP_NOT_IN_USER_STORE("60009", "New group name: %s does match with the userstore name " +
+                " of the existing group with id: %s"),
+        ERROR_CODE_INVALID_GROUP_NAME("60010",  "Group name %s is not valid. Group name must be a "
+                + "non null string with format: %s"),
 
         // Server error codes related to group operations.
         ERROR_DURING_PRE_GET_GROUP_BY_ID("65001",
@@ -268,7 +273,22 @@ public class UserCoreErrorConstants {
                 "response in userstore: %s in tenant: %s"),
         ERROR_WHILE_GETTING_GROUPS("65016", "Error occurred while getting the groups"),
         ERROR_WHILE_PERFORMING_PAGINATED_SEARCH("65017", "Error occurred while performing the " +
-                "paginated search");
+                "paginated search"),
+        ERROR_DURING_PRE_ADD_GROUP("65018", "Un-expected error during pre add group: %s"),
+        ERROR_CODE_GROUP_ALREADY_EXISTS("65019", "Group name: %s exists in the userstore. " +
+                "Please pick another group name."),
+        ERROR_CODE_GROUP_UUID_NOT_SUPPORTED("65020", "Group UUID is not supported in the userstore"),
+        ERROR_DURING_POST_ADD_GROUP("65021", "Un-expected error during post add group: %s"),
+        ERROR_DURING_PRE_DELETE_GROUP("65022",
+                "Un-expected error during pre delete groups with ID with condition, %s"),
+        ERROR_DURING_POST_DELETE_GROUP("65023",
+                "Un-expected error during post delete groups with ID with condition, %s"),
+        ERROR_WHILE_DELETE_GROUP("65024", "Un-expected error while deleting group, %s"),
+        ERROR_DURING_PRE_RENAME_GROUP("65025",
+                "Un-expected error during pre rename groups with ID with condition, %s"),
+        ERROR_DURING_POST_RENAME_GROUP("65026",
+                "Un-expected error during post rename groups with ID with condition, %s"),
+        ERROR_WHILE_RENAME_GROUP("65027", "Un-expected error while renaming group, %s");
 
         private final String code;
         private final String message;
