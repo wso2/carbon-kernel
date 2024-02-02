@@ -1600,7 +1600,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     @Override
     public String doGetGroupIdFromGroupName(String groupName) throws UserStoreException {
 
-        Group group = doGetGroupFromGroupId(groupName, Collections.singletonList(realmConfig.getUserStoreProperty(
+        Group group = doGetGroupFromGroupName(groupName, Collections.singletonList(realmConfig.getUserStoreProperty(
                 realmConfig.getUserStoreProperty(GROUP_ID_ATTRIBUTE))));
         if (group == null || StringUtils.isBlank(group.getGroupID())) {
             if (log.isDebugEnabled()) {
