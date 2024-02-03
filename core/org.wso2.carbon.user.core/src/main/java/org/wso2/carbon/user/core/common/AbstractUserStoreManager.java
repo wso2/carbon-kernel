@@ -17150,9 +17150,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         true);
             } catch (UserStoreException e) {
                 log.debug("error occurred while adding group:" + groupName, e);
-                throw e;
-            } finally {
                 groupResolver.deleteGroupByName(groupName, this);
+                throw e;
             }
         }
         updateClaimsWithGroupAttributes(group, claims);
