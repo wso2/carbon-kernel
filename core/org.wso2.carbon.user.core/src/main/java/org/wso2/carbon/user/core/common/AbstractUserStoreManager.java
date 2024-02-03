@@ -171,8 +171,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private static final String PROPERTY_PASSWORD_ERROR_MSG = "PasswordJavaRegExViolationErrorMsg";
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     private static final String LOCATION_CLAIM_URI = "http://wso2.org/claims/location";
-    private final String CREATED_CLAIM_URI = "http://wso2.org/claims/created";
-    private final String MODIFIED_CLAIM_URI = "http://wso2.org/claims/modified";
+    private static final String CREATED_CLAIM_URI = "http://wso2.org/claims/created";
+    private static final String MODIFIED_CLAIM_URI = "http://wso2.org/claims/modified";
     private static Log log = LogFactory.getLog(AbstractUserStoreManager.class);
     private static final int DEFAULT_PASSWORD_VALIDITY_PERIOD_VALUE = 24;
     protected static int pwValidityTimeoutInt = getDefaultPasswordValidityPeriodInHours();
@@ -1340,38 +1340,108 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * Update the name of the group with id.
      *
      * @param groupId   Group ID.
-     * @param groupName New group name.
+     * @param newGroupName New group name.
      * @throws UserStoreException If an error occurred while updating the group name.
      */
-    protected void doUpdateGroupName(String groupId, String groupName) throws UserStoreException {
+    protected void doUpdateGroupNameByGroupId(String groupId, String newGroupName) throws UserStoreException {
 
-        throw new NotImplementedException("doUpdateGroupName operation is not implemented in: " + this.getClass());
+        throw new NotImplementedException(
+                "doUpdateGroupNameByGroupId operation is not implemented in: " + this.getClass());
+    }
+
+    /**
+     * Update the name of the group with the given group name.
+     *
+     * @param currentGroupName Current name of the group that needs to be updated.
+     * @param newGroupName     New name of the group.
+     * @throws UserStoreException If an error occurred while updating the group name.
+     */
+    protected void doUpdateGroupName(String currentGroupName, String newGroupName)
+            throws UserStoreException {
+
+        // Overriding method to maintain backward compatibility.
+        doUpdateRoleName(currentGroupName, newGroupName);
+    }
+
+    /**
+     * Generate unique identifier for the group.
+     *
+     * @return
+     */
+    protected String generateGroupUUID() {
+
+        return UUID.randomUUID().toString();
     }
 
     /**
      * Add group with a list of users and claims provided.
      *
      * @param groupName Name of the group.
+     * @param groupId   Group ID.
      * @param userIds   User IDs list.
      * @param claims    Claims.
      * @return Group object.
      * @throws UserStoreException If an error occurred while adding the group.
      */
-    protected Group doAddGroup(String groupName, List<String> userIds, Map<String, String> claims)
+    protected Group doAddGroup(String groupName, String groupId, List<String> userIds, Map<String, String> claims)
             throws UserStoreException {
 
         throw new NotImplementedException("doAddGroup operation is not implemented in: " + this.getClass());
     }
 
     /**
+     * Add group with the group name and the user list. NOTE: Implement this if user store DOES NOT have the
+     * capability to manage group related attributes such group id, created timestamp, modified timestamp etc and
+     * user store DOES SUPPORT user unique IDs.
+     *
+     * @param groupName Name of the group.
+     * @param userIds   User id list.
+     * @throws UserStoreException If an error occurred while adding the group.
+     */
+    protected void doAddGroupWithUserIds(String groupName, List<String> userIds) throws UserStoreException {
+
+        // No need to have a return since the user store is unable to manage group related attributes. Therefore, from
+        // the user store level there is only the name that can return, and it is already there in the parameters.
+        doAddRoleWithID(groupName, userIds.toArray(new String[0]), false);
+    }
+
+    /**
+     * Add group with the group name and the usernames list. NOTE: Implement this if user store DOES NOT HAVE the
+     * capability to manage group related attributes such group id, created timestamp, modified timestamp etc and
+     * user store DOES NOT SUPPORT user unique IDs.
+     *
+     * @param groupName Name of the group.
+     * @param userNames User name list.
+     * @throws UserStoreException If an error occurred while adding the group.
+     */
+    protected void doAddGroupWithUserNames(String groupName, List<String> userNames) throws UserStoreException {
+
+        // No need to have a return since the user store is unable to manage group related attributes. Therefore, from
+        // the user store level there is only the name that can return and it is already there in the parameters.
+        doAddRole(groupName, userNames.toArray(new String[0]), false);
+    }
+
+    /**
      * Delete group with the given group groupID.
      *
      * @param groupId Group Id.
-     * @throws UserStoreException error occurred while deleting the group.
+     * @throws UserStoreException If an error occurred while deleting the group.
      */
     protected void doDeleteGroupByGroupId(String groupId) throws UserStoreException {
 
         throw new NotImplementedException("doDeleteGroupByGroupID operation is not implemented in: " + this.getClass());
+    }
+
+    /**
+     * Delete group with the given group name.
+     *
+     * @param groupName Group name.
+     * @throws UserStoreException If an error occurred while deleting the group.
+     */
+    protected void doDeleteGroupByGroupName(String groupName) throws UserStoreException {
+
+        // Overriding method to maintain backward compatibility.
+        doDeleteRole(UserCoreUtil.removeDomainFromName(groupName));
     }
 
     /**
@@ -5945,7 +6015,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (isUniqueGroupIdEnabled()) {
                     String groupID = getGroupIdByGroupName(userStore.getDomainFreeGroupName());
                     clearGroupIDResolverCache(groupID, tenantId);
-                    doUpdateGroupName(groupID, userStore.getDomainFreeGroupName());
+                    doUpdateGroupNameByGroupId(groupID, userStore.getDomainFreeGroupName());
                     addGroupNameToGroupIdCache(groupID, newRoleName, getMyDomainName());
                 } else {
                     doUpdateRoleName(userStore.getDomainFreeName(), userStoreNew.getDomainFreeName());
@@ -7431,7 +7501,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 } else {
                     List<String> userIDs = getUserIDsFromUserNames(Arrays.asList(userList));
                     if (isUniqueGroupIdEnabled()) {
-                        Group group = doAddGroup(roleName, userIDs, null);
+                        Group group = doAddGroup(roleName, generateGroupUUID(), userIDs, null);
                         groupUniqueIDDomainResolver.setDomainForGroupId(group.getGroupID(), getMyDomainName(), tenantId,
                                 false);
                     } else {
@@ -15442,7 +15512,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     doAddRole(roleName, users.stream().map(User::getUsername).toArray(String[]::new), isSharedRole);
                 } else {
                     if (isUniqueGroupIdEnabled()) {
-                        Group group = doAddGroup(roleName, Arrays.asList(userIDList), null);
+                        Group group = doAddGroup(roleName, generateGroupUUID(), Arrays.asList(userIDList), null);
                         groupUniqueIDDomainResolver.setDomainForGroupId(group.getGroupID(), getMyDomainName(), tenantId,
                                 false);
                     } else {
@@ -17005,7 +17075,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     .addGroup(userStore.getDomainFreeGroupName(), UserCoreUtil.removeDomainFromNames(usersIds), claims);
         }
         // #################### Domain Name Free Zone Starts Here ################################
-
+        claims = CollectionUtils.isEmpty(claims) ? new ArrayList<>() : claims;
         // This happens only once during first startup - adding administrator user/group.
         if (groupName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
             groupName = userStore.getDomainFreeName();
@@ -17052,6 +17122,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throw new UserStoreClientException(errorMessage, errorCode);
         }
         Group group;
+        String groupId = generateGroupUUID();
         if (isUniqueGroupIdEnabled(this)) {
             if (!isUniqueUserIdEnabledInUserStore(userStore)) {
                 String errorCode = ErrorMessages.ERROR_CODE_GROUP_UUID_NOT_SUPPORTED.getCode();
@@ -17059,29 +17130,31 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 handleAddGroupFailure(errorCode, errorMessage, groupName, null, usersIds, claims);
                 throw new UserStoreException(errorCode + "-" + errorMessage);
             }
-            group = doAddGroup(groupName, usersIds, buildClaimsList(claims));
+            group = doAddGroup(groupName, groupId, usersIds, buildClaimsList(claims));
             groupUniqueIDDomainResolver.setDomainForGroupId(group.getGroupID(), getMyDomainName(), tenantId,
                     false);
         } else {
             // Backward compatibility support. Use group resolver to update the other required places.
             GroupResolver groupResolver = UserStoreMgtDataHolder.getInstance().getGroupResolver();
             try {
-                group = buildGroupFromGroupClaims(groupName, getMyDomainName(), claims);
-                groupResolver.addGroup(group, this);
+                group = groupResolver.addGroup(groupName, groupId, claims, this);
                 if (isUniqueUserIdEnabledInUserStore(userStore)) {
-                    doAddRoleWithID(groupName, usersIds.toArray(new String[0]), false);
+                    doAddGroupWithUserIds(groupName, usersIds);
                 } else {
                     List<User> users = userUniqueIDManger.getUsers(usersIds, this);
-                    doAddRole(groupName, users.stream().map(User::getUsername).toArray(String[]::new), false);
+                    doAddGroupWithUserNames(groupName,
+                            users.stream().map(User::getUsername).collect(Collectors.toList()));
                 }
                 // Update only the cache since the ID can be found in our side.
                 groupUniqueIDDomainResolver.setDomainForGroupId(group.getGroupID(), getMyDomainName(), tenantId,
                         true);
             } catch (UserStoreException e) {
+                log.debug("error occurred while adding group:" + groupName, e);
                 groupResolver.deleteGroupByName(groupName, this);
                 throw e;
             }
         }
+        updateClaimsWithGroupAttributes(group, claims);
         // #################### <Post-Listeners> #####################################################
         handlePostAddGroup(group.getGroupName(), group.getGroupID(), usersIds, claims);
         // Invoke legacy listeners to maintain backward compatibility.
@@ -17099,35 +17172,37 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return claimsMap;
     }
 
-    private Group buildGroupFromGroupClaims(String groupName, String domainName,
-                                            List<org.wso2.carbon.user.core.common.Claim> claims) {
+    private void updateClaimsWithGroupAttributes(Group group, List<org.wso2.carbon.user.core.common.Claim> claims) {
 
-        Group group = new Group();
-        group.setGroupName(groupName);
-        group.setUserStoreDomain(domainName);
-        group.setDisplayName(UserCoreUtil.addDomainToName(groupName, domainName));
-        List<org.wso2.carbon.user.core.common.Claim> otherClaims = new ArrayList<>();
+        if (CollectionUtils.isEmpty(claims)) {
+            return;
+        }
+        List<org.wso2.carbon.user.core.common.Claim> groupClaims = group.getClaims();
         for (org.wso2.carbon.user.core.common.Claim claim : claims) {
             String claimUrl = claim.getClaimUrl();
-            String claimValue = claim.getClaimValue();
-            if (USER_ID_CLAIM_URI.equals(claimUrl)) {
-                if (StringUtils.isBlank(claimValue)) {
-                    group.setGroupID(claimValue);
-                } else {
-                    group.setGroupID(UUID.randomUUID().toString());
-                }
-            } else if (LOCATION_CLAIM_URI.equals(claimUrl)) {
-                group.setLocation(claimValue);
-            } else if (CREATED_CLAIM_URI.equals(claimUrl)) {
-                group.setCreatedDate(claimValue);
-            } else if (MODIFIED_CLAIM_URI.equals(claimUrl)) {
-                group.setLastModifiedDate(claimValue);
-            } else {
-                otherClaims.add(claim);
+            switch (claimUrl) {
+                case LOCATION_CLAIM_URI:
+                    claim.setClaimValue(group.getLocation());
+                    break;
+                case CREATED_CLAIM_URI:
+                    claim.setClaimValue(group.getCreatedDate());
+                    break;
+                case MODIFIED_CLAIM_URI:
+                    claim.setClaimValue(group.getLastModifiedDate());
+                    break;
+                default:
+                    if (CollectionUtils.isEmpty(groupClaims)) {
+                        break;
+                    }
+                    for (org.wso2.carbon.user.core.common.Claim groupClaim : groupClaims) {
+                        if (StringUtils.equals(groupClaim.getClaimUrl(), claimUrl)) {
+                            claim.setClaimValue(groupClaim.getClaimValue());
+                            break;
+                        }
+                    }
+                    break;
             }
         }
-        group.setClaims(otherClaims);
-        return group;
     }
 
     @Override
@@ -17482,7 +17557,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (isUniqueGroupIdEnabled()) {
                 doDeleteGroupByGroupId(groupID);
             } else {
-                doDeleteRole(UserCoreUtil.removeDomainFromName(groupName));
+                doDeleteGroupByGroupName(groupName);
             }
         } catch (UserStoreException e) {
             // Add the deleted mapping back to the cache and the DB.
@@ -17559,9 +17634,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         clearGroupIDResolverCache(groupID, tenantId);
         try {
             if (isUniqueGroupIdEnabled()) {
-                doUpdateGroupName(groupID, newGroupName);
+                doUpdateGroupNameByGroupId(groupID, newGroupName);
             } else {
-                doUpdateRoleName(userStore.getDomainFreeGroupName(), newUserStore.getDomainFreeGroupName());
+                doUpdateGroupName(userStore.getDomainFreeGroupName(), newUserStore.getDomainFreeGroupName());
             }
         } catch (UserStoreException e) {
             // Add the deleted mapping back to the cache and the DB.

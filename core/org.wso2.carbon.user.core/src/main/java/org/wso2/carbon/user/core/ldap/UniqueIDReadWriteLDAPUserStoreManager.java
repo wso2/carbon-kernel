@@ -1476,7 +1476,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     }
 
     @Override
-    public void doUpdateGroupName(String groupId, String groupName) throws UserStoreException {
+    public void doUpdateGroupNameByGroupId(String groupId, String newGroupName) throws UserStoreException {
 
         if (!isUniqueGroupIdEnabled()) {
             throw new UserStoreException("Group ID is not supported for userstore: " + getMyDomainName());
@@ -1484,7 +1484,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         if (StringUtils.isBlank(groupId)) {
             throw new UserStoreException(ERROR_EMPTY_GROUP_ID.getMessage());
         }
-        if (StringUtils.isBlank(groupName)) {
+        if (StringUtils.isBlank(newGroupName)) {
             throw new UserStoreException(ERROR_EMPTY_GROUP_NAME.getMessage());
         }
         String oldGroupName = doGetGroupNameFromGroupId(groupId);
@@ -1492,7 +1492,8 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             throw new UserStoreException(
                     String.format(ERROR_NO_GROUP_FOUND_WITH_ID.getMessage(), groupId, tenantDomain));
         }
-        doUpdateRoleName(UserCoreUtil.removeDomainFromName(oldGroupName), UserCoreUtil.removeDomainFromName(groupName));
+        doUpdateRoleName(UserCoreUtil.removeDomainFromName(oldGroupName), UserCoreUtil.removeDomainFromName(
+                newGroupName));
     }
 
     @Override
@@ -1513,7 +1514,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     }
 
     @Override
-    public Group doAddGroup(String groupName, List<String> userIds, Map<String, String> claims)
+    public Group doAddGroup(String groupName, String groupId, List<String> userIds, Map<String, String> claims)
             throws UserStoreException {
 
         if (CollectionUtils.isEmpty(userIds) && !emptyRolesAllowed) {
@@ -1534,12 +1535,12 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         if (!isUniqueGroupIdEnabled()) {
             throw new UserStoreException("Group ID is not supported for userstore: " + userStoreDomain);
         }
-        persistGroup(groupName, userStoreDomain, userList.toArray(new String[0]), claims);
+        persistGroup(groupName, groupId, userStoreDomain, userList.toArray(new String[0]), claims);
         return doGetGroupFromGroupName(groupName, null);
     }
 
-    protected void persistGroup(String groupName, String domainName, String[] userList, Map<String, String> claimList)
-            throws UserStoreException {
+    protected void persistGroup(String groupName, String groupId, String domainName, String[] userList,
+                                Map<String, String> claimList) throws UserStoreException {
 
         RoleContext roleContext = createRoleContext(groupName);
         String groupEntryObjectClass = ((LDAPRoleContext) roleContext).getGroupEntryObjectClass();
@@ -1563,7 +1564,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         cnAttribute.add(groupName);
         groupAttributes.put(cnAttribute);
         // Set group attributes.
-        setGroupAttributes(groupName, groupNameAttribute, domainName, claimList, groupAttributes);
+        setGroupAttributes(groupName, groupId, groupNameAttribute, domainName, claimList, groupAttributes);
 
         try {
             if (ArrayUtils.isNotEmpty(userList)) {
@@ -1708,74 +1709,54 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         }
     }
 
-    private void setGroupAttributes(String groupName, String groupNameAttribute, String domain,
+    private void setGroupAttributes(String groupName, String groupId, String groupNameAttribute, String domain,
                                     Map<String, String> claims, Attributes basicAttributes) throws UserStoreException {
 
         String immutableAttributesProperty = Optional.ofNullable(realmConfig
                 .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse(StringUtils.EMPTY);
         String groupIDAttribute = realmConfig.getUserStoreProperty(GROUP_ID_ATTRIBUTE);
-        String userIDAttribute = realmConfig.getUserStoreProperty(USER_ID_ATTRIBUTE);
         String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
-        boolean isGroupIdImmutable = ArrayUtils.contains(immutableAttributes, groupIDAttribute);
-        boolean generateGroupUUID = true;
 
-        if (MapUtils.isNotEmpty(claims)) {
-            for (Map.Entry<String, String> entry : claims.entrySet()) {
-                if (EMPTY_ATTRIBUTE_STRING.equals(entry.getValue())) {
-                    continue;
-                }
-                String claimValue = entry.getValue();
-                String attributeName;
-                try {
-                    attributeName = getClaimAtrribute(entry.getKey(), groupName, null);
-                    if (StringUtils.isBlank(attributeName)) {
-                        continue;
-                    }
-                } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                    throw new UserStoreException("Error in obtaining claim mapping for userstore: " + domain, e);
-                }
-                if (groupNameAttribute.equals(attributeName)) {
-                    // CN is added separately.
-                    continue;
-                }
-                // Skip in case of immutable attribute passing via the claim map.
-                if (ArrayUtils.contains(immutableAttributes, attributeName)) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Skipped Immutable attribute: " + attributeName);
-                    }
-                    continue;
-                }
-                // We only get mutable attributes here.
-                // Here we have to compare the attribute name with the user id since we are using the same attribute
-                // for group uuid.
-                if (userIDAttribute.equals(attributeName)) {
-                    if (isGroupIdImmutable) {
-                        continue;
-                    }
-                    if (StringUtils.isNotBlank(claimValue)) {
-                        // No need to generate a uuid as it is present in the claim map.
-                        generateGroupUUID = false;
-                        BasicAttribute claim = new BasicAttribute(groupIDAttribute);
-                        claim.add(claimValue);
-                        basicAttributes.put(claim);
-                        continue;
-                    }
-                }
-                BasicAttribute claim = new BasicAttribute(attributeName);
-                claim.add(claimValue);
-                basicAttributes.put(claim);
-            }
+        // If the group id is immutable, we should not generate a new uuid.
+        if (ArrayUtils.contains(immutableAttributes, groupIDAttribute)) {
+            log.debug(String.format("Group id for userstore: %s is immutable. Skipping already generated group " +
+                    "id: %s for group: %s", domain, groupId, groupName));
+        } else {
+            BasicAttribute claim = new BasicAttribute(groupIDAttribute);
+            claim.add(groupId);
+            basicAttributes.put(claim);
         }
-        if (isGroupIdImmutable) {
+        if (MapUtils.isEmpty(claims)) {
             return;
         }
-        if (generateGroupUUID) {
-            String uuid = UUID.randomUUID().toString();
-            if (log.isDebugEnabled()) {
-                log.debug(String.format("Generated group UUID: %s for group: %s", uuid, groupName));
+        for (Map.Entry<String, String> entry : claims.entrySet()) {
+            if (EMPTY_ATTRIBUTE_STRING.equals(entry.getValue())) {
+                continue;
             }
-            BasicAttribute claim = new BasicAttribute(groupIDAttribute);
-            claim.add(uuid);
+            String claimValue = entry.getValue();
+            String attributeName;
+            try {
+                attributeName = getClaimAtrribute(entry.getKey(), groupName, null);
+                if (StringUtils.isBlank(attributeName)) {
+                    continue;
+                }
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                throw new UserStoreException("Error in obtaining claim mapping for userstore: " + domain, e);
+            }
+            if (groupNameAttribute.equals(attributeName) || groupIDAttribute.equals(attributeName)) {
+                // CN is added separately.
+                continue;
+            }
+            // Skip in case of immutable attribute passing via the claim map.
+            if (ArrayUtils.contains(immutableAttributes, attributeName)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Skipped Immutable attribute: " + attributeName);
+                }
+                continue;
+            }
+            // We only get mutable attributes here.
+            BasicAttribute claim = new BasicAttribute(attributeName);
+            claim.add(claimValue);
             basicAttributes.put(claim);
         }
     }
