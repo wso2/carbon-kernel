@@ -17598,7 +17598,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             handleRenameGroupFailure(errorCode, errorMessage, groupID, newGroupName);
             throw new UserStoreClientException(errorMessage, errorCode);
         }
-        String currentGroupName = UserCoreUtil.removeDomainFromName(doGetGroupNameFromGroupId(groupID));
+        String currentGroupName = UserCoreUtil.removeDomainFromName(getGroupNameByGroupId(groupID));
         // When the existing group name is same as the new group name, we do not fail the operation.
         if (!StringUtils.equalsIgnoreCase(currentGroupName, newGroupName) &&
                 doCheckExistingGroupName(newGroupName)) {
@@ -17636,7 +17636,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (isUniqueGroupIdEnabled()) {
                 doUpdateGroupNameByGroupId(groupID, newGroupName);
             } else {
-                doUpdateGroupName(userStore.getDomainFreeGroupName(), newUserStore.getDomainFreeGroupName());
+                // Current group name does not have the domain here.
+                doUpdateGroupName(currentGroupName, newUserStore.getDomainFreeGroupName());
             }
         } catch (UserStoreException e) {
             // Add the deleted mapping back to the cache and the DB.
