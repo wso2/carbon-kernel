@@ -545,6 +545,28 @@ public class JDBCRealmUtil {
                     .GET_USERS_ROLE_SQL_CASE_INSENSITIVE);
         }
 
+        if (!properties.containsKey(JDBCRealmConstants.GET_GROUP_ID_FROM_GROUP_NAME)) {
+            properties.put(JDBCRealmConstants.GET_GROUP_ID_FROM_GROUP_NAME,
+                    JDBCRealmConstants.GET_GROUP_ID_FROM_GROUP_NAME_SQL);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.GET_GROUP_NAME_FROM_GROUP_ID)) {
+            properties.put(JDBCRealmConstants.GET_GROUP_NAME_FROM_GROUP_ID,
+                    JDBCRealmConstants.GET_GROUP_NAME_FROM_GROUP_ID_SQL);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.GET_GROUP_FROM_GROUP_NAME)) {
+            properties.put(JDBCRealmConstants.GET_GROUP_FROM_GROUP_NAME,
+                    JDBCRealmConstants.GET_GROUP_FROM_GROUP_NAME_SQL);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.GET_GROUP_FROM_GROUP_ID)) {
+            properties.put(JDBCRealmConstants.GET_GROUP_FROM_GROUP_ID, JDBCRealmConstants.GET_GROUP_FROM_GROUP_ID_SQL);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.ADD_GROUP)) {
+            properties.put(JDBCRealmConstants.ADD_GROUP, JDBCRealmConstants.ADD_GROUP_SQL);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.UPDATE_GROUP_NAME)) {
+            properties.put(JDBCRealmConstants.UPDATE_GROUP_NAME, JDBCRealmConstants.UPDATE_GROUP_NAME_SQL);
+        }
+
         //openedge
         if (!properties.containsKey(JDBCRealmConstants.ADD_USER_TO_ROLE_OPENEDGE)) {
             properties.put(JDBCRealmConstants.ADD_USER_TO_ROLE_OPENEDGE,

@@ -223,7 +223,7 @@ public class GroupUniqueIDDomainResolver {
                 }
                 if (!domainInDb.equals(userstoreDomain)) {
                     throw new UserStoreClientException(
-                            String.format("Provided domain group id: %s name: %s does not match " +
+                            String.format("Provided domain for group id: %s name: %s does not match " +
                                             "with the domain name in the database: %s in tenant: %s", groupId, userstoreDomain,
                                     domainInDb, tenantId));
                 }
