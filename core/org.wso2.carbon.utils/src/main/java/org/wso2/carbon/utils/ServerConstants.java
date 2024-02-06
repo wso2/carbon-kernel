@@ -155,6 +155,12 @@ public final class ServerConstants {
     public static final String STS_NAME = "wso2carbon-sts";
     public static final String DEFAULT_PASSWORD_VALIDITY_PERIOD = "DefaultPasswordValidityPeriod";
 
+    // crypto provider related constants
+    public static final String BOUNCY_CASTLE_PROVIDER_IDENTIFIER = "BC";
+    public static final String BOUNCY_CASTLE_PROVIDER_CLASS = "org.bouncycastle.jce.provider.BouncyCastleProvider";
+    public static final String BOUNCY_CASTLE_FIPS_PROVIDER_IDENTIFIER = "BCFIPS";
+    public static final String BOUNCY_CASTLE_FIPS_PROVIDER_CLASS = "org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider";
+    public static final String JCE_PROVIDER_PARAMETER = "security.jce.provider";
 
     public static class Axis2ParameterNames {
         public static final String CONTEXT_ROOT = "contextRoot";

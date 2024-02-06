@@ -17,14 +17,15 @@ package org.wso2.carbon.core.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.io.File;
 import java.lang.management.ManagementPermission;
+import java.security.Provider;
 import java.security.Security;
 
 /**
@@ -69,13 +70,43 @@ public class CarbonCoreActivator implements BundleActivator {
                  System.getProperty("user.language") + "-" + System.getProperty("user.country") +
                  ", " + System.getProperty("user.timezone"));
 
-        Security.addProvider(new BouncyCastleProvider());
+        String cryptoProviderIdentifier = getPreferredJceProviderIdentifier();
+        String cryptoProviderClass = getPreferredJceProviderClass(cryptoProviderIdentifier);
+        Security.addProvider((Provider) Class.forName(cryptoProviderClass).getDeclaredConstructor().newInstance());
         if(log.isDebugEnabled()){
-            log.debug("BouncyCastle security provider is successfully registered in JVM.");
+            log.debug(cryptoProviderClass + " security provider is successfully registered in JVM.");
         }
     }
 
     public void stop(BundleContext context) throws Exception {
         dataHolder.setBundleContext(null);
+    }
+
+    /**
+     * This method returns the preferred JCE provider identifier to be used.
+     *
+     * @return jce provider identifier name
+     */
+    private static String getPreferredJceProviderIdentifier() {
+        String provider = System.getProperty(ServerConstants.JCE_PROVIDER_PARAMETER);
+        if (ServerConstants.BOUNCY_CASTLE_FIPS_PROVIDER_IDENTIFIER.equalsIgnoreCase(provider)) {
+            return ServerConstants.BOUNCY_CASTLE_FIPS_PROVIDER_IDENTIFIER;
+        }
+        return ServerConstants.BOUNCY_CASTLE_PROVIDER_IDENTIFIER;
+    }
+
+    /**
+     * This method returns the preferred JCE provider class to be used.
+     *
+     * @return jce provider identifier name
+     */
+    private static String getPreferredJceProviderClass(String providerIdentifier) {
+        if (ServerConstants.BOUNCY_CASTLE_PROVIDER_IDENTIFIER.equalsIgnoreCase(providerIdentifier)) {
+            return ServerConstants.BOUNCY_CASTLE_PROVIDER_CLASS;
+        } else if (ServerConstants.BOUNCY_CASTLE_FIPS_PROVIDER_IDENTIFIER.equalsIgnoreCase(providerIdentifier)) {
+            return ServerConstants.BOUNCY_CASTLE_FIPS_PROVIDER_CLASS;
+        } else {
+            throw new IllegalArgumentException("Unsupported JCE provider: " + providerIdentifier);
+        }
     }
 }
