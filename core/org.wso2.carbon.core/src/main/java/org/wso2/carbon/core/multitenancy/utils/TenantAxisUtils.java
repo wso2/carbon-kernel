@@ -58,6 +58,7 @@ import org.wso2.carbon.core.util.Utils;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.user.core.tenant.TenantManager;
+import org.wso2.carbon.user.core.util.DatasourceDataHolder;
 import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ServerConstants;
@@ -72,6 +73,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import static org.wso2.carbon.CarbonConstants.EAGER_LOADING;
+
 /**
  * Utility methods for Tenant Operations at Axis2-level.
  */
@@ -81,6 +84,7 @@ public final class TenantAxisUtils {
     private static final Log log = LogFactory.getLog(TenantAxisUtils.class);
     private static final String TENANT_CONFIGURATION_CONTEXTS = "tenant.config.contexts";
     private static final String TENANT_CONFIGURATION_CONTEXTS_CREATED = "tenant.config.contexts.created";
+    private static final String ILLEGAL_CHARACTERS_FOR_TENANT_DOMAIN = ".*[^a-z0-9\\._\\-].*";
     private static CarbonCoreDataHolder dataHolder = CarbonCoreDataHolder.getInstance();
     private static Map<String, ReentrantReadWriteLock> tenantReadWriteLocks =
             new ConcurrentHashMap<String, ReentrantReadWriteLock>();
@@ -119,6 +123,12 @@ public final class TenantAxisUtils {
         ConfigurationContext tenantConfigCtx;
 
         Boolean isTenantActive;
+        if (tenantDomain != null && tenantDomain.matches(ILLEGAL_CHARACTERS_FOR_TENANT_DOMAIN)) {
+            String errorMsg = "The tenant domain ' " + tenantDomain +
+                    " ' contains one or more illegal characters. The valid characters are " +
+                    "lowercase letters, numbers, '.', '-' and '_'.";
+            throw new RuntimeException(errorMsg);
+        }
         try {
             isTenantActive = CarbonCoreDataHolder.getInstance().getRealmService().getTenantManager().
                     isTenantActive(getTenantId(tenantDomain));
@@ -440,6 +450,11 @@ public final class TenantAxisUtils {
             String tenantDomain = entry.getKey();
             synchronized (tenantDomain.intern()) {
                 ConfigurationContext tenantCfgCtx = entry.getValue();
+                // Get the Eager Loading tenant property from the tenant configuration context
+                Object eagerLoadingTenant = tenantCfgCtx.getProperty(EAGER_LOADING);
+                if (eagerLoadingTenant != null && (boolean) eagerLoadingTenant) {
+                    continue;
+                }
                 Long lastAccessed =
                         (Long) tenantCfgCtx.getProperty(MultitenantConstants.LAST_ACCESSED);
                 if (System.currentTimeMillis() - lastAccessed >= tenantIdleTimeMillis) {
@@ -466,6 +481,10 @@ public final class TenantAxisUtils {
                                     }
                                 }
                                 tenantConfigContexts.remove(tenantDomain);
+                                // removing cached datasources of the domain
+                                DatasourceDataHolder.removeDatasourcesOfTenant(getTenantId(tenantDomain));
+                            } catch (Exception e) {
+                                log.error("Error occurred while fetching the tenant details");
                             } finally {
                                 PrivilegedCarbonContext.endTenantFlow();
                             }

@@ -33,9 +33,15 @@ import javax.management.Query;
 import javax.management.QueryExp;
 import java.io.File;
 import java.lang.management.ManagementPermission;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Class for handling Server management functionalilty.
@@ -75,13 +81,44 @@ public class ServerManagement {
             secMan.checkPermission(new ManagementPermission("control"));
         }
         log.info("Starting to switch to maintenance mode...");
+        stopTransportListeners();
+        destroyTransportListeners();
+        waitForRequestCompletion();
+    }
+
+    /**
+     * Stop Transport Listeners asynchronously and wait for the completion of the tasks
+     */
+    private void stopTransportListeners() {
+        ExecutorService transportListenerShutdownPool = Executors.newFixedThreadPool(inTransports.size());
+        List<Future<Void>> listenerShutdownFutures = new ArrayList<>();
         for (TransportInDescription tinDesc : inTransports.values()) {
             TransportListener transport = tinDesc.getReceiver();
-            transport.stop();
+            Future<Void> future = transportListenerShutdownPool.submit(new TransportListenerShutdownTask(transport));
+            listenerShutdownFutures.add(future);
         }
-        log.info("Stopped all transport listeners");
 
-        waitForRequestCompletion();
+        // Wait until shutting down the transport listeners before proceeding
+        for (Future<Void> future : listenerShutdownFutures) {
+            try {
+                future.get();
+            } catch (Exception e) {
+                log.error("Error while completing transport listener shutdown", e);
+            }
+        }
+        transportListenerShutdownPool.shutdown();
+        log.info("Stopped all transport listeners");
+    }
+
+    /**
+     * Destroy Transport Listeners
+     */
+    private void destroyTransportListeners() {
+        // Destroy the TransportListener at the end to clear up resources
+        for (TransportInDescription tinDesc : inTransports.values()) {
+            TransportListener transport = tinDesc.getReceiver();
+            transport.destroy();
+        }
     }
 
     /**
@@ -263,5 +300,25 @@ public class ServerManagement {
             transport.start();
         }
         log.info("Switched to normal mode");
+    }
+
+    /**
+     * Callable task to pause and shutdown a transport listener
+     */
+    private class TransportListenerShutdownTask implements Callable<Void> {
+        private TransportListener transport;
+
+        public TransportListenerShutdownTask(TransportListener transport) {
+            this.transport = transport;
+        }
+
+        public Void call() throws Exception {
+            try {
+                transport.stop();
+            } catch (Exception e) {
+                log.error("Error while stopping Transport Listener", e);
+            }
+            return null;
+        }
     }
 }

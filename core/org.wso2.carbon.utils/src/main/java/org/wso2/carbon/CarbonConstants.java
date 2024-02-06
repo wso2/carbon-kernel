@@ -242,6 +242,8 @@ public final class CarbonConstants {
     public static final String PROTOCOL = "protocol";
     public static final String DESCRIPTION = "description";
 
+    public static final String EAGER_LOADING = "EAGER_LOADING_TENANT";
+
     public static final String ADMIN_SERVICE_PARAM_NAME = "adminService";
     public static final String HIDDEN_SERVICE_PARAM_NAME = "hiddenService";
     public static final String DYNAMIC_SERVICE_PARAM_NAME = "dynamicService";
