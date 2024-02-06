@@ -79,7 +79,7 @@ public class JDBCTenantManager implements TenantManager {
     protected TenantCache tenantCacheManager = TenantCache.getInstance();
     DataSource dataSource;
     private static Boolean tenantUniqueIdColumnAvailable;
-    private static Boolean orgUUIDColumnAvailable;
+    private static Boolean orgUUIDColumnAvailable = false;
     private static final String DB2 = "db2";
     private static final String MSSQL = "mssql";
     private static final String ORACLE = "oracle";
@@ -521,6 +521,9 @@ public class JDBCTenantManager implements TenantManager {
         try {
             dbConnection = getDBConnection();
             String sqlStmt = TenantConstants.GET_ALL_TENANTS_SQL;
+            if (isOrgUUIDColumnAvailable()) {
+                sqlStmt = TenantConstants.GET_ALL_TENANTS_EXCEPT_ORGANIZATIONS_SQL;
+            }
             prepStmt = dbConnection.prepareStatement(sqlStmt);
 
             result = prepStmt.executeQuery();
@@ -1416,7 +1419,7 @@ public class JDBCTenantManager implements TenantManager {
 
     private boolean isOrgUUIDColumnAvailable() throws UserStoreException {
 
-        if (orgUUIDColumnAvailable == null) {
+        if (!orgUUIDColumnAvailable) {
             orgUUIDColumnAvailable =  checkOrgUUIDColumnInTable();
         }
         return orgUUIDColumnAvailable;
