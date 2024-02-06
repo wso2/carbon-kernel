@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
- ~ Copyright (c) WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ ~ Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com).
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
  ~ you may not use this file except in compliance with the License.
@@ -25,28 +25,43 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.logging</artifactId>
+    <artifactId>org.wso2.carbon.logging.correlation</artifactId>
     <packaging>bundle</packaging>
-    <name>WSO2 Carbon - Logging</name>
-    <description>Logging core component for Carbon</description>
+    <name>WSO2 Carbon - Correlation Logging</name>
+    <description>Correlation logging component for Carbon</description>
     <url>http://wso2.org</url>
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.log4j.wso2</groupId>
-            <artifactId>log4j</artifactId>
+            <groupId>org.eclipse.platform</groupId>
+            <artifactId>org.eclipse.osgi</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.org.ops4j.pax.logging</groupId>
-            <artifactId>pax-logging-api</artifactId>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.component.annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.annotation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.metatype.annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.bootstrap</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.platform</groupId>
-            <artifactId>org.eclipse.osgi</artifactId>
+            <artifactId>org.wso2.carbon.utils</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
@@ -60,19 +75,12 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
-                        <Bundle-Activator>org.wso2.carbon.logging.appenders.internal.CarbonLoggingActivator
-                        </Bundle-Activator>
                         <Export-Package>
-                            org.apache.log4j.*;-split-package:=merge-last,
-                            org.apache.commons.logging.*; version="${version.commons.logging}",
-                            !org.wso2.carbon.logging.appenders.internal,
-                            org.wso2.carbon.logging.*,
+                            !org.wso2.carbon.logging.correlation.internal.*,
+                            org.wso2.carbon.logging.correlation.*,
                         </Export-Package>
                         <Import-Package>
-                            !org.apache.log4j.*,
-                            !org.apache.commons.logging.*,
-                            !org.wso2.carbon.logging.*,
-                            *;resolution:=optional
+                            *;resolution:=optional,
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>

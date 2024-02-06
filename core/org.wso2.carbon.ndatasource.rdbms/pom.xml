@@ -65,6 +65,10 @@
             <artifactId>istack-commons-runtime</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.logging.correlation</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -83,6 +87,7 @@
                             *;resolution:=optional
                         </Import-Package>
                         <Export-Package>
+                            !org.wso2.carbon.ndatasource.rdbms.internal.*,
                             org.wso2.carbon.ndatasource.rdbms.*
                         </Export-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
