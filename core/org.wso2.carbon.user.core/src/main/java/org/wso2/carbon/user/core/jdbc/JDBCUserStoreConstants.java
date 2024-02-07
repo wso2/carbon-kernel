@@ -68,11 +68,6 @@ public class JDBCUserStoreConstants {
                 new Property[] { CONNECTION.getProperty(), PASSWORD.getProperty(), TRUE.getProperty() });
         setMandatoryProperty(JDBCRealmConstants.DRIVER_NAME, "Driver Name", "", "Full qualified driver name", false,
                 new Property[] { CONNECTION.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        // Group Id Related Userstore Configuration. - By default this will be disabled.
-        setMandatoryProperty(UserStoreConfigConstants.GROUP_ID_ENABLED,
-                UserStoreConfigConstants.GROUP_ID_ENABLED_DISPLAY_NAME, Boolean.toString(true),
-                UserStoreConfigConstants.GROUP_ID_ENABLED_DESCRIPTION, false,
-                new Property[]{GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty()});
 
         //set optional properties
         setProperty(UserStoreConfigConstants.disabled, "Disabled", "false",
@@ -165,6 +160,9 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(UserStoreConfigConstants.maxRoleNameListLength, "Maximum Group List Length", "100",
                 UserStoreConfigConstants.maxRoleNameListLengthDescription,
                 new Property[] { GROUP.getProperty(), NUMBER.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(UserStoreConfigConstants.GROUP_ID_ENABLED, UserStoreConfigConstants.GROUP_ID_ENABLED_DISPLAY_NAME, Boolean.toString(true),
+                UserStoreConfigConstants.GROUP_ID_ENABLED_DESCRIPTION,
+                new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
 
         setAdvancedProperty(UserStoreConfigConstants.userRolesCacheEnabled, "Enable User Group Cache", "true",
                 UserStoreConfigConstants.userRolesCacheEnabledDescription,

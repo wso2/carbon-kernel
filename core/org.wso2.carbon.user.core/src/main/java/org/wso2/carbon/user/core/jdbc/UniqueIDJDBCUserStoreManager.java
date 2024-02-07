@@ -3486,55 +3486,46 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     @Override
     public String doGetGroupIdFromGroupName(String groupName) throws UserStoreException {
 
-        Connection dbConnection = null;
-        String sqlStmt;
-        PreparedStatement prepStmt = null;
-        ResultSet rs = null;
+        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_GROUP_ID_FROM_GROUP_NAME);
 
-        try {
-            dbConnection = getDBConnection();
-            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_GROUP_ID_FROM_GROUP_NAME);
-            prepStmt = dbConnection.prepareStatement(sqlStmt);
+        try (Connection dbConnection = getDBConnection();
+             PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
+
             prepStmt.setString(1, groupName);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                 prepStmt.setInt(2, tenantId);
             }
-            rs = prepStmt.executeQuery();
-            if (rs.next()) {
-                return rs.getString(1);
+            try (ResultSet resultSet =  prepStmt.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getString(1);
+                }
+                return null;
             }
-            return null;
         } catch (SQLException e) {
             String msg = "Error occurred while retrieving group id for group : " + groupName;
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
             }
             throw new UserStoreException(msg, e);
-        } finally {
-            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
     }
 
     @Override
     public String doGetGroupNameFromGroupId(String groupId) throws UserStoreException {
 
-        Connection dbConnection = null;
-        String sqlStmt;
-        PreparedStatement prepStmt = null;
-        ResultSet rs = null;
         String groupName = "";
+        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_GROUP_NAME_FROM_GROUP_ID);
 
-        try {
-            dbConnection = getDBConnection();
-            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_GROUP_NAME_FROM_GROUP_ID);
-            prepStmt = dbConnection.prepareStatement(sqlStmt);
+        try (Connection dbConnection = getDBConnection();
+             PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
             prepStmt.setString(1, groupId);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                 prepStmt.setInt(2, tenantId);
             }
-            rs = prepStmt.executeQuery();
-            if (rs.next()) {
-                groupName = rs.getString(1);
+            try (ResultSet resultSet =  prepStmt.executeQuery()) {
+                if (resultSet.next()) {
+                    groupName = resultSet.getString(1);
+                }
             }
         } catch (SQLException e) {
             String msg = "Error occurred while retrieving group name for group with ID: " + groupId;
@@ -3542,14 +3533,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 log.debug(msg, e);
             }
             throw new UserStoreException(msg, e);
-        } finally {
-            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
-        if (!realmConfig.isPrimary()) {
-            groupName = StringUtils.isBlank(groupName) ? null :
-                    getMyDomainName() + UserCoreConstants.DOMAIN_SEPARATOR + groupName;
-        }
-        return groupName;
+        String groupNameWithDomain = UserCoreUtil.addDomainToName(groupName, getMyDomainName());
+        return groupNameWithDomain;
     }
 
     @Override
@@ -3557,29 +3543,25 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             throws UserStoreException {
 
         Group group = new Group();
-        Connection dbConnection = null;
-        String sqlStmt;
-        PreparedStatement prepStmt = null;
-        ResultSet rs = null;
+        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_GROUP_FROM_GROUP_NAME);
         String groupId = "";
         String createdTime = "";
         String lastModified = "";
 
-        try {
-            dbConnection = getDBConnection();
-            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_GROUP_FROM_GROUP_NAME);
-            prepStmt = dbConnection.prepareStatement(sqlStmt);
+        try (Connection dbConnection = getDBConnection();
+             PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
             prepStmt.setString(1, groupName);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                 prepStmt.setInt(2, tenantId);
             }
-            rs = prepStmt.executeQuery();
-            if (rs.next()) {
-                groupId =  rs.getString(1);
-                createdTime = rs.getTimestamp(2, calendar).
-                        toLocalDateTime().format(DateTimeFormatter.ISO_DATE_TIME);
-                lastModified = rs.getTimestamp(3, calendar).
-                        toLocalDateTime().format(DateTimeFormatter.ISO_DATE_TIME);
+            try (ResultSet resultSet =  prepStmt.executeQuery()) {
+                if (resultSet.next()) {
+                    groupId = resultSet.getString(1);
+                    createdTime = resultSet.getTimestamp(2, calendar).
+                            toLocalDateTime().format(DateTimeFormatter.ISO_DATE_TIME);
+                    lastModified = resultSet.getTimestamp(3, calendar).
+                            toLocalDateTime().format(DateTimeFormatter.ISO_DATE_TIME);
+                }
             }
         } catch (SQLException e) {
             String msg = "Error occurred while retrieving group id for group : " + groupName;
@@ -3587,14 +3569,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 log.debug(msg, e);
             }
             throw new UserStoreException(msg, e);
-        } finally {
-            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
-        if (!realmConfig.isPrimary()) {
-            groupName = StringUtils.isBlank(groupName) ? null :
-                    getMyDomainName() + UserCoreConstants.DOMAIN_SEPARATOR + groupName;
-        }
-        group.setGroupName(groupName);
+        String groupNameWithDomain = UserCoreUtil.addDomainToName(groupName, getMyDomainName());
+        group.setGroupName(groupNameWithDomain);
         group.setGroupID(groupId);
         group.setUserStoreDomain(getMyDomainName());
         group.setTenantDomain(getTenantDomain(tenantId));
@@ -3608,29 +3585,25 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             throws UserStoreException {
 
         Group group = new Group();
-        String sqlStmt;
-        Connection dbConnection = null;
-        PreparedStatement prepStmt = null;
-        ResultSet rs = null;
+        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_GROUP_FROM_GROUP_ID);
         String groupName = "";
         String createdTime = "";
         String lastModified = "";
 
-        try {
-            dbConnection = getDBConnection();
-            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_GROUP_FROM_GROUP_ID);
-            prepStmt = dbConnection.prepareStatement(sqlStmt);
+        try (Connection dbConnection = getDBConnection();
+             PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
             prepStmt.setString(1, groupId);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                 prepStmt.setInt(2, tenantId);
             }
-            rs = prepStmt.executeQuery();
-            if (rs.next()) {
-                groupName =  rs.getString(1);
-                createdTime = rs.getTimestamp(2, calendar).
-                        toLocalDateTime().format(DateTimeFormatter.ISO_DATE_TIME);
-                lastModified = rs.getTimestamp(3, calendar).
-                        toLocalDateTime().format(DateTimeFormatter.ISO_DATE_TIME);
+            try (ResultSet resultSet =  prepStmt.executeQuery()) {
+                if (resultSet.next()) {
+                    groupName = resultSet.getString(1);
+                    createdTime = resultSet.getTimestamp(2, calendar).
+                            toLocalDateTime().format(DateTimeFormatter.ISO_DATE_TIME);
+                    lastModified = resultSet.getTimestamp(3, calendar).
+                            toLocalDateTime().format(DateTimeFormatter.ISO_DATE_TIME);
+                }
             }
         } catch (SQLException e) {
             String msg = "Error occurred while retrieving group id for group : " + groupName;
@@ -3638,14 +3611,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 log.debug(msg, e);
             }
             throw new UserStoreException(msg, e);
-        } finally {
-            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
-        if (!realmConfig.isPrimary()) {
-            groupName = StringUtils.isBlank(groupName) ? null :
-                    getMyDomainName() + UserCoreConstants.DOMAIN_SEPARATOR + groupName;
-        }
-        group.setGroupName(groupName);
+        String groupNameWithDomain = UserCoreUtil.addDomainToName(groupName, getMyDomainName());
+        group.setGroupName(groupNameWithDomain);
         group.setGroupID(groupId);
         group.setUserStoreDomain(getMyDomainName());
         group.setTenantDomain(getTenantDomain(tenantId));
@@ -3696,11 +3664,11 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
             if (userIds != null) {
                 String[] userIdList = userIds.toArray(new String[0]);
-                // add group to user
+                // Add group to the users.
                 String type = DatabaseCreator.getDatabaseType(dbConnection);
                 String sqlStmt2 = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_USER_TO_ROLE_WITH_ID + "-" + type);
 
-                if (sqlStmt2 == null) {
+                if (StringUtils.isBlank(sqlStmt2)) {
                     sqlStmt2 = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_USER_TO_ROLE_WITH_ID);
                 }
                 if (sqlStmt2.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
@@ -3725,18 +3693,17 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
             throw new UserStoreException(msg, e);
         } catch (Exception e) {
-            String errorMessage = "Error occurred while getting database type from DB connection";
+            String errorMessage = "Error occurred while adding group : " + groupName;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
             if (e instanceof UserStoreException && ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE.getCode()
                     .equals(((UserStoreException) e).getErrorCode())) {
-                // Duplicate entry
+                // Duplicate entry.
                 throw new UserStoreException(errorMessage, ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE.getCode(), e);
-            } else {
-                // Other SQL Exceptions
-                throw new UserStoreException(errorMessage, e);
             }
+            // Other SQL Exceptions.
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
@@ -3749,26 +3716,26 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             throw new UserStoreException("Group ID is not supported for userstore: " + getMyDomainName());
         }
         if (StringUtils.isBlank(groupId)) {
-            throw new UserStoreException(ERROR_EMPTY_GROUP_ID.getMessage());
+            throw new UserStoreClientException(ERROR_EMPTY_GROUP_ID.getMessage());
         }
         if (StringUtils.isBlank(newGroupName)) {
-            throw new UserStoreException(ERROR_EMPTY_GROUP_NAME.getMessage());
+            throw new UserStoreClientException(ERROR_EMPTY_GROUP_NAME.getMessage());
         }
-        String oldGroupName = doGetGroupNameFromGroupId(groupId);
-        if (StringUtils.isBlank(oldGroupName)) {
-            throw new UserStoreException(String.format(ERROR_NO_GROUP_FOUND_WITH_ID.getMessage(), groupId,
+        String currentGroupName = doGetGroupNameFromGroupId(groupId);
+        if (StringUtils.isBlank(currentGroupName)) {
+            throw new UserStoreClientException(String.format(ERROR_NO_GROUP_FOUND_WITH_ID.getMessage(), groupId,
                     CarbonContext.getThreadLocalCarbonContext().getTenantDomain()));
         }
 
-        String domainFreeOldGroupName = UserCoreUtil.removeDomainFromName(oldGroupName);
+        String domainFreeCurrentGroupName = UserCoreUtil.removeDomainFromName(currentGroupName);
         String domainFreeNewGroupName = UserCoreUtil.removeDomainFromName(newGroupName);
-        if (!StringUtils.equalsIgnoreCase(domainFreeOldGroupName, domainFreeNewGroupName) &&
+        if (!StringUtils.equalsIgnoreCase(domainFreeCurrentGroupName, domainFreeNewGroupName) &&
                 isExistingRole(domainFreeNewGroupName)) {
             throw new UserStoreException("Role name: " + domainFreeNewGroupName
                     + " in the system. Please pick another role name.");
         }
         String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_GROUP_NAME);
-        if (sqlStmt == null) {
+        if (StringUtils.isBlank(sqlStmt)) {
             throw new UserStoreException("The sql statement for update role name is null");
         }
         Connection dbConnection = null;
