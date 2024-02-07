@@ -6030,9 +6030,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (!isReadOnly() && writeGroupsEnabled) {
             try {
                 if (isUniqueGroupIdEnabled()) {
-                    String groupID = getGroupIdByGroupName(userStore.getDomainFreeGroupName());
+                    String groupID = getGroupIdByGroupName(UserCoreUtil.removeDomainFromName(roleName));
                     clearGroupIDResolverCache(groupID, tenantId);
-                    doUpdateGroupNameByGroupId(groupID, userStore.getDomainFreeGroupName());
+                    doUpdateGroupNameByGroupId(groupID, UserCoreUtil.removeDomainFromName(newRoleName));
                     addGroupNameToGroupIdCache(groupID, newRoleName, getMyDomainName());
                 } else {
                     doUpdateRoleName(userStore.getDomainFreeName(), userStoreNew.getDomainFreeName());
@@ -17249,7 +17249,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         UserStore userStore = getUserStoreWithGroupName(groupName);
         if (userStore.isRecurssive()) {
             return ((UniqueIDUserStoreManager) userStore.getUserStoreManager())
-                    .addGroup(userStore.getDomainFreeGroupName(), UserCoreUtil.removeDomainFromNames(usersIds), claims);
+                    .addGroup(UserCoreUtil.removeDomainFromName(groupName),
+                            UserCoreUtil.removeDomainFromNames(usersIds), claims);
         }
         // #################### Domain Name Free Zone Starts Here ################################
         claims = CollectionUtils.isEmpty(claims) ? new ArrayList<>() : claims;
@@ -17785,7 +17786,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         UserStore userStore = getUserStoreWithGroupName(groupName);
         if (userStore.isRecurssive()) {
             return ((AbstractUserStoreManager) userStore.getUserStoreManager()).isGroupExistWithName(
-                    userStore.getDomainFreeGroupName());
+                    UserCoreUtil.removeDomainFromName(groupName));
         }
         // #################### Domain Name Free Zone Starts Here ################################
         return StringUtils.isNotBlank(getGroupIdByGroupName(groupName));
@@ -17866,7 +17867,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         UserStore newUserStore = getUserStoreWithGroupName(newGroupName);
         if (userStore.isRecurssive()) {
             return ((AbstractUserStoreManager) userStore.getUserStoreManager())
-                    .renameGroup(userStore.getDomainFreeGroupId(), newUserStore.getDomainFreeGroupName());
+                    .renameGroup(userStore.getDomainFreeGroupId(), UserCoreUtil.removeDomainFromName(newGroupName));
         }
         // #################### Domain Name Free Zone Starts Here ################################
         if (!isGroupNameValid(newGroupName)) {
@@ -17917,7 +17918,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 doUpdateGroupNameByGroupId(groupID, newGroupName);
             } else {
                 // Current group name does not have the domain here.
-                doUpdateGroupName(currentGroupName, newUserStore.getDomainFreeGroupName());
+                doUpdateGroupName(currentGroupName, UserCoreUtil.removeDomainFromName(newGroupName));
             }
         } catch (UserStoreException e) {
             // Add the deleted mapping back to the cache and the DB.
