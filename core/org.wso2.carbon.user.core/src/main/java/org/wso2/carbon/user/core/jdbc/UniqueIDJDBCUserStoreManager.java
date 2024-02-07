@@ -3596,6 +3596,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
         group.setGroupName(groupName);
         group.setGroupID(groupId);
+        group.setUserStoreDomain(getMyDomainName());
+        group.setTenantDomain(getTenantDomain(tenantId));
         group.setCreatedDate(createdTime);
         group.setLastModifiedDate(lastModified);
         return group;
@@ -3645,9 +3647,28 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
         group.setGroupName(groupName);
         group.setGroupID(groupId);
+        group.setUserStoreDomain(getMyDomainName());
+        group.setTenantDomain(getTenantDomain(tenantId));
         group.setCreatedDate(createdTime);
         group.setLastModifiedDate(lastModified);
         return group;
+    }
+
+    @Override
+    public List<Group> doGetGroupListOfUser(String userId, int limit, int offset, String sortBy, String sortOrder)
+            throws UserStoreException {
+
+        List<String> groupNames;
+        List<Group> groupList = new ArrayList<>();
+        groupNames = Arrays.asList(doGetExternalRoleListOfUserWithID(userId, "*"));
+        groupNames = paginateGroupsList(offset, limit, groupNames);
+        if (CollectionUtils.isNotEmpty(groupNames)) {
+            for (String groupName : groupNames) {
+                Group group = doGetGroupFromGroupName(groupName, null);
+                groupList.add(group);
+            }
+        }
+        return groupList;
     }
 
     @Override
@@ -4309,5 +4330,84 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         } catch (Exception e) {
             throw new UserStoreException("Error while retrieving the DB type. ", e);
         }
+    }
+
+    /**
+     * Paginate a group list.
+     *
+     * @param givenOffset Offset.
+     * @param givenLimit  Limit.
+     * @param groupsList  List of objects.
+     * @return Paginated list of groups.
+     */
+    private List<String> paginateGroupsList(int givenOffset, int givenLimit, List<String> groupsList) {
+
+        if (CollectionUtils.isEmpty(groupsList)) {
+            groupsList = new ArrayList<>();
+        }
+        // Resolve with the default values.
+        int startIndex = resolveListOffset(givenOffset);
+        int resolvedLimit = resolveGroupListLimit(givenLimit);
+        int numberOfResults = groupsList.size();
+
+        // We cannot return more than the available results. Therefore, max would be the available results.
+        if (numberOfResults < resolvedLimit) {
+            resolvedLimit = numberOfResults;
+        }
+        // We need to subtract 1 since indexes are starting from 0.
+        int lastIndexOfTheResultsList = numberOfResults - 1;
+        // When the offset is larger the available results.
+        if (lastIndexOfTheResultsList < startIndex) {
+            return new ArrayList<>();
+        }
+        if (lastIndexOfTheResultsList == startIndex) {
+            return groupsList.subList(lastIndexOfTheResultsList, lastIndexOfTheResultsList + 1);
+        }
+        int endIndex = resolvedLimit + startIndex - 1;
+        if (lastIndexOfTheResultsList <= endIndex) {
+            // Return from the start to the end of the list.
+            return groupsList.subList(startIndex, lastIndexOfTheResultsList + 1);
+        }
+        return groupsList.subList(startIndex, endIndex + 1);
+    }
+
+    /**
+     * Calculate the array offset needed to pagination.
+     *
+     * @param givenOffset Given offset value.
+     * @return Resolved offset value.
+     */
+    private int resolveListOffset(int givenOffset) {
+
+        if (givenOffset <= 1) {
+            return 0;
+        }
+        // We need to subtract 1 since indexes are starting from 0.
+        return givenOffset - 1;
+    }
+
+    /**
+     * Resolve the given group list limit with the max configs defined for the userstore.
+     *
+     * @param givenLimit Given user list limit.
+     * @return Resolved group list limit.
+     */
+    private int resolveGroupListLimit(int givenLimit) {
+
+        int definedMax;
+        try {
+            definedMax = Integer
+                    .parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_ROLE_LIST));
+        } catch (NumberFormatException e) {
+            definedMax = UserCoreConstants.MAX_USER_ROLE_LIST;
+        }
+        if (givenLimit < 0 || givenLimit > definedMax) {
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Using the userstore defined max group list limit: %s instead of given " +
+                        "limit: %s ", definedMax, givenLimit));
+            }
+            return definedMax;
+        }
+        return givenLimit;
     }
 }

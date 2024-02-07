@@ -88,6 +88,7 @@
   "user_store.date_and_time_pattern": "user_store.properties.DateAndTimePattern",
   "user_store.single_valued_attributes": "user_store.properties.SingleValuedAttributes",
   "user_store.group_id_enabled": "user_store.properties.GroupIDEnabled",
+  "user_store.group_id_enabled": "user_store.properties.GroupIDEnabled",
   "user_store.group_id_attribute": "user_store.properties.GroupIdAttribute",
   "user_store.group_modified_timestamp_attribute": "user_store.properties.GroupLastModifiedDateAttribute",
   "user_store.group_created_timestamp_attribute": "user_store.properties.GroupCreatedDateAttribute",
