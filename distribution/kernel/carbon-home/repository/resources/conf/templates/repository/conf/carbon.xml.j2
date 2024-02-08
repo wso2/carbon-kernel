@@ -529,6 +529,21 @@
             <KeyPassword>{{keystore.saml.key_password}}</KeyPassword>
         </SAMLSignKeyStore>
 
+        {% for key,keyStore in custom_keystore.items() %}
+                <{{key}}>
+                    <!-- Keystore file location-->
+                    <Location>${carbon.home}/repository/resources/security/{{keyStore.file_name}}</Location>
+                    <!-- Keystore type (JKS/PKCS12 etc.)-->
+                    <Type>{{keyStore.type}}</Type>
+                    <!-- Keystore password-->
+                    <Password>{{keyStore.password}}</Password>
+                    <!-- Private Key alias-->
+                    <KeyAlias>{{keyStore.alias}}</KeyAlias>
+                    <!-- Private Key password-->
+                    <KeyPassword>{{keyStore.key_password}}</KeyPassword>
+                </{{key}}>
+        {% endfor %}
+
         <UserStorePasswordEncryption>{{keystore.userstore_password_encryption}}</UserStorePasswordEncryption>
 
         <!--
