@@ -3490,7 +3490,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
         try (Connection dbConnection = getDBConnection();
              PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
-
             prepStmt.setString(1, groupName);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                 prepStmt.setInt(2, tenantId);
@@ -3534,8 +3533,14 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
             throw new UserStoreException(msg, e);
         }
-        String groupNameWithDomain = UserCoreUtil.addDomainToName(groupName, getMyDomainName());
-        return groupNameWithDomain;
+        if (StringUtils.isBlank(groupName)) {
+            if (log.isDebugEnabled()) {
+                log.error(String.format("No group found with id: %s in userstore: %s in tenant: %s", groupId,
+                        getMyDomainName(), tenantId));
+            }
+            return null;
+        }
+        return UserCoreUtil.addDomainToName(groupName, getMyDomainName());
     }
 
     @Override
@@ -3569,6 +3574,13 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 log.debug(msg, e);
             }
             throw new UserStoreException(msg, e);
+        }
+        if (StringUtils.isBlank(groupId)) {
+            if (log.isDebugEnabled()) {
+                log.error(String.format("No group found with id: %s in userstore: %s in tenant: %s", groupId,
+                        getMyDomainName(), tenantId));
+            }
+            return null;
         }
         String groupNameWithDomain = UserCoreUtil.addDomainToName(groupName, getMyDomainName());
         group.setGroupName(groupNameWithDomain);
@@ -3612,6 +3624,13 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
             throw new UserStoreException(msg, e);
         }
+        if (StringUtils.isBlank(groupName)) {
+            if (log.isDebugEnabled()) {
+                log.error(String.format("No group found with name: %s in userstore: %s in tenant: %s", groupName,
+                        getMyDomainName(), tenantId));
+            }
+            return null;
+        }
         String groupNameWithDomain = UserCoreUtil.addDomainToName(groupName, getMyDomainName());
         group.setGroupName(groupNameWithDomain);
         group.setGroupID(groupId);
@@ -3649,44 +3668,49 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     protected void persistGroup(String groupName, String groupId, List<String> userIds) throws UserStoreException {
 
-        Connection dbConnection = null;
-        String sqlStmt;
-
-        try {
-            dbConnection = getDBConnection();
-            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_GROUP);
-            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt, groupId, groupName, tenantId, new Date(),
-                        new Date());
-            } else {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt, groupId, groupName, new Date(), new Date());
-            }
-
-            if (userIds != null) {
-                String[] userIdList = userIds.toArray(new String[0]);
-                // Add group to the users.
-                String type = DatabaseCreator.getDatabaseType(dbConnection);
-                String sqlStmt2 = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_USER_TO_ROLE_WITH_ID + "-" + type);
-
-                if (StringUtils.isBlank(sqlStmt2)) {
-                    sqlStmt2 = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_USER_TO_ROLE_WITH_ID);
-                }
-                if (sqlStmt2.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                    if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
-                        DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, tenantId, userIdList,
-                                tenantId, groupName, tenantId);
-                    } else {
-                        DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, userIdList, tenantId,
-                                groupName, tenantId, tenantId);
-                    }
+        try (Connection dbConnection = getDBConnection()) {
+            try {
+                String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_GROUP);
+                if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                    this.updateStringValuesToDatabase(dbConnection, sqlStmt, groupId, groupName, tenantId, new Date(),
+                            new Date());
                 } else {
-                    DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, userIdList, groupName);
-                    DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, userIdList, groupName);
+                    this.updateStringValuesToDatabase(dbConnection, sqlStmt, groupId, groupName, new Date(), new Date());
                 }
+
+                if (userIds != null) {
+                    String[] userIdList = userIds.toArray(new String[0]);
+                    // Add group to the users.
+                    String type = DatabaseCreator.getDatabaseType(dbConnection);
+                    String sqlStmt2 =
+                            realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_USER_TO_ROLE_WITH_ID + "-" + type);
+
+                    if (StringUtils.isBlank(sqlStmt2)) {
+                        sqlStmt2 = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_USER_TO_ROLE_WITH_ID);
+                    }
+                    if (sqlStmt2.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                        if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
+                            DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, tenantId, userIdList,
+                                    tenantId, groupName, tenantId);
+                        } else {
+                            DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, userIdList, tenantId,
+                                    groupName, tenantId, tenantId);
+                        }
+                    } else {
+                        DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, userIdList, groupName);
+                        DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, userIdList, groupName);
+                    }
+                }
+                dbConnection.commit();
+            } catch (SQLException e) {
+                DatabaseUtil.rollBack(dbConnection);
+                String msg = "Error occurred while adding group : " + groupName;
+                if (log.isDebugEnabled()) {
+                    log.debug(msg, e);
+                }
+                throw new UserStoreException(msg, e);
             }
-            dbConnection.commit();
         } catch (SQLException e) {
-            DatabaseUtil.rollBack(dbConnection);
             String msg = "Error occurred while adding group : " + groupName;
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
@@ -3704,8 +3728,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
             // Other SQL Exceptions.
             throw new UserStoreException(errorMessage, e);
-        } finally {
-            DatabaseUtil.closeAllConnections(dbConnection);
         }
     }
 
