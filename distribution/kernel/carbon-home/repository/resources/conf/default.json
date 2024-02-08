@@ -153,6 +153,7 @@
   "admin_console.authenticator.mutual_ssl_authenticator.enable": false,
   "admin_console.authenticator.mutual_ssl_authenticator.config.UsernameHeader": "UserName",
   "admin_console.authenticator.mutual_ssl_authenticator.config.WhiteListEnabled": false,
+  "admin_console.authenticator.mutual_ssl_authenticator.config.EnableSHA256": true,
   "owasp.csrfguard.create_token_per_page": false,
   "owasp.csrfguard.token_length": "32",
   "owasp.csrfguard.random_number_generator_algo": "DRBG",
