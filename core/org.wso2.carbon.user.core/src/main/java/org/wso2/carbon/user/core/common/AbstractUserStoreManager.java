@@ -7355,8 +7355,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                                    List<String> newUserIds) throws UserStoreException {
 
         try {
-            for (GroupOperationEventListener listener : UMListenerServiceComponent
-                    .getGroupOperationEventListeners()) {
+            for (GroupOperationEventListener listener : UMListenerServiceComponent.getGroupOperationEventListeners()) {
                 if (listener instanceof AbstractGroupOperationEventListener) {
                     AbstractGroupOperationEventListener newListener = (AbstractGroupOperationEventListener) listener;
                     if (!newListener.preUpdateUserListOfGroup(groupId, deletedUserIds, newUserIds,
@@ -7391,8 +7390,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throws UserStoreException {
 
         try {
-            for (GroupOperationEventListener listener : UMListenerServiceComponent
-                    .getGroupOperationEventListeners()) {
+            for (GroupOperationEventListener listener : UMListenerServiceComponent.getGroupOperationEventListeners()) {
                 if (listener instanceof AbstractGroupOperationEventListener) {
                     AbstractGroupOperationEventListener newListener = (AbstractGroupOperationEventListener) listener;
                     if (!newListener.postUpdateUserListOfGroup(groupId, deletedUserIds, newUserIds,
