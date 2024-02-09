@@ -32,7 +32,6 @@ import javax.naming.directory.SearchControls;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_ID_ATTRIBUTE;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE;
-import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_UNSUPPORTED_GROUP_SEARCH_FILTER;
 
 /**
  * In order to perform the search on LDAP, need to generate filter query, search bases and SearchControls depends
@@ -85,11 +84,6 @@ public class LDAPSearchSpecification {
         this.realmConfig = realmConfig;
         this.searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         this.isGroupAttributeFiltering = isGroupAttributeFiltering;
-        if (expressionConditions.size() > 1) {
-            throw new UserStoreException(
-                    String.format(ERROR_UNSUPPORTED_GROUP_SEARCH_FILTER.getMessage(), "Multi attribute filtering not " +
-                            "supported for group listing"), ERROR_UNSUPPORTED_GROUP_SEARCH_FILTER.getCode());
-        }
         setLDAPSearchParamters(expressionConditions);
     }
 
