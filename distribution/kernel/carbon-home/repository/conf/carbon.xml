@@ -743,4 +743,7 @@
 
     <!-- Configure legacy identity server authorization runtime -->
     <EnableLegacyAuthzRuntime>false</EnableLegacyAuthzRuntime>
+
+    <!-- Enable/Disable the deprecation banner in the management console -->
+    <ManagementConsoleDeprecationBannerEnabled>false</ManagementConsoleDeprecationBannerEnabled>
 </Server>
