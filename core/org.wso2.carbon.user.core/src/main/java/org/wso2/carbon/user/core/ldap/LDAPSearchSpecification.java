@@ -59,6 +59,13 @@ public class LDAPSearchSpecification {
     public LDAPSearchSpecification(RealmConfiguration realmConfig, List<ExpressionCondition> expressionConditions)
             throws UserStoreException {
 
+        this(realmConfig, expressionConditions, false);
+    }
+
+    public LDAPSearchSpecification(RealmConfiguration realmConfig, List<ExpressionCondition> expressionConditions,
+                                   boolean isGroupAttributeFiltering)
+            throws UserStoreException {
+
         this.realmConfig = realmConfig;
         this.searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
@@ -74,15 +81,6 @@ public class LDAPSearchSpecification {
                 isClaimFiltering = true;
             }
         }
-        setLDAPSearchParamters(expressionConditions);
-    }
-
-    public LDAPSearchSpecification(RealmConfiguration realmConfig, List<ExpressionCondition> expressionConditions,
-                                   boolean isGroupAttributeFiltering)
-            throws UserStoreException {
-
-        this.realmConfig = realmConfig;
-        this.searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         this.isGroupAttributeFiltering = isGroupAttributeFiltering;
         setLDAPSearchParamters(expressionConditions);
     }

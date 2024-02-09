@@ -105,7 +105,6 @@ import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_LAST_MODI
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.dateAndTimePattern;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_ID;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_NAME;
-import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_SEARCH_FILTER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_NO_USER_WITH_USERNAME;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_SORTING_NOT_SUPPORTED;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_UNSUPPORTED_GROUP_SEARCH_FILTER;
@@ -1664,10 +1663,6 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             throws UserStoreException {
 
         List<ExpressionCondition> expressionConditions = getExpressionConditions(condition);
-        if (expressionConditions.isEmpty()) {
-            throw new UserStoreClientException(ERROR_EMPTY_GROUP_SEARCH_FILTER.getMessage(),
-                    ERROR_EMPTY_GROUP_SEARCH_FILTER.getCode());
-        }
         // Multi attribute filtering is not supported for groups listing.
         if (expressionConditions.size() > 1) {
             throw new UserStoreClientException(
@@ -1714,14 +1709,13 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                                                int pageSize, int offset, String sortAttribute)
             throws UserStoreException {
 
-        byte[] cookie = null;
+        byte[] cookie;
         int pageIndex = -1;
 
         String searchBases = ldapSearchSpecification.getSearchBases();
         String[] searchBaseArray = searchBases.split("#");
         String searchFilter = ldapSearchSpecification.getSearchFilterQuery();
         SearchControls searchControls = ldapSearchSpecification.getSearchControls();
-        List<String> returnedAttributes = Arrays.asList(searchControls.getReturningAttributes());
         NamingEnumeration<SearchResult> answer = null;
         List<Group> finalGroups = new ArrayList<>();
         try {
@@ -1731,13 +1725,8 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                     List<Group> tempGroupList = new ArrayList<>();
                     answer = ldapContext.search(escapeDNForSearch(searchBase), searchFilter, searchControls);
                     if (answer.hasMore()) {
-                        SearchResult searchResult = answer.next();
-                        Attributes attributes = searchResult.getAttributes();
-                        if (attributes == null) {
-                            continue;
-                        }
-                        tempGroupList.add(buildGroupFromAttributes(
-                                ldapSearchSpecification.getSearchControls().getReturningAttributes(), attributes));
+                        tempGroupList = getGroupListFromSearch(answer,
+                                ldapSearchSpecification.getSearchControls().getReturningAttributes());
                         /*
                         If the found group count is less than the page size, we need to prevent it count as a new
                         page, because a page should contain groups list which is equal to the page size (.e.g. page
@@ -1794,6 +1783,31 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             throw new UserStoreException(e.getMessage(), e);
         } finally {
             JNDIUtil.closeNamingEnumeration(answer);
+        }
+        return finalGroups;
+    }
+
+    private List<Group> getGroupListFromSearch(NamingEnumeration<SearchResult> answer,
+                                               String[] returnedAttributes) throws UserStoreException {
+
+        List<Group> finalGroups = new ArrayList<>();
+        NamingEnumeration<?> attrs = null;
+        try {
+            while (answer.hasMoreElements()) {
+                SearchResult searchResult = answer.next();
+                Attributes attributes = searchResult.getAttributes();
+                if (attributes == null) {
+                    continue;
+                }
+                finalGroups.add(buildGroupFromAttributes(returnedAttributes, attributes));
+            }
+        } catch (NamingException e) {
+            log.error(String.format("Error occurred while getting group list from non group filter. Error: %s",
+                    e.getMessage()));
+            throw new UserStoreException(e.getMessage(), e);
+        } finally {
+            // Close the naming enumeration and free up resources.
+            JNDIUtil.closeNamingEnumeration(attrs);
         }
         return finalGroups;
     }
@@ -3236,7 +3250,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                             break;
                         } else {
                             // Handle pagination depending on given offset, i.e. start index.
-                            generatePaginatedList(pageIndex, offset, pageSize, tempUsersList, users);
+                            generatePaginatedUserList(pageIndex, offset, pageSize, tempUsersList, users);
                             int needMore = pageSize - users.size();
                             if (needMore == 0) {
                                 break;
@@ -3255,7 +3269,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                         users = membershipGroupFilterPostProcessing(isUsernameFiltering, isClaimFiltering,
                                 expressionConditions, usersList);
                     } else {
-                        generatePaginatedList(pageIndex, offset, pageSize, usersList, users);
+                        generatePaginatedUserList(pageIndex, offset, pageSize, usersList, users);
                     }
                 }
             }
@@ -3594,6 +3608,21 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             }
         }
         return usersList;
+    }
+
+    /**
+     * Generate paginated user list. Since LDAP doesn't support pagination with start index.
+     *
+     * @param pageIndex    Index of the paginated page.
+     * @param offset       Start index.
+     * @param pageSize     Number of results per page which is equal to count/limit.
+     * @param tempUserList Users in the particular indexed page.
+     * @param users        Final paginated user list.
+     */
+    protected void generatePaginatedUserList(int pageIndex, int offset, int pageSize, List<User> tempUserList,
+                                             List<User> users) {
+
+        generatePaginatedList(pageIndex, offset, pageSize, tempUserList, users);
     }
 
     /**
