@@ -29,6 +29,11 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.naming.directory.SearchControls;
 
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_ID_ATTRIBUTE;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_UNSUPPORTED_GROUP_SEARCH_FILTER;
+
 /**
  * In order to perform the search on LDAP, need to generate filter query, search bases and SearchControls depends
  * on user input. This class able to generate and define required elements for LDAP search.
@@ -50,6 +55,7 @@ public class LDAPSearchSpecification {
     private boolean isMultiGroupFiltering = false;
     private boolean isMemberOfPropertyFound = false;
     private boolean isMemberShipPropertyFound = false;
+    private boolean isGroupAttributeFiltering = false;
 
     public LDAPSearchSpecification(RealmConfiguration realmConfig, List<ExpressionCondition> expressionConditions)
             throws UserStoreException {
@@ -72,6 +78,21 @@ public class LDAPSearchSpecification {
         setLDAPSearchParamters(expressionConditions);
     }
 
+    public LDAPSearchSpecification(RealmConfiguration realmConfig, List<ExpressionCondition> expressionConditions,
+                                   boolean isGroupAttributeFiltering)
+            throws UserStoreException {
+
+        this.realmConfig = realmConfig;
+        this.searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        this.isGroupAttributeFiltering = isGroupAttributeFiltering;
+        if (expressionConditions.size() > 1) {
+            throw new UserStoreException(
+                    String.format(ERROR_UNSUPPORTED_GROUP_SEARCH_FILTER.getMessage(), "Multi attribute filtering not " +
+                            "supported for group listing"), ERROR_UNSUPPORTED_GROUP_SEARCH_FILTER.getCode());
+        }
+        setLDAPSearchParamters(expressionConditions);
+    }
+
     /**
      * Set LDAP search parameters, such as define searchBases, define searchControls and generate search filter query.
      *
@@ -82,13 +103,18 @@ public class LDAPSearchSpecification {
             throws UserStoreException {
 
         List<String> returnedAttributes = new ArrayList<>();
-
         if (isGroupFiltering) {
             checkForMemberOfAttribute(expressionConditions, returnedAttributes);
             // If 'memberOf' attribute not found, go with membership attribute.
             if (!isMemberOfPropertyFound) {
                 checkForMembershipAttribute(returnedAttributes);
             }
+        } else if (isGroupAttributeFiltering) {
+            this.searchBases = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE);
+            returnedAttributes.add(realmConfig.getUserStoreProperty(GROUP_ID_ATTRIBUTE));
+            returnedAttributes.add(realmConfig.getUserStoreProperty(GROUP_CREATED_DATE_ATTRIBUTE));
+            returnedAttributes.add(realmConfig.getUserStoreProperty(GROUP_LAST_MODIFIED_DATE_ATTRIBUTE));
+            returnedAttributes.add(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE));
         } else {
             this.searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
             returnedAttributes.add(realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE));
@@ -101,8 +127,7 @@ public class LDAPSearchSpecification {
         if (CollectionUtils.isNotEmpty(returnedAttributes)) {
             this.searchControls.setReturningAttributes(returnedAttributes.toArray(new String[0]));
         }
-
-        searchFilterBuilder(isGroupFiltering, isMultiGroupFiltering, expressionConditions);
+        searchFilterBuilder(isGroupFiltering, isMultiGroupFiltering, isGroupAttributeFiltering, expressionConditions);
     }
 
     /**
@@ -166,14 +191,15 @@ public class LDAPSearchSpecification {
      * @throws UserStoreException
      */
     private void searchFilterBuilder(boolean isGroupFiltering, boolean isMultiGroupFiltering,
-                                     List<ExpressionCondition> expressionConditions) throws UserStoreException {
+                                     boolean isGroupAttributeFiltering, List<ExpressionCondition> expressionConditions)
+            throws UserStoreException {
 
         String userPropertyName = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
         String groupPropertyName = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
         String memberOfAttributeName = realmConfig.getUserStoreProperty(LDAPConstants.MEMBEROF_ATTRIBUTE);
         String memberAttributeName = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
 
-        initiateLDAPQueryBuilder(isGroupFiltering);
+        initiateLDAPQueryBuilder(isGroupFiltering, isGroupAttributeFiltering);
 
         for (ExpressionCondition expressionCondition : expressionConditions) {
             StringBuilder property;
@@ -208,10 +234,11 @@ public class LDAPSearchSpecification {
      * Initialize LDAP query builder with search category.
      *
      * @param isGroupFiltering
+     * @param isGroupAttributeFiltering Whether group attribute filtering is enabled or not.
      */
-    private void initiateLDAPQueryBuilder(boolean isGroupFiltering) {
+    private void initiateLDAPQueryBuilder(boolean isGroupFiltering, boolean isGroupAttributeFiltering) {
 
-        if (isGroupFiltering && isMemberShipPropertyFound) {
+        if ((isGroupFiltering && isMemberShipPropertyFound) || isGroupAttributeFiltering) {
             ldapFilterQueryBuilder = new LDAPFilterQueryBuilder(realmConfig.
                     getUserStoreProperty(LDAPConstants.GROUP_NAME_LIST_FILTER));
         } else {
