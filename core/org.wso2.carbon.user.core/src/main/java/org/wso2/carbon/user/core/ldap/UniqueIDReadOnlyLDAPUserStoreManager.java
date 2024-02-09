@@ -3612,6 +3612,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
 
     /**
      * Generate paginated user list. Since LDAP doesn't support pagination with start index.
+     * So we need to process the page results according to the requested start index.
      *
      * @param pageIndex    Index of the paginated page.
      * @param offset       Start index.
