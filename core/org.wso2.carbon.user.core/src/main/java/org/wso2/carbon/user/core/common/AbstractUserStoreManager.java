@@ -9940,7 +9940,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             }
                             if (!groupExist && !isReadOnly() && writeGroupsEnabled) {
                                 if (isUniqueUserIdEnabled()) {
-                                    this.doAddRoleWithID(adminRoleName, new String[] { adminUserID }, false);
+                                    if (isUniqueGroupIdEnabled()) {
+                                        List<String> members = new ArrayList<>();
+                                        members.add(adminUserID);
+                                        this.doAddGroup(adminRoleName, generateGroupUUID(), members, null);
+                                    } else {
+                                        this.doAddRoleWithID(adminRoleName, new String[]{adminUserID}, false);
+                                    }
                                 } else {
                                     this.doAddRole(adminRoleName, new String[] { adminUserName }, false);
                                 }
