@@ -35,6 +35,7 @@ import org.wso2.carbon.user.core.UserStoreClientException;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.ClaimManager;
+import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.AuthenticationResult;
 import org.wso2.carbon.user.core.common.FailureReason;
 import org.wso2.carbon.user.core.common.Group;
@@ -44,7 +45,6 @@ import org.wso2.carbon.user.core.common.RoleBreakdown;
 import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.common.UniqueIDPaginatedSearchResult;
 import org.wso2.carbon.user.core.common.User;
-import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
 import org.wso2.carbon.user.core.model.Condition;
 import org.wso2.carbon.user.core.model.ExpressionAttribute;
@@ -59,7 +59,6 @@ import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 
-import javax.sql.DataSource;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.sql.Connection;
@@ -69,7 +68,12 @@ import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.SQLTimeoutException;
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -83,15 +87,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.UUID;
+import javax.sql.DataSource;
 
 import static java.time.ZoneOffset.UTC;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_ID_ATTRIBUTE;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_ID;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_NAME;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_NO_GROUP_FOUND_WITH_ID;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_SORTING_NOT_SUPPORTED;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_UNSUPPORTED_DATE_SEARCH_FILTER;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_UNSUPPORTED_GROUP_SEARCH_FILTER;
 import static org.wso2.carbon.user.core.util.DatabaseUtil.getLoggableSqlString;
 
 public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
@@ -2231,6 +2241,77 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
     }
 
+    private void updateValuesToDatabaseWithUTCTime(Connection dbConnection, String sqlStmt, Object... params)
+            throws UserStoreException {
+
+        PreparedStatement prepStmt = null;
+        boolean localConnection = false;
+        try {
+            Instant currentInstant = Instant.now();
+            if (dbConnection == null) {
+                localConnection = true;
+                dbConnection = getDBConnection();
+            }
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            if (params != null && params.length > 0) {
+                for (int i = 0; i < params.length; i++) {
+                    Object param = params[i];
+                    if (param == null) {
+                        throw new UserStoreException("Invalid data provided");
+                    } else if (param instanceof String) {
+                        if (isStoreUserAttributeAsUnicode()) {
+                            prepStmt.setNString(i + 1, (String) param);
+                        } else {
+                            prepStmt.setString(i + 1, (String) param);
+                        }
+                    } else if (param instanceof Integer) {
+                        prepStmt.setInt(i + 1, (Integer) param);
+                    } else if (param instanceof Date) {
+                        //Convert the current date-time to UTC time with ISO Date time format.
+                        OffsetDateTime offsetDateTime = currentInstant.atOffset(ZoneOffset.UTC);
+                        LocalDateTime localDateTime = offsetDateTime.toLocalDateTime();
+                        int nanoSeconds = localDateTime.getNano();
+                        int roundedNanoSeconds = (nanoSeconds / 1000000) * 1000000;
+                        LocalDateTime formattedDateTime = localDateTime.withNano(roundedNanoSeconds);
+                        prepStmt.setTimestamp(i + 1, Timestamp.valueOf(formattedDateTime));
+                    } else if (param instanceof Boolean) {
+                        prepStmt.setBoolean(i + 1, (Boolean) param);
+                    }
+                }
+            }
+            int count = prepStmt.executeUpdate();
+
+            if (log.isDebugEnabled()) {
+                if (count == 0) {
+                    log.debug("No rows were updated");
+                }
+                log.debug("Executed query is " + sqlStmt + " and number of updated rows :: " + count);
+            }
+
+            if (localConnection) {
+                dbConnection.commit();
+            }
+        } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
+            String msg = "Error occurred while updating string values to database.";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            if (e instanceof SQLIntegrityConstraintViolationException) {
+                // Duplicate entry
+                throw new UserStoreException(msg, ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE.getCode(), e);
+            } else {
+                // Other SQL Exception
+                throw new UserStoreException(msg, e);
+            }
+        } finally {
+            if (localConnection) {
+                DatabaseUtil.closeAllConnections(dbConnection);
+            }
+            DatabaseUtil.closeAllConnections(null, prepStmt);
+        }
+    }
+
     public void addPropertyWithID(Connection dbConnection, String userID, String propertyName, String value,
             String profileName) throws UserStoreException {
 
@@ -3562,10 +3643,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             try (ResultSet resultSet =  prepStmt.executeQuery()) {
                 if (resultSet.next()) {
                     groupId = resultSet.getString(1);
-                    createdTime = resultSet.getTimestamp(2, calendar).
-                            toLocalDateTime().format(DateTimeFormatter.ISO_DATE_TIME);
-                    lastModified = resultSet.getTimestamp(3, calendar).
-                            toLocalDateTime().format(DateTimeFormatter.ISO_DATE_TIME);
+                    LocalDateTime createdLocalDateTime = LocalDateTime.parse(resultSet.getTimestamp(2)
+                            .toString().replace(' ', 'T'));
+                    createdTime = createdLocalDateTime.format(DateTimeFormatter.ISO_DATE_TIME);
+                    LocalDateTime lastModifiedLocalDateTime = LocalDateTime.parse(resultSet.getTimestamp(3)
+                            .toString().replace(' ', 'T'));
+                    lastModified = lastModifiedLocalDateTime.format(DateTimeFormatter.ISO_DATE_TIME);
                 }
             }
         } catch (SQLException e) {
@@ -3611,10 +3694,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             try (ResultSet resultSet =  prepStmt.executeQuery()) {
                 if (resultSet.next()) {
                     groupName = resultSet.getString(1);
-                    createdTime = resultSet.getTimestamp(2, calendar).
-                            toLocalDateTime().format(DateTimeFormatter.ISO_DATE_TIME);
-                    lastModified = resultSet.getTimestamp(3, calendar).
-                            toLocalDateTime().format(DateTimeFormatter.ISO_DATE_TIME);
+                    LocalDateTime createdLocalDateTime = LocalDateTime.parse(resultSet.getTimestamp(2)
+                            .toString().replace(' ', 'T'));
+                    createdTime = createdLocalDateTime.format(DateTimeFormatter.ISO_DATE_TIME);
+                    LocalDateTime lastModifiedLocalDateTime = LocalDateTime.parse(resultSet.getTimestamp(3)
+                            .toString().replace(' ', 'T'));
+                    lastModified = lastModifiedLocalDateTime.format(DateTimeFormatter.ISO_DATE_TIME);
                 }
             }
         } catch (SQLException e) {
@@ -3659,6 +3744,99 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
+    public List<Group> doListGroups(Condition condition, int limit, int offset, String sortBy, String sortOrder)
+            throws UserStoreException {
+
+        List<ExpressionCondition> expressionConditions = new ArrayList<>();
+        getExpressionConditions(condition, expressionConditions);
+
+        // Multi attribute filtering is not supported for groups listing.
+        if (expressionConditions.size() > 1) {
+            throw new UserStoreClientException(
+                    String.format(ERROR_UNSUPPORTED_GROUP_SEARCH_FILTER.getMessage(), "Multi attribute filtering not " +
+                            "supported for group listing"), ERROR_UNSUPPORTED_GROUP_SEARCH_FILTER.getCode());
+        }
+        if (StringUtils.isNotBlank(sortBy) && StringUtils.isNotBlank(sortOrder)) {
+            throw new UserStoreClientException(ERROR_SORTING_NOT_SUPPORTED.getMessage(),
+                    ERROR_SORTING_NOT_SUPPORTED.getCode());
+        }
+
+        List<Group> filteredGroups = new ArrayList<>();
+        ExpressionCondition expressionCondition = expressionConditions.get(0);
+        validateExpressionConditionForGroup(expressionCondition);
+        String attributeName = expressionCondition.getAttributeName();
+        String attributeValueForSQL = buildSearchAttributeValue(expressionCondition.getOperation(),
+                expressionCondition.getAttributeValue(), SQL_FILTER_STRING_ANY);
+
+        String sqlStmt = null;
+        Timestamp timestampValueForSQL = null;
+        switch (attributeName) {
+            case GROUP_ID_ATTRIBUTE:
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_GROUP_FILTER_WITH_GROUP_ID);
+                break;
+            case GROUP_CREATED_DATE_ATTRIBUTE:
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_GROUP_FILTER_WITH_CREATED_DATE);
+                timestampValueForSQL = getTimeStampFromString(attributeValueForSQL);
+                break;
+            case GROUP_LAST_MODIFIED_DATE_ATTRIBUTE:
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_GROUP_FILTER_WITH_LAST_MODIFIED);
+                timestampValueForSQL = getTimeStampFromString(attributeValueForSQL);
+                break;
+            default:
+                throw new UserStoreClientException(String.format(ERROR_UNSUPPORTED_GROUP_SEARCH_FILTER.getMessage(),
+                        "Unsupported attribute name: " + attributeName),
+                        ERROR_UNSUPPORTED_GROUP_SEARCH_FILTER.getCode());
+        }
+
+        try (Connection dbConnection = getDBConnection();
+             PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
+            String dbType = DatabaseCreator.getDatabaseType(dbConnection);
+            if (StringUtils.equals(GROUP_CREATED_DATE_ATTRIBUTE, attributeName) ||
+                    StringUtils.equals(GROUP_LAST_MODIFIED_DATE_ATTRIBUTE, attributeName)) {
+                if (MSSQL.equalsIgnoreCase(dbType)) {
+                    prepStmt.setString(1, attributeValueForSQL);
+                } else {
+                    prepStmt.setTimestamp(1, timestampValueForSQL);
+                }
+            } else {
+                prepStmt.setString(1, attributeValueForSQL);
+            }
+
+            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                prepStmt.setInt(2, tenantId);
+            }
+
+            try (ResultSet resultSet = prepStmt.executeQuery()) {
+                while (resultSet.next()) {
+                    Group group = new Group();
+                    String groupName = resultSet.getString(1);
+                    String groupId = resultSet.getString(2);
+                    LocalDateTime createdLocalDateTime = LocalDateTime.parse(resultSet.getTimestamp(3)
+                            .toString().replace(' ', 'T'));
+                    String createdTime = createdLocalDateTime.format(DateTimeFormatter.ISO_DATE_TIME);
+                    LocalDateTime lastModifiedLocalDateTime = LocalDateTime.parse(resultSet.getTimestamp(4)
+                            .toString().replace(' ', 'T'));
+                    String lastModified = lastModifiedLocalDateTime.format(DateTimeFormatter.ISO_DATE_TIME);
+                    group.setGroupName(UserCoreUtil.addDomainToName(groupName, getMyDomainName()));
+                    group.setGroupID(groupId);
+                    group.setUserStoreDomain(getMyDomainName());
+                    group.setTenantDomain(getTenantDomain(tenantId));
+                    group.setCreatedDate(createdTime);
+                    group.setLastModifiedDate(lastModified);
+                    filteredGroups.add(group);
+                }
+            }
+        } catch (Exception e) {
+            String msg = "Error occurred while getting the group list in tenant: " + tenantId;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        }
+        return filteredGroups;
+    }
+
+    @Override
     public Group doAddGroup(String groupName, String groupId, List<String> userIds, Map<String, String> claims)
             throws UserStoreException {
 
@@ -3672,10 +3850,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             try {
                 String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_GROUP);
                 if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                    this.updateStringValuesToDatabase(dbConnection, sqlStmt, groupId, groupName, tenantId, new Date(),
+                    this.updateValuesToDatabaseWithUTCTime(dbConnection, sqlStmt, groupId, groupName, tenantId, new Date(),
                             new Date());
                 } else {
-                    this.updateStringValuesToDatabase(dbConnection, sqlStmt, groupId, groupName, new Date(), new Date());
+                    this.updateValuesToDatabaseWithUTCTime(dbConnection, sqlStmt, groupId, groupName, new Date(), new Date());
                 }
 
                 if (userIds != null) {
@@ -3764,10 +3942,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         try {
             dbConnection = getDBConnection();
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt, domainFreeNewGroupName, new Date(), groupId,
-                        tenantId);
+                this.updateValuesToDatabaseWithUTCTime(dbConnection, sqlStmt, domainFreeNewGroupName, new Date(),
+                        groupId, tenantId);
             } else {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt, domainFreeNewGroupName, new Date(), groupId);
+                this.updateValuesToDatabaseWithUTCTime(dbConnection, sqlStmt, domainFreeNewGroupName, new Date(), groupId);
             }
             dbConnection.commit();
         } catch (SQLException e) {
@@ -4398,5 +4576,77 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             return definedMax;
         }
         return givenLimit;
+    }
+
+    /**
+     * Validate the expression condition for group filtering.
+     *
+     * @param expressionCondition Expression condition.
+     * @throws UserStoreClientException Thrown if the expression condition is invalid.
+     */
+    private void validateExpressionConditionForGroup(ExpressionCondition expressionCondition) throws
+            UserStoreClientException {
+
+        String attributeName = expressionCondition.getAttributeName();
+        String operation = expressionCondition.getOperation();
+
+        if (StringUtils.equals(attributeName, GROUP_ID_ATTRIBUTE) ||
+                StringUtils.equals(attributeName, GROUP_CREATED_DATE_ATTRIBUTE) ||
+                StringUtils.equals(attributeName, GROUP_LAST_MODIFIED_DATE_ATTRIBUTE)) {
+            if ((StringUtils.equals(attributeName, GROUP_CREATED_DATE_ATTRIBUTE) ||
+                    StringUtils.equals(attributeName, GROUP_LAST_MODIFIED_DATE_ATTRIBUTE)) &&
+                    !StringUtils.equalsIgnoreCase(operation, ExpressionOperation.EQ.toString())) {
+                throw new UserStoreClientException(String.format(ERROR_UNSUPPORTED_GROUP_SEARCH_FILTER.getMessage(),
+                        "Unsupported operation: " + operation), ERROR_UNSUPPORTED_GROUP_SEARCH_FILTER.getCode());
+            }
+        } else {
+            throw new UserStoreClientException(String.format(ERROR_UNSUPPORTED_GROUP_SEARCH_FILTER.getMessage(),
+                    "Unsupported attribute name: " + attributeName), ERROR_UNSUPPORTED_GROUP_SEARCH_FILTER.getCode());
+        }
+    }
+
+    /**
+     * Build the search value after appending the delimiters according to the attribute name to be filtered.
+     *
+     * @param filterOperation Operator value.
+     * @param attributeValue  Search value.
+     * @param delimiter       Filter delimiter based on search type.
+     * @return Search attribute.
+     */
+    private String buildSearchAttributeValue(String filterOperation, String attributeValue, String delimiter) {
+
+        String searchAttributeForSQL = null;
+        if (filterOperation.equalsIgnoreCase(ExpressionOperation.CO.toString())) {
+            searchAttributeForSQL = delimiter + attributeValue + delimiter;
+        } else if (filterOperation.equalsIgnoreCase(ExpressionOperation.SW.toString())) {
+            searchAttributeForSQL = attributeValue + delimiter;
+        } else if (filterOperation.equalsIgnoreCase(ExpressionOperation.EW.toString())) {
+            searchAttributeForSQL = delimiter + attributeValue;
+        } else if (filterOperation.equalsIgnoreCase(ExpressionOperation.EQ.toString())) {
+            searchAttributeForSQL = attributeValue;
+        }
+        return searchAttributeForSQL;
+    }
+
+    /**
+     * Build timestamp using the given date-time string.
+     *
+     * @param standardTimestamp Standard date-time string.
+     * @return Timestamp value.
+     */
+    private Timestamp getTimeStampFromString(String standardTimestamp) throws UserStoreClientException {
+
+        try {
+            LocalDateTime localDateTime = LocalDateTime.parse(standardTimestamp, DateTimeFormatter.ISO_DATE_TIME);
+            OffsetDateTime offsetDateTime = OffsetDateTime.of(localDateTime, OffsetDateTime.now().getOffset());
+            Timestamp timestampJavaTime = Timestamp.valueOf(offsetDateTime.toLocalDateTime());
+            return timestampJavaTime;
+        } catch (DateTimeParseException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Error occurred while parsing the date-time string: " + standardTimestamp, e);
+            }
+            throw new UserStoreClientException(ERROR_UNSUPPORTED_DATE_SEARCH_FILTER.getMessage(),
+                    ERROR_UNSUPPORTED_DATE_SEARCH_FILTER.getCode(), e);
+        }
     }
 }

@@ -560,6 +560,18 @@ public class JDBCRealmUtil {
         if (!properties.containsKey(JDBCRealmConstants.GET_GROUP_FROM_GROUP_ID)) {
             properties.put(JDBCRealmConstants.GET_GROUP_FROM_GROUP_ID, JDBCRealmConstants.GET_GROUP_FROM_GROUP_ID_SQL);
         }
+        if (!properties.containsKey(JDBCRealmConstants.GET_GROUP_FILTER_WITH_GROUP_ID)) {
+            properties.put(JDBCRealmConstants.GET_GROUP_FILTER_WITH_GROUP_ID,
+                    JDBCRealmConstants.GET_GROUP_FILTER_WITH_GROUP_ID_SQL);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.GET_GROUP_FILTER_WITH_CREATED_DATE)) {
+            properties.put(JDBCRealmConstants.GET_GROUP_FILTER_WITH_CREATED_DATE,
+                    JDBCRealmConstants.GET_GROUP_FILTER_WITH_CREATED_DATE_SQL);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.GET_GROUP_FILTER_WITH_LAST_MODIFIED)) {
+            properties.put(JDBCRealmConstants.GET_GROUP_FILTER_WITH_LAST_MODIFIED,
+                    JDBCRealmConstants.GET_GROUP_FILTER_WITH_LAST_MODIFIED_SQL);
+        }
         if (!properties.containsKey(JDBCRealmConstants.ADD_GROUP)) {
             properties.put(JDBCRealmConstants.ADD_GROUP, JDBCRealmConstants.ADD_GROUP_SQL);
         }

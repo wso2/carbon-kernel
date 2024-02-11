@@ -144,6 +144,9 @@ public final class JDBCRealmConstants {
     public static final String GET_GROUP_NAME_FROM_GROUP_ID = "GetGroupNameFromGroupIDSQL";
     public static final String GET_GROUP_FROM_GROUP_NAME = "GetGroupFromGroupNameSQL";
     public static final String GET_GROUP_FROM_GROUP_ID = "GetGroupFromGroupIDSQL";
+    public static final String GET_GROUP_FILTER_WITH_GROUP_ID = "GetGroupFilterWithGroupIDSQL";
+    public static final String GET_GROUP_FILTER_WITH_CREATED_DATE = "GetGroupFilterWithCreatedDateSQL";
+    public static final String GET_GROUP_FILTER_WITH_LAST_MODIFIED = "GetGroupFilterWithLastModifiedSQL";
     public static final String ADD_GROUP = "AddGroupSQL";
     public static final String UPDATE_GROUP_NAME = "UpdateGroupNameSQL";
     public static final String COUNT_ROLES_SQL = "SELECT COUNT(UM_ROLE_NAME) AS RESULT FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? AND " +
@@ -491,6 +494,15 @@ public final class JDBCRealmConstants {
             "UM_LAST_MODIFIED FROM UM_ROLE WHERE UM_ROLE_NAME = ? AND UM_TENANT_ID = ?";
     public static final String GET_GROUP_FROM_GROUP_ID_SQL = "SELECT UM_ROLE_NAME, UM_CREATED_TIME, UM_LAST_MODIFIED " +
             "FROM UM_ROLE WHERE UM_ROLE_UUID = ? AND UM_TENANT_ID = ?";
+    public static final String GET_GROUP_FILTER_WITH_GROUP_ID_SQL = "SELECT UM_ROLE_NAME, UM_ROLE_UUID, " +
+            "UM_CREATED_TIME, UM_LAST_MODIFIED FROM UM_ROLE WHERE UM_ROLE_UUID LIKE ? AND UM_TENANT_ID = ? " +
+            "ORDER BY UM_ROLE_NAME;";
+    public static final String GET_GROUP_FILTER_WITH_CREATED_DATE_SQL = "SELECT UM_ROLE_NAME, UM_ROLE_UUID, " +
+            "UM_CREATED_TIME, UM_LAST_MODIFIED FROM UM_ROLE WHERE UM_CREATED_TIME = ? AND UM_TENANT_ID = ? " +
+            "ORDER BY UM_ROLE_NAME;";
+    public static final String GET_GROUP_FILTER_WITH_LAST_MODIFIED_SQL = "SELECT UM_ROLE_NAME, UM_ROLE_UUID, " +
+            "UM_CREATED_TIME, UM_LAST_MODIFIED FROM UM_ROLE WHERE UM_LAST_MODIFIED = ? AND UM_TENANT_ID = ? " +
+            "ORDER BY UM_ROLE_NAME;";
     public static final String ADD_GROUP_SQL = "INSERT INTO UM_ROLE (UM_ROLE_UUID, UM_ROLE_NAME, UM_TENANT_ID, " +
             "UM_CREATED_TIME, UM_LAST_MODIFIED) VALUES (?, ?, ?, ?, ?)";
     public static final String UPDATE_GROUP_NAME_SQL = "UPDATE UM_ROLE set UM_ROLE_NAME = ?, UM_LAST_MODIFIED = ? " +
