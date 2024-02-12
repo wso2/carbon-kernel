@@ -8437,14 +8437,17 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return false;
         }
 
-        Secret credentialObj;
+        Secret credentialObj = null;
         try {
             credentialObj = Secret.getSecret(credential);
+            return credentialObj.getChars().length >= 1;
         } catch (UnsupportedSecretTypeException e) {
             throw new UserStoreException("Unsupported credential type", e);
+        } finally {
+            if (credentialObj != null) {
+                credentialObj.clear();
+            }
         }
-
-        return credentialObj.getChars().length >= 1;
     }
 
     /**
