@@ -1515,4 +1515,25 @@ public class CarbonUtils {
 
         return isInputValidationEnabledConfig == null || Boolean.parseBoolean(isInputValidationEnabledConfig);
     }
+
+    /**
+     * Function to extract ManagementConsoleDeprecationBannerEnabled configuration from carbon.xml.
+     * <pre>
+     * {@code
+     *   <ManagementConsoleDeprecationBannerEnabled>true</ManagementConsoleDeprecationBannerEnabled>
+     * }
+     * </pre>
+     *
+     * @return isManagementConsoleBannerEnabled.
+     */
+    public static boolean isManagementConsoleBannerEnabled() {
+
+        boolean isManagementConsoleBannerEnabled = false;
+        String isManagementConsoleBannerEnabledConfig = ServerConfiguration.getInstance().
+                getFirstProperty("ManagementConsoleDeprecationBannerEnabled");
+        if (isManagementConsoleBannerEnabledConfig != null) {
+            isManagementConsoleBannerEnabled = Boolean.parseBoolean(isManagementConsoleBannerEnabledConfig);
+        }
+        return isManagementConsoleBannerEnabled;
+    }
 }
