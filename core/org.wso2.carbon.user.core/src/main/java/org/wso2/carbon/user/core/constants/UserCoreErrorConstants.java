@@ -240,6 +240,7 @@ public class UserCoreErrorConstants {
         ERROR_CODE_INVALID_GROUP_NAME("60010",  "Group name %s is not valid. Group name must be a "
                 + "non null string with format: %s"),
         ERROR_UNSUPPORTED_GROUP_SEARCH_FILTER("60011", "Unsupported group search filter: %s"),
+        ERROR_UNSUPPORTED_DATE_SEARCH_FILTER("60011", "Unsupported date seacrh filter."),
 
         // Server error codes related to group operations.
         ERROR_DURING_PRE_GET_GROUP_BY_ID("65001",
