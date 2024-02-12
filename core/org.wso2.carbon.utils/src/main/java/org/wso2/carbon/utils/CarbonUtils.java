@@ -105,6 +105,7 @@ public class CarbonUtils {
     private static final int ENTITY_EXPANSION_LIMIT = 0;
     private static final String SECURITY_MANAGER_PROPERTY = org.apache.xerces.impl.Constants.XERCES_PROPERTY_PREFIX +
             org.apache.xerces.impl.Constants.SECURITY_MANAGER_PROPERTY;
+    private static final String MANAGEMENT_CONSOLE_DEPRECATION_BANNER_ENABLED = "ManagementConsoleDeprecationBannerEnabled";
     private static boolean isServerConfigInitialized;
     private static Log audit = CarbonConstants.AUDIT_LOG;
     private static Gson gson = new Gson();
@@ -1524,16 +1525,16 @@ public class CarbonUtils {
      * }
      * </pre>
      *
-     * @return isManagementConsoleBannerEnabled.
+     * @return isManagementConsoleDeprecationBannerEnabled.
      */
-    public static boolean isManagementConsoleBannerEnabled() {
+    public static boolean isManagementConsoleDeprecationBannerEnabled() {
 
-        boolean isManagementConsoleBannerEnabled = false;
+        boolean isManagementConsoleDeprecationBannerEnabled = false;
         String isManagementConsoleBannerEnabledConfig = ServerConfiguration.getInstance().
-                getFirstProperty("ManagementConsoleDeprecationBannerEnabled");
+                getFirstProperty(MANAGEMENT_CONSOLE_DEPRECATION_BANNER_ENABLED);
         if (isManagementConsoleBannerEnabledConfig != null) {
-            isManagementConsoleBannerEnabled = Boolean.parseBoolean(isManagementConsoleBannerEnabledConfig);
+            isManagementConsoleDeprecationBannerEnabled = Boolean.parseBoolean(isManagementConsoleBannerEnabledConfig);
         }
-        return isManagementConsoleBannerEnabled;
+        return isManagementConsoleDeprecationBannerEnabled;
     }
 }
