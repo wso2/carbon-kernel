@@ -269,8 +269,8 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
 
         if (!authenticated) {
             if (requestedURI.endsWith("ajaxprocessor.jsp")) {
-                // Prevent login page appearing
-                return true;
+                return CarbonUILoginUtil.saveOriginalUrl(authenticator, request, response, session,
+                        skipLoginPage, contextPath, indexPageURL, indexPageURL);
             } else {
                 return CarbonUILoginUtil.saveOriginalUrl(authenticator, request, response, session,
                         skipLoginPage, contextPath, indexPageURL, requestedURI);
