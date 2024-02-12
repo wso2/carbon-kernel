@@ -2267,7 +2267,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     } else if (param instanceof Integer) {
                         prepStmt.setInt(i + 1, (Integer) param);
                     } else if (param instanceof Date) {
-                        //Convert the current date-time to UTC time with ISO Date time format.
+                        // Convert the current date-time to UTC time with ISO Date time format.
                         OffsetDateTime offsetDateTime = currentInstant.atOffset(ZoneOffset.UTC);
                         LocalDateTime localDateTime = offsetDateTime.toLocalDateTime();
                         int nanoSeconds = localDateTime.getNano();
@@ -2280,7 +2280,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 }
             }
             int count = prepStmt.executeUpdate();
-
             if (log.isDebugEnabled()) {
                 if (count == 0) {
                     log.debug("No rows were updated");
@@ -2300,10 +2299,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             if (e instanceof SQLIntegrityConstraintViolationException) {
                 // Duplicate entry
                 throw new UserStoreException(msg, ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE.getCode(), e);
-            } else {
-                // Other SQL Exception
-                throw new UserStoreException(msg, e);
             }
+            // Other SQL Exception
+            throw new UserStoreException(msg, e);
         } finally {
             if (localConnection) {
                 DatabaseUtil.closeAllConnections(dbConnection);
@@ -3850,10 +3848,11 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             try {
                 String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_GROUP);
                 if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                    this.updateValuesToDatabaseWithUTCTime(dbConnection, sqlStmt, groupId, groupName, tenantId, new Date(),
-                            new Date());
+                    this.updateValuesToDatabaseWithUTCTime(dbConnection, sqlStmt, groupId, groupName, tenantId,
+                            new Date(), new Date());
                 } else {
-                    this.updateValuesToDatabaseWithUTCTime(dbConnection, sqlStmt, groupId, groupName, new Date(), new Date());
+                    this.updateValuesToDatabaseWithUTCTime(dbConnection, sqlStmt, groupId, groupName, new Date(),
+                            new Date());
                 }
 
                 if (userIds != null) {
@@ -3938,25 +3937,30 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         if (StringUtils.isBlank(sqlStmt)) {
             throw new UserStoreException("The sql statement for update role name is null");
         }
-        Connection dbConnection = null;
-        try {
-            dbConnection = getDBConnection();
-            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                this.updateValuesToDatabaseWithUTCTime(dbConnection, sqlStmt, domainFreeNewGroupName, new Date(),
-                        groupId, tenantId);
-            } else {
-                this.updateValuesToDatabaseWithUTCTime(dbConnection, sqlStmt, domainFreeNewGroupName, new Date(), groupId);
+
+        try (Connection dbConnection = getDBConnection()) {
+            try {
+                if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                    this.updateValuesToDatabaseWithUTCTime(dbConnection, sqlStmt, domainFreeNewGroupName, new Date(),
+                            groupId, tenantId);
+                } else {
+                    this.updateValuesToDatabaseWithUTCTime(dbConnection, sqlStmt, domainFreeNewGroupName, new Date(), groupId);
+                }
+                dbConnection.commit();
+            } catch (SQLException e) {
+                DatabaseUtil.rollBack(dbConnection);
+                String msg = "Error occurred while updating group name : " + domainFreeNewGroupName;
+                if (log.isDebugEnabled()) {
+                    log.debug(msg, e);
+                }
+                throw new UserStoreException(msg, e);
             }
-            dbConnection.commit();
         } catch (SQLException e) {
-            DatabaseUtil.rollBack(dbConnection);
             String msg = "Error occurred while updating group name : " + domainFreeNewGroupName;
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
             }
             throw new UserStoreException(msg, e);
-        } finally {
-            DatabaseUtil.closeAllConnections(dbConnection);
         }
     }
 
