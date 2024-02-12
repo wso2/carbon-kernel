@@ -83,31 +83,6 @@ public class Utils {
         }
     }
 
-
-    /**
-     * For a given Zip file, process each entry.
-     *
-     * @deprecated Inputs provided to this method are not validated. Therefore, this method is deprecated and will be
-     * removed in a future release.
-     * @param zipFileLocation zipFileLocation
-     * @param targetLocation  targetLocation
-     * @throws org.wso2.carbon.core.CarbonException
-     *          CarbonException
-     */
-    public static void deployZipFile(File zipFileLocation, File targetLocation)
-            throws CarbonException {
-        try (JarFile jarFile = new JarFile(zipFileLocation)) {
-            SortedSet<String> dirsMade = new TreeSet<String>();
-            Enumeration all = jarFile.entries();
-            while (all.hasMoreElements()) {
-                getFile((ZipEntry) all.nextElement(), jarFile, targetLocation, dirsMade);
-            }
-        } catch (IOException e) {
-            log.error("Error while copying component", e);
-            throw new CarbonException(e);
-        }
-    }
-
     /**
      * Process one file from the zip, given its name.
      * Either print the name, or create the file on disk.
