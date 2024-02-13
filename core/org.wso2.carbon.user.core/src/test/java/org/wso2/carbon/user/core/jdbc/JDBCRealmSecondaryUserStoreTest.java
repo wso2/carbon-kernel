@@ -72,7 +72,7 @@ public class JDBCRealmSecondaryUserStoreTest extends BaseTestCase {
 
     public void setUp() throws Exception {
 
-        super.setUp();
+        super.setUpForGroupIdDisabledScenarios();
         DatabaseUtil.closeDatabasePoolConnection();
         initRealmStuff(TEST_URL);
         DatabaseUtil.closeDatabasePoolConnection();

@@ -86,7 +86,7 @@ public class UniqueIDJDBCRealmSecondaryUserStoreTest extends BaseTestCase {
 
     public void setUp() throws Exception {
 
-        super.setUp();
+        super.setUpForGroupIdDisabledScenarios();
         DatabaseUtil.closeDatabasePoolConnection();
         clearUserIdResolverCache();
         initRealmStuff(TEST_URL);

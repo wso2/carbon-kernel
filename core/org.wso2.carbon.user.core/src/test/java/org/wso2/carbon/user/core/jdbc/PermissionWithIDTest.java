@@ -30,7 +30,6 @@ import org.wso2.carbon.user.core.common.DefaultRealm;
 import org.wso2.carbon.user.core.common.UserIdResolverCache;
 import org.wso2.carbon.user.core.config.TestRealmConfigBuilder;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
-import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -51,7 +50,7 @@ public class PermissionWithIDTest extends BaseTestCase {
     private static final String EVERYONE_ROLE = "Internal/everyone";
 
     public void setUp() throws Exception {
-        super.setUp();
+        super.setUpForGroupIdDisabledScenarios();
     }
 
     public void testStuff() throws Exception {

@@ -44,7 +44,7 @@ public class AdvancedReadOnlyJDBCRealmTest extends BaseTestCase {
     private UserRealm realm;
 
     public void setUp() throws Exception {
-        super.setUp();
+        super.setUpForGroupIdDisabledScenarios();
     }
 
     public void testStuff() throws Exception {

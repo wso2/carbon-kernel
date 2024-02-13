@@ -45,11 +45,13 @@ public class TestTenantManager extends BaseTestCase{
     DefaultRealm realm = new DefaultRealm();
 
     public void setUp() throws Exception {
-        super.setUp();
+        super.setUpForGroupIdDisabledScenarios();
     }
 
     public void testTenantManager() throws Exception {
         tenantDbStuff(); //create db instance
+        System.setProperty("carbon.home", "");
+        super.setUp();
         doTenantStuff(); // do tenantManager stuff
         DatabaseUtil.closeDatabasePoolConnection();
     }
