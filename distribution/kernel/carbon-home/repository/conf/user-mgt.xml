@@ -227,8 +227,8 @@
             <Property name="AdminRoleManagementPermissions">/permission</Property>
             <Property name="AuthorizationCacheEnabled">true</Property>
             <Property name="GetAllRolesOfUserEnabled">false</Property>
-            <Property name="GroupAndRoleSeparationEnabled">false</Property>
-            <Property name="GroupAndRoleSeparationImprovementsEnabled">false</Property>
+            <Property name="GroupAndRoleSeparationEnabled">true</Property>
+            <Property name="GroupAndRoleSeparationImprovementsEnabled">true</Property>
         </AuthorizationManager>
     </Realm>
 </UserManager>
