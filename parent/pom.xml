@@ -405,7 +405,7 @@
         <orbit.version.el.impl>2.2.wso2v1</orbit.version.el.impl>
 
         <!-- H2 Database Engine -->
-        <version.h2.engine>2.2.220.wso2v1</version.h2.engine>
+        <version.h2.engine>2.2.224.wso2v2</version.h2.engine>
 
         <!-- Abdera -->
         <version.abdera>1.0-wso2v2</version.abdera>

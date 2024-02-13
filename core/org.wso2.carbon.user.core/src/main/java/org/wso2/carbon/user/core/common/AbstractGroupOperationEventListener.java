@@ -159,4 +159,18 @@ public class AbstractGroupOperationEventListener implements GroupOperationEventL
 
         return true;
     }
+
+    @Override
+    public boolean preUpdateUserListOfGroup(String groupId, List<String> deletedUserIds, List<String> newUserIds,
+                                            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean postUpdateUserListOfGroup(String groupId, List<String> deletedUserIds, List<String> newUserIds,
+                                             UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
 }

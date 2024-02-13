@@ -282,4 +282,40 @@ public interface GroupOperationEventListener {
         throw new NotImplementedException(
                 "Post rename group operation is not implemented for " + this.getClass().getName());
     }
+
+    /**
+     * Defines any additional action before updating the user list of the group.
+     *
+     * @param groupId          Group unique id.
+     * @param deletedUserIds   List of deleted user ids.
+     * @param newUserIds       List of new user ids.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
+    default boolean preUpdateUserListOfGroup(String groupId, List<String> deletedUserIds,
+                                             List<String> newUserIds, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        throw new NotImplementedException(
+                "Pre renaming group operation is not implemented for " + this.getClass().getName());
+    }
+
+    /**
+     * Defines any additional action after updating the user list of the group.
+     *
+     * @param groupId          Group unique id.
+     * @param deletedUserIds   List of deleted user ids.
+     * @param newUserIds       List of new user ids.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     */
+    default boolean postUpdateUserListOfGroup(String groupId, List<String> deletedUserIds,
+                                              List<String> newUserIds, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        throw new NotImplementedException(
+                "Post rename group operation is not implemented for " + this.getClass().getName());
+
+    }
 }

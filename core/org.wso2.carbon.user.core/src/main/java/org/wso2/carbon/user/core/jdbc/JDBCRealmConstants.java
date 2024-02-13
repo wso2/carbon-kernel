@@ -138,6 +138,17 @@ public final class JDBCRealmConstants {
     public static final String USER_NAME_UNIQUE = "UserNameUniqueAcrossTenantsSQL";
     public static final String USER_ID_UNIQUE_WITH_ID = "UserIDUniqueAcrossTenantsSQLWithID";
     public static final String USER_NAME_UNIQUE_WITH_ID = "UserNameUniqueAcrossTenantsSQLWithID";
+
+    // Group Related Properties.
+    public static final String GET_GROUP_ID_FROM_GROUP_NAME = "GetGroupIDFromGroupNameSQL";
+    public static final String GET_GROUP_NAME_FROM_GROUP_ID = "GetGroupNameFromGroupIDSQL";
+    public static final String GET_GROUP_FROM_GROUP_NAME = "GetGroupFromGroupNameSQL";
+    public static final String GET_GROUP_FROM_GROUP_ID = "GetGroupFromGroupIDSQL";
+    public static final String GET_GROUP_FILTER_WITH_GROUP_ID = "GetGroupFilterWithGroupIDSQL";
+    public static final String GET_GROUP_FILTER_WITH_CREATED_DATE = "GetGroupFilterWithCreatedDateSQL";
+    public static final String GET_GROUP_FILTER_WITH_LAST_MODIFIED = "GetGroupFilterWithLastModifiedSQL";
+    public static final String ADD_GROUP = "AddGroupSQL";
+    public static final String UPDATE_GROUP_NAME = "UpdateGroupNameSQL";
     public static final String COUNT_ROLES_SQL = "SELECT COUNT(UM_ROLE_NAME) AS RESULT FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? AND " +
             "UM_TENANT_ID = ?";
     public static final String COUNT_USERS_WITH_CLAIM_SQL = "SELECT COUNT(UM_USER_ID) AS RESULT FROM UM_USER_ATTRIBUTE WHERE UM_ATTR_NAME = ? " +
@@ -473,6 +484,30 @@ public final class JDBCRealmConstants {
     public static final String STORE_SALTED_PASSWORDS = "StoreSaltedPassword";
     public static final String COUNT_INTERNAL_ROLES_SQL = "SELECT COUNT(UM_ID) AS RESULT FROM UM_HYBRID_ROLE WHERE " +
             "UM_ROLE_NAME NOT LIKE '" + APPLICATION_DOMAIN + "%' AND UM_ROLE_NAME LIKE ? AND UM_TENANT_ID = ?";
+
+    // Group related SQL queries.
+    public static final String GET_GROUP_ID_FROM_GROUP_NAME_SQL = "SELECT UM_ROLE_UUID FROM UM_ROLE WHERE " +
+            "UM_ROLE_NAME = ? AND UM_TENANT_ID = ?";
+    public static final String GET_GROUP_NAME_FROM_GROUP_ID_SQL = "SELECT UM_ROLE_NAME FROM UM_ROLE WHERE " +
+            "UM_ROLE_UUID = ? AND UM_TENANT_ID = ?";
+    public static final String GET_GROUP_FROM_GROUP_NAME_SQL = "SELECT UM_ROLE_UUID, UM_CREATED_TIME, " +
+            "UM_LAST_MODIFIED FROM UM_ROLE WHERE UM_ROLE_NAME = ? AND UM_TENANT_ID = ?";
+    public static final String GET_GROUP_FROM_GROUP_ID_SQL = "SELECT UM_ROLE_NAME, UM_CREATED_TIME, UM_LAST_MODIFIED " +
+            "FROM UM_ROLE WHERE UM_ROLE_UUID = ? AND UM_TENANT_ID = ?";
+    public static final String GET_GROUP_FILTER_WITH_GROUP_ID_SQL = "SELECT UM_ROLE_NAME, UM_ROLE_UUID, " +
+            "UM_CREATED_TIME, UM_LAST_MODIFIED FROM UM_ROLE WHERE UM_ROLE_UUID LIKE ? AND UM_TENANT_ID = ? " +
+            "ORDER BY UM_ROLE_NAME;";
+    public static final String GET_GROUP_FILTER_WITH_CREATED_DATE_SQL = "SELECT UM_ROLE_NAME, UM_ROLE_UUID, " +
+            "UM_CREATED_TIME, UM_LAST_MODIFIED FROM UM_ROLE WHERE UM_CREATED_TIME = ? AND UM_TENANT_ID = ? " +
+            "ORDER BY UM_ROLE_NAME;";
+    public static final String GET_GROUP_FILTER_WITH_LAST_MODIFIED_SQL = "SELECT UM_ROLE_NAME, UM_ROLE_UUID, " +
+            "UM_CREATED_TIME, UM_LAST_MODIFIED FROM UM_ROLE WHERE UM_LAST_MODIFIED = ? AND UM_TENANT_ID = ? " +
+            "ORDER BY UM_ROLE_NAME;";
+    public static final String ADD_GROUP_SQL = "INSERT INTO UM_ROLE (UM_ROLE_UUID, UM_ROLE_NAME, UM_TENANT_ID, " +
+            "UM_CREATED_TIME, UM_LAST_MODIFIED) VALUES (?, ?, ?, ?, ?)";
+    public static final String UPDATE_GROUP_NAME_SQL = "UPDATE UM_ROLE set UM_ROLE_NAME = ?, UM_LAST_MODIFIED = ? " +
+            "WHERE UM_ROLE_UUID = ? AND UM_TENANT_ID = ?";
+
     // properties
     public static final String DATASOURCE = "dataSource";
     public static final String URL = "url";

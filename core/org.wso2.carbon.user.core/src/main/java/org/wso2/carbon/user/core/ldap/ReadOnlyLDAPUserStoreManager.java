@@ -3052,6 +3052,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     protected List<ExpressionCondition> getExpressionConditions(Condition condition) {
 
         List<ExpressionCondition> expressionConditions = new ArrayList<>();
+        if (condition == null) {
+            return expressionConditions;
+        }
         getExpressionConditionsAsList(condition, expressionConditions);
         return expressionConditions;
     }

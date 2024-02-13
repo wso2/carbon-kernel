@@ -473,4 +473,62 @@ public interface GroupManagementErrorEventListener {
 
         throw new NotImplementedException("onRenameGroupFailure is not implemented");
     }
+
+    /**
+     * Defines any additional actions that need to be done when there is a failure before updating user list of a group.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param groupId          Group id.
+     * @param deletedUserIds   Deleted user ids.
+     * @param newUserIds       New user ids.
+     * @param userStoreManager Userstore manager.
+     * @return True if the handling succeeded.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
+    default boolean onPreUpdateUserListOfGroupFailure(String errorCode, String errorMessage, String groupId,
+                                                      List<String> deletedUserIds, List<String> newUserIds,
+                                                      UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        throw new NotImplementedException("onPreUpdateUserListOfGroupFailure is not implemented");
+    }
+
+    /**
+     * Defines any additional actions that need to be done when there is a failure after updating user list of a group.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param groupId          Group id.
+     * @param deletedUserIds   Deleted user ids.
+     * @param newUserIds       New user ids.
+     * @param userStoreManager Userstore manager.
+     * @return True if the handling succeeded.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
+    default boolean onPostUpdateUserListOfGroupFailure(String errorCode, String errorMessage, String groupId,
+                                                       List<String> deletedUserIds, List<String> newUserIds,
+                                                       UserStoreManager userStoreManager) throws UserStoreException {
+
+        throw new NotImplementedException("onPostUpdateUserListOfGroupFailure is not implemented");
+    }
+
+    /**
+     * Defines any additional actions that need to be done when there is a failure while updating user list of a group.
+     *
+     * @param errorCode        Error code.
+     * @param errorMessage     Error message.
+     * @param groupId          Group id.
+     * @param deletedUserIds   Deleted user ids.
+     * @param newUserIds       New user ids.
+     * @param userStoreManager Userstore manager.
+     * @return True if the handling succeeded.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
+    default boolean onUpdateUserListOfGroupFailure(String errorCode, String errorMessage, String groupId,
+                                                   List<String> deletedUserIds, List<String> newUserIds,
+                                                   UserStoreManager userStoreManager) throws UserStoreException {
+
+        throw new NotImplementedException("onUpdateUserListOfGroupFailure is not implemented");
+    }
 }

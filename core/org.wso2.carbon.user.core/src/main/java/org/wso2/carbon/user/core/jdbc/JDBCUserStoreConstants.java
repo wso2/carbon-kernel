@@ -160,6 +160,9 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(UserStoreConfigConstants.maxRoleNameListLength, "Maximum Group List Length", "100",
                 UserStoreConfigConstants.maxRoleNameListLengthDescription,
                 new Property[] { GROUP.getProperty(), NUMBER.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(UserStoreConfigConstants.GROUP_ID_ENABLED, UserStoreConfigConstants.GROUP_ID_ENABLED_DISPLAY_NAME, Boolean.toString(true),
+                UserStoreConfigConstants.GROUP_ID_ENABLED_DESCRIPTION,
+                new Property[]{GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty()});
 
         setAdvancedProperty(UserStoreConfigConstants.userRolesCacheEnabled, "Enable User Group Cache", "true",
                 UserStoreConfigConstants.userRolesCacheEnabledDescription,
@@ -650,6 +653,24 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(JDBCRealmConstants.UPDATE_ROLE_NAME, "Update Group Name SQL",
                 JDBCRealmConstants.UPDATE_ROLE_NAME_SQL, "",
                 new Property[] { GROUP.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCRealmConstants.GET_GROUP_ID_FROM_GROUP_NAME, "Get Group ID From Group Name SQL",
+                JDBCRealmConstants.GET_GROUP_ID_FROM_GROUP_NAME_SQL, "",
+                new Property[]{GROUP.getProperty(), SQL.getProperty(), FALSE.getProperty()});
+        setAdvancedProperty(JDBCRealmConstants.GET_GROUP_NAME_FROM_GROUP_ID, "Get Group Name From Group ID SQL",
+                JDBCRealmConstants.GET_GROUP_NAME_FROM_GROUP_ID_SQL, "",
+                new Property[]{GROUP.getProperty(), SQL.getProperty(), FALSE.getProperty()});
+        setAdvancedProperty(JDBCRealmConstants.GET_GROUP_FROM_GROUP_NAME, "Get Group From Group Name SQL",
+                JDBCRealmConstants.GET_GROUP_FROM_GROUP_NAME_SQL, "",
+                new Property[]{GROUP.getProperty(), SQL.getProperty(), FALSE.getProperty()});
+        setAdvancedProperty(JDBCRealmConstants.GET_GROUP_FROM_GROUP_ID, "Get Group From Group ID SQL",
+                JDBCRealmConstants.GET_GROUP_FROM_GROUP_ID_SQL, "",
+                new Property[]{GROUP.getProperty(), SQL.getProperty(), FALSE.getProperty()});
+        setAdvancedProperty(JDBCRealmConstants.ADD_GROUP, "Add Group SQL",
+                JDBCRealmConstants.ADD_GROUP_SQL, "",
+                new Property[]{GROUP.getProperty(), SQL.getProperty(), FALSE.getProperty()});
+        setAdvancedProperty(JDBCRealmConstants.UPDATE_GROUP_NAME, "Update Group Name SQL",
+                JDBCRealmConstants.UPDATE_GROUP_NAME_SQL, "",
+                new Property[]{GROUP.getProperty(), SQL.getProperty(), FALSE.getProperty()});
 
         setAdvancedProperty(JDBCRealmConstants.ADD_USER_PROPERTY, "Add User Property SQL",
                 JDBCRealmConstants.ADD_USER_PROPERTY_SQL, "",

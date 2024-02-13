@@ -1497,6 +1497,38 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     }
 
     @Override
+    public void doUpdateUserListOfGroup(String groupId, List<String> deletedUserIds, List<String> newUserIds)
+            throws UserStoreException {
+
+        if (!isUniqueGroupIdEnabled()) {
+            throw new UserStoreException("Group ID is not supported for userstore: " + getMyDomainName());
+        }
+        if (StringUtils.isBlank(groupId)) {
+            throw new UserStoreException(ERROR_EMPTY_GROUP_ID.getMessage());
+        }
+        String groupName = doGetGroupNameFromGroupId(groupId);
+        if (StringUtils.isBlank(groupId)) {
+            throw new UserStoreException(
+                    String.format(ERROR_NO_GROUP_FOUND_WITH_ID.getMessage(), groupId, tenantDomain));
+        }
+        doUpdateUserListOfRoleWithID(UserCoreUtil.removeDomainFromName(groupName),
+                deletedUserIds.toArray(new String[0]), newUserIds.toArray(new String[0]));
+    }
+
+    private List<String> getDomainFreeUsersFromUserIds(String domain, List<String> userIds) throws UserStoreException {
+
+        List<String> userList = getUserNamesFromUserIDs(userIds);
+        // Check whether the users belong to the same user store.
+        boolean containsInvalidUsers = userList.stream()
+                .anyMatch(username -> !UserCoreUtil.extractDomainFromName(username).equalsIgnoreCase(domain));
+        if (containsInvalidUsers) {
+            throw new UserStoreException(String.format("One or more users in the users list: %s do not " +
+                    "belong to the user store: %s", userList, domain));
+        }
+        return userList.stream().map(UserCoreUtil::removeDomainFromName).collect(Collectors.toList());
+    }
+
+    @Override
     public void doDeleteGroupByGroupId(String groupId) throws UserStoreException {
 
         if (!isUniqueGroupIdEnabled()) {
@@ -2636,6 +2668,20 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                 UserStoreConfigConstants.timestampAttributesDisplayName, " ",
                 UserStoreConfigConstants.timestampAttributesDescription,
                 new Property[] { CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(UserStoreConfigConstants.GROUP_ID_ENABLED,
+                UserStoreConfigConstants.GROUP_ID_ENABLED_DISPLAY_NAME, Boolean.toString(true),
+                UserStoreConfigConstants.GROUP_ID_ENABLED_DESCRIPTION,
+                new Property[]{GROUP.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty()});
+        setAdvancedProperty(UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE_DISPLAY_NAME,
+                LDAPConstants.DEFAULT_GROUP_CREATED_DATE_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE_DESCRIPTION,
+                new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
+        setAdvancedProperty(UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE_DISPLAY_NAME,
+                LDAPConstants.DEFAULT_GROUP_LAST_MODIFIED_DATE_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE_DESCRIPTION,
+                new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
     }
 
     @Override
