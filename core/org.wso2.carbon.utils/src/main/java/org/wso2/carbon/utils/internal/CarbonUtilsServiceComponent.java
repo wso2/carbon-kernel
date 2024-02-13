@@ -6,6 +6,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ConfigurationContextService;
 import org.wso2.carbon.utils.deployment.GhostMetaArtifactsLoader;
 import org.wso2.carbon.utils.multitenancy.GhostServiceMetaArtifactsLoader;
@@ -17,6 +19,8 @@ public class CarbonUtilsServiceComponent {
     protected void activate(ComponentContext ctx) {
         GhostServiceMetaArtifactsLoader serviceMetaArtifactsLoader = new GhostServiceMetaArtifactsLoader();
         ctx.getBundleContext().registerService(GhostMetaArtifactsLoader.class.getName(), serviceMetaArtifactsLoader, null);
+        // Read and set diagnostic logs config.
+        CarbonUtils.setDiagnosticLogMode(PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId());
     }
 
     @Reference(name = "org.wso2.carbon.utils.ConfigurationContextService", cardinality = ReferenceCardinality.MANDATORY,
