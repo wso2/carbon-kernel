@@ -23,13 +23,10 @@ import org.wso2.carbon.user.core.BaseTestCase;
 import org.wso2.carbon.user.core.ClaimTestUtil;
 import org.wso2.carbon.user.core.UserCoreTestConstants;
 import org.wso2.carbon.user.core.claim.dao.ClaimDAO;
-import org.wso2.carbon.user.core.profile.ProfileConfiguration;
-import org.wso2.carbon.user.core.profile.dao.ProfileConfigDAO;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +39,7 @@ public class ClaimDAOTest extends BaseTestCase {
     //private ProfileConfigDAO profileDAO = null;
 
     public void setUp() throws Exception {
-        super.setUp();
+        super.setUpForGroupIdDisabledScenarios();
         
         String dbFolder = "target/ClaimTestDatabase";
         if ((new File(dbFolder)).exists()) {

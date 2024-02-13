@@ -48,7 +48,7 @@ public class HybridRoleManagerTest extends BaseTestCase {
     private BasicDataSource ds;
 
     public void setUp() throws Exception {
-        super.setUp();
+        super.setUpForGroupIdDisabledScenarios();
     }
 
     public void testHybridRoleManager() throws Exception {
