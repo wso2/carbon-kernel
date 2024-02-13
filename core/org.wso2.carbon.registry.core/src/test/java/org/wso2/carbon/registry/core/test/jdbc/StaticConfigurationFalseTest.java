@@ -36,7 +36,7 @@ public class StaticConfigurationFalseTest extends BaseTestCase {
     
 
     public void setUp() {
-        setupCarbonHome();
+        setupCarbonHomeForGroupIdDisabledScenarios();
 
         StaticConfiguration.setVersioningProperties(false);
         StaticConfiguration.setVersioningComments(false);
