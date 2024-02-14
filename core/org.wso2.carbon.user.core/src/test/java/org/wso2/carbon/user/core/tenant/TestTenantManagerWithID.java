@@ -28,10 +28,8 @@ import org.wso2.carbon.user.core.common.DefaultRealm;
 import org.wso2.carbon.user.core.common.DefaultRealmService;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
 import org.wso2.carbon.user.core.config.TestRealmConfigBuilder;
-import org.wso2.carbon.user.core.jdbc.JDBCRealmTest;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.utils.CarbonUtils;
-import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -45,11 +43,13 @@ public class TestTenantManagerWithID extends BaseTestCase{
     DefaultRealm realm = new DefaultRealm();
 
     public void setUp() throws Exception {
-        super.setUp();
+        super.setUpForGroupIdDisabledScenarios();
     }
 
     public void testTenantManager() throws Exception {
         tenantDbStuff(); //create db instance
+        System.setProperty("carbon.home", "");
+        super.setUp();
         doTenantStuff(); // do tenantManager stuff
         DatabaseUtil.closeDatabasePoolConnection();
     }

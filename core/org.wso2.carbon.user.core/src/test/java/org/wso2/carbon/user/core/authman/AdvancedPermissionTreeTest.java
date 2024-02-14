@@ -36,8 +36,6 @@ import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 public class AdvancedPermissionTreeTest extends BaseTestCase {
     private UserRealm realm = null;
@@ -46,7 +44,7 @@ public class AdvancedPermissionTreeTest extends BaseTestCase {
     private String TEST_URL = "jdbc:h2:./target/permTreetest/CARBON_TEST";
 
     public void setUp() throws Exception {
-        super.setUp();
+        super.setUpForGroupIdDisabledScenarios();
     }
 
     public void testStuff() throws Exception {

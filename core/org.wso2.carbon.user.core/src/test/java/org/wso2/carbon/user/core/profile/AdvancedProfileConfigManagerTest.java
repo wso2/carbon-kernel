@@ -41,7 +41,7 @@ public class AdvancedProfileConfigManagerTest extends BaseTestCase {
     private int tenantId = MultitenantConstants.SUPER_TENANT_ID;
     
     public void setUp() throws Exception {
-            super.setUp();
+            super.setUpForGroupIdDisabledScenarios();
     }
 
 

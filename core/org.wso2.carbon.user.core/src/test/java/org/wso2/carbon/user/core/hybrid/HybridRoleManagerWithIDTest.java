@@ -26,7 +26,6 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.DefaultRealm;
 import org.wso2.carbon.user.core.config.TestRealmConfigBuilder;
-import org.wso2.carbon.user.core.jdbc.JDBCRealmTest;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
@@ -48,7 +47,7 @@ public class HybridRoleManagerWithIDTest extends BaseTestCase {
     private BasicDataSource ds;
 
     public void setUp() throws Exception {
-        super.setUp();
+        super.setUpForGroupIdDisabledScenarios();
     }
 
     public void testHybridRoleManager() throws Exception {

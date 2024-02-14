@@ -57,7 +57,7 @@ public class JDBCRealmWithUniqueIDTest extends BaseTestCase {
     private static String TEST_URL = "jdbc:h2:./target/BasicJDBCDatabaseTestID/CARBON_TEST";
 
     public void setUp() throws Exception {
-        super.setUp();
+        super.setUpForGroupIdDisabledScenarios();
     }
 
     public void testStuff() throws Exception {

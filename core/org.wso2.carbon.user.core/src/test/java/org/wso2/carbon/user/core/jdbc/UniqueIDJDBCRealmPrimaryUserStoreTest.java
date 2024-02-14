@@ -26,7 +26,6 @@ import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.BaseTestCase;
 import org.wso2.carbon.user.core.ClaimTestUtil;
-import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserCoreTestConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
@@ -72,7 +71,7 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
 
     public void setUp() throws Exception {
 
-        super.setUp();
+        super.setUpForGroupIdDisabledScenarios();
         clearUserIdResolverCache();
         DatabaseUtil.closeDatabasePoolConnection();
         initRealmStuff(TEST_URL);
