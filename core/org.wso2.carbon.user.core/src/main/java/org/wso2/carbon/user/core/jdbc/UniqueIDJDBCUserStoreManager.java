@@ -3965,6 +3965,25 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
+    public void doUpdateUserListOfGroup(String groupId, List<String> deletedUserIds, List<String> newUserIds)
+            throws UserStoreException {
+
+        if (!isUniqueGroupIdEnabled()) {
+            throw new UserStoreException("Group ID is not supported for userstore: " + getMyDomainName());
+        }
+        if (StringUtils.isBlank(groupId)) {
+            throw new UserStoreException(ERROR_EMPTY_GROUP_ID.getMessage());
+        }
+        String groupName = doGetGroupNameFromGroupId(groupId);
+        if (StringUtils.isBlank(groupId)) {
+            throw new UserStoreException(
+                    String.format(ERROR_NO_GROUP_FOUND_WITH_ID.getMessage(), groupId, getTenantDomain(tenantId)));
+        }
+        doUpdateUserListOfRoleWithID(UserCoreUtil.removeDomainFromName(groupName),
+                deletedUserIds.toArray(new String[0]), newUserIds.toArray(new String[0]));
+    }
+
+    @Override
     public void doDeleteGroupByGroupId(String groupId) throws UserStoreException {
 
         if (!isUniqueGroupIdEnabled()) {
