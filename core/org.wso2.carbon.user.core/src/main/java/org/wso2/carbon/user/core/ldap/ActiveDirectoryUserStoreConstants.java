@@ -117,30 +117,9 @@ public class ActiveDirectoryUserStoreConstants {
                 UserStoreConfigConstants.USE_CASE_SENSITIVE_USERNAME_FOR_CACHE_KEYS_DESCRIPTION,
                 new Property[] { USER.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
 
-        Property readLDAPGroups = new Property(UserStoreConfigConstants.readGroups, "true",
-                "Read Groups#" + UserStoreConfigConstants.readLDAPGroupsDescription,
+        setProperty(UserStoreConfigConstants.readGroups, "Read Groups", "true",
+                UserStoreConfigConstants.readLDAPGroupsDescription,
                 new Property[] { GROUP.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
-        //Mandatory only if readGroups is enabled
-        Property groupSearchBase = new Property(UserStoreConfigConstants.groupSearchBase, "CN=Users,DC=WSO2,DC=Com",
-                "Group Search Base#" + UserStoreConfigConstants.groupSearchBaseDescription,
-                new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        Property groupNameListFilter = new Property(UserStoreConfigConstants.groupNameListFilter,
-                "(objectcategory=group)", "Group Filter#" + UserStoreConfigConstants.groupNameListFilterDescription,
-                new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        Property groupNameAttribute = new Property(UserStoreConfigConstants.groupNameAttribute, "cn",
-                "Group Name Attribute#" + UserStoreConfigConstants.groupNameAttributeDescription,
-                new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        Property membershipAttribute = new Property(UserStoreConfigConstants.membershipAttribute, "member",
-                "Membership Attribute#" + UserStoreConfigConstants.membershipAttributeDescription,
-                new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        Property groupNameSearchFilter = new Property(UserStoreConfigConstants.groupNameSearchFilter,
-                "(&(objectClass=group)(cn=?))",
-                "Group Search Filter#" + UserStoreConfigConstants.groupNameSearchFilterDescription,
-                new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        readLDAPGroups.setChildProperties(new Property[] {
-                groupSearchBase, groupNameAttribute, groupNameListFilter, membershipAttribute, groupNameSearchFilter
-        });
-        OPTIONAL_ACTIVE_DIRECTORY_UM_PROPERTIES.add(readLDAPGroups);
 
         setProperty(UserStoreConfigConstants.writeGroups, "Write Groups", "true",
                 UserStoreConfigConstants.writeGroupsDescription,
