@@ -20,6 +20,7 @@ import org.wso2.carbon.user.core.UserStoreConfigConstants;
 
 import java.util.ArrayList;
 
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.OBJECT_GUID;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataCategory.BASIC;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataCategory.CONNECTION;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataCategory.GROUP;
@@ -93,7 +94,7 @@ public class ActiveDirectoryUserStoreConstants {
 
         // Only for unique id supported user store managers.
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE,
-                UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_DISPLAY_NAME, LDAPConstants.DEFAULT_GROUP_ID_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_DISPLAY_NAME, OBJECT_GUID,
                 UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_DESCRIPTION, false,
                 new Property[]{GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty()});
 
@@ -212,7 +213,7 @@ public class ActiveDirectoryUserStoreConstants {
                 new Property[] { CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty() });
 
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdAttribute,
-                UserStoreConfigConstants.userIdAttributeName, UserStoreConfigConstants.OBJECT_GUID,
+                UserStoreConfigConstants.userIdAttributeName, OBJECT_GUID,
                 UserStoreConfigConstants.userIdAttributeDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdSearchFilter,
