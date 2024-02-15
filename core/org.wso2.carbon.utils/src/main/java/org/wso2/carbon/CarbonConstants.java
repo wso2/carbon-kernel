@@ -515,4 +515,8 @@ public final class CarbonConstants {
             }
         }
     }
+    // Constants related to hostname verification
+    public static final String DEFAULT_AND_LOCALHOST = "DefaultAndLocalhost";
+    public static final String ALLOW_ALL = "AllowAll";
+    public static final String HOST_NAME_VERIFIER = "httpclient.hostnameVerifier";
 }

@@ -654,6 +654,10 @@
         <config.mapper.version>1.0.23</config.mapper.version>
         <version.stax.ex>1.8.3</version.stax.ex>
         <version.saaj.impl>1.5.0</version.saaj.impl>
+        <httpcomponents-httpclient.wso2.version>4.3.6.wso2v2</httpcomponents-httpclient.wso2.version>
+        <httpcomponents-httpclient.imp.pkg.version.range>
+            [4.3.1.wso2v2,5.0.0)
+        </httpcomponents-httpclient.imp.pkg.version.range>
     </properties>
 
     <dependencyManagement>
@@ -1896,6 +1900,11 @@
                 <artifactId>log4j-jcl</artifactId>
                 <version>${version.log4j.core}</version>
                 <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${httpcomponents-httpclient.wso2.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.xml.messaging.saaj</groupId>
