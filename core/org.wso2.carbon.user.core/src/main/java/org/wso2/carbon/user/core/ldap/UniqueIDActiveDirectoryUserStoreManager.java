@@ -1150,11 +1150,11 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
         setAdvancedProperty(UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE,
                 UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE_DISPLAY_NAME, "whenCreated",
                 UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE_DESCRIPTION,
-                new Property[] { GROUP.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
+                new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setAdvancedProperty(UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE,
                 UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE_DISPLAY_NAME, "whenChanged",
                 UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE_DESCRIPTION,
-                new Property[] { GROUP.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
+                new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
     }
 
     private static void setAdvancedProperty(String name, String displayName, String value, String description,
