@@ -1534,6 +1534,9 @@ public class HybridRoleManager {
             if (metaData.storesLowerCaseIdentifiers()) {
                 tableName = tableName.toLowerCase();
             }
+            if (connection.getMetaData().getDatabaseProductName().contains("DB2")) {
+                return connection.getMetaData().getTables(null, null, tableName, new String[]{"TABLE"}).next();
+            }
             String schemaName = connection.getSchema();
             String catalogName = connection.getCatalog();
             try (ResultSet resultSet = metaData.getTables(catalogName, schemaName, tableName, new String[]{"TABLE"})) {
