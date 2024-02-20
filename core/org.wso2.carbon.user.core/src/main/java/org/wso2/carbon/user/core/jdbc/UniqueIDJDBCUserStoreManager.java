@@ -351,6 +351,14 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         return getUserListOfJDBCRoleWithID(roleContext, filter);
     }
 
+    @Override
+    public int doGetUserCountOfRole(String roleName, String filter)
+                throws UserStoreException {
+
+            RoleContext roleContext = createRoleContext(roleName);
+            return getUserCountByRole(roleContext, filter);
+    }
+
     public List<User> getUserListOfJDBCRoleWithID(RoleContext ctx, String filter) throws UserStoreException {
 
         return getUserListOfJDBCRoleWithID(ctx, filter, QUERY_MAX_ITEM_LIMIT_ANY);
@@ -415,6 +423,64 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             users = getUsersFromDatabaseWithConstraints(this, sqlStmt, maxItemLimit, queryTimeout, filter, roleName);
         }
         return users;
+    }
+
+    /**
+     * Return the count of users belong to the given role for the given {@link RoleContext} and filter.
+     *
+     * @param ctx    {@link RoleContext} corresponding to the role.
+     * @param filter String filter for the users.
+     */
+    public int getUserCountByRole(RoleContext ctx, String filter) throws UserStoreException {
+
+        String roleName = ctx.getRoleName();
+
+        if (StringUtils.isNotEmpty(filter)) {
+            filter = filter.trim();
+            filter = filter.replace("*", "%");
+            filter = filter.replace("?", "_");
+        } else {
+            filter = "%";
+        }
+        return getUserCountByRoleFromDatabase(roleName, filter);
+    }
+
+    /**
+     * Return the count of users belong to the given role for the given {@link RoleContext} and filter.
+     *
+     * @param roleName Name of the role.
+     * @param filter   String filter for the users.
+     * @return The count of users matching the provided constraints.
+     * @throws UserStoreException
+     */
+    public int getUserCountByRoleFromDatabase(String roleName, String filter) throws UserStoreException {
+
+        Connection dbConnection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        int count = 0 ;
+        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_COUNT_WITH_FILTER_ROLE);
+        try {
+            dbConnection = getDBConnection();
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, roleName);
+            prepStmt.setInt(2, tenantId);
+            prepStmt.setInt(3, tenantId);
+            rs = prepStmt.executeQuery();
+            while (rs.next()) {
+                count = rs.getInt(1);
+            }
+            return count;
+        } catch (SQLException e) {
+            String errorMessage =
+                    "Error occurred while getting the count of users in the role : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+        }
     }
 
     @Override
