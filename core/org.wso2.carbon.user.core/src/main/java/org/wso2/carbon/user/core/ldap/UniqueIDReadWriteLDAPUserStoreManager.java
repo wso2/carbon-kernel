@@ -65,6 +65,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.naming.Name;
+import javax.naming.NameAlreadyBoundException;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -2185,13 +2186,20 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                 logger.debug("User: " + userNameDN + " was successfully " + "modified in LDAP group: " + groupRDN);
             }
         } catch (NamingException e) {
-            String errorMessage =
-                    "Error occurred while modifying user entry: " + userNameDN + " in LDAP role: " + groupRDN;
-            if (log.isDebugEnabled()) {
-                log.debug(errorMessage, e);
+            if (e instanceof NameAlreadyBoundException) {
+                // If concurrent requests bypass the existing user validation check, it can throw an exception
+                // regarding unique key violation. Since the user addition is successful, the exception is ignored.
+                log.warn(String.format("Similar entry found when adding the user to LDAP role: %s. Hence skipping " +
+                        "the user addition", groupRDN));
+            } else {
+                String errorMessage =
+                        "Error occurred while modifying user entry: " + userNameDN + " in LDAP role: " + groupRDN;
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+                throw new UserStoreException(errorMessage,
+                        UserCoreErrorConstants.ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode());
             }
-            throw new UserStoreException(errorMessage,
-                    UserCoreErrorConstants.ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode());
         } finally {
             JNDIUtil.closeContext(groupContext);
             JNDIUtil.closeContext(mainDirContext);
