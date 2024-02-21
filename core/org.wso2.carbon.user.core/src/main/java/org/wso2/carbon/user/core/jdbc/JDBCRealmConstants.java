@@ -273,7 +273,7 @@ public final class JDBCRealmConstants {
     public static final String GET_USERS_COUNT_WITH_FILTER_ROLE_SQL = "SELECT count(UM_ID) FROM UM_USER_ROLE " +
             "WHERE UM_ROLE_ID = ? AND UM_TENANT_ID = ?";
 
-    public static final String Get_Role_ID_By_Name_SQL =  "SELECT UM_ID FROM UM_ROLE " +
+    public static final String GET_ROLE_ID_BY_NAME_SQL =  "SELECT UM_ID FROM UM_ROLE " +
             "WHERE UM_ROLE_NAME = ? AND UM_TENANT_ID = ? ";
 
     public static final String GET_USERS_IN_SHARED_ROLE_SQL =

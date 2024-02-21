@@ -540,7 +540,7 @@ public class JDBCRealmUtil {
         }
 
         if (!properties.containsKey(JDBCRealmConstants.GET_ROLE_ID_BY_NAME)) {
-            properties.put(JDBCRealmConstants.GET_ROLE_ID_BY_NAME, JDBCRealmConstants.Get_Role_ID_By_Name_SQL);
+            properties.put(JDBCRealmConstants.GET_ROLE_ID_BY_NAME, JDBCRealmConstants.GET_ROLE_ID_BY_NAME_SQL);
         }
 
         if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_USERS_PROPS_FOR_PROFILE_CASE_INSENSITIVE)) {
