@@ -6444,7 +6444,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
-     * Check whether the group name existin in the user store.
+     * Check whether the group name existing in the user store.
      *
      * @param groupName Group name.
      * @return True if the group name exists.
@@ -6452,11 +6452,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     protected boolean doCheckExistingGroupName(String groupName) throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("doCheckExistingGroupName operation is not implemented in: " + this.getClass());
-        }
-        throw new NotImplementedException(
-                "doCheckExistingGroupName operation is not implemented in: " + this.getClass());
+        // Default implementation to ensure backward compatibility.
+        return doCheckExistingRole(UserCoreUtil.removeDomainFromName(groupName));
     }
 
     /**
