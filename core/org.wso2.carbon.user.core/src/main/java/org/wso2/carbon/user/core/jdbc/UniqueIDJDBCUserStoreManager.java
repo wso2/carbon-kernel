@@ -453,8 +453,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
      * @return The count of users matching the provided constraints.
      * @throws UserStoreException
      */
-    public int getUserCountByRoleFromDatabase(String roleName, String filter) throws UserStoreException {
+    public int getUserCountByRoleFromDatabase(String roleName, String filter)
+                throws UserStoreException {
 
+        String roleId = getRoleIdByName(roleName, tenantId);
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -463,9 +465,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         try {
             dbConnection = getDBConnection();
             prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setString(1, roleName);
+            prepStmt.setString(1, roleId);
             prepStmt.setInt(2, tenantId);
-            prepStmt.setInt(3, tenantId);
             rs = prepStmt.executeQuery();
             while (rs.next()) {
                 count = rs.getInt(1);
@@ -474,6 +475,35 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         } catch (SQLException e) {
             String errorMessage =
                     "Error occurred while getting the count of users in the role : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+        }
+    }
+
+    private String getRoleIdByName(String roleName, int tenantId) throws UserStoreException {
+
+        String roleID = null;
+        Connection dbConnection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_ROLE_ID_BY_NAME);
+        try {
+            dbConnection = getDBConnection();
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, roleName);
+            prepStmt.setInt(2, tenantId);
+            rs = prepStmt.executeQuery();
+            while (rs.next()) {
+                roleID = rs.getString(1);
+            }
+            return roleID;
+        } catch (SQLException e) {
+            String errorMessage =
+                    "Error occurred while getting the role id for the role : " + roleName;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }

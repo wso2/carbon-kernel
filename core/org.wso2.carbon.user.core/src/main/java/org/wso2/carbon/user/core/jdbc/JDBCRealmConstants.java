@@ -30,6 +30,7 @@ public final class JDBCRealmConstants {
     public static final String GET_ROLE_LIST_H2 = "GetRoleListSQLH2";
     public static final String GET_ROLE_LIST_WITH_ESCAPE = "GetRoleListSQLWithEscape";
     public static final String GET_ROLE_LIST_WITH_ESCAPE_H2 = "GetRoleListSQLWithEscapeH2";
+    public static final String GET_ROLE_ID_BY_NAME = "GetRoleIDByNameSQL";
     public static final String GET_SHARED_ROLE_LIST = "GetSharedRoleListSQL";
     public static final String GET_SHARED_ROLE_LIST_H2 = "GetSharedRoleListSQLH2";
     public static final String GET_USER_FILTER = "UserFilterSQL";
@@ -269,11 +270,11 @@ public final class JDBCRealmConstants {
                     + "UM_ROLE.UM_ID=UM_USER_ROLE.UM_ROLE_ID AND UM_USER_ROLE.UM_TENANT_ID=? AND UM_ROLE"
                     + ".UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?";
 
-    public static final String GET_USERS_COUNT_WITH_FILTER_ROLE_SQL =
-            "SELECT count (UM_USER_ROLE.UM_ID) "
-                    + "FROM UM_USER_ROLE "
-                    + "JOIN UM_ROLE  ON UM_ROLE.UM_ID  = UM_USER_ROLE.UM_ROLE_ID "
-                    + "WHERE UM_ROLE.UM_ROLE_NAME  = ? AND UM_USER_ROLE.UM_TENANT_ID = ? AND UM_ROLE.UM_TENANT_ID = ?";
+    public static final String GET_USERS_COUNT_WITH_FILTER_ROLE_SQL = "SELECT count(UM_ID) FROM UM_USER_ROLE " +
+            "WHERE UM_ROLE_ID = ? AND UM_TENANT_ID = ?";
+
+    public static final String Get_Role_ID_By_Name_SQL =  "SELECT UM_ID FROM UM_ROLE " +
+            "WHERE UM_ROLE_NAME = ? AND UM_TENANT_ID = ? ";
 
     public static final String GET_USERS_IN_SHARED_ROLE_SQL =
             "SELECT UM_USER_NAME FROM UM_SHARED_USER_ROLE INNER JOIN UM_USER ON "
