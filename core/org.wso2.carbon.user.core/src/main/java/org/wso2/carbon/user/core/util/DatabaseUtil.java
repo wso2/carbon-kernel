@@ -1014,7 +1014,7 @@ public class DatabaseUtil {
                     // If concurrent requests bypass the existing user validation check, it can throw an exception
                     // regarding unique key violation. Since the user addition is successful, the exception is ignored.
                     isUniqueKeyViolationException = true;
-                    log.warn("Similar entry found when adding the user to the group. Hence skipping " +
+                    log.warn("Similar entry found when adding the user to the role. Hence skipping " +
                             "the user addition");
                     break;
                 }
