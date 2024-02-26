@@ -17860,6 +17860,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     .renameGroup(userStore.getDomainFreeGroupId(), UserCoreUtil.removeDomainFromName(newGroupName));
         }
         // #################### Domain Name Free Zone Starts Here ################################
+        // For non recursive user stores, we need to check the domain of the new group name.
+        newGroupName = UserCoreUtil.removeDomainFromName(newGroupName);
         if (!isGroupNameValid(newGroupName)) {
             String regEx = realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_ROLE_NAME_JAVA_REG_EX);

@@ -3930,8 +3930,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         String domainFreeNewGroupName = UserCoreUtil.removeDomainFromName(newGroupName);
         if (!StringUtils.equalsIgnoreCase(domainFreeCurrentGroupName, domainFreeNewGroupName) &&
                 isExistingRole(domainFreeNewGroupName)) {
-            throw new UserStoreException("Role name: " + domainFreeNewGroupName
-                    + " in the system. Please pick another role name.");
+            throw new UserStoreClientException("Group name: " + domainFreeNewGroupName
+                    + " in the system. Please pick another group name.");
         }
         String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_GROUP_NAME);
         if (StringUtils.isBlank(sqlStmt)) {
