@@ -17223,6 +17223,17 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 "listGroups operation is not implemented in: " + this.getClass());
     }
 
+    /**
+     * Check whether the given group name contain system reserved domain name such as application or internal.
+     *
+     * @param groupName String group name.
+     * @return True if the group name contain system reserved domain name, false otherwise.
+     */
+    private boolean isInvalidGroupDomain(String groupName) {
+
+        return isAnInternalRole(groupName);
+    }
+
     @Override
     public Group addGroup(String groupName, List<String> usersIds, List<org.wso2.carbon.user.core.common.Claim> claims)
             throws UserStoreException {
@@ -17230,6 +17241,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (StringUtils.isEmpty(groupName)) {
             String errorCode = ErrorMessages.ERROR_EMPTY_GROUP_NAME.getCode();
             String errorMessage = ErrorMessages.ERROR_EMPTY_GROUP_NAME.getMessage();
+            handleAddGroupFailure(errorCode, errorMessage, groupName, null, usersIds, claims);
+            throw new UserStoreClientException(errorMessage, errorCode);
+        }
+        if (isInvalidGroupDomain(groupName)) {
+            String errorCode = ErrorMessages.ERROR_SYSTEM_RESERVED_DOMAIN_IN_GROUP.getCode();
+            String errorMessage = String.format(ErrorMessages.ERROR_SYSTEM_RESERVED_DOMAIN_IN_GROUP.getMessage(),
+                    groupName);
             handleAddGroupFailure(errorCode, errorMessage, groupName, null, usersIds, claims);
             throw new UserStoreClientException(errorMessage, errorCode);
         }
