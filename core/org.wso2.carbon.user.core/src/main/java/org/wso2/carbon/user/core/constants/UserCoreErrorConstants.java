@@ -241,6 +241,8 @@ public class UserCoreErrorConstants {
                 + "non null string with format: %s"),
         ERROR_UNSUPPORTED_GROUP_SEARCH_FILTER("60011", "Unsupported group search filter: %s"),
         ERROR_UNSUPPORTED_DATE_SEARCH_FILTER("60011", "Unsupported date seacrh filter."),
+        ERROR_SYSTEM_RESERVED_DOMAIN_IN_GROUP("60012", "Group name: %s contains a system reserved " +
+                "domain name"),
 
         // Server error codes related to group operations.
         ERROR_DURING_PRE_GET_GROUP_BY_ID("65001",
