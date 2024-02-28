@@ -515,7 +515,7 @@
         <version.wso2.derby>10.3.2.1wso2v1</version.wso2.derby>
 
         <!-- slf4j -->
-        <slf4j.version>1.5.10</slf4j.version>
+        <slf4j.version>2.0.12</slf4j.version>
         <!--<slf4j.wso2.version>1.5.10.wso2v1</slf4j.wso2.version>-->
 
         <!-- findbugs -->
@@ -604,7 +604,6 @@
         <jdbc-pool.version>9.0.65.wso2v1</jdbc-pool.version>
 
         <!-- Test integration -->
-        <slf4j.version>1.5.10</slf4j.version>
         <woden.api.version>1.0M9</woden.api.version>
         <maven.clean.plugin.version>2.4.1</maven.clean.plugin.version>
         <version.com.google.code.gson>2.10.1</version.com.google.code.gson>
