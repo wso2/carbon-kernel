@@ -715,4 +715,10 @@
         <enableRestart>false</enableRestart>
     </enableShutdownRestartFromAPI>
 
+    <RemoteLogging>
+        <ConfigSync>
+            <Period>15</Period>
+        </ConfigSync>
+    </RemoteLogging>
+
 </Server>

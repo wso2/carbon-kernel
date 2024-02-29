@@ -1,7 +1,7 @@
 <%--
- Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ Copyright (c) 2005-2024, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
 
- WSO2 Inc. licenses this file to you under the Apache License,
+ WSO2 LLC. licenses this file to you under the Apache License,
  Version 2.0 (the "License"); you may not use this file except
  in compliance with the License.
  You may obtain a copy of the License at
@@ -16,16 +16,36 @@
  under the License.
  --%>
 
-<%@page import="org.wso2.carbon.utils.CarbonUtils"%>
+<%@ page import="org.apache.axis2.context.ConfigurationContext"%>
+<%@ page import="org.wso2.carbon.utils.CarbonUtils"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
+<%@ page import="org.wso2.carbon.admin.advisory.mgt.stub.dto.AdminAdvisoryBannerDTO"%>
+<%@ page import="org.wso2.carbon.admin.advisory.mgt.ui.AdminAdvisoryBannerClient"%>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
-
+<%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="org.apache.commons.logging.Log" %>
+<%@ page import="org.apache.commons.logging.LogFactory" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <jsp:include page="../dialog/display_messages.jsp"/>
 
+<%!
+    private Log log = LogFactory.getLog(this.getClass());
+%>
+<%!
+    private AdminAdvisoryBannerDTO getAdminBannerConfig(String backendServerURL, ConfigurationContext configContext) {
+        AdminAdvisoryBannerDTO adminAdvisoryBannerConfig = new AdminAdvisoryBannerDTO();
+        try {
+            AdminAdvisoryBannerClient client = new AdminAdvisoryBannerClient(backendServerURL, configContext);
+            adminAdvisoryBannerConfig = client.loadBannerConfig();
+        } catch (Exception e) {
+            log.error("Error in displaying admin advisory banner", e);
+        }
+        return adminAdvisoryBannerConfig;
+    }
+%>
 <%
 String userForumURL =
         (String) config.getServletContext().getAttribute(CarbonConstants.PRODUCT_XML_WSO2CARBON +
@@ -50,7 +70,12 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
 	response.sendRedirect("../admin/login_action.jsp");
 	return;
 }
-
+String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
+ConfigurationContext configContext = (ConfigurationContext) config.getServletContext()
+    .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+AdminAdvisoryBannerDTO adminConfig = getAdminBannerConfig(backendServerURL, configContext);
+Boolean enableBanner = adminConfig.getEnableBanner();
+String bannerContent = adminConfig.getBannerContent();
 %>
 
 <fmt:bundle basename="org.wso2.carbon.i18n.Resources">
@@ -182,6 +207,15 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
 
                         <form action='../admin/login_action.jsp' method="POST" onsubmit="return doValidation();" target="_self" onsubmit="checkInputs()">
                             <table>
+                                <%if (enableBanner) { %>
+                                <tr>
+                                    <td colspan="2">
+                                        <div style='background-color: #fff5e8; text-align: justify; padding: 10px'>
+                                            <%=Encode.forHtmlAttribute(bannerContent)%>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <% } %>
                                  <%if(!CarbonUtils.isRunningOnLocalTransportMode()) { %>
                                 <tr>
                                     <td>

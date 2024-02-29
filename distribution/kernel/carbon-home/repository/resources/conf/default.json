@@ -220,5 +220,6 @@
   "versioning_configuration.enable_version_resources_on_change" : false,
   "sts.callback_handler" : "org.wso2.carbon.identity.sts.common.identity.provider.AttributeCallbackHandler",
   "tenant_mgt.enable_tenant_theme_mgt" : true,
-  "clustering.agent": "org.wso2.carbon.hazelcast.HazelcastClusteringAgent"
+  "clustering.agent": "org.wso2.carbon.hazelcast.HazelcastClusteringAgent",
+  "remote_logging.config_sync.period": "15"
 }
