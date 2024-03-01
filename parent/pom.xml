@@ -474,7 +474,6 @@
         <orbit.version.jettison>1.3.4.wso2v1</orbit.version.jettison>
 
         <orbit.version.hsqldb>1.8.0.7wso2v1</orbit.version.hsqldb>
-        <orbit.version.commons.beanutils>1.8.0.wso2v1</orbit.version.commons.beanutils>
         <orbit.version.poi>4.1.2.wso2v1</orbit.version.poi>
         <orbit.version.poi.scratchpad>4.1.2.wso2v1</orbit.version.poi.scratchpad>
         <orbit.version.poi.ooxml>4.1.2.wso2v1</orbit.version.poi.ooxml>
@@ -486,8 +485,6 @@
         <orbit.version.geronimo-jms_1.1_spec>1.1.1.wso2v1</orbit.version.geronimo-jms_1.1_spec>
 
         <version.jakarta.taglib>1.1.2.wso2v1</version.jakarta.taglib>
-        <version.synapse>2.1.0-wso2v5</version.synapse>
-        <version.lucene.core>2.3.2</version.lucene.core>
 
         <version.tomcat>9.0.85</version.tomcat>
         <orbit.version.tomcat>${version.tomcat}.wso2v1</orbit.version.tomcat>
@@ -518,7 +515,7 @@
         <version.wso2.derby>10.3.2.1wso2v1</version.wso2.derby>
 
         <!-- slf4j -->
-        <slf4j.version>1.5.10</slf4j.version>
+        <slf4j.version>2.0.12</slf4j.version>
         <!--<slf4j.wso2.version>1.5.10.wso2v1</slf4j.wso2.version>-->
 
         <!-- findbugs -->
@@ -526,8 +523,8 @@
         <version.commons.logging>1.2</version.commons.logging>
 
         <!--PAX Logging related dependency versions-->
-        <pax.logging.api.version>2.1.0-wso2v4</pax.logging.api.version>
-        <pax.logging.log4j2.version>2.1.0-wso2v4</pax.logging.log4j2.version>
+        <pax.logging.api.version>2.2.1-wso2v1</pax.logging.api.version>
+        <pax.logging.log4j2.version>2.2.1-wso2v1</pax.logging.log4j2.version>
 
         <!--<version.opensaml2>2.4.1.wso2v1</version.opensaml2>-->
         <version.compass>2.0.1.wso2v2</version.compass>
@@ -607,10 +604,9 @@
         <jdbc-pool.version>9.0.65.wso2v1</jdbc-pool.version>
 
         <!-- Test integration -->
-        <slf4j.version>1.5.10</slf4j.version>
         <woden.api.version>1.0M9</woden.api.version>
         <maven.clean.plugin.version>2.4.1</maven.clean.plugin.version>
-        <version.com.google.code.gson>2.9.1</version.com.google.code.gson>
+        <version.com.google.code.gson>2.10.1</version.com.google.code.gson>
 
         <test.framework.version>4.4.3</test.framework.version>
         <testng.verson>6.10</testng.verson>
@@ -1287,11 +1283,6 @@
                 <groupId>org.igniterealtime.smack.wso2</groupId>
                 <artifactId>smack</artifactId>
                 <version>${orbit.version.smack}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.lucene</groupId>
-                <artifactId>lucene-core</artifactId>
-                <version>${version.lucene.core}</version>
             </dependency>
             <dependency>
                 <groupId>commons-modeler</groupId>
