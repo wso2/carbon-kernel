@@ -479,7 +479,7 @@
         <orbit.version.poi.ooxml>4.1.2.wso2v1</orbit.version.poi.ooxml>
         <orbit.version.commons.lang>2.6.0.wso2v1</orbit.version.commons.lang>
         <orbit.version.commons.collection>3.2.2.wso2v1</orbit.version.commons.collection>
-        <orbit.version.commons.io>2.11.0.wso2v1</orbit.version.commons.io>
+        <orbit.version.commons.io>2.15.1.wso2v1</orbit.version.commons.io>
         <orbit.version.smack>3.0.4.wso2v1</orbit.version.smack>
         <orbit.version.apacheds>1.5.7-wso2v1</orbit.version.apacheds>
         <orbit.version.geronimo-jms_1.1_spec>1.1.1.wso2v1</orbit.version.geronimo-jms_1.1_spec>
