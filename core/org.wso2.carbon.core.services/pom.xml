@@ -62,7 +62,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.orbit.org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
+            <artifactId>bcprov-jdk18on</artifactId>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
