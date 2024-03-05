@@ -17698,7 +17698,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // compatibility.
         clearUserRolesCacheByTenant(this.tenantId);
         // ########################################## </Post-Listeners> ##############################################
-        handlePostUpdateUserListOfGroup(groupName, deletedUserIds, newUserIds);
+        handlePostUpdateUserListOfGroup(groupId, deletedUserIds, newUserIds);
 
         // Backward compatible listeners after updating user list of role.
         handleDoPostUpdateUserListOfRoleWithID(groupName, deletedUserIds.toArray(new String[0]),
@@ -17941,7 +17941,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         addGroupNameToGroupIdCache(groupID, UserCoreUtil.removeDomainFromName(newGroupName), this.getMyDomainName());
         // ############################### <Post-Listeners> ##########################################
 
-        handlePostRenameGroup(currentGroupName, newGroupName);
+        handlePostRenameGroup(groupID, newGroupName);
         // Invoking legacy listeners.
         handlePostUpdateRoleName(currentGroupName, newGroupName, false);
 
