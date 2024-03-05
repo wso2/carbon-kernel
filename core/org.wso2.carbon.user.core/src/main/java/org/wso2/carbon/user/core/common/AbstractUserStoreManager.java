@@ -9483,11 +9483,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     /**
      * Return the count of users belong to the given role for the given filter.
-     
+     *
      * @param roleName role name.
-     * @param filter filter.
-     * @return
-     * @throws UserStoreException
+     * @param filter   filter.
+     * @return user count for the given role.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     protected int doGetUserCountOfRole(String roleName, String filter) throws UserStoreException {
 
