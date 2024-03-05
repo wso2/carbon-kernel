@@ -19193,7 +19193,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public int getUserCountByRole(String roleName, String filter) throws UserStoreException {
 
         int count = 0;
-
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[] { String.class, String.class };
             Object object = callSecure("getUserCountByRole", new Object[] { roleName, filter }, argTypes);
