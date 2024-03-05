@@ -19199,7 +19199,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return (int) object;
         }
 
-        // If role does not exit, just return
+        // If role does not exit, just return.
         if (!isExistingRole(roleName)) {
             return count;
         }
