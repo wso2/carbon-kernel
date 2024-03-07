@@ -17815,7 +17815,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // ############################# Domain Name Free Zone Starts Here ################################
-        String groupName = getGroupNameByGroupId(groupID);
+        String groupName = UserCoreUtil.removeDomainFromName(getGroupNameByGroupId(groupID));
         if (StringUtils.isBlank(groupName)) {
             throw new UserStoreClientException(String.format(ERROR_NO_GROUP_FOUND_WITH_ID.getMessage(), groupID,
                     tenantId), ERROR_NO_GROUP_FOUND_WITH_ID.getCode());
@@ -17840,8 +17840,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
         // #################### </Pre-Listeners> #####################################################
         // Clear cache and mapper tables.
-        groupUniqueIDDomainResolver.removeDomainForGroupId(groupID, UserCoreUtil.extractDomainFromName(groupName),
-                tenantId, false);
+        groupUniqueIDDomainResolver.removeDomainForGroupId(groupID,
+                UserCoreUtil.extractDomainFromName(getGroupNameByGroupId(groupID)), tenantId, false);
         try {
             if (isUniqueGroupIdEnabled()) {
                 doDeleteGroupByGroupId(groupID);
@@ -17850,7 +17850,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         } catch (UserStoreException e) {
             // Add the deleted mapping back to the cache and the DB.
-            groupUniqueIDDomainResolver.setDomainForGroupId(groupID, UserCoreUtil.extractDomainFromName(groupName),
+            groupUniqueIDDomainResolver.setDomainForGroupId(groupID,
+                    UserCoreUtil.extractDomainFromName(getGroupNameByGroupId(groupID)),
                     tenantId, false);
             handleDeleteGroupFailure(ErrorMessages.ERROR_WHILE_DELETE_GROUP.getCode(),
                     String.format(ErrorMessages.ERROR_WHILE_DELETE_GROUP.getMessage(), e.getMessage()), groupID);
