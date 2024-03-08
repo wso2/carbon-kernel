@@ -9479,6 +9479,23 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
+     * Return the count of users belong to the given role for the given filter.
+     *
+     * @param roleName role name.
+     * @param filter   filter.
+     * @return user count for the given role.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    protected int doGetUserCountOfRole(String roleName, String filter) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doGetUserCountOfRole operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "doGetUserCountOfRole operation is not implemented in: " + this.getClass());
+    }
+
+    /**
      * Return the list of users belong to the given role for the given filter.
      *
      * @param roleName     role name.
@@ -19177,5 +19194,37 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public UserUniqueIDDomainResolver getUserUniqueIDDomainResolver() {
 
         return userUniqueIDDomainResolver;
+    }
+
+    public int getUserCountForRole(String  roleName) throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[] { String.class, String.class };
+            Object object = callSecure("getUserCountByRole", new Object[] { roleName, QUERY_FILTER_STRING_ANY }, argTypes);
+            return (int) object;
+        }
+
+        return getUserCountByRole(roleName, QUERY_FILTER_STRING_ANY);
+    }
+
+    public int getUserCountByRole(String roleName, String filter) throws UserStoreException {
+
+        int count = 0;
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[] { String.class, String.class };
+            Object object = callSecure("getUserCountByRole", new Object[] { roleName, filter }, argTypes);
+            return (int) object;
+        }
+
+        // If role does not exit, just return.
+        if (!isExistingRole(roleName)) {
+            return count;
+        }
+
+        if (readGroupsEnabled) {
+            count += doGetUserCountOfRole(roleName, filter);
+        }
+
+        return count;
     }
 }

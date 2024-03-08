@@ -30,6 +30,7 @@ public final class JDBCRealmConstants {
     public static final String GET_ROLE_LIST_H2 = "GetRoleListSQLH2";
     public static final String GET_ROLE_LIST_WITH_ESCAPE = "GetRoleListSQLWithEscape";
     public static final String GET_ROLE_LIST_WITH_ESCAPE_H2 = "GetRoleListSQLWithEscapeH2";
+    public static final String GET_ROLE_ID_BY_NAME = "GetRoleIDByNameSQL";
     public static final String GET_SHARED_ROLE_LIST = "GetSharedRoleListSQL";
     public static final String GET_SHARED_ROLE_LIST_H2 = "GetSharedRoleListSQLH2";
     public static final String GET_USER_FILTER = "UserFilterSQL";
@@ -55,6 +56,7 @@ public final class JDBCRealmConstants {
     public static final String GET_USERS_IN_ROLE = "GetUserListOfRoleSQL";
     public static final String GET_USERS_IN_ROLE_FILTER = "GetUserListOfRoleFilterSQL";
     public static final String GET_USERS_IN_ROLE_FILTER_WITH_ID = "GetUserListOfRoleFilterWithIDSQL";
+    public static final String GET_USERS_COUNT_WITH_FILTER_ROLE = "GetUserCountWithFilterRoleSQL";
     public static final String GET_USERS_IN_SHARED_ROLE = "GetUserListOfSharedRoleSQL";
     public static final String GET_USERS_IN_SHARED_ROLE_FILTER = "GetUserListOfSharedRoleFilterSQL";
     public static final String GET_USERS_IN_SHARED_ROLE_FILTER_WITH_ID = "GetUserListOfSharedRoleFilterWithIDSQL";
@@ -267,6 +269,13 @@ public final class JDBCRealmConstants {
                     + ".UM_USER_NAME LIKE ? AND UM_ROLE.UM_ROLE_NAME=? AND UM_USER.UM_ID=UM_USER_ROLE.UM_USER_ID AND "
                     + "UM_ROLE.UM_ID=UM_USER_ROLE.UM_ROLE_ID AND UM_USER_ROLE.UM_TENANT_ID=? AND UM_ROLE"
                     + ".UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?";
+
+    public static final String GET_USERS_COUNT_WITH_FILTER_ROLE_SQL = "SELECT count(UM_ID) FROM UM_USER_ROLE " +
+            "WHERE UM_ROLE_ID = ? AND UM_TENANT_ID = ?";
+
+    public static final String GET_ROLE_ID_BY_NAME_SQL =  "SELECT UM_ID FROM UM_ROLE " +
+            "WHERE UM_ROLE_NAME = ? AND UM_TENANT_ID = ? ";
+
     public static final String GET_USERS_IN_SHARED_ROLE_SQL =
             "SELECT UM_USER_NAME FROM UM_SHARED_USER_ROLE INNER JOIN UM_USER ON "
                     + "UM_SHARED_USER_ROLE.UM_USER_ID = UM_USER.UM_ID INNER JOIN UM_ROLE ON "
