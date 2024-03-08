@@ -17814,8 +17814,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return;
         }
 
+        String groupName = getGroupNameByGroupId(groupID);
+        String domain = UserCoreUtil.extractDomainFromName(groupName);
         // ############################# Domain Name Free Zone Starts Here ################################
-        String groupName = UserCoreUtil.removeDomainFromName(getGroupNameByGroupId(groupID));
+        groupName = UserCoreUtil.removeDomainFromName(groupName);
         if (StringUtils.isBlank(groupName)) {
             throw new UserStoreClientException(String.format(ERROR_NO_GROUP_FOUND_WITH_ID.getMessage(), groupID,
                     tenantId), ERROR_NO_GROUP_FOUND_WITH_ID.getCode());
@@ -17840,8 +17842,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
         // #################### </Pre-Listeners> #####################################################
         // Clear cache and mapper tables.
-        groupUniqueIDDomainResolver.removeDomainForGroupId(groupID,
-                UserCoreUtil.extractDomainFromName(getGroupNameByGroupId(groupID)), tenantId, false);
+        groupUniqueIDDomainResolver.removeDomainForGroupId(groupID, domain, tenantId, false);
         try {
             if (isUniqueGroupIdEnabled()) {
                 doDeleteGroupByGroupId(groupID);
@@ -17850,9 +17851,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         } catch (UserStoreException e) {
             // Add the deleted mapping back to the cache and the DB.
-            groupUniqueIDDomainResolver.setDomainForGroupId(groupID,
-                    UserCoreUtil.extractDomainFromName(getGroupNameByGroupId(groupID)),
-                    tenantId, false);
+            groupUniqueIDDomainResolver.setDomainForGroupId(groupID, domain, tenantId, false);
             handleDeleteGroupFailure(ErrorMessages.ERROR_WHILE_DELETE_GROUP.getCode(),
                     String.format(ErrorMessages.ERROR_WHILE_DELETE_GROUP.getMessage(), e.getMessage()), groupID);
             throw e;
