@@ -9479,6 +9479,23 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
+     * Return the count of users belong to the given role for the given filter.
+     *
+     * @param roleName role name.
+     * @param filter   filter.
+     * @return user count for the given role.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    protected int doGetUserCountOfRole(String roleName, String filter) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doGetUserCountOfRole operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "doGetUserCountOfRole operation is not implemented in: " + this.getClass());
+    }
+
+    /**
      * Return the list of users belong to the given role for the given filter.
      *
      * @param roleName     role name.
@@ -17223,6 +17240,17 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 "listGroups operation is not implemented in: " + this.getClass());
     }
 
+    /**
+     * Check whether the given group name contain system reserved domain name such as application or internal.
+     *
+     * @param groupName String group name.
+     * @return True if the group name contain system reserved domain name, false otherwise.
+     */
+    private boolean isInvalidGroupDomain(String groupName) {
+
+        return isAnInternalRole(groupName);
+    }
+
     @Override
     public Group addGroup(String groupName, List<String> usersIds, List<org.wso2.carbon.user.core.common.Claim> claims)
             throws UserStoreException {
@@ -17230,6 +17258,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (StringUtils.isEmpty(groupName)) {
             String errorCode = ErrorMessages.ERROR_EMPTY_GROUP_NAME.getCode();
             String errorMessage = ErrorMessages.ERROR_EMPTY_GROUP_NAME.getMessage();
+            handleAddGroupFailure(errorCode, errorMessage, groupName, null, usersIds, claims);
+            throw new UserStoreClientException(errorMessage, errorCode);
+        }
+        if (isInvalidGroupDomain(groupName)) {
+            String errorCode = ErrorMessages.ERROR_SYSTEM_RESERVED_DOMAIN_IN_GROUP.getCode();
+            String errorMessage = String.format(ErrorMessages.ERROR_SYSTEM_RESERVED_DOMAIN_IN_GROUP.getMessage(),
+                    groupName);
             handleAddGroupFailure(errorCode, errorMessage, groupName, null, usersIds, claims);
             throw new UserStoreClientException(errorMessage, errorCode);
         }
@@ -17680,7 +17715,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // compatibility.
         clearUserRolesCacheByTenant(this.tenantId);
         // ########################################## </Post-Listeners> ##############################################
-        handlePostUpdateUserListOfGroup(groupName, deletedUserIds, newUserIds);
+        handlePostUpdateUserListOfGroup(groupId, deletedUserIds, newUserIds);
 
         // Backward compatible listeners after updating user list of role.
         handleDoPostUpdateUserListOfRoleWithID(groupName, deletedUserIds.toArray(new String[0]),
@@ -17796,8 +17831,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return;
         }
 
-        // ############################# Domain Name Free Zone Starts Here ################################
         String groupName = getGroupNameByGroupId(groupID);
+        String domain = UserCoreUtil.extractDomainFromName(groupName);
+        // ############################# Domain Name Free Zone Starts Here ################################
+        groupName = UserCoreUtil.removeDomainFromName(groupName);
         if (StringUtils.isBlank(groupName)) {
             throw new UserStoreClientException(String.format(ERROR_NO_GROUP_FOUND_WITH_ID.getMessage(), groupID,
                     tenantId), ERROR_NO_GROUP_FOUND_WITH_ID.getCode());
@@ -17822,8 +17859,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
         // #################### </Pre-Listeners> #####################################################
         // Clear cache and mapper tables.
-        groupUniqueIDDomainResolver.removeDomainForGroupId(groupID, UserCoreUtil.extractDomainFromName(groupName),
-                tenantId, false);
+        groupUniqueIDDomainResolver.removeDomainForGroupId(groupID, domain, tenantId, false);
         try {
             if (isUniqueGroupIdEnabled()) {
                 doDeleteGroupByGroupId(groupID);
@@ -17832,8 +17868,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         } catch (UserStoreException e) {
             // Add the deleted mapping back to the cache and the DB.
-            groupUniqueIDDomainResolver.setDomainForGroupId(groupID, UserCoreUtil.extractDomainFromName(groupName),
-                    tenantId, false);
+            groupUniqueIDDomainResolver.setDomainForGroupId(groupID, domain, tenantId, false);
             handleDeleteGroupFailure(ErrorMessages.ERROR_WHILE_DELETE_GROUP.getCode(),
                     String.format(ErrorMessages.ERROR_WHILE_DELETE_GROUP.getMessage(), e.getMessage()), groupID);
             throw e;
@@ -17860,6 +17895,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     .renameGroup(userStore.getDomainFreeGroupId(), UserCoreUtil.removeDomainFromName(newGroupName));
         }
         // #################### Domain Name Free Zone Starts Here ################################
+        // For non recursive user stores, we need to check the domain of the new group name.
+        newGroupName = UserCoreUtil.removeDomainFromName(newGroupName);
         if (!isGroupNameValid(newGroupName)) {
             String regEx = realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_ROLE_NAME_JAVA_REG_EX);
@@ -17921,7 +17958,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         addGroupNameToGroupIdCache(groupID, UserCoreUtil.removeDomainFromName(newGroupName), this.getMyDomainName());
         // ############################### <Post-Listeners> ##########################################
 
-        handlePostRenameGroup(currentGroupName, newGroupName);
+        handlePostRenameGroup(groupID, newGroupName);
         // Invoking legacy listeners.
         handlePostUpdateRoleName(currentGroupName, newGroupName, false);
 
@@ -19157,5 +19194,37 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public UserUniqueIDDomainResolver getUserUniqueIDDomainResolver() {
 
         return userUniqueIDDomainResolver;
+    }
+
+    public int getUserCountForRole(String  roleName) throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[] { String.class, String.class };
+            Object object = callSecure("getUserCountByRole", new Object[] { roleName, QUERY_FILTER_STRING_ANY }, argTypes);
+            return (int) object;
+        }
+
+        return getUserCountByRole(roleName, QUERY_FILTER_STRING_ANY);
+    }
+
+    public int getUserCountByRole(String roleName, String filter) throws UserStoreException {
+
+        int count = 0;
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[] { String.class, String.class };
+            Object object = callSecure("getUserCountByRole", new Object[] { roleName, filter }, argTypes);
+            return (int) object;
+        }
+
+        // If role does not exit, just return.
+        if (!isExistingRole(roleName)) {
+            return count;
+        }
+
+        if (readGroupsEnabled) {
+            count += doGetUserCountOfRole(roleName, filter);
+        }
+
+        return count;
     }
 }

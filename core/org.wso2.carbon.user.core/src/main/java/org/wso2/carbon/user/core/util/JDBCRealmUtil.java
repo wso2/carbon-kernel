@@ -535,6 +535,14 @@ public class JDBCRealmUtil {
                     JDBCRealmConstants.GET_USERS_PROPS_FOR_PROFILE_WITH_ID_SQL);
         }
 
+        if (!properties.containsKey(JDBCRealmConstants.GET_USERS_COUNT_WITH_FILTER_ROLE)) {
+            properties.put(JDBCRealmConstants.GET_USERS_COUNT_WITH_FILTER_ROLE, JDBCRealmConstants.GET_USERS_COUNT_WITH_FILTER_ROLE_SQL);
+        }
+
+        if (!properties.containsKey(JDBCRealmConstants.GET_ROLE_ID_BY_NAME)) {
+            properties.put(JDBCRealmConstants.GET_ROLE_ID_BY_NAME, JDBCRealmConstants.GET_ROLE_ID_BY_NAME_SQL);
+        }
+
         if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_USERS_PROPS_FOR_PROFILE_CASE_INSENSITIVE)) {
             properties.put(JDBCCaseInsensitiveConstants.GET_USERS_PROPS_FOR_PROFILE_CASE_INSENSITIVE,
                     JDBCCaseInsensitiveConstants.GET_USERS_PROPS_FOR_PROFILE_SQL_CASE_INSENSITIVE);

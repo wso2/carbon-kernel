@@ -162,7 +162,7 @@ public class JDBCUserStoreConstants {
                 new Property[] { GROUP.getProperty(), NUMBER.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(UserStoreConfigConstants.GROUP_ID_ENABLED, UserStoreConfigConstants.GROUP_ID_ENABLED_DISPLAY_NAME, Boolean.toString(true),
                 UserStoreConfigConstants.GROUP_ID_ENABLED_DESCRIPTION,
-                new Property[]{GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty()});
+                new Property[]{GROUP.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty()});
 
         setAdvancedProperty(UserStoreConfigConstants.userRolesCacheEnabled, "Enable User Group Cache", "true",
                 UserStoreConfigConstants.userRolesCacheEnabledDescription,
