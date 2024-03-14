@@ -2189,8 +2189,10 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             if (e instanceof NameAlreadyBoundException) {
                 // If concurrent requests bypass the existing user validation check, it can throw an exception
                 // regarding unique key violation. Since the user addition is successful, the exception is ignored.
-                log.warn(String.format("Similar entry found when adding the user to LDAP role: %s. Hence skipping " +
-                        "the user addition", groupRDN));
+                if (log.isDebugEnabled()) {
+                    log.debug(String.format("Similar entry found when adding the user to LDAP role: %s. " +
+                            "Hence skipping the user addition", groupRDN), e);
+                }
             } else {
                 String errorMessage =
                         "Error occurred while modifying user entry: " + userNameDN + " in LDAP role: " + groupRDN;
