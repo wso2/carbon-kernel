@@ -161,6 +161,13 @@
             <groupId>org.jvnet.staxex</groupId>
             <artifactId>stax-ex</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.tycho</groupId>
+            <artifactId>tycho-bundles-external</artifactId>
+            <version>2.7.5</version>
+            <type>zip</type>
+        </dependency>
+
     </dependencies>
     <build>
         <plugins>
@@ -178,9 +185,12 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.eclipse.equinox</groupId>
-                                    <artifactId>org.eclipse.equinox.executable</artifactId>
-                                    <version>3.5.0.v20110530-7P7NFUFFLWUl76mart</version>
+<!--                                    <groupId>org.eclipse.equinox</groupId>-->
+<!--                                    <artifactId>org.eclipse.equinox.executable</artifactId>-->
+<!--                                    <version>4.3.0.v20240129</version>-->
+                                    <groupId>org.eclipse.tycho</groupId>
+                                    <artifactId>tycho-bundles-external</artifactId>
+                                    <version>2.7.5</version>
                                     <type>zip</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>target</outputDirectory>
@@ -193,6 +203,8 @@
             <plugin>
                 <groupId>org.wso2.maven</groupId>
                 <artifactId>carbon-p2-plugin</artifactId>
+                <!-- TODO this is mandatory-->
+                <extensions>true</extensions>
                 <executions>
                     <execution>
                         <id>p2-repo-generation</id>
@@ -224,6 +236,12 @@
                         <configuration>
                             <productConfigurationFile>${basedir}/carbon.product
                             </productConfigurationFile>
+<!--                            <executable>-->
+<!--                                ${basedir}/target/org.eclipse.equinox.executable-4.3.0.v20240129-->
+<!--                            </executable>-->
+<!--                            <groupId>org.eclipse.tycho</groupId>-->
+<!--                            <artifactId>tycho-bundles-external</artifactId>-->
+<!--                            <version>2.7.5</version>-->
                             <executable>
                                 ${basedir}/target/org.eclipse.equinox.executable_3.5.0.v20110530-7P7NFUFFLWUl76mart
                             </executable>
@@ -267,6 +285,13 @@
                         </configuration>
                     </execution>
                 </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.eclipse.tycho</groupId>
+                        <artifactId>tycho-core</artifactId>
+                        <version>4.0.6</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
