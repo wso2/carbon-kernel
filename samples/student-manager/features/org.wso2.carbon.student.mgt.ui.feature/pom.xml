@@ -43,7 +43,7 @@
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.student.mgt.ui</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.student.mgt.ui:${student.manager.version}</bundleDef>
                             </bundles>
                         </configuration>
                     </execution>
