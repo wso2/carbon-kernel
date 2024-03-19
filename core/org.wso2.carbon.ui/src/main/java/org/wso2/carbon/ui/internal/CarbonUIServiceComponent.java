@@ -25,7 +25,6 @@ import org.apache.catalina.core.StandardContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.InstanceManager;
-import org.eclipse.equinox.http.helper.ContextPathServletAdaptor;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -38,6 +37,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
+import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.url.URLConstants;
 import org.osgi.service.url.URLStreamHandlerService;
@@ -108,10 +108,9 @@ public class CarbonUIServiceComponent {
     private static ServerConfigurationService serverConfiguration;
     private static RealmService realmService;
     private static CarbonTomcatService carbonTomcatService;
-    private static List<UIAuthenticationExtender> authenticationExtenders =
-            new LinkedList<UIAuthenticationExtender>();
+    private static List<UIAuthenticationExtender> authenticationExtenders = new LinkedList<>();
 
-    private BundleContext bundleContext;
+    private static BundleContext bundleContext;
 
     private Servlet adaptedJspServlet;
     
@@ -198,6 +197,10 @@ public class CarbonUIServiceComponent {
         return carbonTomcatService;
     }
 
+    public static BundleContext getBundleContext() {
+        return bundleContext;
+    }
+
     public void start(BundleContext context) throws Exception {
         this.bundleContext = context;
 
@@ -260,9 +263,11 @@ public class CarbonUIServiceComponent {
                 new CarbonSecuredHttpContext(context.getBundle(), "/web", uiResourceRegistry, registry);
 
         //Registering filedownload servlet
-        Servlet fileDownloadServlet = new ContextPathServletAdaptor(new FileDownloadServlet(
-                context, getConfigurationContextService()), "/filedownload");
-        httpService.registerServlet("/filedownload", fileDownloadServlet, null, commonContext);
+        Servlet fileDownloadServlet = new FileDownloadServlet(context, getConfigurationContextService());
+        Dictionary<String, Object> fileDownloadServletProperties = new Hashtable<>();
+        fileDownloadServletProperties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/filedownload");
+        context.registerService(Servlet.class, fileDownloadServlet, fileDownloadServletProperties);
+//        httpService.registerServlet("/filedownload", fileDownloadServlet, null, commonContext);
         fileDownloadServlet.getServletConfig().getServletContext().setAttribute(
                 CarbonConstants.SERVER_URL, serverURL);
         fileDownloadServlet.getServletConfig().getServletContext().setAttribute(
@@ -271,14 +276,15 @@ public class CarbonUIServiceComponent {
         //Registering fileupload servlet
         Servlet fileUploadServlet;
         if (isLocalTransportMode) {
-            fileUploadServlet = new ContextPathServletAdaptor(new FileUploadServlet(
-                    context, serverConfigContext, webContext), "/fileupload");
+            fileUploadServlet = new FileUploadServlet(context, serverConfigContext, webContext);
         } else {
-            fileUploadServlet = new ContextPathServletAdaptor(new FileUploadServlet(
-                    context, clientConfigContext, webContext), "/fileupload");
+            fileUploadServlet = new FileUploadServlet(context, clientConfigContext, webContext);
         }
 
-        httpService.registerServlet("/fileupload", fileUploadServlet, null, commonContext);
+//        httpService.registerServlet("/fileupload", fileUploadServlet, null, commonContext);
+        Dictionary<String, Object> fileUploadServletProperties = new Hashtable<>();
+        fileUploadServletProperties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/fileupload");
+        context.registerService(Servlet.class, fileUploadServlet, fileUploadServletProperties);
         fileUploadServlet.getServletConfig().getServletContext().setAttribute(
                 CarbonConstants.SERVER_URL, serverURL);
         fileUploadServlet.getServletConfig().getServletContext().setAttribute(
@@ -287,17 +293,19 @@ public class CarbonUIServiceComponent {
         uiBundleDeployer.deploy(bundleContext, commonContext);
         context.addBundleListener(uiBundleDeployer);
 
+        // TODO check if they need to be registered with bundle context?
         httpService.registerServlet("/", new org.apache.tiles.web.startup.TilesServlet(),
                                     initparams,
                                     commonContext);
         httpService.registerResources("/" + webContext, "/", commonContext);
 
-        adaptedJspServlet = new ContextPathServletAdaptor(
-                new TilesJspServlet(context.getBundle(), uiResourceRegistry), "/" + webContext);
+        adaptedJspServlet = new TilesJspServlet(context.getBundle(), uiResourceRegistry);
 
-        Dictionary<String, String> carbonInitparams = new Hashtable<String, String>();
-        carbonInitparams.put("strictQuoteEscaping", "false");
-        httpService.registerServlet("/" + webContext + "/*.jsp", adaptedJspServlet, carbonInitparams, commonContext);
+        Dictionary<String, String> carbonInitparams = new Hashtable<>();
+        carbonInitparams.put("servlet.init.strictQuoteEscaping", "false");
+        carbonInitparams.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/" + webContext + "/*.jsp");
+//        httpService.registerServlet("/" + webContext + "/*.jsp", adaptedJspServlet, carbonInitparams, commonContext);
+        context.registerService(Servlet.class, adaptedJspServlet, carbonInitparams);
 
         ServletContext jspServletContext =
                 adaptedJspServlet.getServletConfig().getServletContext();

@@ -17,20 +17,9 @@ package org.wso2.carbon.utils;
 
 import org.apache.axis2.context.ConfigurationContext;
 
-public class ConfigurationContextService {
-    private ConfigurationContext serverConfigContext;
-    private ConfigurationContext clientConfigContext;
+public interface ConfigurationContextService {
 
-    public ConfigurationContextService(ConfigurationContext serverConfigContext, ConfigurationContext clientConfigContext){
-        this.serverConfigContext = serverConfigContext;
-        this.clientConfigContext = clientConfigContext;
-    }
+    public ConfigurationContext getServerConfigContext();
 
-    public ConfigurationContext getServerConfigContext() {
-        return serverConfigContext;
-    }
-
-    public ConfigurationContext getClientConfigContext() {
-        return clientConfigContext;
-    }
+    public ConfigurationContext getClientConfigContext();
 }

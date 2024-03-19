@@ -37,13 +37,24 @@
             <artifactId>org.eclipse.osgi</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.platform</groupId>
-            <artifactId>org.eclipse.osgi.services</artifactId>
+            <groupId>org.eclipse.equinox</groupId>
+            <artifactId>javax.servlet</artifactId>
+            <version>${version.equinox.javax.servlet}</version>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.http.helper</artifactId>
+            <groupId>org.eclipse.platform</groupId>
+            <artifactId>org.eclipse.osgi.services</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.jetty.toolchain</groupId>
+                    <artifactId>jetty-servlet</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.eclipse.equinox</groupId>-->
+<!--            <artifactId>org.eclipse.equinox.http.helper</artifactId>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -243,6 +254,9 @@
                         <Embed-Dependency>
                             naming-factory|naming-resources|commons-collections;scope=compile|runtime;inline=false
                         </Embed-Dependency>
+                        <Provide-Capability>
+                            osgi.service;objectClass=org.wso2.carbon.utils.ConfigurationContextService
+                        </Provide-Capability>
                         <Embed-Transitive>true</Embed-Transitive>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>

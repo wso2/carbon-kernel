@@ -15,7 +15,6 @@
  */
 package org.wso2.carbon.ui;
 
-import org.eclipse.equinox.http.helper.BundleEntryHttpContext;
 import org.osgi.framework.Bundle;
 
 import java.net.MalformedURLException;

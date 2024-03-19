@@ -53,9 +53,10 @@ public class SignatureUtil {
             provider = (Provider) (Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider")).
                     getDeclaredConstructor().newInstance();
 
-        } else if (providerName.equals(ServerConstants.JCE_PROVIDER_BCFIPS)) {
-            provider = (Provider) (Class.forName("org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider")).
-                    getDeclaredConstructor().newInstance();
+            //TODO check why this is not working
+//        } else if (providerName.equals(ServerConstants.JCE_PROVIDER_BCFIPS)) {
+//            provider = (Provider) (Class.forName("org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider")).
+//                    getDeclaredConstructor().newInstance();
 
         } else {
             throw new NoSuchProviderException("Configured JCE provider is not supported.");

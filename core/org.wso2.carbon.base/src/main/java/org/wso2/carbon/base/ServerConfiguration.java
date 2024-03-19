@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.impl.Constants;
 import org.apache.xerces.util.SecurityManager;
+import org.osgi.service.component.annotations.Component;
 import org.w3c.dom.Element;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.securevault.SecretManagerInitializer;
@@ -55,6 +56,7 @@ import javax.xml.stream.XMLStreamException;
  * This class stores the configuration of the Carbon Server.
  */
 @SuppressWarnings("unused")
+//@Component(service = ServerConfigurationService.class)
 public class ServerConfiguration implements ServerConfigurationService {
 
 	/**

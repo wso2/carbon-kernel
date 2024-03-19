@@ -327,7 +327,14 @@
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.service.permissionadmin</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.http.whiteboard</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.platform</groupId>
+            <artifactId>org.eclipse.equinox.http.service.api</artifactId>
+        </dependency>
 
     </dependencies>
 
@@ -336,6 +343,7 @@
             <plugin>
                 <groupId>org.wso2.maven</groupId>
                 <artifactId>carbon-p2-plugin</artifactId>
+                <extensions>true</extensions>
                 <executions>
                     <execution>
                         <id>4-p2-feature-generation</id>
@@ -356,6 +364,7 @@
                                 <bundleDef>org.eclipse.platform:org.eclipse.equinox.simpleconfigurator</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.osgi.security</bundleDef>
                                 <bundleDef>org.eclipse.platform:org.eclipse.equinox.ds</bundleDef>
+<!--                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.launcher.gtk.linux.x86_64</bundleDef>-->
                                 <bundleDef>org.eclipse.platform:org.eclipse.equinox.launcher</bundleDef>
                                 <bundleDef>org.eclipse.platform:org.eclipse.equinox.util</bundleDef>
                                 <bundleDef>org.eclipse.platform:org.eclipse.osgi.services</bundleDef>
@@ -407,10 +416,8 @@
                                 <bundleDef>org.eclipse.platform:org.eclipse.equinox.p2.repository</bundleDef>
                                 <bundleDef>org.eclipse.platform:org.eclipse.equinox.p2.updatesite</bundleDef>
                                 <bundleDef>org.eclipse.platform:org.eclipse.equinox.p2.publisher.eclipse</bundleDef>
-<!--                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.launcher.gtk.linux.x86</bundleDef>-->
-<!--                                TODO this is not working-->
-<!--                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.launcher.gtk.linux.x86_64</bundleDef>-->
                                 <bundleDef>org.eclipse.platform:org.eclipse.equinox.p2.transport.ecf</bundleDef>
+                                <bundleDef>org.eclipse.platform:org.eclipse.equinox.http.service.api</bundleDef>
                                 <bundleDef>org.eclipse.ecf.provider.filetransfer:httpclient</bundleDef>
                                 <bundleDef>org.wso2.eclipse.osgi:org.eclipse.osgi.compatibility.state</bundleDef>
                                 <bundleDef>org.osgi:org.osgi.service.component</bundleDef>
@@ -425,6 +432,7 @@
                                 <bundleDef>org.osgi:org.osgi.service.useradmin</bundleDef>
                                 <bundleDef>org.osgi:org.osgi.service.metatype</bundleDef>
                                 <bundleDef>org.osgi:org.osgi.service.permissionadmin</bundleDef>
+                                <bundleDef>org.osgi:org.osgi.service.http.whiteboard</bundleDef>
                             </bundles>
                         </configuration>
                     </execution>
