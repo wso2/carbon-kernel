@@ -37,8 +37,19 @@
             <artifactId>org.eclipse.osgi</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.eclipse.equinox</groupId>
+            <artifactId>javax.servlet</artifactId>
+            <version>${version.equinox.javax.servlet}</version>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.osgi.services</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.jetty.toolchain</groupId>
+                    <artifactId>jetty-servlet</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.ws.commons.axiom.wso2</groupId>
@@ -111,7 +122,7 @@
             <artifactId>axis2</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.http.servlet</artifactId>
             <exclusions>
                 <exclusion>
@@ -145,10 +156,6 @@
                     <artifactId>jstl-api</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.equinox</groupId>
-            <artifactId>javax.servlet</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-lang.wso2</groupId>
@@ -222,7 +229,6 @@
                             javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
                             javax.servlet.jsp; version="${imp.pkg.version.javax.servlet.jsp}"
                             javax.servlet.jsp.tagext; version="${imp.pkg.version.javax.servlet.jsp}",
-                            org.eclipse.equinox.http.helper,
                             org.apache.tiles.*;version="2.0.5",
                             org.wso2.carbon.registry.core.service,
                             org.owasp.csrfguard.tag.*; version="${orbit.version.csrfguard}",

@@ -68,7 +68,7 @@
                     <artifactId>org.eclipse.equinox.http.servlet</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.eclipse.osgi</groupId>
+                    <groupId>org.eclipse.platform</groupId>
                     <artifactId>org.eclipse.equinox.jsp.jasper</artifactId>
                 </exclusion>
                 <exclusion>
@@ -162,6 +162,10 @@
                         <Export-Package>
                             org.wso2.carbon.feature.mgt.core.*
                         </Export-Package>
+                        <!-- TODO this is wrong. Just trying out -->
+                        <Provide-Capability>
+                            osgi.service;objectClass=org.eclipse.equinox.p2.core.IProvisioningAgentProvider
+                        </Provide-Capability>
                     </instructions>
                 </configuration>
             </plugin>

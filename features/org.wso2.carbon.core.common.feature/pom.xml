@@ -36,6 +36,7 @@
             <plugin>
                 <groupId>org.wso2.maven</groupId>
                 <artifactId>carbon-p2-plugin</artifactId>
+                <extensions>true</extensions>
                 <executions>
                     <execution>
                         <id>4-p2-feature-generation</id>
@@ -54,11 +55,11 @@
                             </adviceFile>
                             <bundles>
                                 <bundleDef>
-                                    org.eclipse.equinox:org.eclipse.equinox.http.servlet:${version.equinox.http.servlet}
+                                    org.eclipse.platform:org.eclipse.equinox.http.servlet:${version.equinox.http.servlet}
                                 </bundleDef>
-                                <bundleDef>
-                                    org.eclipse.equinox:org.eclipse.equinox.http.helper:${version.equinox.http.helper}
-                                </bundleDef>
+<!--                                <bundleDef>-->
+<!--                                    org.eclipse.equinox:org.eclipse.equinox.http.helper:${version.equinox.http.helper}-->
+<!--                                </bundleDef>-->
                                 <bundleDef>org.wso2.orbit.org.apache.tomcat:tomcat-jsp-api:${orbit.version.tomcat.jsp.api}
                                 </bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.tomcat:tomcat-el-api:${orbit.version.tomcat.el.api}

@@ -36,7 +36,6 @@ import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.core.runtime.adaptor.EclipseStarter;
-import org.eclipse.equinox.http.helper.FilterServletAdaptor;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -45,14 +44,17 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
+import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.base.CarbonContextHolderBase;
 import org.wso2.carbon.base.api.ServerConfigurationService;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.CarbonAxisConfigurator;
 import org.wso2.carbon.core.CarbonConfigurationContextFactory;
 import org.wso2.carbon.core.CarbonThreadCleanup;
 import org.wso2.carbon.core.CarbonThreadFactory;
+import org.wso2.carbon.core.ConfigurationContextServiceImpl;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.ServerInitializer;
 import org.wso2.carbon.core.ServerManagement;
@@ -61,10 +63,9 @@ import org.wso2.carbon.core.deployment.OSGiAxis2ServiceDeployer;
 import org.wso2.carbon.core.deployment.RegistryBasedRepositoryUpdater;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.core.internal.CarbonCoreServiceComponent;
-import org.wso2.carbon.core.multitenancy.GenericArtifactUnloader;
 import org.wso2.carbon.core.internal.HTTPGetProcessorListener;
+import org.wso2.carbon.core.multitenancy.GenericArtifactUnloader;
 import org.wso2.carbon.core.multitenancy.MultitenantServerManager;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.multitenancy.utils.TenantAxisUtils;
 import org.wso2.carbon.core.security.CarbonJMXAuthenticator;
 import org.wso2.carbon.core.transports.CarbonServlet;
@@ -92,8 +93,6 @@ import org.wso2.carbon.utils.deployment.Axis2ServiceRegistry;
 import org.wso2.carbon.utils.deployment.GhostDeployerUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import javax.servlet.Filter;
-import javax.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -102,6 +101,7 @@ import java.net.SocketException;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -115,6 +115,9 @@ import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
+
+import javax.servlet.Filter;
+import javax.servlet.ServletException;
 
 import static org.apache.axis2.transport.TransportListener.HOST_ADDRESS;
 
@@ -527,7 +530,7 @@ public final class CarbonServerManager implements Controllable {
                 log.debug("Registering ConfigurationContextService...");
             }
             bundleContext.registerService(ConfigurationContextService.class.getName(),
-                    new ConfigurationContextService(serverConfigContext,
+                    new ConfigurationContextServiceImpl(serverConfigContext,
                             clientConfigContext),
                     null);
 
@@ -554,7 +557,11 @@ public final class CarbonServerManager implements Controllable {
             ServiceReference filterServiceReference = bundleContext.getServiceReference(Filter.class.getName());
             if (filterServiceReference != null) {
                 Filter filter = (Filter) bundleContext.getService(filterServiceReference);
-                httpService.registerServlet(servicePath, new FilterServletAdaptor(filter, null, carbonServlet), null, defaultHttpContext);
+                //todo should this also be registered with the whitebox service?
+                httpService.registerServlet(servicePath, carbonServlet, null, defaultHttpContext);
+                Dictionary<String, String> props = new Hashtable<>();
+                props.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_PATTERN, servicePath);
+                bundleContext.registerService(Filter.class, filter, props);
             } else {
                 httpService.registerServlet(servicePath, carbonServlet, null, defaultHttpContext);
             }
