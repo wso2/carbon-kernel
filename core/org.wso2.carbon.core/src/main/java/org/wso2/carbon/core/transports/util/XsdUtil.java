@@ -137,6 +137,7 @@ public final class XsdUtil {
                             }
                         }
                         outstream.flush();
+                        instream.close();
                         return;
                     } else {
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -190,14 +191,15 @@ public final class XsdUtil {
                     outputStream.flush();
                 }
             } else if  (xsds.endsWith(".xsd") && xsds.indexOf("..") == -1){
-                InputStream in = axisService.getClassLoader()
-                        .getResourceAsStream(DeploymentConstants.META_INF + "/" + xsds);
-                if (in != null) {
-                    outputStream.write(IOUtils.getStreamAsByteArray(in));
-                    outputStream.flush();
-                    outputStream.close();
-                } else {
-                    response.setError(HttpServletResponse.SC_NOT_FOUND);
+                try (InputStream in = axisService.getClassLoader()
+                        .getResourceAsStream(DeploymentConstants.META_INF + "/" + xsds)) {
+                    if (in != null) {
+                        outputStream.write(IOUtils.getStreamAsByteArray(in));
+                        outputStream.flush();
+                        outputStream.close();
+                    } else {
+                        response.setError(HttpServletResponse.SC_NOT_FOUND);
+                    }
                 }
             } else {
                 String msg = "Invalid schema " + xsds + " requested";
