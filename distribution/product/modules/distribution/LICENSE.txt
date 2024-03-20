@@ -184,7 +184,6 @@ re2j-1.2.jar                                                                    
 jackson-dataformat-yaml-2.13.2.jar                                                                  bundle         apache2
 jinjava-2.6.0.jar                                                                                   jar            apache2
 istack-commons-runtime-3.0.8.jar                                                                    bundle         edl1
-jsoup-1.15.3.jar                                                                                    bundle         mit
 ant-contrib-1.0b3.jar                                                                               jar            apache2
 jackson-annotations-2.13.2.jar                                                                      bundle         apache2
 xml-apis-1.4.01.jar                                                                                 jar            apache2

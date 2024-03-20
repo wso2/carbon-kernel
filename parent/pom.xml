@@ -641,7 +641,6 @@
         <version.jackson>2.16.1</version.jackson>
         <version.jackson.databind>2.16.0</version.jackson.databind>
         <version.jackson.dataformat>2.16.0</version.jackson.dataformat>
-        <version.jsoup>1.15.3</version.jsoup>
         <version.guava>33.0.0-jre</version.guava>
         <version.ciphertool>1.1.0</version.ciphertool>
         <xml.unit.verions>2.6.2</xml.unit.verions>
@@ -1826,11 +1825,6 @@
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-yaml</artifactId>
                 <version>${version.jackson.dataformat}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jsoup</groupId>
-                <artifactId>jsoup</artifactId>
-                <version>${version.jsoup}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
