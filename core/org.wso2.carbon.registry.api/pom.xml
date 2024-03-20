@@ -46,6 +46,9 @@
                             !javax.servlet.http,
                             org.wso2.carbon.registry.api.*;version=1.0.1,
                         </Export-Package>
+                        <Import-Package>
+                            !*
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
