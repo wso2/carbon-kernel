@@ -17878,6 +17878,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // Invoke legacy listeners to maintain backward compatibility.
         handleDoPostDeleteRole(groupName, false);
         // #################### </Post-Listeners> #####################################################
+
+        // Clear the userRole cache.
+        clearUserRolesCacheByTenant(tenantId);
     }
 
     @Override
