@@ -34,6 +34,8 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.ui.BundleBasedUIResourceProvider;
+import org.wso2.carbon.ui.ContextPathServletAdaptor;
+import org.wso2.carbon.ui.FilterServletAdaptor;
 import org.wso2.carbon.ui.deployment.beans.CarbonUIDefinitions;
 import org.wso2.carbon.ui.deployment.beans.Component;
 import org.wso2.carbon.ui.deployment.beans.CustomUIDefenitions;
@@ -418,23 +420,29 @@ public class UIBundleDeployer implements SynchronousBundleListener {
         }
         try {
             if (event == ServiceEvent.REGISTERED) {
-//                Servlet adaptedJspServlet = new ContextPathServletAdaptor(servlet, urlPattern);
-                Dictionary<String, Object> properties = new Hashtable<>();
-                properties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, urlPattern);
-                for (Enumeration enm = params.keys(); enm.hasMoreElements();) {
-                    String key = (String) enm.nextElement();
-                    properties.put("servlet.init." + key, params.get(key));
+                Servlet adaptedJspServlet = new ContextPathServletAdaptor(servlet, urlPattern);
+                if (associatedFilter == null) {
+                    httpService.registerServlet(urlPattern, adaptedJspServlet, params, httpContext);
+                } else {
+                    httpService.registerServlet(urlPattern,
+                            new FilterServletAdaptor(associatedFilter, null, adaptedJspServlet), params, httpContext);
                 }
-                CarbonUIServiceComponent.getBundleContext().registerService(Servlet.class, servlet, properties);
-                if (associatedFilter != null) {
-                    Dictionary<String, String> props = new Hashtable<>();
-                    props.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_PATTERN, urlPattern);
-                    CarbonUIServiceComponent.getBundleContext().registerService(Filter.class, associatedFilter, props);
-                }
+//                Dictionary<String, Object> properties = new Hashtable<>();
+//                properties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, urlPattern);
+//                for (Enumeration enm = params.keys(); enm.hasMoreElements();) {
+//                    String key = (String) enm.nextElement();
+//                    properties.put("servlet.init." + key, params.get(key));
+//                }
+//                CarbonUIServiceComponent.getBundleContext().registerService(Servlet.class, servlet, properties);
+//                if (associatedFilter != null) {
+//                    Dictionary<String, String> props = new Hashtable<>();
+//                    props.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_PATTERN, urlPattern);
+//                    CarbonUIServiceComponent.getBundleContext().registerService(Filter.class, associatedFilter, props);
+//                }
                 if (servletAttrs != null) {
                     for (Enumeration enm = servletAttrs.keys(); enm.hasMoreElements();) {
                         String key = (String) enm.nextElement();
-                        servlet.getServletConfig().getServletContext().setAttribute(key, servletAttrs.get(key));
+                        adaptedJspServlet.getServletConfig().getServletContext().setAttribute(key, servletAttrs.get(key));
                     }
                 }
             } else if (event == ServiceEvent.UNREGISTERING) {
