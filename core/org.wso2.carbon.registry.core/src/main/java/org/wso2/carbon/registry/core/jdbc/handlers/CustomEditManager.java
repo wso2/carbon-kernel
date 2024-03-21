@@ -115,13 +115,9 @@ public class CustomEditManager {
         }
 
         if (!responseSent) {
-            String redirectURL = request.getParameter("redirectURL");
-            if (redirectURL != null) {
-                RegistryUtils.redirect(response, redirectURL);
-            } else {
-                ResourcePath resourcePath = new ResourcePath(path);
-                RegistryUtils.redirect(
-                        response, "/wso2registry/web" + resourcePath.getPathWithVersion());
+            if (log.isDebugEnabled()) {
+                log.debug("The response is expected to be handled by the edit processor. No further redirection or " +
+                        "response handling will be performed.");
             }
         }
     }
