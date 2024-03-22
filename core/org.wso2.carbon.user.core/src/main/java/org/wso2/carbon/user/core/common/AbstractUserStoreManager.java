@@ -19223,6 +19223,16 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return count;
         }
 
+        UserStore userStore = getUserStoreOfRoles(roleName);
+
+        if (userStore.isRecurssive()) {
+            UserStoreManager resolvedUserStoreManager = userStore.getUserStoreManager();
+            if (resolvedUserStoreManager instanceof AbstractUserStoreManager) {
+                return ((AbstractUserStoreManager) resolvedUserStoreManager)
+                        .getUserCountByRole(userStore.getDomainFreeName(), filter);
+            }
+        }
+
         if (readGroupsEnabled) {
             count += doGetUserCountOfRole(roleName, filter);
         }
