@@ -19240,7 +19240,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 count += hybridRoleManager.getUserCountOfHybridRole(userStore.getDomainAwareName());
             }
 
-            // Get the users of associated groups of the role.
+            // Get the user count of associated groups of the role.
             if (isRoleAndGroupSeparationEnabled()) {
                 String[] groupsOfRole;
                 if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
