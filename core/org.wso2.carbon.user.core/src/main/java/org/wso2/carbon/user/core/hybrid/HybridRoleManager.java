@@ -1551,4 +1551,36 @@ public class HybridRoleManager {
         }
         return false;
     }
+
+    /**
+     * Retrieve the number of users assigned to a role.
+     *
+     * @param roleName             Given role.
+     * @return                     Number of users assigned to the given role.
+     * @throws UserStoreException  An unexpected exception has occurred.
+     */
+    public int getUserCountOfHybridRole(String roleName) throws UserStoreException {
+
+        if (UserCoreUtil.isEveryoneRole(roleName, realmConfig)) {
+            return userRealm.getUserStoreManager().listUsers("*", -1).length;
+        }
+
+        // ########### Domain-less Roles and Domain-aware Users from here onwards #############
+
+        String sqlStmt = HybridJDBCConstants.GET_USER_COUNT_OF_ROLE_SQL;
+        Connection dbConnection = null;
+        try {
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
+            return DatabaseUtil.getIntegerValueFromDatabase(dbConnection, sqlStmt,
+                    roleName, tenantId, tenantId);
+        } catch (SQLException e) {
+            String errorMessage = "Error occurred while getting user list from hybrid role : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection);
+        }
+    }
 }

@@ -19233,6 +19233,29 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         }
 
+        if (userStore.isHybridRole()) {
+            if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
+                count += hybridRoleManager.getUserCountOfHybridRole(userStore.getDomainFreeName());
+            } else {
+                count += hybridRoleManager.getUserCountOfHybridRole(userStore.getDomainAwareName());
+            }
+
+            // Get the users of associated groups of the role.
+            if (isRoleAndGroupSeparationEnabled()) {
+                String[] groupsOfRole;
+                if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
+                    groupsOfRole = hybridRoleManager.getGroupListOfHybridRole(userStore.getDomainFreeName());
+                } else {
+                    groupsOfRole = hybridRoleManager.getGroupListOfHybridRole(userStore.getDomainAwareName());
+                }
+                for (String group : groupsOfRole) {
+                    count += getUserCountByRole(group, filter);
+                }
+            }
+
+            return count;
+        }
+
         if (readGroupsEnabled) {
             count += doGetUserCountOfRole(roleName, filter);
         }
