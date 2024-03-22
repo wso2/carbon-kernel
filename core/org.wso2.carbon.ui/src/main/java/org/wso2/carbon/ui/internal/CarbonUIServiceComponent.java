@@ -37,6 +37,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
+import org.osgi.service.http.context.ServletContextHelper;
+import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.url.URLConstants;
 import org.osgi.service.url.URLStreamHandlerService;
@@ -232,7 +234,8 @@ public class CarbonUIServiceComponent {
 
         Dictionary<String, String> initparams = new Hashtable<String, String>();
         initparams.put("servlet-name", "TilesServlet");
-        initparams.put("definitions-config", "/WEB-INF/tiles/main_defs.xml");
+//        initparams.put("definitions-config", "/WEB-INF/tiles/main_defs.xml");
+        initparams.put(org.apache.tiles.impl.BasicTilesContainer.DEFINITIONS_CONFIG, "/WEB-INF/tiles/main_defs.xml");
         initparams.put("org.apache.tiles.context.TilesContextFactory",
                        "org.apache.tiles.context.enhanced.EnhancedContextFactory");
         initparams.put("org.apache.tiles.factory.TilesContainerFactory.MUTABLE", "true");
@@ -302,12 +305,20 @@ public class CarbonUIServiceComponent {
         adaptedJspServlet = new ContextPathServletAdaptor(
                 new TilesJspServlet(context.getBundle(), uiResourceRegistry), "/" + webContext);
 
+
+        Dictionary<String, String> props = new Hashtable<>();
+        props.put("osgi.http.whiteboard.context.name", "myContext");
+        props.put("osgi.http.whiteboard.context.path", "/carbon");
+
+        context.registerService(ServletContextHelper.class, (ServletContextHelper) commonContext, props);
+
         Dictionary<String, String> carbonInitparams = new Hashtable<>();
-        carbonInitparams.put("strictQuoteEscaping", "false");
-        httpService.registerServlet("/" + webContext + "/*.jsp", adaptedJspServlet, carbonInitparams, commonContext);
-//        carbonInitparams.put("servlet.init.strictQuoteEscaping", "false");
-//        carbonInitparams.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/" + webContext + "/*.jsp");
-//        context.registerService(Servlet.class, adaptedJspServlet, carbonInitparams);
+//        carbonInitparams.put("strictQuoteEscaping", "false");
+//        httpService.registerServlet("/" + webContext + "/*.jsp", adaptedJspServlet, carbonInitparams, commonContext);
+        carbonInitparams.put("servlet.init.strictQuoteEscaping", "false");
+        carbonInitparams.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/*.jsp");
+        carbonInitparams.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=myContext)");
+        context.registerService(Servlet.class, adaptedJspServlet, carbonInitparams);
 
         ServletContext jspServletContext =
                 adaptedJspServlet.getServletConfig().getServletContext();

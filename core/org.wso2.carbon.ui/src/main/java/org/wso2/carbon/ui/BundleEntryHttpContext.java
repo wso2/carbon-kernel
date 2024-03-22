@@ -9,8 +9,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.osgi.framework.Bundle;
 import org.osgi.service.http.HttpContext;
+import org.osgi.service.http.context.ServletContextHelper;
 
-public class BundleEntryHttpContext implements HttpContext {
+public class BundleEntryHttpContext extends ServletContextHelper implements HttpContext {
     private Bundle bundle;
     private String bundlePath;
 
@@ -86,7 +87,7 @@ public class BundleEntryHttpContext implements HttpContext {
         return buffer == null ? name : buffer.toString();
     }
 
-    public Set getResourcePaths(String path) {
+    public Set<String> getResourcePaths(String path) {
         if (this.bundlePath != null) {
             path = this.bundlePath + path;
         }
