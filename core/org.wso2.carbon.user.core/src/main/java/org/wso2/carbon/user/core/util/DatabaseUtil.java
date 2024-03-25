@@ -1006,12 +1006,28 @@ public class DatabaseUtil {
                         + Arrays.toString(count));
             }
             dbConnection.commit();
+
         } catch (SQLException e) {
-            String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
-            if (log.isDebugEnabled()) {
-                log.debug(errorMessage, e);
+            boolean isUniqueKeyViolationException = false;
+            for (Throwable subSQLException : e) {
+                if (subSQLException instanceof SQLIntegrityConstraintViolationException) {
+                    // If concurrent requests bypass the existing user validation check, it can throw an exception
+                    // regarding unique key violation. Since the user addition is successful, the exception is ignored.
+                    isUniqueKeyViolationException = true;
+                    if (log.isDebugEnabled()) {
+                        log.debug("Similar entry found when adding the user to the role. Hence skipping " +
+                                "the user addition", e);
+                    }
+                    break;
+                }
             }
-            throw new UserStoreException(errorMessage, e);
+            if (!isUniqueKeyViolationException) {
+                String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+                throw new UserStoreException(errorMessage, e);
+            }
         } finally {
             if (localConnection) {
                 DatabaseUtil.closeAllConnections(dbConnection);
