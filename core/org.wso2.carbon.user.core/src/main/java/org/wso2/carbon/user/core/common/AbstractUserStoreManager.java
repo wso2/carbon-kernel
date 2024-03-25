@@ -19250,6 +19250,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         }
 
+        // #################### Domain Name Free Zone Starts Here ################################
+
         if (userStore.isHybridRole()) {
             if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
                 count += hybridRoleManager.getUserCountOfHybridRole(userStore.getDomainFreeName());
