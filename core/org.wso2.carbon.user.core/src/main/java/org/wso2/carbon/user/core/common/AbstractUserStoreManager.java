@@ -3641,6 +3641,32 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // #################### <Listeners> #####################################################
         try {
+            // This user name here is domain-less.
+            // We directly authenticate user against the selected UserStoreManager.
+
+            // Property to check whether this user store supports new APIs with unique user id.
+            boolean isUniqueUserIdEnabled = isUniqueUserIdEnabledInUserStore(userStore);
+            String userID = null;
+            if (isUniqueUserIdEnabled) {
+                userID = getUserIDFromUserName(userName);
+            }
+
+            boolean isAuth;
+            if (isUniqueUserIdEnabled) {
+                String preferredUserNameProperty = getUsernameProperty();
+                isAuth = this.doAuthenticateWithID(preferredUserNameProperty, userName, oldCredentialObj, null)
+                        .getAuthenticationStatus() == AuthenticationResult.AuthenticationStatus.SUCCESS;
+            } else {
+                isAuth = this.doAuthenticate(userName, oldCredentialObj);
+            }
+
+            if (!isAuth) {
+                handleUpdateCredentialFailure(ErrorMessages.ERROR_CODE_OLD_CREDENTIAL_DOES_NOT_MATCH.getCode(),
+                        ErrorMessages.ERROR_CODE_OLD_CREDENTIAL_DOES_NOT_MATCH.getMessage(), userName, newCredential,
+                        oldCredential);
+                throw new UserStoreException(ErrorMessages.ERROR_CODE_OLD_CREDENTIAL_DOES_NOT_MATCH.toString());
+            }
+
             try {
                 for (UserStoreManagerListener listener : UMListenerServiceComponent.getUserStoreManagerListeners()) {
                     if (listener instanceof SecretHandleableListener) {
@@ -3699,96 +3725,70 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
             // #################### </Listeners> #####################################################
 
-            // This user name here is domain-less.
-            // We directly authenticate user against the selected UserStoreManager.
+            if (!checkUserPasswordValid(newCredential)) {
+                String errorMsg = realmConfig.getUserStoreProperty(PROPERTY_PASSWORD_ERROR_MSG);
 
-            // Property to check whether this user store supports new APIs with unique user id.
-            boolean isUniqueUserIdEnabled = isUniqueUserIdEnabledInUserStore(userStore);
-            String userID = null;
-            if (isUniqueUserIdEnabled) {
-                userID = getUserIDFromUserName(userName);
-            }
-
-            boolean isAuth;
-            if (isUniqueUserIdEnabled) {
-                String preferredUserNameProperty = getUsernameProperty();
-                isAuth = this.doAuthenticateWithID(preferredUserNameProperty, userName, oldCredentialObj, null)
-                        .getAuthenticationStatus() == AuthenticationResult.AuthenticationStatus.SUCCESS;
-            } else {
-                isAuth = this.doAuthenticate(userName, oldCredentialObj);
-            }
-
-            if (isAuth) {
-                if (!checkUserPasswordValid(newCredential)) {
-                    String errorMsg = realmConfig.getUserStoreProperty(PROPERTY_PASSWORD_ERROR_MSG);
-
-                    if (errorMsg != null) {
-                        String errorMessage = String
-                                .format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_CREDENTIAL.getMessage(),
-                                        errorMsg);
-                        String errorCode = ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_CREDENTIAL.getCode();
-                        handleUpdateCredentialFailure(errorCode, errorMessage, userName, newCredential, oldCredential);
-                        throw new UserStoreException(errorCode + " - " + errorMessage);
-                    }
-
-                    String errorMessage = String.format(ErrorMessages.ERROR_CODE_INVALID_PASSWORD.getMessage(),
-                            realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
-                    String errorCode = ErrorMessages.ERROR_CODE_INVALID_PASSWORD.getCode();
+                if (errorMsg != null) {
+                    String errorMessage = String
+                            .format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_CREDENTIAL.getMessage(),
+                                    errorMsg);
+                    String errorCode = ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_CREDENTIAL.getCode();
                     handleUpdateCredentialFailure(errorCode, errorMessage, userName, newCredential, oldCredential);
                     throw new UserStoreException(errorCode + " - " + errorMessage);
                 }
 
-                try {
-                    if (isUniqueUserIdEnabled) {
-                        this.doUpdateCredentialWithID(userID, newCredential, oldCredential);
-                    } else {
-                        this.doUpdateCredential(userName, newCredentialObj, oldCredentialObj);
-                    }
-                } catch (UserStoreException ex) {
-                    handleUpdateCredentialFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_CREDENTIAL.getCode(),
-                            String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_CREDENTIAL.getMessage(),
-                                    ex.getMessage()), userName, newCredential, oldCredential);
-                    throw ex;
-                }
+                String errorMessage = String.format(ErrorMessages.ERROR_CODE_INVALID_PASSWORD.getMessage(),
+                        realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
+                String errorCode = ErrorMessages.ERROR_CODE_INVALID_PASSWORD.getCode();
+                handleUpdateCredentialFailure(errorCode, errorMessage, userName, newCredential, oldCredential);
+                throw new UserStoreException(errorCode + " - " + errorMessage);
+            }
 
-                // #################### <Listeners> ##################################################
-                try {
-                    for (UserOperationEventListener listener : UMListenerServiceComponent
-                            .getUserOperationEventListeners()) {
-                        if (listener instanceof SecretHandleableListener) {
-                            if (!listener.doPostUpdateCredential(userName, newCredentialObj, this)) {
-                                handleUpdateCredentialFailure(
-                                        ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL.getCode(),
-                                        String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL
-                                                .getMessage(), "Post update credential tasks failed"), userName,
-                                        newCredentialObj, oldCredentialObj);
-                                return;
-                            }
-                        } else {
-                            if (!listener.doPostUpdateCredential(userName, newCredential, this)) {
-                                handleUpdateCredentialFailure(
-                                        ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL.getCode(),
-                                        String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL
-                                                .getMessage(), "Post update credential tasks failed"), userName,
-                                        newCredential, oldCredential);
-                                return;
-                            }
+            try {
+                if (isUniqueUserIdEnabled) {
+                    this.doUpdateCredentialWithID(userID, newCredential, oldCredential);
+                } else {
+                    this.doUpdateCredential(userName, newCredentialObj, oldCredentialObj);
+                }
+            } catch (UserStoreException ex) {
+                handleUpdateCredentialFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_CREDENTIAL.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_CREDENTIAL.getMessage(),
+                                ex.getMessage()), userName, newCredential, oldCredential);
+                throw ex;
+            }
+
+            // #################### <Listeners> ##################################################
+            try {
+                for (UserOperationEventListener listener : UMListenerServiceComponent
+                        .getUserOperationEventListeners()) {
+                    if (listener instanceof SecretHandleableListener) {
+                        if (!listener.doPostUpdateCredential(userName, newCredentialObj, this)) {
+                            handleUpdateCredentialFailure(
+                                    ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL.getCode(),
+                                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL
+                                            .getMessage(), "Post update credential tasks failed"), userName,
+                                    newCredentialObj, oldCredentialObj);
+                            return;
+                        }
+                    } else {
+                        if (!listener.doPostUpdateCredential(userName, newCredential, this)) {
+                            handleUpdateCredentialFailure(
+                                    ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL.getCode(),
+                                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL
+                                            .getMessage(), "Post update credential tasks failed"), userName,
+                                    newCredential, oldCredential);
+                            return;
                         }
                     }
-                } catch (UserStoreException ex) {
-                    handleUpdateCredentialFailure(
-                            ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL.getCode(),
-                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL.getMessage(),
-                                    ex.getMessage()), userName, newCredential, oldCredential);
-                    throw ex;
                 }
-                // #################### </Listeners> ##################################################
-            } else {
-                handleUpdateCredentialFailure(ErrorMessages.ERROR_CODE_OLD_CREDENTIAL_DOES_NOT_MATCH.getCode(),
-                        ErrorMessages.ERROR_CODE_OLD_CREDENTIAL_DOES_NOT_MATCH.getMessage(), userName, newCredential,
-                        oldCredential);
-                throw new UserStoreException(ErrorMessages.ERROR_CODE_OLD_CREDENTIAL_DOES_NOT_MATCH.toString());
+            } catch (UserStoreException ex) {
+                handleUpdateCredentialFailure(
+                        ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL.getMessage(),
+                                ex.getMessage()), userName, newCredential, oldCredential);
+                throw ex;
             }
+            // #################### </Listeners> ##################################################
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException(e.getMessage(), e);
         } finally {
@@ -13208,6 +13208,31 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // #################### <Listeners> #####################################################
         try {
+            // This user name here is domain-less.
+            // We directly authenticate user against the selected UserStoreManager.
+
+            AuthenticationResult authenticationResult;
+            try {
+                if (!isUniqueUserIdEnabledInUserStore(userStore)) {
+                    User user = userUniqueIDManger.getUser(userID, this);
+                    boolean auth = this.doAuthenticate(user.getUsername(), oldCredentialObj);
+                    authenticationResult = new AuthenticationResult(auth ?
+                            AuthenticationResult.AuthenticationStatus.SUCCESS :
+                            AuthenticationResult.AuthenticationStatus.FAIL);
+                } else {
+                    authenticationResult = this.doAuthenticateWithID(userID, oldCredentialObj);
+                }
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                throw new UserStoreException(e);
+            }
+
+            if (authenticationResult.getAuthenticationStatus() != AuthenticationResult.AuthenticationStatus.SUCCESS) {
+                handleUpdateCredentialFailureWithID(ErrorMessages.ERROR_CODE_OLD_CREDENTIAL_DOES_NOT_MATCH.getCode(),
+                        ErrorMessages.ERROR_CODE_OLD_CREDENTIAL_DOES_NOT_MATCH.getMessage(), userID, newCredential,
+                        oldCredential);
+                throw new UserStoreException(ErrorMessages.ERROR_CODE_OLD_CREDENTIAL_DOES_NOT_MATCH.toString());
+            }
+
             try {
 
                 for (UserOperationEventListener listener : UMListenerServiceComponent
@@ -13233,96 +13258,70 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
             // #################### </Listeners> #####################################################
 
-            // This user name here is domain-less.
-            // We directly authenticate user against the selected UserStoreManager.
+            if (!checkUserPasswordValid(newCredential)) {
+                String errorMsg = realmConfig.getUserStoreProperty(PROPERTY_PASSWORD_ERROR_MSG);
 
-            AuthenticationResult authenticationResult;
-            try {
-                if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-                    User user = userUniqueIDManger.getUser(userID, this);
-                    boolean auth = this.doAuthenticate(user.getUsername(), oldCredentialObj);
-                    authenticationResult = new AuthenticationResult(auth ?
-                            AuthenticationResult.AuthenticationStatus.SUCCESS :
-                            AuthenticationResult.AuthenticationStatus.FAIL);
-                } else {
-                    authenticationResult = this.doAuthenticateWithID(userID, oldCredentialObj);
-                }
-            } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                throw new UserStoreException(e);
-            }
-
-            if (authenticationResult.getAuthenticationStatus() == AuthenticationResult.AuthenticationStatus.SUCCESS) {
-                if (!checkUserPasswordValid(newCredential)) {
-                    String errorMsg = realmConfig.getUserStoreProperty(PROPERTY_PASSWORD_ERROR_MSG);
-
-                    if (errorMsg != null) {
-                        String errorMessage = String
-                                .format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_CREDENTIAL.getMessage(),
-                                        errorMsg);
-                        String errorCode = ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_CREDENTIAL.getCode();
-                        handleUpdateCredentialFailureWithID(errorCode, errorMessage, userID, newCredential,
-                                oldCredential);
-                        throw new UserStoreException(errorCode + " - " + errorMessage);
-                    }
-
-                    String errorMessage = String.format(ErrorMessages.ERROR_CODE_INVALID_PASSWORD.getMessage(),
-                            realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
-                    String errorCode = ErrorMessages.ERROR_CODE_INVALID_PASSWORD.getCode();
-                    handleUpdateCredentialFailureWithID(errorCode, errorMessage, userID, newCredential, oldCredential);
+                if (errorMsg != null) {
+                    String errorMessage = String
+                            .format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_CREDENTIAL.getMessage(),
+                                    errorMsg);
+                    String errorCode = ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_CREDENTIAL.getCode();
+                    handleUpdateCredentialFailureWithID(errorCode, errorMessage, userID, newCredential,
+                            oldCredential);
                     throw new UserStoreException(errorCode + " - " + errorMessage);
                 }
 
-                try {
-                    // If unique id feature is not enabled, we have to call the legacy methods.
-                    if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-                        User user = userUniqueIDManger.getUser(userID, this);
-                        // If we don't have a record for this user, let's try to call directly using the user id.
-                        if (user == null) {
-                            updateCredential(userID, newCredential, oldCredential);
-                        } else {
-                            updateCredential(user.getUsername(), newCredential, oldCredential);
-                        }
-                    } else {
-                        this.doUpdateCredentialWithID(userID, newCredentialObj, oldCredentialObj);
-                    }
-                } catch (UserStoreException ex) {
-                    handleUpdateCredentialFailureWithID(
-                            ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_CREDENTIAL.getCode(),
-                            String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_CREDENTIAL.getMessage(),
-                                    ex.getMessage()), userID, newCredential, oldCredential);
-                    throw ex;
-                }
-
-                // #################### <Listeners> ##################################################
-                try {
-                    for (UserOperationEventListener listener : UMListenerServiceComponent
-                            .getUserOperationEventListeners()) {
-                        if (listener instanceof AbstractUserOperationEventListener &&
-                                !((AbstractUserOperationEventListener) listener)
-                                        .doPostUpdateCredentialWithID(userID, newCredential, this)) {
-                            handleUpdateCredentialFailureWithID(
-                                    ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL.getCode(),
-                                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL
-                                            .getMessage(), "Post update credential tasks failed"), userID,
-                                    newCredential, oldCredential);
-                            return;
-                        }
-                    }
-                } catch (UserStoreException ex) {
-                    handleUpdateCredentialFailureWithID(
-                            ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL.getCode(),
-                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL.getMessage(),
-                                    ex.getMessage()), userID, newCredential, oldCredential);
-                    throw ex;
-                }
-                // #################### </Listeners> ##################################################
-
-            } else {
-                handleUpdateCredentialFailureWithID(ErrorMessages.ERROR_CODE_OLD_CREDENTIAL_DOES_NOT_MATCH.getCode(),
-                        ErrorMessages.ERROR_CODE_OLD_CREDENTIAL_DOES_NOT_MATCH.getMessage(), userID, newCredential,
-                        oldCredential);
-                throw new UserStoreException(ErrorMessages.ERROR_CODE_OLD_CREDENTIAL_DOES_NOT_MATCH.toString());
+                String errorMessage = String.format(ErrorMessages.ERROR_CODE_INVALID_PASSWORD.getMessage(),
+                        realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
+                String errorCode = ErrorMessages.ERROR_CODE_INVALID_PASSWORD.getCode();
+                handleUpdateCredentialFailureWithID(errorCode, errorMessage, userID, newCredential, oldCredential);
+                throw new UserStoreException(errorCode + " - " + errorMessage);
             }
+
+            try {
+                // If unique id feature is not enabled, we have to call the legacy methods.
+                if (!isUniqueUserIdEnabledInUserStore(userStore)) {
+                    User user = userUniqueIDManger.getUser(userID, this);
+                    // If we don't have a record for this user, let's try to call directly using the user id.
+                    if (user == null) {
+                        updateCredential(userID, newCredential, oldCredential);
+                    } else {
+                        updateCredential(user.getUsername(), newCredential, oldCredential);
+                    }
+                } else {
+                    this.doUpdateCredentialWithID(userID, newCredentialObj, oldCredentialObj);
+                }
+            } catch (UserStoreException ex) {
+                handleUpdateCredentialFailureWithID(
+                        ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_CREDENTIAL.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_CREDENTIAL.getMessage(),
+                                ex.getMessage()), userID, newCredential, oldCredential);
+                throw ex;
+            }
+
+            // #################### <Listeners> ##################################################
+            try {
+                for (UserOperationEventListener listener : UMListenerServiceComponent
+                        .getUserOperationEventListeners()) {
+                    if (listener instanceof AbstractUserOperationEventListener &&
+                            !((AbstractUserOperationEventListener) listener)
+                                    .doPostUpdateCredentialWithID(userID, newCredential, this)) {
+                        handleUpdateCredentialFailureWithID(
+                                ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL.getCode(),
+                                String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL
+                                        .getMessage(), "Post update credential tasks failed"), userID,
+                                newCredential, oldCredential);
+                        return;
+                    }
+                }
+            } catch (UserStoreException ex) {
+                handleUpdateCredentialFailureWithID(
+                        ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_CREDENTIAL.getMessage(),
+                                ex.getMessage()), userID, newCredential, oldCredential);
+                throw ex;
+            }
+            // #################### </Listeners> ##################################################
         } finally {
             newCredentialObj.clear();
             oldCredentialObj.clear();
@@ -17878,6 +17877,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // Invoke legacy listeners to maintain backward compatibility.
         handleDoPostDeleteRole(groupName, false);
         // #################### </Post-Listeners> #####################################################
+
+        // Clear the userRole cache.
+        clearUserRolesCacheByTenant(tenantId);
     }
 
     @Override

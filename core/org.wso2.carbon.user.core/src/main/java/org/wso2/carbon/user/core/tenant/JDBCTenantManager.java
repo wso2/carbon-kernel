@@ -278,15 +278,13 @@ public class JDBCTenantManager implements TenantManager {
             InputStream is = new ByteArrayInputStream(realmConfigString.getBytes());
             prepStmt.setBinaryStream(5, is, is.available());
 
-            if (isTenantUniqueIdColumnAvailable()) {
+            if (isOrgUUIDColumnAvailable && !isTenantUniqueIdColumnAvailable()) {
+                prepStmt.setString(6, tenant.getAssociatedOrganizationUUID());
+            } else if (!isOrgUUIDColumnAvailable && isTenantUniqueIdColumnAvailable()) {
                 prepStmt.setString(6, tenant.getTenantUniqueID());
-                if (isOrgUUIDColumnAvailable) {
-                    prepStmt.setString(7, tenant.getAssociatedOrganizationUUID());
-                }
-            } else {
-                if (isOrgUUIDColumnAvailable) {
-                    prepStmt.setString(6, tenant.getAssociatedOrganizationUUID());
-                }
+            } else if (isOrgUUIDColumnAvailable && isTenantUniqueIdColumnAvailable()) {
+                prepStmt.setString(6, tenant.getAssociatedOrganizationUUID());
+                prepStmt.setString(7, tenant.getTenantUniqueID());
             }
 
             prepStmt.executeUpdate();
