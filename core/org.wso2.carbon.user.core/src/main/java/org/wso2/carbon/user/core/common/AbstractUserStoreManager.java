@@ -9479,7 +9479,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
-     * Return the count of users belong to the given role for the given filter.
+     * Return the count of users belong to the given role for the given filter when unique id feature is not enabled.
      *
      * @param roleName role name.
      * @param filter   filter.
@@ -9493,6 +9493,23 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
         throw new NotImplementedException(
                 "doGetUserCountOfRole operation is not implemented in: " + this.getClass());
+    }
+
+    /**
+     * Return the count of users belong to the given role for the given filter.
+     *
+     * @param roleName role name.
+     * @param filter   filter.
+     * @return user count for the given role.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    protected int doGetUserCountOfRoleWithID(String roleName, String filter) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doGetUserCountOfRoleWithID operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "doGetUserCountOfRoleWithID operation is not implemented in: " + this.getClass());
     }
 
     /**
@@ -19257,7 +19274,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         if (readGroupsEnabled) {
-            count += doGetUserCountOfRole(roleName, filter);
+            // If unique id feature is not enabled, we have to call the legacy methods.
+            if (!isUniqueUserIdEnabledInUserStore(userStore)) {
+                count += doGetUserCountOfRole(roleName, filter);
+            } else {
+                count += doGetUserCountOfRoleWithID(roleName, filter);
+            }
         }
 
         return count;

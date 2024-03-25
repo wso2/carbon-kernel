@@ -352,7 +352,13 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    public int doGetUserCountOfRole(String roleName, String filter)
+    public int doGetUserCountOfRole(String roleName, String filter) throws UserStoreException {
+
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+    @Override
+    public int doGetUserCountOfRoleWithID(String roleName, String filter)
                 throws UserStoreException {
 
             RoleContext roleContext = createRoleContext(roleName);
@@ -461,7 +467,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         int count = 0 ;
-        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_COUNT_WITH_FILTER_ROLE);
+        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_COUNT_WITH_FILTER_ROLE_WITH_ID);
         try {
             dbConnection = getDBConnection();
             prepStmt = dbConnection.prepareStatement(sqlStmt);

@@ -536,7 +536,13 @@ public class JDBCRealmUtil {
         }
 
         if (!properties.containsKey(JDBCRealmConstants.GET_USERS_COUNT_WITH_FILTER_ROLE)) {
-            properties.put(JDBCRealmConstants.GET_USERS_COUNT_WITH_FILTER_ROLE, JDBCRealmConstants.GET_USERS_COUNT_WITH_FILTER_ROLE_SQL);
+            properties.put(JDBCRealmConstants.GET_USERS_COUNT_WITH_FILTER_ROLE,
+                    JDBCRealmConstants.GET_USERS_COUNT_WITH_FILTER_ROLE_SQL);
+        }
+
+        if (!properties.containsKey(JDBCRealmConstants.GET_USERS_COUNT_WITH_FILTER_ROLE_WITH_ID)) {
+            properties.put(JDBCRealmConstants.GET_USERS_COUNT_WITH_FILTER_ROLE_WITH_ID,
+                    JDBCRealmConstants.GET_USERS_COUNT_WITH_FILTER_ROLE_SQL_WITH_ID);
         }
 
         if (!properties.containsKey(JDBCRealmConstants.GET_ROLE_ID_BY_NAME)) {
