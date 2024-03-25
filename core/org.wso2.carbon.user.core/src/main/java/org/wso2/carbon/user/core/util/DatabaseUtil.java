@@ -1007,10 +1007,10 @@ public class DatabaseUtil {
             }
             dbConnection.commit();
 
-        } catch (SQLException e ) {
+        } catch (SQLException e) {
             boolean isUniqueKeyViolationException = false;
-            for (Throwable cause : e) {
-                if (cause instanceof SQLIntegrityConstraintViolationException) {
+            for (Throwable subSQLException : e) {
+                if (subSQLException instanceof SQLIntegrityConstraintViolationException) {
                     // If concurrent requests bypass the existing user validation check, it can throw an exception
                     // regarding unique key violation. Since the user addition is successful, the exception is ignored.
                     isUniqueKeyViolationException = true;
