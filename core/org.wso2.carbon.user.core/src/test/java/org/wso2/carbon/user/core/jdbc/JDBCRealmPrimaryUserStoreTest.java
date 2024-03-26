@@ -644,4 +644,19 @@ public class JDBCRealmPrimaryUserStoreTest extends BaseTestCase {
             assertFalse(admin.getUserListOfRoleWithID(role).stream().map(User::getUserID).collect(Collectors.toList()).contains(userId1));
         }
     }
+
+    public void test204GetUserCountForRole() throws UserStoreException {
+
+        // Add a new role
+        admin.addRole("userCountTestRole", null, null);
+
+        // Add users more than max users per page (100)
+        for (int i=1; i <=150; i++) {
+            admin.addUser("testUser" + i, "pass1", new String[]{"userCountTestRole"},
+                    null, null, false);
+        }
+
+        // getUserCountForRole() method should return the total number of users of the given role
+        assertEquals(150, admin.getUserCountForRole("userCountTestRole"));
+    }
 }

@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) (2005-2021), WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2005-2024, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -9479,20 +9479,35 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
-     * Return the count of users belong to the given role for the given filter.
+     * Return the count of users belong to the given role for the given filter when unique id feature is not enabled.
      *
      * @param roleName role name.
-     * @param filter   filter.
      * @return user count for the given role.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    protected int doGetUserCountOfRole(String roleName, String filter) throws UserStoreException {
+    protected int doGetUserCountOfRole(String roleName) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("doGetUserCountOfRole operation is not implemented in: " + this.getClass());
         }
         throw new NotImplementedException(
                 "doGetUserCountOfRole operation is not implemented in: " + this.getClass());
+    }
+
+    /**
+     * Return the count of users belong to the given role.
+     *
+     * @param roleName role name.
+     * @return user count for the given role.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    protected int doGetUserCountOfRoleWithID(String roleName) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doGetUserCountOfRoleWithID operation is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException(
+                "doGetUserCountOfRoleWithID operation is not implemented in: " + this.getClass());
     }
 
     /**
@@ -19198,23 +19213,19 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return userUniqueIDDomainResolver;
     }
 
-    public int getUserCountForRole(String  roleName) throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class, String.class };
-            Object object = callSecure("getUserCountByRole", new Object[] { roleName, QUERY_FILTER_STRING_ANY }, argTypes);
-            return (int) object;
-        }
-
-        return getUserCountByRole(roleName, QUERY_FILTER_STRING_ANY);
-    }
-
-    public int getUserCountByRole(String roleName, String filter) throws UserStoreException {
+    /**
+     * Retrieves the user count that belongs to a given role.
+     *
+     * @param roleName Name of the role.
+     * @return User count of the given role.
+     * @throws UserStoreException If an unexpected error occurs while accessing user store.
+     */
+    public int getUserCountForRole(String roleName) throws UserStoreException {
 
         int count = 0;
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class, String.class };
-            Object object = callSecure("getUserCountByRole", new Object[] { roleName, filter }, argTypes);
+            Class argTypes[] = new Class[] { String.class };
+            Object object = callSecure("getUserCountForRole", new Object[] { roleName }, argTypes);
             return (int) object;
         }
 
@@ -19223,8 +19234,48 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return count;
         }
 
+        UserStore userStore = getUserStoreOfRoles(roleName);
+
+        if (userStore.isRecurssive()) {
+            UserStoreManager resolvedUserStoreManager = userStore.getUserStoreManager();
+            if (resolvedUserStoreManager instanceof AbstractUserStoreManager) {
+                return ((AbstractUserStoreManager) resolvedUserStoreManager)
+                        .getUserCountForRole(userStore.getDomainFreeName());
+            }
+        }
+
+        // #################### Domain Name Free Zone Starts Here ################################
+
+        if (userStore.isHybridRole()) {
+            if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
+                count += hybridRoleManager.getUserCountOfHybridRole(userStore.getDomainFreeName());
+            } else {
+                count += hybridRoleManager.getUserCountOfHybridRole(userStore.getDomainAwareName());
+            }
+
+            // Get the user count of associated groups of the role.
+            if (isRoleAndGroupSeparationEnabled()) {
+                String[] groupsOfRole;
+                if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
+                    groupsOfRole = hybridRoleManager.getGroupListOfHybridRole(userStore.getDomainFreeName());
+                } else {
+                    groupsOfRole = hybridRoleManager.getGroupListOfHybridRole(userStore.getDomainAwareName());
+                }
+                for (String group : groupsOfRole) {
+                    count += getUserCountForRole(group);
+                }
+            }
+
+            return count;
+        }
+
         if (readGroupsEnabled) {
-            count += doGetUserCountOfRole(roleName, filter);
+            // If unique id feature is not enabled, we have to call the legacy methods.
+            if (!isUniqueUserIdEnabledInUserStore(userStore)) {
+                count += doGetUserCountOfRole(roleName);
+            } else {
+                count += doGetUserCountOfRoleWithID(roleName);
+            }
         }
 
         return count;

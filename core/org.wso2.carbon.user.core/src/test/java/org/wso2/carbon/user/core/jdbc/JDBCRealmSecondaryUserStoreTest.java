@@ -436,6 +436,21 @@ public class JDBCRealmSecondaryUserStoreTest extends BaseTestCase {
                 "pass2").getAuthenticationStatus());
     }
 
+    public void test184GetUserCountForRole() throws UserStoreException {
+
+        // Add a new role
+        admin.addRole("SECONDARYJDBC/userCountTestRole", null, null);
+
+        // Add users more than max users per page (100)
+        for (int i=1; i <=150; i++) {
+            admin.addUser("SECONDARYJDBC/testUser" + i, "pass1",
+                    new String[]{"SECONDARYJDBC/userCountTestRole"}, null, null, false);
+        }
+
+        // getUserCountForRole() method should return the total number of users of the given role
+        assertEquals(150, admin.getUserCountForRole("SECONDARYJDBC/userCountTestRole"));
+    }
+
     private void addSecondaryUserStoreManager(RealmConfiguration primaryRealm,
                                               AbstractUserStoreManager userStoreManager,
                                               UserRealm userRealm) throws Exception {
