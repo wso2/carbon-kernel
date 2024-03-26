@@ -105,6 +105,7 @@ public class HybridRoleManagerTest extends BaseTestCase {
         // Test add new internal role
         hybridRoleMan.addHybridRole("ThunderCats", null);
         assertTrue(hybridRoleMan.isExistingRole("ThunderCats"));
+        assertEquals(0, hybridRoleMan.getUserCountOfHybridRole("ThunderCats"));
         numberOfHybridRoles += 1;
 
         // Assign internal role to users
@@ -125,15 +126,18 @@ public class HybridRoleManagerTest extends BaseTestCase {
 
         // Check whether users assigned to hybrid role
         assertEquals(3, hybridRoleMan.getUserListOfHybridRole("ThunderCats").length);
+        assertEquals(3, hybridRoleMan.getUserCountOfHybridRole("ThunderCats"));
 
         // Update users of hybrid role add/remove
         hybridRoleMan.updateUserListOfHybridRole("ThunderCats", new String[]{"Willykat",
                 "Willykit"}, new String[]{"Snarf"});
         assertEquals(2, hybridRoleMan.getUserListOfHybridRole("ThunderCats").length);
+        assertEquals(2, hybridRoleMan.getUserCountOfHybridRole("ThunderCats"));
 
         // Update user with lower case remove user; entries should not delete as case sensitive
         hybridRoleMan.updateUserListOfHybridRole("ThunderCats", new String[]{"snarf"}, null);
         assertEquals(2, hybridRoleMan.getUserListOfHybridRole("ThunderCats").length);
+        assertEquals(2, hybridRoleMan.getUserCountOfHybridRole("ThunderCats"));
 
         // Delete hybrid role
         hybridRoleMan.deleteHybridRole("ThunderCats");
@@ -142,6 +146,7 @@ public class HybridRoleManagerTest extends BaseTestCase {
         // Delete user with lower case; entries should not delete as case sensitive
         hybridRoleMan.deleteUser("lionel");
         assertEquals(2, hybridRoleMan.getUserListOfHybridRole("Friends").length);
+        assertEquals(2, hybridRoleMan.getUserCountOfHybridRole("Friends"));
 
         // Change realm to pick CaseInSensitive User store configurations
         initRealmStuff(JDBC_TEST_CASE_INSENSITIVE_USERMGT_XML);
@@ -149,5 +154,6 @@ public class HybridRoleManagerTest extends BaseTestCase {
         // Delete user with lower case; entries should not delete as case in-sensitive
         hybridRoleMan.deleteUser("lionel");
         assertEquals(1, hybridRoleMan.getUserListOfHybridRole("Friends").length);
+        assertEquals(1, hybridRoleMan.getUserCountOfHybridRole("Friends"));
     }
 }

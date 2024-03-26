@@ -1571,10 +1571,9 @@ public class HybridRoleManager {
         Connection dbConnection = null;
         try {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
-            return DatabaseUtil.getIntegerValueFromDatabase(dbConnection, sqlStmt,
-                    roleName, tenantId, tenantId);
+            return DatabaseUtil.getIntegerValueFromDatabase(dbConnection, sqlStmt, roleName, tenantId, tenantId);
         } catch (SQLException e) {
-            String errorMessage = "Error occurred while getting user list from hybrid role : " + roleName;
+            String errorMessage = "Error occurred while getting user count from hybrid role : " + roleName;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
