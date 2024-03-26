@@ -9482,11 +9482,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * Return the count of users belong to the given role for the given filter when unique id feature is not enabled.
      *
      * @param roleName role name.
-     * @param filter   filter.
      * @return user count for the given role.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    protected int doGetUserCountOfRole(String roleName, String filter) throws UserStoreException {
+    protected int doGetUserCountOfRole(String roleName) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("doGetUserCountOfRole operation is not implemented in: " + this.getClass());
@@ -9499,11 +9498,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * Return the count of users belong to the given role for the given filter.
      *
      * @param roleName role name.
-     * @param filter   filter.
      * @return user count for the given role.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    protected int doGetUserCountOfRoleWithID(String roleName, String filter) throws UserStoreException {
+    protected int doGetUserCountOfRoleWithID(String roleName) throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("doGetUserCountOfRoleWithID operation is not implemented in: " + this.getClass());
@@ -19215,23 +19213,19 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return userUniqueIDDomainResolver;
     }
 
-    public int getUserCountForRole(String  roleName) throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class, String.class };
-            Object object = callSecure("getUserCountByRole", new Object[] { roleName, QUERY_FILTER_STRING_ANY }, argTypes);
-            return (int) object;
-        }
-
-        return getUserCountByRole(roleName, QUERY_FILTER_STRING_ANY);
-    }
-
-    public int getUserCountByRole(String roleName, String filter) throws UserStoreException {
+    /**
+     * Retrieves the user count that belongs to a given role.
+     *
+     * @param roleName Name of the role.
+     * @return User count of the given role.
+     * @throws UserStoreException If an unexpected error occurs while accessing user store.
+     */
+    public int getUserCountForRole(String roleName) throws UserStoreException {
 
         int count = 0;
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class, String.class };
-            Object object = callSecure("getUserCountByRole", new Object[] { roleName, filter }, argTypes);
+            Class argTypes[] = new Class[] { String.class };
+            Object object = callSecure("getUserCountForRole", new Object[] { roleName }, argTypes);
             return (int) object;
         }
 
@@ -19246,7 +19240,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             UserStoreManager resolvedUserStoreManager = userStore.getUserStoreManager();
             if (resolvedUserStoreManager instanceof AbstractUserStoreManager) {
                 return ((AbstractUserStoreManager) resolvedUserStoreManager)
-                        .getUserCountByRole(userStore.getDomainFreeName(), filter);
+                        .getUserCountForRole(userStore.getDomainFreeName());
             }
         }
 
@@ -19268,7 +19262,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     groupsOfRole = hybridRoleManager.getGroupListOfHybridRole(userStore.getDomainAwareName());
                 }
                 for (String group : groupsOfRole) {
-                    count += getUserCountByRole(group, filter);
+                    count += getUserCountForRole(group);
                 }
             }
 
@@ -19278,9 +19272,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (readGroupsEnabled) {
             // If unique id feature is not enabled, we have to call the legacy methods.
             if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-                count += doGetUserCountOfRole(roleName, filter);
+                count += doGetUserCountOfRole(roleName);
             } else {
-                count += doGetUserCountOfRoleWithID(roleName, filter);
+                count += doGetUserCountOfRoleWithID(roleName);
             }
         }
 

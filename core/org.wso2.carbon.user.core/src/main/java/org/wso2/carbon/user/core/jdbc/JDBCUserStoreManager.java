@@ -851,10 +851,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         return getUserListOfJDBCRole(roleContext, filter);
     }
 
-    public int doGetUserCountOfRole(String roleName, String filter) throws UserStoreException {
+    @Override
+    public int doGetUserCountOfRole(String roleName) throws UserStoreException {
 
         RoleContext roleContext = createRoleContext(roleName);
-        return getUserCountByRole(roleContext, filter);
+        return getUserCountByRole(roleContext);
     }
 
     /**
@@ -944,51 +945,17 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      * Return the count of users belong to the given role for the given {@link RoleContext} and filter.
      *
      * @param ctx    {@link RoleContext} corresponding to the role.
-     * @param filter String filter for the users.
      * @throws UserStoreException If an unexpected error occurs.
      */
-    public int getUserCountByRole(RoleContext ctx, String filter) throws UserStoreException {
+    public int getUserCountByRole(RoleContext ctx) throws UserStoreException {
 
         String roleName = ctx.getRoleName();
-
-        if (StringUtils.isNotEmpty(filter)) {
-            filter = filter.trim();
-            filter = filter.replace("*", "%");
-            filter = filter.replace("?", "_");
-        } else {
-            filter = "%";
-        }
-        return getUserCountByRoleFromDatabase(roleName, filter);
-    }
-
-    /**
-     * Return the count of users belong to the given role for the given {@link RoleContext} and filter.
-     *
-     * @param roleName Name of the role.
-     * @param filter   String filter for the users.
-     * @return The count of users matching the provided constraints.
-     * @throws UserStoreException If an unexpected error occurs.
-     */
-    private int getUserCountByRoleFromDatabase(String roleName, String filter)
-            throws UserStoreException {
-
         Connection dbConnection = null;
-        PreparedStatement prepStmt = null;
-        ResultSet rs = null;
-        int count = 0 ;
         String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_COUNT_WITH_FILTER_ROLE);
         try {
             dbConnection = getDBConnection();
-            prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setString(1, roleName);
-            prepStmt.setInt(2, tenantId);
-            prepStmt.setInt(3, tenantId);
-            prepStmt.setInt(4, tenantId);
-            rs = prepStmt.executeQuery();
-            while (rs.next()) {
-                count = rs.getInt(1);
-            }
-            return count;
+            return DatabaseUtil.getIntegerValueFromDatabase(
+                    dbConnection, sqlStmt, roleName,tenantId, tenantId, tenantId);
         } catch (SQLException e) {
             String errorMessage =
                     "Error occurred while getting the count of users in the role : " + roleName;
@@ -997,7 +964,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
             throw new UserStoreException(errorMessage, e);
         } finally {
-            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+            DatabaseUtil.closeAllConnections(dbConnection);
         }
     }
 
