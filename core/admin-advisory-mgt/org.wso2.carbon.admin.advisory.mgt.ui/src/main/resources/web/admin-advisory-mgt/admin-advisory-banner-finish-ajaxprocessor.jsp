@@ -59,6 +59,7 @@
 
         // Save the new configuration.
         configClient.saveBannerConfig(adminAdvisoryBannerConfig);
+        CarbonUIMessage.sendCarbonUIMessage("Successfully updated the configuration!", CarbonUIMessage.INFO, request);
 
 %>
     <script type="text/javascript">
