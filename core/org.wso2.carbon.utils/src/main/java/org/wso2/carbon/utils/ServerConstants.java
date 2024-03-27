@@ -161,7 +161,8 @@ public final class ServerConstants {
     public static final String BOUNCY_CASTLE_FIPS_PROVIDER_IDENTIFIER = "BCFIPS";
     public static final String BOUNCY_CASTLE_FIPS_PROVIDER_CLASS = "org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider";
     public static final String JCE_PROVIDER_PARAMETER = "security.jce.provider";
-
+    public static final String SIGNATURE_UTIL_ENABLE_SHA256_ALGO = "SignatureUtil.EnableSHA256Algo";
+    
     public static class Axis2ParameterNames {
         public static final String CONTEXT_ROOT = "contextRoot";
         public static final String SERVICE_PATH = "servicePath";
