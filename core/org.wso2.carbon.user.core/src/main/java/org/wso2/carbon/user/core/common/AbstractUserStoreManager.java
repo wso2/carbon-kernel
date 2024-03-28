@@ -18110,10 +18110,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // #################### Invoke userstore methods ####################
         Group group = new Group(null, groupName);
+        group.setUserStoreDomain(getMyDomainName());
         if (isUniqueGroupIdEnabled(this)) {
             String groupId = this.doGetGroupIdFromGroupName(groupName);
             group.setGroupID(groupId);
-            group.setUserStoreDomain(getMyDomainName());
         } else {
             // Invoking group resolver to get data from the legacy approach.
             GroupResolver groupResolver = UserStoreMgtDataHolder.getInstance().getGroupResolver();
