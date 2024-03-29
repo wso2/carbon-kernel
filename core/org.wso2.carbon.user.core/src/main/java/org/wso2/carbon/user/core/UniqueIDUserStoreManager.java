@@ -158,6 +158,25 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      */
     List<User> getUserListOfRoleWithID(String roleName, String filter, int maxItemLimit) throws UserStoreException;
 
+
+    /**
+     * Get user list of group.
+     *
+     * @param groupName group name.
+     * @return An array of users that belongs to the given group.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    List<User> getUserListOfGroupWithID(String groupName) throws UserStoreException;
+
+    /**
+     * Get user list of group.
+     *
+     * @param groupName group name.
+     * @return An array of users that belongs to the given group.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager.
+     */
+    List<User> getUserListOfGroupWithID(String groupName, String filter, int maxItemLimit) throws UserStoreException;
+
     /**
      * Get user claim value in the profile.
      *

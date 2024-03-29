@@ -12737,6 +12737,71 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     @Override
+    public final List<User> getUserListOfGroupWithID(String groupName) throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[] { String.class };
+            Object object = callSecure("getUserListOfGroupWithID", new Object[] { groupName }, argTypes);
+            return (List<User>) object;
+        }
+
+        return getUserListOfGroupWithID(groupName, QUERY_FILTER_STRING_ANY, QUERY_MAX_ITEM_LIMIT_ANY);
+    }
+
+    @Override
+    public final List<User> getUserListOfGroupWithID(String groupName, String filter, int maxItemLimit)
+            throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[] { String.class, String.class, int.class };
+            Object object = callSecure("getUserListOfGroupWithID", new Object[] { groupName, filter, maxItemLimit },
+                    argTypes);
+            return (List<User>) object;
+        }
+
+        List<User> users = new ArrayList<>();
+
+        // If group does not exit, just return
+        if (!isExistingRole(groupName)) {
+            handleDoPostGetUserListOfRoleWithID(groupName, users);
+            return users;
+        }
+
+        UserStore userStore = getUserStoreOfRoles(groupName);
+
+        if (userStore.isRecurssive()) {
+            UserStoreManager resolvedUserStoreManager = userStore.getUserStoreManager();
+            if (resolvedUserStoreManager instanceof AbstractUserStoreManager) {
+                return ((AbstractUserStoreManager) resolvedUserStoreManager)
+                        .getUserListOfGroupWithID(userStore.getDomainFreeName(), filter, maxItemLimit);
+            } else {
+                return ((UniqueIDUserStoreManager) resolvedUserStoreManager)
+                        .getUserListOfGroupWithID(userStore.getDomainFreeName());
+            }
+        }
+
+        // #################### Domain Name Free Zone Starts Here ################################
+
+        if (userStore.isSystemStore() || userStore.isHybridRole()) {
+            if (!isRoleAndGroupSeparationEnabled()) {
+                return getUserListOfRoleWithID(groupName, filter, maxItemLimit);
+            }
+            return users;
+        }
+
+        if (readGroupsEnabled) {
+            // If unique id feature is not enabled, we have to call the legacy methods.
+            if (!isUniqueUserIdEnabledInUserStore(userStore)) {
+                users = userUniqueIDManger.listUsers(doGetUserListOfRole(groupName, filter, maxItemLimit), this);
+            } else {
+                users = doGetUserListOfRoleWithID(groupName, filter, maxItemLimit);
+            }
+            handleDoPostGetUserListOfRoleWithID(groupName, users);
+        }
+        return users;
+    }
+
+    @Override
     public final String getUserClaimValueWithID(String userID, String claim, String profileName)
             throws UserStoreException {
 
@@ -19214,67 +19279,48 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
-     * Retrieves the user count that belongs to a given role.
+     * Retrieves the user count that belongs to a given group.
      *
-     * @param roleName Name of the role.
-     * @return User count of the given role.
+     * @param groupName Name of the group.
+     * @return User count of the given group.
      * @throws UserStoreException If an unexpected error occurs while accessing user store.
      */
-    public int getUserCountForRole(String roleName) throws UserStoreException {
+    public int getUserCountForGroup(String groupName) throws UserStoreException {
 
         int count = 0;
         if (!isSecureCall.get()) {
             Class argTypes[] = new Class[] { String.class };
-            Object object = callSecure("getUserCountForRole", new Object[] { roleName }, argTypes);
+            Object object = callSecure("getUserCountForGroup", new Object[] { groupName }, argTypes);
             return (int) object;
         }
 
-        // If role does not exit, just return.
-        if (!isExistingRole(roleName)) {
+        // If group does not exit, just return.
+        if (!isExistingRole(groupName)) {
             return count;
         }
 
-        UserStore userStore = getUserStoreOfRoles(roleName);
+        UserStore userStore = getUserStoreOfRoles(groupName);
 
         if (userStore.isRecurssive()) {
             UserStoreManager resolvedUserStoreManager = userStore.getUserStoreManager();
             if (resolvedUserStoreManager instanceof AbstractUserStoreManager) {
                 return ((AbstractUserStoreManager) resolvedUserStoreManager)
-                        .getUserCountForRole(userStore.getDomainFreeName());
+                        .getUserCountForGroup(userStore.getDomainFreeName());
             }
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
 
-        if (userStore.isHybridRole()) {
-            if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
-                count += hybridRoleManager.getUserCountOfHybridRole(userStore.getDomainFreeName());
-            } else {
-                count += hybridRoleManager.getUserCountOfHybridRole(userStore.getDomainAwareName());
-            }
-
-            // Get the user count of associated groups of the role.
-            if (isRoleAndGroupSeparationEnabled()) {
-                String[] groupsOfRole;
-                if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
-                    groupsOfRole = hybridRoleManager.getGroupListOfHybridRole(userStore.getDomainFreeName());
-                } else {
-                    groupsOfRole = hybridRoleManager.getGroupListOfHybridRole(userStore.getDomainAwareName());
-                }
-                for (String group : groupsOfRole) {
-                    count += getUserCountForRole(group);
-                }
-            }
-
+        if (userStore.isSystemStore() || userStore.isHybridRole()) {
             return count;
         }
 
         if (readGroupsEnabled) {
             // If unique id feature is not enabled, we have to call the legacy methods.
             if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-                count += doGetUserCountOfRole(roleName);
+                count += doGetUserCountOfRole(groupName);
             } else {
-                count += doGetUserCountOfRoleWithID(roleName);
+                count += doGetUserCountOfRoleWithID(groupName);
             }
         }
 
