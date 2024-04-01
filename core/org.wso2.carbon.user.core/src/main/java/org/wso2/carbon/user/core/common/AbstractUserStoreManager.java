@@ -9497,8 +9497,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * Return the count of users belong to the given role.
      *
-     * @param roleName role name.
-     * @return user count for the given role.
+     * @param roleName Name of the role.
+     * @return User count for the given role.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
     protected int doGetUserCountOfRoleWithID(String roleName) throws UserStoreException {
@@ -12783,9 +12783,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // #################### Domain Name Free Zone Starts Here ################################
 
         if (userStore.isSystemStore() || userStore.isHybridRole()) {
+            // If the passed group is a role and if role, group separation is not enabled,
+            // call the user listing method for roles.
             if (!isRoleAndGroupSeparationEnabled()) {
                 return getUserListOfRoleWithID(groupName, filter, maxItemLimit);
             }
+            // If the passed group is a role and if role, group separation is enabled, just return.
             return users;
         }
 
@@ -19312,6 +19315,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // #################### Domain Name Free Zone Starts Here ################################
 
         if (userStore.isSystemStore() || userStore.isHybridRole()) {
+            // If the passed group is a role and if role, group separation is not enabled,
+            // call the user listing method for roles.
+            if (!isRoleAndGroupSeparationEnabled()) {
+                return getUserListOfRoleWithID(groupName).size();
+            }
+            // If the passed group is a role and if role, group separation is enabled, just return.
             return count;
         }
 

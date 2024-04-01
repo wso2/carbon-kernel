@@ -432,10 +432,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     /**
-     * Return the count of users belong to the given role for the given {@link RoleContext} and filter.
+     * Return the count of users belong to the given role for the given {@link RoleContext}.
      *
-     * @param ctx    {@link RoleContext} corresponding to the role.
-     * @throws UserStoreException  If an unexpected error occurs while accessing user store.
+     * @param ctx {@link RoleContext} corresponding to the role.
+     * @throws UserStoreException If an unexpected error occurs while accessing user store.
      */
     public int getUserCountByRole(RoleContext ctx) throws UserStoreException {
 

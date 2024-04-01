@@ -943,10 +943,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Return the count of users belong to the given role for the given {@link RoleContext} and filter.
+     * Return the count of users belong to the given role for the given {@link RoleContext}.
      *
-     * @param ctx    {@link RoleContext} corresponding to the role.
-     * @throws UserStoreException If an unexpected error occurs.
+     * @param ctx {@link RoleContext} corresponding to the role.
+     * @throws UserStoreException If an unexpected error occurs in user store.
      */
     public int getUserCountByRole(RoleContext ctx) throws UserStoreException {
 
