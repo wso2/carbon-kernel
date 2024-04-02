@@ -166,7 +166,11 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @return An array of users that belongs to the given group.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    List<User> getUserListOfGroupWithID(String groupName) throws UserStoreException;
+    default List<User> getUserListOfGroupWithID(String groupName) throws UserStoreException {
+
+        throw new NotImplementedException(
+                "getUserListOfGroupWithID operation is not implemented in: " + this.getClass());
+    }
 
     /**
      * Get user list of group.
@@ -175,7 +179,12 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      * @return An array of users that belongs to the given group.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */
-    List<User> getUserListOfGroupWithID(String groupName, String filter, int maxItemLimit) throws UserStoreException;
+    default List<User> getUserListOfGroupWithID(String groupName, String filter, int maxItemLimit)
+            throws UserStoreException {
+
+        throw new NotImplementedException(
+                "getUserListOfGroupWithID operation is not implemented in: " + this.getClass());
+    }
 
     /**
      * Get user claim value in the profile.
