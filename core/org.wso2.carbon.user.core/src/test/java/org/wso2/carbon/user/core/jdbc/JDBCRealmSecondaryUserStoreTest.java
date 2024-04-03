@@ -444,14 +444,14 @@ public class JDBCRealmSecondaryUserStoreTest extends BaseTestCase {
         admin.addRoleWithID("SECONDARYJDBC/userListTestGroup3", null, null, false);
 
         // Add 10 users for "userListTestGroup1" group
-        for (int i=1; i <=10; i++) {
+        for (int i = 1; i <= 10; i++) {
             User user = admin.addUserWithID("SECONDARYJDBC/testUser1WithID" + i, "pass1",
                     new String[]{"SECONDARYJDBC/userListTestGroup1"}, null, null);
             assertNotNull(user);
         }
 
         // Add 20 users for "userListTestGroup2" group
-        for (int i=1; i <=20; i++) {
+        for (int i = 1; i <= 20; i++) {
             User user = admin.addUserWithID("SECONDARYJDBC/testUser2WithID" + i, "pass1",
                     new String[]{"SECONDARYJDBC/userListTestGroup2"}, null, null);
             assertNotNull(user);
@@ -468,7 +468,7 @@ public class JDBCRealmSecondaryUserStoreTest extends BaseTestCase {
         admin.addRole("SECONDARYJDBC/userCountTestGroup", null, null);
 
         // Add users more than max users per page (100)
-        for (int i=1; i <=150; i++) {
+        for (int i = 1; i <= 150; i++) {
             admin.addUser("SECONDARYJDBC/testUser" + i, "pass1",
                     new String[]{"SECONDARYJDBC/userCountTestGroup"}, null, null, false);
         }

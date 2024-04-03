@@ -735,14 +735,14 @@ public class UniqueIDJDBCRealmSecondaryUserStoreTest extends BaseTestCase {
         admin.addRoleWithID("SECONDARY/userListTestGroup3", null, null, false);
 
         // Add 10 users for "userListTestGroup1" group
-        for (int i=1; i <=10; i++) {
+        for (int i = 1; i <= 10; i++) {
             User user = admin.addUserWithID("SECONDARY/testUser1WithID" + i, "pass1",
                     new String[]{"SECONDARY/userListTestGroup1"}, null, null);
             assertNotNull(user);
         }
 
         // Add 20 users for "userListTestGroup2" group
-        for (int i=1; i <=20; i++) {
+        for (int i = 1; i <= 20; i++) {
             User user = admin.addUserWithID("SECONDARY/testUser2WithID" + i, "pass1",
                     new String[]{"SECONDARY/userListTestGroup2"}, null, null);
             assertNotNull(user);
@@ -759,7 +759,7 @@ public class UniqueIDJDBCRealmSecondaryUserStoreTest extends BaseTestCase {
         admin.addRole("SECONDARY/userCountTestGroup", null, null);
 
         // Add users more than max users per page (100)
-        for (int i=1; i <=150; i++) {
+        for (int i = 1; i <= 150; i++) {
             admin.addUser("SECONDARY/testUser" + i, "pass1",
                     new String[]{"SECONDARY/userCountTestGroup"}, null, null, false);
         }

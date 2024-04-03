@@ -710,14 +710,14 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
         admin.addRoleWithID("userListTestGroup3", null, null, false);
 
         // Add 10 users for "userListTestGroup1" group
-        for (int i=1; i <=10; i++) {
+        for (int i = 1; i <= 10; i++) {
             User user = admin.addUserWithID("testUser1WithID" + i, "pass1",
                     new String[]{"userListTestGroup1"}, null, null);
             assertNotNull(user);
         }
 
         // Add 20 users for "userListTestGroup2" group
-        for (int i=1; i <=20; i++) {
+        for (int i = 1; i <= 20; i++) {
             User user = admin.addUserWithID("testUser2WithID" + i, "pass1",
                     new String[]{"userListTestGroup2"}, null, null);
             assertNotNull(user);
@@ -734,7 +734,7 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
         admin.addRole("userCountTestGroup", null, null);
 
         // Add users more than max users per page (100)
-        for (int i=1; i <=150; i++) {
+        for (int i = 1; i <= 150; i++) {
             admin.addUser("testUser" + i, "pass1", new String[]{"userCountTestGroup"},
                     null, null, false);
         }

@@ -359,10 +359,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     @Override
     public int doGetUserCountOfRoleWithID(String roleName)
-                throws UserStoreException {
+            throws UserStoreException {
 
-            RoleContext roleContext = createRoleContext(roleName);
-            return getUserCountByRole(roleContext);
+        RoleContext roleContext = createRoleContext(roleName);
+        return getUserCountByRole(roleContext);
     }
 
     public List<User> getUserListOfJDBCRoleWithID(RoleContext ctx, String filter) throws UserStoreException {
@@ -444,7 +444,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
-        int count = 0 ;
+        int count = 0;
         String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_COUNT_WITH_FILTER_ROLE_WITH_ID);
         try {
             dbConnection = getDBConnection();

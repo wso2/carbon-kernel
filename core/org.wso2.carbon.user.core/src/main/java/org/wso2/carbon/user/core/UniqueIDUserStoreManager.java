@@ -158,7 +158,6 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      */
     List<User> getUserListOfRoleWithID(String roleName, String filter, int maxItemLimit) throws UserStoreException;
 
-
     /**
      * Get user list of group.
      *

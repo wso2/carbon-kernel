@@ -956,7 +956,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         try {
             dbConnection = getDBConnection();
             return DatabaseUtil.getIntegerValueFromDatabase(
-                    dbConnection, sqlStmt, roleName,tenantId, tenantId, tenantId);
+                    dbConnection, sqlStmt, roleName, tenantId, tenantId, tenantId);
         } catch (SQLException e) {
             String errorMessage =
                     "Error occurred while getting the count of users in the role : " + roleName;

@@ -9490,8 +9490,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (log.isDebugEnabled()) {
             log.debug("doGetUserCountOfRole operation is not implemented in: " + this.getClass());
         }
-        throw new NotImplementedException(
-                "doGetUserCountOfRole operation is not implemented in: " + this.getClass());
+        throw new NotImplementedException("doGetUserCountOfRole operation is not implemented in: " + this.getClass());
     }
 
     /**
@@ -12740,8 +12739,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public final List<User> getUserListOfGroupWithID(String groupName) throws UserStoreException {
 
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class };
-            Object object = callSecure("getUserListOfGroupWithID", new Object[] { groupName }, argTypes);
+            Class argTypes[] = new Class[]{String.class};
+            Object object = callSecure("getUserListOfGroupWithID", new Object[]{groupName}, argTypes);
             return (List<User>) object;
         }
 
@@ -12753,8 +12752,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throws UserStoreException {
 
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class, String.class, int.class };
-            Object object = callSecure("getUserListOfGroupWithID", new Object[] { groupName, filter, maxItemLimit },
+            Class argTypes[] = new Class[]{String.class, String.class, int.class};
+            Object object = callSecure("getUserListOfGroupWithID", new Object[]{groupName, filter, maxItemLimit},
                     argTypes);
             return (List<User>) object;
         }
@@ -19292,8 +19291,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         int count = 0;
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class };
-            Object object = callSecure("getUserCountForGroup", new Object[] { groupName }, argTypes);
+            Class argTypes[] = new Class[]{String.class};
+            Object object = callSecure("getUserCountForGroup", new Object[]{groupName}, argTypes);
             return (int) object;
         }
 
