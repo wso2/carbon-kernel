@@ -21,7 +21,12 @@ import org.apache.tiles.Attribute;
 import org.apache.tiles.AttributeContext;
 import org.apache.tiles.TilesContainer;
 import org.apache.tiles.access.TilesAccess;
+import org.apache.tiles.request.ApplicationContext;
+import org.apache.tiles.request.Request;
+import org.apache.tiles.request.servlet.ServletRequest;
+import org.apache.tiles.request.servlet.ServletUtil;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -40,21 +45,25 @@ public class ActionHelper {
      */
     public static void render(String actionUrl, HttpServletRequest request,
                        HttpServletResponse response) throws Exception {
-        TilesContainer container = TilesAccess.getContainer(
-                request.getSession().getServletContext());
-        if(log.isDebugEnabled()){
-            log.debug("Rendering tiles main.layout with page : "+actionUrl+"("+request.getSession().getId()+")");        	
+
+        ServletContext servletContext = request.getSession().getServletContext();
+        ApplicationContext applicationContext = ServletUtil.getApplicationContext(servletContext);
+        TilesContainer container = TilesAccess.getContainer(applicationContext);
+        if (log.isDebugEnabled()) {
+            log.debug(
+                    "Rendering tiles main.layout with page : " + actionUrl + "(" + request.getSession().getId() + ")");
         }
-        AttributeContext attributeContext = container.startContext(request, response);
+        Request requestContext = new ServletRequest(container.getApplicationContext(), request, response);
+        AttributeContext attributeContext = container.startContext(requestContext);
         Attribute attr = new Attribute(actionUrl);
         attributeContext.putAttribute("body", attr);
         try {
-            container.render("main.layout", request, response);
-            container.endContext(request, response);
+            container.render("main.layout", requestContext);
+            container.endContext(requestContext);
         } catch (Exception e) {
             if (log.isDebugEnabled()) {  // Intentionally logged at debug level
                 log.debug("Error occurred while rendering." +
-                          " We generally see this 'harmless' exception on WebLogic. Hiding it.", e);
+                        " We generally see this 'harmless' exception on WebLogic. Hiding it.", e);
             }
         }
     }

@@ -79,7 +79,7 @@
                                 <bundleDef>commons-pool.wso2:commons-pool:${orbit.version.commons.pool}</bundleDef>
                                 <bundleDef>org.apache.abdera.wso2:abdera:${orbit.version.abdera}</bundleDef>
                                 <bundleDef>org.apache.axis2.wso2:axis2:${orbit.version.axis2}</bundleDef>
-                                <bundleDef>org.apache.tiles.wso2:tiles-jsp:${orbit.version.tiles}</bundleDef>
+                                <bundleDef>org.wso2.orbit.org.apache.tiles:tiles-jsp:${orbit.version.tiles}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.xmlbeans:xmlbeans:${version.xmlbeans}</bundleDef>
                                 <bundleDef>org.apache.ws.commons.axiom.wso2:axiom:${orbit.version.axiom}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.neethi:neethi:${neethi.osgi.version}</bundleDef>

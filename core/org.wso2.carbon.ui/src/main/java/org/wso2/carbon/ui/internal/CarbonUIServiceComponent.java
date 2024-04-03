@@ -232,15 +232,15 @@ public class CarbonUIServiceComponent {
 
         final HttpService httpService = getHttpService();
 
-        Dictionary<String, String> initparams = new Hashtable<String, String>();
-        initparams.put("servlet-name", "TilesServlet");
-//        initparams.put("definitions-config", "/WEB-INF/tiles/main_defs.xml");
-        initparams.put(org.apache.tiles.impl.BasicTilesContainer.DEFINITIONS_CONFIG, "/WEB-INF/tiles/main_defs.xml");
-        initparams.put("org.apache.tiles.context.TilesContextFactory",
-                       "org.apache.tiles.context.enhanced.EnhancedContextFactory");
-        initparams.put("org.apache.tiles.factory.TilesContainerFactory.MUTABLE", "true");
-        initparams.put("org.apache.tiles.definition.DefinitionsFactory",
-                       "org.wso2.carbon.tiles.CarbonUrlDefinitionsFactory");
+//        Dictionary<String, String> initparams = new Hashtable<String, String>();
+//        initparams.put("servlet-name", "TilesServlet");
+////        initparams.put("definitions-config", "/WEB-INF/tiles/tiles.xml");
+//        initparams.put(org.apache.tiles.impl.BasicTilesContainer.DEFINITIONS_CONFIG, "/WEB-INF/tiles/tiles.xml");
+//        initparams.put("org.apache.tiles.context.TilesContextFactory",
+//                       "org.apache.tiles.context.enhanced.EnhancedContextFactory");
+//        initparams.put("org.apache.tiles.factory.TilesContainerFactory.MUTABLE", "true");
+//        initparams.put("org.apache.tiles.definition.DefinitionsFactory",
+//                       "org.wso2.carbon.tiles.CarbonUrlDefinitionsFactory");
 
         String webContext = "carbon"; // The subcontext for the Carbon Mgt Console
 
@@ -297,17 +297,29 @@ public class CarbonUIServiceComponent {
         context.addBundleListener(uiBundleDeployer);
 
         // TODO check if they need to be registered with bundle context?
-        httpService.registerServlet("/", new org.apache.tiles.web.startup.TilesServlet(),
-                                    initparams,
-                                    commonContext);
+//        httpService.registerServlet("/", new org.apache.tiles.web.startup.TilesServlet(),
+//                                    initparams,
+//                                    commonContext);
+
+        Dictionary<String, Object> properties = new Hashtable<>();
+//        properties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_RESOURCE_PATTERN, "/" + webContext + "/*");
+//        properties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_RESOURCE_PREFIX, "/");
+//        bundleContext.registerService(
+//                Object.class, // You're not actually registering a service object here, so the type doesn't matter much
+//                new Object(), // The service object, which could just be a dummy or marker object
+//                properties // The properties dictionary defining the resource registration
+//                                                                           );
         httpService.registerResources("/" + webContext, "/", commonContext);
 
-        adaptedJspServlet = new ContextPathServletAdaptor(
-                new TilesJspServlet(context.getBundle(), uiResourceRegistry), "/" + webContext);
+        //TODO removed the webContext from here
+//        adaptedJspServlet = new ContextPathServletAdaptor(
+//                new TilesJspServlet(context.getBundle(), uiResourceRegistry), "/");
+
+        adaptedJspServlet = new TilesJspServlet(context.getBundle(), uiResourceRegistry);
 
 
         Dictionary<String, String> props = new Hashtable<>();
-        props.put("osgi.http.whiteboard.context.name", "myContext");
+        props.put("osgi.http.whiteboard.context.name", "tilesContext");
         props.put("osgi.http.whiteboard.context.path", "/carbon");
 
         context.registerService(ServletContextHelper.class, (ServletContextHelper) commonContext, props);
@@ -317,17 +329,13 @@ public class CarbonUIServiceComponent {
 //        httpService.registerServlet("/" + webContext + "/*.jsp", adaptedJspServlet, carbonInitparams, commonContext);
         carbonInitparams.put("servlet.init.strictQuoteEscaping", "false");
         carbonInitparams.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/*.jsp");
-        carbonInitparams.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=myContext)");
+        carbonInitparams.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=tilesContext)");
         context.registerService(Servlet.class, adaptedJspServlet, carbonInitparams);
 
-        ServletContext jspServletContext =
-                adaptedJspServlet.getServletConfig().getServletContext();
+        ServletContext jspServletContext = adaptedJspServlet.getServletConfig().getServletContext();
 
-        jspServletContext.setAttribute(
-                InstanceManager.class.getName(), getTomcatInstanceManager());
-
+        jspServletContext.setAttribute(InstanceManager.class.getName(), getTomcatInstanceManager());
         jspServletContext.setAttribute("registry", registryService);
-
         jspServletContext.setAttribute(CarbonConstants.SERVER_CONFIGURATION, serverConfig);
         jspServletContext.setAttribute(CarbonConstants.CLIENT_CONFIGURATION_CONTEXT, clientConfigContext);
         //If the UI is running on local transport mode, then we use the server-side config context.
@@ -349,6 +357,7 @@ public class CarbonUIServiceComponent {
                 .setAttribute(CustomUIDefenitions.CUSTOM_UI_DEFENITIONS, customUIDefenitions);
 
         // Registering jspServletContext as a service so that UI components can use it
+        // TODO why do we need to register this again?
         bundleContext.registerService(ServletContext.class.getName(), jspServletContext, null);
 
         //saving bundle context for future reference within CarbonUI Generation

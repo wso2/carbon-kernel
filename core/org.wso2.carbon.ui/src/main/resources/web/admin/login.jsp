@@ -49,6 +49,7 @@
     }
 %>
 <%
+    System.out.println("=================== login.jsp");
 String userForumURL =
         (String) config.getServletContext().getAttribute(CarbonConstants.PRODUCT_XML_WSO2CARBON +
                                                          CarbonConstants.PRODUCT_XML_USERFORUM);

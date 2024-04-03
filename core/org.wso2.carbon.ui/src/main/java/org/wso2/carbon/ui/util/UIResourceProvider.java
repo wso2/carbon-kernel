@@ -45,11 +45,11 @@ public interface UIResourceProvider {
      * /WEB_INF
      * /WEB-INF/web.xml
      * /WEB-INF/tiles
-     * /WEB-INF/tiles/main_defs.xml
+     * /WEB-INF/tiles/tiles.xml
      *
      * getResourcePaths("/") returns {"/welcome.html", "/WEB_INF"}.
      * getResourcePaths("/WEB_INF/") returns {"/WEB-INF/web.xml", "/WEB-INF/tiles/"}.
-     * getResourcePaths("/WEB-INF/tiles/") returns {"/WEB-INF/tiles/main_defs.xml"}.
+     * getResourcePaths("/WEB-INF/tiles/") returns {"/WEB-INF/tiles/tiles.xml"}.
      * 
      * @param path partial path used to match the resources, which must start with a /
      * @return a Set containing the directory listing, or null if there are no resources whose path begins with the

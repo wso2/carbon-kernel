@@ -56,13 +56,13 @@
             <artifactId>axiom</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.tiles.wso2</groupId>
+            <groupId>org.wso2.orbit.org.apache.tiles</groupId>
             <artifactId>tiles-jsp</artifactId>
             <exclusions>
-                <exclusion>
-                    <groupId>org.apache.tiles</groupId>
-                    <artifactId>tiles-jsp</artifactId>
-                </exclusion>
+<!--                <exclusion>-->
+<!--                    <groupId>org.apache.tiles</groupId>-->
+<!--                    <artifactId>tiles-jsp</artifactId>-->
+<!--                </exclusion>-->
                 <exclusion>
                     <groupId>commons-digester</groupId>
                     <artifactId>commons-digester</artifactId>
@@ -73,6 +73,17 @@
                 </exclusion>
             </exclusions>
         </dependency>
+<!--        &lt;!&ndash; Adding temporarily to compile &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.tiles</groupId>-->
+<!--            <artifactId>tiles-core</artifactId>-->
+<!--            <version>3.0.7</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.tiles</groupId>-->
+<!--            <artifactId>tiles-servlet</artifactId>-->
+<!--            <version>3.0.7</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>
@@ -229,7 +240,7 @@
                             javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
                             javax.servlet.jsp; version="${imp.pkg.version.javax.servlet.jsp}"
                             javax.servlet.jsp.tagext; version="${imp.pkg.version.javax.servlet.jsp}",
-                            org.apache.tiles.*;version="2.0.5",
+                            org.apache.tiles.*;version="3.0.7",
                             org.wso2.carbon.registry.core.service,
                             org.owasp.csrfguard.tag.*; version="${orbit.version.csrfguard}",
                             org.owasp.encoder.*;version="${owasp.encoder.wso2.imp.pkg.version}",

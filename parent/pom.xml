@@ -396,9 +396,9 @@
         <imp.pkg.version.javax.servlet.jsp.jstl>[1.2.1, 1.3.0)</imp.pkg.version.javax.servlet.jsp.jstl>
 
         <!-- Apache Tiles -->
-        <orbit.version.tiles>2.0.5.wso2v3</orbit.version.tiles>
-        <exp.pkg.version.org.apache.tiles>2.0.5</exp.pkg.version.org.apache.tiles>
-        <imp.pkg.version.org.apache.tiles>[2.0.5, 2.2.0)</imp.pkg.version.org.apache.tiles>
+        <orbit.version.tiles>3.0.7.wso2v2</orbit.version.tiles>
+        <exp.pkg.version.org.apache.tiles>3.0.7</exp.pkg.version.org.apache.tiles>
+<!--        <imp.pkg.version.org.apache.tiles>[2.0.5, 2.2.0)</imp.pkg.version.org.apache.tiles>-->
 
         <!-- Glassfish el-impl  -->
         <orbit.version.el.impl>2.2.wso2v1</orbit.version.el.impl>
@@ -1081,7 +1081,7 @@
                 <version>${version.geronimo.stax.api.spec}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.tiles.wso2</groupId>
+                <groupId>org.wso2.orbit.org.apache.tiles</groupId>
                 <artifactId>tiles-jsp</artifactId>
                 <version>${orbit.version.tiles}</version>
             </dependency>
