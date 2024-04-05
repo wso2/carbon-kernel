@@ -702,6 +702,47 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
         assertEquals("user6WithID$_USERNAME_SEPARATOR_$usergivenname2withId", username);
     }
 
+    public void test206GetUserListOfGroupWithID() throws UserStoreException {
+
+        // Add new groups
+        admin.addRoleWithID("userListTestGroup1", null, null, false);
+        admin.addRoleWithID("userListTestGroup2", null, null, false);
+        admin.addRoleWithID("userListTestGroup3", null, null, false);
+
+        // Add 10 users for "userListTestGroup1" group
+        for (int i = 1; i <= 10; i++) {
+            User user = admin.addUserWithID("testUser1WithID" + i, "pass1",
+                    new String[]{"userListTestGroup1"}, null, null);
+            assertNotNull(user);
+        }
+
+        // Add 20 users for "userListTestGroup2" group
+        for (int i = 1; i <= 20; i++) {
+            User user = admin.addUserWithID("testUser2WithID" + i, "pass1",
+                    new String[]{"userListTestGroup2"}, null, null);
+            assertNotNull(user);
+        }
+
+        // getUserListOfGroup() method should return users of the given group
+        assertEquals(10, admin.getUserListOfGroupWithID("userListTestGroup1").size());
+        assertEquals(20, admin.getUserListOfGroupWithID("userListTestGroup2").size());
+    }
+
+    public void test207GetUserCountForGroup() throws UserStoreException {
+
+        // Add a new group
+        admin.addRole("userCountTestGroup", null, null);
+
+        // Add users more than max users per page (100)
+        for (int i = 1; i <= 150; i++) {
+            admin.addUser("testUser" + i, "pass1", new String[]{"userCountTestGroup"},
+                    null, null, false);
+        }
+
+        // getUserCountForGroup() method should return the total number of users of the given group
+        assertEquals(150, admin.getUserCountForGroup("userCountTestGroup"));
+    }
+
     private void clearUserIdResolverCache() {
 
         UserIdResolverCache.getInstance()

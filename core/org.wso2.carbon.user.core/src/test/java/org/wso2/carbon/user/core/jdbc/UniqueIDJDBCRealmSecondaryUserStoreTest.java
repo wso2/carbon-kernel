@@ -727,6 +727,47 @@ public class UniqueIDJDBCRealmSecondaryUserStoreTest extends BaseTestCase {
         assertEquals("SECONDARY/user6WithID$_USERNAME_SEPARATOR_$SECONDARY/usergivenname2withId", username);
     }
 
+    public void test205GetUserListOfGroupWithID() throws UserStoreException {
+
+        // Add new groups
+        admin.addRoleWithID("SECONDARY/userListTestGroup1", null, null, false);
+        admin.addRoleWithID("SECONDARY/userListTestGroup2", null, null, false);
+        admin.addRoleWithID("SECONDARY/userListTestGroup3", null, null, false);
+
+        // Add 10 users for "userListTestGroup1" group
+        for (int i = 1; i <= 10; i++) {
+            User user = admin.addUserWithID("SECONDARY/testUser1WithID" + i, "pass1",
+                    new String[]{"SECONDARY/userListTestGroup1"}, null, null);
+            assertNotNull(user);
+        }
+
+        // Add 20 users for "userListTestGroup2" group
+        for (int i = 1; i <= 20; i++) {
+            User user = admin.addUserWithID("SECONDARY/testUser2WithID" + i, "pass1",
+                    new String[]{"SECONDARY/userListTestGroup2"}, null, null);
+            assertNotNull(user);
+        }
+
+        // getUserListOfGroup() method should return users of the given group
+        assertEquals(10, admin.getUserListOfGroupWithID("SECONDARY/userListTestGroup1").size());
+        assertEquals(20, admin.getUserListOfGroupWithID("SECONDARY/userListTestGroup2").size());
+    }
+
+    public void test206GetUserCountForGroup() throws UserStoreException {
+
+        // Add a new group
+        admin.addRole("SECONDARY/userCountTestGroup", null, null);
+
+        // Add users more than max users per page (100)
+        for (int i = 1; i <= 150; i++) {
+            admin.addUser("SECONDARY/testUser" + i, "pass1",
+                    new String[]{"SECONDARY/userCountTestGroup"}, null, null, false);
+        }
+
+        // getUserCountForGroup() method should return the total number of users of the given group
+        assertEquals(150, admin.getUserCountForGroup("SECONDARY/userCountTestGroup"));
+    }
+
     private void addSecondaryUserStoreManager(RealmConfiguration primaryRealm,
                                               AbstractUserStoreManager userStoreManager, UserRealm userRealm,
                                               String dbUrl, String configFilePath,

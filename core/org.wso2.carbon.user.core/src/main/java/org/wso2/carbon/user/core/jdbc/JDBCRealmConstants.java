@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2005-2024, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -57,6 +57,7 @@ public final class JDBCRealmConstants {
     public static final String GET_USERS_IN_ROLE_FILTER = "GetUserListOfRoleFilterSQL";
     public static final String GET_USERS_IN_ROLE_FILTER_WITH_ID = "GetUserListOfRoleFilterWithIDSQL";
     public static final String GET_USERS_COUNT_WITH_FILTER_ROLE = "GetUserCountWithFilterRoleSQL";
+    public static final String GET_USERS_COUNT_WITH_FILTER_ROLE_WITH_ID = "GetUserCountWithFilterRoleWithIDSQL";
     public static final String GET_USERS_IN_SHARED_ROLE = "GetUserListOfSharedRoleSQL";
     public static final String GET_USERS_IN_SHARED_ROLE_FILTER = "GetUserListOfSharedRoleFilterSQL";
     public static final String GET_USERS_IN_SHARED_ROLE_FILTER_WITH_ID = "GetUserListOfSharedRoleFilterWithIDSQL";
@@ -270,7 +271,11 @@ public final class JDBCRealmConstants {
                     + "UM_ROLE.UM_ID=UM_USER_ROLE.UM_ROLE_ID AND UM_USER_ROLE.UM_TENANT_ID=? AND UM_ROLE"
                     + ".UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?";
 
-    public static final String GET_USERS_COUNT_WITH_FILTER_ROLE_SQL = "SELECT count(UM_ID) FROM UM_USER_ROLE " +
+    public static final String GET_USERS_COUNT_WITH_FILTER_ROLE_SQL = "SELECT COUNT(UM_USER_NAME) FROM " +
+            "UM_USER_ROLE, UM_ROLE, UM_USER WHERE UM_ROLE.UM_ROLE_NAME=? AND UM_USER.UM_ID=UM_USER_ROLE.UM_USER_ID " +
+            "AND UM_ROLE.UM_ID=UM_USER_ROLE.UM_ROLE_ID AND UM_USER_ROLE.UM_TENANT_ID=? AND UM_ROLE.UM_TENANT_ID=? " +
+            "AND UM_USER.UM_TENANT_ID=?";
+    public static final String GET_USERS_COUNT_WITH_FILTER_ROLE_SQL_WITH_ID = "SELECT COUNT(UM_ID) FROM UM_USER_ROLE " +
             "WHERE UM_ROLE_ID = ? AND UM_TENANT_ID = ?";
 
     public static final String GET_ROLE_ID_BY_NAME_SQL =  "SELECT UM_ID FROM UM_ROLE " +

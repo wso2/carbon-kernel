@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019-2024, WSO2 LLC. (http://www.wso2.com).
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -352,11 +352,17 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    public int doGetUserCountOfRole(String roleName, String filter)
-                throws UserStoreException {
+    public int doGetUserCountOfRole(String roleName) throws UserStoreException {
 
-            RoleContext roleContext = createRoleContext(roleName);
-            return getUserCountByRole(roleContext, filter);
+        throw new UserStoreException("Operation is not supported.");
+    }
+
+    @Override
+    public int doGetUserCountOfRoleWithID(String roleName)
+            throws UserStoreException {
+
+        RoleContext roleContext = createRoleContext(roleName);
+        return getUserCountByRole(roleContext);
     }
 
     public List<User> getUserListOfJDBCRoleWithID(RoleContext ctx, String filter) throws UserStoreException {
@@ -426,42 +432,20 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     /**
-     * Return the count of users belong to the given role for the given {@link RoleContext} and filter.
+     * Return the count of users belong to the given role for the given {@link RoleContext}.
      *
-     * @param ctx    {@link RoleContext} corresponding to the role.
-     * @param filter String filter for the users.
+     * @param ctx {@link RoleContext} corresponding to the role.
+     * @throws UserStoreException If an unexpected error occurs while accessing user store.
      */
-    public int getUserCountByRole(RoleContext ctx, String filter) throws UserStoreException {
+    public int getUserCountByRole(RoleContext ctx) throws UserStoreException {
 
         String roleName = ctx.getRoleName();
-
-        if (StringUtils.isNotEmpty(filter)) {
-            filter = filter.trim();
-            filter = filter.replace("*", "%");
-            filter = filter.replace("?", "_");
-        } else {
-            filter = "%";
-        }
-        return getUserCountByRoleFromDatabase(roleName, filter);
-    }
-
-    /**
-     * Return the count of users belong to the given role for the given {@link RoleContext} and filter.
-     *
-     * @param roleName Name of the role.
-     * @param filter   String filter for the users.
-     * @return The count of users matching the provided constraints.
-     * @throws UserStoreException
-     */
-    public int getUserCountByRoleFromDatabase(String roleName, String filter)
-                throws UserStoreException {
-
-        String roleId = getRoleIdByName(roleName, tenantId);
+        String roleId = getRoleIdByName(ctx.getRoleName(), tenantId);
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
-        int count = 0 ;
-        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_COUNT_WITH_FILTER_ROLE);
+        int count = 0;
+        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_COUNT_WITH_FILTER_ROLE_WITH_ID);
         try {
             dbConnection = getDBConnection();
             prepStmt = dbConnection.prepareStatement(sqlStmt);
