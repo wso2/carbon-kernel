@@ -479,12 +479,12 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
         try {
             admin.updateUserListOfRole(realmConfig.getAdminRoleName(), null,
                     new String[]{realmConfig.getAdminUserName()});
-            TestCase.assertTrue(false);
-        } catch (Exception e) {
-            // exptected error in negative testing
             if (log.isDebugEnabled()) {
-                log.debug("Expected error, hence ignored", e);
+                log.debug("Unique key violation exception is not thrown since it is suppressed.");
             }
+        } catch (Exception e) {
+            // Error is not expected since it is suppressed.
+            TestCase.assertTrue(false);
         }
 
         int count = sampleAbstractUserManagementErrorListener.getUpdateRoleListOfUserFailureCount();
