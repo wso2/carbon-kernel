@@ -64,6 +64,7 @@ public class DatabaseUtil {
     private static final String DEFAULT_CORRELATION_LOG_INTERCEPTOR = "org.wso2.carbon.ndatasource.rdbms"
             + ".CorrelationLogInterceptor";
     private static final String CORRELATION_LOG_SYSTEM_PROPERTY = "enableCorrelationLogs";
+    public static final String UNIQUE_KEY_VIOLATION_SQL_STATE = "23505";
 
     /**
      * Gets a database pooling connection. If a pool is not created this will create a connection pool.
@@ -1006,17 +1007,25 @@ public class DatabaseUtil {
                         + Arrays.toString(count));
             }
             dbConnection.commit();
-
         } catch (SQLException e) {
             boolean isUniqueKeyViolationException = false;
             for (Throwable subSQLException : e) {
-                if (subSQLException instanceof SQLIntegrityConstraintViolationException) {
+                if (subSQLException instanceof SQLIntegrityConstraintViolationException &&
+                        ((SQLException) subSQLException).getSQLState().equals(UNIQUE_KEY_VIOLATION_SQL_STATE)) {
                     // If concurrent requests bypass the existing user validation check, it can throw an exception
                     // regarding unique key violation. Since the user addition is successful, the exception is ignored.
                     isUniqueKeyViolationException = true;
                     if (log.isDebugEnabled()) {
                         log.debug("Similar entry found when adding the user to the role. Hence skipping " +
-                                "the user addition", e);
+                                "the user addition.", e);
+                    }
+                    try {
+                        dbConnection.commit();
+                    } catch (SQLException ex) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Error while committing transaction to the database.", e);
+                        }
+                        throw new UserStoreException(ex.getMessage(), ex);
                     }
                     break;
                 }
