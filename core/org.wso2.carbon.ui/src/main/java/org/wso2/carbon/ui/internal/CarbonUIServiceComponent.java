@@ -232,17 +232,8 @@ public class CarbonUIServiceComponent {
 
         final HttpService httpService = getHttpService();
 
-//        Dictionary<String, String> initparams = new Hashtable<String, String>();
-//        initparams.put("servlet-name", "TilesServlet");
-////        initparams.put("definitions-config", "/WEB-INF/tiles/tiles.xml");
-//        initparams.put(org.apache.tiles.impl.BasicTilesContainer.DEFINITIONS_CONFIG, "/WEB-INF/tiles/tiles.xml");
-//        initparams.put("org.apache.tiles.context.TilesContextFactory",
-//                       "org.apache.tiles.context.enhanced.EnhancedContextFactory");
-//        initparams.put("org.apache.tiles.factory.TilesContainerFactory.MUTABLE", "true");
-//        initparams.put("org.apache.tiles.definition.DefinitionsFactory",
-//                       "org.wso2.carbon.tiles.CarbonUrlDefinitionsFactory");
-
         String webContext = "carbon"; // The subcontext for the Carbon Mgt Console
+        //todo once the user logs in and logout, /carbon path is appended twice to the url
 
         String serverURL = CarbonUIUtil.getServerURL(serverConfig);
         String indexPageURL = CarbonUIUtil.getIndexPageURL(serverConfig);
@@ -296,27 +287,6 @@ public class CarbonUIServiceComponent {
         uiBundleDeployer.deploy(bundleContext, commonContext);
         context.addBundleListener(uiBundleDeployer);
 
-        // TODO check if they need to be registered with bundle context?
-//        httpService.registerServlet("/", new org.apache.tiles.web.startup.TilesServlet(),
-//                                    initparams,
-//                                    commonContext);
-
-        Dictionary<String, Object> properties = new Hashtable<>();
-//        properties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_RESOURCE_PATTERN, "/" + webContext + "/*");
-//        properties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_RESOURCE_PREFIX, "/");
-//        bundleContext.registerService(
-//                Object.class, // You're not actually registering a service object here, so the type doesn't matter much
-//                new Object(), // The service object, which could just be a dummy or marker object
-//                properties // The properties dictionary defining the resource registration
-//                                                                           );
-        httpService.registerResources("/" + webContext, "/", commonContext);
-
-        //TODO removed the webContext from here
-//        adaptedJspServlet = new ContextPathServletAdaptor(
-//                new TilesJspServlet(context.getBundle(), uiResourceRegistry), "/");
-
-        adaptedJspServlet = new TilesJspServlet(context.getBundle(), uiResourceRegistry);
-
 
         Dictionary<String, String> props = new Hashtable<>();
         props.put("osgi.http.whiteboard.context.name", "tilesContext");
@@ -324,9 +294,25 @@ public class CarbonUIServiceComponent {
 
         context.registerService(ServletContextHelper.class, (ServletContextHelper) commonContext, props);
 
+        HttpContext resourceContext =
+                new CarbonSecuredHttpContext(context.getBundle(), "/web", uiResourceRegistry, registry);
+        Dictionary<String, String> resourceProps = new Hashtable<>();
+        resourceProps.put("osgi.http.whiteboard.context.name", "resourceContext");
+        resourceProps.put("osgi.http.whiteboard.context.path", "/carbon");
+        resourceProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_RESOURCE_PATTERN, "/" + webContext + "/*");
+        context.registerService(ServletContextHelper.class, (ServletContextHelper) resourceContext, resourceProps);
+        Dictionary<String, Object> properties = new Hashtable<>();
+        properties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_RESOURCE_PATTERN, "/*");
+        properties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_RESOURCE_PREFIX, "/");
+        properties.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=resourceContext)");
+        properties.put("osgi.http.whiteboard.context.httpservice", true);
+
+        // Replacement for httpService.registerResources with whiteboard
+        bundleContext.registerService(String.class, "resource", properties);
+
+        adaptedJspServlet = new TilesJspServlet(context.getBundle(), uiResourceRegistry);
+
         Dictionary<String, String> carbonInitparams = new Hashtable<>();
-//        carbonInitparams.put("strictQuoteEscaping", "false");
-//        httpService.registerServlet("/" + webContext + "/*.jsp", adaptedJspServlet, carbonInitparams, commonContext);
         carbonInitparams.put("servlet.init.strictQuoteEscaping", "false");
         carbonInitparams.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/*.jsp");
         carbonInitparams.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=tilesContext)");
