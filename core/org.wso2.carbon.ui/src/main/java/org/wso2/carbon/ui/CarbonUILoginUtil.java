@@ -460,7 +460,7 @@ public final class CarbonUILoginUtil {
                     response.addCookie(rmeCookie);
                 }
             } catch (Exception e) {
-                response.sendRedirect(contextPath + indexPageURL
+                response.sendRedirect(indexPageURL
                         + (indexPageURL.indexOf('?') == -1 ? "?" : "&") + "loginStatus=false");
 				if (log.isDebugEnabled()) {
 					log.debug("Security check failed for login request for " + userName);
@@ -479,7 +479,7 @@ public final class CarbonUILoginUtil {
                     indexPageURL = indexPageURL.substring(5);
                 }
 
-                response.sendRedirect(contextPath + indexPageURL
+                response.sendRedirect(indexPageURL
                         + (indexPageURL.indexOf('?') == -1 ? "?" : "&") + "loginStatus=true");
             }
 
