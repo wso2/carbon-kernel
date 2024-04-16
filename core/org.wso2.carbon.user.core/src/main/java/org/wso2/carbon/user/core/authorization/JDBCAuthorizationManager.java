@@ -213,6 +213,10 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     public boolean isUserAuthorized(String userName, String resourceId, String action)
             throws UserStoreException {
 
+        // Regular expression to match and remove any version information appended to the resource path.
+        String versionRegex = ";version:\\d+";
+        resourceId = resourceId.replaceAll(versionRegex, "");
+
         if (!preserveCaseForResources && resourceId != null) {
             resourceId = resourceId.toLowerCase();
         }
