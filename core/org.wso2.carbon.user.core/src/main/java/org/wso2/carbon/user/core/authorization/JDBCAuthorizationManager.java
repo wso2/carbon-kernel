@@ -48,6 +48,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -508,9 +509,13 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             String[] roles = this.userRealm.getUserStoreManager().getRoleListOfUser(userName);
             if (skipAuthzCheckForSuperAdmin && MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(
                     CarbonContext.getThreadLocalCarbonContext().getTenantDomain())) {
-                if (caseInSensitiveAuthorizationRules && realmConfig.getAdminUserName().equalsIgnoreCase(userName)) {
+                boolean isSuperAdmin =
+                        Arrays.stream(roles).anyMatch(role -> role.equals(realmConfig.getAdminRoleName()));
+                if (isSuperAdmin && caseInSensitiveAuthorizationRules &&
+                        realmConfig.getAdminUserName().equalsIgnoreCase(userName)) {
                     roles = new String[]{realmConfig.getAdminRoleName()};
-                } else if (realmConfig.getAdminUserName().equals(userName)) {
+                } else if (isSuperAdmin && !caseInSensitiveAuthorizationRules &&
+                        realmConfig.getAdminUserName().equals(userName)) {
                     roles = new String[]{realmConfig.getAdminRoleName()};
                 }
             }
