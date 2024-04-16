@@ -506,6 +506,14 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         List<String> lstPermissions = new ArrayList<>();
         if (isRoleAndGroupSeparationEnabled || verifyByRetrievingAllUserRoles) {
             String[] roles = this.userRealm.getUserStoreManager().getRoleListOfUser(userName);
+            if (skipAuthzCheckForSuperAdmin && MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(
+                    CarbonContext.getThreadLocalCarbonContext().getTenantDomain())) {
+                if (caseInSensitiveAuthorizationRules && realmConfig.getAdminUserName().equalsIgnoreCase(userName)) {
+                    roles = new String[]{realmConfig.getAdminRoleName()};
+                } else if (realmConfig.getAdminUserName().equals(userName)) {
+                    roles = new String[]{realmConfig.getAdminRoleName()};
+                }
+            }
             permissionTree.updatePermissionTree();
             permissionTree.getUIResourcesForRoles(roles, lstPermissions, permissionRootPath);
             String[] permissions = lstPermissions.toArray(new String[0]);
