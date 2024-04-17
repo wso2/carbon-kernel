@@ -11277,8 +11277,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             .doAuthenticateWithID(preferredUserNameProperty, preferredUserNameValue, credentialObj,
                                     profileName);
                 } else {
-                    List<String> users = doGetUserList(preferredUserNameClaim, preferredUserNameValue, profileName,
-                            abstractUserStoreManager.getMyDomainName(), abstractUserStoreManager);
+                    List<String> users = new ArrayList<>();
+                    if (preferredUserNameProperty.equals(getUserNameMappedAttribute())) {
+                        users.add(UserCoreUtil.addDomainToName(preferredUserNameValue,
+                                abstractUserStoreManager.getMyDomainName()));
+                    } else {
+                        users = doGetUserList(preferredUserNameClaim, preferredUserNameValue, profileName,
+                                abstractUserStoreManager.getMyDomainName(), abstractUserStoreManager);
+                    }
                     if (users.size() != 1) {
                         String message = "Users count matching to claim: " + preferredUserNameClaim + " and value: "
                                 + preferredUserNameValue + " is: " + users.size();
