@@ -233,7 +233,6 @@ public class CarbonUIServiceComponent {
         final HttpService httpService = getHttpService();
 
         String webContext = "carbon"; // The subcontext for the Carbon Mgt Console
-        //todo once the user logs in and logout, /carbon path is appended twice to the url
 
         String serverURL = CarbonUIUtil.getServerURL(serverConfig);
         String indexPageURL = CarbonUIUtil.getIndexPageURL(serverConfig);
@@ -286,7 +285,6 @@ public class CarbonUIServiceComponent {
 
         uiBundleDeployer.deploy(bundleContext, commonContext);
         context.addBundleListener(uiBundleDeployer);
-
 
         Dictionary<String, String> props = new Hashtable<>();
         props.put("osgi.http.whiteboard.context.name", "tilesContext");

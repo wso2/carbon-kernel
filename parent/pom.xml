@@ -50,7 +50,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
-                    <source>17</source>
+                    <source>21</source>
                 </configuration>
                 <executions>
                     <execution>
@@ -110,9 +110,8 @@
                     <version>3.12.1</version>
                     <configuration>
                         <encoding>UTF-8</encoding>
-                        <source>17</source>
-                        <target>17</target>
-<!--                        <argLine>@{argLine} &#45;&#45;add-opens=java.base/sun.security.util=ALL-UNNAMED</argLine>-->
+                        <source>21</source>
+                        <target>21</target>
                     </configuration>
                 </plugin>
                 <plugin>
