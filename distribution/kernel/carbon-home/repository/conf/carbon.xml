@@ -723,7 +723,7 @@
 
     <!-- Configure SignatureUtil algorithms -->
     <SignatureUtil>
-        <EnableSHA256Algo>true</EnableSHA256Algo>
+        <EnableSHA256Algo>false</EnableSHA256Algo>
     </SignatureUtil>
 
 </Server>
