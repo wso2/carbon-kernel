@@ -3025,10 +3025,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                 ex.getMessage()), claim, claimValue, profileName);
                 throw ex;
             }
-        }
-
-        if (log.isDebugEnabled()) {
-            log.debug("Pre listener user list: " + filteredUserList + " for domain: " + extractedDomain);
+            if (log.isDebugEnabled()) {
+                log.debug("Pre listener user list: " + filteredUserList + " for domain: " + extractedDomain);
+            }
         }
 
         // Iterate through user stores and check for users for this claim.
@@ -3040,18 +3039,21 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     .map(User::getDomainQualifiedUsername).collect(Collectors.toList());
         } else {
             userNamesFromUserStore = doGetUserList(claim, claimValue, profileName, extractedDomain, userManager);
-            if (log.isDebugEnabled()) {
+        }
+        if (log.isDebugEnabled()) {
+            if (StringUtils.isNotEmpty(extractedDomain)) {
                 log.debug("Users from user store: " + extractedDomain + " : " + userNamesFromUserStore);
+            } else {
+                log.debug("Users from all the user stores: " + userNamesFromUserStore);
             }
         }
         filteredUserList.addAll(userNamesFromUserStore);
 
         if (StringUtils.isNotEmpty(extractedDomain)) {
             handlePostGetUserList(claim, claimValue, filteredUserList, false);
-        }
-
-        if (log.isDebugEnabled()) {
-            log.debug("Post listener user list: " + filteredUserList + " for domain: " + extractedDomain);
+            if (log.isDebugEnabled()) {
+                log.debug("Post listener user list: " + filteredUserList + " for domain: " + extractedDomain);
+            }
         }
 
         Collections.sort(filteredUserList);
@@ -3265,10 +3267,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                 ex.getMessage()), claim, claimValue, profileName);
                 throw ex;
             }
-        }
-
-        if (log.isDebugEnabled()) {
-            log.debug("Pre listener user list: " + filteredUserList + " for domain: " + extractedDomain);
+            if (log.isDebugEnabled()) {
+                log.debug("Pre listener user list: " + filteredUserList + " for domain: " + extractedDomain);
+            }
         }
 
         // Iterate through user stores and check for users for this claim.
@@ -3282,18 +3283,22 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     .listUsers(userNamesFromUserStore, (AbstractUserStoreManager) userManager);
         }
         if (log.isDebugEnabled()) {
-            log.debug("Users from user store: " + extractedDomain + " : " + usersFromUserStore.stream()
-                    .map(User::getUsername).collect(Collectors.toList()));
+            if (StringUtils.isNotEmpty(extractedDomain)) {
+                log.debug("Users from user store: " + extractedDomain + " : " + usersFromUserStore.stream()
+                        .map(User::getUsername).collect(Collectors.toList()));
+            } else {
+                log.debug("Users from all the user stores: " + usersFromUserStore.stream().map(User::getUsername)
+                        .collect(Collectors.toList()));
+            }
         }
         filteredUserList.addAll(usersFromUserStore);
 
         if (StringUtils.isNotEmpty(extractedDomain)) {
             handlePostGetUserListWithID(claim, claimValue, filteredUserList, false);
-        }
-
-        if (log.isDebugEnabled()) {
-            log.debug("Post listener user list: " + filteredUserList.stream().map(User::getUsername)
-                    .collect(Collectors.toList()) + " for domain: " + extractedDomain);
+            if (log.isDebugEnabled()) {
+                log.debug("Post listener user list: " + filteredUserList.stream().map(User::getUsername)
+                        .collect(Collectors.toList()) + " for domain: " + extractedDomain);
+            }
         }
 
         for (org.wso2.carbon.user.core.common.User  user:filteredUserList) {
@@ -10833,10 +10838,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                 ex.getMessage()), claim, claimValue, limit, offset, profileName);
                 throw ex;
             }
-        }
-
-        if (log.isDebugEnabled()) {
-            log.debug("Pre listener user list: " + filteredUserList + " for domain: " + extractedDomain);
+            if (log.isDebugEnabled()) {
+                log.debug("Pre listener user list: " + filteredUserList + " for domain: " + extractedDomain);
+            }
         }
 
         List<String> userNamesFromUserStore;
@@ -10848,22 +10852,22 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         } else {
             userNamesFromUserStore = doGetUserList(claim, claimValue, profileName, limit,
                     offset, extractedDomain, userManager);
-            if (log.isDebugEnabled()) {
-                log.debug("Users from user store: " + extractedDomain + " : " + userNamesFromUserStore);
-            }
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("Users from user store: " + extractedDomain + " : " + userNamesFromUserStore);
+            if (StringUtils.isNotEmpty(extractedDomain)) {
+                log.debug("Users from user store: " + extractedDomain + " : " + userNamesFromUserStore);
+            } else {
+                log.debug("Users from all the user stores: " + userNamesFromUserStore);
+            }
         }
         filteredUserList.addAll(userNamesFromUserStore);
 
         if (StringUtils.isNotEmpty(extractedDomain)) {
             handlePostGetUserList(claim, claimValue, filteredUserList, limit, offset, false);
-        }
-
-        if (log.isDebugEnabled()) {
-            log.debug("Post listener user list pagination: " + filteredUserList + " for domain: " + extractedDomain);
+            if (log.isDebugEnabled()) {
+                log.debug("Post listener user list pagination: " + filteredUserList + " for domain: " + extractedDomain);
+            }
         }
 
         return filteredUserList.toArray(new String[0]);
@@ -12015,7 +12019,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                 AuthenticationResult.AuthenticationStatus.FAIL);
                         if (status) {
                             String userID = userUniqueIDManger.getUniqueId(users.get(0), this);
-                            User user = userUniqueIDManger.getUser(userID, this);
+                            User user = userUniqueIDManger.
+                                    getUser(userID, this, abstractUserStoreManager.getMyDomainName());
                             user.setTenantDomain(getTenantDomain(tenantId));
                             authenticationResult.setAuthenticatedUser(user);
                         } else {
@@ -16398,7 +16403,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     offset, extractedDomain, userManager), this);
         }
         if (log.isDebugEnabled()) {
-            log.debug("Users from user store: " + extractedDomain + " : " + usersFromUserStore);
+            if (StringUtils.isNotEmpty(extractedDomain)) {
+                log.debug("Users from user store: " + extractedDomain + " : " + usersFromUserStore);
+            }  else {
+                log.debug("Users from all the user stores: " + usersFromUserStore);
+            }
         }
         filteredUserList.addAll(usersFromUserStore);
 
