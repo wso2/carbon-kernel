@@ -552,6 +552,7 @@ public final class JDBCRealmConstants {
     public static final String REMOVE_ABANDONED_TIMEOUT = "removeAbandonedTimeout";
     public static final String LOG_ABANDONED = "logAbandoned";
     public static final String CONNECTION_PROPERTIES = "connectionProperties";
+    public static final String INIT_SQL = "initSQL";
     public static final String JDBC_INTERCEPTORS = "jdbcInterceptors";
     public static final String JMX_ENABLED = "jmxEnabled";
     public static final String FAIR_QUEUE = "fairQueue";
