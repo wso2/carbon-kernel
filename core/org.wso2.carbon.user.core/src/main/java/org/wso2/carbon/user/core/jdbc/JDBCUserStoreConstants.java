@@ -238,10 +238,6 @@ public class JDBCUserStoreConstants {
                 "The connection properties that will be sent to our JDBC driver when establishing new connections",
                 new Property[] { CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty() });
 
-        setAdvancedProperty(JDBCRealmConstants.INIT_SQL, "Init SQL", "",
-                "A custom query to be run when a connection is first created",
-                new Property[] { CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty() });
-
         setAdvancedProperty(JDBCRealmConstants.JDBC_INTERCEPTORS, "JDBC Interceptors", "", "JDBC Interceptors",
                 new Property[] { CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty() });
 
