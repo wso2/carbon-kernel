@@ -247,7 +247,7 @@ do
 done
 
 # Add the openssl.conf
-if [ -f "$CARBON_HOME/repository/conf/tomcat/openssl.cnf" ]; then
+if [ -f "$CARBON_HOME/repository/resources/conf/templates/repository/conf/tomcat/openssl.cnf.j2" ]; then
     export OPENSSL_CONF="$CARBON_HOME/repository/conf/tomcat/openssl.cnf"
 fi
 
