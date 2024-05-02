@@ -6277,9 +6277,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     return false;
                 }
             }
-        } else if (!userStore.getDomainName().equalsIgnoreCase(roleDomainName) && !(UserCoreConstants.INTERNAL_DOMAIN.
-                equalsIgnoreCase(roleDomainName) || APPLICATION_DOMAIN.equalsIgnoreCase(roleDomainName)
-                || WORKFLOW_DOMAIN.equalsIgnoreCase(roleDomainName))) {
+        } else if (!userStore.getDomainName().equalsIgnoreCase(roleDomainName) && !UserCoreConstants.INTERNAL_DOMAIN.
+                equalsIgnoreCase(roleDomainName)) {
             return false;
         }
 
@@ -7628,7 +7627,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // First we have to check whether this user store is already resolved and we have it either in the cache or
         // in our local database. If so we can use that.
-        String domainName = userUniqueIDDomainResolver.getDomainForUserId(userId, tenantId);
+        String domainName = null;
+        if (userUniqueIDDomainResolver != null) {
+            domainName = userUniqueIDDomainResolver.getDomainForUserId(userId, tenantId);
+        }
 
         // If we don't have the domain name in our side, then we have to iterate through each user store and find
         // where is this user id from and mark it as the user store domain.
@@ -11268,8 +11270,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // domain name provided with user name.
 
             try {
-                String preferredUserNameProperty = claimManager
-                        .getAttributeName(getMyDomainName(), preferredUserNameClaim);
+                String preferredUserNameProperty = abstractUserStoreManager.getClaimManager()
+                        .getAttributeName(abstractUserStoreManager.getMyDomainName(), preferredUserNameClaim);
                 // Let's authenticate with the primary UserStoreManager.
 
                 if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
@@ -11294,13 +11296,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             log.debug(message);
                         }
                     } else {
-                        boolean status = abstractUserStoreManager.doAuthenticate(users.get(0), credentialObj);
+                        boolean status = abstractUserStoreManager.doAuthenticate(UserCoreUtil.removeDomainFromName(
+                                users.get(0)), credentialObj);
                         authenticationResult = new AuthenticationResult(status ?
                                 AuthenticationResult.AuthenticationStatus.SUCCESS :
                                 AuthenticationResult.AuthenticationStatus.FAIL);
                         if (status) {
                             String userID = userUniqueIDManger.getUniqueId(users.get(0), this);
                             User user = userUniqueIDManger.getUser(userID, this);
+                            user.setTenantDomain(getTenantDomain(tenantId));
                             authenticationResult.setAuthenticatedUser(user);
                         } else {
                             authenticationResult.setFailureReason(new FailureReason("Invalid credentials."));
