@@ -93,6 +93,7 @@ import static java.time.ZoneOffset.UTC;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_ID_ATTRIBUTE;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE;
+import static org.wso2.carbon.user.core.constants.UserCoreDBConstants.SQL_STATEMENT_PARAMETER_PLACEHOLDER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
@@ -2710,28 +2711,20 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         Map<String, Map<String, String>> usersPropertyValuesMap = new HashMap<>();
         try {
             dbConnection = getDBConnection();
-            StringBuilder dynamicString = new StringBuilder();
-            int usersCount = users.size();
 
             sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_PROPS_FOR_PROFILE_WITH_ID);
-            for (int i = 0; i < usersCount; i++) {
-
-                dynamicString.append("?");
-                if (i != usersCount - 1) {
-                    dynamicString.append(",");
-                }
-            }
-
-            sqlStmt = sqlStmt.replaceFirst("\\?", dynamicString.toString());
+            sqlStmt = sqlStmt.replaceFirst("\\?", DatabaseUtil.buildDynamicParameterString(
+                    SQL_STATEMENT_PARAMETER_PLACEHOLDER, users.size()));
             prepStmt = dbConnection.prepareStatement(sqlStmt);
 
-            for (int i = 0; i < usersCount; i++) {
-                prepStmt.setString(i + 1, users.get(i));
+            int index = 1;
+            for (String user : users) {
+                prepStmt.setString(index++, user);
             }
-            prepStmt.setString(usersCount + 1, profileName);
+            prepStmt.setString(index++, profileName);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                prepStmt.setInt(usersCount + 2, tenantId);
-                prepStmt.setInt(usersCount + 3, tenantId);
+                prepStmt.setInt(index++, tenantId);
+                prepStmt.setInt(index, tenantId);
             }
 
             rs = prepStmt.executeQuery();
@@ -2785,30 +2778,23 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
         try {
             dbConnection = getDBConnection();
-            StringBuilder dynamicString = new StringBuilder();
-            int usersCount = userIDs.size();
             sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_ROLE_WITH_ID);
             if (sqlStmt == null) {
                 throw new UserStoreException("The sql statement for retrieving users roles is null.");
             }
-            for (int i = 0; i < usersCount; i++) {
 
-                dynamicString.append("?");
-                if (i != usersCount - 1) {
-                    dynamicString.append(",");
-                }
-            }
-
-            sqlStmt = sqlStmt.replaceFirst("\\?", dynamicString.toString());
+            sqlStmt = sqlStmt.replaceFirst("\\?", DatabaseUtil.buildDynamicParameterString(
+                    SQL_STATEMENT_PARAMETER_PLACEHOLDER, userIDs.size()));
             prepStmt = dbConnection.prepareStatement(sqlStmt);
 
-            for (int i = 0; i < usersCount; i++) {
-                prepStmt.setString(i + 1, userIDs.get(i));
+            int index = 1;
+            for (String userID : userIDs) {
+                prepStmt.setString(index++, userID);
             }
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                prepStmt.setInt(usersCount + 1, tenantId);
-                prepStmt.setInt(usersCount + 2, tenantId);
-                prepStmt.setInt(usersCount + 3, tenantId);
+                prepStmt.setInt(index++, tenantId);
+                prepStmt.setInt(index++, tenantId);
+                prepStmt.setInt(index, tenantId);
             }
             rs = prepStmt.executeQuery();
             String domainName = getMyDomainName();

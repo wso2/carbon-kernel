@@ -55,8 +55,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.regex.Matcher;
 
+import static org.wso2.carbon.user.core.constants.UserCoreDBConstants.CASE_INSENSITIVE_SQL_STATEMENT_PARAMETER_PLACEHOLDER;
+import static org.wso2.carbon.user.core.constants.UserCoreDBConstants.SQL_STATEMENT_PARAMETER_PLACEHOLDER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
 import static org.wso2.carbon.user.core.hybrid.HybridJDBCConstants.COUNT_INTERNAL_ONLY_ROLES_SQL;
 import static org.wso2.carbon.user.core.hybrid.HybridJDBCConstants.COUNT_INTERNAL_ROLES_SQL;
@@ -778,11 +779,12 @@ public class HybridRoleManager {
     }
 
     /**
-     * Get hybrid role list of users
+     * Get hybrid role list of users.
      *
-     * @param userNames user name list
-     * @return map of hybrid role list of users
-     * @throws UserStoreException userStoreException
+     * @param userNames  Username list.
+     * @param domainName User store domain name.
+     * @return Map of hybrid role list of users.
+     * @throws UserStoreException If an error occurred while getting hybrid role list of users.
      */
     public Map<String, List<String>> getHybridRoleListOfUsers(List<String> userNames, String domainName) throws
             UserStoreException {
@@ -794,46 +796,36 @@ public class HybridRoleManager {
         Map<String, List<String>> hybridRoleListOfUsers = new HashMap<>();
         String sqlStmt = realmConfig.getRealmProperty(isRoleV2Using() ? HybridJDBCConstants.GET_ROLE_V2_LIST_OF_USERS :
                 HybridJDBCConstants.GET_ROLE_LIST_OF_USERS);
-        StringBuilder dynamicString = new StringBuilder();
-        int usersCount = userNames.size();
+        String dynamicString;
         
         if (isCaseSensitiveUsername()) {
             if (StringUtils.isEmpty(sqlStmt)) {
                 sqlStmt = isRoleV2Using() ? HybridJDBCConstants.GET_INTERNAL_ROLE_V2_LIST_OF_USERS_SQL
                         : HybridJDBCConstants.GET_INTERNAL_ROLE_LIST_OF_USERS_SQL;
             }
-            for (int i = 0; i < usersCount; i++) {
-
-                dynamicString.append("?");
-                if (i != usersCount - 1) {
-                    dynamicString.append(",");
-                }
-            }
+            dynamicString = DatabaseUtil.buildDynamicParameterString(SQL_STATEMENT_PARAMETER_PLACEHOLDER,
+                    userNames.size());
         } else {
             if (sqlStmt == null) {
                 sqlStmt = isRoleV2Using() ?
                         JDBCCaseInsensitiveConstants.GET_INTERNAL_ROLE_V2_LIST_OF_USERS_SQL_CASE_INSENSITIVE
                         : JDBCCaseInsensitiveConstants.GET_INTERNAL_ROLE_LIST_OF_USERS_SQL_CASE_INSENSITIVE;
             }
-            for (int i = 0; i < usersCount; i++) {
-
-                dynamicString.append("LOWER(?)");
-                if (i != usersCount - 1) {
-                    dynamicString.append(",");
-                }
-            }
+            dynamicString = DatabaseUtil.buildDynamicParameterString(
+                    CASE_INSENSITIVE_SQL_STATEMENT_PARAMETER_PLACEHOLDER, userNames.size());
         }
 
-        sqlStmt = sqlStmt.replaceFirst("\\?", dynamicString.toString());
+        sqlStmt = sqlStmt.replaceFirst("\\?", dynamicString);
         try (Connection connection = DatabaseUtil.getDBConnection(dataSource);
                 PreparedStatement prepStmt = connection.prepareStatement(sqlStmt)) {
-            for (int i = 0; i < usersCount; i++) {
-                prepStmt.setString(i + 1, userNames.get(i));
+            int index = 1;
+            for (String name : userNames) {
+                prepStmt.setString(index++, name);
             }
-            prepStmt.setInt(usersCount + 1, tenantId);
-            prepStmt.setInt(usersCount + 2, tenantId);
-            prepStmt.setInt(usersCount + 3, tenantId);
-            prepStmt.setString(usersCount + 4, domainName);
+            prepStmt.setInt(index++, tenantId);
+            prepStmt.setInt(index++, tenantId);
+            prepStmt.setInt(index++, tenantId);
+            prepStmt.setString(index, domainName);
             try (ResultSet resultSet = prepStmt.executeQuery()) {
                 while (resultSet.next()) {
                     String userName = resultSet.getString(1);
@@ -879,9 +871,10 @@ public class HybridRoleManager {
     /**
      * Get hybrid role list of groups.
      *
-     * @param groupNames group name list.
-     * @return map of hybrid role list of groups.
-     * @throws UserStoreException userStoreException.
+     * @param groupNames Group name list.
+     * @param domainName User store domain name.
+     * @return Map of hybrid role list of groups.
+     * @throws UserStoreException If an error occurred while getting hybrid role list of groups.
      */
     public Map<String, List<String>> getHybridRoleListOfGroups(List<String> groupNames, String domainName)
             throws UserStoreException {
@@ -892,31 +885,24 @@ public class HybridRoleManager {
         Map<String, List<String>> hybridRoleListOfGroups = new HashMap<>();
         String sqlStmt = realmConfig.getRealmProperty(isRoleV2Using() ? HybridJDBCConstants.GET_ROLE_V2_LIST_OF_GROUPS
                 : HybridJDBCConstants.GET_ROLE_LIST_OF_GROUPS);
-        StringBuilder dynamicString = new StringBuilder();
-        int groupsCount = groupNames.size();
 
         if (StringUtils.isEmpty(sqlStmt)) {
             sqlStmt = isRoleV2Using() ? HybridJDBCConstants.GET_INTERNAL_ROLE_V2_LIST_OF_GROUPS_SQL
                     : HybridJDBCConstants.GET_INTERNAL_ROLE_LIST_OF_GROUPS_SQL;
         }
-        for (int i = 0; i < groupsCount; i++) {
 
-            dynamicString.append("?");
-            if (i != groupsCount - 1) {
-                dynamicString.append(",");
-            }
-        }
-
-        sqlStmt = sqlStmt.replaceFirst("\\?", dynamicString.toString());
+        sqlStmt = sqlStmt.replaceFirst("\\?", DatabaseUtil.buildDynamicParameterString(
+                SQL_STATEMENT_PARAMETER_PLACEHOLDER, groupNames.size()));
         try (Connection connection = DatabaseUtil.getDBConnection(dataSource);
                 PreparedStatement prepStmt = connection.prepareStatement(sqlStmt)) {
-            for (int i = 0; i < groupsCount; i++) {
-                prepStmt.setString(i + 1, groupNames.get(i));
+            int index = 1;
+            for (String name : groupNames) {
+                prepStmt.setString(index++, name);
             }
-            prepStmt.setInt(groupsCount + 1, tenantId);
-            prepStmt.setInt(groupsCount + 2, tenantId);
-            prepStmt.setInt(groupsCount + 3, tenantId);
-            prepStmt.setString(groupsCount + 4, domainName);
+            prepStmt.setInt(index++, tenantId);
+            prepStmt.setInt(index++, tenantId);
+            prepStmt.setInt(index++, tenantId);
+            prepStmt.setString(index, domainName);
             try (ResultSet resultSet = prepStmt.executeQuery()) {
                 while (resultSet.next()) {
                     String groupName = resultSet.getString(1);
