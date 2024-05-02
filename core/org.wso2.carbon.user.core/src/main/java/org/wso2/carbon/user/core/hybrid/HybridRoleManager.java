@@ -794,19 +794,19 @@ public class HybridRoleManager {
         Map<String, List<String>> hybridRoleListOfUsers = new HashMap<>();
         String sqlStmt = realmConfig.getRealmProperty(isRoleV2Using() ? HybridJDBCConstants.GET_ROLE_V2_LIST_OF_USERS :
                 HybridJDBCConstants.GET_ROLE_LIST_OF_USERS);
-        StringBuilder usernameParameter = new StringBuilder();
+        StringBuilder dynamicString = new StringBuilder();
+        int usersCount = userNames.size();
+        
         if (isCaseSensitiveUsername()) {
             if (StringUtils.isEmpty(sqlStmt)) {
                 sqlStmt = isRoleV2Using() ? HybridJDBCConstants.GET_INTERNAL_ROLE_V2_LIST_OF_USERS_SQL
                         : HybridJDBCConstants.GET_INTERNAL_ROLE_LIST_OF_USERS_SQL;
             }
-            for (int i = 0; i < userNames.size(); i++) {
+            for (int i = 0; i < usersCount; i++) {
 
-                userNames.set(i, userNames.get(i).replaceAll("'", "''"));
-                usernameParameter.append("'").append(userNames.get(i)).append("'");
-
-                if (i != userNames.size() - 1) {
-                    usernameParameter.append(",");
+                dynamicString.append("?");
+                if (i != usersCount - 1) {
+                    dynamicString.append(",");
                 }
             }
         } else {
@@ -815,24 +815,25 @@ public class HybridRoleManager {
                         JDBCCaseInsensitiveConstants.GET_INTERNAL_ROLE_V2_LIST_OF_USERS_SQL_CASE_INSENSITIVE
                         : JDBCCaseInsensitiveConstants.GET_INTERNAL_ROLE_LIST_OF_USERS_SQL_CASE_INSENSITIVE;
             }
-            for (int i = 0; i < userNames.size(); i++) {
+            for (int i = 0; i < usersCount; i++) {
 
-                userNames.set(i, userNames.get(i).replaceAll("'", "''"));
-                usernameParameter.append("LOWER('").append(userNames.get(i)).append("')");
-
-                if (i != userNames.size() - 1) {
-                    usernameParameter.append(",");
+                dynamicString.append("LOWER(?)");
+                if (i != usersCount - 1) {
+                    dynamicString.append(",");
                 }
             }
         }
 
-        sqlStmt = sqlStmt.replaceFirst("\\?", Matcher.quoteReplacement(usernameParameter.toString()));
+        sqlStmt = sqlStmt.replaceFirst("\\?", dynamicString.toString());
         try (Connection connection = DatabaseUtil.getDBConnection(dataSource);
                 PreparedStatement prepStmt = connection.prepareStatement(sqlStmt)) {
-            prepStmt.setInt(1, tenantId);
-            prepStmt.setInt(2, tenantId);
-            prepStmt.setInt(3, tenantId);
-            prepStmt.setString(4, domainName);
+            for (int i = 0; i < usersCount; i++) {
+                prepStmt.setString(i + 1, userNames.get(i));
+            }
+            prepStmt.setInt(usersCount + 1, tenantId);
+            prepStmt.setInt(usersCount + 2, tenantId);
+            prepStmt.setInt(usersCount + 3, tenantId);
+            prepStmt.setString(usersCount + 4, domainName);
             try (ResultSet resultSet = prepStmt.executeQuery()) {
                 while (resultSet.next()) {
                     String userName = resultSet.getString(1);
@@ -891,28 +892,31 @@ public class HybridRoleManager {
         Map<String, List<String>> hybridRoleListOfGroups = new HashMap<>();
         String sqlStmt = realmConfig.getRealmProperty(isRoleV2Using() ? HybridJDBCConstants.GET_ROLE_V2_LIST_OF_GROUPS
                 : HybridJDBCConstants.GET_ROLE_LIST_OF_GROUPS);
-        StringBuilder groupNameParameter = new StringBuilder();
+        StringBuilder dynamicString = new StringBuilder();
+        int groupsCount = groupNames.size();
 
         if (StringUtils.isEmpty(sqlStmt)) {
             sqlStmt = isRoleV2Using() ? HybridJDBCConstants.GET_INTERNAL_ROLE_V2_LIST_OF_GROUPS_SQL
                     : HybridJDBCConstants.GET_INTERNAL_ROLE_LIST_OF_GROUPS_SQL;
         }
-        for (int i = 0; i < groupNames.size(); i++) {
-            groupNames.set(i, groupNames.get(i).replaceAll("'", "''"));
-            groupNameParameter.append("'").append(groupNames.get(i)).append("'");
+        for (int i = 0; i < groupsCount; i++) {
 
-            if (i != groupNames.size() - 1) {
-                groupNameParameter.append(",");
+            dynamicString.append("?");
+            if (i != groupsCount - 1) {
+                dynamicString.append(",");
             }
         }
 
-        sqlStmt = sqlStmt.replaceFirst("\\?", Matcher.quoteReplacement(groupNameParameter.toString()));
+        sqlStmt = sqlStmt.replaceFirst("\\?", dynamicString.toString());
         try (Connection connection = DatabaseUtil.getDBConnection(dataSource);
                 PreparedStatement prepStmt = connection.prepareStatement(sqlStmt)) {
-            prepStmt.setInt(1, tenantId);
-            prepStmt.setInt(2, tenantId);
-            prepStmt.setInt(3, tenantId);
-            prepStmt.setString(4, domainName);
+            for (int i = 0; i < groupsCount; i++) {
+                prepStmt.setString(i + 1, groupNames.get(i));
+            }
+            prepStmt.setInt(groupsCount + 1, tenantId);
+            prepStmt.setInt(groupsCount + 2, tenantId);
+            prepStmt.setInt(groupsCount + 3, tenantId);
+            prepStmt.setString(groupsCount + 4, domainName);
             try (ResultSet resultSet = prepStmt.executeQuery()) {
                 while (resultSet.next()) {
                     String groupName = resultSet.getString(1);

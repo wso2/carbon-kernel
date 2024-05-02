@@ -3330,38 +3330,39 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         Map<String, Map<String, String>> usersPropertyValuesMap = new HashMap<>();
         try {
             dbConnection = getDBConnection();
-            StringBuilder usernameParameter = new StringBuilder();
+            StringBuilder dynamicString = new StringBuilder();
+            int usersCount = users.size();
             if (isCaseSensitiveUsername()) {
                 sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_PROPS_FOR_PROFILE);
-                for (int i = 0; i < users.size(); i++) {
+                for (int i = 0; i < usersCount; i++) {
 
-                    users.set(i, users.get(i).replaceAll("'", "''"));
-                    usernameParameter.append("'").append(users.get(i)).append("'");
-
-                    if (i != users.size() - 1) {
-                        usernameParameter.append(",");
+                    dynamicString.append("?");
+                    if (i != usersCount - 1) {
+                        dynamicString.append(",");
                     }
                 }
             } else {
                 sqlStmt = realmConfig.getUserStoreProperty(
                         JDBCCaseInsensitiveConstants.GET_USERS_PROPS_FOR_PROFILE_CASE_INSENSITIVE);
-                for (int i = 0; i < users.size(); i++) {
+                for (int i = 0; i < usersCount; i++) {
 
-                    users.set(i, users.get(i).replaceAll("'", "''"));
-                    usernameParameter.append("LOWER('").append(users.get(i)).append("')");
-
-                    if (i != users.size() - 1) {
-                        usernameParameter.append(",");
+                    dynamicString.append("LOWER(?)");
+                    if (i != usersCount - 1) {
+                        dynamicString.append(",");
                     }
                 }
             }
 
-            sqlStmt = sqlStmt.replaceFirst("\\?", Matcher.quoteReplacement(usernameParameter.toString()));
+            sqlStmt = sqlStmt.replaceFirst("\\?", dynamicString.toString());
             prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setString(1, profileName);
+
+            for (int i = 0; i < usersCount; i++) {
+                prepStmt.setString(i + 1, users.get(i));
+            }
+            prepStmt.setString(usersCount + 1, profileName);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                prepStmt.setInt(2, tenantId);
-                prepStmt.setInt(3, tenantId);
+                prepStmt.setInt(usersCount + 2, tenantId);
+                prepStmt.setInt(usersCount + 3, tenantId);
             }
 
             rs = prepStmt.executeQuery();
@@ -3407,19 +3408,18 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         try {
             dbConnection = getDBConnection();
-            StringBuilder usernameParameter = new StringBuilder();
+            StringBuilder dynamicString = new StringBuilder();
+            int usersCount = userNames.size();
             if (isCaseSensitiveUsername()) {
                 sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_ROLE);
                 if (sqlStmt == null) {
                     throw new UserStoreException("The sql statement for retrieving users roles is null");
                 }
-                for (int i = 0; i < userNames.size(); i++) {
+                for (int i = 0; i < usersCount; i++) {
 
-                    userNames.set(i, userNames.get(i).replaceAll("'", "''"));
-                    usernameParameter.append("'").append(userNames.get(i)).append("'");
-
-                    if (i != userNames.size() - 1) {
-                        usernameParameter.append(",");
+                    dynamicString.append("?");
+                    if (i != usersCount - 1) {
+                        dynamicString.append(",");
                     }
                 }
             } else {
@@ -3428,23 +3428,25 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 if (sqlStmt == null) {
                     throw new UserStoreException("The sql statement for retrieving users roles is null");
                 }
-                for (int i = 0; i < userNames.size(); i++) {
+                for (int i = 0; i < usersCount; i++) {
 
-                    userNames.set(i, userNames.get(i).replaceAll("'", "''"));
-                    usernameParameter.append("LOWER('").append(userNames.get(i)).append("')");
-
-                    if (i != userNames.size() - 1) {
-                        usernameParameter.append(",");
+                    dynamicString.append("LOWER(?)");
+                    if (i != usersCount - 1) {
+                        dynamicString.append(",");
                     }
                 }
             }
 
-            sqlStmt = sqlStmt.replaceFirst("\\?", Matcher.quoteReplacement(usernameParameter.toString()));
+            sqlStmt = sqlStmt.replaceFirst("\\?", dynamicString.toString());
             prepStmt = dbConnection.prepareStatement(sqlStmt);
+
+            for (int i = 0; i < usersCount; i++) {
+                prepStmt.setString(i + 1, userNames.get(i));
+            }
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                prepStmt.setInt(1, tenantId);
-                prepStmt.setInt(2, tenantId);
-                prepStmt.setInt(3, tenantId);
+                prepStmt.setInt(usersCount + 1, tenantId);
+                prepStmt.setInt(usersCount + 2, tenantId);
+                prepStmt.setInt(usersCount + 3, tenantId);
             }
             rs = prepStmt.executeQuery();
             String domainName = getMyDomainName();
