@@ -21,6 +21,8 @@ package org.wso2.carbon.user.core.constants;
 public class UserCoreDBConstants {
 
     public static final String CASCADE_DELETE_ENABLED = "isCascadeDeleteEnabled";
+    public static final String SQL_STATEMENT_PARAMETER_PLACEHOLDER = "?";
+    public static final String CASE_INSENSITIVE_SQL_STATEMENT_PARAMETER_PLACEHOLDER = "LOWER(?)";
 
     public static final String IS_EXISTING_ROLE_PERMISSION_MAPPING =
             "SELECT UM_ID, UM_IS_ALLOWED FROM UM_ROLE_PERMISSION WHERE UM_ROLE_NAME=? " +

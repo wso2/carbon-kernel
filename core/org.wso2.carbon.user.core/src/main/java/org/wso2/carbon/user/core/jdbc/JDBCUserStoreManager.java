@@ -90,6 +90,8 @@ import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
 
+import static org.wso2.carbon.user.core.constants.UserCoreDBConstants.CASE_INSENSITIVE_SQL_STATEMENT_PARAMETER_PLACEHOLDER;
+import static org.wso2.carbon.user.core.constants.UserCoreDBConstants.SQL_STATEMENT_PARAMETER_PLACEHOLDER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
@@ -3330,38 +3332,29 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         Map<String, Map<String, String>> usersPropertyValuesMap = new HashMap<>();
         try {
             dbConnection = getDBConnection();
-            StringBuilder usernameParameter = new StringBuilder();
+            String dynamicString;
             if (isCaseSensitiveUsername()) {
                 sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_PROPS_FOR_PROFILE);
-                for (int i = 0; i < users.size(); i++) {
-
-                    users.set(i, users.get(i).replaceAll("'", "''"));
-                    usernameParameter.append("'").append(users.get(i)).append("'");
-
-                    if (i != users.size() - 1) {
-                        usernameParameter.append(",");
-                    }
-                }
+                dynamicString = DatabaseUtil.buildDynamicParameterString(SQL_STATEMENT_PARAMETER_PLACEHOLDER,
+                        users.size());
             } else {
                 sqlStmt = realmConfig.getUserStoreProperty(
                         JDBCCaseInsensitiveConstants.GET_USERS_PROPS_FOR_PROFILE_CASE_INSENSITIVE);
-                for (int i = 0; i < users.size(); i++) {
-
-                    users.set(i, users.get(i).replaceAll("'", "''"));
-                    usernameParameter.append("LOWER('").append(users.get(i)).append("')");
-
-                    if (i != users.size() - 1) {
-                        usernameParameter.append(",");
-                    }
-                }
+                dynamicString = DatabaseUtil.buildDynamicParameterString(
+                        CASE_INSENSITIVE_SQL_STATEMENT_PARAMETER_PLACEHOLDER, users.size());
             }
 
-            sqlStmt = sqlStmt.replaceFirst("\\?", Matcher.quoteReplacement(usernameParameter.toString()));
+            sqlStmt = sqlStmt.replaceFirst("\\?", dynamicString);
             prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setString(1, profileName);
+
+            int index = 1;
+            for (String user : users) {
+                prepStmt.setString(index++, user);
+            }
+            prepStmt.setString(index++, profileName);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                prepStmt.setInt(2, tenantId);
-                prepStmt.setInt(3, tenantId);
+                prepStmt.setInt(index++, tenantId);
+                prepStmt.setInt(index, tenantId);
             }
 
             rs = prepStmt.executeQuery();
@@ -3407,44 +3400,35 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         try {
             dbConnection = getDBConnection();
-            StringBuilder usernameParameter = new StringBuilder();
+            String dynamicString;
             if (isCaseSensitiveUsername()) {
                 sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_ROLE);
                 if (sqlStmt == null) {
                     throw new UserStoreException("The sql statement for retrieving users roles is null");
                 }
-                for (int i = 0; i < userNames.size(); i++) {
-
-                    userNames.set(i, userNames.get(i).replaceAll("'", "''"));
-                    usernameParameter.append("'").append(userNames.get(i)).append("'");
-
-                    if (i != userNames.size() - 1) {
-                        usernameParameter.append(",");
-                    }
-                }
+                dynamicString = DatabaseUtil.buildDynamicParameterString(SQL_STATEMENT_PARAMETER_PLACEHOLDER,
+                        userNames.size());
             } else {
                 sqlStmt = realmConfig
                         .getUserStoreProperty(JDBCCaseInsensitiveConstants.GET_USERS_ROLE_CASE_INSENSITIVE);
                 if (sqlStmt == null) {
                     throw new UserStoreException("The sql statement for retrieving users roles is null");
                 }
-                for (int i = 0; i < userNames.size(); i++) {
-
-                    userNames.set(i, userNames.get(i).replaceAll("'", "''"));
-                    usernameParameter.append("LOWER('").append(userNames.get(i)).append("')");
-
-                    if (i != userNames.size() - 1) {
-                        usernameParameter.append(",");
-                    }
-                }
+                dynamicString = DatabaseUtil.buildDynamicParameterString(
+                        CASE_INSENSITIVE_SQL_STATEMENT_PARAMETER_PLACEHOLDER, userNames.size());
             }
 
-            sqlStmt = sqlStmt.replaceFirst("\\?", Matcher.quoteReplacement(usernameParameter.toString()));
+            sqlStmt = sqlStmt.replaceFirst("\\?", dynamicString);
             prepStmt = dbConnection.prepareStatement(sqlStmt);
+
+            int index = 1;
+            for (String userName : userNames) {
+                prepStmt.setString(index++, userName);
+            }
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                prepStmt.setInt(1, tenantId);
-                prepStmt.setInt(2, tenantId);
-                prepStmt.setInt(3, tenantId);
+                prepStmt.setInt(index++, tenantId);
+                prepStmt.setInt(index++, tenantId);
+                prepStmt.setInt(index, tenantId);
             }
             rs = prepStmt.executeQuery();
             String domainName = getMyDomainName();

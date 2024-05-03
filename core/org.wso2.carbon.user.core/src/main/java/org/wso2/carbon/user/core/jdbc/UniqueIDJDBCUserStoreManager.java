@@ -93,6 +93,7 @@ import static java.time.ZoneOffset.UTC;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_ID_ATTRIBUTE;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE;
+import static org.wso2.carbon.user.core.constants.UserCoreDBConstants.SQL_STATEMENT_PARAMETER_PLACEHOLDER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
@@ -2710,24 +2711,20 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         Map<String, Map<String, String>> usersPropertyValuesMap = new HashMap<>();
         try {
             dbConnection = getDBConnection();
-            StringBuilder usernameParameter = new StringBuilder();
 
             sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_PROPS_FOR_PROFILE_WITH_ID);
-            for (int i = 0; i < users.size(); i++) {
-
-                usernameParameter.append("'").append(users.get(i)).append("'");
-
-                if (i != users.size() - 1) {
-                    usernameParameter.append(",");
-                }
-            }
-
-            sqlStmt = sqlStmt.replaceFirst("\\?", usernameParameter.toString());
+            sqlStmt = sqlStmt.replaceFirst("\\?", DatabaseUtil.buildDynamicParameterString(
+                    SQL_STATEMENT_PARAMETER_PLACEHOLDER, users.size()));
             prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setString(1, profileName);
+
+            int index = 1;
+            for (String user : users) {
+                prepStmt.setString(index++, user);
+            }
+            prepStmt.setString(index++, profileName);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                prepStmt.setInt(2, tenantId);
-                prepStmt.setInt(3, tenantId);
+                prepStmt.setInt(index++, tenantId);
+                prepStmt.setInt(index, tenantId);
             }
 
             rs = prepStmt.executeQuery();
@@ -2781,26 +2778,23 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
         try {
             dbConnection = getDBConnection();
-            StringBuilder usernameParameter = new StringBuilder();
             sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_ROLE_WITH_ID);
             if (sqlStmt == null) {
                 throw new UserStoreException("The sql statement for retrieving users roles is null.");
             }
-            for (int i = 0; i < userIDs.size(); i++) {
 
-                usernameParameter.append("'").append(userIDs.get(i)).append("'");
-
-                if (i != userIDs.size() - 1) {
-                    usernameParameter.append(",");
-                }
-            }
-
-            sqlStmt = sqlStmt.replaceFirst("\\?", usernameParameter.toString());
+            sqlStmt = sqlStmt.replaceFirst("\\?", DatabaseUtil.buildDynamicParameterString(
+                    SQL_STATEMENT_PARAMETER_PLACEHOLDER, userIDs.size()));
             prepStmt = dbConnection.prepareStatement(sqlStmt);
+
+            int index = 1;
+            for (String userID : userIDs) {
+                prepStmt.setString(index++, userID);
+            }
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                prepStmt.setInt(1, tenantId);
-                prepStmt.setInt(2, tenantId);
-                prepStmt.setInt(3, tenantId);
+                prepStmt.setInt(index++, tenantId);
+                prepStmt.setInt(index++, tenantId);
+                prepStmt.setInt(index, tenantId);
             }
             rs = prepStmt.executeQuery();
             String domainName = getMyDomainName();
