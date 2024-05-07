@@ -90,4 +90,16 @@ public class AbstractGroupResolver implements GroupResolver {
 
         return true;
     }
+
+    @Override
+    public Group addGroup(String groupName, String groupId, List<Claim> claims, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return null;
+    }
+
+    @Override
+    public void deleteGroupByName(String groupName, UserStoreManager userStoreManager) throws UserStoreException {
+
+    }
 }

@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2005-2024, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -30,6 +30,7 @@ public final class JDBCRealmConstants {
     public static final String GET_ROLE_LIST_H2 = "GetRoleListSQLH2";
     public static final String GET_ROLE_LIST_WITH_ESCAPE = "GetRoleListSQLWithEscape";
     public static final String GET_ROLE_LIST_WITH_ESCAPE_H2 = "GetRoleListSQLWithEscapeH2";
+    public static final String GET_ROLE_ID_BY_NAME = "GetRoleIDByNameSQL";
     public static final String GET_SHARED_ROLE_LIST = "GetSharedRoleListSQL";
     public static final String GET_SHARED_ROLE_LIST_H2 = "GetSharedRoleListSQLH2";
     public static final String GET_USER_FILTER = "UserFilterSQL";
@@ -55,6 +56,8 @@ public final class JDBCRealmConstants {
     public static final String GET_USERS_IN_ROLE = "GetUserListOfRoleSQL";
     public static final String GET_USERS_IN_ROLE_FILTER = "GetUserListOfRoleFilterSQL";
     public static final String GET_USERS_IN_ROLE_FILTER_WITH_ID = "GetUserListOfRoleFilterWithIDSQL";
+    public static final String GET_USERS_COUNT_WITH_FILTER_ROLE = "GetUserCountWithFilterRoleSQL";
+    public static final String GET_USERS_COUNT_WITH_FILTER_ROLE_WITH_ID = "GetUserCountWithFilterRoleWithIDSQL";
     public static final String GET_USERS_IN_SHARED_ROLE = "GetUserListOfSharedRoleSQL";
     public static final String GET_USERS_IN_SHARED_ROLE_FILTER = "GetUserListOfSharedRoleFilterSQL";
     public static final String GET_USERS_IN_SHARED_ROLE_FILTER_WITH_ID = "GetUserListOfSharedRoleFilterWithIDSQL";
@@ -71,6 +74,8 @@ public final class JDBCRealmConstants {
     public static final String GET_USERS_FOR_PROP_WITH_ESCAPE = "GetUserListForPropertySQLWithEscape";
     public static final String GET_USERS_FOR_CLAIM_VALUE = "GetUserListForClaimValueSQL";
     public static final String GET_USERS_FOR_PROP_WITH_ID = "GetUserLisForPropertyWithIDSQL";
+    public static final String GET_USERS_FOR_USERNAME = "GetUserListForUsernameSQL";
+    public static final String GET_USER_FOR_USERNAME = "GetUserForUsernameSQL";
     public static final String GET_USERS_FOR_CLAIM_VALUE_WITH_ID = "GetUserListForClaimValueWithIDSQL";
     public static final String GET_PAGINATED_USERS_FOR_PROP = "GetPaginatedUserLisForPropertySQL";
     public static final String GET_PAGINATED_USERS_FOR_PROP_WITH_ID = "GetPaginatedUserLisForPropertyWithIDSQL";
@@ -114,6 +119,7 @@ public final class JDBCRealmConstants {
     public static final String COUNT_USERS_WITH_CLAIM = "CountUsersWithClaimSQL";
     public static final String COUNT_USERS = "CountUsersSQL";
     public static final String COUNT_ROLES = "CountRolesSQL";
+    public static final String COUNT_USERS_WITH_FILTER = "CountUsersWithFilterSQL";
     public static final String COUNT_APPLICATION_ROLES = "CountApplicationRolesSQL";
     public static final String COUNT_INTERNAL_ROLES = "CountInternalRolesSQL";
     public static final String ON_DELETE_USER_REMOVE_ATTRIBUTE = "OnDeleteUserRemoveUserAttributeSQL";
@@ -129,17 +135,30 @@ public final class JDBCRealmConstants {
     public static final String ADD_USER_PROPERTY_WITH_ID = "AddUserPropertyWithIDSQL";
     public static final String UPDATE_USER_PROPERTY = "UpdateUserPropertySQL";
     public static final String UPDATE_USER_PROPERTY_WITH_ID = "UpdateUserPropertyWithIDSQL";
+    public static final String SELECT_USER_PROPERTIES_WITH_ID = "SelectUserPropertiesWithIDSQL";
     public static final String DELETE_USER_PROPERTY = "DeleteUserPropertySQL";
     public static final String DELETE_USER_PROPERTY_WITH_ID = "DeleteUserPropertyWWithIDSQL";
     public static final String USER_NAME_UNIQUE = "UserNameUniqueAcrossTenantsSQL";
     public static final String USER_ID_UNIQUE_WITH_ID = "UserIDUniqueAcrossTenantsSQLWithID";
     public static final String USER_NAME_UNIQUE_WITH_ID = "UserNameUniqueAcrossTenantsSQLWithID";
+
+    // Group Related Properties.
+    public static final String GET_GROUP_ID_FROM_GROUP_NAME = "GetGroupIDFromGroupNameSQL";
+    public static final String GET_GROUP_NAME_FROM_GROUP_ID = "GetGroupNameFromGroupIDSQL";
+    public static final String GET_GROUP_FROM_GROUP_NAME = "GetGroupFromGroupNameSQL";
+    public static final String GET_GROUP_FROM_GROUP_ID = "GetGroupFromGroupIDSQL";
+    public static final String GET_GROUP_FILTER_WITH_GROUP_ID = "GetGroupFilterWithGroupIDSQL";
+    public static final String GET_GROUP_FILTER_WITH_CREATED_DATE = "GetGroupFilterWithCreatedDateSQL";
+    public static final String GET_GROUP_FILTER_WITH_LAST_MODIFIED = "GetGroupFilterWithLastModifiedSQL";
+    public static final String ADD_GROUP = "AddGroupSQL";
+    public static final String UPDATE_GROUP_NAME = "UpdateGroupNameSQL";
     public static final String COUNT_ROLES_SQL = "SELECT COUNT(UM_ROLE_NAME) AS RESULT FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? AND " +
             "UM_TENANT_ID = ?";
     public static final String COUNT_USERS_WITH_CLAIM_SQL = "SELECT COUNT(UM_USER_ID) AS RESULT FROM UM_USER_ATTRIBUTE WHERE UM_ATTR_NAME = ? " +
             "AND UM_TENANT_ID = ? AND UM_ATTR_VALUE LIKE ? AND UM_PROFILE_ID = ?";
     public static final String COUNT_USERS_SQL = "SELECT COUNT(UM_USER_NAME) AS RESULT FROM UM_USER WHERE UM_USER_NAME LIKE ? " + "AND UM_TENANT_ID = ?";
     public static final String SELECT_USER_SQL = "SELECT * FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?";
+    public static final String COUNT_USERS_WITH_FILTER_SQL = "SELECT COUNT(UM_USER_NAME) AS RESULT FROM UM_USER WHERE UM_USER_NAME = ? " + "AND UM_TENANT_ID = ?";
     public static final String SELECT_USER_NAME_SQL =
             "SELECT UM_USER_ID, UM_USER_NAME, UM_USER_PASSWORD, UM_SALT_VALUE, "
                     + "UM_REQUIRE_CHANGE, UM_CHANGED_TIME FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?";
@@ -251,6 +270,17 @@ public final class JDBCRealmConstants {
                     + ".UM_USER_NAME LIKE ? AND UM_ROLE.UM_ROLE_NAME=? AND UM_USER.UM_ID=UM_USER_ROLE.UM_USER_ID AND "
                     + "UM_ROLE.UM_ID=UM_USER_ROLE.UM_ROLE_ID AND UM_USER_ROLE.UM_TENANT_ID=? AND UM_ROLE"
                     + ".UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?";
+
+    public static final String GET_USERS_COUNT_WITH_FILTER_ROLE_SQL = "SELECT COUNT(UM_USER_NAME) FROM " +
+            "UM_USER_ROLE, UM_ROLE, UM_USER WHERE UM_ROLE.UM_ROLE_NAME=? AND UM_USER.UM_ID=UM_USER_ROLE.UM_USER_ID " +
+            "AND UM_ROLE.UM_ID=UM_USER_ROLE.UM_ROLE_ID AND UM_USER_ROLE.UM_TENANT_ID=? AND UM_ROLE.UM_TENANT_ID=? " +
+            "AND UM_USER.UM_TENANT_ID=?";
+    public static final String GET_USERS_COUNT_WITH_FILTER_ROLE_SQL_WITH_ID = "SELECT COUNT(UM_ID) FROM UM_USER_ROLE " +
+            "WHERE UM_ROLE_ID = ? AND UM_TENANT_ID = ?";
+
+    public static final String GET_ROLE_ID_BY_NAME_SQL =  "SELECT UM_ID FROM UM_ROLE " +
+            "WHERE UM_ROLE_NAME = ? AND UM_TENANT_ID = ? ";
+
     public static final String GET_USERS_IN_SHARED_ROLE_SQL =
             "SELECT UM_USER_NAME FROM UM_SHARED_USER_ROLE INNER JOIN UM_USER ON "
                     + "UM_SHARED_USER_ROLE.UM_USER_ID = UM_USER.UM_ID INNER JOIN UM_ROLE ON "
@@ -306,6 +336,10 @@ public final class JDBCRealmConstants {
             + "UM_USER_ATTRIBUTE WHERE UM_USER_ATTRIBUTE.UM_USER_ID = UM_USER.UM_ID AND UM_USER_ATTRIBUTE.UM_ATTR_NAME =? " +
             "AND UM_USER_ATTRIBUTE.UM_ATTR_VALUE LIKE ? AND UM_USER_ATTRIBUTE.UM_PROFILE_ID=? " +
             "AND UM_USER_ATTRIBUTE.UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?";
+    public static final String GET_USERS_FOR_USERNAME_SQL = "SELECT DISTINCT UM_USER.UM_USER_ID " +
+            "FROM UM_USER WHERE UM_USER.UM_USER_NAME LIKE ? AND UM_USER.UM_TENANT_ID=?";
+    public static final String GET_USER_FOR_USERNAME_SQL = "SELECT DISTINCT UM_USER.UM_USER_ID " +
+            "FROM UM_USER WHERE UM_USER.UM_USER_NAME=? AND UM_USER.UM_TENANT_ID=?";
     public static final String GET_USERS_FOR_CLAIM_VALUE_WITH_ID_SQL = "SELECT DISTINCT UM_USER.UM_USER_ID FROM " +
             "UM_USER, UM_USER_ATTRIBUTE WHERE UM_USER_ATTRIBUTE.UM_USER_ID = UM_USER.UM_ID AND " +
             "UM_USER_ATTRIBUTE.UM_ATTR_NAME =? AND UM_USER_ATTRIBUTE.UM_ATTR_VALUE =? AND " +
@@ -438,6 +472,7 @@ public final class JDBCRealmConstants {
     public static final String UPDATE_USER_PROPERTY_WITH_ID_SQL = "UPDATE UM_USER_ATTRIBUTE SET UM_ATTR_VALUE=? WHERE "
             + "UM_USER_ID=(SELECT UM_ID FROM UM_USER WHERE UM_USER_ID=? AND UM_TENANT_ID=?) AND UM_ATTR_NAME=? AND "
             + "UM_PROFILE_ID=? AND UM_TENANT_ID=?";
+    public static final String SELECT_USER_PROPERTIES_WITH_ID_SQL = "SELECT * FROM UM_USER_ATTRIBUTE WITH (UPDLOCK) WHERE UM_USER_ID=(SELECT UM_ID FROM UM_USER WHERE UM_USER_ID=? AND UM_TENANT_ID=?) ORDER BY UM_ID;";
     public static final String DELETE_USER_PROPERTY_SQL = "DELETE FROM UM_USER_ATTRIBUTE WHERE UM_USER_ID=(SELECT UM_ID FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?) AND UM_ATTR_NAME=? AND UM_PROFILE_ID=? AND UM_TENANT_ID=?";
     public static final String DELETE_USER_PROPERTY_WITH_ID_SQL = "DELETE FROM UM_USER_ATTRIBUTE WHERE UM_USER_ID="
             + "(SELECT UM_ID FROM UM_USER WHERE UM_USER_ID=? AND UM_TENANT_ID=?) AND UM_ATTR_NAME=? AND "
@@ -463,6 +498,30 @@ public final class JDBCRealmConstants {
     public static final String STORE_SALTED_PASSWORDS = "StoreSaltedPassword";
     public static final String COUNT_INTERNAL_ROLES_SQL = "SELECT COUNT(UM_ID) AS RESULT FROM UM_HYBRID_ROLE WHERE " +
             "UM_ROLE_NAME NOT LIKE '" + APPLICATION_DOMAIN + "%' AND UM_ROLE_NAME LIKE ? AND UM_TENANT_ID = ?";
+
+    // Group related SQL queries.
+    public static final String GET_GROUP_ID_FROM_GROUP_NAME_SQL = "SELECT UM_ROLE_UUID FROM UM_ROLE WHERE " +
+            "UM_ROLE_NAME = ? AND UM_TENANT_ID = ?";
+    public static final String GET_GROUP_NAME_FROM_GROUP_ID_SQL = "SELECT UM_ROLE_NAME FROM UM_ROLE WHERE " +
+            "UM_ROLE_UUID = ? AND UM_TENANT_ID = ?";
+    public static final String GET_GROUP_FROM_GROUP_NAME_SQL = "SELECT UM_ROLE_UUID, UM_CREATED_TIME, " +
+            "UM_LAST_MODIFIED FROM UM_ROLE WHERE UM_ROLE_NAME = ? AND UM_TENANT_ID = ?";
+    public static final String GET_GROUP_FROM_GROUP_ID_SQL = "SELECT UM_ROLE_NAME, UM_CREATED_TIME, UM_LAST_MODIFIED " +
+            "FROM UM_ROLE WHERE UM_ROLE_UUID = ? AND UM_TENANT_ID = ?";
+    public static final String GET_GROUP_FILTER_WITH_GROUP_ID_SQL = "SELECT UM_ROLE_NAME, UM_ROLE_UUID, " +
+            "UM_CREATED_TIME, UM_LAST_MODIFIED FROM UM_ROLE WHERE UM_ROLE_UUID LIKE ? AND UM_TENANT_ID = ? " +
+            "ORDER BY UM_ROLE_NAME;";
+    public static final String GET_GROUP_FILTER_WITH_CREATED_DATE_SQL = "SELECT UM_ROLE_NAME, UM_ROLE_UUID, " +
+            "UM_CREATED_TIME, UM_LAST_MODIFIED FROM UM_ROLE WHERE UM_CREATED_TIME = ? AND UM_TENANT_ID = ? " +
+            "ORDER BY UM_ROLE_NAME;";
+    public static final String GET_GROUP_FILTER_WITH_LAST_MODIFIED_SQL = "SELECT UM_ROLE_NAME, UM_ROLE_UUID, " +
+            "UM_CREATED_TIME, UM_LAST_MODIFIED FROM UM_ROLE WHERE UM_LAST_MODIFIED = ? AND UM_TENANT_ID = ? " +
+            "ORDER BY UM_ROLE_NAME;";
+    public static final String ADD_GROUP_SQL = "INSERT INTO UM_ROLE (UM_ROLE_UUID, UM_ROLE_NAME, UM_TENANT_ID, " +
+            "UM_CREATED_TIME, UM_LAST_MODIFIED) VALUES (?, ?, ?, ?, ?)";
+    public static final String UPDATE_GROUP_NAME_SQL = "UPDATE UM_ROLE set UM_ROLE_NAME = ?, UM_LAST_MODIFIED = ? " +
+            "WHERE UM_ROLE_UUID = ? AND UM_TENANT_ID = ?";
+
     // properties
     public static final String DATASOURCE = "dataSource";
     public static final String URL = "url";
@@ -528,6 +587,7 @@ public final class JDBCRealmConstants {
     public static final String ADD_USER_TO_ROLE_OPENEDGE = "AddUserToRoleSQL-openedge";
     public static final String ADD_ROLE_TO_USER_OPENEDGE = "AddRoleToUserSQL-openedge";
     public static final String ADD_USER_PROPERTY_OPENEDGE = "AddUserPropertySQL-openedge";
+    public static final String PROP_ENABLE_OPTIMIZED_JDBC_SEARCH = "JDBCUserStore.enableOptimizedJDBCSearch";
     private JDBCRealmConstants() {
     }
 }

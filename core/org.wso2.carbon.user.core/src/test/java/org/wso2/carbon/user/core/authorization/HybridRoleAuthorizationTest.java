@@ -24,7 +24,7 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 public class HybridRoleAuthorizationTest extends BaseTestCase {
 
     public void setUp() throws Exception {
-        super.setUp();
+        super.setUpForGroupIdDisabledScenarios();
     }
 
     public void testAuthorizationForActions() throws Exception {

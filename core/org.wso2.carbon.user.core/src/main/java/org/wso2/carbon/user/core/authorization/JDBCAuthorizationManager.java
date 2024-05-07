@@ -48,6 +48,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -212,6 +213,10 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
     public boolean isUserAuthorized(String userName, String resourceId, String action)
             throws UserStoreException {
+
+        // Regular expression to match and remove any version information appended to the resource path.
+        String versionRegex = ";version:\\d+";
+        resourceId = resourceId.replaceAll(versionRegex, "");
 
         if (!preserveCaseForResources && resourceId != null) {
             resourceId = resourceId.toLowerCase();
@@ -506,6 +511,18 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         List<String> lstPermissions = new ArrayList<>();
         if (isRoleAndGroupSeparationEnabled || verifyByRetrievingAllUserRoles) {
             String[] roles = this.userRealm.getUserStoreManager().getRoleListOfUser(userName);
+            if (skipAuthzCheckForSuperAdmin && MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(
+                    CarbonContext.getThreadLocalCarbonContext().getTenantDomain())) {
+                boolean isSuperAdmin =
+                        Arrays.stream(roles).anyMatch(role -> role.equals(realmConfig.getAdminRoleName()));
+                if (isSuperAdmin && caseInSensitiveAuthorizationRules &&
+                        realmConfig.getAdminUserName().equalsIgnoreCase(userName)) {
+                    roles = new String[]{realmConfig.getAdminRoleName()};
+                } else if (isSuperAdmin && !caseInSensitiveAuthorizationRules &&
+                        realmConfig.getAdminUserName().equals(userName)) {
+                    roles = new String[]{realmConfig.getAdminRoleName()};
+                }
+            }
             permissionTree.updatePermissionTree();
             permissionTree.getUIResourcesForRoles(roles, lstPermissions, permissionRootPath);
             String[] permissions = lstPermissions.toArray(new String[0]);

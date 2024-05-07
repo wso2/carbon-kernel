@@ -119,4 +119,58 @@ public class AbstractGroupOperationEventListener implements GroupOperationEventL
 
         return true;
     }
+
+    @Override
+    public boolean preAddGroup(String groupName, List<String> userIds, List<Claim> claims,
+                               UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean postAddGroup(String groupName, String groupId, List<String> userIds, List<Claim> claims,
+                                UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean preDeleteGroup(String groupId, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean postDeleteGroup(String groupId, String groupName, UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean preRenameGroup(String groupId, String newGroupName, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean postRenameGroup(String groupId, String newGroupName, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean preUpdateUserListOfGroup(String groupId, List<String> deletedUserIds, List<String> newUserIds,
+                                            UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    @Override
+    public boolean postUpdateUserListOfGroup(String groupId, List<String> deletedUserIds, List<String> newUserIds,
+                                             UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
 }

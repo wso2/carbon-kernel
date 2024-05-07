@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.user.core.UserStoreClientException;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
@@ -128,8 +129,8 @@ public class GroupUniqueIDDomainResolver {
                     if (log.isDebugEnabled()) {
                         log.debug("Entry is outdated. Clearing cache and the database entries.");
                     }
-                    deleteDomainFromDB(domainName, groupId, tenantId);
                     clearGroupIDResolverCache(groupId, tenantId);
+                    deleteDomainFromDB(domainName, groupId, tenantId);
                     domainName = null;
                 }
             }
@@ -151,7 +152,8 @@ public class GroupUniqueIDDomainResolver {
      *                           the userstore manager does not support group uuid.
      * @throws UserStoreException If an error occurred while setting the domain name for the group id.
      */
-    public void setDomainForGroupId(String groupId, String userstoreDomain, int tenantId, boolean persistToCacheOnly) throws UserStoreException {
+    public void setDomainForGroupId(String groupId, String userstoreDomain, int tenantId, boolean persistToCacheOnly)
+            throws UserStoreException {
 
         try {
             if (StringUtils.isEmpty(groupId) || StringUtils.isEmpty(userstoreDomain)) {
@@ -176,6 +178,59 @@ public class GroupUniqueIDDomainResolver {
             if (log.isDebugEnabled()) {
                 log.debug(String.format("Successfully persisted group id: %s against domain: %s and added to " +
                         "the cache", groupId, userstoreDomain));
+            }
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+        }
+    }
+
+    /**
+     * Remove the domain to group mappings for the given group id given tenant.
+     *
+     * @param groupId         Group unique id.
+     * @param userstoreDomain Userstore domain name.
+     * @param tenantId        Tenant id.
+     * @param clearOnlyCache  Whether to clear the cache only. This needs to be set to true if the userstore manager
+     *                        does not support group uuid
+     * @throws UserStoreException If an error occurred while removing the domain name for the group id.
+     */
+    public void removeDomainForGroupId(String groupId, String userstoreDomain, int tenantId, boolean clearOnlyCache)
+            throws UserStoreException {
+
+        try {
+            if (StringUtils.isEmpty(groupId)) {
+                throw new UserStoreException("group id cannot be empty or null");
+            }
+            PrivilegedCarbonContext.startTenantFlow();
+            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            carbonContext.setTenantId(tenantId, true);
+            CacheManager cacheManager = Caching.getCacheManagerFactory()
+                    .getCacheManager(GROUP_UNIQUE_ID_DOMAIN_RESOLVER_CACHE_MANGER_NAME);
+            Cache<String, String> uniqueIdDomainCache =
+                    cacheManager.getCache(GROUP_UNIQUE_ID_DOMAIN_RESOLVER_CACHE_NAME);
+            uniqueIdDomainCache.remove(groupId);
+            clearGroupIDResolverCache(groupId, tenantId);
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Successfully removed group id: %s from the cache", groupId));
+            }
+            if (!clearOnlyCache) {
+                String domainInDb = getDomainFromDB(groupId, tenantId);
+                if (StringUtils.isBlank(domainInDb)) {
+                    if (log.isDebugEnabled()) {
+                        log.debug(String.format("No domain name found for the give group id: %s", groupId));
+                    }
+                    return;
+                }
+                if (!domainInDb.equals(userstoreDomain)) {
+                    throw new UserStoreClientException(
+                            String.format("Provided domain for group id: %s name: %s does not match " +
+                                            "with the domain name in the database: %s in tenant: %s", groupId, userstoreDomain,
+                                    domainInDb, tenantId));
+                }
+                deleteDomainFromDB(userstoreDomain, groupId, tenantId);
+                if (log.isDebugEnabled()) {
+                    log.debug(String.format("Successfully removed group id: %s from the database", groupId));
+                }
             }
         } finally {
             PrivilegedCarbonContext.endTenantFlow();

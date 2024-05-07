@@ -273,8 +273,13 @@ public abstract class AbstractCarbonUIAuthenticator implements CarbonUIAuthentic
     public void onSuccessAdminLogin(HttpServletRequest request, String userName) throws Exception {
 
 		HttpSession session = request.getSession();
-		
-    	String tenantDomain = MultitenantUtils.getTenantDomain(userName);
+        String tenantDomain;
+        if (session.getAttribute(MultitenantConstants.TENANT_DOMAIN) != null) {
+            tenantDomain = session.getAttribute(MultitenantConstants.TENANT_DOMAIN).toString();
+        } else {
+            tenantDomain = MultitenantUtils.getTenantDomain(userName);
+        }
+
         if (tenantDomain != null && tenantDomain.trim().length() > 0) {
             session.setAttribute(MultitenantConstants.TENANT_DOMAIN, tenantDomain);
             // we will make it an attribute on request as well

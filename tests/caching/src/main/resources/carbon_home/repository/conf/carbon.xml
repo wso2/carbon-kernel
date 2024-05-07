@@ -363,11 +363,12 @@
             KeyStore which will be used for encrypting/decrypting passwords
             and other sensitive information.
         -->
+        <!-- KeyStore configurations for super tenant.-->
         <KeyStore>
             <!-- Keystore file location-->
-            <Location>${carbon.home}/repository/resources/security/wso2carbon.jks</Location>
+            <Location>${carbon.home}/repository/resources/security/wso2carbon.p12</Location>
             <!-- Keystore type (JKS/PKCS12 etc.)-->
-            <Type>JKS</Type>
+            <Type>PKCS12</Type>
             <!-- Keystore password-->
             <Password>wso2carbon</Password>
             <!-- Private Key alias-->
@@ -375,6 +376,11 @@
             <!-- Private Key password-->
             <KeyPassword>wso2carbon</KeyPassword>
         </KeyStore>
+        <!-- KeyStore configurations for newly created tenants (not applicable to existing tenants). -->
+        <TenantKeyStore>
+            <!-- Keystore type (JKS/PKCS12 etc.)-->
+            <Type>PKCS12</Type>
+        </TenantKeyStore>
 
         <!--
             System wide trust-store which is used to maintain the certificates of all
@@ -382,9 +388,9 @@
         -->
         <TrustStore>
             <!-- trust-store file location -->
-            <Location>${carbon.home}/repository/resources/security/client-truststore.jks</Location>
+            <Location>${carbon.home}/repository/resources/security/client-truststore.p12</Location>
             <!-- trust-store type (JKS/PKCS12 etc.) -->
-            <Type>JKS</Type>
+            <Type>PKCS12</Type>
             <!-- trust-store password -->
             <Password>wso2carbon</Password>
         </TrustStore>

@@ -25,9 +25,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.api.IdempotentMessage;
 import org.wso2.carbon.caching.impl.CacheImpl;
+import org.wso2.carbon.caching.impl.DataHolder;
+import org.wso2.carbon.caching.impl.Util;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+
 import java.io.Serializable;
+import java.util.List;
+
 import javax.cache.Cache;
+import javax.cache.CacheInvalidationRequestPropagator;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 
@@ -78,10 +84,22 @@ public class ClusterCacheInvalidationRequest extends ClusteringMessage {
                     ((CacheImpl) cache).removeLocal(cacheInfo.cacheKey);
                 }
             }
+            triggerPropagation(this);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
 
+    }
+
+    private void triggerPropagation(ClusterCacheInvalidationRequest request) {
+
+        if (Util.isCacheInvalidationPropagationEnabled()) {
+            List<CacheInvalidationRequestPropagator> propagatorList = DataHolder.getInstance()
+                    .getCacheInvalidationRequestPropagators();
+            for (CacheInvalidationRequestPropagator propagator: propagatorList) {
+                propagator.propagate(request);
+            }
+        }
     }
 
     @Override

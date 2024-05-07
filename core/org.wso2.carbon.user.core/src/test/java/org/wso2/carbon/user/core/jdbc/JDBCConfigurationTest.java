@@ -33,7 +33,7 @@ public class JDBCConfigurationTest extends BaseTestCase {
     private RealmConfiguration realmConfig = null;
 
     public void setUp() throws Exception {
-        super.setUp();
+        super.setUpForGroupIdDisabledScenarios();
     }
 
     public void testStuff() throws Exception {

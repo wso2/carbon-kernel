@@ -33,6 +33,9 @@ import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.SQL;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.STRING;
 
+/**
+ * This class contains the constants related to the JDBC User Store Manager.
+ */
 public class JDBCUserStoreConstants {
 
     //Properties for Read Active Directory User Store Manager
@@ -49,8 +52,10 @@ public class JDBCUserStoreConstants {
     private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim "
             + "values";
     private static final String VALIDATION_INTERVAL = "validationInterval";
-    private static final String DISPLAY_NAME_ATTRIBUTE_DESCRIPTION = "This is the attribute name to display as the Display Name";
+    private static final String DISPLAY_NAME_ATTRIBUTE_DESCRIPTION = "This is the attribute name to display as the " +
+            "display name of the user";
     public static final String DISPLAY_NAME_ATTRIBUTE = "DisplayNameAttribute";
+    public static final String STORE_USER_ATTRIBUTE_VALUE_AS_UNICODE = "StoreUserAttributeValueAsUnicode";
 
     static {
 
@@ -82,7 +87,7 @@ public class JDBCUserStoreConstants {
         setProperty("UsernameJavaRegEx", "Username RegEx (Java)", "[a-zA-Z0-9._\\-|//]{3,30}$",
                 "A regular expression to validate user names",
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        setProperty("UsernameJavaScriptRegEx", "Username RegEx (Javascript)", "^[\\S]{5,30}$",
+        setProperty("UsernameJavaScriptRegEx", "Username RegEx (Javascript)", "[a-zA-Z0-9._\\-|//]{3,30}$",
                 "The regular expression used by the font-end components for username validation",
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setProperty(usernameJavaRegExViolationErrorMsg, "Username RegEx Violation Error Message",
@@ -106,6 +111,10 @@ public class JDBCUserStoreConstants {
         setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "false",
                 UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION,
                 new Property[] { USER.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
+        setProperty(UserStoreConfigConstants.USE_CASE_SENSITIVE_USERNAME_FOR_CACHE_KEYS,
+                "Use Case Sensitive Username for Cache Keys", "true",
+                UserStoreConfigConstants.USE_CASE_SENSITIVE_USERNAME_FOR_CACHE_KEYS_DESCRIPTION,
+                new Property[] { USER.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
 
         //set Advanced properties
         setAdvancedProperty("IsBulkImportSupported", "Is Bulk Import Supported", "false",
@@ -150,7 +159,10 @@ public class JDBCUserStoreConstants {
                 new Property[] { USER.getProperty(), NUMBER.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(UserStoreConfigConstants.maxRoleNameListLength, "Maximum Group List Length", "100",
                 UserStoreConfigConstants.maxRoleNameListLengthDescription,
-                new Property[] { GROUP.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
+                new Property[] { GROUP.getProperty(), NUMBER.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(UserStoreConfigConstants.GROUP_ID_ENABLED, UserStoreConfigConstants.GROUP_ID_ENABLED_DISPLAY_NAME, Boolean.toString(true),
+                UserStoreConfigConstants.GROUP_ID_ENABLED_DESCRIPTION,
+                new Property[]{GROUP.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty()});
 
         setAdvancedProperty(UserStoreConfigConstants.userRolesCacheEnabled, "Enable User Group Cache", "true",
                 UserStoreConfigConstants.userRolesCacheEnabledDescription,
@@ -237,10 +249,6 @@ public class JDBCUserStoreConstants {
                 "The connection properties that will be sent to our JDBC driver when establishing new connections",
                 new Property[] { CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty() });
 
-        setAdvancedProperty(JDBCRealmConstants.INIT_SQL, "Init SQL", "",
-                "A custom query to be run when a connection is first created",
-                new Property[] { CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty() });
-
         setAdvancedProperty(JDBCRealmConstants.JDBC_INTERCEPTORS, "JDBC Interceptors", "", "JDBC Interceptors",
                 new Property[] { CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty() });
 
@@ -293,6 +301,10 @@ public class JDBCUserStoreConstants {
                 "org.wso2.carbon.identity.user.store.count.jdbc.JDBCUserStoreCountRetriever",
                 "Name of the class that implements the count functionality",
                 new Property[] { CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty() });
+
+        setAdvancedProperty(STORE_USER_ATTRIBUTE_VALUE_AS_UNICODE, "Store User Attribute Value As Unicode", "false",
+                "Store user attribute value as unicode",
+                new Property[] { CONNECTION.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
 
         //Advanced Properties (No descriptions added for each property)
         setAdvancedProperty(JDBCRealmConstants.SELECT_USER, "Select User SQL", JDBCRealmConstants.SELECT_USER_SQL, "",
@@ -468,7 +480,8 @@ public class JDBCUserStoreConstants {
                 JDBCRealmConstants.GET_USERS_FOR_PROP_WITH_ID_SQL, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCRealmConstants.GET_USERS_FOR_CLAIM_VALUE_WITH_ID,
-                "Get User List for Claim Value With ID SQL", JDBCRealmConstants.GET_USERS_FOR_CLAIM_VALUE_WITH_ID_SQL, "",
+                "Get User List for Claim Value With ID SQL",
+                JDBCRealmConstants.GET_USERS_FOR_CLAIM_VALUE_WITH_ID_SQL, "",
                 new Property[]{USER.getProperty(), SQL.getProperty(), FALSE.getProperty()});
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_USERS_FOR_PROP_WITH_ID_CASE_INSENSITIVE,
                 "Get User List For Property With ID SQL With Case Insensitive Username",
@@ -619,6 +632,9 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(JDBCRealmConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE,
                 "On Delete User, Remove User Attribute SQL", JDBCRealmConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE_SQL, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCRealmConstants.COUNT_USERS_WITH_FILTER, "Count Users SQL With Filter",
+                JDBCRealmConstants.COUNT_USERS_WITH_FILTER_SQL, "",
+                new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCRealmConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE_WITH_ID,
                 "On Delete User, Remove User Attribute SQL With ID",
                 JDBCRealmConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE_WITH_ID_SQL, "",
@@ -644,6 +660,24 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(JDBCRealmConstants.UPDATE_ROLE_NAME, "Update Group Name SQL",
                 JDBCRealmConstants.UPDATE_ROLE_NAME_SQL, "",
                 new Property[] { GROUP.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCRealmConstants.GET_GROUP_ID_FROM_GROUP_NAME, "Get Group ID From Group Name SQL",
+                JDBCRealmConstants.GET_GROUP_ID_FROM_GROUP_NAME_SQL, "",
+                new Property[]{GROUP.getProperty(), SQL.getProperty(), FALSE.getProperty()});
+        setAdvancedProperty(JDBCRealmConstants.GET_GROUP_NAME_FROM_GROUP_ID, "Get Group Name From Group ID SQL",
+                JDBCRealmConstants.GET_GROUP_NAME_FROM_GROUP_ID_SQL, "",
+                new Property[]{GROUP.getProperty(), SQL.getProperty(), FALSE.getProperty()});
+        setAdvancedProperty(JDBCRealmConstants.GET_GROUP_FROM_GROUP_NAME, "Get Group From Group Name SQL",
+                JDBCRealmConstants.GET_GROUP_FROM_GROUP_NAME_SQL, "",
+                new Property[]{GROUP.getProperty(), SQL.getProperty(), FALSE.getProperty()});
+        setAdvancedProperty(JDBCRealmConstants.GET_GROUP_FROM_GROUP_ID, "Get Group From Group ID SQL",
+                JDBCRealmConstants.GET_GROUP_FROM_GROUP_ID_SQL, "",
+                new Property[]{GROUP.getProperty(), SQL.getProperty(), FALSE.getProperty()});
+        setAdvancedProperty(JDBCRealmConstants.ADD_GROUP, "Add Group SQL",
+                JDBCRealmConstants.ADD_GROUP_SQL, "",
+                new Property[]{GROUP.getProperty(), SQL.getProperty(), FALSE.getProperty()});
+        setAdvancedProperty(JDBCRealmConstants.UPDATE_GROUP_NAME, "Update Group Name SQL",
+                JDBCRealmConstants.UPDATE_GROUP_NAME_SQL, "",
+                new Property[]{GROUP.getProperty(), SQL.getProperty(), FALSE.getProperty()});
 
         setAdvancedProperty(JDBCRealmConstants.ADD_USER_PROPERTY, "Add User Property SQL",
                 JDBCRealmConstants.ADD_USER_PROPERTY_SQL, "",
@@ -656,6 +690,9 @@ public class JDBCUserStoreConstants {
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID, "Update User Property With ID SQL",
                 JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID_SQL, "",
+                new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCRealmConstants.SELECT_USER_PROPERTIES_WITH_ID, "Select User Properties With ID SQL",
+                JDBCRealmConstants.SELECT_USER_PROPERTIES_WITH_ID_SQL, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCCaseInsensitiveConstants.UPDATE_USER_PROPERTY_CASE_INSENSITIVE,
                 "Update User Property SQL With Case Insensitive Username",
@@ -743,7 +780,7 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(UserStoreConfigConstants.claimOperationsSupported,
                 UserStoreConfigConstants.getClaimOperationsSupportedDisplayName, "true",
                 UserStoreConfigConstants.claimOperationsSupportedDescription,
-                new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+                new Property[] { USER.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
         setProperty("UniqueID", "", "", "",
                 new Property[] { USER.getProperty(), STRING.getProperty(), FALSE.getProperty() });
     }

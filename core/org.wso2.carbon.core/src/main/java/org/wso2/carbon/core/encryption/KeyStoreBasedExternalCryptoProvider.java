@@ -29,6 +29,7 @@ import org.wso2.carbon.crypto.api.ExternalCryptoProvider;
 import org.wso2.carbon.crypto.api.HybridEncryptionInput;
 import org.wso2.carbon.crypto.api.HybridEncryptionOutput;
 import org.wso2.carbon.crypto.api.PrivateKeyInfo;
+import org.wso2.carbon.utils.security.KeystoreUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -541,7 +542,7 @@ public class KeyStoreBasedExternalCryptoProvider implements ExternalCryptoProvid
 
     private String getTenantKeyStoreName(String tenantDomain) {
 
-        return tenantDomain.trim().replace(".", "-") + ".jks";
+        return KeystoreUtils.getKeyStoreFileLocation(tenantDomain);
     }
 
     protected byte[] symmetricEncryptData(HybridEncryptionInput hybridEncryptionInput, String jceSecurityProvider,

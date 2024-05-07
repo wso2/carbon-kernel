@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel-features</artifactId>
-        <version>4.9.12-SNAPSHOT</version>
+        <version>4.10.14-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -59,8 +59,6 @@
                                 </bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.registry.server:${carbon.kernel.version}
                                 </bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.feature.mgt.services:${carbon.kernel.version}
-                                </bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.cluster.mgt.core:${carbon.kernel.version}
                                 </bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.roles.mgt:${carbon.kernel.version}
@@ -69,9 +67,9 @@
                                 </bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.admin.advisory.mgt:${carbon.kernel.version}
                                 </bundleDef>
-                                <bundleDef>org.wso2.orbit.org.bouncycastle:bcprov-jdk15on:${bouncycastle.version}
+                                <bundleDef>org.wso2.orbit.org.bouncycastle:bcprov-jdk18on:${bouncycastle.version}
                                 </bundleDef>
-                                <bundleDef>org.wso2.orbit.org.bouncycastle:bcpkix-jdk15on:${bouncycastle.version}
+                                <bundleDef>org.wso2.orbit.org.bouncycastle:bcpkix-jdk18on:${bouncycastle.version}
                                 </bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.poi:poi-ooxml:${orbit.version.poi.ooxml}
                                 </bundleDef>

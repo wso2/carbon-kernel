@@ -150,7 +150,9 @@ public class RemoteResourceImpl extends ResourceImpl {
                 return uc.getInputStream();
 
             } catch (IOException e) {
-                throw new RegistryException("Couldn't open stream to source URL " + contentURL, e);
+                String message = "Couldn't open stream to source URL " + contentURL;
+                log.debug(message, e);
+                throw new RegistryException(message, new RegistryException(message));
             }
         }
 

@@ -18,8 +18,10 @@
 
 package org.wso2.carbon.user.core.listener;
 
+import org.wso2.carbon.user.core.NotImplementedException;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.common.Claim;
 import org.wso2.carbon.user.core.common.Group;
 import org.wso2.carbon.user.core.model.Condition;
 
@@ -44,6 +46,35 @@ public interface GroupResolver {
      * @return The execution order identifier integer value.
      */
     int getExecutionOrderId();
+
+    /**
+     * Add a group with the given name and claims.
+     *
+     * @param groupName        Group unique name.
+     * @param groupId          Group unique id.
+     * @param claims           List of claims.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return True if the method execution was successful.
+     * @throws UserStoreException If an error occurred.
+     */
+    default Group addGroup(String groupName, String groupId, List<Claim> claims, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        throw new NotImplementedException("addGroup method is not implemented for " + this.getClass().getName());
+    }
+
+    /**
+     * Delete the group with the given name.
+     *
+     * @param groupName        Group unique name.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @throws UserStoreException If an error occurred.
+     */
+    default void deleteGroupByName(String groupName, UserStoreManager userStoreManager) throws UserStoreException {
+
+        throw new NotImplementedException(
+                "deleteGroupByName method is not implemented for " + this.getClass().getName());
+    }
 
     /**
      * Resolve the domain name of the group with the given id.

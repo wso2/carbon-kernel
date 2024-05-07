@@ -17,8 +17,9 @@
 package org.wso2.carbon.user.core;
 
 import junit.framework.TestCase;
+import org.apache.commons.lang.StringUtils;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 
 import java.io.File;
@@ -27,7 +28,7 @@ public class BaseTestCase extends TestCase {
     public void setUp() throws Exception {
 
         
-         if (System.getProperty("carbon.home") == null) {
+         if (StringUtils.isBlank(System.getProperty("carbon.home"))) {
              File file = new File("../../distribution/kernel/carbon-home");
             if (file.exists()) {
                 System.setProperty("carbon.home", file.getAbsolutePath());
@@ -43,9 +44,22 @@ public class BaseTestCase extends TestCase {
 		
         }
 
+        CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME = true;
+
     	PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(MultitenantConstants.SUPER_TENANT_ID);
-    	
+    }
+
+    public void setUpForGroupIdDisabledScenarios() throws Exception {
+
+        File file = new File("src/test/resources/dbscripts/group_uuid_disable");
+        if (file.exists()) {
+            System.setProperty("carbon.home", file.getAbsolutePath());
+        }
+
+        CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME = true;
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(MultitenantConstants.SUPER_TENANT_ID);
     }
     
     protected static boolean deleteDir(File dir) {

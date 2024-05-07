@@ -34,8 +34,6 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.api.ServerConfigurationService;
-import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.tomcat.api.CarbonTomcatService;
 import org.wso2.carbon.ui.deployment.beans.CarbonUIDefinitions;
 import org.wso2.carbon.ui.deployment.beans.Menu;
@@ -44,7 +42,6 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ConfigurationContextService;
 import org.wso2.carbon.utils.NetworkUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
-import org.wso2.carbon.base.ServerConfiguration;
 
 /**
  * Utility class for Carbon UI
@@ -498,6 +495,17 @@ public class CarbonUIUtil {
 		}
 		return requestURL;
 	}
+
+    /**
+     * Returns the default management ui path.
+     *
+     * @return default management ui path
+     */
+    public static String getDefaultManagementUIPath() {
+
+        return CarbonUIServiceComponent.getServerConfiguration()
+                .getFirstProperty(CarbonConstants.DEFAULT_MANAGEMENT_UI_PATH);
+    }
 
     private static Object getDefaultHomePageProductParam() {
         return getProductParam(CarbonConstants.PRODUCT_XML_WSO2CARBON + CarbonConstants.DEFAULT_HOME_PAGE);

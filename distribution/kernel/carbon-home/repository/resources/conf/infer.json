@@ -5,7 +5,7 @@
       "user_store.properties.TenantManager": "org.wso2.carbon.user.core.tenant.JDBCTenantManager",
       "user_store.properties.ReadOnly": false,
       "user_store.properties.WriteGroups": true,
-      "user_store.properties.UsernameJavaRegEx": "^[\\S]{3,30}$",
+      "user_store.properties.UsernameJavaRegEx": "^[^\\s*?%]{3,30}$",
       "user_store.properties.RolenameJavaRegEx": "^[\\S]{3,30}$",
       "user_store.properties.CaseInsensitiveUsername": true,
       "user_store.properties.SCIMEnabled": true,
@@ -21,7 +21,7 @@
       "user_store.properties.TenantManager": "org.wso2.carbon.user.core.tenant.JDBCTenantManager",
       "user_store.properties.ReadOnly": false,
       "user_store.properties.WriteGroups": true,
-      "user_store.properties.UsernameJavaRegEx": "^[\\S]{3,30}$",
+      "user_store.properties.UsernameJavaRegEx": "^[^\\s*?%]{3,30}$",
       "user_store.properties.RolenameJavaRegEx": "^[\\S]{3,30}$",
       "user_store.properties.CaseInsensitiveUsername": true,
       "user_store.properties.SCIMEnabled": true,
@@ -30,6 +30,8 @@
       "user_store.properties.StoreSaltedPassword": true,
       "user_store.properties.UserRolesCacheEnabled": true,
       "user_store.properties.UserNameUniqueAcrossTenants": false,
+      "user_store.properties.StoreUserAttributeValueAsUnicode": false,
+      "user_store.properties.GroupIDEnabled": true,
       "tenant_mgt.tenant_manager.type": "jdbc"
     },
     "read_only_ldap": {
@@ -84,7 +86,11 @@
       "user_store.properties.ConnectionRetryDelay": "2m",
       "user_store.properties.UserIDAttribute": "scimId",
       "user_store.properties.UserIdSearchFilter": "(&amp;(objectClass=person)(uid=?))",
-      "user_store.properties.CaseInsensitiveUsername": true
+      "user_store.properties.CaseInsensitiveUsername": true,
+      "user_store.properties.GroupIDEnabled": true,
+      "user_store.properties.GroupIdAttribute": "entryUUID",
+      "user_store.properties.GroupLastModifiedDateAttribute": "modifyTimestamp",
+      "user_store.properties.GroupCreatedDateAttribute": "createTimestamp"
     },
     "read_write_ldap": {
       "user_store.class": "org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager",
@@ -154,7 +160,11 @@
       "user_store.properties.ConnectionRetryDelay": "2m",
       "user_store.properties.UserIDAttribute": "scimId",
       "user_store.properties.UserIdSearchFilter": "(&amp;(objectClass=person)(uid=?))",
-      "user_store.properties.CaseInsensitiveUsername": true
+      "user_store.properties.CaseInsensitiveUsername": true,
+      "user_store.properties.GroupIDEnabled": true,
+      "user_store.properties.GroupIdAttribute": "entryUUID",
+      "user_store.properties.GroupLastModifiedDateAttribute": "modifyTimestamp",
+      "user_store.properties.GroupCreatedDateAttribute": "createTimestamp"
     },
     "active_directory": {
       "user_store.class": "org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager",
@@ -236,7 +246,11 @@
       "user_store.properties.'java.naming.ldap.attributes.binary'": "objectGuid",
       "user_store.properties.ImmutableAttributes": "objectGuid",
       "user_store.properties.UserIdSearchFilter": "(&amp;(objectClass=person)(uid=?))",
-      "user_store.properties.CaseInsensitiveUsername": true
+      "user_store.properties.CaseInsensitiveUsername": true,
+      "user_store.properties.GroupIDEnabled": true,
+      "user_store.properties.GroupIdAttribute": "objectGUID",
+      "user_store.properties.GroupLastModifiedDateAttribute": "whenCreated",
+      "user_store.properties.GroupCreatedDateAttribute": "whenChanged"
     }
   },
   "database.$1.type": {
@@ -262,7 +276,7 @@
     },
     "db2": {
       "database.$1.driver": "com.ibm.db2.jcc.DB2Driver",
-      "database.$1.url": "jdbc:db2://$ref{database.$1.hostname}:$ref{database.$1.port}/$ref{database.$1.name}",
+      "database.$1.url": "jdbc:db2://$ref{database.$1.hostname}:$ref{database.$1.port}/$ref{database.$1.name}:progressiveStreaming=2;",
       "database.$1.validationQuery": "SELECT 1 FROM sysibm.sysdummy1"
     },
     "postgre": {

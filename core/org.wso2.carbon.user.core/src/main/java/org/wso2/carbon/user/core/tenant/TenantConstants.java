@@ -1,21 +1,21 @@
 /*
- *  Copyright (c) 2005-2008, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2005-2024, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package org.wso2.carbon.user.core.tenant;
 
 public class TenantConstants {
@@ -42,6 +42,8 @@ public class TenantConstants {
     public static final String UPDATE_TENANT_CONFIG_SQL = "UPDATE UM_TENANT SET UM_USER_CONFIG=? WHERE UM_ID=?";
     public static final String UPDATE_TENANT_SQL = "UPDATE UM_TENANT SET UM_DOMAIN_NAME=?, UM_EMAIL=?," +
             " UM_CREATED_DATE=? WHERE UM_ID=?";
+    public static final String UPDATE_TENANT_WITH_ASSOCIATE_UUID_SQL = "UPDATE UM_TENANT SET UM_DOMAIN_NAME=?, " +
+            "UM_EMAIL=?, UM_CREATED_DATE=?, UM_ORG_UUID=? WHERE UM_ID=?";
     public static final String GET_TENANT_SQL = "SELECT * FROM UM_TENANT WHERE UM_ID=?";
     public static final String GET_TENANT_BY_UUID_SQL = "SELECT UM_ID, UM_DOMAIN_NAME, UM_EMAIL, " +
             "UM_CREATED_DATE, UM_ACTIVE, UM_CREATED_DATE, UM_USER_CONFIG, UM_TENANT_UUID FROM UM_TENANT WHERE " +
@@ -52,19 +54,24 @@ public class TenantConstants {
             "UM_TENANT_UUID=?";
     public static final String GET_ALL_TENANTS_SQL = "SELECT UM_ID, UM_DOMAIN_NAME, UM_EMAIL, " +
             "UM_CREATED_DATE, UM_ACTIVE FROM UM_TENANT ORDER BY UM_ID";
+    public static final String GET_ALL_TENANTS_EXCEPT_ORGANIZATIONS_SQL = "SELECT UM_ID, UM_DOMAIN_NAME, UM_EMAIL, " +
+            "UM_CREATED_DATE, UM_ACTIVE FROM UM_TENANT WHERE UM_ORG_UUID IS NULL OR UM_ORG_UUID IN " +
+            "(SELECT UM_ID FROM UM_ORG WHERE UM_PARENT_ID IS NULL) ORDER BY UM_ID";
     public static final String LIST_TENANTS_COUNT_SQL = "SELECT COUNT(*) FROM UM_TENANT";
     public static final String LIST_TENANTS_PAGINATED_SQL = "SELECT UM_ID, UM_DOMAIN_NAME, UM_EMAIL, " +
-            "UM_CREATED_DATE, UM_ACTIVE, UM_USER_CONFIG, UM_TENANT_UUID FROM UM_TENANT ";
+            "UM_CREATED_DATE, UM_ACTIVE, UM_USER_CONFIG, UM_TENANT_UUID FROM UM_TENANT WHERE UM_ORG_UUID IN " +
+            "(SELECT UM_ID FROM UM_ORG WHERE UM_PARENT_ID IS NULL) ";
     public static final String LIST_TENANTS_PAGINATED_ORACLE = "SELECT UM_ID, UM_DOMAIN_NAME, UM_EMAIL, " +
             "UM_CREATED_DATE, UM_ACTIVE, UM_USER_CONFIG, UM_TENANT_UUID FROM (SELECT UM_ID, UM_DOMAIN_NAME, UM_EMAIL, " +
             "UM_CREATED_DATE, UM_ACTIVE, UM_USER_CONFIG, UM_TENANT_UUID, rownum AS rnum FROM (SELECT UM_ID, " +
-            "UM_DOMAIN_NAME, UM_EMAIL, UM_CREATED_DATE, UM_ACTIVE, UM_USER_CONFIG, UM_TENANT_UUID FROM UM_TENANT ";
+            "UM_DOMAIN_NAME, UM_EMAIL, UM_CREATED_DATE, UM_ACTIVE, UM_USER_CONFIG, UM_TENANT_UUID FROM UM_TENANT WHERE " +
+            "UM_ORG_UUID IN (SELECT UM_ID FROM UM_ORG WHERE UM_PARENT_ID IS NULL) ";
     public static final String LIST_TENANTS_PAGINATED_DB2 = "SELECT UM_ID, UM_DOMAIN_NAME, UM_EMAIL, " +
             "UM_CREATED_DATE, UM_ACTIVE, UM_USER_CONFIG, UM_TENANT_UUID FROM (SELECT ROW_NUMBER() OVER";
     public static final String LIST_TENANTS_MYSQL_TAIL = "ORDER BY %s LIMIT ?, ?";
     public static final String LIST_TENANTS_POSTGRESQL_TAIL = "ORDER BY %s LIMIT ? OFFSET ?";
-    public static final String LIST_TENANTS_DB2_TAIL = "(ORDER BY %s) AS rn,UM_TENANT.* FROM UM_TENANT)" +
-            "WHERE rn BETWEEN ? AND ?";
+    public static final String LIST_TENANTS_DB2_TAIL = "(ORDER BY %s) AS rn,UM_TENANT.* FROM UM_TENANT WHERE " +
+            "UM_ORG_UUID IN (SELECT UM_ID FROM UM_ORG WHERE UM_PARENT_ID IS NULL) ) WHERE rn BETWEEN ? AND ?";
     public static final String LIST_TENANTS_MSSQL_TAIL = "ORDER BY %s OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
     public static final String LIST_TENANTS_ORACLE_TAIL = "ORDER BY %s) WHERE rownum <= ?) WHERE rnum > ?";
     public static final String GET_DOMAIN_SQL = "SELECT UM_DOMAIN_NAME FROM UM_TENANT WHERE UM_ID=?";

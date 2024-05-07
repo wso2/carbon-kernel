@@ -35,14 +35,19 @@ public class IterativeUserStoreManager extends AbstractUserStoreManager {
     AbstractUserStoreManager abstractUserStoreManager;
     private IterativeUserStoreManager nextUserStoreManager;
 
-    public IterativeUserStoreManager(AbstractUserStoreManager abstractUserStoreManager) {
+    public IterativeUserStoreManager(AbstractUserStoreManager abstractUserStoreManager) throws UserStoreException {
         this.abstractUserStoreManager = abstractUserStoreManager;
+        this.claimManager = abstractUserStoreManager.getClaimManager();
+        this.realmConfig = abstractUserStoreManager.getRealmConfiguration();
+        this.tenantId = abstractUserStoreManager.getTenantId();
+        this.userStoreManagerHolder = abstractUserStoreManager.getUserStoreManagerHolder();
+        this.userUniqueIDDomainResolver = abstractUserStoreManager.getUserUniqueIDDomainResolver();
     }
 
     /**
      * Set the next user store manager to create the ordered user store chain.
      */
-    public void setNextUserStoreManager(AbstractUserStoreManager nextUserStoreManager) {
+    public void setNextUserStoreManager(AbstractUserStoreManager nextUserStoreManager) throws UserStoreException {
         if (nextUserStoreManager instanceof IterativeUserStoreManager) {
             this.nextUserStoreManager = (IterativeUserStoreManager) nextUserStoreManager;
         } else {

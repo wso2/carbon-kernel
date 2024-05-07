@@ -108,6 +108,10 @@ public class CarbonUtils {
     private static boolean isServerConfigInitialized;
     private static Log audit = CarbonConstants.AUDIT_LOG;
     private static Gson gson = new Gson();
+    private static CarbonConstants.DiagnosticLogMode diagnosticLogMode;
+    private static final List<String> allowedDeployers = new ArrayList<String>() {{
+        add("org.apache.axis2.deployment.ServiceDeployer");
+    }};
 
     public static boolean isAdminConsoleEnabled() {
         boolean enableAdminConsole = false;
@@ -1266,9 +1270,12 @@ public class CarbonUtils {
     public static Deployer getDeployer(String className) throws CarbonException {
         Deployer deployer;
         try {
-            Class deployerClass = Class.forName(className);
-            deployer = (Deployer) deployerClass.newInstance();
-
+            if (allowedDeployers.contains(className)) {
+                Class deployerClass = Class.forName(className);
+                deployer = (Deployer) deployerClass.newInstance();
+            } else {
+                throw new CarbonException("Invalid deployer class found " + className);
+            }
         } catch (ClassNotFoundException e) {
             throw new CarbonException("Deployer class not found ", e);
         } catch (InstantiationException e) {
@@ -1403,17 +1410,7 @@ public class CarbonUtils {
     public static CarbonConstants.DiagnosticLogMode getDiagnosticLogMode(int tenantId) {
 
         //TODO: implement the logic to read a tenant-wise config.
-        String diagnosticLogMode = readDiagnosticLogMode();
-        try {
-            if (StringUtils.isNotEmpty(diagnosticLogMode)) {
-                return CarbonConstants.DiagnosticLogMode.valueOf(diagnosticLogMode.toUpperCase());
-            }
-        } catch (IllegalArgumentException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Invalid value in 'DiagnosticLogMode' configuration in carbon.xml", e);
-            }
-        }
-        return CarbonConstants.DiagnosticLogMode.NONE;
+        return CarbonUtils.readDiagnosticLogMode();
     }
 
     /**
@@ -1429,16 +1426,36 @@ public class CarbonUtils {
 
     /**
      * Retrieves the 'DiagnosticLogMode' from the ServerConfiguration and process it before returning.
+     */
+    public static void setDiagnosticLogMode(int tenantId) {
+
+        //TODO: implement the logic to set a tenant-wise config.
+        String diagnosticLogMode = ServerConfiguration.getInstance().getFirstProperty("DiagnosticLogMode");
+        try {
+            if (StringUtils.isNotEmpty(diagnosticLogMode)) {
+                diagnosticLogMode = diagnosticLogMode.trim();
+                CarbonUtils.diagnosticLogMode =
+                        CarbonConstants.DiagnosticLogMode.valueOf(diagnosticLogMode.toUpperCase());
+            } else {
+                CarbonUtils.diagnosticLogMode = CarbonConstants.DiagnosticLogMode.NONE;
+            }
+        } catch (IllegalArgumentException e) {
+            CarbonUtils.diagnosticLogMode = CarbonConstants.DiagnosticLogMode.NONE;
+            if (log.isDebugEnabled()) {
+                log.debug("Invalid value in 'DiagnosticLogMode' configuration in carbon.xml", e);
+            }
+        }
+
+    }
+
+    /**
+     * Retrieves the 'DiagnosticLogMode' from the cached ServerConfiguration.
      *
      * @return the DiagnosticLogMode.
      */
-    private static String readDiagnosticLogMode() {
+    public static CarbonConstants.DiagnosticLogMode readDiagnosticLogMode() {
 
-        String diagnosticLogMode = ServerConfiguration.getInstance().getFirstProperty("DiagnosticLogMode");
-        if (StringUtils.isNotEmpty(diagnosticLogMode)) {
-            diagnosticLogMode = diagnosticLogMode.trim();
-        }
-        return diagnosticLogMode;
+        return CarbonUtils.diagnosticLogMode;
     }
 
     /**
@@ -1490,5 +1507,44 @@ public class CarbonUtils {
         });
         builder.append(StringUtils.join(inputs.iterator(), ", ")).append(" }");
         return builder.toString();
+    }
+
+    /**
+     * Function to extract InputValidationEnabled configuration from carbon.xml.
+     * <pre>
+     * {@code
+     *   <InputValidationEnabled>true</InputValidationEnabled>
+     * }
+     * </pre>
+     *
+     * @return isInputValidationEnabled.
+     */
+    public static boolean isInputValidationEnabled() {
+
+        String isInputValidationEnabledConfig = ServerConfiguration.getInstance().
+                getFirstProperty("InputValidationEnabled");
+
+        return isInputValidationEnabledConfig == null || Boolean.parseBoolean(isInputValidationEnabledConfig);
+    }
+
+    /**
+     * Function to extract ManagementConsoleDeprecationBannerEnabled configuration from carbon.xml.
+     * <pre>
+     * {@code
+     *   <ManagementConsoleDeprecationBannerEnabled>true</ManagementConsoleDeprecationBannerEnabled>
+     * }
+     * </pre>
+     *
+     * @return isManagementConsoleBannerEnabled.
+     */
+    public static boolean isManagementConsoleBannerEnabled() {
+
+        boolean isManagementConsoleBannerEnabled = false;
+        String isManagementConsoleBannerEnabledConfig = ServerConfiguration.getInstance().
+                getFirstProperty("ManagementConsoleDeprecationBannerEnabled");
+        if (isManagementConsoleBannerEnabledConfig != null) {
+            isManagementConsoleBannerEnabled = Boolean.parseBoolean(isManagementConsoleBannerEnabledConfig);
+        }
+        return isManagementConsoleBannerEnabled;
     }
 }

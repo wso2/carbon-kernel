@@ -34,7 +34,7 @@ public class BaseTestCase extends TestCase {
     protected InputStream is;
 
     public void setUp() {
-        setupCarbonHome();
+        setupCarbonHomeForGroupIdDisabledScenarios();
         setupContext();
     }
 
@@ -67,6 +67,19 @@ public class BaseTestCase extends TestCase {
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain("foo.com");
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(1);
     }
+
+    protected void setupCarbonHomeForGroupIdDisabledScenarios() {
+
+        File file = new File("src/test/resources");
+        if (file.exists()) {
+            System.setProperty("carbon.home", file.getAbsolutePath());
+        }
+        // The line below is responsible for initializing the cache.
+        CarbonContext.getThreadLocalCarbonContext();
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain("foo.com");
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(1);
+    }
+
 
     public class RealmUnawareRegistryCoreServiceComponent extends
             RegistryCoreServiceComponent {

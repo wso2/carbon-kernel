@@ -48,6 +48,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import static org.wso2.carbon.utils.CarbonUtils.isInputValidationEnabled;
 import static org.wso2.carbon.utils.CarbonUtils.isLegacyAuditLogsDisabled;
 
 /**
@@ -74,7 +75,7 @@ public class AuthenticationAdmin implements CarbonServerAuthenticator {
                 return false;
             }
 
-            String tenantDomain = MultitenantUtils.getTenantDomain(username);
+            String tenantDomain = getTenantDomain(username);
 
             if (remoteAddress != null) {
                 AuthenticationUtil.validateRemoteAddress(remoteAddress);
@@ -92,7 +93,7 @@ public class AuthenticationAdmin implements CarbonServerAuthenticator {
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setTenantDomain(tenantDomain);
             carbonContext.setTenantId(tenantId);
-            username = MultitenantUtils.getTenantAwareUsername(username);
+            username = getTenantAwareUsername(username);
             UserRealm realm = AnonymousSessionUtil.getRealmByTenantDomain(registryService,
                     realmService, tenantDomain);
 
@@ -144,6 +145,33 @@ public class AuthenticationAdmin implements CarbonServerAuthenticator {
         }
     }
 
+    private String getTenantAwareUsername(String username) {
+
+        if (isInputValidationEnabled()) {
+            // If input validation is enabled, email type username should be tenant qualified username.
+            if (username.contains("@")) {
+                username = username.substring(0, username.lastIndexOf('@'));
+            }
+            return username;
+        }
+        return MultitenantUtils.getTenantAwareUsername(username);
+    }
+
+    private String getTenantDomain(String username) {
+
+        if (isInputValidationEnabled()) {
+            if (!username.contains("@")) {
+                // Should be super tenant alphanumeric username.
+                return MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+            }
+            // If input validation is enabled, email type username should be tenant qualified username.
+            // sub tenant alpha numeric user names also tenant qualified username.
+            // Hence sub string after "@" will be tenant domain.
+            return username.substring(username.lastIndexOf('@') + 1);
+        }
+        return MultitenantUtils.getTenantDomain(username);
+    }
+
 
     public RememberMeData loginWithRememberMeOption(String username, String password, String remoteAddress)
             throws AuthenticationException {
@@ -156,10 +184,10 @@ public class AuthenticationAdmin implements CarbonServerAuthenticator {
                 data.setMaxAge(CarbonConstants.REMEMBER_ME_COOKIE_TTL);
                 data.setValue(username + "-" + uuid);
                 RealmService realmService = CarbonServicesServiceComponent.getRealmService();
-                String tenantDomain = MultitenantUtils.getTenantDomain(username);
+                String tenantDomain = getTenantDomain(username);
                 int tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
                 UserRealm realm = realmService.getTenantUserRealm(tenantId);
-                realm.getUserStoreManager().addRememberMe(MultitenantUtils.getTenantAwareUsername(username), uuid);
+                realm.getUserStoreManager().addRememberMe(getTenantAwareUsername(username), uuid);
                 data.setAuthenticated(true);
             }
         } catch (Exception e) {
@@ -328,11 +356,11 @@ public class AuthenticationAdmin implements CarbonServerAuthenticator {
             }
             
             String userNameWithTenant = cookie.substring(0, index);
-            String tenantDomain = MultitenantUtils.getTenantDomain(userNameWithTenant);
+            String tenantDomain = getTenantDomain(userNameWithTenant);
             int tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
             handleAuthenticationStarted(tenantId);
 
-            String userName = MultitenantUtils.getTenantAwareUsername(userNameWithTenant);
+            String userName = getTenantAwareUsername(userNameWithTenant);
             String uuid = cookie.substring(index + 1);
             UserRealm realm = realmService.getTenantUserRealm(tenantId);
             

@@ -30,6 +30,9 @@ import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.PASSWORD;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.STRING;
 
+/**
+ * This class contains the constants related to the Read Write LDAP User Store Manager.
+ */
 public class ReadWriteLDAPUserStoreConstants {
 
     //Properties for Read Write LDAP User Store Manager
@@ -84,12 +87,18 @@ public class ReadWriteLDAPUserStoreConstants {
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdAttribute,
                 UserStoreConfigConstants.userIdAttributeName, "scimId",
-                UserStoreConfigConstants.userIdAttributeDescription,false,
+                UserStoreConfigConstants.userIdAttributeDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdSearchFilter,
                 UserStoreConfigConstants.userIdSearchFilterAttributeName, "(&(objectClass=person)(scimId=?))",
                 UserStoreConfigConstants.userIdSearchFilterDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
+
+        // Only for unique id supported user store managers.
+        setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_DISPLAY_NAME, LDAPConstants.DEFAULT_GROUP_ID_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_DESCRIPTION, false,
+                new Property[]{GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty()});
 
         setProperty(UserStoreConfigConstants.userDNPattern, "User DN Pattern", "",
                 UserStoreConfigConstants.userDNPatternDescription,
@@ -140,7 +149,7 @@ public class ReadWriteLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.usernameJavaRegEx, "Username RegEx (Java)", "[a-zA-Z0-9._-|//]{3,30}$",
                 UserStoreConfigConstants.usernameJavaRegExDescription,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        setProperty(UserStoreConfigConstants.usernameJavaScriptRegEx, "Username RegEx (Javascript)", "^[\\S]{3,30}$",
+        setProperty(UserStoreConfigConstants.usernameJavaScriptRegEx, "Username RegEx (Javascript)", "[a-zA-Z0-9._-|//]{3,30}$",
                 UserStoreConfigConstants.usernameJavaRegExDescription,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setProperty(usernameJavaRegExViolationErrorMsg, "Username RegEx Violation Error Message",
@@ -169,7 +178,10 @@ public class ReadWriteLDAPUserStoreConstants {
                 "", UserStoreConfigConstants.dateAndTimePatternDescription,
                 new Property[]{CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty()});
         setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "true",
-                UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION,
+                UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION, null);
+        setProperty(UserStoreConfigConstants.USE_CASE_SENSITIVE_USERNAME_FOR_CACHE_KEYS,
+                "Use Case Sensitive Username for Cache Keys", "true",
+                UserStoreConfigConstants.USE_CASE_SENSITIVE_USERNAME_FOR_CACHE_KEYS_DESCRIPTION,
                 new Property[] { USER.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
     }
 

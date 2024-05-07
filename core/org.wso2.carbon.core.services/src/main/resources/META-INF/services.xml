@@ -72,7 +72,6 @@
         <parameter name="ServiceClass" locked="true">
             org.wso2.carbon.core.services.filedownload.FileDownloadService
         </parameter>
-        <parameter name="DoAuthentication" locked="true">false</parameter>
 
         <parameter name="adminService" locked="true">true</parameter>
         <parameter name="hiddenService" locked="true">true</parameter>

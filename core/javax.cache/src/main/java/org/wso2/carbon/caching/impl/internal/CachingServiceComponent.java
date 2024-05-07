@@ -35,6 +35,7 @@ import org.wso2.carbon.caching.impl.clustering.ClusterCacheInvalidationRequestSe
 import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
+import javax.cache.CacheInvalidationRequestPropagator;
 import javax.cache.CacheInvalidationRequestSender;
 import javax.cache.event.CacheEntryListener;
 
@@ -117,5 +118,19 @@ public class CachingServiceComponent {
     protected void removeCacheInvalidationRequestSender(CacheInvalidationRequestSender cacheInvalidationRequestSender) {
 
         dataHolder.removeCacheInvalidationRequestSender(cacheInvalidationRequestSender.getClass().getName());
+    }
+
+    @Reference(name = "cache.invalidation.request.propagator.service", cardinality = ReferenceCardinality.MULTIPLE, policy =
+            ReferencePolicy.DYNAMIC, unbind = "removeCacheInvalidationRequestPropagator")
+    protected void addCacheInvalidationRequestPropagator(
+            CacheInvalidationRequestPropagator cacheInvalidationRequestPropagator) {
+
+        dataHolder.addCacheInvalidationRequestPropagator(cacheInvalidationRequestPropagator);
+    }
+
+    protected void removeCacheInvalidationRequestPropagator(
+            CacheInvalidationRequestPropagator cacheInvalidationRequestPropagator) {
+
+        dataHolder.removeCacheInvalidationRequestPropagator(cacheInvalidationRequestPropagator);
     }
 }

@@ -44,7 +44,7 @@ public class PermissionTest extends BaseTestCase {
     private static final String EVERYONE_ROLE = "Internal/everyone";
 
     public void setUp() throws Exception {
-        super.setUp();
+        super.setUpForGroupIdDisabledScenarios();
     }
 
     public void testStuff() throws Exception {

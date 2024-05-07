@@ -224,16 +224,16 @@
         <parameter name="non-blocking" locked="false">true</parameter>
         <parameter name="keystore" locked="false">
             <KeyStore>
-                <Location>repository/resources/security/wso2carbon.jks</Location>
-                <Type>JKS</Type>
+                <Location>repository/resources/security/wso2carbon.p12</Location>
+                <Type>PKCS12</Type>
                 <Password>wso2carbon</Password>
                 <KeyPassword>wso2carbon</KeyPassword>
             </KeyStore>
         </parameter>
         <parameter name="truststore" locked="false">
             <TrustStore>
-                <Location>repository/resources/security/client-truststore.jks</Location>
-                <Type>JKS</Type>
+                <Location>repository/resources/security/client-truststore.p12</Location>
+                <Type>PKCS12</Type>
                 <Password>wso2carbon</Password>
             </TrustStore>
         </parameter>
@@ -400,16 +400,16 @@
         <parameter name="non-blocking" locked="false">true</parameter>
         <parameter name="keystore" locked="false">
             <KeyStore>
-                <Location>repository/resources/security/wso2carbon.jks</Location>
-                <Type>JKS</Type>
+                <Location>repository/resources/security/wso2carbon.p12</Location>
+                <Type>PKCS12</Type>
                 <Password>wso2carbon</Password>
                 <KeyPassword>wso2carbon</KeyPassword>
             </KeyStore>
         </parameter>
         <parameter name="truststore" locked="false">
             <TrustStore>
-                <Location>repository/resources/security/client-truststore.jks</Location>
-                <Type>JKS</Type>
+                <Location>repository/resources/security/client-truststore.p12</Location>
+                <Type>PKCS12</Type>
                 <Password>wso2carbon</Password>
             </TrustStore>
         </parameter>
@@ -572,7 +572,7 @@
         <phase name="StatReporting"/>
     </phaseOrder>
 
-    <clustering class="org.wso2.carbon.core.clustering.hazelcast.HazelcastClusteringAgent"
+    <clustering class="{{clustering.agent}}"
                 enable="{{clustering.membership_scheme is defined}}">
 
         <!--
@@ -695,7 +695,7 @@
         <groupManagement enable="false">
             <applicationDomain name="wso2.as.domain"
                                description="AS group"
-                               agent="org.wso2.carbon.core.clustering.hazelcast.HazelcastGroupManagementAgent"
+                               agent="org.wso2.carbon.hazelcast.HazelcastGroupManagementAgent"
                                subDomain="worker"
                                port="2222"/>
         </groupManagement>

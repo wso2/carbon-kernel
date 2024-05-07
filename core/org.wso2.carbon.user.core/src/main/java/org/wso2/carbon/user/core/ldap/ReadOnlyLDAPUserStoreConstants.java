@@ -31,6 +31,9 @@ import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.STRING;
 import static org.wso2.carbon.user.core.ldap.LDAPConstants.DEFAULT_LDAP_TIME_FORMATS_PATTERN;
 
+/**
+ * This class contains the constants related to the Read Only LDAP User Store Manager.
+ */
 public class ReadOnlyLDAPUserStoreConstants {
 
     //Properties for Read Write LDAP User Store Manager
@@ -40,7 +43,8 @@ public class ReadOnlyLDAPUserStoreConstants {
 
     //For multiple attribute separation
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
-    private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim values";
+    private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION
+            = "This is the separator for multiple claim values";
     private static final String DisplayNameAttributeDescription = "Attribute name to display as the Display Name";
     private static final String DisplayNameAttribute = "DisplayNameAttribute";
     private static final String roleDNPattern = "RoleDNPattern";
@@ -72,18 +76,14 @@ public class ReadOnlyLDAPUserStoreConstants {
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdAttribute,
                 UserStoreConfigConstants.userIdAttributeName, "scimId",
-                UserStoreConfigConstants.userIdAttributeDescription,false,
+                UserStoreConfigConstants.userIdAttributeDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdSearchFilter,
                 UserStoreConfigConstants.userIdSearchFilterAttributeName, "(&(objectClass=person)(scimId=?))",
                 UserStoreConfigConstants.userIdSearchFilterDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
 
-        // Group Id Related Userstore Configurations - By default this will be disabled.
-        setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.GROUP_ID_ENABLED,
-                UserStoreConfigConstants.GROUP_ID_ENABLED_DISPLAY_NAME, Boolean.toString(false),
-                UserStoreConfigConstants.GROUP_ID_ENABLED_DESCRIPTION, false,
-                new Property[]{GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty()});
+        // Only for unique id supported user store managers.
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE,
                 UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_DISPLAY_NAME, LDAPConstants.DEFAULT_GROUP_ID_ATTRIBUTE,
                 UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_DESCRIPTION, false,
@@ -111,16 +111,6 @@ public class ReadOnlyLDAPUserStoreConstants {
                 new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setProperty(UserStoreConfigConstants.groupNameListFilter, "Group List Filter", "(objectClass=groupOfNames)",
                 UserStoreConfigConstants.groupNameListFilterDescription,
-                new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        setProperty(UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE,
-                UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE_DISPLAY_NAME,
-                LDAPConstants.DEFAULT_GROUP_CREATED_DATE_ATTRIBUTE,
-                UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE_DESCRIPTION,
-                new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        setProperty(UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE,
-                UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE_DISPLAY_NAME,
-                LDAPConstants.DEFAULT_GROUP_LAST_MODIFIED_DATE_ATTRIBUTE,
-                UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE_DESCRIPTION,
                 new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
 
         setProperty(roleDNPattern, "Group DN Pattern", "", roleDNPatternDescription,
@@ -151,7 +141,13 @@ public class ReadOnlyLDAPUserStoreConstants {
                 DEFAULT_LDAP_TIME_FORMATS_PATTERN, UserStoreConfigConstants.dateAndTimePatternDescription,
                 new Property[]{CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty()});
         setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "true",
-                UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION,
+                UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION, null);  
+        setProperty(UserStoreConfigConstants.USE_CASE_SENSITIVE_USERNAME_FOR_CACHE_KEYS,
+                "Use Case Sensitive Username for Cache Keys", "true",
+                UserStoreConfigConstants.USE_CASE_SENSITIVE_USERNAME_FOR_CACHE_KEYS_DESCRIPTION,
+                new Property[] { USER.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
+
+        setProperty("ReadOnly", "", "true", "",
                 new Property[] { USER.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
     }
 

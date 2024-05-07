@@ -31,7 +31,7 @@ public class AdvancedHybridRoleManagerTest extends BaseTestCase {
     private HybridRoleManager hybridRoleMan;
 
     public void setUp() throws Exception {
-        super.setUp();
+        super.setUpForGroupIdDisabledScenarios();
     }
 
     

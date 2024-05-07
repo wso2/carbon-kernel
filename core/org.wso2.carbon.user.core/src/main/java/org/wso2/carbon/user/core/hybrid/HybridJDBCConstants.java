@@ -1,31 +1,53 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2005-2024, WSO2 LLC. (http://www.wso2.com).
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.user.core.hybrid;
 
 public class HybridJDBCConstants {
 
     public static final String GET_ROLE_LIST_OF_USER = "GetRoleListOfInternalUserSQL";
+    public static final String GET_ROLE_V2_LIST_OF_USER = "GetRoleV2ListOfInternalUserSQL";
     public static final String GET_IS_ROLE_EXIST_LIST_OF_USER = "GetIsRoleExistFromRoleListOfInternalUserSQL";
+    public static final String GET_IS_ROLE_V2_EXIST_LIST_OF_USER = "GetIsRoleV2ExistFromRoleListOfInternalUserSQL";
 
     public static final String GET_ROLE_LIST_OF_USERS = "GetRoleListOfInternalUsersSQL";
+    public static final String GET_ROLE_V2_LIST_OF_USERS = "GetRoleListOfInternalUsersSQL";
     public static final String GET_ROLE_LIST_OF_GROUPS = "GetInternalRoleListOfGroupsSQL";
+    public static final String GET_ROLE_V2_LIST_OF_GROUPS = "GetInternalRoleV2ListOfGroupsSQL";
 
     public static final String ADD_ROLE_SQL = "INSERT INTO UM_HYBRID_ROLE (UM_ROLE_NAME, UM_TENANT_ID) VALUES (?, ?)";
+    public static final String ADD_ROLE_V2_SQL = "INSERT INTO UM_HYBRID_ROLE (UM_ROLE_NAME, UM_TENANT_ID, " +
+            "UM_AUDIENCE_REF_ID, UM_UUID) VALUES (?, ?, ?, ?)";
+    public static final String ADD_ROLE_V2_AUDIENCE_SQL = "INSERT INTO UM_HYBRID_ROLE_AUDIENCE (UM_AUDIENCE," +
+            "UM_AUDIENCE_ID) VALUES ('organization', ?)";
+    public static final String GET_ROLE_V2_AUDIENCE_SQL = "SELECT UM_ID FROM UM_HYBRID_ROLE_AUDIENCE WHERE UM_AUDIENCE " +
+            "='organization' AND UM_AUDIENCE_ID=?";
+    public static final String ADD_USER_TO_ROLE_V2_SQL= "INSERT INTO UM_HYBRID_USER_ROLE (UM_USER_NAME, UM_ROLE_ID, " +
+            "UM_TENANT_ID, UM_DOMAIN_ID) VALUES (?,(SELECT UM_ID FROM UM_HYBRID_ROLE WHERE UM_ROLE_NAME=? AND " +
+            "UM_TENANT_ID=? AND UM_AUDIENCE_REF_ID=?), ?, " +
+            "(SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_TENANT_ID=? AND UM_DOMAIN_NAME=?))";
+    public static final String ADD_USER_TO_ROLE_V2_SQL_MSSQL = "INSERT INTO UM_HYBRID_USER_ROLE (UM_USER_NAME, " +
+            "UM_ROLE_ID, UM_TENANT_ID,  UM_DOMAIN_ID) SELECT (?),(SELECT UM_ID FROM UM_HYBRID_ROLE WHERE " +
+            "UM_ROLE_NAME=? AND UM_TENANT_ID=? AND UM_AUDIENCE_REF_ID=?), (?), (SELECT UM_DOMAIN_ID FROM UM_DOMAIN " +
+            "WHERE UM_TENANT_ID=? AND UM_DOMAIN_NAME=?)";
+    public static final String ADD_USER_TO_ROLE_V2_SQL_OPENEDGE = "INSERT INTO UM_HYBRID_USER_ROLE " +
+            "(UM_USER_NAME, UM_ROLE_ID, UM_TENANT_ID) SELECT ?, UM_ID, ? FROM UM_HYBRID_ROLE WHERE UM_ROLE_NAME=? " +
+            "AND UM_TENANT_ID=? AND UM_AUDIENCE_REF_ID=?";
     public static final String DELETE_ROLE_SQL = "DELETE FROM UM_HYBRID_ROLE WHERE UM_ROLE_NAME = ? AND UM_TENANT_ID=?";
     public static final String DELETE_ROLES_BY_TENANT_ID_SQL = "DELETE FROM UM_HYBRID_ROLE WHERE UM_TENANT_ID=?";
     public static final String ON_DELETE_ROLE_REMOVE_USER_ROLE_SQL = "DELETE FROM UM_HYBRID_USER_ROLE WHERE " +
@@ -92,12 +114,25 @@ public class HybridJDBCConstants {
 
     public static final String GET_ROLES =
             "SELECT UM_ROLE_NAME FROM UM_HYBRID_ROLE WHERE UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=?";
+
+    public static final String GET_ROLES_V2 =
+            "SELECT UM_ROLE_NAME FROM UM_HYBRID_ROLE INNER JOIN UM_HYBRID_ROLE_AUDIENCE ON " +
+                    "UM_HYBRID_ROLE.UM_AUDIENCE_REF_ID = UM_HYBRID_ROLE_AUDIENCE.UM_ID WHERE UM_ROLE_NAME LIKE ? " +
+                    "AND UM_TENANT_ID=?";
     public static final String GET_INTERNAL_ROLES =
             "SELECT UM_ROLE_NAME FROM UM_HYBRID_ROLE WHERE UM_ROLE_NAME LIKE ? AND NOT UM_ROLE_NAME LIKE ? AND " +
                     "UM_TENANT_ID=?";
+    public static final String GET_INTERNAL_ROLES_V2 =
+            "SELECT UM_ROLE_NAME FROM UM_HYBRID_ROLE INNER JOIN UM_HYBRID_ROLE_AUDIENCE ON " +
+                    "UM_HYBRID_ROLE.UM_AUDIENCE_REF_ID = UM_HYBRID_ROLE_AUDIENCE.UM_ID WHERE UM_ROLE_NAME LIKE ? " +
+                    "AND NOT UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=?";
     public static final String GET_INTERNAL_ROLES_DB2 =
             "SELECT UM_ROLE_NAME FROM UM_HYBRID_ROLE WHERE UM_ROLE_NAME LIKE ? AND NOT(UM_ROLE_NAME LIKE ?) AND " +
                     "UM_TENANT_ID=?";
+    public static final String GET_INTERNAL_ROLES_V2_DB2 =
+            "SELECT UM_ROLE_NAME FROM UM_HYBRID_ROLE INNER JOIN UM_HYBRID_ROLE_AUDIENCE ON " +
+                    "UM_HYBRID_ROLE.UM_AUDIENCE_REF_ID = UM_HYBRID_ROLE_AUDIENCE.UM_ID WHERE UM_ROLE_NAME LIKE ? AND " +
+                    "NOT(UM_ROLE_NAME LIKE ?) AND UM_TENANT_ID=?";
     public static final String GET_USER_LIST_OF_ROLE_SQL = "SELECT UM_USER_NAME, UM_DOMAIN_NAME FROM UM_HYBRID_USER_ROLE, UM_DOMAIN WHERE " +
             "UM_ROLE_ID=(SELECT UM_ID FROM UM_HYBRID_ROLE WHERE UM_ROLE_NAME=? AND UM_TENANT_ID=?) AND UM_HYBRID_USER_ROLE.UM_TENANT_ID=? " +
             "AND UM_HYBRID_USER_ROLE.UM_DOMAIN_ID=UM_DOMAIN.UM_DOMAIN_ID";
@@ -111,9 +146,22 @@ public class HybridJDBCConstants {
             "UM_HYBRID_ROLE WHERE UM_USER_NAME=? AND UM_HYBRID_USER_ROLE.UM_ROLE_ID=UM_HYBRID_ROLE.UM_ID AND " +
             "UM_HYBRID_USER_ROLE.UM_TENANT_ID=? AND UM_HYBRID_ROLE.UM_TENANT_ID=? AND UM_HYBRID_USER_ROLE.UM_DOMAIN_ID=(SELECT UM_DOMAIN_ID FROM UM_DOMAIN " +
             "WHERE UM_TENANT_ID=? AND UM_DOMAIN_NAME=?)";
+
+    public static final String GET_ROLE_V2_LIST_OF_USER_SQL = "SELECT UM_ROLE_NAME FROM UM_HYBRID_USER_ROLE, " +
+            "UM_HYBRID_ROLE, UM_HYBRID_ROLE_AUDIENCE WHERE UM_USER_NAME=? AND UM_HYBRID_USER_ROLE.UM_ROLE_ID=UM_HYBRID_ROLE.UM_ID AND " +
+            "UM_HYBRID_ROLE.UM_AUDIENCE_REF_ID = UM_HYBRID_ROLE_AUDIENCE.UM_ID AND UM_HYBRID_USER_ROLE.UM_TENANT_ID=? AND UM_HYBRID_ROLE.UM_TENANT_ID=? AND UM_HYBRID_USER_ROLE.UM_DOMAIN_ID=(SELECT UM_DOMAIN_ID FROM UM_DOMAIN " +
+            "WHERE UM_TENANT_ID=? AND UM_DOMAIN_NAME=?)";
+
     public static final String GET_ROLE_OF_USER_SQL = "SELECT UM_ROLE_NAME FROM UM_HYBRID_USER_ROLE, "
             + "UM_HYBRID_ROLE WHERE UM_USER_NAME=? AND UM_HYBRID_USER_ROLE.UM_ROLE_ID=UM_HYBRID_ROLE.UM_ID AND "
             + "UM_HYBRID_USER_ROLE.UM_TENANT_ID=? AND UM_HYBRID_ROLE.UM_TENANT_ID=? AND "
+            + "UM_HYBRID_USER_ROLE.UM_DOMAIN_ID=(SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_TENANT_ID=? AND "
+            + "UM_DOMAIN_NAME=?) AND UM_ROLE_NAME LIKE ?";
+
+    public static final String GET_ROLE_V2_OF_USER_SQL = "SELECT UM_ROLE_NAME FROM UM_HYBRID_USER_ROLE, "
+            + "UM_HYBRID_ROLE, UM_HYBRID_ROLE_AUDIENCE WHERE UM_USER_NAME=? AND UM_HYBRID_USER_ROLE.UM_ROLE_ID=UM_HYBRID_ROLE.UM_ID AND "
+            + "UM_HYBRID_USER_ROLE.UM_TENANT_ID=? AND UM_HYBRID_ROLE.UM_TENANT_ID=? AND " +
+            "UM_HYBRID_ROLE.UM_AUDIENCE_REF_ID = UM_HYBRID_ROLE_AUDIENCE.UM_ID AND "
             + "UM_HYBRID_USER_ROLE.UM_DOMAIN_ID=(SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_TENANT_ID=? AND "
             + "UM_DOMAIN_NAME=?) AND UM_ROLE_NAME LIKE ?";
 
@@ -123,16 +171,35 @@ public class HybridJDBCConstants {
             + "UM_HYBRID_USER_ROLE.UM_DOMAIN_ID=(SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_TENANT_ID=? AND "
             + "UM_DOMAIN_NAME=?) AND UM_ROLE_NAME=?";
 
+    public static final String GET_USER_ROLE_V2_NAME_SQL = "SELECT UM_ROLE_NAME FROM UM_HYBRID_USER_ROLE, "
+            + "UM_HYBRID_ROLE, UM_HYBRID_ROLE_AUDIENCE WHERE UM_USER_NAME=? AND UM_HYBRID_USER_ROLE.UM_ROLE_ID=UM_HYBRID_ROLE.UM_ID AND "
+            + "UM_HYBRID_USER_ROLE.UM_TENANT_ID=? AND UM_HYBRID_ROLE.UM_TENANT_ID=? AND UM_HYBRID_ROLE.UM_AUDIENCE_REF_ID = UM_HYBRID_ROLE_AUDIENCE.UM_ID AND "
+            + "UM_HYBRID_USER_ROLE.UM_DOMAIN_ID=(SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_TENANT_ID=? AND "
+            + "UM_DOMAIN_NAME=?) AND UM_ROLE_NAME=?";
+
     public static final String GET_INTERNAL_ROLE_LIST_OF_USERS_SQL = "SELECT UM_USER_NAME, UM_ROLE_NAME FROM "
             + "UM_HYBRID_USER_ROLE, UM_HYBRID_ROLE WHERE UM_USER_NAME IN (?) AND UM_HYBRID_USER_ROLE"
             + ".UM_ROLE_ID=UM_HYBRID_ROLE.UM_ID AND UM_HYBRID_USER_ROLE.UM_TENANT_ID=? AND UM_HYBRID_ROLE"
             + ".UM_TENANT_ID=? AND UM_HYBRID_USER_ROLE.UM_DOMAIN_ID=(SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE "
             + "UM_TENANT_ID=? AND UM_DOMAIN_NAME=?)";
 
+    public static final String GET_INTERNAL_ROLE_V2_LIST_OF_USERS_SQL = "SELECT UM_USER_NAME, UM_ROLE_NAME FROM "
+            + "UM_HYBRID_USER_ROLE, UM_HYBRID_ROLE, UM_HYBRID_ROLE_AUDIENCE WHERE UM_USER_NAME IN (?) AND UM_HYBRID_USER_ROLE"
+            + ".UM_ROLE_ID=UM_HYBRID_ROLE.UM_ID AND UM_HYBRID_USER_ROLE.UM_TENANT_ID=? AND UM_HYBRID_ROLE"
+            + ".UM_TENANT_ID=? AND UM_HYBRID_ROLE.UM_AUDIENCE_REF_ID = UM_HYBRID_ROLE_AUDIENCE.UM_ID AND UM_HYBRID_USER_ROLE.UM_DOMAIN_ID=(SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE "
+            + "UM_TENANT_ID=? AND UM_DOMAIN_NAME=?)";
+
     public static final String GET_INTERNAL_ROLE_LIST_OF_GROUPS_SQL = "SELECT UM_GROUP_NAME, UM_ROLE_NAME FROM "
             + "UM_HYBRID_GROUP_ROLE, UM_HYBRID_ROLE WHERE UM_GROUP_NAME IN (?) AND UM_HYBRID_GROUP_ROLE"
             + ".UM_ROLE_ID=UM_HYBRID_ROLE.UM_ID AND UM_HYBRID_GROUP_ROLE.UM_TENANT_ID=? AND UM_HYBRID_ROLE"
             + ".UM_TENANT_ID=? AND UM_HYBRID_GROUP_ROLE.UM_DOMAIN_ID=(SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE "
+            + "UM_TENANT_ID=? AND UM_DOMAIN_NAME=?)";
+
+    public static final String GET_INTERNAL_ROLE_V2_LIST_OF_GROUPS_SQL = "SELECT UM_GROUP_NAME, UM_ROLE_NAME FROM "
+            + "UM_HYBRID_GROUP_ROLE, UM_HYBRID_ROLE, UM_HYBRID_ROLE_AUDIENCE WHERE UM_GROUP_NAME IN (?) AND UM_HYBRID_GROUP_ROLE"
+            + ".UM_ROLE_ID=UM_HYBRID_ROLE.UM_ID AND UM_HYBRID_GROUP_ROLE.UM_TENANT_ID=? AND UM_HYBRID_ROLE"
+            + ".UM_TENANT_ID=? AND UM_HYBRID_ROLE.UM_AUDIENCE_REF_ID = UM_HYBRID_ROLE_AUDIENCE.UM_ID AND " +
+            "UM_HYBRID_GROUP_ROLE.UM_DOMAIN_ID=(SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE "
             + "UM_TENANT_ID=? AND UM_DOMAIN_NAME=?)";
 
     public static final String IS_USER_IN_ROLE_SQL = "SELECT UM_ROLE_ID FROM UM_HYBRID_USER_ROLE WHERE UM_USER_NAME=? " +
@@ -159,15 +226,39 @@ public class HybridJDBCConstants {
     public static final String COUNT_INTERNAL_ROLES_SQL = "SELECT COUNT(UM_ID) AS RESULT FROM UM_HYBRID_ROLE WHERE " +
             "UM_ROLE_NAME LIKE ? AND " + "UM_TENANT_ID = ?";
 
+    public static final String COUNT_INTERNAL_ROLES_V2_SQL = "SELECT COUNT(UM_HYBRID_ROLE.UM_ID) AS RESULT FROM " +
+            "UM_HYBRID_ROLE INNER JOIN UM_HYBRID_ROLE_AUDIENCE ON UM_HYBRID_ROLE.UM_AUDIENCE_REF_ID = UM_HYBRID_ROLE_AUDIENCE.UM_ID WHERE " +
+            "UM_ROLE_NAME LIKE ? AND " + "UM_TENANT_ID = ?";
+
     public static final String COUNT_INTERNAL_ONLY_ROLES_SQL = "SELECT COUNT(UM_ID) AS RESULT FROM UM_HYBRID_ROLE " +
             "WHERE UM_ROLE_NAME NOT LIKE 'Application%' AND UM_ROLE_NAME LIKE ? AND UM_TENANT_ID = ?";
 
+    public static final String COUNT_INTERNAL_ONLY_ROLES_V2_SQL = "SELECT COUNT(UM_HYBRID_ROLE.UM_ID) AS RESULT FROM " +
+            "UM_HYBRID_ROLE INNER JOIN UM_HYBRID_ROLE_AUDIENCE ON UM_HYBRID_ROLE.UM_AUDIENCE_REF_ID = UM_HYBRID_ROLE_AUDIENCE.UM_ID " +
+            "WHERE UM_ROLE_NAME NOT LIKE 'Application%' AND UM_ROLE_NAME LIKE ? AND UM_TENANT_ID = ?";
+
+    @Deprecated
     public static final String GET_GROUP_ROLE_MAPPING_ID = "SELECT UM_ID FROM UM_HYBRID_GROUP_ROLE WHERE UM_GROUP_NAME = ? " +
             "AND UM_TENANT_ID = ?";
 
+    public static final String GET_GROUP_ROLE_MAPPING_ID_WITH_DOMAIN = "SELECT UM_ID FROM UM_HYBRID_GROUP_ROLE " +
+            "WHERE UM_GROUP_NAME = ? AND UM_TENANT_ID = ? AND UM_DOMAIN_ID = (SELECT UM_DOMAIN_ID FROM UM_DOMAIN " +
+            "WHERE UM_TENANT_ID = ? AND UM_DOMAIN_NAME = ?)";
+
+    @Deprecated
     public static final String UPDATE_GROUP_NAME_SQL = "UPDATE UM_HYBRID_GROUP_ROLE set UM_GROUP_NAME = ? " +
             "WHERE UM_GROUP_NAME = ? AND UM_TENANT_ID = ?";
 
+    public static final String UPDATE_GROUP_NAME_SQL_WITH_DOMAIN = "UPDATE UM_HYBRID_GROUP_ROLE set " +
+            "UM_GROUP_NAME = ? WHERE UM_GROUP_NAME = ? AND UM_TENANT_ID = ? AND UM_DOMAIN_ID = " +
+            "(SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_TENANT_ID = ? AND UM_DOMAIN_NAME = ?)";
+
+    @Deprecated
     public static final String DELETE_GROUP_SQL = "DELETE FROM UM_HYBRID_GROUP_ROLE WHERE UM_GROUP_NAME = ? " +
             "AND UM_TENANT_ID = ?";
+
+    public static final String DELETE_GROUP_SQL_WITH_DOMAIN = "DELETE FROM UM_HYBRID_GROUP_ROLE WHERE " +
+            "UM_GROUP_NAME = ? AND UM_TENANT_ID = ? AND UM_DOMAIN_ID = (SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE " +
+            "UM_TENANT_ID = ? AND UM_DOMAIN_NAME = ?)";
+    public static final String UM_HYBRID_ROLE_AUDIENCE = "UM_HYBRID_ROLE_AUDIENCE";
 }

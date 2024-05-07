@@ -19,6 +19,9 @@ package org.wso2.carbon.context.internal;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.utils.ServerConstants;
 
 /**
  * CarbonContextActivator
@@ -27,10 +30,23 @@ public class CarbonContextActivator implements BundleActivator {
 
     public void start(BundleContext context) throws Exception {
         OSGiDataHolder.getInstance().setBundleContext(context);
+        setEnableLegacyAuthzRuntime();
     }
 
     @Override
     public void stop(BundleContext bundleContext) throws Exception {
         OSGiDataHolder.getInstance().setBundleContext(null);
+    }
+
+    private void setEnableLegacyAuthzRuntime() {
+
+        String enableLegacyAuthzRuntime = ServerConfiguration.getInstance().
+                getFirstProperty(ServerConstants.ENABLE_LEGACY_AUTHZ_RUNTIME);
+
+        if (enableLegacyAuthzRuntime != null) {
+            CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME = Boolean.parseBoolean(enableLegacyAuthzRuntime.trim());
+        } else {
+            CarbonConstants.ENABLE_LEGACY_AUTHZ_RUNTIME = false;
+        }
     }
 }

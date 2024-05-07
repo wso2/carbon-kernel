@@ -55,7 +55,7 @@ public class UserCoreErrorConstants {
         ERROR_CODE_DOMAIN_VALUE_WITH_FILTER_EMPTY("34012", "Filter value is not provided"),
         ERROR_CODE_NULL_CLAIM_URI("30018", "Claim URI is not provided"),
         // Error code related with authentication
-        ERROR_CODE_ERROR_WHILE_AUTHENTICATION("31001", "Un-expected error while authenticating, %s"),
+        ERROR_CODE_ERROR_WHILE_AUTHENTICATION("31001", "Un-expected error while authenticating. %s"),
         ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION("31002", "Un-expected error while pre-authenticating, %s"),
         ERROR_CODE_TENANT_DEACTIVATED("31003", "Tenant has been deactivated. TenantID : %s"),
         ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION("31004", "TUn-expected error while post-authentication, %s"),
@@ -234,6 +234,15 @@ public class UserCoreErrorConstants {
         ERROR_EMPTY_USER_ID("60006", "User id cannot be empty"),
         ERROR_NO_USER_WITH_USERNAME("60007", "No user found with username: %s in " +
                 "userstore domain: %s"),
+        ERROR_EMPTY_GROUP("60008", "Group cannot be empty"),
+        ERROR_GROUP_NOT_IN_USER_STORE("60009", "New group name: %s does match with the userstore name " +
+                " of the existing group with id: %s"),
+        ERROR_CODE_INVALID_GROUP_NAME("60010",  "Group name %s is not valid. Group name must be a "
+                + "non null string with format: %s"),
+        ERROR_UNSUPPORTED_GROUP_SEARCH_FILTER("60011", "Unsupported group search filter: %s"),
+        ERROR_UNSUPPORTED_DATE_SEARCH_FILTER("60011", "Unsupported date seacrh filter."),
+        ERROR_SYSTEM_RESERVED_DOMAIN_IN_GROUP("60012", "Group name: %s contains a system reserved " +
+                "domain name"),
 
         // Server error codes related to group operations.
         ERROR_DURING_PRE_GET_GROUP_BY_ID("65001",
@@ -268,7 +277,26 @@ public class UserCoreErrorConstants {
                 "response in userstore: %s in tenant: %s"),
         ERROR_WHILE_GETTING_GROUPS("65016", "Error occurred while getting the groups"),
         ERROR_WHILE_PERFORMING_PAGINATED_SEARCH("65017", "Error occurred while performing the " +
-                "paginated search");
+                "paginated search"),
+        ERROR_DURING_PRE_ADD_GROUP("65018", "Un-expected error during pre add group: %s"),
+        ERROR_CODE_GROUP_ALREADY_EXISTS("65019", "Group name: %s exists in the userstore. " +
+                "Please pick another group name."),
+        ERROR_CODE_GROUP_UUID_NOT_SUPPORTED("65020", "Group UUID is not supported in the userstore"),
+        ERROR_DURING_POST_ADD_GROUP("65021", "Un-expected error during post add group: %s"),
+        ERROR_DURING_PRE_DELETE_GROUP("65022", "Un-expected error during pre delete groups with ID, %s"),
+        ERROR_DURING_POST_DELETE_GROUP("65023",
+                "Un-expected error during post delete groups with ID, %s"),
+        ERROR_WHILE_DELETE_GROUP("65024", "Un-expected error while deleting group, %s"),
+        ERROR_DURING_PRE_RENAME_GROUP("65025", "Un-expected error during pre rename groups with ID, %s"),
+        ERROR_DURING_POST_RENAME_GROUP("65026",
+                "Un-expected error during post rename groups with ID, %s"),
+        ERROR_WHILE_RENAME_GROUP("65027", "Un-expected error while renaming group, %s"),
+        ERROR_DURING_PRE_UPDATE_USER_LIST_OF_GROUP("65028",
+                "Un-expected error during pre updating user list of groups with ID, %s"),
+        ERROR_DURING_POST_UPDATE_USER_LIST_OF_GROUP("65029",
+                "Un-expected error during post updating user list of groups with ID, %s"),
+        ERROR_WHILE_UPDATE_USER_LIST_OF_GROUP("65030",
+                "Un-expected error while updating user list of group, %s");
 
         private final String code;
         private final String message;

@@ -14,16 +14,13 @@
             </jndiConfig>
             <definition type="RDBMS">
                 <configuration>
-                    <url>jdbc:h2:async:./repository/database/WSO2CARBON_DB;DB_CLOSE_ON_EXIT=FALSE</url>
-                    <username>wso2carbon</username>
-                    <password>wso2carbon</password>
-                    <driverClassName>org.h2.Driver</driverClassName>
-                    <maxActive>50</maxActive>
-                    <maxWait>60000</maxWait>
-                    <testOnBorrow>true</testOnBorrow>
-                    <validationQuery>SELECT 1</validationQuery>
-                    <validationInterval>30000</validationInterval>
-                    <defaultAutoCommit>true</defaultAutoCommit>
+                    <url>{{database.registry_db.url}}</url>
+                    <username>{{database.registry_db.username}}</username>
+                    <password>{{database.registry_db.password}}</password>
+                    <driverClassName>{{database.registry_db.driver}}</driverClassName>
+                    {% for property_name,property_value in database.registry_db.pool_options.items() %}
+                    <{{property_name}}>{{property_value}}</{{property_name}}>
+                    {% endfor %}
                 </configuration>
             </definition>
         </datasource>

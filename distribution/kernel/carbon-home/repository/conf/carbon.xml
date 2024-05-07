@@ -427,6 +427,10 @@
       Enable following config to allow Emails as usernames. 	
     -->
     <EnableEmailUserName>false</EnableEmailUserName>
+    <!--
+       Enable following config to flag input validation configuration.
+    -->
+    <InputValidationEnabled>true</InputValidationEnabled>
     <!--EnablePasswordTrim>false</EnablePasswordTrim-->
     <!--
       Security configurations
@@ -436,11 +440,12 @@
             KeyStore which will be used for encrypting/decrypting passwords
             and other sensitive information.
         -->
+        <!-- KeyStore configurations for super tenant.-->
         <KeyStore>
             <!-- Keystore file location-->
-            <Location>${carbon.home}/repository/resources/security/wso2carbon.jks</Location>
+            <Location>${carbon.home}/repository/resources/security/wso2carbon.p12</Location>
             <!-- Keystore type (JKS/PKCS12 etc.)-->
-            <Type>JKS</Type>
+            <Type>PKCS12</Type>
             <!-- Keystore password-->
             <Password>wso2carbon</Password>
             <!-- Private Key alias-->
@@ -448,6 +453,11 @@
             <!-- Private Key password-->
             <KeyPassword>wso2carbon</KeyPassword>
         </KeyStore>
+        <!-- KeyStore configurations for newly created tenants (not applicable to existing tenants). -->
+        <TenantKeyStore>
+            <!-- Keystore type (JKS/PKCS12 etc.)-->
+            <Type>PKCS12</Type>
+        </TenantKeyStore>
 
         <!--
             The KeyStore which is used for encrypting/decrypting internal data.
@@ -455,9 +465,9 @@
         -->
         <InternalKeyStore>
             <!-- Keystore file location-->
-            <Location>${carbon.home}/repository/resources/security/wso2carbon.jks</Location>
+            <Location>${carbon.home}/repository/resources/security/wso2carbon.p12</Location>
             <!-- Keystore type (JKS/PKCS12 etc.)-->
-            <Type>JKS</Type>
+            <Type>PKCS12</Type>
             <!-- Keystore password-->
             <Password>wso2carbon</Password>
             <!-- Private Key alias-->
@@ -472,9 +482,9 @@
         -->
         <TrustStore>
             <!-- trust-store file location -->
-            <Location>${carbon.home}/repository/resources/security/client-truststore.jks</Location>
+            <Location>${carbon.home}/repository/resources/security/client-truststore.p12</Location>
             <!-- trust-store type (JKS/PKCS12 etc.) -->
-            <Type>JKS</Type>
+            <Type>PKCS12</Type>
             <!-- trust-store password -->
             <Password>wso2carbon</Password>
         </TrustStore>
@@ -722,5 +732,18 @@
     <SignatureUtil>
         <EnableSHA256Algo>true</EnableSHA256Algo>
     </SignatureUtil>
+    <RemoteLogging>
+        <ConfigSync>
+            <Period>15</Period>
+        </ConfigSync>
+    </RemoteLogging>
 
+    <!-- Configure default management ui path for server -->
+    <DefaultManagementUIPath>carbon</DefaultManagementUIPath>
+
+    <!-- Configure legacy identity server authorization runtime -->
+    <EnableLegacyAuthzRuntime>false</EnableLegacyAuthzRuntime>
+
+    <!-- Enable/Disable the deprecation banner in the management console -->
+    <ManagementConsoleDeprecationBannerEnabled>false</ManagementConsoleDeprecationBannerEnabled>
 </Server>

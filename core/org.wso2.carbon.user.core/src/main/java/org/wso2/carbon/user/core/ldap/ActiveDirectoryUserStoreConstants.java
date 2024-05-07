@@ -20,6 +20,7 @@ import org.wso2.carbon.user.core.UserStoreConfigConstants;
 
 import java.util.ArrayList;
 
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.OBJECT_GUID;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataCategory.BASIC;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataCategory.CONNECTION;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataCategory.GROUP;
@@ -31,6 +32,9 @@ import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.STRING;
 import static org.wso2.carbon.user.core.ldap.LDAPConstants.DEFAULT_LDAP_TIME_FORMATS_PATTERN;
 
+/**
+ * This class contains the constants related to the Active Directory User Store Manager.
+ */
 public class ActiveDirectoryUserStoreConstants {
 
     //Properties for Read Active Directory User Store Manager
@@ -88,6 +92,12 @@ public class ActiveDirectoryUserStoreConstants {
                 UserStoreConfigConstants.usernameListFilterDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
 
+        // Only for unique id supported user store managers.
+        setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE,
+                UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_DISPLAY_NAME, OBJECT_GUID,
+                UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_DESCRIPTION, false,
+                new Property[]{GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty()});
+
         //Set optional properties
 
         setProperty(UserStoreConfigConstants.userDNPattern, "User DN Pattern", "",
@@ -100,33 +110,16 @@ public class ActiveDirectoryUserStoreConstants {
                 UserStoreConfigConstants.disabledDescription,
                 new Property[] { BASIC.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
         setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "true",
-                UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION,
+                UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION, null);
+
+        setProperty(UserStoreConfigConstants.USE_CASE_SENSITIVE_USERNAME_FOR_CACHE_KEYS,
+                "Use Case Sensitive Username for Cache Keys", "true",
+                UserStoreConfigConstants.USE_CASE_SENSITIVE_USERNAME_FOR_CACHE_KEYS_DESCRIPTION,
                 new Property[] { USER.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
 
-        Property readLDAPGroups = new Property(UserStoreConfigConstants.readGroups, "true",
-                "Read Groups#" + UserStoreConfigConstants.readLDAPGroupsDescription,
+        setProperty(UserStoreConfigConstants.readGroups, "Read Groups", "true",
+                UserStoreConfigConstants.readLDAPGroupsDescription,
                 new Property[] { GROUP.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
-        //Mandatory only if readGroups is enabled
-        Property groupSearchBase = new Property(UserStoreConfigConstants.groupSearchBase, "CN=Users,DC=WSO2,DC=Com",
-                "Group Search Base#" + UserStoreConfigConstants.groupSearchBaseDescription,
-                new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        Property groupNameListFilter = new Property(UserStoreConfigConstants.groupNameListFilter,
-                "(objectcategory=group)", "Group Filter#" + UserStoreConfigConstants.groupNameListFilterDescription,
-                new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        Property groupNameAttribute = new Property(UserStoreConfigConstants.groupNameAttribute, "cn",
-                "Group Name Attribute#" + UserStoreConfigConstants.groupNameAttributeDescription,
-                new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        Property membershipAttribute = new Property(UserStoreConfigConstants.membershipAttribute, "member",
-                "Membership Attribute#" + UserStoreConfigConstants.membershipAttributeDescription,
-                new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        Property groupNameSearchFilter = new Property(UserStoreConfigConstants.groupNameSearchFilter,
-                "(&(objectClass=group)(cn=?))",
-                "Group Search Filter#" + UserStoreConfigConstants.groupNameSearchFilterDescription,
-                new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        readLDAPGroups.setChildProperties(new Property[] {
-                groupSearchBase, groupNameAttribute, groupNameListFilter, membershipAttribute, groupNameSearchFilter
-        });
-        OPTIONAL_ACTIVE_DIRECTORY_UM_PROPERTIES.add(readLDAPGroups);
 
         setProperty(UserStoreConfigConstants.writeGroups, "Write Groups", "true",
                 UserStoreConfigConstants.writeGroupsDescription,
@@ -134,14 +127,6 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty(UserStoreConfigConstants.groupSearchBase, "Group Search Base", "CN=Users,DC=WSO2,DC=Com",
                 UserStoreConfigConstants.groupSearchBaseDescription,
                 new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        setProperty(UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE,
-                UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE_DISPLAY_NAME, "whenCreated",
-                UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE_DESCRIPTION,
-                new Property[] { GROUP.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
-        setProperty(UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE,
-                UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE_DISPLAY_NAME, "whenChanged",
-                UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE_DESCRIPTION,
-                new Property[] { GROUP.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
         setProperty(UserStoreConfigConstants.groupEntryObjectClass, "Group Entry Object Class", "group",
                 UserStoreConfigConstants.groupEntryObjectClassDescription,
                 new Property[] { GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty() });
@@ -175,7 +160,7 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty(UserStoreConfigConstants.usernameJavaRegEx, "Username RegEx (Java)", "[a-zA-Z0-9._-|//]{3,30}$",
                 UserStoreConfigConstants.usernameJavaRegExDescription,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        setProperty(UserStoreConfigConstants.usernameJavaScriptRegEx, "Username RegEx (Javascript)", "^[\\S]{3,30}$",
+        setProperty(UserStoreConfigConstants.usernameJavaScriptRegEx, "Username RegEx (Javascript)", "[a-zA-Z0-9._-|//]{3,30}$",
                 UserStoreConfigConstants.usernameJavaScriptRegExDescription,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
 
@@ -206,17 +191,8 @@ public class ActiveDirectoryUserStoreConstants {
                 "com.sun.jndi.ldap.LdapCtxFactory", UserStoreConfigConstants.lDAPInitialContextFactoryDescription,
                 new Property[] { CONNECTION.getProperty(), STRING.getProperty(), FALSE.getProperty() });
 
-        // Group Id Related Userstore Configurations - By default this will be disabled.
-        setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.GROUP_ID_ENABLED,
-                UserStoreConfigConstants.GROUP_ID_ENABLED_DISPLAY_NAME, Boolean.toString(false),
-                UserStoreConfigConstants.GROUP_ID_ENABLED_DESCRIPTION, false,
-                new Property[]{GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty()});
-        setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.GROUP_ID_ATTRIBUTE,
-                UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_DISPLAY_NAME, "objectGuid",
-                UserStoreConfigConstants.GROUP_ID_ATTRIBUTE_DESCRIPTION, false,
-                new Property[]{GROUP.getProperty(), STRING.getProperty(), TRUE.getProperty()});
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdAttribute,
-                UserStoreConfigConstants.userIdAttributeName, UserStoreConfigConstants.OBJECT_GUID,
+                UserStoreConfigConstants.userIdAttributeName, OBJECT_GUID,
                 UserStoreConfigConstants.userIdAttributeDescription, false,
                 new Property[] { USER.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setMandatoryPropertyForUniqueIdStore(UserStoreConfigConstants.userIdSearchFilter,

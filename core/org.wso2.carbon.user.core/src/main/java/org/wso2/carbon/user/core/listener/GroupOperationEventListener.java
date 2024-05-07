@@ -18,8 +18,10 @@
 
 package org.wso2.carbon.user.core.listener;
 
+import org.wso2.carbon.user.core.NotImplementedException;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.common.Claim;
 import org.wso2.carbon.user.core.common.Group;
 import org.wso2.carbon.user.core.model.Condition;
 
@@ -186,4 +188,134 @@ public interface GroupOperationEventListener {
      */
     boolean postListGroups(Condition condition, int limit, int offset, String sortBy, String domain, String sortOrder,
                            List<Group> groupsList, UserStoreManager userStoreManager) throws UserStoreException;
+
+    /**
+     * Defines any additional action before adding the group.
+     *
+     * @param groupName        Group unique name.
+     * @param userIds          List of user ids.
+     * @param claims           List of claims.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
+    default boolean preAddGroup(String groupName, List<String> userIds, List<Claim> claims,
+                                UserStoreManager userStoreManager) throws UserStoreException {
+
+        throw new NotImplementedException(
+                "Pre add group operation is not implemented for " + this.getClass().getName());
+    }
+
+    /**
+     * Defines any additional action after adding the group.
+     *
+     * @param groupName        Group unique name
+     * @param groupId          Group Id.
+     * @param userIds          List of user ids.
+     * @param claims           List of claims.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     */
+    default boolean postAddGroup(String groupName, String groupId, List<String> userIds, List<Claim> claims,
+                                 UserStoreManager userStoreManager) throws UserStoreException {
+
+        throw new NotImplementedException(
+                "Post add group operation is not implemented for " + this.getClass().getName());
+    }
+
+    /**
+     * Defines any additional action before deleting the group.
+     *
+     * @param groupId          Group unique id.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
+    default boolean preDeleteGroup(String groupId, UserStoreManager userStoreManager) throws UserStoreException {
+
+        throw new NotImplementedException(
+                "Pre delete group operation is not implemented for " + this.getClass().getName());
+    }
+
+    /**
+     * Defines any additional action after deleting the group.
+     *
+     * @param groupId          Group unique id.
+     * @param groupName        Group name.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     */
+    default boolean postDeleteGroup(String groupId, String groupName, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        throw new NotImplementedException(
+                "Post delete group operation is not implemented for " + this.getClass().getName());
+    }
+
+    /**
+     * Defines any additional action before renaming the group.
+     *
+     * @param groupId          Group unique id.
+     * @param newGroupName     New group name.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
+    default boolean preRenameGroup(String groupId, String newGroupName, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        throw new NotImplementedException(
+                "Pre renaming group operation is not implemented for " + this.getClass().getName());
+    }
+
+    /**
+     * Defines any additional action after renaming the group.
+     *
+     * @param groupId          Group unique id.
+     * @param newGroupName     New group name.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     */
+    default boolean postRenameGroup(String groupId, String newGroupName, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        throw new NotImplementedException(
+                "Post rename group operation is not implemented for " + this.getClass().getName());
+    }
+
+    /**
+     * Defines any additional action before updating the user list of the group.
+     *
+     * @param groupId          Group unique id.
+     * @param deletedUserIds   List of deleted user ids.
+     * @param newUserIds       List of new user ids.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws UserStoreException If an error occurred while performing the operation.
+     */
+    default boolean preUpdateUserListOfGroup(String groupId, List<String> deletedUserIds,
+                                             List<String> newUserIds, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        throw new NotImplementedException(
+                "Pre renaming group operation is not implemented for " + this.getClass().getName());
+    }
+
+    /**
+     * Defines any additional action after updating the user list of the group.
+     *
+     * @param groupId          Group unique id.
+     * @param deletedUserIds   List of deleted user ids.
+     * @param newUserIds       List of new user ids.
+     * @param userStoreManager The underlying UserStoreManager.
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     */
+    default boolean postUpdateUserListOfGroup(String groupId, List<String> deletedUserIds,
+                                              List<String> newUserIds, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        throw new NotImplementedException(
+                "Post rename group operation is not implemented for " + this.getClass().getName());
+
+    }
 }
