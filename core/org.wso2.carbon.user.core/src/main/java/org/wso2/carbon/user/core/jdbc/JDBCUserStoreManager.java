@@ -5184,12 +5184,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      */
     public int getConnectionRetryCount() {
 
-        readLock.lock();
-        try	{
-            return connectionRetryCount;
-        } finally {
-            readLock.unlock();
-        }
+        return connectionRetryCount;
     }
 
     /**

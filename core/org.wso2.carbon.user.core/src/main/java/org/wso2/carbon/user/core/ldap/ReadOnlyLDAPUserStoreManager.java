@@ -4525,7 +4525,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         setAdvancedProperty(UserStoreConfigConstants.CONNECTION_RETRY_COUNT,
                 UserStoreConfigConstants.CONNECTION_RETRY_COUNT_DISPLAY_NAME,
                 String.valueOf(UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_COUNT),
-                UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DESCRIPTION);
+                UserStoreConfigConstants.CONNECTION_RETRY_COUNT_DESCRIPTION);
         setAdvancedProperty(UserStoreConfigConstants.SSLCertificateValidationEnabled, "Enable SSL certificate" +
                 " validation", "true", UserStoreConfigConstants.SSLCertificateValidationEnabledDescription);
         setAdvancedProperty(UserStoreConfigConstants.immutableAttributes,
