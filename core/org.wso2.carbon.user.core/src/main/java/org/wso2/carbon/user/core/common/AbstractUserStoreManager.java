@@ -10006,6 +10006,55 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         }
                     }
                 }
+            } else if (!addAdmin && isRoleAndGroupSeparationEnabled()) {
+                // Check weather the admin group was exists in the userstore.
+                boolean groupExist = false;
+                if (Boolean.parseBoolean(this.getRealmConfiguration()
+                        .getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED))) {
+                    try {
+                        groupExist = doCheckExistingRole(adminRoleName);
+                    } catch (Exception e) {
+                        // Ignore the exception by adding a log.
+                        log.warn("Error while checking the existence of the admin group in the user store.", e);
+                    }
+                }
+                if (groupExist) {
+                    // Creates internal role.
+                    try {
+                        if (isUniqueUserIdEnabled()) {
+                            hybridRoleManager.addHybridRole(adminRoleName, new String[]{adminUserName});
+                        } else {
+                            hybridRoleManager.addHybridRole(adminRoleName, new String[]{adminUserName});
+                        }
+                        isInternalRole = true;
+
+                        // Assign the admin group to the admin role.
+                        this.updateGroupListOfHybridRole(adminRoleName, null, new String[]{adminRoleName});
+                    } catch (Exception e) {
+                        String message = "Admin role has not been created. " +
+                                "Error occurs while creating Admin role in primary user store.";
+                        if (initialSetup) {
+                            if (ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE.getCode().equals(((UserStoreException) e)
+                                    .getErrorCode())) {
+                                log.warn(String.format("Hybrid Admin Role :%s is already added. Hence, continue " +
+                                        "without adding the hybrid role.", adminRoleName));
+                            } else {
+                                throw new UserStoreException(message, e);
+                            }
+                        } else if (log.isDebugEnabled()) {
+                            log.error(message, e);
+                        }
+                    }
+                } else {
+                    String message = "Admin group can not be created in primary user store. " +
+                            "Add-Admin has been set to false. " +
+                            "Please pick a Group name which is exist in the primary user store as Admin group";
+                    if (initialSetup) {
+                        throw new UserStoreException(message);
+                    } else if (log.isDebugEnabled()) {
+                        log.error(message);
+                    }
+                }
             } else {
                 String message = "Admin role can not be created in primary user store. " +
                         "Add-Admin has been set to false. " +
