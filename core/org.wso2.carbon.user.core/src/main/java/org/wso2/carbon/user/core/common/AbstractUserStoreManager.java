@@ -13739,6 +13739,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         List<String> userNames = new ArrayList<>();
         for (String userID : userIDs) {
+            if (StringUtils.isBlank(userID)) {
+                continue;
+            }
             userNames.add(getUserNameFromUserID(userID));
         }
         return userNames;
@@ -17108,6 +17111,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         Map<String, List<String>> domainAwareUsers = new HashMap<>();
         if (!userIDs.isEmpty()) {
             for (String userID : userIDs) {
+                if (StringUtils.isBlank(userID)) {
+                    continue;
+                }
                 try {
                     User user = getUser(userID, null);
                     String domainName = user.getUserStoreDomain();
