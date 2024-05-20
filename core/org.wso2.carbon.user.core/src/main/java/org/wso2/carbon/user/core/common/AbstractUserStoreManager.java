@@ -1867,17 +1867,24 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // We are here due to two reason. Either there is no secondary UserStoreManager or no
             // domain name provided with user name.
             try {
-                // Let's authenticate with the primary UserStoreManager.
-                if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
-                    String userNameProperty = abstractUserStoreManager.getUsernameProperty();
-                    AuthenticationResult authenticationResult = abstractUserStoreManager
-                            .doAuthenticateWithID(userNameProperty, userName, credential, null);
-                    if (authenticationResult.getAuthenticationStatus()
-                            == AuthenticationResult.AuthenticationStatus.SUCCESS) {
-                        authenticated = true;
+                if (abstractUserStoreManager.isCircuitBreakerOpen()) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Avoiding searching the " + abstractUserStoreManager.getMyDomainName()
+                                + " domain as Circuit Breaker is in open state");
                     }
                 } else {
-                    authenticated = abstractUserStoreManager.doAuthenticate(userName, credentialObj);
+                    // Let's authenticate with the primary UserStoreManager.
+                    if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
+                        String userNameProperty = abstractUserStoreManager.getUsernameProperty();
+                        AuthenticationResult authenticationResult = abstractUserStoreManager
+                                .doAuthenticateWithID(userNameProperty, userName, credential, null);
+                        if (authenticationResult.getAuthenticationStatus()
+                                == AuthenticationResult.AuthenticationStatus.SUCCESS) {
+                            authenticated = true;
+                        }
+                    } else {
+                        authenticated = abstractUserStoreManager.doAuthenticate(userName, credentialObj);
+                    }
                 }
             } catch (Exception e) {
                 handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
@@ -1892,9 +1899,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     throw (UserStoreClientException) e;
                 }
                 log.error("Error occurred while authenticating user: " + userName, e);
-                authenticated = false;
             }
-
         } finally {
             credentialObj.clear();
         }
@@ -8059,7 +8064,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected UserStore getUserStoreWithGroupId(final String groupId) throws UserStoreException {
 
         try {
-            return AccessController.doPrivileged((PrivilegedExceptionAction<UserStore>) 
+            return AccessController.doPrivileged((PrivilegedExceptionAction<UserStore>)
                     () -> getUserStoreInternalWithGroupId(groupId));
         } catch (PrivilegedActionException e) {
             throw (UserStoreException) e.getException();
