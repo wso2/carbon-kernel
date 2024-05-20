@@ -13601,26 +13601,35 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
         userName = userStore.getDomainFreeName();
         String userID = getFromUserIDCache(userName, userStore);
-        if (StringUtils.isEmpty(userID)) {
-            if (isUniqueUserIdEnabledInUserStore(userStore)) {
-                userID = doGetUserIDFromUserNameWithID(userName);
-                if (StringUtils.isEmpty(userID)) {
-                    log.debug("User is not available in cache or database.");
-                    return null;
-                }
-                addToUserIDCache(userID, userName, userStore);
-                addToUserNameCache(userID, userName, userStore);
-                return userID;
+        // Verify whether circuit breaker is open for user store.
+        if (((AbstractUserStoreManager) userStore.getUserStoreManager()).isCircuitBreakerOpen()) {
+            if (log.isDebugEnabled()) {
+                log.debug("Avoiding user listing as the Circuit Breaker is in open state for domain: "
+                        + userStore.getDomainName());
             }
+            return null;
+        } else {
+            if (StringUtils.isEmpty(userID)) {
+                if (isUniqueUserIdEnabledInUserStore(userStore)) {
+                    userID = doGetUserIDFromUserNameWithID(userName);
+                    if (StringUtils.isEmpty(userID)) {
+                        log.debug("User is not available in cache or database.");
+                        return null;
+                    }
+                    addToUserIDCache(userID, userName, userStore);
+                    addToUserNameCache(userID, userName, userStore);
+                    return userID;
+                }
 
-            Map<String, String> claims = doGetUserClaimValues(userName,
-                    new String[]{USER_ID_CLAIM_URI},
-                    userStore.getDomainName(), null);
-            if (claims != null && claims.size() == 1) {
-                userID = claims.get(USER_ID_CLAIM_URI);
-                addToUserIDCache(userID, userName, userStore);
-                addToUserNameCache(userID, userName, userStore);
-                return userID;
+                Map<String, String> claims = doGetUserClaimValues(userName,
+                        new String[]{USER_ID_CLAIM_URI},
+                        userStore.getDomainName(), null);
+                if (claims != null && claims.size() == 1) {
+                    userID = claims.get(USER_ID_CLAIM_URI);
+                    addToUserIDCache(userID, userName, userStore);
+                    addToUserNameCache(userID, userName, userStore);
+                    return userID;
+                }
             }
         }
         return userID;
