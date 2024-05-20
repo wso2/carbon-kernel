@@ -1834,10 +1834,19 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     }
                 }
             } catch (UserStoreException ex) {
-                handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(),
-                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
-                                ex.getMessage()), userName, credential);
-                throw ex;
+                if (ex instanceof CircuitBreakerException) {
+                    if(log.isDebugEnabled()) {
+                        log.debug("Circuit Breaker is in open state for " + userStore.getDomainName() +
+                                " domain. Hence ignore the userstore and proceed", ex);
+                    }
+                    log.error("Error occurred while obtaining user store connection for: "
+                            + userStore.getDomainName());
+                } else {
+                    handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(),
+                            String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
+                                    ex.getMessage()), userName, credential);
+                    throw ex;
+                }
             }
             // #################### </Listeners> #####################################################
 
@@ -1941,10 +1950,19 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             }
         } catch (UserStoreException ex) {
-            handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getCode(),
-                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getMessage(),
-                            ex.getMessage()), userName, credential);
-            throw ex;
+            if (ex instanceof CircuitBreakerException) {
+                if(log.isDebugEnabled()) {
+                    log.debug("Circuit Breaker is in open state for " + userStore.getDomainName() +
+                            " domain. Hence ignore the userstore and proceed", ex);
+                }
+                log.error("Error occurred while obtaining user store connection for: "
+                        + userStore.getDomainName());
+            } else {
+                handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getMessage(),
+                                ex.getMessage()), userName, credential);
+                throw ex;
+            }
         }
 
         if (log.isDebugEnabled()) {
