@@ -10080,8 +10080,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private void handleInitialSetup(boolean initialSetup, String message)
             throws UserStoreException {
 
-        // The existing code is being moved to a separate method for better readability
-        // and to avoid code duplication.
         if (initialSetup) {
             throw new UserStoreException(message);
         } else {
@@ -10104,8 +10102,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                              String warnMessage)
             throws UserStoreException {
 
-        // The existing code is being moved to a separate method for better readability
-        // and to avoid code duplication.
         if (initialSetup) {
             if (errorCode.equals(((UserStoreException) e).getErrorCode())) {
                 log.warn(warnMessage);
@@ -10121,13 +10117,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * Checks whether a group exists.
      *
      * @param isReadGroupEnabled   A flag to indicate whether read groups is enabled.
-     * @param adminGroupName        The group being checked for.
+     * @param adminGroupName       The group being checked for.
      * @return                     true if the groups exists and false otherwise.
      */
     private boolean doesGroupExist(boolean isReadGroupEnabled, String adminGroupName) {
-
-        // The existing code is being moved to a separate method for better readability
-        // and to avoid code duplication.
 
         // Check whether the admin group exists in the user store.
         boolean groupExist = false;
