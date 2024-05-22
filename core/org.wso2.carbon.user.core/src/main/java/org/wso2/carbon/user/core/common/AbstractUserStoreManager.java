@@ -9891,10 +9891,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         this.doAddUser(adminUserName, realmConfig.getAdminPassword(), null, claims, null, false);
                     }
                 } catch (Exception e) {
-                    String warnMessage = "Admin user has not been created. " +
+                    String message = "Admin user has not been created. " +
                             "Error occurs while creating Admin user in primary user store.";
+                    String warnMessage = String.format("Admin User :%s is already added. Hence, continue without" +
+                            " adding the user.", adminUserName);
                     handleInitialSetupException(initialSetup, e,
-                            ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER.getCode(), warnMessage);
+                            ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER.getCode(), message, warnMessage);
                 }
             } else {
                 if (initialSetup) {
@@ -9924,10 +9926,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             this.doAddRole(adminRoleName, new String[] { adminUserName }, false);
                         }
                     } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                        String warnMessage = "Admin role has not been created. " +
+                        String message = "Admin role has not been created. " +
                                 "Error occurs while creating Admin role in primary user store.";
+                        String warnMessage = String.format("Admin Role :%s is already added. Hence, continue without"
+                                + " adding the role.", adminRoleName);
                         handleInitialSetupException(initialSetup, e,
-                                ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE.getCode(), warnMessage);
+                                ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE.getCode(), message, warnMessage);
                     }
                 } else {
                     // Creates internal role.
@@ -9961,10 +9965,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             }
                         }
                     } catch (Exception e) {
-                        String warnMessage = "Admin role has not been created. " +
+                        String message = "Admin role has not been created. " +
                                 "Error occurs while creating Admin role in primary user store.";
+                        String warnMessage = String.format("Hybrid Admin Role :%s is already added. Hence, continue"
+                                + " without adding the hybrid role.", adminRoleName);
                         handleInitialSetupException(initialSetup, e,
-                                ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE.getCode(), warnMessage);
+                                ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE.getCode(), message, warnMessage);
                     }
                 }
             } else if (isRoleAndGroupSeparationEnabled()) {
@@ -10048,10 +10054,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 // Assign the admin group to the admin role.
                 this.updateGroupListOfHybridRole(adminRoleName, null, new String[]{adminRoleName});
             } catch (Exception e) {
+                String message = "Admin role has not been created. " +
+                        "Error occurs while creating Admin role in primary user store.";
                 String warnMessage = String.format("Hybrid Admin Role :%s is already added. Hence, continue " +
                         "without adding the hybrid role.", adminRoleName);
                 handleInitialSetupException(initialSetup, e,
-                        ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE.getCode(), warnMessage);
+                        ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE.getCode(), message, warnMessage);
             }
         } else {
             String message = "Admin group can not be created in primary user store. " +
@@ -10087,17 +10095,17 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param initialSetup         A flag to indicate whether this is the initial set up of the server.
      * @param e                    The exception being handled.
      * @param errorCode            The error code to be checked for in the exception being handled.
+     * @param message              The message to be printed with the exception or error log.
      * @param warnMessage          The warn message to be printed if the error code of the exception.
      *                             matches the error code being checked for.
      * @throws UserStoreException  If this is called during the initial set up.
      */
-    private void handleInitialSetupException(boolean initialSetup, Exception e, String errorCode, String warnMessage)
+    private void handleInitialSetupException(boolean initialSetup, Exception e, String errorCode, String message,
+                                             String warnMessage)
             throws UserStoreException {
 
         // The existing code is being moved to a separate method for better readability
         // and to avoid code duplication.
-        String message = "Admin role has not been created. " +
-                "Error occurs while creating Admin role in primary user store.";
         if (initialSetup) {
             if (errorCode.equals(((UserStoreException) e).getErrorCode())) {
                 log.warn(warnMessage);
