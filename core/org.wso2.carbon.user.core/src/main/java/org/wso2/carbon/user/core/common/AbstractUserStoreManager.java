@@ -9828,6 +9828,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
         String adminUserName = UserCoreUtil.removeDomainFromName(realmConfig.getAdminUserName());
         String adminRoleName = UserCoreUtil.removeDomainFromName(realmConfig.getAdminRoleName());
+        boolean isReadGroupsEnabled = Boolean.parseBoolean(this.getRealmConfiguration()
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED));
         boolean userExist = false;
         boolean roleExist = false;
         boolean isInternalRole = false;
@@ -9835,8 +9837,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         User user = null;
 
         try {
-            if (!isRoleAndGroupSeparationEnabled() && Boolean.parseBoolean(this.getRealmConfiguration()
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED))) {
+            if (!isRoleAndGroupSeparationEnabled() && isReadGroupsEnabled) {
                 roleExist = doCheckExistingRole(adminRoleName);
             }
         } catch (Exception e) {
@@ -9877,11 +9878,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 String message = "Admin user can not be created in primary user store. " +
                         "User store is read only. " +
                         "Please pick a user name which is exist in the primary user store as Admin user";
-                if (initialSetup) {
-                    throw new UserStoreException(message);
-                } else if (log.isDebugEnabled()) {
-                    log.error(message);
-                }
+                handleInitialSetup(initialSetup, message);
             } else if (addAdmin) {
                 try {
                     if (isUniqueUserIdEnabled()) {
@@ -9894,30 +9891,17 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         this.doAddUser(adminUserName, realmConfig.getAdminPassword(), null, claims, null, false);
                     }
                 } catch (Exception e) {
-                    String message = "Admin user has not been created. " +
+                    String warnMessage = "Admin user has not been created. " +
                             "Error occurs while creating Admin user in primary user store.";
-                    if (initialSetup) {
-                        if (e instanceof UserStoreException && ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER.getCode
-                                ().equals(((UserStoreException) e).getErrorCode())) {
-                            log.warn(String.format("Admin User :%s is already added. Hence, continue without adding" +
-                                    " the user.", adminUserName));
-                        } else {
-                            throw new UserStoreException(message, e);
-                        }
-                    } else if (log.isDebugEnabled()) {
-                        log.error(message, e);
-                    }
+                    handleInitialSetupException(initialSetup, e,
+                            ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER.getCode(), warnMessage);
                 }
             } else {
                 if (initialSetup) {
                     String message = "Admin user can not be created in primary user store. " +
                             "Add-Admin has been set to false. " +
                             "Please pick a User name which is exist in the primary user store as Admin user";
-                    if (initialSetup) {
-                        throw new UserStoreException(message);
-                    } else if (log.isDebugEnabled()) {
-                        log.error(message);
-                    }
+                    handleInitialSetup(initialSetup, message);
                 }
             }
         }
@@ -9940,35 +9924,21 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             this.doAddRole(adminRoleName, new String[] { adminUserName }, false);
                         }
                     } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                        String message = "Admin role has not been created. " +
+                        String warnMessage = "Admin role has not been created. " +
                                 "Error occurs while creating Admin role in primary user store.";
-                        if (initialSetup) {
-                            if (ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE.getCode().equals(((UserStoreException) e)
-                                    .getErrorCode())) {
-                                log.warn(String.format("Admin Role :%s is already added. Hence, continue without " +
-                                        "adding the role.", adminRoleName));
-                            } else {
-                                throw new UserStoreException(message, e);
-                            }
-                        } else if (log.isDebugEnabled()) {
-                            log.error(message, e);
-                        }
+                        handleInitialSetupException(initialSetup, e,
+                                ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE.getCode(), warnMessage);
                     }
                 } else {
                     // Creates internal role.
                     try {
-                        if (isUniqueUserIdEnabled()) {
-                            hybridRoleManager.addHybridRole(adminRoleName, new String[] { adminUserName });
-                        } else {
-                            hybridRoleManager.addHybridRole(adminRoleName, new String[] { adminUserName });
-                        }
+                        hybridRoleManager.addHybridRole(adminRoleName, new String[] { adminUserName });
                         isInternalRole = true;
 
                         if (isRoleAndGroupSeparationEnabled()) {
                             // Create a new admin group with the same role name if not exist.
                             boolean groupExist = false;
-                            if (Boolean.parseBoolean(this.getRealmConfiguration()
-                                    .getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED))) {
+                            if (isReadGroupsEnabled) {
                                 groupExist = doCheckExistingRole(adminRoleName);
                             }
                             if (!groupExist && !isReadOnly() && writeGroupsEnabled) {
@@ -9991,40 +9961,30 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             }
                         }
                     } catch (Exception e) {
-                        String message = "Admin role has not been created. " +
+                        String warnMessage = "Admin role has not been created. " +
                                 "Error occurs while creating Admin role in primary user store.";
-                        if (initialSetup) {
-                            if (ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE.getCode().equals(((UserStoreException) e)
-                                    .getErrorCode())) {
-                                log.warn(String.format("Hybrid Admin Role :%s is already added. Hence, continue " +
-                                        "without adding the hybrid role.", adminRoleName));
-                            } else {
-                                throw new UserStoreException(message, e);
-                            }
-                        } else if (log.isDebugEnabled()) {
-                            log.error(message, e);
-                        }
+                        handleInitialSetupException(initialSetup, e,
+                                ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE.getCode(), warnMessage);
                     }
+                }
+            } else if (isRoleAndGroupSeparationEnabled()) {
+                // The adminRoleName variable refers to the group here, not the role.
+                // This variable was named as such prior to the group-role separation.
+                boolean groupExist = doesGroupExist(isReadGroupsEnabled, adminRoleName);
+                if (createAdminRole(initialSetup, groupExist, adminRoleName, adminUserName)) {
+                    isInternalRole = Boolean.TRUE;
                 }
             } else {
                 String message = "Admin role can not be created in primary user store. " +
                         "Add-Admin has been set to false. " +
                         "Please pick a Role name which is exist in the primary user store as Admin Role";
-                if (initialSetup) {
-                    throw new UserStoreException(message);
-                } else if (log.isDebugEnabled()) {
-                    log.error(message);
-                }
+                handleInitialSetup(initialSetup, message);
             }
         }
 
         if (isInternalRole) {
 
-            if (isUniqueUserIdEnabled()) {
-                updateHybridRoleListOfUserInternal(initialSetup, adminRoleName, adminUserName);
-            } else {
-                updateHybridRoleListOfUserInternal(initialSetup, adminRoleName, adminUserName);
-            }
+            updateHybridRoleListOfUserInternal(initialSetup, adminRoleName, adminUserName);
             realmConfig.setAdminRoleName(UserCoreUtil.addInternalDomainName(adminRoleName));
         } else if (!isReadOnly() && writeGroupsEnabled) {
 
@@ -10045,25 +10005,133 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     } catch (Exception e) {
                         String message = "Admin user has not been assigned to Admin role. " +
                                 "Error while assignment is done";
-                        if (initialSetup) {
-                            throw new UserStoreException(message, e);
-                        } else if (log.isDebugEnabled()) {
-                            log.error(message, e);
-                        }
+                        handleInitialSetup(initialSetup, message);
                     }
                 } else {
                     String message = "Admin user can not be assigned to Admin role " +
                             "Add-Admin has been set to false. Please do the assign it in user store level";
-                    if (initialSetup) {
-                        throw new UserStoreException(message);
-                    } else if (log.isDebugEnabled()) {
-                        log.error(message);
-                    }
+                    handleInitialSetup(initialSetup, message);
                 }
             }
         }
 
         doInitialUserAdding();
+    }
+
+    /**
+     * Creates the admin role when the create_admin_account configuration is set to false
+     * in the deployment.toml when group-role separation is enabled (admin account creation
+     * when the config is set to true is handled separately).
+     *
+     * When group-role separation is enabled, it is expected that the admin role is created in
+     * the system and that the necessary user associations are established, regardless of whether
+     * create_admin_account is enabled, because roles are managed separately in the system
+     * database after the group-role separation.
+     *
+     * @param initialSetup         A flag to indicate whether this is the initial set up of the server.
+     * @param groupExist           A flag to indicate whether the group exists.
+     * @param adminRoleName        The name of the admin role being created exists.
+     * @param adminUserName        The name of the admin user.
+     * @throws UserStoreException  when an error occurs during the initial set up.
+     */
+    private boolean createAdminRole(boolean initialSetup, boolean groupExist,
+                                    String adminRoleName, String adminUserName)
+            throws UserStoreException {
+
+        boolean created = Boolean.FALSE;
+        if (groupExist) {
+            // Create admin role since roles are maintained separately in the
+            // database after the separation of groups and roles.
+            try {
+                hybridRoleManager.addHybridRole(adminRoleName, new String[]{adminUserName});
+                created = Boolean.TRUE;
+                // Assign the admin group to the admin role.
+                this.updateGroupListOfHybridRole(adminRoleName, null, new String[]{adminRoleName});
+            } catch (Exception e) {
+                String warnMessage = String.format("Hybrid Admin Role :%s is already added. Hence, continue " +
+                        "without adding the hybrid role.", adminRoleName);
+                handleInitialSetupException(initialSetup, e,
+                        ERROR_CODE_DUPLICATE_WHILE_ADDING_A_HYBRID_ROLE.getCode(), warnMessage);
+            }
+        } else {
+            String message = "Admin group can not be created in primary user store. " +
+                    "Add-Admin has been set to false. " +
+                    "Please pick a Group name which is exist in the primary user store as Admin group";
+            handleInitialSetup(initialSetup, message);
+        }
+        return created;
+    }
+
+    /**
+     * Handles error scenarios in the initial set up when admin accounts are created.
+     *
+     * @param initialSetup         A flag to indicate whether this is the initial set up of the server.
+     * @param message              The error message to be used in the exception or error log.
+     * @throws UserStoreException  If this method is called during the initial set up.
+     */
+    private void handleInitialSetup(boolean initialSetup, String message)
+            throws UserStoreException {
+
+        // The existing code is being moved to a separate method for better readability
+        // and to avoid code duplication.
+        if (initialSetup) {
+            throw new UserStoreException(message);
+        } else {
+            log.error(message);
+        }
+    }
+
+    /**
+     * Handles caught exception scenarios in the initial set up when admin accounts are created.
+     *
+     * @param initialSetup         A flag to indicate whether this is the initial set up of the server.
+     * @param e                    The exception being handled.
+     * @param errorCode            The error code to be checked for in the exception being handled.
+     * @param warnMessage          The warn message to be printed if the error code of the exception.
+     *                             matches the error code being checked for.
+     * @throws UserStoreException  If this is called during the initial set up.
+     */
+    private void handleInitialSetupException(boolean initialSetup, Exception e, String errorCode, String warnMessage)
+            throws UserStoreException {
+
+        // The existing code is being moved to a separate method for better readability
+        // and to avoid code duplication.
+        String message = "Admin role has not been created. " +
+                "Error occurs while creating Admin role in primary user store.";
+        if (initialSetup) {
+            if (errorCode.equals(((UserStoreException) e).getErrorCode())) {
+                log.warn(warnMessage);
+            } else {
+                throw new UserStoreException(message, e);
+            }
+        } else {
+            log.error(message, e);
+        }
+    }
+
+    /**
+     * Checks whether a group exists.
+     *
+     * @param isReadGroupEnabled   A flag to indicate whether read groups is enabled.
+     * @param adminGroupName        The group being checked for.
+     * @return                     true if the groups exists and false otherwise.
+     */
+    private boolean doesGroupExist(boolean isReadGroupEnabled, String adminGroupName) {
+
+        // The existing code is being moved to a separate method for better readability
+        // and to avoid code duplication.
+
+        // Check whether the admin group exists in the user store.
+        boolean groupExist = false;
+        if (isReadGroupEnabled) {
+            try {
+                groupExist = doCheckExistingRole(adminGroupName);
+            } catch (Exception e) {
+                log.warn(String.format("Error occurs while checking the existence of the %s group " +
+                        "in the user store.", adminGroupName), e);
+            }
+        }
+        return groupExist;
     }
 
     private void updateHybridRoleListOfUserInternal(boolean initialSetup, String adminRoleName, String adminUserID)
