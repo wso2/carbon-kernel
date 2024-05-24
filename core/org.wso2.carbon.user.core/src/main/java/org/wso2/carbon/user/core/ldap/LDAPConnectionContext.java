@@ -21,6 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.CircuitBreakerException;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
@@ -57,6 +58,13 @@ import javax.naming.ldap.LdapContext;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.CIRCUIT_STATE_CLOSE;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.CIRCUIT_STATE_OPEN;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PROPERTY_READ_ONLY;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.CONNECTION_RETRY_COUNT;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.CONNECTION_RETRY_DELAY;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.DEFAULT_MAX_CONNECTION_RETRY_COUNT;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.DEFAULT_MAX_CONNECTION_RETRY_DELAY_IN_MILLISECONDS;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.MAX_CONNECTION_RETRY_COUNT;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.MAX_CONNECTION_RETRY_DELAY_IN_MILLISECONDS;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.PROP_ENABLE_CIRCUIT_BREAKER_FOR_USERSTORE;
 
 public class LDAPConnectionContext {
 
@@ -266,21 +274,25 @@ public class LDAPConnectionContext {
     public DirContext getContext() throws UserStoreException {
 
         DirContext context = null;
-
-        // Implemented basic circuit breaker logic to reduce the resource consumption.
-        switch (getCircuitBreakerState()) {
-        case CIRCUIT_STATE_OPEN:
-            context = getConnectionOnCircuitBreakerOpen();
-            log.info("Successfully recovered LDAP connection for connection URL: " + environment
-                    .get(Context.PROVIDER_URL));
-            break;
-        case CIRCUIT_STATE_CLOSE:
-            context = getConnectionOnCircuitBreakerClose();
-            break;
-        default:
-            throw new UserStoreException("Unknown LDAP connection circuit breaker state.");
+        // Validate whether circuit breaker is enabled for userstores.
+        if (Boolean.parseBoolean(ServerConfiguration.getInstance()
+                .getFirstProperty(PROP_ENABLE_CIRCUIT_BREAKER_FOR_USERSTORE))) {
+            // Implemented basic circuit breaker logic to reduce the resource consumption.
+            switch (getCircuitBreakerState()) {
+                case CIRCUIT_STATE_OPEN:
+                    context = getConnectionOnCircuitBreakerOpen();
+                    log.info("Successfully recovered LDAP connection for connection URL: " + environment
+                            .get(Context.PROVIDER_URL));
+                    break;
+                case CIRCUIT_STATE_CLOSE:
+                    context = getConnectionOnCircuitBreakerClose();
+                    break;
+                default:
+                    throw new UserStoreException("Unknown LDAP connection circuit breaker state.");
+            }
+            return context;
         }
-        return context;
+        return getDirContext();
     }
 
     /**
@@ -957,20 +969,41 @@ public class LDAPConnectionContext {
     }
 
     /**
-     * Convert connection retry count from string to Int.
+     * Convert connection retry count string to int returning the
+     *       value after validating with max allowed connection retry count.
      *
      * @param connectionRetryCount Retry connection count as a string.
-     * @return Retry connection count.
+     * @return Allowed Retry connection count.
      *
      * @throws UserStoreException An error occurred while parsing the property value.
      */
     protected int getConnectionRetryCount(String connectionRetryCount) throws UserStoreException {
 
         try {
-            return Integer.parseInt(connectionRetryCount);
+
+            String maxConnectionRetryCount = ServerConfiguration.getInstance()
+                    .getFirstProperty(MAX_CONNECTION_RETRY_COUNT);
+            if (maxConnectionRetryCount != null && (Integer.parseInt(maxConnectionRetryCount)
+                    < Integer.parseInt(connectionRetryCount))) {
+                return Integer.parseInt(connectionRetryCount);
+            }
+
+            if (StringUtils.isNotEmpty(maxConnectionRetryCount)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Connection retry count configured exceeds the allowed max connection retry count. " +
+                            "Hence, returning the max allowed retry count: " + maxConnectionRetryCount);
+                }
+                return Integer.parseInt(maxConnectionRetryCount);
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Connection retry count configured exceeds the allowed max connection retry count. " +
+                        "Hence, returning the default max allowed retry count: " + DEFAULT_MAX_CONNECTION_RETRY_COUNT);
+            }
+            return DEFAULT_MAX_CONNECTION_RETRY_COUNT;
+
         } catch (NumberFormatException e) {
             throw new UserStoreException("Error occurred while parsing ConnectionRetryCount property value. value: "
-                    + UserStoreConfigConstants.CONNECTION_RETRY_COUNT);
+                    + CONNECTION_RETRY_COUNT);
         }
     }
 
@@ -1020,20 +1053,45 @@ public class LDAPConnectionContext {
     }
 
     /**
-     * Convert retry waiting time string to long.
+     * Convert retry waiting time string to long returning the
+     *      value after validating with max allowed connection retry delay.
      *
      * @param retryWaitingTime Retry waiting time as a string.
-     * @return Retry waiting time in milliseconds.
+     * @return Allowed Retry waiting time in milliseconds.
      *
-     * @throws UserStoreException An error occurred while parsing the property value.
+     * @throws UserStoreException An error occurred while parsing the property value
      */
     protected long getThresholdTimeoutInMilliseconds(String retryWaitingTime) throws UserStoreException {
 
         try {
-            return Long.parseLong(retryWaitingTime);
+
+            String maxRetryWaitingTime = ServerConfiguration.getInstance()
+                    .getFirstProperty(MAX_CONNECTION_RETRY_DELAY_IN_MILLISECONDS);
+            if (maxRetryWaitingTime != null && (Long.parseLong(retryWaitingTime)
+                    < Long.parseLong(maxRetryWaitingTime))) {
+                return Long.parseLong(retryWaitingTime);
+            }
+
+            if (StringUtils.isNotEmpty(maxRetryWaitingTime)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Connection retry delay in milliseconds configured exceeds the allowed waiting time. " +
+                            "Hence, returning the max allowed connection retry delay in milliseconds: "
+                            + maxRetryWaitingTime);
+                }
+                return Long.parseLong(maxRetryWaitingTime);
+            }
+
+            if (log.isDebugEnabled()) {
+                log.debug("Connection retry delay configured exceeds the allowed max waiting time. " +
+                        "Hence, returning the default max allowed connection retry delay in milliseconds: "
+                        + DEFAULT_MAX_CONNECTION_RETRY_DELAY_IN_MILLISECONDS);
+            }
+
+            return DEFAULT_MAX_CONNECTION_RETRY_DELAY_IN_MILLISECONDS;
+
         } catch (NumberFormatException e) {
             throw new UserStoreException("Error occurred while parsing ConnectionRetryDelay property value. value: "
-                    + UserStoreConfigConstants.CONNECTION_RETRY_DELAY);
+                    + CONNECTION_RETRY_DELAY);
         }
     }
 }

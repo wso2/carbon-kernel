@@ -115,6 +115,7 @@ import static org.wso2.carbon.user.core.UserCoreConstants.INTERNAL_ROLES_CLAIM;
 import static org.wso2.carbon.user.core.UserCoreConstants.ROLE_CLAIM;
 import static org.wso2.carbon.user.core.UserCoreConstants.SYSTEM_DOMAIN_NAME;
 import static org.wso2.carbon.user.core.UserCoreConstants.USER_STORE_GROUPS_CLAIM;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.PROP_ENABLE_CIRCUIT_BREAKER_FOR_USERSTORE;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_GROUP_NAME_FROM_USER_ID_CACHE_NAME;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_UNIQUE_USER_ID_CACHE_NAME;
@@ -1876,7 +1877,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // We are here due to two reason. Either there is no secondary UserStoreManager or no
             // domain name provided with user name.
             try {
-                if (abstractUserStoreManager.isCircuitBreakerOpen()) {
+                // Validate whether circuit breaker is enabled and open.
+                if (isCircuitBreakerEnabledAndOpen()) {
                     if (log.isDebugEnabled()) {
                         log.debug("Avoiding searching the " + abstractUserStoreManager.getMyDomainName()
                                 + " domain as Circuit Breaker is in open state");
@@ -3148,7 +3150,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 try {
                     AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager) userManager;
 
-                    if (userStoreManager.isCircuitBreakerOpen()) {
+                    // Validate whether circuit breaker is enabled and open.
+                    if (userStoreManager.isCircuitBreakerEnabledAndOpen()) {
                         if (log.isDebugEnabled()) {
                             log.debug("Circuit Breaker is in open state for:  " + extractedDomain);
                         }
@@ -3390,8 +3393,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 try {
                     AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager) userManager;
 
-                    // Verify whether circuit breaker is open for user store.
-                    if(userStoreManager.isCircuitBreakerOpen()) {
+                    // Validate whether circuit breaker is enabled and open.
+                    if (userStoreManager.isCircuitBreakerEnabledAndOpen()) {
                         if (log.isDebugEnabled()) {
                             log.debug("Avoiding user listing as the Circuit Breaker is in open state for domain: "
                                     + extractedDomain);
@@ -6652,8 +6655,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         try {
-            // Verify whether circuit breaker is open for user store.
-            if (this.isCircuitBreakerOpen()) {
+            // Validate whether circuit breaker is enabled and open.
+            if (this.isCircuitBreakerEnabledAndOpen()) {
                 if (log.isDebugEnabled()) {
                     log.debug("Circuit Breaker is in open state for " + this.getMyDomainName() +
                             " domain. Hence ignore the userstore and proceed");
@@ -11615,8 +11618,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             } else {
                 // Domain is not provided. Try to authenticate with the current user store manager.
-                // Validate the circuit breaker status.
-                if (abstractUserStoreManager.isCircuitBreakerOpen()) {
+                // Validate whether circuit breaker is enabled and open.
+                if (abstractUserStoreManager.isCircuitBreakerEnabledAndOpen()) {
                     if (log.isDebugEnabled()) {
                         log.debug("Avoiding searching the " + abstractUserStoreManager.getMyDomainName()
                                 + " domain as Circuit Breaker is in open state");
@@ -12071,7 +12074,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         .getAttributeName(abstractUserStoreManager.getMyDomainName(), preferredUserNameClaim);
                 // Let's authenticate with the primary UserStoreManager.
 
-                if (abstractUserStoreManager.isCircuitBreakerOpen()) {
+                // Validate whether circuit breaker is enabled and open.
+                if (abstractUserStoreManager.isCircuitBreakerEnabledAndOpen()) {
                     if (log.isDebugEnabled()) {
                         log.debug("Avoiding searching the " + abstractUserStoreManager.getMyDomainName()
                                 + " domain as Circuit Breaker is in open state");
@@ -12349,7 +12353,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 throw new UserStoreException("Error while trying to check tenant status for Tenant : " + tenantId, e);
             }
 
-            if (abstractUserStoreManager.isCircuitBreakerOpen()) {
+            // Validate whether circuit breaker is enabled and open.
+            if (abstractUserStoreManager.isCircuitBreakerEnabledAndOpen()) {
                 if (log.isDebugEnabled()) {
                     log.debug("Avoiding searching the " + abstractUserStoreManager.getMyDomainName()
                             + " domain as Circuit Breaker is in open state");
@@ -13619,8 +13624,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
         userName = userStore.getDomainFreeName();
         String userID = getFromUserIDCache(userName, userStore);
-        // Verify whether circuit breaker is open for user store.
-        if (((AbstractUserStoreManager) userStore.getUserStoreManager()).isCircuitBreakerOpen()) {
+        // Validate whether circuit breaker is enabled and open.
+        if (((AbstractUserStoreManager) userStore.getUserStoreManager()).isCircuitBreakerEnabledAndOpen()) {
             if (log.isDebugEnabled()) {
                 log.debug("Avoiding user listing as the Circuit Breaker is in open state for domain: "
                         + userStore.getDomainName());
@@ -19455,8 +19460,20 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return count;
     }
 
+    /**
+     * Validate whether Circuit Breaker is enabled for userstores.
+     *
+     * @return true if CircuitBreaker is enabled, false otherwise.
+     */
+    public boolean isCircuitBreakerEnabled() {
+
+        return Boolean.parseBoolean(ServerConfiguration.getInstance()
+                .getFirstProperty(PROP_ENABLE_CIRCUIT_BREAKER_FOR_USERSTORE));
+
+    }
+
     // Default assigned as false.
-    protected boolean isCircuitBreakerOpen() {
+    protected boolean isCircuitBreakerEnabledAndOpen() {
 
         return false;
     }
