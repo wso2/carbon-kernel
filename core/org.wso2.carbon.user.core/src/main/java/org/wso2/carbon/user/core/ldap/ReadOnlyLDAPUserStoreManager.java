@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.caching.impl.CachingConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -106,9 +107,7 @@ import javax.naming.ldap.SortControl;
 import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.CIRCUIT_STATE_OPEN;
-import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE;
-import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_ID_ATTRIBUTE;
-import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.*;
 import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID;
 
 public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
@@ -4860,20 +4859,22 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      *
      * @return true if CircuitBreaker Open, false otherwise.
      */
-    public boolean isCircuitBreakerOpen() {
+    public boolean isCircuitBreakerEnabledAndOpen() {
 
-        long circuitOpenDuration = System.currentTimeMillis() - this.connectionSource.getThresholdStartTime();
+        if (Boolean.parseBoolean(ServerConfiguration.getInstance()
+                .getFirstProperty(PROP_ENABLE_CIRCUIT_BREAKER_FOR_USERSTORE))) {
 
-        if (CIRCUIT_STATE_OPEN.equals(this.connectionSource.getCircuitBreakerState())
-                && circuitOpenDuration <=  this.connectionSource.getThresholdTimeoutInMilliseconds()) {
-            log.warn("LDAP connection circuit breaker is in open state for " + circuitOpenDuration +
-                    "ms and has not reach the threshold timeout: " +
-                    this.connectionSource.getThresholdTimeoutInMilliseconds() +
-                    " ms, hence avoid establishing the LDAP connection.");
+            long circuitOpenDuration = System.currentTimeMillis() - this.connectionSource.getThresholdStartTime();
+            if (CIRCUIT_STATE_OPEN.equals(this.connectionSource.getCircuitBreakerState())
+                    && circuitOpenDuration <=  this.connectionSource.getThresholdTimeoutInMilliseconds()) {
+                log.warn("LDAP connection circuit breaker is in open state for " + circuitOpenDuration +
+                        "ms and has not reach the threshold timeout: " +
+                        this.connectionSource.getThresholdTimeoutInMilliseconds() +
+                        " ms, hence avoid establishing the LDAP connection.");
 
-            return true;
+                return true;
+            }
         }
-
         return false;
     }
 }
