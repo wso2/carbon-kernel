@@ -254,15 +254,15 @@ public class LDAPConnectionContext {
         // set default time.
         String retryWaitingTime = realmConfig.getUserStoreProperty(UserStoreConfigConstants.CONNECTION_RETRY_DELAY);
         if (StringUtils.isNotEmpty(retryWaitingTime)) {
-            setThresholdTimeoutInMilliseconds(getThresholdTimeoutInMilliseconds(retryWaitingTime));
+            setThresholdTimeoutInMilliseconds(getValidatedThresholdTimeoutInMilliseconds(Long.parseLong(retryWaitingTime)));
         } else {
             setThresholdTimeoutInMilliseconds
                     (UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS);
         }
 
         if(StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(UserStoreConfigConstants.CONNECTION_RETRY_COUNT))) {
-            setConnectionRetryCount(getConnectionRetryCount(realmConfig
-                    .getUserStoreProperty(UserStoreConfigConstants.CONNECTION_RETRY_COUNT)));
+            setConnectionRetryCount(getValidatedConnectionRetryCount(Integer.parseInt(realmConfig
+                    .getUserStoreProperty(UserStoreConfigConstants.CONNECTION_RETRY_COUNT))));
         } else {
             setConnectionRetryCount(UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_COUNT);
         }
@@ -301,7 +301,7 @@ public class LDAPConnectionContext {
      *
      * @throws CircuitBreakerException An error occurred while attempting to retrieve the LDAP connection.
      */
-    private DirContext getConnectionOnCircuitBreakerOpen() throws CircuitBreakerException {
+    private DirContext getConnectionOnCircuitBreakerOpen() throws UserStoreException {
 
         long circuitOpenDuration = System.currentTimeMillis() - getThresholdStartTime();
         if (log.isDebugEnabled()) {
@@ -310,7 +310,7 @@ public class LDAPConnectionContext {
                     + getCircuitBreakerState() + " and circuit breaker open duration: "
                     + circuitOpenDuration + "ms.");
         }
-        if (circuitOpenDuration >= getThresholdTimeoutInMilliseconds()) {
+        if (circuitOpenDuration >= getValidatedThresholdTimeoutInMilliseconds(getThresholdTimeoutInMilliseconds())) {
             try {
                 DirContext context = getDirContext();
                 setCircuitBreakerState(CIRCUIT_STATE_CLOSE);
@@ -338,7 +338,7 @@ public class LDAPConnectionContext {
      *
      * @throws CircuitBreakerException An error occurred while attempting to retrieve the LDAP connection.
      */
-    private DirContext getConnectionOnCircuitBreakerClose() throws CircuitBreakerException {
+    private DirContext getConnectionOnCircuitBreakerClose() throws UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("LDAP connection circuit breaker state: " + getCircuitBreakerState()
@@ -354,7 +354,7 @@ public class LDAPConnectionContext {
                         + environment.get(Context.PROVIDER_URL) + ". Hence, retry attempt to recover " +
                         "LDAP connection: " + retryCounter);
 
-                if (++retryCounter >= getConnectionRetryCount()) {
+                if (++retryCounter >= getValidatedConnectionRetryCount(getConnectionRetryCount())) {
                     log.error("Retry count exceeds above the maximum count: " + getConnectionRetryCount() +
                             " and failed for LDAP connection: " + environment.get(Context.PROVIDER_URL));
                     setCircuitBreakerState(CIRCUIT_STATE_OPEN);
@@ -925,7 +925,12 @@ public class LDAPConnectionContext {
      */
     public void setThresholdTimeoutInMilliseconds(long thresholdTimeoutInMilliseconds) {
 
-        this.thresholdTimeoutInMilliseconds = thresholdTimeoutInMilliseconds;
+        writeLock.lock();
+        try {
+            this.thresholdTimeoutInMilliseconds = thresholdTimeoutInMilliseconds;
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     /**
@@ -950,7 +955,12 @@ public class LDAPConnectionContext {
      */
     public void setConnectionRetryCount(int connectionRetryCount) {
 
-        this.connectionRetryCount = connectionRetryCount;
+        writeLock.lock();
+        try {
+            this.connectionRetryCount = connectionRetryCount;
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     /**
@@ -977,15 +987,14 @@ public class LDAPConnectionContext {
      *
      * @throws UserStoreException An error occurred while parsing the property value.
      */
-    protected int getConnectionRetryCount(String connectionRetryCount) throws UserStoreException {
+    protected int getValidatedConnectionRetryCount(int connectionRetryCount) throws UserStoreException {
 
         try {
 
             String maxConnectionRetryCount = ServerConfiguration.getInstance()
                     .getFirstProperty(MAX_CONNECTION_RETRY_COUNT);
-            if (maxConnectionRetryCount != null && (Integer.parseInt(maxConnectionRetryCount)
-                    < Integer.parseInt(connectionRetryCount))) {
-                return Integer.parseInt(connectionRetryCount);
+            if (maxConnectionRetryCount != null && (connectionRetryCount < Integer.parseInt(maxConnectionRetryCount))) {
+                return connectionRetryCount;
             }
 
             if (StringUtils.isNotEmpty(maxConnectionRetryCount)) {
@@ -993,12 +1002,14 @@ public class LDAPConnectionContext {
                     log.debug("Connection retry count configured exceeds the allowed max connection retry count. " +
                             "Hence, returning the max allowed retry count: " + maxConnectionRetryCount);
                 }
+                setConnectionRetryCount(Integer.parseInt(maxConnectionRetryCount));
                 return Integer.parseInt(maxConnectionRetryCount);
             }
             if (log.isDebugEnabled()) {
                 log.debug("Connection retry count configured exceeds the allowed max connection retry count. " +
                         "Hence, returning the default max allowed retry count: " + DEFAULT_MAX_CONNECTION_RETRY_COUNT);
             }
+            setConnectionRetryCount(DEFAULT_MAX_CONNECTION_RETRY_COUNT);
             return DEFAULT_MAX_CONNECTION_RETRY_COUNT;
 
         } catch (NumberFormatException e) {
@@ -1061,18 +1072,19 @@ public class LDAPConnectionContext {
      *
      * @throws UserStoreException An error occurred while parsing the property value
      */
-    protected long getThresholdTimeoutInMilliseconds(String retryWaitingTime) throws UserStoreException {
+    protected long getValidatedThresholdTimeoutInMilliseconds(long retryWaitingTime) throws UserStoreException {
 
         try {
 
             String maxRetryWaitingTime = ServerConfiguration.getInstance()
                     .getFirstProperty(MAX_CONNECTION_RETRY_DELAY_IN_MILLISECONDS);
-            if (maxRetryWaitingTime != null && (Long.parseLong(retryWaitingTime)
-                    < Long.parseLong(maxRetryWaitingTime))) {
-                return Long.parseLong(retryWaitingTime);
+            if (maxRetryWaitingTime != null && (retryWaitingTime)
+                    < Long.parseLong(maxRetryWaitingTime)) {
+                return retryWaitingTime;
             }
 
             if (StringUtils.isNotEmpty(maxRetryWaitingTime)) {
+                setThresholdTimeoutInMilliseconds(Long.parseLong(maxRetryWaitingTime));
                 if (log.isDebugEnabled()) {
                     log.debug("Connection retry delay in milliseconds configured exceeds the allowed waiting time. " +
                             "Hence, returning the max allowed connection retry delay in milliseconds: "
@@ -1086,7 +1098,7 @@ public class LDAPConnectionContext {
                         "Hence, returning the default max allowed connection retry delay in milliseconds: "
                         + DEFAULT_MAX_CONNECTION_RETRY_DELAY_IN_MILLISECONDS);
             }
-
+            setThresholdTimeoutInMilliseconds(DEFAULT_MAX_CONNECTION_RETRY_DELAY_IN_MILLISECONDS);
             return DEFAULT_MAX_CONNECTION_RETRY_DELAY_IN_MILLISECONDS;
 
         } catch (NumberFormatException e) {

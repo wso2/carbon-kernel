@@ -19473,7 +19473,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     // Default assigned as false.
-    protected boolean isCircuitBreakerEnabledAndOpen() {
+    protected boolean isCircuitBreakerEnabledAndOpen() throws UserStoreException {
 
         return false;
     }
