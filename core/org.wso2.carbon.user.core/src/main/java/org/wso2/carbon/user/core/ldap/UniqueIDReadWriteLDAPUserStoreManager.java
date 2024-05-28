@@ -2655,6 +2655,10 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                 UserStoreConfigConstants.STARTTLS_ENABLED_DISPLAY_NAME, "false",
                 UserStoreConfigConstants.STARTTLS_ENABLED_DESCRIPTION,
                 new Property[] { CONNECTION.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(UserStoreConfigConstants.CONNECTION_RETRY_COUNT, UserStoreConfigConstants
+                .CONNECTION_RETRY_COUNT_DISPLAY_NAME, "", UserStoreConfigConstants
+                .CONNECTION_RETRY_COUNT_DESCRIPTION, new Property[] { CONNECTION.getProperty(), NUMBER.getProperty(),
+                FALSE.getProperty() });
         setAdvancedProperty(UserStoreConfigConstants.CONNECTION_RETRY_DELAY,
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DISPLAY_NAME,
                 String.valueOf(UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS),
