@@ -20,6 +20,7 @@ package org.wso2.carbon.user.core.jdbc;
 
 import org.apache.axiom.om.util.Base64;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,6 +33,7 @@ import org.wso2.carbon.user.core.NotImplementedException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreClientException;
+import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.ClaimManager;
@@ -2549,7 +2551,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_FOR_USERNAME);
                 }
             } else {
-                if (!isCaseSensitiveUsername() && UID.equals(property)) {
+                if ((!isCaseSensitiveUsername() && UID.equals(property)) || isCaseInsensitiveProperty(property)) {
                     sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.
                             GET_USERS_FOR_PROP_WITH_ID_CASE_INSENSITIVE);
                 } else {
@@ -2565,7 +2567,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USER_FOR_USERNAME);
                 }
             } else {
-                if (!isCaseSensitiveUsername() && UID.equals(property)) {
+                if ((!isCaseSensitiveUsername() && UID.equals(property)) || isCaseInsensitiveProperty(property)) {
                     sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.
                             GET_USERS_FOR_CLAIM_VALUE_WITH_ID_CASE_INSENSITIVE);
                 } else {
@@ -3112,6 +3114,17 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
         String isUsernameCaseInsensitiveString = realmConfig.getUserStoreProperty(CASE_INSENSITIVE_USERNAME);
         return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
+    }
+
+    private boolean isCaseInsensitiveProperty(String property) {
+
+        String caseInsentisitveAttributesProperty = realmConfig.getUserStoreProperty(
+                UserStoreConfigConstants.CASE_INSENSITIVE_ATTRIBUTES);
+        if (StringUtils.isBlank(caseInsentisitveAttributesProperty)) {
+            return false;
+        }
+        String[] caseInsentisitveAttributes = StringUtils.split(caseInsentisitveAttributesProperty, ",");
+        return ArrayUtils.contains(caseInsentisitveAttributes, property);
     }
 
     @Override
