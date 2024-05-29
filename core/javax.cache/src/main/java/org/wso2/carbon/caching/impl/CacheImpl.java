@@ -1000,7 +1000,13 @@ public class CacheImpl<K, V> implements Cache<K, V> {
             long lastModified = localCacheEntry.getLastModified();
             long now = System.currentTimeMillis();
 
-            if (now - lastAccessed >= accessedExpiryDuration || now - lastModified >= modifiedExpiryDuration) {
+//            boolean performCleanup = (now - lastAccessed >= accessedExpiryDuration
+//                    || now - lastModified >= modifiedExpiryDuration);
+
+            boolean performCleanup = now - lastAccessed >= accessedExpiryDuration;
+
+            if (performCleanup) {
+                log.info(".................Expired: Cache:" + cacheName + ", entry:" + key + ", access time: " + lastAccessed);
                 expire(key);
                 if (log.isDebugEnabled()) {
                     log.debug("Expired: Cache:" + cacheName + ", entry:" + key);
