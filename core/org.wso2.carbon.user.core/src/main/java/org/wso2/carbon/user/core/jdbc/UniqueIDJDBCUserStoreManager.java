@@ -3118,13 +3118,14 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     private boolean isCaseInsensitiveProperty(String property) {
 
-        String caseInsentisitveAttributesProperty = realmConfig.getUserStoreProperty(
+        String caseInsensitiveAttributesProperty = realmConfig.getUserStoreProperty(
                 UserStoreConfigConstants.CASE_INSENSITIVE_ATTRIBUTES);
-        if (StringUtils.isBlank(caseInsentisitveAttributesProperty)) {
+        if (StringUtils.isBlank(caseInsensitiveAttributesProperty)) {
             return false;
         }
-        String[] caseInsentisitveAttributes = StringUtils.split(caseInsentisitveAttributesProperty, ",");
-        return ArrayUtils.contains(caseInsentisitveAttributes, property);
+        String[] caseInsensitiveAttributes = Arrays.stream(caseInsensitiveAttributesProperty.split(","))
+                .map(String::trim).toArray(String[]::new);
+        return ArrayUtils.contains(caseInsensitiveAttributes, property);
     }
 
     @Override
