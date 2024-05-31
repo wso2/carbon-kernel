@@ -181,7 +181,6 @@ public class UserStoreConfigConstants {
     public static final String MAX_CONNECTION_RETRY_DELAY_IN_MILLISECONDS =
             "UserStore.maxConnectionRetryDelayInMilliSeconds";
 
-
     public static final String OBJECT_GUID = "objectGuid";
 
     public static final String CONNECTION_RETRY_COUNT = "ConnectionRetryCount";

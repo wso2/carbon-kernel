@@ -56,8 +56,6 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import static org.wso2.carbon.user.core.UserCoreConstants.PROP_ENABLE_CIRCUIT_BREAKER_FOR_USERSTORE;
-import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.CIRCUIT_STATE_CLOSE;
-import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.CIRCUIT_STATE_OPEN;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PROPERTY_READ_ONLY;
 
 public class LDAPConnectionContext {
@@ -87,6 +85,8 @@ public class LDAPConnectionContext {
     private static final int CORRELATION_LOG_INITIALIZATION_ARGS_LENGTH = 0;
     private static final String CORRELATION_LOG_SEPARATOR = "|";
     private static final String CORRELATION_LOG_SYSTEM_PROPERTY = "enableCorrelationLogs";
+    public static final String CIRCUIT_STATE_OPEN = "open";
+    public static final String CIRCUIT_STATE_CLOSE = "close";
 
     private int connectionRetryCount;
     private String ldapConnectionCircuitBreakerState;
@@ -248,15 +248,17 @@ public class LDAPConnectionContext {
         // set default time.
         String retryWaitingTime = realmConfig.getUserStoreProperty(UserStoreConfigConstants.CONNECTION_RETRY_DELAY);
         if (StringUtils.isNotEmpty(retryWaitingTime)) {
-            setThresholdTimeoutInMilliseconds(getValidatedThresholdTimeoutInMilliseconds(Long.parseLong(retryWaitingTime)));
+            setThresholdTimeoutInMilliseconds(getValidatedThresholdTimeoutInMilliseconds(
+                    Long.parseLong(retryWaitingTime)));
         } else {
-            setThresholdTimeoutInMilliseconds
-                    (UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS);
+            setThresholdTimeoutInMilliseconds(
+                    UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS);
         }
 
-        if(StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(UserStoreConfigConstants.CONNECTION_RETRY_COUNT))) {
-            setConnectionRetryCount(getValidatedConnectionRetryCount(Integer.parseInt(realmConfig
-                    .getUserStoreProperty(UserStoreConfigConstants.CONNECTION_RETRY_COUNT))));
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(UserStoreConfigConstants
+                .CONNECTION_RETRY_COUNT))) {
+            setConnectionRetryCount(getValidatedConnectionRetryCount(Integer.parseInt(
+                    realmConfig.getUserStoreProperty(UserStoreConfigConstants.CONNECTION_RETRY_COUNT))));
         } else {
             setConnectionRetryCount(UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_COUNT);
         }
@@ -310,7 +312,6 @@ public class LDAPConnectionContext {
                 setCircuitBreakerState(CIRCUIT_STATE_CLOSE);
                 setThresholdStartTime(0);
                 return context;
-
             } catch (UserStoreException e) {
                 log.warn("Error occurred while obtaining LDAP connection. Connection URL: " + environment
                         .get(Context.PROVIDER_URL) + ". LDAP connection circuit breaker state set to: "
@@ -1089,8 +1090,8 @@ public class LDAPConnectionContext {
 
             if (log.isDebugEnabled()) {
                 log.debug("Max Connection retry delay is not configured. Hence, returning the default "
-                        + "connection retry delay in milliseconds: " + UserStoreConfigConstants
-                        .DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS);
+                        + "connection retry delay in milliseconds: "
+                        + UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS);
             }
             setThresholdStartTime(UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS);
             return UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS;

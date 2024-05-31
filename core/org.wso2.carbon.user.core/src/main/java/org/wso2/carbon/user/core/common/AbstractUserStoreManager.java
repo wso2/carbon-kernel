@@ -1847,7 +1847,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(),
                         String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
                                 ex.getMessage()), userName, credential);
-                    throw ex;
+                throw ex;
             }
             // #################### </Listeners> #####################################################
 
@@ -6668,8 +6668,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // Validate whether circuit breaker is enabled and open.
             if (this.isCircuitBreakerEnabledAndOpen()) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Circuit Breaker is in open state for " + this.getMyDomainName() +
-                            " domain. Hence ignore the userstore and proceed");
+                    log.debug("Circuit Breaker is in open state for " + this.getMyDomainName()
+                            + " domain. Hence ignore the userstore and proceed");
                 }
                 return new String[0];
             }
@@ -19468,18 +19468,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         return count;
-    }
-
-    /**
-     * Validate whether Circuit Breaker is enabled for userstores.
-     *
-     * @return true if CircuitBreaker is enabled, false otherwise.
-     */
-    public boolean isCircuitBreakerEnabled() {
-
-        return Boolean.parseBoolean(ServerConfiguration.getInstance()
-                .getFirstProperty(PROP_ENABLE_CIRCUIT_BREAKER_FOR_USERSTORE));
-
     }
 
     // Default assigned as false.
