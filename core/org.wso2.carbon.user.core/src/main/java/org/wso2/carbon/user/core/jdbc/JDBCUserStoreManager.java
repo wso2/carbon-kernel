@@ -34,7 +34,7 @@ import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.NotImplementedException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
-import org.wso2.carbon.user.core.CircuitBreakerException;
+import org.wso2.carbon.user.core.CircuitBreakerOpenException;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
@@ -106,8 +106,6 @@ import static org.wso2.carbon.user.core.UserStoreConfigConstants.CONNECTION_RETR
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.CONNECTION_RETRY_DELAY;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_COUNT;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS;
-import static org.wso2.carbon.user.core.UserStoreConfigConstants.DEFAULT_MAX_CONNECTION_RETRY_COUNT;
-import static org.wso2.carbon.user.core.UserStoreConfigConstants.DEFAULT_MAX_CONNECTION_RETRY_DELAY_IN_MILLISECONDS;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.MAX_CONNECTION_RETRY_COUNT;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.MAX_CONNECTION_RETRY_DELAY_IN_MILLISECONDS;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.PROP_ENABLE_CIRCUIT_BREAKER_FOR_USERSTORE;
@@ -142,13 +140,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private static final int MAX_ITEM_LIMIT_UNLIMITED = -1;
     public static final String PRIMARY_USER_STORE_DOMAIN = "PRIMARY";
 
-    // Params added to implement Circuit Breaker
+    // Params added to implement Circuit Breaker.
     private int connectionRetryCount;
     private String jdbcConnectionCircuitBreakerState;
     private long thresholdTimeoutInMilliseconds;
     private long thresholdStartTime;
 
-    // Added to implement ReadWriteLock concept
+    // Added to implement ReadWriteLock concept.
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Lock writeLock = readWriteLock.writeLock();
     private final Lock readLock = readWriteLock.readLock();
@@ -276,8 +274,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         /* Set waiting time to re-establish connection after the specified retry count on failure attempts
           if specified otherwise set default time.
-         connectionRetryDelay is not defined by default in the JDBC User store, hence defined a new property
-                           and applied the default values defined for ldap user store
          */
         if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(CONNECTION_RETRY_DELAY))) {
             setThresholdTimeoutInMilliseconds(getValidatedThresholdTimeoutInMilliseconds(Long.parseLong(
@@ -391,12 +387,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             throw new UserStoreException("User Management Data Source is null");
         }
 
-        /** Set waiting time to re-establish connection after the specified retry count on failure attempts
+        /* Set waiting time to re-establish connection after the specified retry count on failure attempts
          * if specified otherwise set default time.
-         * connectionRetryDelay is not defined by default in the JDBC User store, hence defined a new property
-         *       and applied the default values defined for ldap user store
          */
-        if(StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(CONNECTION_RETRY_DELAY))) {
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(CONNECTION_RETRY_DELAY))) {
             setThresholdTimeoutInMilliseconds(getValidatedThresholdTimeoutInMilliseconds(
                     Long.parseLong(realmConfig.getUserStoreProperty(CONNECTION_RETRY_DELAY))));
         } else {
@@ -414,7 +408,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         setThresholdStartTime(0);
 
         properties.put(UserCoreConstants.DATA_SOURCE, dataSource);
-
 
         realmConfig.setUserStoreProperties(JDBCRealmUtil.getSQL(realmConfig
                 .getUserStoreProperties()));
@@ -5036,15 +5029,15 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      * Circuit Breaker pattern added for DB connection retrieval.
      *          Renamed original getDBConnection() method to getConnection() to minimize changes.
      *
-     * @return DB Connection
+     * @return DB Connection.
      * @throws UserStoreException if unknown occurred while getting database connection.
-     * @throws SQLException if error occurred while retrieving database connection
+     * @throws SQLException if error occurred while retrieving database connection.
      */
     protected Connection getDBConnection() throws UserStoreException, SQLException {
 
         Connection dbConnection = null;
 
-        // Validate whether circuit breaker is enabled for userstores.
+        /* Validate whether circuit breaker is enabled for userstores.*/
         if (Boolean.parseBoolean(ServerConfiguration.getInstance()
                 .getFirstProperty(PROP_ENABLE_CIRCUIT_BREAKER_FOR_USERSTORE))) {
             switch (getCircuitBreakerState()) {
@@ -5067,16 +5060,15 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      * Attempts and returns the DB Connection when the circuit Breaker is in open state.
      ** @return returns the DB connection.
      *
-     * @throws CircuitBreakerException An error occurred while attempting to retrieve the DB connection.
+     * @throws CircuitBreakerOpenException An error occurred while attempting to retrieve the DB connection.
      */
     private Connection getConnectionOnCircuitBreakerOpen() throws UserStoreException {
 
         long circuitOpenDuration = System.currentTimeMillis() - getThresholdStartTime();
         if (log.isDebugEnabled()) {
-            log.debug("Trying to obtain JDBC connection for domain: " + getMyDomainName() +
-                    " when circuit breaker state is "
-                    + getCircuitBreakerState() + " and circuit breaker open duration: "
-                    + circuitOpenDuration + "ms.");
+            log.debug("Trying to obtain JDBC connection for domain: " + getMyDomainName()
+                    + " when circuit breaker state is " + getCircuitBreakerState()
+                    + " and circuit breaker open duration: " + circuitOpenDuration + "ms.");
         }
 
         if (circuitOpenDuration >= getValidatedThresholdTimeoutInMilliseconds(getThresholdTimeoutInMilliseconds())) {
@@ -5087,14 +5079,14 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 return dbConnection;
             } catch (Exception e) {
                 log.warn("Error occurred while trying to obtaining connection for domain: " + getMyDomainName()
-                + ". Circuit Breaker state for domain: " + getMyDomainName() + " is set to "
+                        + ". Circuit Breaker state for domain: " + getMyDomainName() + " is set to "
                         + getCircuitBreakerState());
                 setThresholdStartTime(System.currentTimeMillis());
 
-                throw new CircuitBreakerException("Error occurred while obtaining connection.", e);
+                throw new CircuitBreakerOpenException("Error occurred while obtaining connection.", e);
             }
         } else {
-            throw new CircuitBreakerException(
+            throw new CircuitBreakerOpenException(
                     "JDBC Connection circuit breaker is in open state for " + circuitOpenDuration
                             + "ms and has not reach the threshold timeout: " + getThresholdTimeoutInMilliseconds()
                             + "ms, hence avoid establishing the connection for domain " + getMyDomainName());
@@ -5105,13 +5097,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      * Attempts and returns the DB Connection when the circuit Breaker is in closed state.
      * @return returns the DB connection.
      *
-     * @throws CircuitBreakerException An error occurred while attempting to retrieve the DB connection.
+     * @throws CircuitBreakerOpenException An error occurred while attempting to retrieve the DB connection.
      */
     private Connection getConnectionOnCircuitBreakerClose() throws UserStoreException {
 
         if (log.isDebugEnabled()) {
-            log.debug("Connection circuit breaker state: " + getCircuitBreakerState()
-                    + ", so trying to obtain the connection for domain " + getMyDomainName());
+            log.debug("Connection circuit breaker state: " + getCircuitBreakerState() +
+                    ", so trying to obtain the connection for domain " + getMyDomainName());
         }
         int retryCounter = 0;
         while (true) {
@@ -5119,14 +5111,14 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 return getConnection();
             } catch (Exception e) {
                 log.warn("Error occurred while obtaining JDBC connection for domain " + getMyDomainName()
-                + ". Hence, retry attempt to recover DB connection: " + retryCounter);
+                        + ". Hence, retry attempt to recover DB connection: " + retryCounter);
 
                 if (++retryCounter >= getValidatedConnectionRetryCount(getConnectionRetryCount())) {
-                    log.error("Retry count exceeds above the maximum count: " + getConnectionRetryCount() +
-                            " and failed for domain " + getMyDomainName());
+                    log.error("Retry count exceeds above the maximum count: " + getConnectionRetryCount()
+                            + " and failed for domain " + getMyDomainName());
                     setCircuitBreakerState(CIRCUIT_STATE_OPEN);
                     setThresholdStartTime(System.currentTimeMillis());
-                    throw new CircuitBreakerException("Error occurred while obtaining connection for domain: "
+                    throw new CircuitBreakerOpenException("Error occurred while obtaining connection for domain: "
                             + getMyDomainName() + " and circuit breaker state set to: " + getCircuitBreakerState(), e);
                 }
             }
@@ -5134,9 +5126,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Sets threadsafe JDBC ConnectionCircuitBreakerState
+     * Sets threadsafe JDBC ConnectionCircuitBreakerState.
      *
-     * @param jdbcConnectionCircuitBreakerState JDBC ConnectionCircuitBreakerState
+     * @param jdbcConnectionCircuitBreakerState JDBC ConnectionCircuitBreakerState.
      */
     public void setCircuitBreakerState(String jdbcConnectionCircuitBreakerState) {
 
@@ -5149,9 +5141,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Sets threadsafe thresholdTimeoutInMilliseconds
+     * Sets threadsafe thresholdTimeoutInMilliseconds.
      *
-     * @param thresholdTimeoutInMilliseconds threshold Timeout in Milliseconds
+     * @param thresholdTimeoutInMilliseconds threshold Timeout in Milliseconds.
      */
     public void setThresholdTimeoutInMilliseconds(long thresholdTimeoutInMilliseconds) {
 
@@ -5164,9 +5156,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Sets threadsafe thresholdStartTime
+     * Sets threadsafe thresholdStartTime.
      *
-     * @param thresholdStartTime Threshold Start Time
+     * @param thresholdStartTime Threshold Start Time.
      */
     public void setThresholdStartTime(long thresholdStartTime) {
 
@@ -5179,9 +5171,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Sets threadsafe connectionRetryCount
+     * Sets threadsafe connectionRetryCount.
      *
-     * @param connectionRetryCount Connection Retry Count
+     * @param connectionRetryCount Connection Retry Count.
      */
     public void setConnectionRetryCount(int connectionRetryCount) {
 
@@ -5194,9 +5186,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Returns threadsafe connectionRetryCount
+     * Returns threadsafe connectionRetryCount.
      *
-     * @return returns connectionRetryCount
+     * @return returns connectionRetryCount.
      */
     public int getConnectionRetryCount() {
 
@@ -5204,9 +5196,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Returns threadsafe thresholdStartTime
+     * Returns threadsafe thresholdStartTime.
      *
-     * @return returns thresholdStartTime
+     * @return returns thresholdStartTime.
      */
     public long getThresholdStartTime() {
 
@@ -5219,9 +5211,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Returns threadsafe JDBC ConnectionCircuitBreakerState
+     * Returns threadsafe JDBC ConnectionCircuitBreakerState.
      *
-     * @return returns jdbcConnectionCircuitBreakerState
+     * @return returns jdbcConnectionCircuitBreakerState.
      */
     public String getCircuitBreakerState() {
 
@@ -5234,9 +5226,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Returns threadsafe thresholdTimeoutInMilliseconds
+     * Returns threadsafe thresholdTimeoutInMilliseconds.
      *
-     * @return returns thresholdTimeoutInMilliseconds
+     * @return returns thresholdTimeoutInMilliseconds.
      */
     public long getThresholdTimeoutInMilliseconds() {
 
@@ -5255,7 +5247,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      * @param retryWaitingTime Retry waiting time as a string.
      * @return Allowed Retry waiting time in milliseconds.
      *
-     * @throws UserStoreException An error occurred while parsing the property value
+     * @throws UserStoreException An error occurred while parsing the property value.
      */
     protected long getValidatedThresholdTimeoutInMilliseconds(long retryWaitingTime) throws UserStoreException {
 
@@ -5263,31 +5255,29 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
             String maxRetryWaitingTime = ServerConfiguration.getInstance()
                     .getFirstProperty(MAX_CONNECTION_RETRY_DELAY_IN_MILLISECONDS);
-            if (maxRetryWaitingTime != null && (retryWaitingTime < Long.parseLong(maxRetryWaitingTime))) {
+            if (maxRetryWaitingTime != null && (retryWaitingTime <= Long.parseLong(maxRetryWaitingTime))) {
                 return retryWaitingTime;
             }
 
             if (StringUtils.isNotEmpty(maxRetryWaitingTime)) {
                 setThresholdStartTime(Long.parseLong(maxRetryWaitingTime));
                 if (log.isDebugEnabled()) {
-                    log.debug("Connection retry delay in milliseconds configured exceeds the allowed waiting time. " +
-                            "Hence, returning the max allowed connection retry delay in milliseconds: "
+                    log.debug("Connection retry delay in milliseconds configured exceeds the allowed "
+                            + "waiting time. Hence, returning the max allowed connection retry delay in milliseconds: "
                             + maxRetryWaitingTime);
                 }
                 return Long.parseLong(maxRetryWaitingTime);
             }
 
             if (log.isDebugEnabled()) {
-                log.debug("Connection retry delay configured exceeds the allowed max waiting time. " +
-                        "Hence, returning the default max allowed connection retry delay in milliseconds: "
-                        + DEFAULT_MAX_CONNECTION_RETRY_DELAY_IN_MILLISECONDS);
+                log.debug("Max Connection retry delay is not configured. Hence, returning the default "
+                        + "connection retry delay in milliseconds: " + DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS);
             }
-            setThresholdStartTime(DEFAULT_MAX_CONNECTION_RETRY_DELAY_IN_MILLISECONDS);
-            return DEFAULT_MAX_CONNECTION_RETRY_DELAY_IN_MILLISECONDS;
+            setThresholdStartTime(DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS);
+            return DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS;
 
         } catch (NumberFormatException e) {
-            throw new UserStoreException("Error occurred while parsing ConnectionRetryDelay property value. value: "
-                    + CONNECTION_RETRY_DELAY);
+            throw new UserStoreException("Error occurred while parsing ConnectionRetryDelay property value");
         }
     }
 
@@ -5306,7 +5296,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
             String maxConnectionRetryCount = ServerConfiguration.getInstance()
                     .getFirstProperty(MAX_CONNECTION_RETRY_COUNT);
-            if (maxConnectionRetryCount != null && (connectionRetryCount <
+            if (maxConnectionRetryCount != null && (connectionRetryCount <=
                     Integer.parseInt(maxConnectionRetryCount))) {
                 return connectionRetryCount;
             }
@@ -5314,21 +5304,20 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             if (StringUtils.isNotEmpty(maxConnectionRetryCount)) {
                 setConnectionRetryCount(Integer.parseInt(maxConnectionRetryCount));
                 if (log.isDebugEnabled()) {
-                    log.debug("Connection retry count configured exceeds the allowed max connection retry count. " +
-                            "Hence, returning the max allowed retry count: " + maxConnectionRetryCount);
+                    log.debug("Connection retry count configured exceeds the allowed max connection retry count. "
+                            + "Hence, returning the max allowed retry count: " + maxConnectionRetryCount);
                 }
                 return Integer.parseInt(maxConnectionRetryCount);
             }
             if (log.isDebugEnabled()) {
-                log.debug("Connection retry count configured exceeds the allowed max connection retry count. " +
-                        "Hence, returning the default max allowed retry count: " + DEFAULT_MAX_CONNECTION_RETRY_COUNT);
+                log.debug("Max Connection retry count is not configured. Hence, returning the default "
+                        + "allowed retry count: " + DEFAULT_CONNECTION_RETRY_COUNT);
             }
-            setConnectionRetryCount(DEFAULT_MAX_CONNECTION_RETRY_COUNT);
-            return DEFAULT_MAX_CONNECTION_RETRY_COUNT;
+            setConnectionRetryCount(DEFAULT_CONNECTION_RETRY_COUNT);
+            return DEFAULT_CONNECTION_RETRY_COUNT;
 
         } catch (NumberFormatException e) {
-            throw new UserStoreException("Error occurred while parsing ConnectionRetryCount property value. value: "
-                    + CONNECTION_RETRY_COUNT);
+            throw new UserStoreException("Error occurred while parsing ConnectionRetryCount property value.");
         }
     }
 
@@ -5343,13 +5332,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 .getFirstProperty(PROP_ENABLE_CIRCUIT_BREAKER_FOR_USERSTORE))) {
 
             long circuitOpenDuration = System.currentTimeMillis() - getThresholdStartTime();
-            if (CIRCUIT_STATE_OPEN.equals(getCircuitBreakerState())
-                    && circuitOpenDuration <=  getValidatedThresholdTimeoutInMilliseconds(
-                            getThresholdTimeoutInMilliseconds())) {
+            if (CIRCUIT_STATE_OPEN.equals(getCircuitBreakerState()) && circuitOpenDuration
+                    <= getValidatedThresholdTimeoutInMilliseconds(getThresholdTimeoutInMilliseconds())) {
 
-                log.warn("JDBC connection circuit breaker is in open state for " + circuitOpenDuration +
-                        "ms and has not reach the threshold timeout: " + getThresholdTimeoutInMilliseconds() +
-                        "ms, hence avoid establishing the " + getMyDomainName() + " domain JDBC connection.");
+                log.warn("JDBC connection circuit breaker is in open state for " + circuitOpenDuration
+                        + "ms and has not reach the threshold timeout: " + getThresholdTimeoutInMilliseconds()
+                        + "ms, hence avoid establishing the " + getMyDomainName() + " domain JDBC connection.");
                 return true;
             }
         }

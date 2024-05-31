@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -20,29 +20,29 @@ package org.wso2.carbon.user.core;
 /**
  * The exception to throw when the Circuit Breaker triggers for user stores.
  */
-public class CircuitBreakerException extends UserStoreException {
+public class CircuitBreakerOpenException extends UserStoreException {
 
-    public CircuitBreakerException(String message, Throwable cause) {
+    public CircuitBreakerOpenException(String message, Throwable cause) {
 
         super(message, cause);
     }
 
-    public CircuitBreakerException(String message, String errorCode, Throwable cause) {
+    public CircuitBreakerOpenException(String message, String errorCode, Throwable cause) {
 
         super(message, errorCode, cause);
     }
 
-    public CircuitBreakerException(String message, String errorCode) {
+    public CircuitBreakerOpenException(String message, String errorCode) {
 
         super(message, errorCode);
     }
 
-    public CircuitBreakerException(String message) {
+    public CircuitBreakerOpenException(String message) {
 
         super(message);
     }
 
-    public CircuitBreakerException(Throwable cause) {
+    public CircuitBreakerOpenException(Throwable cause) {
 
         super(cause);
     }

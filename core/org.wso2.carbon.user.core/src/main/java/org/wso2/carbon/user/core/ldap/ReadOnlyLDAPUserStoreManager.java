@@ -4516,15 +4516,16 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         setAdvancedProperty(UserStoreConfigConstants.STARTTLS_ENABLED,
                 UserStoreConfigConstants.STARTTLS_ENABLED_DISPLAY_NAME, "false",
                 UserStoreConfigConstants.STARTTLS_ENABLED_DESCRIPTION);
+        /* Added to implement Circuit Breaker. */
         setAdvancedProperty(UserStoreConfigConstants.CONNECTION_RETRY_DELAY,
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DISPLAY_NAME,
                 String.valueOf(UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS),
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DESCRIPTION);
-        // added to implement Circuit Breaker
         setAdvancedProperty(UserStoreConfigConstants.CONNECTION_RETRY_COUNT,
                 UserStoreConfigConstants.CONNECTION_RETRY_COUNT_DISPLAY_NAME,
                 String.valueOf(UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_COUNT),
                 UserStoreConfigConstants.CONNECTION_RETRY_COUNT_DESCRIPTION);
+
         setAdvancedProperty(UserStoreConfigConstants.SSLCertificateValidationEnabled, "Enable SSL certificate" +
                 " validation", "true", UserStoreConfigConstants.SSLCertificateValidationEnabledDescription);
         setAdvancedProperty(UserStoreConfigConstants.immutableAttributes,
@@ -4855,7 +4856,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Verify Circuit Breaker state for user store
+     * Verify Circuit Breaker state for user store.
      *
      * @return true if CircuitBreaker Open, false otherwise.
      */

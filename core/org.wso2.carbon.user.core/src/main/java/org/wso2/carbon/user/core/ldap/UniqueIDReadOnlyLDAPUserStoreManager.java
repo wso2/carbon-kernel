@@ -2863,15 +2863,17 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 UserStoreConfigConstants.STARTTLS_ENABLED_DISPLAY_NAME, "false",
                 UserStoreConfigConstants.STARTTLS_ENABLED_DESCRIPTION,
                 new Property[] { CONNECTION.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
+        /* Added for circuit breaker implementation. */
         setAdvancedProperty(UserStoreConfigConstants.CONNECTION_RETRY_COUNT, UserStoreConfigConstants
-                .CONNECTION_RETRY_COUNT_DISPLAY_NAME, "", UserStoreConfigConstants
-                .CONNECTION_RETRY_COUNT_DESCRIPTION, new Property[] { CONNECTION.getProperty(), NUMBER.getProperty(),
-                FALSE.getProperty() });
+                .CONNECTION_RETRY_COUNT_DISPLAY_NAME, String.valueOf(UserStoreConfigConstants
+                .DEFAULT_CONNECTION_RETRY_COUNT), UserStoreConfigConstants.CONNECTION_RETRY_COUNT_DESCRIPTION,
+                new Property[] { CONNECTION.getProperty(), NUMBER.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(UserStoreConfigConstants.CONNECTION_RETRY_DELAY,
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DISPLAY_NAME,
                 String.valueOf(UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS),
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DESCRIPTION,
                 new Property[] { CONNECTION.getProperty(), NUMBER.getProperty(), FALSE.getProperty() });
+
         setAdvancedProperty(UserStoreConfigConstants.immutableAttributes,
                 UserStoreConfigConstants.immutableAttributesDisplayName, " ",
                 UserStoreConfigConstants.immutableAttributesDescription,
