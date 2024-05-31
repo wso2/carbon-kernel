@@ -121,6 +121,10 @@ public class UserCoreConstants {
     public static final String USER_LOCKED = "true";
     public static final String USER_UNLOCKED = "false";
 
+    // Server level config introduced for backward compatibility with the CircuitBreaker.
+    public static final String PROP_ENABLE_CIRCUIT_BREAKER_FOR_USERSTORE =
+            "UserStore.enableCircuitBreakerForUserStores";
+
     public static final class RealmConfig {
         public static final String LOCAL_NAME_USER_MANAGER = "UserManager";
         public static final String LOCAL_NAME_REALM = "Realm";

@@ -210,8 +210,4 @@ public class UserStoreConfigConstants {
             "skip multi-valued attribute separation";
     public static final String singleValuedAttributesDisplayName = "Single Valued Attributes";
 
-    public static final String PROP_ENABLE_CIRCUIT_BREAKER_FOR_USERSTORE =
-            "UserStore.enableCircuitBreakerForUserStores";
-
-
 }
