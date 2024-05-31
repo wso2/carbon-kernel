@@ -100,6 +100,7 @@ import static org.wso2.carbon.user.core.constants.UserCoreDBConstants.SQL_STATEM
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
+import static org.wso2.carbon.user.core.UserCoreConstants.PROP_ENABLE_CIRCUIT_BREAKER_FOR_USERSTORE;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.CIRCUIT_STATE_OPEN;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.CIRCUIT_STATE_CLOSE;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.CONNECTION_RETRY_COUNT;
@@ -108,7 +109,6 @@ import static org.wso2.carbon.user.core.UserStoreConfigConstants.DEFAULT_CONNECT
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.MAX_CONNECTION_RETRY_COUNT;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.MAX_CONNECTION_RETRY_DELAY_IN_MILLISECONDS;
-import static org.wso2.carbon.user.core.UserStoreConfigConstants.PROP_ENABLE_CIRCUIT_BREAKER_FOR_USERSTORE;
 
 import static org.wso2.carbon.user.core.util.DatabaseUtil.getLoggableSqlString;
 

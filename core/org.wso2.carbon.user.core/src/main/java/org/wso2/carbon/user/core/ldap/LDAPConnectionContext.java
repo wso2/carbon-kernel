@@ -55,6 +55,7 @@ import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import static org.wso2.carbon.user.core.UserCoreConstants.PROP_ENABLE_CIRCUIT_BREAKER_FOR_USERSTORE;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.CIRCUIT_STATE_CLOSE;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.CIRCUIT_STATE_OPEN;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PROPERTY_READ_ONLY;
@@ -269,7 +270,7 @@ public class LDAPConnectionContext {
         DirContext context = null;
         // Validate whether circuit breaker is enabled for userstores.
         if (Boolean.parseBoolean(ServerConfiguration.getInstance()
-                .getFirstProperty(UserStoreConfigConstants.PROP_ENABLE_CIRCUIT_BREAKER_FOR_USERSTORE))) {
+                .getFirstProperty(PROP_ENABLE_CIRCUIT_BREAKER_FOR_USERSTORE))) {
             // Implemented basic circuit breaker logic to reduce the resource consumption.
             switch (getCircuitBreakerState()) {
                 case CIRCUIT_STATE_OPEN:
