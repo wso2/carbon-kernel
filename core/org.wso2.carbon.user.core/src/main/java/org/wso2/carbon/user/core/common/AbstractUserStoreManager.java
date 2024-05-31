@@ -28,7 +28,7 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
-import org.wso2.carbon.user.core.CircuitBreakerException;
+import org.wso2.carbon.user.core.CircuitBreakerOpenException;
 import org.wso2.carbon.user.core.NotImplementedException;
 import org.wso2.carbon.user.core.PaginatedUserStoreManager;
 import org.wso2.carbon.user.core.Permission;
@@ -1825,29 +1825,29 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     } else {
                         credentialArgument = credential;
                     }
-
-                    if (!listener.doPreAuthenticate(userName, credentialArgument, abstractUserStoreManager)) {
-                        handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(),
-                                String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
-                                        UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), userName,
-                                credentialArgument);
-                        return false;
+                    try {
+                        if (!listener.doPreAuthenticate(userName, credentialArgument, abstractUserStoreManager)) {
+                            handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(),
+                                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
+                                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), userName,
+                                    credentialArgument);
+                            return false;
+                        }
+                    /* Added for compatibility with old pre-listeners. */
+                    } catch (CircuitBreakerOpenException circuitBreakerOpenEx) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Circuit Breaker is in open state for " + userStore.getDomainName()
+                                    + " domain. Hence ignore the userstore and proceed", circuitBreakerOpenEx);
+                        }
+                        log.error("Error occurred while obtaining user store connection for: "
+                                + userStore.getDomainName());
                     }
                 }
             } catch (UserStoreException ex) {
-                if (ex instanceof CircuitBreakerException) {
-                    if(log.isDebugEnabled()) {
-                        log.debug("Circuit Breaker is in open state for " + userStore.getDomainName() +
-                                " domain. Hence ignore the userstore and proceed", ex);
-                    }
-                    log.error("Error occurred while obtaining user store connection for: "
-                            + userStore.getDomainName());
-                } else {
-                    handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(),
-                            String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
-                                    ex.getMessage()), userName, credential);
+                handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
+                                ex.getMessage()), userName, credential);
                     throw ex;
-                }
             }
             // #################### </Listeners> #####################################################
 
@@ -1952,10 +1952,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             }
         } catch (UserStoreException ex) {
-            if (ex instanceof CircuitBreakerException) {
-                if(log.isDebugEnabled()) {
-                    log.debug("Circuit Breaker is in open state for " + userStore.getDomainName() +
-                            " domain. Hence ignore the userstore and proceed", ex);
+            /* Added for compatibility with old pre-listeners. */
+            if (ex instanceof CircuitBreakerOpenException) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Circuit Breaker is in open state for " + userStore.getDomainName()
+                            + " domain. Hence ignore the userstore and proceed", ex);
                 }
                 log.error("Error occurred while obtaining user store connection for: "
                         + userStore.getDomainName());
@@ -3162,10 +3163,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         log.debug("List of filtered users for: " + extractedDomain + " : " + Arrays.asList(userArray));
                     }
                     return Arrays.asList(UserCoreUtil.addDomainToNames(userArray, extractedDomain));
-                } catch (CircuitBreakerException ex) {
-                    if(log.isDebugEnabled()) {
-                        log.debug("Circuit Breaker is in open state for " + extractedDomain +
-                                " domain. Hence ignore the userstore and proceed", ex);
+                } catch (CircuitBreakerOpenException ex) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Circuit Breaker is in open state for " + extractedDomain
+                                + " domain. Hence ignore the userstore and proceed", ex);
                     }
                     log.error("Error occurred while obtaining user store connection.");
                     return Collections.emptyList();
@@ -3409,10 +3410,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     }
                     return userStoreManager.getUsersFromIDs(userIDs, null, extractedDomain, profileName);
 
-                } catch (CircuitBreakerException ex) {
-                    if(log.isDebugEnabled()) {
-                        log.debug("Circuit Breaker is in open state for " + extractedDomain +
-                                " domain. Hence ignore the userstore and proceed", ex);
+                } catch (CircuitBreakerOpenException ex) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Circuit Breaker is in open state for " + extractedDomain
+                                + " domain. Hence ignore the userstore and proceed", ex);
                     }
                     log.error("Error occurred while obtaining user store connection.");
                     return Collections.emptyList();
@@ -6585,15 +6586,24 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // #################### Domain Name Free Zone Starts Here ################################
 
-        if (userStore.isSystemStore()) {
-            return systemUserRoleManager.isExistingSystemUser(userStore.getDomainFreeName());
-        }
-
-        if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-            return doCheckExistingUser(userStore.getDomainFreeName());
+        /* Validate whether circuit breaker is enabled and open for compatibility with old pre-listeners. */
+        if (((AbstractUserStoreManager) userStore.getUserStoreManager()).isCircuitBreakerEnabledAndOpen()) {
+            if (log.isDebugEnabled()) {
+                log.debug("Avoiding user listing as the Circuit Breaker is in open state for domain: "
+                        + userStore.getDomainName());
+            }
         } else {
-            return getUserIDFromUserName(userName) != null;
+            if (userStore.isSystemStore()) {
+                return systemUserRoleManager.isExistingSystemUser(userStore.getDomainFreeName());
+            }
+
+            if (!isUniqueUserIdEnabledInUserStore(userStore)) {
+                return doCheckExistingUser(userStore.getDomainFreeName());
+            } else {
+                return getUserIDFromUserName(userName) != null;
+            }
         }
+        return false;
     }
 
     /**
@@ -6671,10 +6681,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         .map(User::getUsername)
                         .toArray(String[]::new);
             }
-        } catch (CircuitBreakerException ex) {
-            if(log.isDebugEnabled()) {
-                log.debug("Circuit Breaker is in open state for " + this.getMyDomainName() +
-                        " domain. Hence ignore " + "the userstore and proceed", ex);
+        } catch (CircuitBreakerOpenException ex) {
+            if (log.isDebugEnabled()) {
+                log.debug("Circuit Breaker is in open state for " + this.getMyDomainName()
+                        + " domain. Hence ignore " + "the userstore and proceed", ex);
             }
             log.error("Error occurred while obtaining user store connection.");
             return new String[0];
