@@ -2186,24 +2186,21 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             if (log.isDebugEnabled()) {
                 logger.debug("User: " + userNameDN + " was successfully " + "modified in LDAP group: " + groupRDN);
             }
-        } catch (NamingException e) {
-            if (e instanceof NameAlreadyBoundException) {
-                // If concurrent requests bypass the existing user validation check, it can throw an exception
-                // regarding unique key violation. Since the user addition is successful, the exception is ignored.
-                if (log.isDebugEnabled()) {
-                    log.debug(String.format("Similar entry found when adding the user to LDAP role: %s. " +
-                            "Hence skipping the user addition", groupRDN), e);
-                }
-            } else {
-                String errorMessage =
-                        "Error occurred while modifying user entry: " + userNameDN + " in LDAP role: " + groupRDN;
-                if (log.isDebugEnabled()) {
-                    log.debug(errorMessage, e);
-                }
-                throw new UserStoreException(errorMessage,
-                        UserCoreErrorConstants.ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode());
+        } catch (NameAlreadyBoundException e) {
+            // If concurrent requests bypass the existing user validation check, it can throw an exception
+            // regarding unique key violation. Since the user addition is successful, the exception is ignored.
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Similar entry found when adding the user to LDAP role: %s. " +
+                        "Hence skipping the user addition", groupRDN), e);
             }
-
+        } catch (NamingException e) {
+            String errorMessage =
+                    "Error occurred while modifying user entry: " + userNameDN + " in LDAP role: " + groupRDN;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage,
+                    UserCoreErrorConstants.ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode());
         } finally {
             JNDIUtil.closeContext(groupContext);
             JNDIUtil.closeContext(mainDirContext);
