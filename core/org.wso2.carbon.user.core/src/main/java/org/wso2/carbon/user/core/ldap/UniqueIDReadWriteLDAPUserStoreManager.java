@@ -2193,6 +2193,9 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                 log.debug(String.format("Similar entry found when adding the user to LDAP role: %s. " +
                         "Hence skipping the user addition", groupRDN), e);
             }
+            throw new UserStoreException("Duplicate error occurred while modifying user entry: " + userNameDN +
+                    " in LDAP role: " + groupRDN,
+                    UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_UPDATING_USER_OF_ROLE.getCode());
         } catch (NamingException e) {
             String errorMessage =
                     "Error occurred while modifying user entry: " + userNameDN + " in LDAP role: " + groupRDN;

@@ -54,6 +54,7 @@ public class UserCoreErrorConstants {
         ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE("30015", "Constrain violation while writing to database."),
         ERROR_CODE_DOMAIN_VALUE_WITH_FILTER_EMPTY("34012", "Filter value is not provided"),
         ERROR_CODE_NULL_CLAIM_URI("30018", "Claim URI is not provided"),
+        ERROR_CODE_DUPLICATE_WHILE_UPDATING_USER_OF_ROLE("30019", "Duplicate user while updating user of role."),
         // Error code related with authentication
         ERROR_CODE_ERROR_WHILE_AUTHENTICATION("31001", "Un-expected error while authenticating. %s"),
         ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION("31002", "Un-expected error while pre-authenticating, %s"),
