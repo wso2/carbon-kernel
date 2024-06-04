@@ -69,8 +69,6 @@ import javax.management.ObjectName;
 
 import static org.wso2.carbon.caching.impl.CachingConstants.CLEAR_ALL_PREFIX;
 import static org.wso2.carbon.caching.impl.CachingConstants.ILLEGAL_STATE_EXCEPTION_MESSAGE;
-import static org.wso2.carbon.caching.impl.Util.isPeriodicCacheCleanUpEnabled;
-
 /**
  * TODO: class description
  * <p/>
@@ -1002,10 +1000,7 @@ public class CacheImpl<K, V> implements Cache<K, V> {
             long lastModified = localCacheEntry.getLastModified();
             long now = System.currentTimeMillis();
 
-            boolean performCleanup = isPeriodicCacheCleanUpEnabled() ? (now - lastAccessed >= accessedExpiryDuration) :
-                    (now - lastAccessed >= accessedExpiryDuration || now - lastModified >= modifiedExpiryDuration);
-
-            if (performCleanup) {
+            if (now - lastAccessed >= accessedExpiryDuration || now - lastModified >= modifiedExpiryDuration) {
                 expire(key);
                 if (log.isDebugEnabled()) {
                     log.debug("Expired: Cache:" + cacheName + ", entry:" + key);
