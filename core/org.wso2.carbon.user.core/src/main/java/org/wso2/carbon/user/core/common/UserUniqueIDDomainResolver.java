@@ -53,6 +53,8 @@ public class UserUniqueIDDomainResolver {
     private static final String UNIQUE_ID_DOMAIN_RESOLVER_CACHE_MANGER_NAME = "unique_id_domain_cache_manager";
     private static final String UNIQUE_ID_DOMAIN_RESOLVER_CACHE_NAME = "unique_id_domain_cache";
     private static final String DOMAIN_COLUMN_NAME = "UM_DOMAIN_NAME";
+    // MAX_RETRY_TIME will be constant and not configurable since getDomainForUserId will not fail on second attempt.
+    private static final int MAX_RETRY_TIME = 2;
 
     // DB related.
     private DataSource dataSource;
@@ -186,6 +188,39 @@ public class UserUniqueIDDomainResolver {
             }
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
+        }
+    }
+
+    /**
+     * Set the domain for the user id if the domain is not retrieved from getDomainForUserId. In case of SQLException,
+     * tries MAX_RETRY_TIME to set the user domain.
+     *
+     * @param userId     Unique user id of the user.
+     * @param userDomain Domain to be set.
+     * @param tenantId   Tenant Id if the user.
+     * @throws UserStoreException If an error occurs.
+     */
+    public void setDomainForUserIdIfNotExists(String userId, String userDomain, int tenantId)
+            throws UserStoreException {
+
+        for (int retryTimes = 0; retryTimes < MAX_RETRY_TIME; retryTimes++) {
+            try {
+                String retrievedUserDomain = getDomainForUserId(userId, tenantId);
+                if (!StringUtils.isEmpty(retrievedUserDomain)) {
+                    return;
+                }
+                setDomainForUserId(userId, userDomain, tenantId);
+                return;
+            } catch (UserStoreException e) {
+                if (!(e.getCause() instanceof SQLException) || retryTimes == MAX_RETRY_TIME - 1) {
+                    throw e;
+                }
+                if (log.isDebugEnabled()) {
+                    log.debug(String.format(
+                            "Error while setting the domain for user ID: %s on try: %d. Retrying to set the domain.",
+                            userId, retryTimes + 1), e);
+                }
+            }
         }
     }
 
