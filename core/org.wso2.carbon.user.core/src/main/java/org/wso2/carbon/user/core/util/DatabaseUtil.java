@@ -998,11 +998,38 @@ public class DatabaseUtil {
             }
             dbConnection.commit();
         } catch (SQLException e) {
-            String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
-            if (log.isDebugEnabled()) {
-                log.debug(errorMessage, e);
+            boolean isUniqueKeyViolationException = false;
+            for (Throwable subSQLException : e) {
+                if (subSQLException instanceof SQLIntegrityConstraintViolationException ||
+                        StringUtils.containsIgnoreCase(e.getMessage(),
+                                "um_user_role_um_user_id_um_role_id_um_tenant_id_key")) {
+                    // If concurrent requests bypass the existing user validation check, it can throw an exception
+                    // regarding unique key violation. Hence, we need to handle this exception and continue.
+                    isUniqueKeyViolationException = true;
+                    if (log.isDebugEnabled()) {
+                        log.debug("Similar entry found when adding the user to the role. Hence skipping " +
+                                "the user addition", e);
+                    }
+                    try {
+                        dbConnection.commit();
+                    } catch (SQLException ex) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Error while committing transaction to the database.", e);
+                        }
+                        throw new UserStoreException(ex.getMessage(), ex);
+                    }
+                    break;
+                }
             }
-            throw new UserStoreException(errorMessage, e);
+            if (isUniqueKeyViolationException) {
+                throw new UserStoreException(e.getMessage(), ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE.getCode(), e);
+            } else {
+                String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+                throw new UserStoreException(errorMessage, e);
+            }
         } finally {
             if (localConnection) {
                 DatabaseUtil.closeAllConnections(dbConnection);

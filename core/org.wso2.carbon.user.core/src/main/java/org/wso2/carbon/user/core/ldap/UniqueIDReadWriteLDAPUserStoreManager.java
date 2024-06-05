@@ -65,6 +65,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.naming.Name;
+import javax.naming.NameAlreadyBoundException;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -81,6 +82,7 @@ import javax.naming.directory.SearchResult;
 import javax.sql.DataSource;
 
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_ID_ATTRIBUTE;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_ID;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_NAME;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_NO_GROUP_FOUND_WITH_ID;
@@ -2184,6 +2186,16 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             if (log.isDebugEnabled()) {
                 logger.debug("User: " + userNameDN + " was successfully " + "modified in LDAP group: " + groupRDN);
             }
+        } catch (NameAlreadyBoundException e) {
+            // If concurrent requests bypass the existing user validation check, it can throw an exception
+            // regarding unique key violation. Since the user addition is successful, the exception is ignored.
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Similar entry found when adding the user to LDAP role: %s. " +
+                        "Hence skipping the user addition", groupRDN), e);
+            }
+            throw new UserStoreException("Duplicate error occurred while modifying user entry: " + userNameDN +
+                    " in LDAP role: " + groupRDN,
+                    UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_UPDATING_USER_OF_ROLE.getCode());
         } catch (NamingException e) {
             String errorMessage =
                     "Error occurred while modifying user entry: " + userNameDN + " in LDAP role: " + groupRDN;

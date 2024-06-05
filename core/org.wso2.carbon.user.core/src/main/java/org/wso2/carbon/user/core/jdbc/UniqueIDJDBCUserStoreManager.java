@@ -1696,6 +1696,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 log.debug(msg, e);
             }
             throw new UserStoreException(msg, e);
+        } catch (UserStoreException e) {
+            throw e;
         } catch (Exception e) {
             String errorMessage = "Error occurred while getting database type from DB connection";
             if (log.isDebugEnabled()) {
