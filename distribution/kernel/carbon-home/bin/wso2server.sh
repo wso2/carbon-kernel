@@ -330,6 +330,7 @@ do
     -Dfile.encoding=UTF8 \
     -Djava.net.preferIPv4Stack=true \
     -Djdk.util.zip.disableZip64ExtraFieldValidation=true \
+    -Djavax.xml.parsers.DocumentBuilderFactory=org.apache.xerces.jaxp.DocumentBuilderFactoryImpl \
     -Djdk.nio.zipfs.allowDotZipEntry=true \
     -Dcom.ibm.cacheLocalHost=true \
     -DworkerNode=false \
