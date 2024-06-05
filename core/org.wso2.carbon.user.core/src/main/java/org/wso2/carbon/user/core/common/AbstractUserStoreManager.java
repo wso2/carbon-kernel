@@ -6597,6 +6597,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         try {
             if (!isUniqueUserIdEnabled()) {
+                if (index > 0) {
+                    filter = filter.substring(index + 1);
+                }
                 userList = doListUsers(filter, maxItemLimit);
             } else {
                 userList = doListUsersWithID(filter, maxItemLimit)
