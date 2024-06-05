@@ -1128,9 +1128,14 @@ public class JDBCTenantManager implements TenantManager {
     private void clearTenantCache(int tenantId) throws UserStoreException {
 
         String domain = getDomain(tenantId);
+        Tenant tenant = this.getTenant(tenantId);
         tenantDomainCache.clearCacheEntry(new TenantIdKey(tenantId));
         tenantIdCache.clearCacheEntry(new TenantDomainKey(domain));
         tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
+        if (tenant != null) {
+            String tenantUniqueID = tenant.getTenantUniqueID();
+            tenantUniqueIdCache.clearCacheEntry(new TenantUniqueIDKey(tenantUniqueID));
+        }
     }
 
     private void clearTenantCaches(String tenantUniqueID) throws UserStoreException {

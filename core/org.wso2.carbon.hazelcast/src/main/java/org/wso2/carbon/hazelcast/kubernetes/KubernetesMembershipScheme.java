@@ -25,8 +25,10 @@ import com.hazelcast.config.Config;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.config.TcpIpConfig;
 import com.hazelcast.core.HazelcastInstance;
+import org.apache.axis2.clustering.ClusteringFault;
 import org.apache.axis2.clustering.ClusteringMessage;
 import org.apache.axis2.description.Parameter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.hazelcast.HazelcastCarbonClusterImpl;
@@ -34,6 +36,8 @@ import org.wso2.carbon.hazelcast.HazelcastConstants;
 import org.wso2.carbon.hazelcast.HazelcastMembershipScheme;
 import org.wso2.carbon.hazelcast.HazelcastUtil;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -77,7 +81,7 @@ public class KubernetesMembershipScheme implements HazelcastMembershipScheme {
     }
 
     @Override
-    public void init() {
+    public void init() throws ClusteringFault {
 
         String localMemberPort = "4000";
         Parameter namespace = getParameter(KubernetesConstants.NAMESPACE_PROPERTY);
@@ -101,6 +105,41 @@ public class KubernetesMembershipScheme implements HazelcastMembershipScheme {
         }
         if (serviceName != null) {
             nwConfig.getJoin().getKubernetesConfig().setProperty(KubernetesConstants.SERVICE_NAME, ((String) serviceName.getValue()).trim());
+        }
+        Parameter kubernetesMaster = getParameter(KubernetesConstants.KUBERNETES_API_SERVER_PROPERTY);
+        if (kubernetesMaster == null) {
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Parameter %s not found, checking %s & %s",
+                        KubernetesConstants.KUBERNETES_API_SERVER_PROPERTY,
+                        KubernetesConstants.KUBERNETES_SERVICE_HOST,
+                        KubernetesConstants.KUBERNETES_SERVICE_PORT_HTTPS));
+            }
+            Parameter kubernetesServiceHost = getParameter(KubernetesConstants.KUBERNETES_SERVICE_HOST);
+            Parameter kubernetesServiceHttpsPort = getParameter(KubernetesConstants.KUBERNETES_SERVICE_PORT_HTTPS);
+
+            if (kubernetesServiceHost != null && kubernetesServiceHttpsPort != null) {
+                try {
+                    String kubernetesMasterUrl = new URL(KubernetesConstants.PROTOCOL_HTTPS,
+                            ((String) kubernetesServiceHost.getValue()).trim(),
+                            Integer.parseInt(((String) kubernetesServiceHttpsPort.getValue()).trim()), "").toString();
+                    if (StringUtils.isNotBlank(kubernetesMasterUrl)) {
+                        nwConfig.getJoin().getKubernetesConfig()
+                                .setProperty(KubernetesConstants.KUBERNETES_MASTER, kubernetesMasterUrl);
+                    }
+                } catch (MalformedURLException e) {
+                    throw new ClusteringFault("Kubernetes master API url: " + kubernetesMaster +
+                            " is malformed", e);
+                }
+            }
+        } else {
+            nwConfig.getJoin().getKubernetesConfig()
+                    .setProperty(KubernetesConstants.KUBERNETES_MASTER, ((String) kubernetesMaster.getValue()).trim());
+        }
+
+        Parameter kubernetesAPIServerToken = getParameter(KubernetesConstants.KUBERNETES_API_SERVER_TOKEN_PROPERTY);
+        if (kubernetesAPIServerToken != null) {
+            nwConfig.getJoin().getKubernetesConfig().setProperty(KubernetesConstants.KUBERNETES_API_SERVER_TOKEN,
+                    ((String) kubernetesAPIServerToken.getValue()).trim());
         }
     }
 

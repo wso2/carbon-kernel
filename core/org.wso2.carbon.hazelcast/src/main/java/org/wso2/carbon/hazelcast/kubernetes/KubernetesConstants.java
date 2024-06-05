@@ -30,4 +30,11 @@ public class KubernetesConstants {
     public static final String SERVICE_NAME = "service-name";
 
     public static final String SERVICE_PORT = "service-port";
+    public static final String KUBERNETES_API_SERVER_PROPERTY = "KUBERNETES_API_SERVER";
+    public static final String KUBERNETES_MASTER = "kubernetes-master";
+    public static final String KUBERNETES_API_SERVER_TOKEN_PROPERTY = "KUBERNETES_API_SERVER_TOKEN";
+    public static final String KUBERNETES_API_SERVER_TOKEN = "api-token";
+    public static final String KUBERNETES_SERVICE_HOST = "KUBERNETES_SERVICE_HOST";
+    public static final String KUBERNETES_SERVICE_PORT_HTTPS = "KUBERNETES_SERVICE_PORT_HTTPS";
+    public static final String PROTOCOL_HTTPS = "https";
 }
