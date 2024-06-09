@@ -4874,8 +4874,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     (connectionSource.getThresholdTimeoutInMilliseconds())) {
                 log.warn("LDAP connection circuit breaker is in open state for " + circuitOpenDuration
                         + "ms and has not reach the threshold timeout: "
-                        + this.connectionSource.getThresholdTimeoutInMilliseconds()
-                        + " ms, hence avoid establishing the LDAP connection.");
+                        + this.connectionSource.getThresholdTimeoutInMilliseconds() + "ms. " +
+                        "Hence avoid establishing the LDAP connection for domain: " + this.getMyDomainName());
 
                 return true;
             }
