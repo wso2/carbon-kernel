@@ -6621,49 +6621,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         index = filter.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
         String[] userList;
 
-        // Check whether we have a secondary UserStoreManager setup.
-        if (index > 0) {
-            // Using the short-circuit. User name comes with the domain name.
-            String domain = filter.substring(0, index);
-
-            UserStoreManager secManager = this;
-            if (!StringUtils.equalsIgnoreCase(getMyDomainName(), domain)) {
-                secManager = getSecondaryUserStoreManager(domain);
-            }
-
-            if (secManager != null) {
-                // We have a secondary UserStoreManager registered for this domain.
-                filter = filter.substring(index + 1);
-                if (secManager instanceof AbstractUserStoreManager) {
-                    if (!((AbstractUserStoreManager) secManager).isUniqueUserIdEnabled()) {
-                        userList = ((AbstractUserStoreManager) secManager).doListUsers(filter, maxItemLimit);
-                    } else {
-                        userList = ((AbstractUserStoreManager) secManager).doListUsersWithID(filter, maxItemLimit)
-                                .stream()
-                                .map(User::getDomainQualifiedUsername)
-                                .toArray(String[]::new);
-                    }
-                    handlePostGetUserList(null, null, new ArrayList<>(Arrays.asList(userList)), true);
-                    return userList;
-                } else {
-                    userList = secManager.listUsers(filter, maxItemLimit);
-                    handlePostGetUserList(null, null, new ArrayList<>(Arrays.asList(userList)), true);
-                    return userList;
-                }
-            }
-        } else if (index == 0) {
-            if (!isUniqueUserIdEnabled()) {
-                userList = doListUsers(filter.substring(1), maxItemLimit);
-            } else {
-                userList = doListUsersWithID(filter.substring(1), maxItemLimit)
-                        .stream()
-                        .map(User::getDomainQualifiedUsername)
-                        .toArray(String[]::new);
-            }
-            handlePostGetUserList(null, null, new ArrayList<>(Arrays.asList(userList)), true);
-            return userList;
-        }
-
         try {
             // Validate whether circuit breaker is enabled and open.
             if (this.isCircuitBreakerEnabledAndOpen()) {
@@ -6673,6 +6630,50 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
                 return new String[0];
             }
+            // Check whether we have a secondary UserStoreManager setup.
+            if (index > 0) {
+                // Using the short-circuit. User name comes with the domain name.
+                String domain = filter.substring(0, index);
+
+                UserStoreManager secManager = this;
+                if (!StringUtils.equalsIgnoreCase(getMyDomainName(), domain)) {
+                    secManager = getSecondaryUserStoreManager(domain);
+                }
+
+                if (secManager != null) {
+                    // We have a secondary UserStoreManager registered for this domain.
+                    filter = filter.substring(index + 1);
+                    if (secManager instanceof AbstractUserStoreManager) {
+
+                        if (!((AbstractUserStoreManager) secManager).isUniqueUserIdEnabled()) {
+                            userList = ((AbstractUserStoreManager) secManager).doListUsers(filter, maxItemLimit);
+                        } else {
+                            userList = ((AbstractUserStoreManager) secManager).doListUsersWithID(filter, maxItemLimit)
+                                    .stream()
+                                    .map(User::getDomainQualifiedUsername)
+                                    .toArray(String[]::new);
+                        }
+                        handlePostGetUserList(null, null, new ArrayList<>(Arrays.asList(userList)), true);
+                        return userList;
+                    } else {
+                        userList = secManager.listUsers(filter, maxItemLimit);
+                        handlePostGetUserList(null, null, new ArrayList<>(Arrays.asList(userList)), true);
+                        return userList;
+                    }
+                }
+            } else if (index == 0) {
+                if (!isUniqueUserIdEnabled()) {
+                    userList = doListUsers(filter.substring(1), maxItemLimit);
+                } else {
+                    userList = doListUsersWithID(filter.substring(1), maxItemLimit)
+                            .stream()
+                            .map(User::getDomainQualifiedUsername)
+                            .toArray(String[]::new);
+                }
+                handlePostGetUserList(null, null, new ArrayList<>(Arrays.asList(userList)), true);
+                return userList;
+            }
+
             if (!isUniqueUserIdEnabled()) {
                 userList = doListUsers(filter, maxItemLimit);
             } else {
