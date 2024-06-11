@@ -16,8 +16,8 @@
 package org.wso2.carbon;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.utils.logging.CarbonAuditLog;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.io.File;
@@ -31,7 +31,7 @@ public final class CarbonConstants {
 	    //disable external instantiation
 	}
 
-    public static final Log AUDIT_LOG = LogFactory.getLog("AUDIT_LOG");
+    public static final Log AUDIT_LOG = new CarbonAuditLog();
     public static final String AUDIT_MESSAGE = "Initiator : %s | Action : %s | Target : %s | Data : { %s } | Result : %s ";
     public static final String DISABLE_LEGACY_AUDIT_LOGS = "disableLegacyAuditLogs";
     public enum DiagnosticLogMode {
