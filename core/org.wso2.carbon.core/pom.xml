@@ -243,6 +243,11 @@
                         <Embed-Dependency>
                             naming-factory|naming-resources|commons-collections;scope=compile|runtime;inline=false
                         </Embed-Dependency>
+                        <Provide-Capability>
+                            osgi.service;objectClass=org.wso2.carbon.utils.ConfigurationContextService,
+                            osgi.service;objectClass=org.apache.axis2.engine.ListenerManager,
+                            osgi.service;objectClass=org.osgi.service.http.HttpService
+                        </Provide-Capability>
                         <Embed-Transitive>true</Embed-Transitive>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>

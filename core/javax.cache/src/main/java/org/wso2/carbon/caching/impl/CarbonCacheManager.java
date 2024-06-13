@@ -202,13 +202,13 @@ public class CarbonCacheManager implements CacheManager {
         return this.caches.isEmpty();
     }
 
-    @Override
-    public javax.transaction.UserTransaction getUserTransaction() {
-        Util.checkAccess(ownerTenantDomain, ownerTenantId);
-        checkStatusStarted();
-        touch();
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
+//    @Override
+//    public javax.transaction.UserTransaction getUserTransaction() {
+//        Util.checkAccess(ownerTenantDomain, ownerTenantId);
+//        checkStatusStarted();
+//        touch();
+//        return null;  //To change body of implemented methods use File | Settings | File Templates.
+//    }
 
     @Override
     public boolean isSupported(OptionalFeature optionalFeature) {
