@@ -8301,7 +8301,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                 // If we found a domain name for the give user id, update the domain resolver with
                                 // the name.
                                 domainName = entry.getKey();
-                                userUniqueIDDomainResolver.setDomainForUserId(userId, domainName, tenantId);
+                                userUniqueIDDomainResolver.setDomainForUserIdIfNotExists(userId, domainName, tenantId);
                                 break;
                             }
                         } catch (UserStoreException e) {
@@ -8318,7 +8318,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             if (abstractUserStoreManager.getUserListFromProperties(claimManager.getAttributeName(entry
                                     .getKey(), USER_ID_CLAIM_URI), userId, null).length > 0) {
                                 domainName = entry.getKey();
-                                userUniqueIDDomainResolver.setDomainForUserId(userId, domainName, tenantId);
+                                userUniqueIDDomainResolver.setDomainForUserIdIfNotExists(userId, domainName, tenantId);
                                 break;
                             }
                         } catch (org.wso2.carbon.user.api.UserStoreException e) {
@@ -13527,7 +13527,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         if (StringUtils.isNotEmpty(userID) &&
                 StringUtils.isEmpty(userUniqueIDDomainResolver.getDomainForUserId(userID, tenantId))) {
-            userUniqueIDDomainResolver.setDomainForUserId(userID, domain, tenantId);
+            userUniqueIDDomainResolver.setDomainForUserIdIfNotExists(userID, domain, tenantId);
         }
         return user;
     }
