@@ -842,6 +842,11 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             }
 
         } catch (NamingException e) {
+
+            // Close the context before throwing the exception.
+            JNDIUtil.closeContext(subDirContext);
+            JNDIUtil.closeContext(dirContext);
+
             String errorMessage = "Results could not be retrieved from the directory context for user : " + userName;
 
             if (log.isDebugEnabled()) {
@@ -941,6 +946,11 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 handleLdapUserNameAttributeChanges(claimAttributesToReplace, subDirContext, returnedUserEntry);
             }
         } catch (NamingException e) {
+
+            // Close the context before throwing the exception.
+            JNDIUtil.closeContext(subDirContext);
+            JNDIUtil.closeContext(dirContext);
+
             String errorMessage = "Results could not be retrieved from the directory context for user : " + userName;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
@@ -1039,6 +1049,10 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             returnedUserEntry = returnedResultList.next().getName();
 
         } catch (NamingException e) {
+
+            // Close the context before throwing the exception.
+            JNDIUtil.closeContext(dirContext);
+
             String errorMessage = "Results could not be retrieved from the directory context for user : " + userName;
 
             if (log.isDebugEnabled()) {
@@ -1096,6 +1110,10 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             returnedUserEntry = returnedResultList.next().getName();
 
         } catch (NamingException e) {
+
+            // Close the context before throwing the exception.
+            JNDIUtil.closeContext(dirContext);
+
             String errorMessage = "Results could not be retrieved from the directory context for user : " + userName;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
@@ -1155,6 +1173,10 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             returnedUserEntry = returnedResultList.next().getName();
 
         } catch (NamingException e) {
+
+            // Close the context before throwing the exception.
+            JNDIUtil.closeContext(dirContext);
+
             String errorMessage = "Results could not be retrieved from the directory context for user : " + userName;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
