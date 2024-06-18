@@ -323,7 +323,7 @@ public class CarbonUIServiceComponent {
         jspServletContext.setAttribute(CarbonConstants.SERVER_CONFIGURATION, serverConfig);
         jspServletContext.setAttribute(CarbonConstants.CLIENT_CONFIGURATION_CONTEXT, clientConfigContext);
         //If the UI is running on local transport mode, then we use the server-side config context.
-        if(isLocalTransportMode) {
+        if (isLocalTransportMode) {
             jspServletContext.setAttribute(CarbonConstants.CONFIGURATION_CONTEXT, serverConfigContext);
         } else {
             jspServletContext.setAttribute(CarbonConstants.CONFIGURATION_CONTEXT, clientConfigContext);

@@ -49,6 +49,7 @@ public class TilesJspServlet extends JspServlet {
         super(bundle, uiResourceRegistry);
     }
 
+    //TODO check if this is needed
     @Override
     public void init() throws ServletException {
         super.init();
@@ -70,17 +71,7 @@ public class TilesJspServlet extends JspServlet {
     public void service(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-//        if ("INCLUDE".equals(request.getDispatcherType().toString()) ) {
-//            super.service(request, response);
-//            return;
-//        }
-        String actionUrl;
-//        if ("INCLUDE".equals(request.getDispatcherType().toString()) ) {
-//            actionUrl = canonicalURI((String)request.getAttribute("javax.servlet.include.servlet_path"));
-//            request.setAttribute("javax.servlet.include.servlet_path", actionUrl);
-//        } else {
-            actionUrl = request.getRequestURI();
-//        }
+        String actionUrl = request.getRequestURI();
 
         //This is the layout page defined in
         //"/org.wso2.carbon.component/src/main/resources/web/WEB-INF/tiles/tiles.xml"
@@ -112,7 +103,6 @@ public class TilesJspServlet extends JspServlet {
             }
         }
 
-
         if ((actionUrl.lastIndexOf("/admin/layout/template.jsp") > -1)
                 || actionUrl.lastIndexOf("ajaxprocessor.jsp") > -1
                 || actionUrl.indexOf("gadgets/js") > -1
@@ -128,9 +118,6 @@ public class TilesJspServlet extends JspServlet {
             RequestDispatcher dispatcher =
                     request.getRequestDispatcher("../registry/registry-web.jsp?" + pathToRegistry);
             dispatcher.forward(request, response);
-//        } else if (actionUrl.lastIndexOf("admin/jsp/browser_checker.jsp") > -1) {
-//            RequestDispatcher dispatcher = request.getRequestDispatcher(actionUrl);
-//            dispatcher.include(request, response);
         } else {
             try {
                 if (log.isDebugEnabled()) {

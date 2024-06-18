@@ -50,7 +50,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
-                    <source>21</source>
+                    <source>17</source>
                 </configuration>
                 <executions>
                     <execution>
@@ -110,8 +110,8 @@
                     <version>3.12.1</version>
                     <configuration>
                         <encoding>UTF-8</encoding>
-                        <source>21</source>
-                        <target>21</target>
+                        <source>17</source>
+                        <target>17</target>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -292,6 +292,11 @@
                             </jacoco-agent.destfile>
                         </systemPropertyVariables>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>${maven.resources.plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -515,10 +520,6 @@
         <!--Apache Derby-->
         <version.wso2.derby>10.3.2.1wso2v1</version.wso2.derby>
 
-        <!-- slf4j -->
-        <slf4j.version>1.5.10</slf4j.version>
-        <!--<slf4j.wso2.version>1.5.10.wso2v1</slf4j.wso2.version>-->
-
         <!-- findbugs -->
         <version.findbugs.annotations>1.3.2</version.findbugs.annotations>
         <version.commons.logging>1.2</version.commons.logging>
@@ -605,21 +606,22 @@
         <jdbc-pool.version>9.0.65.wso2v1</jdbc-pool.version>
 
         <!-- Test integration -->
-        <slf4j.version>1.5.10</slf4j.version>
+        <slf4j.version>2.0.13</slf4j.version>
         <woden.api.version>1.0M9</woden.api.version>
         <maven.clean.plugin.version>2.4.1</maven.clean.plugin.version>
         <version.com.google.code.gson>2.9.0</version.com.google.code.gson>
 
-        <test.framework.version>4.4.3</test.framework.version>
-        <testng.verson>6.10</testng.verson>
+        <test.framework.version>4.4.11-SNAPSHOT</test.framework.version>
+        <testng.verson>7.10.1</testng.verson>
         <org.apacheds.version>1.5.5</org.apacheds.version>
 
         <!-- Unit/Integration tests -->
-        <jacoco.version>0.8.2</jacoco.version>
-        <maven.surefire.plugin.version>2.22.0</maven.surefire.plugin.version>
-        <maven.failsafe.plugin.version>2.22.0</maven.failsafe.plugin.version>
-        <mockito.version>2.23.4</mockito.version>
+        <jacoco.version>0.8.12</jacoco.version>
+        <maven.surefire.plugin.version>3.2.5</maven.surefire.plugin.version>
+        <maven.failsafe.plugin.version>2.22.2</maven.failsafe.plugin.version>
+        <mockito.version>5.3.1</mockito.version>
         <powermock.version>2.0.2</powermock.version>
+        <maven.resources.plugin.version>3.3.1</maven.resources.plugin.version>
 
         <!-- OWASP CSRFGuard Version -->
         <orbit.version.csrfguard>3.1.0.wso2v5</orbit.version.csrfguard>
@@ -1768,16 +1770,6 @@
                 <artifactId>org.wso2.carbon.automation.test.utils</artifactId>
                 <version>${test.framework.version}</version>
             </dependency>
-            <!--<dependency>
-                <groupId>org.wso2.carbon.automationutils</groupId>
-                <artifactId>org.wso2.carbon.integration.common.utils</artifactId>
-                <version>${test.framework.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.automationutils</groupId>
-                <artifactId>org.wso2.carbon.integration.common.admin.client</artifactId>
-                <version>${test.framework.version}</version>
-            </dependency>-->
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.integration.test.common.integration.test.utils

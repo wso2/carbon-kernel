@@ -44,6 +44,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
+import org.osgi.service.http.context.ServletContextHelper;
 import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.CarbonBaseConstants;
@@ -54,7 +55,6 @@ import org.wso2.carbon.core.CarbonAxisConfigurator;
 import org.wso2.carbon.core.CarbonConfigurationContextFactory;
 import org.wso2.carbon.core.CarbonThreadCleanup;
 import org.wso2.carbon.core.CarbonThreadFactory;
-import org.wso2.carbon.core.ConfigurationContextServiceImpl;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.ServerInitializer;
 import org.wso2.carbon.core.ServerManagement;
@@ -117,6 +117,7 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 import javax.servlet.Filter;
+import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
 import static org.apache.axis2.transport.TransportListener.HOST_ADDRESS;
@@ -530,7 +531,7 @@ public final class CarbonServerManager implements Controllable {
                 log.debug("Registering ConfigurationContextService...");
             }
             bundleContext.registerService(ConfigurationContextService.class.getName(),
-                    new ConfigurationContextServiceImpl(serverConfigContext,
+                    new ConfigurationContextService(serverConfigContext,
                             clientConfigContext),
                     null);
 
@@ -555,15 +556,23 @@ public final class CarbonServerManager implements Controllable {
                 servicePath = "/" + servicePath;
             }
             ServiceReference filterServiceReference = bundleContext.getServiceReference(Filter.class.getName());
+
+            Dictionary<String, String> resourceProps = new Hashtable<>();
+            resourceProps.put("osgi.http.whiteboard.context.name", "serviceContext");
+            resourceProps.put("osgi.http.whiteboard.context.path", servicePath);
+            resourceProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_RESOURCE_PATTERN, servicePath + "/*");
+            bundleContext.registerService(ServletContextHelper.class, (ServletContextHelper) defaultHttpContext, resourceProps);
+
+            Dictionary<String, Object> carbonServletProperties = new Hashtable<>();
+            carbonServletProperties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/*");
+            carbonServletProperties.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=serviceContext)");
+            bundleContext.registerService(Servlet.class, carbonServlet, carbonServletProperties);
+
             if (filterServiceReference != null) {
                 Filter filter = (Filter) bundleContext.getService(filterServiceReference);
-                //todo should this also be registered with the whitebox service?
-                httpService.registerServlet(servicePath, carbonServlet, null, defaultHttpContext);
                 Dictionary<String, String> props = new Hashtable<>();
                 props.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_PATTERN, servicePath);
                 bundleContext.registerService(Filter.class, filter, props);
-            } else {
-                httpService.registerServlet(servicePath, carbonServlet, null, defaultHttpContext);
             }
             HTTPGetProcessorListener getProcessorListener =
                     new HTTPGetProcessorListener(carbonServlet, bundleContext);

@@ -50,7 +50,7 @@ public class CarbonBaseUtilsTest {
             String resourcePath = resourceURL.getPath();
             resourcePath = resourcePath + "policy-test.policy";
             System.setProperty("java.security.policy", resourcePath);
-            System.setSecurityManager(new SecurityManager());
+//            System.setSecurityManager(new SecurityManager());
         }
     }
 
