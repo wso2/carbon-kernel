@@ -41,9 +41,9 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
-import org.osgi.service.http.NamespaceException;
 import org.osgi.service.http.context.ServletContextHelper;
 import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
 import org.wso2.carbon.CarbonConstants;
@@ -491,9 +491,10 @@ public final class CarbonServerManager implements Controllable {
             }
 
             HttpService httpService = CarbonCoreDataHolder.getInstance().getHttpService();
+            // TODO might want to do this differently
             HttpContext defaultHttpContext = httpService.createDefaultHttpContext();
 
-            registerCarbonServlet(httpService, defaultHttpContext);
+            registerCarbonServlet(defaultHttpContext);
 
             RealmService realmService = CarbonCoreDataHolder.getInstance().getRealmService();
             UserRealm teannt0Realm = realmService.getBootstrapRealm();
@@ -543,8 +544,8 @@ public final class CarbonServerManager implements Controllable {
         }
     }
 
-    private void registerCarbonServlet(HttpService httpService, HttpContext defaultHttpContext)
-            throws ServletException, NamespaceException, InvalidSyntaxException {
+    private void registerCarbonServlet(HttpContext defaultHttpContext) throws InvalidSyntaxException {
+
         if (!"false".equals(serverConfig.getFirstProperty("RequireCarbonServlet"))) {
             CarbonServlet carbonServlet = new CarbonServlet(serverConfigContext);
             String servicePath = "/services";
@@ -561,18 +562,25 @@ public final class CarbonServerManager implements Controllable {
             resourceProps.put("osgi.http.whiteboard.context.name", "serviceContext");
             resourceProps.put("osgi.http.whiteboard.context.path", servicePath);
             resourceProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_RESOURCE_PATTERN, servicePath + "/*");
-            bundleContext.registerService(ServletContextHelper.class, (ServletContextHelper) defaultHttpContext, resourceProps);
+            ServiceRegistration<ServletContextHelper> servletContextHelperServiceRegistration =
+                    bundleContext.registerService(ServletContextHelper.class, (ServletContextHelper) defaultHttpContext,
+                            resourceProps);
+            CarbonCoreDataHolder.getInstance().addServiceRegistration(servletContextHelperServiceRegistration);
 
             Dictionary<String, Object> carbonServletProperties = new Hashtable<>();
             carbonServletProperties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/*");
             carbonServletProperties.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=serviceContext)");
-            bundleContext.registerService(Servlet.class, carbonServlet, carbonServletProperties);
+            ServiceRegistration<Servlet> servletServiceRegistration =
+                    bundleContext.registerService(Servlet.class, carbonServlet, carbonServletProperties);
+            CarbonCoreDataHolder.getInstance().addServiceRegistration(servletServiceRegistration);
 
             if (filterServiceReference != null) {
                 Filter filter = (Filter) bundleContext.getService(filterServiceReference);
                 Dictionary<String, String> props = new Hashtable<>();
                 props.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_PATTERN, servicePath);
-                bundleContext.registerService(Filter.class, filter, props);
+                ServiceRegistration<Filter> filterServiceRegistration =
+                        bundleContext.registerService(Filter.class, filter, props);
+                CarbonCoreDataHolder.getInstance().addServiceRegistration(filterServiceRegistration);
             }
             HTTPGetProcessorListener getProcessorListener =
                     new HTTPGetProcessorListener(carbonServlet, bundleContext);
@@ -957,17 +965,8 @@ public final class CarbonServerManager implements Controllable {
                 ((Map) property).clear();
             }
 
-            // un-registering the carbonServlet
-            String servicePath = "/services";   // default path
-            String path = serverConfigContext.getServicePath();
-            if (path != null) {
-                servicePath = path.trim();
-            }
-            if (!servicePath.startsWith("/")) {
-                servicePath = "/" + servicePath;
-            }
             try {
-                CarbonCoreDataHolder.getInstance().getHttpService().unregister(servicePath);
+                CarbonCoreDataHolder.getInstance().unregisterServiceRegistrations();
             } catch (Exception e) {
                 log.error("Failed to Un-register Servlets ", e);
             }

@@ -106,6 +106,7 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
+<!--                            TODO revert back-->
                             <skip>true</skip>
                             <forkMode>pertest</forkMode>
                             <argLine>-enableassertions</argLine>
