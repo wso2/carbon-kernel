@@ -28,6 +28,7 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.core.CircuitBreakerOpenException;
 import org.wso2.carbon.user.core.NotImplementedException;
 import org.wso2.carbon.user.core.PaginatedUserStoreManager;
 import org.wso2.carbon.user.core.Permission;
@@ -111,6 +112,7 @@ import static org.wso2.carbon.user.core.UserCoreConstants.DOMAIN_SEPARATOR;
 import static org.wso2.carbon.user.core.UserCoreConstants.INTERNAL_DOMAIN;
 import static org.wso2.carbon.user.core.UserCoreConstants.INTERNAL_SYSTEM_ROLE_PREFIX;
 import static org.wso2.carbon.user.core.UserCoreConstants.INTERNAL_ROLES_CLAIM;
+import static org.wso2.carbon.user.core.UserCoreConstants.PROP_ENABLE_CIRCUIT_BREAKER_FOR_USERSTORE;
 import static org.wso2.carbon.user.core.UserCoreConstants.ROLE_CLAIM;
 import static org.wso2.carbon.user.core.UserCoreConstants.SYSTEM_DOMAIN_NAME;
 import static org.wso2.carbon.user.core.UserCoreConstants.USER_STORE_GROUPS_CLAIM;
@@ -1823,13 +1825,22 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     } else {
                         credentialArgument = credential;
                     }
-
-                    if (!listener.doPreAuthenticate(userName, credentialArgument, abstractUserStoreManager)) {
-                        handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(),
-                                String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
-                                        UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), userName,
-                                credentialArgument);
-                        return false;
+                    try {
+                        if (!listener.doPreAuthenticate(userName, credentialArgument, abstractUserStoreManager)) {
+                            handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getCode(),
+                                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_PRE_AUTHENTICATION.getMessage(),
+                                            UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE), userName,
+                                    credentialArgument);
+                            return false;
+                        }
+                    /* Added for compatibility with old pre-listeners. */
+                    } catch (CircuitBreakerOpenException circuitBreakerOpenEx) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Circuit Breaker is in open state for " + userStore.getDomainName()
+                                    + " domain. Hence ignore the userstore and proceed", circuitBreakerOpenEx);
+                        }
+                        log.error("Error occurred while obtaining user store connection for: "
+                                + userStore.getDomainName());
                     }
                 }
             } catch (UserStoreException ex) {
@@ -1866,17 +1877,25 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             // We are here due to two reason. Either there is no secondary UserStoreManager or no
             // domain name provided with user name.
             try {
-                // Let's authenticate with the primary UserStoreManager.
-                if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
-                    String userNameProperty = abstractUserStoreManager.getUsernameProperty();
-                    AuthenticationResult authenticationResult = abstractUserStoreManager
-                            .doAuthenticateWithID(userNameProperty, userName, credential, null);
-                    if (authenticationResult.getAuthenticationStatus()
-                            == AuthenticationResult.AuthenticationStatus.SUCCESS) {
-                        authenticated = true;
+                // Validate whether circuit breaker is enabled and open.
+                if (isCircuitBreakerEnabledAndOpen()) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Avoiding searching the " + abstractUserStoreManager.getMyDomainName()
+                                + " domain as Circuit Breaker is in open state");
                     }
                 } else {
-                    authenticated = abstractUserStoreManager.doAuthenticate(userName, credentialObj);
+                    // Let's authenticate with the primary UserStoreManager.
+                    if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
+                        String userNameProperty = abstractUserStoreManager.getUsernameProperty();
+                        AuthenticationResult authenticationResult = abstractUserStoreManager
+                                .doAuthenticateWithID(userNameProperty, userName, credential, null);
+                        if (authenticationResult.getAuthenticationStatus()
+                                == AuthenticationResult.AuthenticationStatus.SUCCESS) {
+                            authenticated = true;
+                        }
+                    } else {
+                        authenticated = abstractUserStoreManager.doAuthenticate(userName, credentialObj);
+                    }
                 }
             } catch (Exception e) {
                 handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
@@ -1891,9 +1910,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     throw (UserStoreClientException) e;
                 }
                 log.error("Error occurred while authenticating user: " + userName, e);
-                authenticated = false;
             }
-
         } finally {
             credentialObj.clear();
         }
@@ -1935,10 +1952,20 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             }
         } catch (UserStoreException ex) {
-            handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getCode(),
-                    String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getMessage(),
-                            ex.getMessage()), userName, credential);
-            throw ex;
+            /* Added for compatibility with old pre-listeners. */
+            if (ex instanceof CircuitBreakerOpenException) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Circuit Breaker is in open state for " + userStore.getDomainName()
+                            + " domain. Hence ignore the userstore and proceed", ex);
+                }
+                log.error("Error occurred while obtaining user store connection for: "
+                        + userStore.getDomainName());
+            } else {
+                handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getCode(),
+                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_POST_AUTHENTICATION.getMessage(),
+                                ex.getMessage()), userName, credential);
+                throw ex;
+            }
         }
 
         if (log.isDebugEnabled()) {
@@ -3123,11 +3150,27 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 // Get the user list and return with domain appended.
                 try {
                     AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager) userManager;
+
+                    // Validate whether circuit breaker is enabled and open.
+                    if (userStoreManager.isCircuitBreakerEnabledAndOpen()) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Circuit Breaker is in open state for:  " + extractedDomain);
+                        }
+                        return Collections.emptyList();
+                    }
                     String[] userArray = userStoreManager.getUserListFromProperties(property, claimValue, profileName);
                     if (log.isDebugEnabled()) {
                         log.debug("List of filtered users for: " + extractedDomain + " : " + Arrays.asList(userArray));
                     }
                     return Arrays.asList(UserCoreUtil.addDomainToNames(userArray, extractedDomain));
+                } catch (CircuitBreakerOpenException ex) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Circuit Breaker is in open state for " + extractedDomain
+                                + " domain. Hence ignore the userstore and proceed", ex);
+                    }
+                    log.error("Error occurred while obtaining user store connection.");
+                    return Collections.emptyList();
+
                 } catch (UserStoreException ex) {
                     handleGetUserListFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getMessage(),
@@ -3350,6 +3393,16 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 // Get the user list and return with domain appended.
                 try {
                     AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager) userManager;
+
+                    // Validate whether circuit breaker is enabled and open.
+                    if (userStoreManager.isCircuitBreakerEnabledAndOpen()) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Avoiding user listing as the Circuit Breaker is in open state for domain: "
+                                    + extractedDomain);
+                        }
+                        return Collections.emptyList();
+                    }
+
                     List<String> userIDs = userStoreManager
                             .doGetUserListFromPropertiesWithID(property, claimValue, profileName);
                     if (log.isDebugEnabled()) {
@@ -3357,6 +3410,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     }
                     return userStoreManager.getUsersFromIDs(userIDs, null, extractedDomain, profileName);
 
+                } catch (CircuitBreakerOpenException ex) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Circuit Breaker is in open state for " + extractedDomain
+                                + " domain. Hence ignore the userstore and proceed", ex);
+                    }
+                    log.error("Error occurred while obtaining user store connection.");
+                    return Collections.emptyList();
                 } catch (UserStoreException ex) {
                     handleGetUserListFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getMessage(),
@@ -6526,15 +6586,24 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // #################### Domain Name Free Zone Starts Here ################################
 
-        if (userStore.isSystemStore()) {
-            return systemUserRoleManager.isExistingSystemUser(userStore.getDomainFreeName());
-        }
-
-        if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-            return doCheckExistingUser(userStore.getDomainFreeName());
+        /* Validate whether circuit breaker is enabled and open for compatibility with old pre-listeners. */
+        if (((AbstractUserStoreManager) userStore.getUserStoreManager()).isCircuitBreakerEnabledAndOpen()) {
+            if (log.isDebugEnabled()) {
+                log.debug("Avoiding user listing as the Circuit Breaker is in open state for domain: "
+                        + userStore.getDomainName());
+            }
         } else {
-            return getUserIDFromUserName(userName) != null;
+            if (userStore.isSystemStore()) {
+                return systemUserRoleManager.isExistingSystemUser(userStore.getDomainFreeName());
+            }
+
+            if (!isUniqueUserIdEnabledInUserStore(userStore)) {
+                return doCheckExistingUser(userStore.getDomainFreeName());
+            } else {
+                return getUserIDFromUserName(userName) != null;
+            }
         }
+        return false;
     }
 
     /**
@@ -6552,50 +6621,59 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         index = filter.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
         String[] userList;
 
-        // Check whether we have a secondary UserStoreManager setup.
-        if (index > 0) {
-            // Using the short-circuit. User name comes with the domain name.
-            String domain = filter.substring(0, index);
-
-            UserStoreManager secManager = this;
-            if (!StringUtils.equalsIgnoreCase(getMyDomainName(), domain)) {
-                secManager = getSecondaryUserStoreManager(domain);
-            }
-
-            if (secManager != null) {
-                // We have a secondary UserStoreManager registered for this domain.
-                filter = filter.substring(index + 1);
-                if (secManager instanceof AbstractUserStoreManager) {
-                    if (!((AbstractUserStoreManager) secManager).isUniqueUserIdEnabled()) {
-                        userList = ((AbstractUserStoreManager) secManager).doListUsers(filter, maxItemLimit);
-                    } else {
-                        userList = ((AbstractUserStoreManager) secManager).doListUsersWithID(filter, maxItemLimit)
-                                .stream()
-                                .map(User::getDomainQualifiedUsername)
-                                .toArray(String[]::new);
-                    }
-                    handlePostGetUserList(null, null, new ArrayList<>(Arrays.asList(userList)), true);
-                    return userList;
-                } else {
-                    userList = secManager.listUsers(filter, maxItemLimit);
-                    handlePostGetUserList(null, null, new ArrayList<>(Arrays.asList(userList)), true);
-                    return userList;
-                }
-            }
-        } else if (index == 0) {
-            if (!isUniqueUserIdEnabled()) {
-                userList = doListUsers(filter.substring(1), maxItemLimit);
-            } else {
-                userList = doListUsersWithID(filter.substring(1), maxItemLimit)
-                        .stream()
-                        .map(User::getDomainQualifiedUsername)
-                        .toArray(String[]::new);
-            }
-            handlePostGetUserList(null, null, new ArrayList<>(Arrays.asList(userList)), true);
-            return userList;
-        }
-
         try {
+            // Validate whether circuit breaker is enabled and open.
+            if (this.isCircuitBreakerEnabledAndOpen()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Circuit Breaker is in open state for " + this.getMyDomainName()
+                            + " domain. Hence ignore the userstore and proceed");
+                }
+                return new String[0];
+            }
+            // Check whether we have a secondary UserStoreManager setup.
+            if (index > 0) {
+                // Using the short-circuit. User name comes with the domain name.
+                String domain = filter.substring(0, index);
+
+                UserStoreManager secManager = this;
+                if (!StringUtils.equalsIgnoreCase(getMyDomainName(), domain)) {
+                    secManager = getSecondaryUserStoreManager(domain);
+                }
+
+                if (secManager != null) {
+                    // We have a secondary UserStoreManager registered for this domain.
+                    filter = filter.substring(index + 1);
+                    if (secManager instanceof AbstractUserStoreManager) {
+
+                        if (!((AbstractUserStoreManager) secManager).isUniqueUserIdEnabled()) {
+                            userList = ((AbstractUserStoreManager) secManager).doListUsers(filter, maxItemLimit);
+                        } else {
+                            userList = ((AbstractUserStoreManager) secManager).doListUsersWithID(filter, maxItemLimit)
+                                    .stream()
+                                    .map(User::getDomainQualifiedUsername)
+                                    .toArray(String[]::new);
+                        }
+                        handlePostGetUserList(null, null, new ArrayList<>(Arrays.asList(userList)), true);
+                        return userList;
+                    } else {
+                        userList = secManager.listUsers(filter, maxItemLimit);
+                        handlePostGetUserList(null, null, new ArrayList<>(Arrays.asList(userList)), true);
+                        return userList;
+                    }
+                }
+            } else if (index == 0) {
+                if (!isUniqueUserIdEnabled()) {
+                    userList = doListUsers(filter.substring(1), maxItemLimit);
+                } else {
+                    userList = doListUsersWithID(filter.substring(1), maxItemLimit)
+                            .stream()
+                            .map(User::getDomainQualifiedUsername)
+                            .toArray(String[]::new);
+                }
+                handlePostGetUserList(null, null, new ArrayList<>(Arrays.asList(userList)), true);
+                return userList;
+            }
+
             if (!isUniqueUserIdEnabled()) {
                 userList = doListUsers(filter, maxItemLimit);
             } else {
@@ -6604,6 +6682,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         .map(User::getUsername)
                         .toArray(String[]::new);
             }
+        } catch (CircuitBreakerOpenException ex) {
+            if (log.isDebugEnabled()) {
+                log.debug("Circuit Breaker is in open state for " + this.getMyDomainName()
+                        + " domain. Hence ignore " + "the userstore and proceed", ex);
+            }
+            log.error("Error occurred while obtaining user store connection.");
+            return new String[0];
         } catch (UserStoreException ex) {
             handleGetUserListFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getMessage(), ex.getMessage()),
@@ -8011,7 +8096,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected UserStore getUserStoreWithGroupId(final String groupId) throws UserStoreException {
 
         try {
-            return AccessController.doPrivileged((PrivilegedExceptionAction<UserStore>) 
+            return AccessController.doPrivileged((PrivilegedExceptionAction<UserStore>)
                     () -> getUserStoreInternalWithGroupId(groupId));
         } catch (PrivilegedActionException e) {
             throw (UserStoreException) e.getException();
@@ -11613,30 +11698,40 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
             } else {
                 // Domain is not provided. Try to authenticate with the current user store manager.
-                if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
-                    authenticationResult = abstractUserStoreManager.doAuthenticateWithID(loginIdentifiers, credential);
-                } else {
-                    String userName = getUsernameByClaims(loginIdentifiers);
-                    String userID = userUniqueIDManger.getUniqueId(userName, abstractUserStoreManager);
-                    boolean status = abstractUserStoreManager.doAuthenticate(userName, credential);
-                    if (status) {
-                        User user = getUser(userID, userName);
-                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.SUCCESS);
-                        authenticationResult.setAuthenticatedUser(user);
-                    } else {
-                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
-                        authenticationResult.setFailureReason(new FailureReason("Authentication failed."));
+                // Validate whether circuit breaker is enabled and open.
+                if (abstractUserStoreManager.isCircuitBreakerEnabledAndOpen()) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Avoiding searching the " + abstractUserStoreManager.getMyDomainName()
+                                + " domain as Circuit Breaker is in open state");
                     }
-                }
+                    authenticated = false;
+                } else {
 
-                if (authenticationResult.getAuthenticationStatus()
-                        == AuthenticationResult.AuthenticationStatus.SUCCESS) {
-                    authenticated = true;
-                }
-                if (authenticated) {
-                    // Set domain in thread local variable for subsequent operations
-                    UserCoreUtil
-                            .setDomainInThreadLocal(UserCoreUtil.getDomainName(abstractUserStoreManager.realmConfig));
+                    if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
+                        authenticationResult = abstractUserStoreManager.doAuthenticateWithID(loginIdentifiers, credential);
+                    } else {
+                        String userName = getUsernameByClaims(loginIdentifiers);
+                        String userID = userUniqueIDManger.getUniqueId(userName, abstractUserStoreManager);
+                        boolean status = abstractUserStoreManager.doAuthenticate(userName, credential);
+                        if (status) {
+                            User user = getUser(userID, userName);
+                            authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.SUCCESS);
+                            authenticationResult.setAuthenticatedUser(user);
+                        } else {
+                            authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
+                            authenticationResult.setFailureReason(new FailureReason("Authentication failed."));
+                        }
+                    }
+
+                    if (authenticationResult.getAuthenticationStatus()
+                            == AuthenticationResult.AuthenticationStatus.SUCCESS) {
+                        authenticated = true;
+                    }
+                    if (authenticated) {
+                        // Set domain in thread local variable for subsequent operations
+                        UserCoreUtil
+                                .setDomainInThreadLocal(UserCoreUtil.getDomainName(abstractUserStoreManager.realmConfig));
+                    }
                 }
             }
         } finally {
@@ -12059,47 +12154,56 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         .getAttributeName(abstractUserStoreManager.getMyDomainName(), preferredUserNameClaim);
                 // Let's authenticate with the primary UserStoreManager.
 
-                if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
+                // Validate whether circuit breaker is enabled and open.
+                if (abstractUserStoreManager.isCircuitBreakerEnabledAndOpen()) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Avoiding searching the " + abstractUserStoreManager.getMyDomainName()
+                                + " domain as Circuit Breaker is in open state");
+                    }
+                    authenticated = false;
+                } else {
+                    if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
                     authenticationResult = abstractUserStoreManager
                             .doAuthenticateWithID(preferredUserNameProperty, preferredUserNameValue, credentialObj,
                                     profileName);
-                } else {
+                    } else {
                     List<String> users = new ArrayList<>();
-                    if (preferredUserNameProperty.equals(getUserNameMappedAttribute())) {
-                        users.add(UserCoreUtil.addDomainToName(preferredUserNameValue,
-                                abstractUserStoreManager.getMyDomainName()));
-                    } else {
-                        users = doGetUserList(preferredUserNameClaim, preferredUserNameValue, profileName,
-                                abstractUserStoreManager.getMyDomainName(), abstractUserStoreManager);
-                    }
-                    if (users.size() != 1) {
-                        String message = "Users count matching to claim: " + preferredUserNameClaim + " and value: "
-                                + preferredUserNameValue + " is: " + users.size();
-                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
-                        authenticationResult.setFailureReason(new FailureReason(message));
-                        if (log.isDebugEnabled()) {
-                            log.debug(message);
-                        }
-                    } else {
-                        boolean status = abstractUserStoreManager.doAuthenticate(UserCoreUtil.removeDomainFromName(
-                                users.get(0)), credentialObj);
-                        authenticationResult = new AuthenticationResult(status ?
-                                AuthenticationResult.AuthenticationStatus.SUCCESS :
-                                AuthenticationResult.AuthenticationStatus.FAIL);
-                        if (status) {
-                            String userID = userUniqueIDManger.getUniqueId(users.get(0), this);
-                            User user = userUniqueIDManger.
-                                    getUser(userID, this, abstractUserStoreManager.getMyDomainName());
-                            user.setTenantDomain(getTenantDomain(tenantId));
-                            authenticationResult.setAuthenticatedUser(user);
+                        if (preferredUserNameProperty.equals(getUserNameMappedAttribute())) {
+                            users.add(UserCoreUtil.addDomainToName(preferredUserNameValue,
+                                    abstractUserStoreManager.getMyDomainName()));
                         } else {
-                            authenticationResult.setFailureReason(new FailureReason("Invalid credentials."));
+                            users = doGetUserList(preferredUserNameClaim, preferredUserNameValue, profileName,
+                                    abstractUserStoreManager.getMyDomainName(), abstractUserStoreManager);
+                        }
+                        if (users.size() != 1) {
+                            String message = "Users count matching to claim: " + preferredUserNameClaim + " and value: "
+                                    + preferredUserNameValue + " is: " + users.size();
+                            authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
+                            authenticationResult.setFailureReason(new FailureReason(message));
+                            if (log.isDebugEnabled()) {
+                                log.debug(message);
+                            }
+                        } else {
+                            boolean status = abstractUserStoreManager.doAuthenticate(UserCoreUtil.removeDomainFromName(
+                                    users.get(0)), credentialObj);
+                            authenticationResult = new AuthenticationResult(status ?
+                                    AuthenticationResult.AuthenticationStatus.SUCCESS :
+                                    AuthenticationResult.AuthenticationStatus.FAIL);
+                            if (status) {
+                                String userID = userUniqueIDManger.getUniqueId(users.get(0), this);
+                                User user = userUniqueIDManger.
+                                        getUser(userID, this, abstractUserStoreManager.getMyDomainName());
+                                user.setTenantDomain(getTenantDomain(tenantId));
+                                authenticationResult.setAuthenticatedUser(user);
+                            } else {
+                                authenticationResult.setFailureReason(new FailureReason("Invalid credentials."));
+                            }
                         }
                     }
-                }
-                if (authenticationResult.getAuthenticationStatus()
-                        == AuthenticationResult.AuthenticationStatus.SUCCESS) {
-                    authenticated = true;
+                    if (authenticationResult.getAuthenticationStatus()
+                            == AuthenticationResult.AuthenticationStatus.SUCCESS) {
+                        authenticated = true;
+                    }
                 }
             } catch (Exception e) {
                 handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
@@ -12329,32 +12433,40 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 throw new UserStoreException("Error while trying to check tenant status for Tenant : " + tenantId, e);
             }
 
-            if (isUniqueUserIdEnabled(abstractUserStoreManager)) {
-                authenticationResult = ((AbstractUserStoreManager) abstractUserStoreManager)
-                        .doAuthenticateWithID(userID, credential);
-            } else {
-                User user = userUniqueIDManger
-                        .getUser(userID, (AbstractUserStoreManager) abstractUserStoreManager);
-                boolean status = ((AbstractUserStoreManager) abstractUserStoreManager)
-                        .doAuthenticate(user.getUsername(), credential);
-                if (status) {
-                    user.setTenantDomain(getTenantDomain(tenantId));
-                    authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.SUCCESS);
-                    authenticationResult.setAuthenticatedUser(user);
-                } else {
-                    authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
-                    authenticationResult
-                            .setFailureReason(new FailureReason("Authentication failed for userID: " + userID));
+            // Validate whether circuit breaker is enabled and open.
+            if (abstractUserStoreManager.isCircuitBreakerEnabledAndOpen()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Avoiding searching the " + abstractUserStoreManager.getMyDomainName()
+                            + " domain as Circuit Breaker is in open state");
                 }
-            }
-
-            if (authenticationResult.getAuthenticationStatus()
-                    == AuthenticationResult.AuthenticationStatus.SUCCESS) {
-                authenticated = true;
-            }
-            if (authenticated) {
-                // Set domain in thread local variable for subsequent operations
-                UserCoreUtil.setDomainInThreadLocal(userStoreWithID.getDomainName());
+                authenticated = false;
+            } else {
+                if (isUniqueUserIdEnabled(abstractUserStoreManager)) {
+                    authenticationResult = ((AbstractUserStoreManager) abstractUserStoreManager)
+                            .doAuthenticateWithID(userID, credential);
+                } else {
+                    User user = userUniqueIDManger
+                            .getUser(userID, (AbstractUserStoreManager) abstractUserStoreManager);
+                    boolean status = ((AbstractUserStoreManager) abstractUserStoreManager)
+                            .doAuthenticate(user.getUsername(), credential);
+                    if (status) {
+                        user.setTenantDomain(getTenantDomain(tenantId));
+                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.SUCCESS);
+                        authenticationResult.setAuthenticatedUser(user);
+                    } else {
+                        authenticationResult.setAuthenticationStatus(AuthenticationResult.AuthenticationStatus.FAIL);
+                        authenticationResult
+                                .setFailureReason(new FailureReason("Authentication failed for userID: " + userID));
+                    }
+                }
+                if (authenticationResult.getAuthenticationStatus()
+                        == AuthenticationResult.AuthenticationStatus.SUCCESS) {
+                    authenticated = true;
+                }
+                if (authenticated) {
+                    // Set domain in thread local variable for subsequent operations
+                    UserCoreUtil.setDomainInThreadLocal(userStoreWithID.getDomainName());
+                }
             }
         } finally {
             credentialObj.clear();
@@ -13592,26 +13704,35 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
         userName = userStore.getDomainFreeName();
         String userID = getFromUserIDCache(userName, userStore);
-        if (StringUtils.isEmpty(userID)) {
-            if (isUniqueUserIdEnabledInUserStore(userStore)) {
-                userID = doGetUserIDFromUserNameWithID(userName);
-                if (StringUtils.isEmpty(userID)) {
-                    log.debug("User is not available in cache or database.");
-                    return null;
-                }
-                addToUserIDCache(userID, userName, userStore);
-                addToUserNameCache(userID, userName, userStore);
-                return userID;
+        // Validate whether circuit breaker is enabled and open.
+        if (((AbstractUserStoreManager) userStore.getUserStoreManager()).isCircuitBreakerEnabledAndOpen()) {
+            if (log.isDebugEnabled()) {
+                log.debug("Avoiding user listing as the Circuit Breaker is in open state for domain: "
+                        + userStore.getDomainName());
             }
+            return null;
+        } else {
+            if (StringUtils.isEmpty(userID)) {
+                if (isUniqueUserIdEnabledInUserStore(userStore)) {
+                    userID = doGetUserIDFromUserNameWithID(userName);
+                    if (StringUtils.isEmpty(userID)) {
+                        log.debug("User is not available in cache or database.");
+                        return null;
+                    }
+                    addToUserIDCache(userID, userName, userStore);
+                    addToUserNameCache(userID, userName, userStore);
+                    return userID;
+                }
 
-            Map<String, String> claims = doGetUserClaimValues(userName,
-                    new String[]{USER_ID_CLAIM_URI},
-                    userStore.getDomainName(), null);
-            if (claims != null && claims.size() == 1) {
-                userID = claims.get(USER_ID_CLAIM_URI);
-                addToUserIDCache(userID, userName, userStore);
-                addToUserNameCache(userID, userName, userStore);
-                return userID;
+                Map<String, String> claims = doGetUserClaimValues(userName,
+                        new String[]{USER_ID_CLAIM_URI},
+                        userStore.getDomainName(), null);
+                if (claims != null && claims.size() == 1) {
+                    userID = claims.get(USER_ID_CLAIM_URI);
+                    addToUserIDCache(userID, userName, userStore);
+                    addToUserNameCache(userID, userName, userStore);
+                    return userID;
+                }
             }
         }
         return userID;
@@ -19423,5 +19544,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         return count;
+    }
+
+    // Default assigned as false.
+    protected boolean isCircuitBreakerEnabledAndOpen() throws UserStoreException {
+
+        return false;
     }
 }

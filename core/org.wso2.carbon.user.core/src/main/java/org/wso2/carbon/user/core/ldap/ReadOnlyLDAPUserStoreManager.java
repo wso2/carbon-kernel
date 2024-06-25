@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.caching.impl.CachingConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -105,6 +106,8 @@ import javax.naming.ldap.Rdn;
 import javax.naming.ldap.SortControl;
 import javax.sql.DataSource;
 
+import static org.wso2.carbon.user.core.UserCoreConstants.PROP_ENABLE_CIRCUIT_BREAKER_FOR_USERSTORE;
+import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.CIRCUIT_STATE_OPEN;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_ID_ATTRIBUTE;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE;
@@ -4516,10 +4519,16 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         setAdvancedProperty(UserStoreConfigConstants.STARTTLS_ENABLED,
                 UserStoreConfigConstants.STARTTLS_ENABLED_DISPLAY_NAME, "false",
                 UserStoreConfigConstants.STARTTLS_ENABLED_DESCRIPTION);
+        /* Added to implement Circuit Breaker. */
         setAdvancedProperty(UserStoreConfigConstants.CONNECTION_RETRY_DELAY,
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DISPLAY_NAME,
                 String.valueOf(UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS),
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DESCRIPTION);
+        setAdvancedProperty(UserStoreConfigConstants.CONNECTION_RETRY_COUNT,
+                UserStoreConfigConstants.CONNECTION_RETRY_COUNT_DISPLAY_NAME,
+                String.valueOf(UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_COUNT),
+                UserStoreConfigConstants.CONNECTION_RETRY_COUNT_DESCRIPTION);
+
         setAdvancedProperty(UserStoreConfigConstants.SSLCertificateValidationEnabled, "Enable SSL certificate" +
                 " validation", "true", UserStoreConfigConstants.SSLCertificateValidationEnabledDescription);
         setAdvancedProperty(UserStoreConfigConstants.immutableAttributes,
@@ -4847,5 +4856,30 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         OffsetDateTime offsetDateTime = OffsetDateTime.parse(date, dateTimeFormatter);
         Instant instant = offsetDateTime.toInstant();
         return instant.toString();
+    }
+
+    /**
+     * Verify Circuit Breaker state for user store.
+     *
+     * @return true if CircuitBreaker Open, false otherwise.
+     */
+    public boolean isCircuitBreakerEnabledAndOpen() throws UserStoreException {
+
+        if (Boolean.parseBoolean(ServerConfiguration.getInstance()
+                .getFirstProperty(PROP_ENABLE_CIRCUIT_BREAKER_FOR_USERSTORE))) {
+
+            long circuitOpenDuration = System.currentTimeMillis() - this.connectionSource.getThresholdStartTime();
+            if (CIRCUIT_STATE_OPEN.equals(this.connectionSource.getCircuitBreakerState())
+                    && circuitOpenDuration <=  this.connectionSource.getValidatedThresholdTimeoutInMilliseconds
+                    (connectionSource.getThresholdTimeoutInMilliseconds())) {
+                log.warn("LDAP connection circuit breaker is in open state for " + circuitOpenDuration
+                        + "ms and has not reach the threshold timeout: "
+                        + this.connectionSource.getThresholdTimeoutInMilliseconds() + "ms. " +
+                        "Hence avoid establishing the LDAP connection for domain: " + this.getMyDomainName());
+
+                return true;
+            }
+        }
+        return false;
     }
 }

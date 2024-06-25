@@ -178,7 +178,17 @@ public class UserStoreConfigConstants {
     public static final String CONNECTION_RETRY_DELAY_DESCRIPTION = "Specifies waiting time in milliseconds"
             + " inorder to establish the connection after couple of failure attempts.";
     public static final int DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS = 120000;
+    public static final String MAX_CONNECTION_RETRY_DELAY_IN_MILLISECONDS =
+            "UserStore.maxConnectionRetryDelayInMilliSeconds";
+
     public static final String OBJECT_GUID = "objectGuid";
+
+    public static final String CONNECTION_RETRY_COUNT = "ConnectionRetryCount";
+    public static final int DEFAULT_CONNECTION_RETRY_COUNT = 2;
+    public static final String MAX_CONNECTION_RETRY_COUNT = "UserStore.maxConnectionRetryCount";
+    public static final String CONNECTION_RETRY_COUNT_DISPLAY_NAME = "Connection Retry Count";
+    public static final String CONNECTION_RETRY_COUNT_DESCRIPTION = "Specifies connection retry times"
+            + " inorder to re-establish the connection on failure";
 
     // Property for specify case insensitivity for User stores.
     public static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
@@ -201,4 +211,5 @@ public class UserStoreConfigConstants {
     public static final String singleValuedAttributesDescription = "Comma-separated list of attributes that need to " +
             "skip multi-valued attribute separation";
     public static final String singleValuedAttributesDisplayName = "Single Valued Attributes";
+
 }
