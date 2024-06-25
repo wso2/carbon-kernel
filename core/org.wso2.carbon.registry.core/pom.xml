@@ -106,9 +106,9 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-<!--                            TODO revert back-->
-                            <skip>true</skip>
-                            <forkMode>pertest</forkMode>
+                            <skip>false</skip>
+                            <forkCount>1</forkCount>
+                            <reuseForks>false</reuseForks>
                             <argLine>-enableassertions</argLine>
                             <testFailureIgnore>false</testFailureIgnore>
                             <reportsDirectory>${project.build.directory}/surefire-reports-0</reportsDirectory>
@@ -131,8 +131,9 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <skip>true</skip>
-                            <forkMode>pertest</forkMode>
+                            <skip>false</skip>
+                            <forkCount>1</forkCount>
+                            <reuseForks>false</reuseForks>
                             <argLine>-enableassertions</argLine>
                             <testFailureIgnore>false</testFailureIgnore>
                             <reportsDirectory>${project.build.directory}/surefire-reports-1</reportsDirectory>
@@ -155,8 +156,9 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <skip>true</skip>
-                            <forkMode>pertest</forkMode>
+                            <skip>false</skip>
+                            <forkCount>1</forkCount>
+                            <reuseForks>false</reuseForks>
                             <argLine>-enableassertions</argLine>
                             <testFailureIgnore>false</testFailureIgnore>
                             <reportsDirectory>${project.build.directory}/surefire-reports-2</reportsDirectory>
@@ -179,8 +181,9 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <skip>true</skip>
-                            <forkMode>pertest</forkMode>
+                            <skip>false</skip>
+                            <forkCount>1</forkCount>
+                            <reuseForks>false</reuseForks>
                             <argLine>-enableassertions</argLine>
                             <testFailureIgnore>false</testFailureIgnore>
                             <reportsDirectory>${project.build.directory}/surefire-reports-3</reportsDirectory>
@@ -203,8 +206,9 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <skip>true</skip>
-                            <forkMode>pertest</forkMode>
+                            <skip>false</skip>
+                            <forkCount>1</forkCount>
+                            <reuseForks>false</reuseForks>
                             <argLine>-enableassertions</argLine>
                             <testFailureIgnore>false</testFailureIgnore>
                             <reportsDirectory>${project.build.directory}/surefire-reports-4</reportsDirectory>
@@ -231,8 +235,9 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <skip>true</skip>
-                            <forkMode>pertest</forkMode>
+                            <skip>false</skip>
+                            <forkCount>1</forkCount>
+                            <reuseForks>false</reuseForks>
                             <argLine>-enableassertions</argLine>
                             <testFailureIgnore>false</testFailureIgnore>
                             <reportsDirectory>${project.build.directory}/surefire-reports-5</reportsDirectory>
@@ -259,8 +264,9 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <skip>true</skip>
-                            <forkMode>pertest</forkMode>
+                            <skip>false</skip>
+                            <forkCount>1</forkCount>
+                            <reuseForks>false</reuseForks>
                             <argLine>-enableassertions</argLine>
                             <testFailureIgnore>false</testFailureIgnore>
                             <reportsDirectory>${project.build.directory}/surefire-reports-6</reportsDirectory>
@@ -287,8 +293,9 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <skip>true</skip>
-                            <forkMode>pertest</forkMode>
+                            <skip>false</skip>
+                            <forkCount>1</forkCount>
+                            <reuseForks>false</reuseForks>
                             <argLine>-enableassertions</argLine>
                             <testFailureIgnore>false</testFailureIgnore>
                             <reportsDirectory>${project.build.directory}/surefire-reports-7</reportsDirectory>
@@ -315,8 +322,9 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <skip>true</skip>
-                            <forkMode>pertest</forkMode>
+                            <skip>false</skip>
+                            <forkCount>1</forkCount>
+                            <reuseForks>false</reuseForks>
                             <argLine>-enableassertions</argLine>
                             <testFailureIgnore>false</testFailureIgnore>
                             <reportsDirectory>${project.build.directory}/surefire-reports-8</reportsDirectory>
