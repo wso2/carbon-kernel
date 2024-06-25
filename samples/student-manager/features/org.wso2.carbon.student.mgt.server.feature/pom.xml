@@ -27,6 +27,7 @@
             <plugin>
                 <groupId>org.wso2.maven</groupId>
                 <artifactId>carbon-p2-plugin</artifactId>
+                <extensions>true</extensions>
                 <version>${carbon.p2.plugin.version}</version>
                 <executions>
                     <execution>
@@ -45,7 +46,7 @@
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.student.mgt</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.student.mgt:${student.manager.version}</bundleDef>
                             </bundles>
                         </configuration>
                     </execution>

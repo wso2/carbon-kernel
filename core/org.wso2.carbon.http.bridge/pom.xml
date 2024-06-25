@@ -54,7 +54,7 @@
             <artifactId>org.wso2.carbon.bridge</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.http.servlet</artifactId>
         </dependency>
     </dependencies>

@@ -36,7 +36,7 @@
             <artifactId>org.eclipse.osgi</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.common</artifactId>
         </dependency>
         <dependency>
@@ -89,16 +89,6 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito2</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-testng</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

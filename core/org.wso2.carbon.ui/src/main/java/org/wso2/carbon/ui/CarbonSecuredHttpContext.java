@@ -280,9 +280,9 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
         }
         if (request.getSession().isNew()) {
             if (skipLoginPage) {
-                response.sendRedirect(contextPath + "/carbon/admin/login_action.jsp");
+                response.sendRedirect(contextPath + "/admin/login_action.jsp");
             } else {
-                response.sendRedirect(contextPath + "/carbon/admin/login.jsp");
+                response.sendRedirect(contextPath + "/admin/login.jsp");
 
             }
             return false;

@@ -35,7 +35,6 @@ import org.wso2.carbon.integration.tests.common.utils.CarbonCommandToolsUtil;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationConstants;
 import org.wso2.carbon.utils.ServerConstants;
-import sun.management.VMManagement;
 
 import javax.xml.xpath.XPathExpressionException;
 import java.io.BufferedReader;
@@ -208,17 +207,11 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
             if (CarbonCommandToolsUtil.getCurrentOperatingSystem().
                     contains(OperatingSystems.WINDOWS.name().toLowerCase())) {
 
-                RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
-                Field jvmField = runtimeMXBean.getClass().getDeclaredField("jvm");
-                jvmField.setAccessible(true);
-                VMManagement vmManagement = (VMManagement) jvmField.get(runtimeMXBean);
-                Method getProcessIdMethod = vmManagement.getClass().getDeclaredMethod("getProcessId");
-                getProcessIdMethod.setAccessible(true);
-                Integer processId = (Integer) getProcessIdMethod.invoke(vmManagement);
+                long pid = ProcessHandle.current().pid();
 
                 String[] cmdArray = new String[]
                         {"cmd.exe", "/c", "carbondump.bat", "-carbonHome"
-                                , carbonHome, "-pid", Integer.toString(processId)};
+                                , carbonHome, "-pid", Long.toString(pid)};
                 processDump = CarbonCommandToolsUtil.runScript(carbonHome + "/bin", cmdArray);
                 assertTrue(isDumpFileFound(carbonHome), "Couldn't find the dump file");
             } else {

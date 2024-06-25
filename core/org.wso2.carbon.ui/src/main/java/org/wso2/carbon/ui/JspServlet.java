@@ -195,6 +195,7 @@ public class JspServlet extends HttpServlet {
     public void service(HttpServletRequest request, HttpServletResponse response)
             throws ServletException,
                    IOException {
+
         String pathInfo = request.getPathInfo();
         if (pathInfo != null && pathInfo.startsWith("/WEB-INF/")) { //$NON-NLS-1$
             response.sendError(HttpServletResponse.SC_NOT_FOUND);

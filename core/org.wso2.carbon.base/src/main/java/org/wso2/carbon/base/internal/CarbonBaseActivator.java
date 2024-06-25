@@ -22,16 +22,19 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.base.CarbonBaseUtils;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+
 import javax.servlet.ServletException;
-import java.io.*;
 
 /**
  * Activator of the {@link org.wso2.carbon.base} bundle
@@ -52,7 +55,6 @@ public class CarbonBaseActivator implements BundleActivator{
         System.setProperty("portOffset", portOffset);
         //register carbon server confg as an OSGi service
         registration = bundleContext.registerService(ServerConfigurationService.class.getName(), carbonServerConfiguration, null);
-
     }
 
     @Override

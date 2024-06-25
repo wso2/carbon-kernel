@@ -20,7 +20,6 @@ import java.net.URL;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.equinox.http.helper.BundleEntryHttpContext;
 import org.osgi.framework.Bundle;
 import org.wso2.carbon.registry.core.Registry;
 

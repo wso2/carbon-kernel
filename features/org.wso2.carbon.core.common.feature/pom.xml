@@ -36,6 +36,7 @@
             <plugin>
                 <groupId>org.wso2.maven</groupId>
                 <artifactId>carbon-p2-plugin</artifactId>
+                <extensions>true</extensions>
                 <executions>
                     <execution>
                         <id>4-p2-feature-generation</id>
@@ -54,10 +55,7 @@
                             </adviceFile>
                             <bundles>
                                 <bundleDef>
-                                    org.eclipse.equinox:org.eclipse.equinox.http.servlet:${version.equinox.http.servlet}
-                                </bundleDef>
-                                <bundleDef>
-                                    org.eclipse.equinox:org.eclipse.equinox.http.helper:${version.equinox.http.helper}
+                                    org.eclipse.platform:org.eclipse.equinox.http.servlet:${version.equinox.http.servlet}
                                 </bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.tomcat:tomcat-jsp-api:${orbit.version.tomcat.jsp.api}
                                 </bundleDef>
@@ -78,7 +76,7 @@
                                 <bundleDef>commons-pool.wso2:commons-pool:${orbit.version.commons.pool}</bundleDef>
                                 <bundleDef>org.apache.abdera.wso2:abdera:${orbit.version.abdera}</bundleDef>
                                 <bundleDef>org.apache.axis2.wso2:axis2:${orbit.version.axis2}</bundleDef>
-                                <bundleDef>org.apache.tiles.wso2:tiles-jsp:${orbit.version.tiles}</bundleDef>
+                                <bundleDef>org.wso2.orbit.org.apache.tiles:tiles-jsp:${orbit.version.tiles}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.xmlbeans:xmlbeans:${version.xmlbeans}</bundleDef>
                                 <bundleDef>org.apache.ws.commons.axiom.wso2:axiom:${orbit.version.axiom}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.neethi:neethi:${neethi.osgi.version}</bundleDef>
@@ -170,6 +168,11 @@
                                     org.wso2.carbon.crypto:org.wso2.carbon.crypto.provider:${carbon.crypto.version}
                                 </bundleDef>
                                 <bundleDef>org.wso2.orbit.sun.xml.bind:jaxb:${version.org.wso2.orbit.javax.xml.bind.jaxb}</bundleDef>
+                                <!-- TODO previously javax.activation package has come from org.eclipse.osgi_3.14.0.v20190517-1309 -->
+                                <bundleDef>org.wso2.orbit.javax.activation:activation:1.1.1.wso2v4</bundleDef>
+                                <!-- TODO previously javax.transaction package has come from org.eclipse.osgi_3.14.0.v20190517-1309 -->
+                                <!-- TODO previously javax.xml.soap was provided by org.eclipse.osgi_3.14.0.v20190517-1309 -->
+                                <bundleDef>javax.xml.soap:javax.xml.soap-api:1.4.0</bundleDef>
                             </bundles>
                         </configuration>
                     </execution>

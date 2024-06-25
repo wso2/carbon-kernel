@@ -161,9 +161,9 @@ public final class CarbonUILoginUtil {
             }
         } else {
             if (skipLoginPage) {
-                response.sendRedirect(contextPath + "/carbon/admin/login_action.jsp");
+                response.sendRedirect(contextPath + "/admin/login_action.jsp");
             } else {
-                response.sendRedirect(contextPath + "/carbon/admin/login.jsp");
+                response.sendRedirect(contextPath + "/admin/login.jsp");
 
             }
         }
@@ -460,7 +460,7 @@ public final class CarbonUILoginUtil {
                     response.addCookie(rmeCookie);
                 }
             } catch (Exception e) {
-                response.sendRedirect(contextPath + indexPageURL
+                response.sendRedirect(indexPageURL
                         + (indexPageURL.indexOf('?') == -1 ? "?" : "&") + "loginStatus=false");
 				if (log.isDebugEnabled()) {
 					log.debug("Security check failed for login request for " + userName);
@@ -479,7 +479,7 @@ public final class CarbonUILoginUtil {
                     indexPageURL = indexPageURL.substring(5);
                 }
 
-                response.sendRedirect(contextPath + indexPageURL
+                response.sendRedirect(indexPageURL
                         + (indexPageURL.indexOf('?') == -1 ? "?" : "&") + "loginStatus=true");
             }
 
@@ -497,14 +497,14 @@ public final class CarbonUILoginUtil {
                 if (isLoginFailureReasonEnabled()) {
                     if (e.getCause().getMessage().contains(ACCOUNT_LOCK_ERROR_CODE) || e.getCause().getMessage()
                             .contains(ACCOUNT_LOCK_ERROR_MESSAGE)) {
-                        response.sendRedirect(contextPath + "/carbon/admin/login.jsp?loginStatus=false&errorCode=error" +
+                        response.sendRedirect(contextPath + "/admin/login.jsp?loginStatus=false&errorCode=error" +
                                 ".code.17003");
                         return false;
                     } else if (e.getCause().getMessage().contains(USER_NOT_FOUND_ERROR_CODE)) {
-                        response.sendRedirect(contextPath + "/carbon/admin/login.jsp?loginStatus=false&errorCode=error.code.17001");
+                        response.sendRedirect(contextPath + "/admin/login.jsp?loginStatus=false&errorCode=error.code.17001");
                         return false;
                     } else if (e.getCause().getMessage().contains(INVALID_CREDENTIALS_ERROR_CODE)) {
-                        response.sendRedirect(contextPath + "/carbon/admin/login.jsp?loginStatus=false&errorCode=error.code.17002");
+                        response.sendRedirect(contextPath + "/admin/login.jsp?loginStatus=false&errorCode=error.code.17002");
                         return false;
                     }
                 }
@@ -512,7 +512,7 @@ public final class CarbonUILoginUtil {
                     response.sendRedirect(httpLogin + "?loginStatus=false");
                     return false;
                 } else {
-                    response.sendRedirect(contextPath + "/carbon/admin/login.jsp?loginStatus=false");
+                    response.sendRedirect(contextPath + "/admin/login.jsp?loginStatus=false");
                     return false;
                 }
             } catch (Exception e1) {
@@ -644,7 +644,7 @@ public final class CarbonUILoginUtil {
             // a tenant requesting login.jsp while not being authenticated
             // redirecting the tenant login page request to the root /carbon/admin/login.jsp
             // instead of tenant-aware login page
-            response.sendRedirect(context + "/carbon/admin/login.jsp");
+            response.sendRedirect(context + "/admin/login.jsp");
            	log.debug("Redirecting to /carbon/admin/login.jsp");
             return false;
         }

@@ -57,7 +57,7 @@
                         </Export-Package>
                         <Import-Package>
                             !org.wso2.carbon.core.common.*,
-                            javax.activation.*;version="[0.0.0, 1.0.0)"
+                            javax.activation.*;version="[1.0.0, 2.0.0)"
                         </Import-Package>
                     </instructions>
                 </configuration>

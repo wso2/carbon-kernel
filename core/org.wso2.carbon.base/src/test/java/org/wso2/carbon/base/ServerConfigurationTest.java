@@ -54,6 +54,7 @@ public class ServerConfigurationTest {
             IllegalAccessException {
         assertFalse(getIsInitialized(ServerConfiguration.getInstance(), "isInitialized"));
         InputStream inputStream = readFile("carbon.xml");
+        //TODO carbon.home is not set
         ServerConfiguration.getInstance().forceInit(inputStream);
         assertTrue(getIsInitialized(ServerConfiguration.getInstance(), "isInitialized"));
     }

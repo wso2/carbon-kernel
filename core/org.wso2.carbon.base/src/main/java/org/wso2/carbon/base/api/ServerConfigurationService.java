@@ -1,5 +1,6 @@
 package org.wso2.carbon.base.api;
 
+import org.osgi.service.component.annotations.Component;
 import org.w3c.dom.Element;
 
 public interface ServerConfigurationService {

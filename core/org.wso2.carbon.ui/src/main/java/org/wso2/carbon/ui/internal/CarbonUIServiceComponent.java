@@ -25,7 +25,6 @@ import org.apache.catalina.core.StandardContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.InstanceManager;
-import org.eclipse.equinox.http.helper.ContextPathServletAdaptor;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -38,6 +37,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
+import org.osgi.service.http.context.ServletContextHelper;
+import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.url.URLConstants;
 import org.osgi.service.url.URLStreamHandlerService;
@@ -52,6 +53,7 @@ import org.wso2.carbon.ui.CarbonSSOSessionManager;
 import org.wso2.carbon.ui.CarbonSecuredHttpContext;
 import org.wso2.carbon.ui.CarbonUIAuthenticator;
 import org.wso2.carbon.ui.CarbonUIUtil;
+import org.wso2.carbon.ui.ContextPathServletAdaptor;
 import org.wso2.carbon.ui.DefaultCarbonAuthenticator;
 import org.wso2.carbon.ui.TextJavascriptHandler;
 import org.wso2.carbon.ui.TilesJspServlet;
@@ -68,13 +70,6 @@ import org.wso2.carbon.ui.util.UIAnnouncementDeployer;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
-import javax.servlet.Servlet;
-import javax.servlet.ServletContext;
-import javax.xml.namespace.QName;
-import javax.xml.stream.FactoryConfigurationError;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ContentHandler;
@@ -89,6 +84,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+
+import javax.servlet.Servlet;
+import javax.servlet.ServletContext;
+import javax.xml.namespace.QName;
+import javax.xml.stream.FactoryConfigurationError;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import static org.wso2.carbon.CarbonConstants.PRODUCT_XML;
 import static org.wso2.carbon.CarbonConstants.PRODUCT_XML_PROPERTIES;
@@ -108,8 +111,7 @@ public class CarbonUIServiceComponent {
     private static ServerConfigurationService serverConfiguration;
     private static RealmService realmService;
     private static CarbonTomcatService carbonTomcatService;
-    private static List<UIAuthenticationExtender> authenticationExtenders =
-            new LinkedList<UIAuthenticationExtender>();
+    private static List<UIAuthenticationExtender> authenticationExtenders = new LinkedList<>();
 
     private BundleContext bundleContext;
 
@@ -230,15 +232,6 @@ public class CarbonUIServiceComponent {
 
         final HttpService httpService = getHttpService();
 
-        Dictionary<String, String> initparams = new Hashtable<String, String>();
-        initparams.put("servlet-name", "TilesServlet");
-        initparams.put("definitions-config", "/WEB-INF/tiles/main_defs.xml");
-        initparams.put("org.apache.tiles.context.TilesContextFactory",
-                       "org.apache.tiles.context.enhanced.EnhancedContextFactory");
-        initparams.put("org.apache.tiles.factory.TilesContainerFactory.MUTABLE", "true");
-        initparams.put("org.apache.tiles.definition.DefinitionsFactory",
-                       "org.wso2.carbon.tiles.CarbonUrlDefinitionsFactory");
-
         String webContext = "carbon"; // The subcontext for the Carbon Mgt Console
 
         String serverURL = CarbonUIUtil.getServerURL(serverConfig);
@@ -262,6 +255,9 @@ public class CarbonUIServiceComponent {
         //Registering filedownload servlet
         Servlet fileDownloadServlet = new ContextPathServletAdaptor(new FileDownloadServlet(
                 context, getConfigurationContextService()), "/filedownload");
+//        Dictionary<String, Object> fileDownloadServletProperties = new Hashtable<>();
+//        fileDownloadServletProperties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/filedownload");
+//        context.registerService(Servlet.class, fileDownloadServlet, fileDownloadServletProperties);
         httpService.registerServlet("/filedownload", fileDownloadServlet, null, commonContext);
         fileDownloadServlet.getServletConfig().getServletContext().setAttribute(
                 CarbonConstants.SERVER_URL, serverURL);
@@ -279,6 +275,9 @@ public class CarbonUIServiceComponent {
         }
 
         httpService.registerServlet("/fileupload", fileUploadServlet, null, commonContext);
+//        Dictionary<String, Object> fileUploadServletProperties = new Hashtable<>();
+//        fileUploadServletProperties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/fileupload");
+//        context.registerService(Servlet.class, fileUploadServlet, fileUploadServletProperties);
         fileUploadServlet.getServletConfig().getServletContext().setAttribute(
                 CarbonConstants.SERVER_URL, serverURL);
         fileUploadServlet.getServletConfig().getServletContext().setAttribute(
@@ -287,30 +286,44 @@ public class CarbonUIServiceComponent {
         uiBundleDeployer.deploy(bundleContext, commonContext);
         context.addBundleListener(uiBundleDeployer);
 
-        httpService.registerServlet("/", new org.apache.tiles.web.startup.TilesServlet(),
-                                    initparams,
-                                    commonContext);
-        httpService.registerResources("/" + webContext, "/", commonContext);
+        Dictionary<String, String> props = new Hashtable<>();
+        props.put("osgi.http.whiteboard.context.name", "tilesContext");
+        props.put("osgi.http.whiteboard.context.path", "/carbon");
 
-        adaptedJspServlet = new ContextPathServletAdaptor(
-                new TilesJspServlet(context.getBundle(), uiResourceRegistry), "/" + webContext);
+        context.registerService(ServletContextHelper.class, (ServletContextHelper) commonContext, props);
 
-        Dictionary<String, String> carbonInitparams = new Hashtable<String, String>();
-        carbonInitparams.put("strictQuoteEscaping", "false");
-        httpService.registerServlet("/" + webContext + "/*.jsp", adaptedJspServlet, carbonInitparams, commonContext);
+        HttpContext resourceContext =
+                new CarbonSecuredHttpContext(context.getBundle(), "/web", uiResourceRegistry, registry);
+        Dictionary<String, String> resourceProps = new Hashtable<>();
+        resourceProps.put("osgi.http.whiteboard.context.name", "resourceContext");
+        resourceProps.put("osgi.http.whiteboard.context.path", "/carbon");
+        resourceProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_RESOURCE_PATTERN, "/" + webContext + "/*");
+        context.registerService(ServletContextHelper.class, (ServletContextHelper) resourceContext, resourceProps);
+        Dictionary<String, Object> properties = new Hashtable<>();
+        properties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_RESOURCE_PATTERN, "/*");
+        properties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_RESOURCE_PREFIX, "/");
+        properties.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=resourceContext)");
+        properties.put("osgi.http.whiteboard.context.httpservice", true);
 
-        ServletContext jspServletContext =
-                adaptedJspServlet.getServletConfig().getServletContext();
+        // Replacement for httpService.registerResources with whiteboard
+        bundleContext.registerService(String.class, "resource", properties);
 
-        jspServletContext.setAttribute(
-                InstanceManager.class.getName(), getTomcatInstanceManager());
+        adaptedJspServlet = new TilesJspServlet(context.getBundle(), uiResourceRegistry);
 
+        Dictionary<String, String> carbonInitparams = new Hashtable<>();
+        carbonInitparams.put("servlet.init.strictQuoteEscaping", "false");
+        carbonInitparams.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/*.jsp");
+        carbonInitparams.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=tilesContext)");
+        context.registerService(Servlet.class, adaptedJspServlet, carbonInitparams);
+
+        ServletContext jspServletContext = adaptedJspServlet.getServletConfig().getServletContext();
+
+        jspServletContext.setAttribute(InstanceManager.class.getName(), getTomcatInstanceManager());
         jspServletContext.setAttribute("registry", registryService);
-
         jspServletContext.setAttribute(CarbonConstants.SERVER_CONFIGURATION, serverConfig);
         jspServletContext.setAttribute(CarbonConstants.CLIENT_CONFIGURATION_CONTEXT, clientConfigContext);
         //If the UI is running on local transport mode, then we use the server-side config context.
-        if(isLocalTransportMode) {
+        if (isLocalTransportMode) {
             jspServletContext.setAttribute(CarbonConstants.CONFIGURATION_CONTEXT, serverConfigContext);
         } else {
             jspServletContext.setAttribute(CarbonConstants.CONFIGURATION_CONTEXT, clientConfigContext);
@@ -328,6 +341,7 @@ public class CarbonUIServiceComponent {
                 .setAttribute(CustomUIDefenitions.CUSTOM_UI_DEFENITIONS, customUIDefenitions);
 
         // Registering jspServletContext as a service so that UI components can use it
+        // TODO why do we need to register this again?
         bundleContext.registerService(ServletContext.class.getName(), jspServletContext, null);
 
         //saving bundle context for future reference within CarbonUI Generation
