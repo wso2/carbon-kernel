@@ -2289,13 +2289,42 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (claims == null) {
             claims = new String[0];
         }
+        Map<String, String> finalValues = new HashMap<>();
+        String[] allClaims = claims.clone();
 
-        Map<String, String> finalValues;
+        // #################### <PreListeners> ###################################################
+        try {
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (listener instanceof AbstractUserOperationEventListener) {
+                    AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
+                    if (!newListener
+                            .doPreGetUserClaimValues(userStore.getDomainFreeName(), claims, profileName, finalValues,
+                                    this)) {
+                        handleGetUserClaimValuesFailure(
+                                ErrorMessages.ERROR_CODE_ERROR_IN_PRE_GET_CLAIM_VALUES.getCode(),
+                                String.format(ErrorMessages.ERROR_CODE_ERROR_IN_PRE_GET_CLAIM_VALUES.getMessage(),
+                                        UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE), userName, claims,
+                                profileName);
+                        break;
+                    }
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleGetUserClaimValuesFailure(ErrorMessages.ERROR_CODE_ERROR_IN_PRE_GET_CLAIM_VALUES.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_IN_PRE_GET_CLAIM_VALUES.getMessage(),
+                            ex.getMessage()), userName, claims, profileName);
+            throw ex;
+        }
+        // #################### </PreListeners> ###################################################
+
+        claims = removeNullElements(claims);
+
         try {
             if (isUniqueIdEnabled) {
                 finalValues = doGetUserClaimValuesWithID(userID, claims, userStore.getDomainName(), profileName);
             } else {
-                finalValues = doGetUserClaimValues(userStore.getDomainFreeName(), claims, userStore.getDomainName(), profileName);
+                finalValues = doGetUserClaimValues(userStore.getDomainFreeName(), claims, userStore.getDomainName(),
+                        profileName);
             }
         } catch (UserStoreException ex) {
             handleGetUserClaimValuesFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_CLAIM_VALUES.getCode(),
@@ -2304,14 +2333,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throw ex;
         }
 
-        // #################### <Listeners> #####################################################
+        // #################### <PostListeners> #####################################################
         try {
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
                 if (listener instanceof AbstractUserOperationEventListener) {
                     AbstractUserOperationEventListener newListener = (AbstractUserOperationEventListener) listener;
                     if (!newListener
-                            .doPostGetUserClaimValues(userStore.getDomainFreeName(), claims, profileName, finalValues,
-                                    this)) {
+                            .doPostGetUserClaimValues(userStore.getDomainFreeName(), allClaims, profileName,
+                                    finalValues, this)) {
                         handleGetUserClaimValuesFailure(
                                 ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getCode(),
                                 String.format(ErrorMessages.ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES.getMessage(),
@@ -2327,9 +2356,20 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             ex.getMessage()), userName, claims, profileName);
             throw ex;
         }
-        // #################### </Listeners> #####################################################
+        // #################### </PostListeners> #####################################################
 
         return finalValues;
+    }
+
+    /**
+     * Removes all null elements from the given String array.
+     *
+     * @param array Array The input String array.
+     * @return A new String array containing only non-null elements.
+     */
+    private static String[] removeNullElements(String[] array) {
+
+        return Arrays.stream(array).filter(Objects::nonNull).toArray(String[]::new);
     }
 
     /**
