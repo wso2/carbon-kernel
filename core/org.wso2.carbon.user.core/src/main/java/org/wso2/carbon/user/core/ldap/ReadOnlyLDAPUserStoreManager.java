@@ -3350,11 +3350,16 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     }
                 }
             } catch (NamingException e) {
+
+                // Close context before throwing the exception
+                JNDIUtil.closeContext(dirContext);
+
                 log.error(String.format("Error in reading user information in the user store for the user %s, %s",
                         user, e.getMessage()));
                 throw new UserStoreException(e.getMessage(), e);
             }
         }
+        JNDIUtil.closeContext(dirContext);
         return userNameList;
     }
 

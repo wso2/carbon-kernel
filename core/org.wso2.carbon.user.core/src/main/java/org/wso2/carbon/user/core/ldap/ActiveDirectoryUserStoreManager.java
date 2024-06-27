@@ -171,6 +171,10 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         try {
             credentialObj = Secret.getSecret(credential);
         } catch (UnsupportedSecretTypeException e) {
+
+            // Close the context before throwing the exception
+            JNDIUtil.closeContext(dirContext);
+
             throw new UserStoreException("Unsupported credential type", e);
         }
 
@@ -324,6 +328,10 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         try {
             credentialObj = Secret.getSecret(newCredential);
         } catch (UnsupportedSecretTypeException e) {
+
+            // Close the context before throwing the exception
+            JNDIUtil.closeContext(dirContext);
+
             throw new UserStoreException("Unsupported credential type", e);
         }
 
@@ -580,6 +588,10 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             // Assume only one user is returned from the search.
             returnedUserEntry = returnedResultList.next().getName();
         } catch (NamingException e) {
+
+            // Close the context before throwing the exception
+            JNDIUtil.closeContext(dirContext);
+
             String errorMessage = "Results could not be retrieved from the directory context for user : " + userName;
             if (logger.isDebugEnabled()) {
                 logger.debug(errorMessage, e);
@@ -690,6 +702,10 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             // Assume only one group is returned from the search.
             returnedGroupEntry = returnedResultList.next().getName();
         } catch (NamingException e) {
+
+            // Close the context before throwing the exception
+            JNDIUtil.closeContext(groupDirContext);
+
             String errorMessage = "Results could not be retrieved from the directory context for user : " +
                     context.getRoleName();
             if (logger.isDebugEnabled()) {
