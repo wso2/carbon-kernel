@@ -12043,7 +12043,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         UserStore userStore = abstractUserStoreManager.getUserStore(preferredUserNameValue);
         if (userStore.isRecurssive() && userStore.getUserStoreManager() instanceof AbstractUserStoreManager) {
             return ((AbstractUserStoreManager) userStore.getUserStoreManager())
-                    .authenticateWithID(preferredUserNameClaim, userStore.getDomainFreeName(), credential, profileName);
+                    .authenticateWithID(preferredUserNameClaim, userStore.getDomainFreeName(), credential, profileName,
+                            domainProvided);
         }
 
         Secret credentialObj;
