@@ -72,6 +72,7 @@ public class UserCoreErrorConstants {
         ERROR_CODE_ERROR_WHILE_GETTING_CLAIM_URI("33001", "Un-expected error while getting claim uri, %s"),
         ERROR_CODE_ERROR_WHILE_GETTING_CLAIM_VALUES("33002", "Un-expected error while getting claim values, %s"),
         ERROR_CODE_ERROR_IN_POST_GET_CLAIM_VALUES("33003", "Un-expected error during post get claim values, %s"),
+        ERROR_CODE_ERROR_IN_PRE_GET_CLAIM_VALUES("33005", "Un-expected error during pre get claim values, %s"),
 
         // Error code related with Add ClaimValues
         ERROR_CODE_DUPLICATE_ERROR_WHILE_ADDING_CLAIM_MAPPINGS("33004", "Duplicate entries are found when adding " +
