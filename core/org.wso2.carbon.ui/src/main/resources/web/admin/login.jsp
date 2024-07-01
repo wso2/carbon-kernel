@@ -61,6 +61,9 @@ String mailinglistURL =
 String issuetrackerURL =
         (String) config.getServletContext().getAttribute(CarbonConstants.PRODUCT_XML_WSO2CARBON +
                                                          CarbonConstants.PRODUCT_XML_ISSUETRACKER);
+
+String absoluteAdminLoginURL = CarbonUIUtil.resolveAdminConsoleBaseURL("", "../admin/login_action.jsp", request);
+
 if(userForumURL == null){
 	userForumURL = "#";
 }
@@ -75,7 +78,7 @@ if(issuetrackerURL == null){
 }
 
 if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
-	response.sendRedirect("../admin/login_action.jsp");
+	response.sendRedirect(absoluteAdminLoginURL);
 	return;
 }
 String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
@@ -225,7 +228,7 @@ String bannerContent = adminConfig.getBannerContent();
                     <div id="loginbox">
                         <h2><fmt:message key="sign.in"/></h2>
 
-                        <form action='../admin/login_action.jsp' method="POST" onsubmit="return doValidation();" target="_self" onsubmit="checkInputs()">
+                        <form action= "<%=absoluteAdminLoginURL%>" method="POST" onsubmit="return doValidation();" target="_self" onsubmit="checkInputs()">
                             <table>
                                 <%if (enableBanner) { %>
                                 <tr>

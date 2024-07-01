@@ -29,6 +29,7 @@ import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.core.common.UploadedFileItem;
 import org.wso2.carbon.ui.CarbonUIMessage;
+import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.ui.clients.FileUploadServiceClient;
 import org.wso2.carbon.ui.internal.CarbonUIServiceComponent;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -481,9 +482,9 @@ public abstract class AbstractFileUploadExecutor {
 
                     }
                 }
-                response.sendRedirect(getContextRoot(request) + "/carbon/service-mgt/index.jsp?message=Files have been uploaded "
+                response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(getContextRoot(request), "/carbon/service-mgt/index.jsp?message=Files have been uploaded "
                                       + "successfully. This page will be auto refreshed shortly with "
-                                      + "the status of the created " + utilityString + " service"); //TODO: why do we redirect to service-mgt ???
+                                      + "the status of the created " + utilityString + " service", request)); //TODO: why do we redirect to service-mgt ???
                 return true;
             } catch (RuntimeException e) {
                 throw e;
@@ -530,7 +531,7 @@ public abstract class AbstractFileUploadExecutor {
     }
 
     protected String getContextRoot(HttpServletRequest request) {
-        String contextPath = (request.getContextPath().equals("")) ? "" : request.getContextPath();
+            String contextPath = (request.getContextPath().equals("")) ? "" : request.getContextPath();
         int index;
         if (contextPath.equals("/fileupload")) {
             contextPath = "";

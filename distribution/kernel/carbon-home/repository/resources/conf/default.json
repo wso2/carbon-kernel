@@ -244,5 +244,6 @@
   "database.registry_db.pool_options.testOnBorrow" : "true",
   "database.registry_db.pool_options.validationQuery" : "SELECT 1",
   "database.registry_db.pool_options.validationInterval" : "30000",
-  "database.registry_db.pool_options.defaultAutoCommit" : "true"
+  "database.registry_db.pool_options.defaultAutoCommit" : "true",
+  "admin_console.resolve_absolute_urls.enable": true
 }

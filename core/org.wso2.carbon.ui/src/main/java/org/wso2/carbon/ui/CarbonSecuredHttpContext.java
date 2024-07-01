@@ -251,16 +251,18 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
 
         if (requestedURI.endsWith("/carbon/")) {
             if (skipLoginPage) {
-                response.sendRedirect(contextPath + indexPageURL + "?skipLoginPage=true");
+                response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath, indexPageURL +
+                        "?skipLoginPage=true", request));
             } else {
-                response.sendRedirect(contextPath + indexPageURL);
+                response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath, indexPageURL, request));
             }
             return false;
         } else if (requestedURI.indexOf("/registry/atom") == -1 && requestedURI.endsWith("/carbon")) {
             if (skipLoginPage) {
-                response.sendRedirect(contextPath + indexPageURL + "?skipLoginPage=true");
+                response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath, indexPageURL +
+                        "?skipLoginPage=true", request));
             } else {
-                response.sendRedirect(contextPath + indexPageURL);
+                response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath, indexPageURL, request));
             }
             return false;
         } else if (CarbonUILoginUtil.letRequestedUrlIn(requestedURI, tempUrl)) {
@@ -280,9 +282,11 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
         }
         if (request.getSession().isNew()) {
             if (skipLoginPage) {
-                response.sendRedirect(contextPath + "/carbon/admin/login_action.jsp");
+                response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath,
+                        "/carbon/admin/login_action.jsp", request));
             } else {
-                response.sendRedirect(contextPath + "/carbon/admin/login.jsp");
+                response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath, "/carbon/admin/login.jsp",
+                        request));
 
             }
             return false;

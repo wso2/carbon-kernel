@@ -18,6 +18,7 @@ package org.wso2.carbon.ui;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,6 +43,9 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ConfigurationContextService;
 import org.wso2.carbon.utils.NetworkUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+
+import static org.wso2.carbon.CarbonConstants.DEFAULT_HTTPS_PROXY_PORT;
+import static org.wso2.carbon.CarbonConstants.DEFAULT_HTTP_PROXY_PORT;
 
 /**
  * Utility class for Carbon UI
@@ -198,6 +202,17 @@ public class CarbonUIUtil {
      * @return The URL of the Admin Console
      */
     public static String getAdminConsoleURL(String context) {
+
+        return getAdminConsoleBaseURL(context) + "/carbon/";
+    }
+
+    /**
+     * Returns base URL to admin console.
+     *
+     * @param context Webapp context root of the Carbon webapp
+     * @return The base URL of the Admin Console
+     */
+    private static String getAdminConsoleBaseURL(String context) {
         // Hostname
         String hostName = "localhost";
         try {
@@ -238,14 +253,32 @@ public class CarbonUIUtil {
 
         String proxyContextPath = CarbonUtils.getProxyContextPath(false);
 
-        String adminConsoleURL =  "https://" + hostName + ":" + (httpsProxyPort != -1 ? httpsProxyPort : httpsPort) +
-                proxyContextPath + context + "/carbon/";
+        String adminConsoleURL =  "https://" + hostName + resolvePortForURLs(httpsProxyPort, httpsPort) +
+                proxyContextPath + context;
 
         if(log.isDebugEnabled()){
             log.debug("Generated admin console URL: " + adminConsoleURL);
         }
 
         return adminConsoleURL;
+    }
+
+    /**
+     * Get a port to added to the URL.
+     *
+     * @param httpsProxyPort    Https proxy port.
+     * @param httpsPort         Https port.
+     * @return return the port to be added to the URL.
+     */
+    private static String resolvePortForURLs(int httpsProxyPort, int httpsPort) {
+
+        if (httpsProxyPort == DEFAULT_HTTP_PROXY_PORT || httpsProxyPort == DEFAULT_HTTPS_PROXY_PORT) {
+            return "";
+        }
+        if (httpsProxyPort != -1) {
+            return ":" + httpsProxyPort;
+        }
+        return ":" + httpsPort;
     }
 
     /**
@@ -509,5 +542,72 @@ public class CarbonUIUtil {
 
     private static Object getDefaultHomePageProductParam() {
         return getProductParam(CarbonConstants.PRODUCT_XML_WSO2CARBON + CarbonConstants.DEFAULT_HOME_PAGE);
+    }
+
+
+    /**
+     * Returns absolute URL of admin console webapp for given relative path
+     * if IS_RESOLVE_ABSOLUTE_URLS_ENABLED config is enabled.
+     *
+     * @param context       Webapp context root of the Carbon webapp.
+     * @param relativePath  Relative path of the Carbon webapp
+     * @param request       Request that used to redirect.
+     * @return absolute URL of admin console webapp for given relative path.
+     */
+    public static String resolveAdminConsoleBaseURL(String context, String relativePath, HttpServletRequest request) {
+
+        if (isResolveAbsoluteURLsEnabled()) {
+
+            // Removing any tailing "/" in the context.
+            context = getAdminConsoleBaseURL(context);
+            if (context.endsWith("/")) {
+                context = context.substring(0, context.length() - 1);
+            }
+
+            // Remove any tailing "/carbon" in context to build base URL.
+            if (context.endsWith("/carbon")) {
+                context = context.substring(0, context.length() - 7);
+            }
+
+            // Build relative path starting from root context.
+            List<String> splitPathList = new ArrayList<>(Arrays.asList(
+                    request.getContextPath().concat(request.getServletPath()).split("/")));
+            splitPathList.remove(0);
+            // If the request is a base URL, add the carbon as the root context.
+            if (splitPathList.isEmpty()) {
+                splitPathList.add("carbon");
+            }
+
+            // Replace ".." with the node of path directory.
+            int index = 0;
+            while (relativePath.contains("..")) {
+                relativePath = relativePath.replaceFirst("..", splitPathList.get(index));
+                index++;
+            }
+
+            // Add "/", if relative path is not starting with.
+            if (relativePath.charAt(0) != '/') {
+                relativePath = "/" + relativePath;
+            }
+        }
+
+        return context + relativePath;
+    }
+
+    /**
+     * Returns whether resolving absolute URL config is enabled or not.
+     *
+     * @return Resolving absolute URL config is enabled.
+     */
+    public static boolean isResolveAbsoluteURLsEnabled() {
+
+        String  isResolveAbsoluteURLsEnabled = CarbonUIServiceComponent.getServerConfiguration()
+                .getFirstProperty(CarbonConstants.IS_RESOLVE_ABSOLUTE_URLS_ENABLED);
+
+        if (isResolveAbsoluteURLsEnabled == null) {
+            return false;
+        }
+
+        return Boolean.parseBoolean(isResolveAbsoluteURLsEnabled);
     }
 }
