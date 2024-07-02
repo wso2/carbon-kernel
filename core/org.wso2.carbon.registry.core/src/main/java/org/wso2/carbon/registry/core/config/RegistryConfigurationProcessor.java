@@ -48,6 +48,7 @@ import javax.sql.DataSource;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -76,18 +77,27 @@ public class RegistryConfigurationProcessor {
      *
      * @param in              an InputStream containing XML data, or null.
      * @param registryContext the RegistryContext to populate
-     *
      * @throws RegistryException if there's a problem
      */
     public static void populateRegistryConfig(InputStream in, RegistryContext registryContext)
             throws RegistryException {
+
         if (in == null) {
-            in = Thread.currentThread().getContextClassLoader().getResourceAsStream(
-                    "org/wso2/carbon/registry/core/servlet/registry.xml");
-            if (in == null) {
-                return;
+            try (InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(
+                    "org/wso2/carbon/registry/core/servlet/registry.xml")) {
+                if (inputStream != null) {
+                    populateConfig(inputStream, registryContext);
+                }
+            } catch (IOException e) {
+                log.error("Error reading registry.xml from classpath", e);
             }
+        } else {
+            populateConfig(in, registryContext);
         }
+    }
+
+    private static void populateConfig(InputStream in, RegistryContext registryContext)
+            throws RegistryException {
 
         try {
             StAXOMBuilder builder = new StAXOMBuilder(
@@ -218,42 +228,42 @@ public class RegistryConfigurationProcessor {
                             dataBaseConfiguration.setMaxWait(maxWait.getText());
                         }
 
-						OMElement testWhileIdle = dbConfig
-								.getFirstChildWithName(new QName(
-										"testWhileIdle"));
-						if (testWhileIdle != null) {
-							dataBaseConfiguration
-									.setTestWhileIdle(testWhileIdle
-											.getText());
-						}
-						
-						OMElement timeBetweenEvictionRunsMillis = dbConfig
-								.getFirstChildWithName(new QName(
-										"timeBetweenEvictionRunsMillis"));
-						if (timeBetweenEvictionRunsMillis != null) {
-							dataBaseConfiguration
-									.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis
-											.getText());
-						}
-						
-						OMElement minEvictableIdleTimeMillis = dbConfig
-								.getFirstChildWithName(new QName(
-										"minEvictableIdleTimeMillis"));
-						if (minEvictableIdleTimeMillis != null) {
-							dataBaseConfiguration
-									.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis
-											.getText());
-						}
-						
-						OMElement numTestsPerEvictionRun = dbConfig
-								.getFirstChildWithName(new QName(
-										"numTestsPerEvictionRun"));
-						if (numTestsPerEvictionRun != null) {
-							dataBaseConfiguration
-									.setNumTestsPerEvictionRun(numTestsPerEvictionRun
-											.getText());
-						}
-						
+                        OMElement testWhileIdle = dbConfig
+                                .getFirstChildWithName(new QName(
+                                        "testWhileIdle"));
+                        if (testWhileIdle != null) {
+                            dataBaseConfiguration
+                                    .setTestWhileIdle(testWhileIdle
+                                            .getText());
+                        }
+
+                        OMElement timeBetweenEvictionRunsMillis = dbConfig
+                                .getFirstChildWithName(new QName(
+                                        "timeBetweenEvictionRunsMillis"));
+                        if (timeBetweenEvictionRunsMillis != null) {
+                            dataBaseConfiguration
+                                    .setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis
+                                            .getText());
+                        }
+
+                        OMElement minEvictableIdleTimeMillis = dbConfig
+                                .getFirstChildWithName(new QName(
+                                        "minEvictableIdleTimeMillis"));
+                        if (minEvictableIdleTimeMillis != null) {
+                            dataBaseConfiguration
+                                    .setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis
+                                            .getText());
+                        }
+
+                        OMElement numTestsPerEvictionRun = dbConfig
+                                .getFirstChildWithName(new QName(
+                                        "numTestsPerEvictionRun"));
+                        if (numTestsPerEvictionRun != null) {
+                            dataBaseConfiguration
+                                    .setNumTestsPerEvictionRun(numTestsPerEvictionRun
+                                            .getText());
+                        }
+
                         OMElement maxActive =
                                 dbConfig.getFirstChildWithName(new QName("maxActive"));
                         if (maxActive != null) {
@@ -373,7 +383,8 @@ public class RegistryConfigurationProcessor {
                 if (versionConfig != null && "true".equals(versionConfig.getText())) {
                     registryContext.setVersionOnChange(true);
                 } else {
-                registryContext.setVersionOnChange(false);              }
+                    registryContext.setVersionOnChange(false);
+                }
                 initializeHandlers(configElement, registryContext);
 
                 // process query processor config
