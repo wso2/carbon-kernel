@@ -137,7 +137,7 @@ public class KeyStoreManager {
         // Get Tenant KeyStores
         String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
         if (registry.resourceExists(path)) {
-            availableKeyStores.add(getTenantKeyStore(path));
+            availableKeyStores.add(getTenantKeyStore(keyStoreName));
         }
 
         // Get Custom KeyStores
