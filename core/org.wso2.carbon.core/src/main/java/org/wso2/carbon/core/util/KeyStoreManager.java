@@ -37,7 +37,9 @@ import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -130,34 +132,80 @@ public class KeyStoreManager {
             return getPrimaryKeyStore();
         }
 
+        List<KeyStore> availableKeyStores = new ArrayList<KeyStore>();
+
+        // Get Tenant KeyStores
+        String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
+        if (registry.resourceExists(path)) {
+            availableKeyStores.add(getTenantKeyStore(path));
+        }
+
+        // Get Custom KeyStores
+        String customKeyStoreName = keyStoreName + "-KeyStore";
+        if (isCustomKeyStoreConfigAvailable(customKeyStoreName)) {
+            availableKeyStores.add(getCustomKeyStore(customKeyStoreName));
+        }
+
+        if (availableKeyStores.isEmpty()) {
+            throw new SecurityException("Key Store with a name : " + keyStoreName + " does not exist.");
+        }
+        if (availableKeyStores.size() > 1) {
+            log.warn("Multiple Key Stores with name : " + keyStoreName + " exist. Giving priority to tenant KeyStore");
+        }
+        return availableKeyStores.get(0);
+    }
+
+    private KeyStore getTenantKeyStore(String keyStoreName) throws Exception {
+
         if (isCachedKeyStoreValid(keyStoreName)) {
             return loadedKeyStores.get(keyStoreName).getKeyStore();
         }
 
         String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
-        if (registry.resourceExists(path)) {
-            org.wso2.carbon.registry.api.Resource resource = registry.get(path);
-            byte[] bytes = (byte[]) resource.getContent();
-            KeyStore keyStore = KeyStore.getInstance(resource
-                    .getProperty(RegistryResources.SecurityManagement.PROP_TYPE));
-            CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
-            String encryptedPassword = resource
-                    .getProperty(RegistryResources.SecurityManagement.PROP_PASSWORD);
-            String password = new String(cryptoUtil.base64DecodeAndDecrypt(encryptedPassword));
-            ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
-            keyStore.load(stream, password.toCharArray());
-            KeyStoreBean keyStoreBean = new KeyStoreBean(keyStore, resource.getLastModified());
-            resource.discard();
+        org.wso2.carbon.registry.api.Resource resource = registry.get(path);
+        byte[] bytes = (byte[]) resource.getContent();
+        KeyStore keyStore = KeyStore.getInstance(resource.getProperty(RegistryResources.SecurityManagement.PROP_TYPE));
+        CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
+        String encryptedPassword = resource.getProperty(RegistryResources.SecurityManagement.PROP_PASSWORD);
+        String password = new String(cryptoUtil.base64DecodeAndDecrypt(encryptedPassword));
+        ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
+        keyStore.load(stream, password.toCharArray());
+        KeyStoreBean keyStoreBean = new KeyStoreBean(keyStore, resource.getLastModified());
+        resource.discard();
 
-            if (loadedKeyStores.containsKey(keyStoreName)) {
-                loadedKeyStores.replace(keyStoreName, keyStoreBean);
-            } else {
-                loadedKeyStores.put(keyStoreName, keyStoreBean);
-            }
-            return keyStore;
+        if (loadedKeyStores.containsKey(keyStoreName)) {
+            loadedKeyStores.replace(keyStoreName, keyStoreBean);
         } else {
-            throw new SecurityException("Key Store with a name : " + keyStoreName + " does not exist.");
+            loadedKeyStores.put(keyStoreName, keyStoreBean);
         }
+        return keyStore;
+    }
+
+    private Boolean isCustomKeyStoreConfigAvailable(String customKeyStoreName) {
+
+        ServerConfigurationService config = this.getServerConfigService();
+        String configPath = "Security." + customKeyStoreName + ".Location";
+        String customKeyStoreLocationConfig = config.getFirstProperty(configPath);
+
+        if (customKeyStoreLocationConfig != null) {
+            return true;
+        }
+        return false;
+    }
+
+    private KeyStore getCustomKeyStore(String customKeyStoreName) {
+
+        String keyStoreLocationConfig = "Security." + customKeyStoreName + ".Location";
+        String keyStoreTypeConfig = "Security." + customKeyStoreName + ".Type";
+        String keyStorePasswordConfig = "Security." + customKeyStoreName + ".Password";
+
+        ServerConfigurationService config = this.getServerConfigService();
+
+        String keyStoreLocation = config.getFirstProperty(keyStoreLocationConfig);
+        String keyStoreType = config.getFirstProperty(keyStoreTypeConfig);
+        String keyStorePassword = config.getFirstProperty(keyStorePasswordConfig);
+
+        return loadKeyStoreFromFileSystem(keyStoreLocation, keyStorePassword, keyStorePassword);
     }
 
     /**
