@@ -148,7 +148,7 @@ public class ResourceServlet extends HttpServlet {
             } else {
                 response.setHeader(
                         "Content-Disposition",
-                        "attachment; filename=" + RegistryUtils.getResourceName(path));
+                        "attachment; filename=" + sanitizeInput(RegistryUtils.getResourceName(path)));
                 response.setContentType("application/download");
             }
 
@@ -194,6 +194,14 @@ public class ResourceServlet extends HttpServlet {
             log.error(msg, e);
             response.setStatus(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
+    }
+
+    private String sanitizeInput(String input) {
+        // Remove newline and carriage return characters including url encoded representations of them
+        if (input != null) {
+            return input.replaceAll("(\\r|\\n|%0D|%0A|%0a|%0d)", "");
+        }
+        return null;
     }
 
 }
