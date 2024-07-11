@@ -116,35 +116,10 @@ public final class XsdUtil {
                     schema.write(response.getOutputStream());
                     return;
                 } else {
-                    InputStream instream = service.getClassLoader()
-                            .getResourceAsStream(DeploymentConstants.META_INF + "/" + schemaName);
+                    try (InputStream instream = service.getClassLoader()
+                            .getResourceAsStream(DeploymentConstants.META_INF + "/" + schemaName)) {
 
-                    if (instream != null) {
-                        response.setStatus(HttpStatus.SC_OK);
-                        response.addHeader(HTTP.CONTENT_TYPE, "text/xml");
-                        OutputStream outstream = response.getOutputStream();
-                        boolean checkLength = true;
-                        int length = Integer.MAX_VALUE;
-                        int nextValue = instream.read();
-                        if (checkLength) {
-                            length--;
-                        }
-                        while (-1 != nextValue && length >= 0) {
-                            outstream.write(nextValue);
-                            nextValue = instream.read();
-                            if (checkLength) {
-                                length--;
-                            }
-                        }
-                        outstream.flush();
-                        instream.close();
-                        return;
-                    } else {
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        int ret = service.printXSD(baos, schemaName);
-                        if (ret > 0) {
-                            baos.flush();
-                            instream = new ByteArrayInputStream(baos.toByteArray());
+                        if (instream != null) {
                             response.setStatus(HttpStatus.SC_OK);
                             response.addHeader(HTTP.CONTENT_TYPE, "text/xml");
                             OutputStream outstream = response.getOutputStream();
@@ -163,6 +138,32 @@ public final class XsdUtil {
                             }
                             outstream.flush();
                             return;
+                        } else {
+                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                            int ret = service.printXSD(baos, schemaName);
+                            if (ret > 0) {
+                                baos.flush();
+                                try (InputStream instream2 = new ByteArrayInputStream(baos.toByteArray())) {
+                                    response.setStatus(HttpStatus.SC_OK);
+                                    response.addHeader(HTTP.CONTENT_TYPE, "text/xml");
+                                    OutputStream outstream = response.getOutputStream();
+                                    boolean checkLength = true;
+                                    int length = Integer.MAX_VALUE;
+                                    int nextValue = instream2.read();
+                                    if (checkLength) {
+                                        length--;
+                                    }
+                                    while (-1 != nextValue && length >= 0) {
+                                        outstream.write(nextValue);
+                                        nextValue = instream2.read();
+                                        if (checkLength) {
+                                            length--;
+                                        }
+                                    }
+                                    outstream.flush();
+                                    return;
+                                }
+                            }
                         }
                     }
                 }
