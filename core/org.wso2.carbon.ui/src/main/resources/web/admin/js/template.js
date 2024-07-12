@@ -279,10 +279,16 @@ YAHOO.util.Event.onAvailable('menu-panel-button_dummy',
                  for(var i=0;i<elmsX.length;i++){
                      elmsX[i].style.display = "";
                  }
+
                  hideSection("region1_configure_menu");
                  hideSection("region4_monitor_menu");
                  hideSection("region5_tools_menu");
                  hideSection("region3_extensions_menu");
+                 
+                 showSection('region1_identity_menu');
+                 showSection('region1_manage_menu');
+                 showSection('region3_registry_menu');
+
                  selectTab(menuSlider1);
 
              }else if(get_cookie('menuPanelType') == "monitor"){
@@ -291,6 +297,7 @@ YAHOO.util.Event.onAvailable('menu-panel-button_dummy',
                  for(var i=0;i<elmsX.length;i++){
                      elmsX[i].style.display = "none";
                  }
+
                  showSection("region4_monitor_menu");
                  hideSection("region1_configure_menu");
                  hideSection("region5_tools_menu");
@@ -302,10 +309,17 @@ YAHOO.util.Event.onAvailable('menu-panel-button_dummy',
                  for(var i=0;i<elmsX.length;i++){
                      elmsX[i].style.display = "none";
                  }
+
                  showSection("region1_configure_menu");
+                 
+                 hideSection('region1_identity_menu');
+                 hideSection('region1_manage_menu');
+                 hideSection('region3_registry_menu');
+                 
                  hideSection("region4_monitor_menu");
                  hideSection("region5_tools_menu");
                  hideSection("region3_extensions_menu");
+                 
                  selectTab(menuSlider3);
              }else if(get_cookie('menuPanelType') == "tools"){
                 //hide the config section
@@ -367,6 +381,10 @@ YAHOO.util.Event.onAvailable('menu-panel-button_dummy',
                 hideSection('region5_tools_menu');
                 hideSection('region3_extensions_menu');
 
+                showSection('region1_identity_menu');
+                showSection('region1_manage_menu');
+                showSection('region3_registry_menu');
+
                 setMainMenus();
                 selectTab(menuSlider1);
 
@@ -411,6 +429,12 @@ YAHOO.util.Event.onAvailable('menu-panel-button_dummy',
                  for(var i=0;i<elmsX.length;i++){
                      elmsX[i].style.display = "none";
                  }
+                 
+                
+                hideSection('region1_identity_menu');
+                hideSection('region1_manage_menu');
+                hideSection('region3_registry_menu');
+
                 showSection('region1_configure_menu');
                 setMainMenus();
                 selectTab(menuSlider3);
