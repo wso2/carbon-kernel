@@ -17,15 +17,21 @@
 */
 package org.wso2.carbon.core.util;
 
+import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
+import org.apache.axis2.util.XMLUtils;
+import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
+import org.wso2.carbon.utils.ServerConstants;
 
 import java.io.File;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.util.Enumeration;
+import java.util.Iterator;
+import javax.xml.namespace.QName;
 
 public class KeyStoreUtil {
 
@@ -111,4 +117,53 @@ public class KeyStoreUtil {
         }
     }
 
+    public static boolean isCustomKeyStore(String keyStoreName) {
+
+        if (keyStoreName.startsWith(RegistryResources.SecurityManagement.CustomKeyStore.KEYSTORE_PREFIX)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static QName getQNameWithCarbonNS(String localPart) {
+
+        return new QName(ServerConstants.CARBON_SERVER_XML_NAMESPACE, localPart);
+    }
+
+    public static OMElement getCustomKeyStoreConfig(
+            String keyStoreName, ServerConfigurationService serverConfiguration) throws CarbonException {
+
+        String keyStoreFileName = keyStoreName
+                .substring(RegistryResources.SecurityManagement.CustomKeyStore.KEYSTORE_PREFIX.length());
+
+        OMElement config = null;
+        try {
+            OMElement serverConfigElem = XMLUtils.toOM(serverConfiguration.getDocumentElement());
+            OMElement securityConfigElem = serverConfigElem.getFirstChildWithName(KeyStoreUtil
+                    .getQNameWithCarbonNS(RegistryResources.SecurityManagement.CustomKeyStore.ELEM_SECURITY));
+            OMElement customKeyStoresConfigElem = securityConfigElem.getFirstChildWithName(KeyStoreUtil
+                    .getQNameWithCarbonNS(RegistryResources.SecurityManagement.CustomKeyStore.ELEM_CUSTOM_KEYSTORES));
+
+            Iterator<OMElement> iterator = customKeyStoresConfigElem.getChildElements();
+            while (iterator.hasNext()) {
+                OMElement customKeyStoreConfig = iterator.next();
+                String[] location = customKeyStoreConfig.getFirstChildWithName(KeyStoreUtil.getQNameWithCarbonNS(
+                        RegistryResources.SecurityManagement.CustomKeyStore.PROP_LOCATION)).getText().split("/");
+                String keyStoreFileNameConfig = location[location.length - 1];
+
+                if (keyStoreFileName.equals(keyStoreFileNameConfig)) {
+                    config = customKeyStoreConfig;
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            throw new CarbonException("Error occurred while reading custom keystore configuration.", e);
+        }
+
+        if (config == null) {
+            throw new SecurityException("No configuration found for custom key store : " + keyStoreFileName);
+        }
+
+        return config;
+    }
 }

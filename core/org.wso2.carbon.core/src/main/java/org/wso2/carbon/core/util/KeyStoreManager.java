@@ -17,6 +17,7 @@
 */
 package org.wso2.carbon.core.util;
 
+import org.apache.axiom.om.OMElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonException;
@@ -31,15 +32,18 @@ import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.security.Key;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -57,7 +61,8 @@ public class KeyStoreManager {
     private static Log log = LogFactory.getLog(KeyStoreManager.class);
 
     private Registry registry = null;
-    private ConcurrentHashMap<String, KeyStoreBean> loadedKeyStores = null;
+    private ConcurrentHashMap<String, KeyStoreBean> tenantKeyStores = null;
+    private ConcurrentHashMap<String, KeyStore> customKeyStores = null;
     private int tenantId = MultitenantConstants.SUPER_TENANT_ID;
 
     private ServerConfigurationService serverConfigService;
@@ -75,7 +80,8 @@ public class KeyStoreManager {
                             RegistryService registryService) {
         this.serverConfigService = serverConfigService;
         this.registryService = registryService;
-        loadedKeyStores = new ConcurrentHashMap<String, KeyStoreBean>();
+        tenantKeyStores = new ConcurrentHashMap<String, KeyStoreBean>();
+        customKeyStores = new ConcurrentHashMap<String, KeyStore>();
         this.tenantId = tenantId;
         try {
             registry = registryService.getGovernanceSystemRegistry(tenantId);
@@ -126,86 +132,22 @@ public class KeyStoreManager {
      * @return KeyStore object
      * @throws Exception If there is not a key store with the given name
      */
-    public KeyStore getKeyStore(String keyStoreName) throws Exception {
+    public KeyStore getKeyStore(String keyStoreName) {
 
-        if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
-            return getPrimaryKeyStore();
+        try {
+            if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
+                return getPrimaryKeyStore();
+            }
+
+            if (KeyStoreUtil.isCustomKeyStore(keyStoreName)) {
+                return getCustomKeyStore(keyStoreName);
+            }
+
+            return getTenantKeyStore(keyStoreName);
+        } catch (Exception e) {
+            log.error("Error loading the key store : " + keyStoreName);
+            throw new SecurityException("Error loading the key store : " + keyStoreName, e);
         }
-
-        List<KeyStore> availableKeyStores = new ArrayList<KeyStore>();
-
-        // Get Tenant KeyStores
-        String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
-        if (registry.resourceExists(path)) {
-            availableKeyStores.add(getTenantKeyStore(keyStoreName));
-        }
-
-        // Get Custom KeyStores
-        String customKeyStoreName = keyStoreName + "-KeyStore";
-        if (isCustomKeyStoreConfigAvailable(customKeyStoreName)) {
-            availableKeyStores.add(getCustomKeyStore(customKeyStoreName));
-        }
-
-        if (availableKeyStores.isEmpty()) {
-            throw new SecurityException("Key Store with a name : " + keyStoreName + " does not exist.");
-        }
-        if (availableKeyStores.size() > 1) {
-            log.warn("Multiple Key Stores with name : " + keyStoreName + " exist. Giving priority to tenant KeyStore");
-        }
-        return availableKeyStores.get(0);
-    }
-
-    private KeyStore getTenantKeyStore(String keyStoreName) throws Exception {
-
-        if (isCachedKeyStoreValid(keyStoreName)) {
-            return loadedKeyStores.get(keyStoreName).getKeyStore();
-        }
-
-        String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
-        org.wso2.carbon.registry.api.Resource resource = registry.get(path);
-        byte[] bytes = (byte[]) resource.getContent();
-        KeyStore keyStore = KeyStore.getInstance(resource.getProperty(RegistryResources.SecurityManagement.PROP_TYPE));
-        CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
-        String encryptedPassword = resource.getProperty(RegistryResources.SecurityManagement.PROP_PASSWORD);
-        String password = new String(cryptoUtil.base64DecodeAndDecrypt(encryptedPassword));
-        ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
-        keyStore.load(stream, password.toCharArray());
-        KeyStoreBean keyStoreBean = new KeyStoreBean(keyStore, resource.getLastModified());
-        resource.discard();
-
-        if (loadedKeyStores.containsKey(keyStoreName)) {
-            loadedKeyStores.replace(keyStoreName, keyStoreBean);
-        } else {
-            loadedKeyStores.put(keyStoreName, keyStoreBean);
-        }
-        return keyStore;
-    }
-
-    private Boolean isCustomKeyStoreConfigAvailable(String customKeyStoreName) {
-
-        ServerConfigurationService config = this.getServerConfigService();
-        String configPath = "Security." + customKeyStoreName + ".Location";
-        String customKeyStoreLocationConfig = config.getFirstProperty(configPath);
-
-        if (customKeyStoreLocationConfig != null) {
-            return true;
-        }
-        return false;
-    }
-
-    private KeyStore getCustomKeyStore(String customKeyStoreName) {
-
-        String keyStoreLocationConfig = "Security." + customKeyStoreName + ".Location";
-        String keyStoreTypeConfig = "Security." + customKeyStoreName + ".Type";
-        String keyStorePasswordConfig = "Security." + customKeyStoreName + ".Password";
-
-        ServerConfigurationService config = this.getServerConfigService();
-
-        String keyStoreLocation = config.getFirstProperty(keyStoreLocationConfig);
-        String keyStoreType = config.getFirstProperty(keyStoreTypeConfig);
-        String keyStorePassword = config.getFirstProperty(keyStorePasswordConfig);
-
-        return loadKeyStoreFromFileSystem(keyStoreLocation, keyStorePassword, keyStorePassword);
     }
 
     /**
@@ -216,46 +158,20 @@ public class KeyStoreManager {
      * @return private key corresponding to the alias
      */
     public Key getPrivateKey(String keyStoreName, String alias) {
+
         try {
             if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
                 return getDefaultPrivateKey();
             }
 
-            String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
-            org.wso2.carbon.registry.api.Resource resource;
-            KeyStore keyStore;
-
-            if (registry.resourceExists(path)) {
-                resource = registry.get(path);
-            } else {
-                throw new SecurityException("Given Key store is not available in registry : " + keyStoreName);
+            if (KeyStoreUtil.isCustomKeyStore(keyStoreName)) {
+                return getCustomPrivateKey(keyStoreName);
             }
 
-            CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
-            String encryptedPassword = resource
-                    .getProperty(RegistryResources.SecurityManagement.PROP_PRIVATE_KEY_PASS);
-            String privateKeyPasswd = new String(cryptoUtil.base64DecodeAndDecrypt(encryptedPassword));
-
-            if (isCachedKeyStoreValid(keyStoreName)) {
-                keyStore = loadedKeyStores.get(keyStoreName).getKeyStore();
-                return keyStore.getKey(alias, privateKeyPasswd.toCharArray());
-            } else {
-                byte[] bytes = (byte[]) resource.getContent();
-                String keyStorePassword = new String(cryptoUtil.base64DecodeAndDecrypt(resource.getProperty(
-                        RegistryResources.SecurityManagement.PROP_PASSWORD)));
-                keyStore = KeyStore.getInstance(resource
-                        .getProperty(RegistryResources.SecurityManagement.PROP_TYPE));
-                ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
-                keyStore.load(stream, keyStorePassword.toCharArray());
-
-                KeyStoreBean keyStoreBean = new KeyStoreBean(keyStore, resource.getLastModified());
-                updateKeyStoreCache(keyStoreName, keyStoreBean);
-                return keyStore.getKey(alias, privateKeyPasswd.toCharArray());
-            }
+            return getTenantPrivateKey(keyStoreName, alias);
         } catch (Exception e) {
             log.error("Error loading the private key from the key store : " + keyStoreName);
-            throw new SecurityException("Error loading the private key from the key store : " +
-                    keyStoreName, e);
+            throw new SecurityException("Error loading the private key from the key store : " + keyStoreName, e);
         }
     }
 
@@ -390,6 +306,45 @@ public class KeyStoreManager {
     }
 
     /**
+     * Load a given tenant keystore.
+     *
+     * @param tenant key store name
+     * @return tenant key store object
+     * @throws Exception
+     */
+    private KeyStore getTenantKeyStore(String keyStoreName) throws Exception {
+
+        if (isCachedKeyStoreValid(keyStoreName)) {
+            return tenantKeyStores.get(keyStoreName).getKeyStore();
+        }
+
+        String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
+        if (registry.resourceExists(path)) {
+            org.wso2.carbon.registry.api.Resource resource = registry.get(path);
+            byte[] bytes = (byte[]) resource.getContent();
+            KeyStore keyStore = KeyStore.getInstance(resource
+                    .getProperty(RegistryResources.SecurityManagement.PROP_TYPE));
+            CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
+            String encryptedPassword = resource
+                    .getProperty(RegistryResources.SecurityManagement.PROP_PASSWORD);
+            String password = new String(cryptoUtil.base64DecodeAndDecrypt(encryptedPassword));
+            ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
+            keyStore.load(stream, password.toCharArray());
+            KeyStoreBean keyStoreBean = new KeyStoreBean(keyStore, resource.getLastModified());
+            resource.discard();
+
+            if (tenantKeyStores.containsKey(keyStoreName)) {
+                tenantKeyStores.replace(keyStoreName, keyStoreBean);
+            } else {
+                tenantKeyStores.put(keyStoreName, keyStoreBean);
+            }
+            return keyStore;
+        } else {
+            throw new SecurityException("Key Store with a name : " + keyStoreName + " does not exist.");
+        }
+    }
+
+    /**
      * Load the internal key store, this is allowed only for the super tenant
      *
      * @return internal key store object
@@ -467,6 +422,36 @@ public class KeyStoreManager {
     }
 
     /**
+     * Get custom keystores.
+     *
+     * @param keyStoreName name of the custom key store. Must include the prefix "CustomKeyStore/"
+     * @return custom key store object
+     * @throws Exception Carbon Exception for tenants other than tenant 0
+     */
+    private KeyStore getCustomKeyStore(String keyStoreName) throws Exception {
+
+        if (customKeyStores.containsKey(keyStoreName)) {
+            return customKeyStores.get(keyStoreName);
+        }
+
+        OMElement config = KeyStoreUtil.getCustomKeyStoreConfig(keyStoreName, this.getServerConfigService());
+
+        String location = config.getFirstChildWithName(KeyStoreUtil.getQNameWithCarbonNS(
+                RegistryResources.SecurityManagement.CustomKeyStore.PROP_LOCATION)).getText();
+        String type = config.getFirstChildWithName(KeyStoreUtil.getQNameWithCarbonNS(
+                RegistryResources.SecurityManagement.CustomKeyStore.PROP_TYPE)).getText();
+        String password = config.getFirstChildWithName(KeyStoreUtil.getQNameWithCarbonNS(
+                RegistryResources.SecurityManagement.CustomKeyStore.PROP_PASSWORD)).getText();
+
+        KeyStore keyStore = loadKeyStoreFromFileSystem(location, password, type);
+        customKeyStores.put(keyStoreName, keyStore);
+
+        return keyStore;
+    }
+
+
+
+    /**
      * Get the default private key, only allowed for tenant 0
      *
      * @return Private key
@@ -483,6 +468,67 @@ public class KeyStoreManager {
         }
         throw new CarbonException("Permission denied for accessing primary key store. The primary key store is " +
                 "available only for the super tenant.");
+    }
+
+    /**
+     * This method loads the private key of a given tenant key store
+     *
+     * @param keyStoreName name of the tenant key store
+     * @param alias        alias of the private key
+     * @return private key corresponding to the alias
+     */
+    private PrivateKey getTenantPrivateKey(String keyStoreName, String alias) throws Exception{
+
+        String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
+        org.wso2.carbon.registry.api.Resource resource;
+        KeyStore keyStore;
+
+        if (registry.resourceExists(path)) {
+            resource = registry.get(path);
+        } else {
+            throw new SecurityException("Given Key store is not available in registry : " + keyStoreName);
+        }
+
+        CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
+        String encryptedPassword = resource
+                .getProperty(RegistryResources.SecurityManagement.PROP_PRIVATE_KEY_PASS);
+        String privateKeyPasswd = new String(cryptoUtil.base64DecodeAndDecrypt(encryptedPassword));
+
+        if (isCachedKeyStoreValid(keyStoreName)) {
+            keyStore = tenantKeyStores.get(keyStoreName).getKeyStore();
+            return (PrivateKey) keyStore.getKey(alias, privateKeyPasswd.toCharArray());
+        } else {
+            byte[] bytes = (byte[]) resource.getContent();
+            String keyStorePassword = new String(cryptoUtil.base64DecodeAndDecrypt(resource.getProperty(
+                    RegistryResources.SecurityManagement.PROP_PASSWORD)));
+            keyStore = KeyStore.getInstance(resource
+                    .getProperty(RegistryResources.SecurityManagement.PROP_TYPE));
+            ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
+            keyStore.load(stream, keyStorePassword.toCharArray());
+
+            KeyStoreBean keyStoreBean = new KeyStoreBean(keyStore, resource.getLastModified());
+            updateKeyStoreCache(keyStoreName, keyStoreBean);
+            return (PrivateKey) keyStore.getKey(alias, privateKeyPasswd.toCharArray());
+        }
+    }
+
+    /**
+     * Get the private key, of a given custom keystore.
+     *
+     * @param keyStoreName name of the custom key store. Must include the prefix "CustomKeyStore/"
+     * @return Private key
+     * @throws Exception Carbon Exception for tenants other than tenant 0
+     */
+    public PrivateKey getCustomPrivateKey(String keyStoreName) throws Exception {
+
+        OMElement config = KeyStoreUtil.getCustomKeyStoreConfig(keyStoreName, this.getServerConfigService());
+
+        String password = config.getFirstChildWithName(KeyStoreUtil.getQNameWithCarbonNS(
+                RegistryResources.SecurityManagement.CustomKeyStore.PROP_PASSWORD)).getText();
+        String alias = config.getFirstChildWithName(KeyStoreUtil.getQNameWithCarbonNS(
+                RegistryResources.SecurityManagement.CustomKeyStore.PROP_KEY_ALIAS)).getText();
+
+        return (PrivateKey) getCustomKeyStore(keyStoreName).getKey(alias, password.toCharArray());
     }
 
     /**
@@ -539,9 +585,9 @@ public class KeyStoreManager {
         String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
         boolean cachedKeyStoreValid = false;
         try {
-            if (loadedKeyStores.containsKey(keyStoreName)) {
+            if (tenantKeyStores.containsKey(keyStoreName)) {
                 org.wso2.carbon.registry.api.Resource metaDataResource = registry.get(path);
-                KeyStoreBean keyStoreBean = loadedKeyStores.get(keyStoreName);
+                KeyStoreBean keyStoreBean = tenantKeyStores.get(keyStoreName);
                 if (keyStoreBean.getLastModifiedDate().equals(metaDataResource.getLastModified())) {
                     cachedKeyStoreValid = true;
                 }
@@ -561,10 +607,10 @@ public class KeyStoreManager {
     }
 
     private void updateKeyStoreCache(String keyStoreName, KeyStoreBean keyStoreBean) {
-        if (loadedKeyStores.containsKey(keyStoreName)) {
-            loadedKeyStores.replace(keyStoreName, keyStoreBean);
+        if (tenantKeyStores.containsKey(keyStoreName)) {
+            tenantKeyStores.replace(keyStoreName, keyStoreBean);
         } else {
-            loadedKeyStores.put(keyStoreName, keyStoreBean);
+            tenantKeyStores.put(keyStoreName, keyStoreBean);
         }
     }
 

@@ -160,6 +160,20 @@ public final class RegistryResources {
         public static final String SERVER_INTERNAL_PRIVATE_KEY_PASSWORD = "Security.InternalKeyStore.KeyPassword";
         public static final String SERVER_INTERNAL_KEYSTORE_TYPE = "Security.InternalKeyStore.Type";
 
+        //Custom KeyStore related constants
+        public static final class CustomKeyStore {
+            public static final String KEYSTORE_PREFIX = "CustomKeyStore/";
+
+            public static final String ELEM_SECURITY = "Security";
+            public static final String ELEM_CUSTOM_KEYSTORES = "CustomKeyStores";
+
+            public static final String PROP_LOCATION = "Location";
+            public static final String PROP_TYPE = "Type";
+            public static final String PROP_PASSWORD = "Password";
+            public static final String PROP_KEY_ALIAS = "KeyAlias";
+            public static final String PROP_KEY_PASSWORD = "KeyPassword";
+        }
+
         //generated pub. key - multitenancy scenario
         public static final String TENANT_PUBKEY_RESOURCE = RegistryResources.ROOT +
                                                             "security/pub-key";
