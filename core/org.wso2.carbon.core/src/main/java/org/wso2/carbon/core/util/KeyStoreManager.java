@@ -337,7 +337,7 @@ public class KeyStoreManager {
      * @return tenant key store object
      * @throws Exception
      */
-    private KeyStore getTenantKeyStore(String keyStoreName) throws Exception {
+    public KeyStore getTenantKeyStore(String keyStoreName) throws Exception {
 
         if (isCachedKeyStoreValid(keyStoreName)) {
             return tenantKeyStores.get(keyStoreName).getKeyStore();
@@ -453,7 +453,7 @@ public class KeyStoreManager {
      * @return custom key store object
      * @throws Exception Carbon Exception for tenants other than tenant 0
      */
-    private KeyStore getCustomKeyStore(String keyStoreName) throws Exception {
+    public KeyStore getCustomKeyStore(String keyStoreName) throws Exception {
 
         if (customKeyStores.containsKey(keyStoreName)) {
             return customKeyStores.get(keyStoreName);
@@ -502,7 +502,7 @@ public class KeyStoreManager {
      * @param alias        alias of the private key
      * @return private key corresponding to the alias
      */
-    private PrivateKey getTenantPrivateKey(String keyStoreName, String alias) throws Exception{
+    public PrivateKey getTenantPrivateKey(String keyStoreName, String alias) throws Exception{
 
         String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
         org.wso2.carbon.registry.api.Resource resource;
