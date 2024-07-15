@@ -42,6 +42,7 @@ import java.security.Key;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
@@ -165,10 +166,34 @@ public class KeyStoreManager {
             }
 
             if (KeyStoreUtil.isCustomKeyStore(keyStoreName)) {
-                return getCustomPrivateKey(keyStoreName);
+                return getCustomKeyStorePrivateKey(keyStoreName);
             }
 
             return getTenantPrivateKey(keyStoreName, alias);
+        } catch (Exception e) {
+            log.error("Error loading the private key from the key store : " + keyStoreName);
+            throw new SecurityException("Error loading the private key from the key store : " + keyStoreName, e);
+        }
+    }
+
+    /**
+     * This method loads the public certificate of a given key store
+     *
+     * @param keyStoreName name of the key store
+     * @return private key corresponding to the alias
+     */
+    public Certificate getCertificate(String keyStoreName, String alias) {
+
+        try {
+            if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
+                return getDefaultPrimaryCertificate();
+            }
+
+            if (KeyStoreUtil.isCustomKeyStore(keyStoreName)) {
+                return getCustomKeyStoreCertificate(keyStoreName);
+            }
+
+            return getTenantCertificate(keyStoreName, alias);
         } catch (Exception e) {
             log.error("Error loading the private key from the key store : " + keyStoreName);
             throw new SecurityException("Error loading the private key from the key store : " + keyStoreName, e);
@@ -519,7 +544,7 @@ public class KeyStoreManager {
      * @return Private key
      * @throws Exception Carbon Exception for tenants other than tenant 0
      */
-    public PrivateKey getCustomPrivateKey(String keyStoreName) throws Exception {
+    public PrivateKey getCustomKeyStorePrivateKey(String keyStoreName) throws Exception {
 
         OMElement config = KeyStoreUtil.getCustomKeyStoreConfig(keyStoreName, this.getServerConfigService());
 
@@ -579,6 +604,32 @@ public class KeyStoreManager {
         }
         throw new CarbonException("Permission denied for accessing primary key store. The primary key store is " +
                 "available only for the super tenant.");
+    }
+
+    /**
+     * This method is used to get public certificates of tenant keystores
+     *
+     * @return Public certificate of a given tenant keystore
+     * @throws Exception Permission denied for accessing primary key store
+     */
+    public Certificate getTenantCertificate(String keyStoreName, String alias) throws Exception {
+
+        return getTenantKeyStore(keyStoreName).getCertificate(alias);
+    }
+
+    /**
+     * This method is used to get public certificates of custom keystores
+     *
+     * @return Public certificate of a given custom keystore
+     * @throws Exception Permission denied for accessing primary key store
+     */
+    public Certificate getCustomKeyStoreCertificate(String keyStoreName) throws Exception {
+
+        OMElement config = KeyStoreUtil.getCustomKeyStoreConfig(keyStoreName, this.getServerConfigService());
+        String alias = config.getFirstChildWithName(KeyStoreUtil.getQNameWithCarbonNS(
+                RegistryResources.SecurityManagement.CustomKeyStore.PROP_KEY_ALIAS)).getText();
+
+        return getCustomKeyStore(keyStoreName).getCertificate(alias);
     }
 
     private boolean isCachedKeyStoreValid(String keyStoreName) {
