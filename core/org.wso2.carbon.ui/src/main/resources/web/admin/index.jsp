@@ -28,6 +28,7 @@
 <fmt:bundle basename="org.wso2.carbon.i18n.Resources">
 
 <%
+                String baseCarbonURL = CarbonUIUtil.resolveAdminConsoleBaseURL("", "../", request);
                 Object param = session.getAttribute("authenticated");
 				String passwordExpires = (String) session
 						.getAttribute(ServerConstants.PASSWORD_EXPIRATION);
@@ -39,7 +40,8 @@
 						.isContextRegistered(config, "/server-admin/");
 				
 				if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
-					response.sendRedirect("../admin/login_action.jsp");
+					response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(
+					    "", "../admin/login_action.jsp", request));
 					return;
 				}
 %>
@@ -77,11 +79,11 @@
                 jQuery.noConflict();
                 var refresh;
                 function refreshStats() {
-                    var url = "../server-admin/system_status_ajaxprocessor.jsp";
+                    var url = baseCarbonURL + "server-admin/system_status_ajaxprocessor.jsp";
                     var data = null;
                     try {
                         jQuery.ajax({
-                            url: "../admin/jsp/session-validate.jsp",
+                            url: baseCarbonURL + "admin/jsp/session-validate.jsp",
                             type: "GET",
                             dataType: "html",
                             data: data,

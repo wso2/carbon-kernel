@@ -348,6 +348,11 @@ public final class CarbonConstants {
     public static final String CARBON_FAULTY_SERVICE_DUE_TO_MODULE =
             "This service is cannot be started due to missing modules";
 
+    public static final String IS_RESOLVE_ABSOLUTE_URLS_ENABLED = "AdminConsole.ResolveAbsoluteURLs.Enable";
+
+    public static final int DEFAULT_HTTP_PROXY_PORT = 80;
+    public static final int DEFAULT_HTTPS_PROXY_PORT = 443;
+
     public static class CarbonManifestHeaders {
         public static final String AXIS2_MODULE = "Axis2Module";
         public static final String AXIS2_DEPLOYER = "Axis2Deployer";

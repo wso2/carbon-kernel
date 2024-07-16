@@ -155,15 +155,18 @@ public final class CarbonUILoginUtil {
 
         if (request.getAttribute(MultitenantConstants.TENANT_DOMAIN) != null) {
             if (skipLoginPage) {
-                response.sendRedirect("../admin/login_action.jsp");
+                response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(
+                        "","../admin/login_action.jsp", request));
             } else {
-                response.sendRedirect("../admin/login.jsp");
+                response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL("", "../admin/login.jsp", request));
             }
         } else {
             if (skipLoginPage) {
-                response.sendRedirect(contextPath + "/carbon/admin/login_action.jsp");
+                response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath,
+                        "/carbon/admin/login_action.jsp", request));
             } else {
-                response.sendRedirect(contextPath + "/carbon/admin/login.jsp");
+                response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath,
+                        "/carbon/admin/login.jsp", request));
 
             }
         }
@@ -273,7 +276,7 @@ public final class CarbonUILoginUtil {
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            response.sendRedirect("../admin/login.jsp");
+            response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL("", "../admin/login.jsp", request));
             return false;
         }
 
@@ -295,7 +298,8 @@ public final class CarbonUILoginUtil {
                     }
                 }
             }
-            response.sendRedirect("../../carbon/admin/login.jsp");
+            response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(
+                    "","../../carbon/admin/login.jsp", request));
             return false;
         }
 
@@ -336,7 +340,7 @@ public final class CarbonUILoginUtil {
                     }
                 }
             }
-            response.sendRedirect("../.." + indexPageURL);
+            response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL("", "../.." + indexPageURL, request));
             return false;
         }
 
@@ -346,7 +350,8 @@ public final class CarbonUILoginUtil {
         // This condition is evaluated when users are logged out in SAML2 based SSO
         if (request.getAttribute("logoutRequest") != null) {
         	log.debug("Loging out from SSO session");
-            response.sendRedirect(contextPath + "/carbon/sso-acs/redirect_ajaxprocessor.jsp?logout=true");
+            response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath,
+                    "/carbon/sso-acs/redirect_ajaxprocessor.jsp?logout=true", request));
             return false;
         }
 
@@ -370,7 +375,7 @@ public final class CarbonUILoginUtil {
         rmeCookie.setHttpOnly(true);
         rmeCookie.setMaxAge(0);
         response.addCookie(rmeCookie);
-        response.sendRedirect(contextPath + indexPageURL);
+        response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath, indexPageURL, request));
         return false;
     }
 
@@ -406,7 +411,8 @@ public final class CarbonUILoginUtil {
                     && idpSessionIndex != null && !"".equals(idpSessionIndex)) {
                 session.setAttribute(CarbonSecuredHttpContext.LOGGED_USER, request.getParameter("username"));
                 session.setAttribute("idpSessionIndex", idpSessionIndex);
-                response.sendRedirect(contextPath + "/carbon/sso-acs/redirect_ajaxprocessor.jsp?logout=true");
+                response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath,
+                        "/carbon/sso-acs/redirect_ajaxprocessor.jsp?logout=true", request));
                 return false;
             }
 
@@ -460,8 +466,8 @@ public final class CarbonUILoginUtil {
                     response.addCookie(rmeCookie);
                 }
             } catch (Exception e) {
-                response.sendRedirect(contextPath + indexPageURL
-                        + (indexPageURL.indexOf('?') == -1 ? "?" : "&") + "loginStatus=false");
+                response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath, indexPageURL
+                        + (indexPageURL.indexOf('?') == -1 ? "?" : "&") + "loginStatus=false", request));
 				if (log.isDebugEnabled()) {
 					log.debug("Security check failed for login request for " + userName);
 				}
@@ -470,7 +476,8 @@ public final class CarbonUILoginUtil {
 
             if (relayState != null && relayState.endsWith("-logout")) {
                 session.setAttribute(CarbonSecuredHttpContext.LOGGED_USER, request.getParameter("username"));
-                response.sendRedirect("/carbon/admin/logout_action.jsp");
+                response.sendRedirect( CarbonUIUtil.resolveAdminConsoleBaseURL("",
+                         "/carbon/admin/logout_action.jsp", request));
                 return false;
             }
 
@@ -479,8 +486,8 @@ public final class CarbonUILoginUtil {
                     indexPageURL = indexPageURL.substring(5);
                 }
 
-                response.sendRedirect(contextPath + indexPageURL
-                        + (indexPageURL.indexOf('?') == -1 ? "?" : "&") + "loginStatus=true");
+                response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath, indexPageURL
+                        + (indexPageURL.indexOf('?') == -1 ? "?" : "&") + "loginStatus=true", request));
             }
 
         } catch (AuthenticationException e) {
@@ -497,14 +504,17 @@ public final class CarbonUILoginUtil {
                 if (isLoginFailureReasonEnabled()) {
                     if (e.getCause().getMessage().contains(ACCOUNT_LOCK_ERROR_CODE) || e.getCause().getMessage()
                             .contains(ACCOUNT_LOCK_ERROR_MESSAGE)) {
-                        response.sendRedirect(contextPath + "/carbon/admin/login.jsp?loginStatus=false&errorCode=error" +
-                                ".code.17003");
+                        response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath,
+                                "/carbon/admin/login.jsp?loginStatus=false&errorCode=error" +
+                                ".code.17003", request));
                         return false;
                     } else if (e.getCause().getMessage().contains(USER_NOT_FOUND_ERROR_CODE)) {
-                        response.sendRedirect(contextPath + "/carbon/admin/login.jsp?loginStatus=false&errorCode=error.code.17001");
+                        response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath,
+                                "/carbon/admin/login.jsp?loginStatus=false&errorCode=error.code.17001", request));
                         return false;
                     } else if (e.getCause().getMessage().contains(INVALID_CREDENTIALS_ERROR_CODE)) {
-                        response.sendRedirect(contextPath + "/carbon/admin/login.jsp?loginStatus=false&errorCode=error.code.17002");
+                        response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath,
+                                "/carbon/admin/login.jsp?loginStatus=false&errorCode=error.code.17002", request));
                         return false;
                     }
                 }
@@ -512,7 +522,8 @@ public final class CarbonUILoginUtil {
                     response.sendRedirect(httpLogin + "?loginStatus=false");
                     return false;
                 } else {
-                    response.sendRedirect(contextPath + "/carbon/admin/login.jsp?loginStatus=false");
+                    response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath,
+                            "/carbon/admin/login.jsp?loginStatus=false", request));
                     return false;
                 }
             } catch (Exception e1) {
@@ -521,7 +532,8 @@ public final class CarbonUILoginUtil {
 
         } catch (Exception e) {
             log.error("error occurred while login", e);
-            response.sendRedirect("../../carbon/admin/login.jsp?loginStatus=failed");
+            response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL("",
+                    "carbon/admin/login.jsp?loginStatus=failed", request));
         }
 
         return false;
@@ -598,11 +610,13 @@ public final class CarbonUILoginUtil {
                 	log.debug("User already authenticated. Redirecting to " + indexPageURL);
                 }
                 // redirect relative to the servlet container root
-                response.sendRedirect(context + "/carbon/admin/index.jsp");
+                response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(context, "/carbon/admin/index.jsp",
+                        request));
                 return RETURN_FALSE;
             } else if ((isTryIt || isFileDownload) && !authenticated) {
                 if (isFileDownload) {
-                    response.sendRedirect(context + "/carbon/admin/index.jsp");
+                    response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(context, "/carbon/admin/index.jsp",
+                            request));
                 }
                 return RETURN_FALSE;
             } else if (requestedURI.indexOf("login_action.jsp") > -1 && !authenticated) {
@@ -644,7 +658,8 @@ public final class CarbonUILoginUtil {
             // a tenant requesting login.jsp while not being authenticated
             // redirecting the tenant login page request to the root /carbon/admin/login.jsp
             // instead of tenant-aware login page
-            response.sendRedirect(context + "/carbon/admin/login.jsp");
+
+            response.sendRedirect(CarbonUIUtil.getAdminConsoleURL(context) + "/admin/login.jsp");
            	log.debug("Redirecting to /carbon/admin/login.jsp");
             return false;
         }
