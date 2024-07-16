@@ -531,7 +531,7 @@ public abstract class AbstractFileUploadExecutor {
     }
 
     protected String getContextRoot(HttpServletRequest request) {
-            String contextPath = (request.getContextPath().equals("")) ? "" : request.getContextPath();
+        String contextPath = (request.getContextPath().equals("")) ? "" : request.getContextPath();
         int index;
         if (contextPath.equals("/fileupload")) {
             contextPath = "";
