@@ -858,8 +858,8 @@
 
     <!-- Enable/Disable circuit breaker for userstores to ensure backward compatibility -->
     <UserStore>
-        <enableCircuitBreakerForUserStores>{{user_store.enable_circuit_breaker_for_user_stores}}</enableCircuitBreakerForUserStores>
-        <maxConnectionRetryCount>{{user_store.max_connection_retry_count}}</maxConnectionRetryCount>
-        <maxConnectionRetryDelayInMilliSeconds>{{user_store.max_connection_retry_delay_in_milli_seconds}}</maxConnectionRetryDelayInMilliSeconds>
+        <enableCircuitBreakerForUserStores>{{user_store_commons.enable_circuit_breaker_for_user_stores}}</enableCircuitBreakerForUserStores>
+        <maxConnectionRetryCount>{{user_store_commons.max_connection_retry_count}}</maxConnectionRetryCount>
+        <maxConnectionRetryDelayInMilliSeconds>{{user_store_commons.max_connection_retry_delay_in_milli_seconds}}</maxConnectionRetryDelayInMilliSeconds>
     </UserStore>
 </Server>
