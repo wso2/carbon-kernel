@@ -324,7 +324,7 @@ public class KeyStoreManager {
      * @return Key store object.
      * @throws Exception    Exception if failed to retrive the given keystore from registry.
      */
-    public KeyStore getTenantKeyStore(String keyStoreName) throws Exception {
+    private KeyStore getTenantKeyStore(String keyStoreName) throws Exception {
 
         if (isCachedKeyStoreValid(keyStoreName)) {
             return tenantKeyStores.get(keyStoreName).getKeyStore();
@@ -441,7 +441,7 @@ public class KeyStoreManager {
      * @return Key store object
      * @throws Exception    Exception if failed to retrive the given key store.
      */
-    public KeyStore getCustomKeyStore(String keyStoreName) throws Exception {
+    private KeyStore getCustomKeyStore(String keyStoreName) throws Exception {
 
         if (customKeyStores.containsKey(keyStoreName)) {
             return customKeyStores.get(keyStoreName);
@@ -488,7 +488,7 @@ public class KeyStoreManager {
      * @param alias         Alias of the private key.
      * @return Private key corresponding to the alias.
      */
-    public PrivateKey getTenantPrivateKey(String keyStoreName, String alias) throws Exception {
+    private PrivateKey getTenantPrivateKey(String keyStoreName, String alias) throws Exception {
 
         String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
         org.wso2.carbon.registry.api.Resource resource;
@@ -530,7 +530,7 @@ public class KeyStoreManager {
      * @return Private key from custom keystore corresponding to the alias.
      * @throws Exception    If failed to retrive the requested private key.
      */
-    public PrivateKey getCustomKeyStorePrivateKey(String keyStoreName) throws Exception {
+    private PrivateKey getCustomKeyStorePrivateKey(String keyStoreName) throws Exception {
 
         OMElement config = KeyStoreUtil.getCustomKeyStoreConfig(keyStoreName, this.getServerConfigService());
 
@@ -600,7 +600,7 @@ public class KeyStoreManager {
      * @return Public certificate of a given tenant keystore.
      * @throws Exception        If failed to retrive the requested public certificate from the tenant key store.
      */
-    public Certificate getTenantCertificate(String keyStoreName, String alias) throws Exception {
+    private Certificate getTenantCertificate(String keyStoreName, String alias) throws Exception {
 
         return getTenantKeyStore(keyStoreName).getCertificate(alias);
     }
@@ -612,7 +612,7 @@ public class KeyStoreManager {
      * @return Public certificate of a given custom keystore
      * @throws Exception        If failed to retrive the requested public certificate from the custom key store.
      */
-    public Certificate getCustomKeyStoreCertificate(String keyStoreName) throws Exception {
+    private Certificate getCustomKeyStoreCertificate(String keyStoreName) throws Exception {
 
         OMElement config = KeyStoreUtil.getCustomKeyStoreConfig(keyStoreName, this.getServerConfigService());
         String alias = config.getFirstChildWithName(KeyStoreUtil.getQNameWithCarbonNS(
