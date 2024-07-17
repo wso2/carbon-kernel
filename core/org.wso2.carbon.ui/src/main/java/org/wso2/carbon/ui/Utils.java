@@ -94,6 +94,7 @@ public class Utils {
      * @throws org.wso2.carbon.core.CarbonException
      *          CarbonException
      */
+    @Deprecated
     public static void deployZipFile(File zipFileLocation, File targetLocation)
             throws CarbonException {
         try (JarFile jarFile = new JarFile(zipFileLocation)) {
@@ -118,6 +119,7 @@ public class Utils {
      * @param dirsMade       dir
      * @throws java.io.IOException will be thrown
      */
+    @Deprecated
     private static void getFile(ZipEntry e, JarFile zippy, File targetLocation,
                                 SortedSet<String> dirsMade)
             throws IOException {
