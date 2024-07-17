@@ -99,6 +99,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11185,6 +11186,37 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         throw new NotImplementedException("doGetUserListWithID operation is not implemented in: " + this.getClass());
     }
 
+    /**
+     * Get username list which matches the condition.
+     *
+     * @param condition   Condition.
+     * @param profileName Profile name.
+     * @param limit       Limit.
+     * @param offset      Offset.
+     * @param sortBy      Sort by.
+     * @param sortOrder   Sort order
+     * @return List of usernames that matches the given condition.
+     * @throws UserStoreException If an error occurred while listing the usernames based on the condition.
+     */
+    protected UniqueIDPaginatedUsernameSearchResult doGetUsernameListWithID(Condition condition, String profileName,
+                                                                            int limit, int offset, String sortBy,
+                                                                            String sortOrder)
+            throws UserStoreException {
+
+        UniqueIDPaginatedSearchResult uniqueIDPaginatedSearchResult =
+                doGetUserListWithID(condition, profileName, limit, offset, sortBy, sortOrder);
+        UniqueIDPaginatedUsernameSearchResult uniqueIDPaginatedUsernameSearchResult =
+                new UniqueIDPaginatedUsernameSearchResult();
+        uniqueIDPaginatedUsernameSearchResult.setUsers(
+                uniqueIDPaginatedSearchResult.getUsers().stream().map(User::getUsername).collect(
+                        Collectors.toList()));
+        uniqueIDPaginatedUsernameSearchResult.setPaginatedSearchResult(
+                uniqueIDPaginatedSearchResult.getPaginatedSearchResult());
+        uniqueIDPaginatedUsernameSearchResult.setSkippedUserCount(
+                uniqueIDPaginatedUsernameSearchResult.getSkippedUserCount());
+        return uniqueIDPaginatedUsernameSearchResult;
+    }
+
 
     @Override
     public String[] listUsers(String filter, int limit, int offset) throws UserStoreException {
@@ -16719,22 +16751,23 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 return filteredUsers;
             }
 
-            for (String username : identityClaimFilteredUserNames) {
-                User user = getUser(getUserIDFromUserName(username), username);
-                user.setUserStoreDomain(UserCoreUtil.extractDomainFromName(username));
-                identityClaimFilteredUsers.add(user);
-            }
-
             // After filtering based on identity claims, if there are no other filters can return the list.
             if (expressionConditions.isEmpty()) {
+                for (String username : identityClaimFilteredUserNames) {
+                    User user = getUser(getUserIDFromUserName(username), username);
+                    user.setUserStoreDomain(UserCoreUtil.extractDomainFromName(username));
+                    identityClaimFilteredUsers.add(user);
+                    addToUserIDCache(user.getUserID(), user.getUsername(), user.getUserStoreDomain());
+                    addToUserNameCache(user.getUserID(), user.getUsername(), user.getUserStoreDomain());
+                }
                 return identityClaimFilteredUsers;
             }
         }
 
         if (identityClaimsExistsInInitialCondition && isIdentityClaimsInIdentityStore) {
             // The identity claims are not user store based.
-            List<User> tempFilteredUsers;
-            List<User> aggregateUserList = new ArrayList<>();
+            List<String> tempFilteredUsernames;
+            List<String> aggregateUsernameList = new ArrayList<>();
             int offsetCounter = 0;
             int paginationLimit;
 
@@ -16744,34 +16777,35 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 paginationLimit = (offset - 1) + limit;
             }
 
-            Set<User> prevIterationFilteredUsers = new HashSet<>();
-            while (aggregateUserList.size() < paginationLimit) {
-                tempFilteredUsers = getFilteredUsers(duplicateCondition, profileName, limit, offsetCounter, sortBy,
+            Set<String> prevIterationFilteredUsernames = new HashSet<>();
+            while (aggregateUsernameList.size() < paginationLimit) {
+                tempFilteredUsernames =
+                        getFilteredUsernames(duplicateCondition, profileName, limit, offsetCounter, sortBy,
                         sortOrder, secondaryUserStoreManager);
 
-                if (tempFilteredUsers.isEmpty()) {
+                if (tempFilteredUsernames.isEmpty()) {
                     // Means no users has been filtered in this particular iteration and hence can exit the flow.
                     break;
                 }
 
                 // Prevent same set of users being returned and break the loop if so.
-                if (isExactSameFilteredUsers(tempFilteredUsers, prevIterationFilteredUsers)) {
+                if (isExactSameFilteredUsernames(tempFilteredUsernames, prevIterationFilteredUsernames)) {
                     break;
                 }
 
-                prevIterationFilteredUsers.clear();
-                prevIterationFilteredUsers.addAll(tempFilteredUsers);
+                prevIterationFilteredUsernames.clear();
+                prevIterationFilteredUsernames.addAll(tempFilteredUsernames);
 
                 // For next iteration consider the offset from last fetched size of users.
                 offsetCounter += limit;
 
                 // Taking the interception of the user list.
-                tempFilteredUsers.retainAll(identityClaimFilteredUsers);
-                aggregateUserList.addAll(tempFilteredUsers);
+                tempFilteredUsernames.retainAll(identityClaimFilteredUserNames);
+                aggregateUsernameList.addAll(tempFilteredUsernames);
             }
 
             // Removing duplicates.
-            aggregateUserList = aggregateUserList.stream().distinct().collect(Collectors.toList());
+            aggregateUsernameList = aggregateUsernameList.stream().distinct().collect(Collectors.toList());
 
             // Pagination
             if (offset <= 0) {
@@ -16780,14 +16814,20 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 offset = offset - 1;
             }
 
-            if (aggregateUserList.isEmpty()) {
-                filteredUsers = aggregateUserList;
-            } else if (offset > aggregateUserList.size()) {
-                filteredUsers = new ArrayList<>();
-            } else if (aggregateUserList.size() < paginationLimit) {
-                filteredUsers = aggregateUserList.subList(offset, aggregateUserList.size());
+            List<String> filteredUsernames;
+            if (aggregateUsernameList.isEmpty()) {
+                filteredUsernames = aggregateUsernameList;
+            } else if (offset > aggregateUsernameList.size()) {
+                filteredUsernames = new ArrayList<>();
+            } else if (aggregateUsernameList.size() < paginationLimit) {
+                filteredUsernames = aggregateUsernameList.subList(offset, aggregateUsernameList.size());
             } else {
-                filteredUsers = aggregateUserList.subList(offset, paginationLimit);
+                filteredUsernames = aggregateUsernameList.subList(offset, paginationLimit);
+            }
+            for (String username : filteredUsernames) {
+                User user = getUser(getUserIDFromUserName(username), username);
+                user.setUserStoreDomain(UserCoreUtil.extractDomainFromName(username));
+                filteredUsers.add(user);
             }
         } else {
             /* When the filters has only the non-identity claims or if Identity claims are persisted in User store
@@ -16805,18 +16845,103 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return filteredUsers;
     }
 
-    private boolean isExactSameFilteredUsers(List<User> tempFilteredUsers, Set<User> prevIterationFilteredUsers) {
+    /**
+     * Retrieves the count of users based on the specified filtering conditions.
+     *
+     * @param condition   The filtering condition to be applied.
+     * @param domain      The domain in which to search for users. Defaults to the primary domain if not provided.
+     * @param profileName The profile name. Defaults to the default profile if not provided.
+     * @param limit       The maximum number of users to retrieve.
+     * @param offset      The starting index of the count.
+     * @return The count of users that match the filtering conditions.
+     * @throws UserStoreException If an error occurs while accessing the user store or if an unsupported operation is encountered.
+     */
+    public int getUsersCount(Condition condition, String domain, String profileName, int limit, int offset,
+                             boolean isRemoveDuplicateUsersEnabled) throws UserStoreException {
 
-        if (prevIterationFilteredUsers.size() == tempFilteredUsers.size()) {
-            for (User user : tempFilteredUsers) {
-                if (!prevIterationFilteredUsers.contains(user)) {
-                    return false;
-                }
-            }
-            return true;
-        } else {
-            return false;
+        validateCondition(condition);
+
+        if (StringUtils.isEmpty(domain)) {
+            domain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
         }
+
+        if (StringUtils.isEmpty(profileName)) {
+            profileName = UserCoreConstants.DEFAULT_PROFILE;
+        }
+
+        UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(domain);
+        List<String> identityClaimFilteredUserNames = new ArrayList<>();
+        List<String> filteredUsernames;
+        boolean hasNonIdentityClaimFilterConditions = false;
+        boolean isIdentityClaimsInIdentityStore = false;
+        boolean isIdentityClaimFilterExistInPostCondition;
+        List<ExpressionCondition> expressionConditions = new ArrayList<>();
+
+        /* Duplicating condition object to ensure that nullifying the conditions in the flow does not affect the
+        validation in the next iteration of flow when the domain name is not in query params.*/
+        Condition duplicateCondition = getDuplicateCondition(condition);
+        getExpressionConditions(duplicateCondition, expressionConditions);
+
+        // Check whether the request has IdentityClaims in filters.
+        boolean identityClaimsExistsInInitialCondition = hasIdentityClaimInitially(expressionConditions);
+
+        if (identityClaimsExistsInInitialCondition) {
+            if (expressionConditions.size() != countIdentityClaims(expressionConditions)) {
+                hasNonIdentityClaimFilterConditions = true;
+            }
+
+            // Call the listeners to get the filtered users from relevant identity store.
+            if (secondaryUserStoreManager != null) {
+                handlePreGetUserListWithIdentityClaims(duplicateCondition, domain, profileName, limit, offset, null,
+                        null, secondaryUserStoreManager, identityClaimFilteredUserNames,
+                        hasNonIdentityClaimFilterConditions);
+            }
+
+            // Check whether the request has IdentityClaims in filters after trying to filter at Identity Data Store.
+            expressionConditions = new ArrayList<>();
+            getExpressionConditions(duplicateCondition, expressionConditions);
+            isIdentityClaimFilterExistInPostCondition = containsIdentityClaims(expressionConditions);
+
+            // Means the identity claims are identity store based. (Else it is user store based)
+            if (!isIdentityClaimFilterExistInPostCondition) {
+                isIdentityClaimsInIdentityStore = true;
+            } else {
+                updateCondition(duplicateCondition, domain);
+            }
+
+            /* If identity claims are in JDBCIdentityDataStore, and filtering in JDBCIdentityDataStore returned an empty
+         list, we can skip filtering in user store.*/
+            if (isIdentityClaimsInIdentityStore && identityClaimFilteredUserNames.isEmpty()) {
+                return 0;
+            }
+
+            // After filtering based on identity claims, if there are no other filters can return the list.
+            if (expressionConditions.isEmpty()) {
+                return identityClaimFilteredUserNames.size();
+            }
+        }
+
+        /* When the filters have non-identity claims or if Identity claims are persisted in User store based
+        Identity Data store.*/
+        filteredUsernames = getFilteredUsernames(duplicateCondition, profileName, limit, offset, null, null,
+                secondaryUserStoreManager);
+
+        if (isRemoveDuplicateUsersEnabled) {
+            filteredUsernames = new ArrayList<>(new TreeSet<>(filteredUsernames));
+        }
+
+        if (identityClaimsExistsInInitialCondition && isIdentityClaimsInIdentityStore) {
+            // The identity claims are not user store based.
+            filteredUsernames.retainAll(identityClaimFilteredUserNames);
+        }
+
+        return filteredUsernames.size();
+    }
+
+    private boolean isExactSameFilteredUsernames(List<String> tempFilteredUsernames,
+                                                 Set<String> prevIterationFilteredUsernames) {
+
+        return CollectionUtils.isEqualCollection(tempFilteredUsernames, prevIterationFilteredUsernames);
     }
 
     private List<User> getFilteredUsers(Condition condition, String profileName, int limit, int offset, String sortBy,
@@ -16839,6 +16964,55 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         }
         return filteredUsers;
+    }
+
+    private List<String> getFilteredUsernames(Condition condition, String profileName, int limit, int offset,
+                                              String sortBy, String sortOrder, UserStoreManager secManager)
+            throws UserStoreException {
+
+        List<String> filteredUsernames = new ArrayList<>();
+        if (secManager != null) {
+            if (secManager instanceof AbstractUserStoreManager) {
+                if (isUniqueUserIdEnabled(secManager)) {
+                    UniqueIDPaginatedUsernameSearchResult users = ((AbstractUserStoreManager) secManager)
+                            .doGetUsernameListWithID(condition, profileName, limit, offset, sortBy, sortOrder);
+                    filteredUsernames = users.getUsers();
+                } else {
+                    PaginatedSearchResult users = ((AbstractUserStoreManager) secManager)
+                            .doGetUserList(condition, profileName, limit, offset, sortBy, sortOrder);
+                    filteredUsernames = Arrays.asList(users.getUsers());
+                }
+            }
+        }
+        return filteredUsernames;
+    }
+
+    /**
+     * Add userID and username to UserID cache
+     *
+     * @param userID          User id.
+     * @param userName        Username.
+     * @param userStoreDomain User store Domain.
+     */
+    protected void addToUserIDCache(String userID, String userName, String userStoreDomain) {
+
+        UserIdResolverCache.getInstance()
+                .addToCache(UserCoreUtil.addDomainToName(userName, userStoreDomain), userID,
+                        RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME, tenantId);
+    }
+
+    /**
+     * Add userID and username to Username cache
+     *
+     * @param userID          User id.
+     * @param userName        Username.
+     * @param userStoreDomain User store Domain.
+     */
+    protected void addToUserNameCache(String userID, String userName, String userStoreDomain) {
+
+        UserIdResolverCache.getInstance()
+                .addToCache(userID, UserCoreUtil.addDomainToName(userName, userStoreDomain),
+                        RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME, tenantId);
     }
 
     /**

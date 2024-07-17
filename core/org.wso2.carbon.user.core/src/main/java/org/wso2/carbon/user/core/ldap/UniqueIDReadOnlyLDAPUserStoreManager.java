@@ -43,6 +43,7 @@ import org.wso2.carbon.user.core.common.LoginIdentifier;
 import org.wso2.carbon.user.core.common.PaginatedSearchResult;
 import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.common.UniqueIDPaginatedSearchResult;
+import org.wso2.carbon.user.core.common.UniqueIDPaginatedUsernameSearchResult;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.model.Condition;
@@ -1553,6 +1554,27 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             JNDIUtil.closeContext(dirContext);
             JNDIUtil.closeContext(ldapContext);
         }
+    }
+
+    @Override
+    protected UniqueIDPaginatedUsernameSearchResult doGetUsernameListWithID(Condition condition, String profileName,
+                                                                            int limit, int offset, String sortBy,
+                                                                            String sortOrder)
+            throws UserStoreException {
+
+        UniqueIDPaginatedUsernameSearchResult result = new UniqueIDPaginatedUsernameSearchResult();
+        UniqueIDPaginatedSearchResult uniqueIDPaginatedSearchResult =
+                doGetUserListWithID(condition, profileName, limit, offset, sortBy, sortOrder);
+        List<String> usernames = new ArrayList<>();
+        uniqueIDPaginatedSearchResult.getUsers().forEach(user -> {
+            addToUserIDCache(user.getUserID(), user.getUsername(), getMyDomainName());
+            addToUserNameCache(user.getUserID(), user.getUsername(), getMyDomainName());
+            usernames.add(user.getDomainQualifiedUsername());
+        });
+        result.setUsers(usernames);
+        result.setSkippedUserCount(uniqueIDPaginatedSearchResult.getSkippedUserCount());
+        result.setPaginatedSearchResult(uniqueIDPaginatedSearchResult.getPaginatedSearchResult());
+        return result;
     }
 
     @Override

@@ -46,6 +46,7 @@ import org.wso2.carbon.user.core.common.PaginatedSearchResult;
 import org.wso2.carbon.user.core.common.RoleBreakdown;
 import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.common.UniqueIDPaginatedSearchResult;
+import org.wso2.carbon.user.core.common.UniqueIDPaginatedUsernameSearchResult;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
 import org.wso2.carbon.user.core.model.Condition;
@@ -3523,131 +3524,387 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     @Override
     protected UniqueIDPaginatedSearchResult doGetUserListWithID(Condition condition, String profileName, int limit,
-            int offset, String sortBy, String sortOrder) throws UserStoreException {
-
-        boolean isGroupFiltering = false;
-        boolean isUsernameFiltering = false;
-        boolean isClaimFiltering = false;
-        // To identify Mysql multi group filter and multi claim filter.
-        int totalMultiGroupFilters = 0;
-        int totalMultiClaimFilters = 0;
+                                                                int offset, String sortBy, String sortOrder)
+            throws UserStoreException {
 
         UniqueIDPaginatedSearchResult result = new UniqueIDPaginatedSearchResult();
+        List<User> users;
+
+        if (limit == 0) {
+            return result;
+        }
+        FilterConfigs filterConfigs = initializeFilterConfigs(condition);
+        List<ExpressionCondition> expressionConditions = new ArrayList<>();
+        getExpressionConditions(condition, expressionConditions);
+        try (Connection dbConnection = getDBConnection()) {
+            String type = DatabaseCreator.getDatabaseType(dbConnection);
+            OffsetLimit offsetLimit = new OffsetLimit(offset, limit);
+            adjustOffsetForDatabase(type, offsetLimit);
+
+            SqlBuilder sqlBuilder =
+                    getQueryString(filterConfigs.isGroupFiltering(), filterConfigs.isUsernameFiltering(),
+                            filterConfigs.isClaimFiltering(), filterConfigs.getExpressionConditions(),
+                            offsetLimit.getLimit(), offsetLimit.getOffset(), sortBy, sortOrder, profileName, type,
+                            filterConfigs.getTotalMultiGroupFilters(), filterConfigs.getTotalMultiClaimFilters());
+
+            users = executeQueryAndGetUsers(dbConnection, sqlBuilder, filterConfigs, type);
+            result.setUsers(users);
+
+        } catch (Exception e) {
+            String message = "Error occurred while fetching user list for multi-attribute searching";
+            if (log.isDebugEnabled()) {
+                log.debug(message, e);
+            }
+            throw new UserStoreException(message, e);
+        }
+
+        return result;
+    }
+
+    @Override
+    protected UniqueIDPaginatedUsernameSearchResult doGetUsernameListWithID(Condition condition, String profileName,
+                                                                            int limit, int offset, String sortBy,
+                                                                            String sortOrder)
+            throws UserStoreException {
+
+        UniqueIDPaginatedUsernameSearchResult result = new UniqueIDPaginatedUsernameSearchResult();
+        List<String> usernames;
 
         if (limit == 0) {
             return result;
         }
 
-        // Since we support only AND operation get expressions as a list.
+        FilterConfigs filterConfigs = initializeFilterConfigs(condition);
         List<ExpressionCondition> expressionConditions = new ArrayList<>();
         getExpressionConditions(condition, expressionConditions);
 
-        for (ExpressionCondition expressionCondition : expressionConditions) {
-            // TODO: This validation has to be removed once ge and le operations are implemented for JDBC userstores.
+        try (Connection dbConnection = getDBConnection()) {
+            String type = DatabaseCreator.getDatabaseType(dbConnection);
+            OffsetLimit offsetLimit = new OffsetLimit(offset, limit);
+            adjustOffsetForDatabase(type, offsetLimit);
+
+            SqlBuilder sqlBuilder =
+                    getQueryString(filterConfigs.isGroupFiltering(), filterConfigs.isUsernameFiltering(),
+                            filterConfigs.isClaimFiltering(), filterConfigs.getExpressionConditions(),
+                            offsetLimit.getLimit(), offsetLimit.getOffset(), sortBy, sortOrder, profileName, type,
+                            filterConfigs.getTotalMultiGroupFilters(), filterConfigs.getTotalMultiClaimFilters());
+
+            usernames = executeQueryAndGetUsernames(dbConnection, sqlBuilder, filterConfigs, type);
+            result.setUsers(usernames);
+
+        } catch (Exception e) {
+            String message = "Error occurred while fetching user list for multi-attribute searching";
+            if (log.isDebugEnabled()) {
+                log.debug(message, e);
+            }
+            throw new UserStoreException(message, e);
+        }
+
+        return result;
+    }
+
+    private List<User> executeQueryAndGetUsers(Connection dbConnection, SqlBuilder sqlBuilder,
+                                               FilterConfigs filterConfigs, String type)
+            throws SQLException, UserStoreException {
+
+        List<User> users = new ArrayList<>();
+
+        if (needsMultiFilterHandling(type, filterConfigs)) {
+            users = handleMultipleGroupAndClaimFiltersForUsers(dbConnection, sqlBuilder);
+        } else {
+            try (PreparedStatement prepStmt = dbConnection.prepareStatement(sqlBuilder.getQuery())) {
+                int occurrence = StringUtils.countMatches(sqlBuilder.getQuery(), "?");
+                populatePrepareStatement(sqlBuilder, prepStmt, 0, occurrence);
+                try (ResultSet rs = prepStmt.executeQuery()) {
+                    while (rs.next()) {
+                        processUserResultSet(rs, users);
+                    }
+                }
+            }
+        }
+
+        return users;
+    }
+
+    private List<String> executeQueryAndGetUsernames(Connection dbConnection, SqlBuilder sqlBuilder,
+                                                     FilterConfigs filterConfigs, String type)
+            throws SQLException {
+
+        List<String> usernames = new ArrayList<>();
+
+        if (needsMultiFilterHandling(type, filterConfigs)) {
+            usernames = handleMultipleGroupAndClaimFiltersForUsernames(dbConnection, sqlBuilder);
+        } else {
+            try (PreparedStatement prepStmt = dbConnection.prepareStatement(sqlBuilder.getQuery())) {
+                int occurrence = StringUtils.countMatches(sqlBuilder.getQuery(), "?");
+                populatePrepareStatement(sqlBuilder, prepStmt, 0, occurrence);
+                try (ResultSet rs = prepStmt.executeQuery()) {
+                    while (rs.next()) {
+                        processUsernameResultSet(rs, usernames);
+                    }
+                }
+            }
+        }
+        return usernames;
+    }
+
+    private FilterConfigs initializeFilterConfigs(Condition condition) throws UserStoreException {
+
+        FilterConfigs filterConfigs = new FilterConfigs(false, false, false, 0, 0);
+        getExpressionConditions(condition, filterConfigs.getExpressionConditions());
+
+        for (ExpressionCondition expressionCondition : filterConfigs.getExpressionConditions()) {
             if (ExpressionOperation.GE.toString().equals(expressionCondition.getOperation()) ||
                     ExpressionOperation.LE.toString().equals(expressionCondition.getOperation())) {
                 throw new UserStoreClientException("ge and le operations are not supported for JDBC userstores.");
             }
             if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName())) {
-                isGroupFiltering = true;
-                totalMultiGroupFilters++;
+                filterConfigs.setGroupFiltering(true);
+                filterConfigs.setTotalMultiGroupFilters(filterConfigs.getTotalMultiGroupFilters() + 1);
             } else if (ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
-                isUsernameFiltering = true;
+                filterConfigs.setUsernameFiltering(true);
             } else {
-                isClaimFiltering = true;
-                totalMultiClaimFilters++;
+                filterConfigs.setClaimFiltering(true);
+                filterConfigs.setTotalMultiClaimFilters(filterConfigs.getTotalMultiClaimFilters() + 1);
             }
         }
+        return filterConfigs;
+    }
 
-        List<User> users = new ArrayList<>();
-        Connection dbConnection = null;
-        PreparedStatement prepStmt = null;
-        ResultSet rs = null;
+    private void adjustOffsetForDatabase(String type, OffsetLimit offsetLimit) {
 
-        List<User> list = new ArrayList<>();
-        try {
-            dbConnection = getDBConnection();
-            String type = DatabaseCreator.getDatabaseType(dbConnection);
+        if (offsetLimit.getOffset() <= 0) {
+            offsetLimit.setOffset(0);
+        } else {
+            offsetLimit.setOffset(offsetLimit.getOffset() - 1);
+        }
 
-            if (offset <= 0) {
-                offset = 0;
-            } else {
-                offset = offset - 1;
-            }
+        if (DB2.equalsIgnoreCase(type)) {
+            int initialOffset = offsetLimit.getOffset();
+            offsetLimit.setOffset(offsetLimit.getOffset() + offsetLimit.getLimit());
+            offsetLimit.setLimit(initialOffset + 1);
+        } else if (ORACLE.equalsIgnoreCase(type)) {
+            offsetLimit.setLimit(offsetLimit.getOffset() + offsetLimit.getLimit());
+        } else if (MSSQL.equalsIgnoreCase(type)) {
+            int initialOffset = offsetLimit.getOffset();
+            offsetLimit.setOffset(offsetLimit.getLimit() + offsetLimit.getOffset());
+            offsetLimit.setLimit(initialOffset + 1);
+        }
+    }
 
-            if (DB2.equalsIgnoreCase(type)) {
-                int initialOffset = offset;
-                offset = offset + limit;
-                limit = initialOffset + 1;
-            } else if (ORACLE.equalsIgnoreCase(type)) {
-                limit = offset + limit;
-            } else if (MSSQL.equalsIgnoreCase(type)) {
-                int initialOffset = offset;
-                offset = limit + offset;
-                limit = initialOffset + 1;
-            }
+    private boolean needsMultiFilterHandling(String type, FilterConfigs filterConfigs) {
 
-            SqlBuilder sqlBuilder = getQueryString(isGroupFiltering, isUsernameFiltering, isClaimFiltering,
-                    expressionConditions, limit, offset, sortBy, sortOrder, profileName, type, totalMultiGroupFilters,
-                    totalMultiClaimFilters);
+        return (MYSQL.equals(type) || MARIADB.equals(type)) && filterConfigs.getTotalMultiGroupFilters() > 1 &&
+                filterConfigs.getTotalMultiClaimFilters() > 1;
+    }
 
-            if ((MYSQL.equals(type) || MARIADB.equals(type)) && totalMultiGroupFilters > 1 && totalMultiClaimFilters > 1) {
-                String fullQuery = sqlBuilder.getQuery();
-                String[] splits = fullQuery.split("INTERSECT ");
-                int startIndex = 0;
-                int endIndex = 0;
-                for (String query : splits) {
-                    List<User> tempUserList = new ArrayList<>();
-                    int occurrence = StringUtils.countMatches(query, QUERY_BINDING_SYMBOL);
-                    endIndex = endIndex + occurrence;
-                    prepStmt = dbConnection.prepareStatement(query);
-                    populatePrepareStatement(sqlBuilder, prepStmt, startIndex, endIndex);
-                    rs = prepStmt.executeQuery();
+    private List<User> handleMultipleGroupAndClaimFiltersForUsers(Connection dbConnection, SqlBuilder sqlBuilder)
+            throws SQLException, UserStoreException {
+
+        List<User> finalUsers = new ArrayList<>();
+        String[] queries = sqlBuilder.getQuery().split("INTERSECT ");
+        int startIndex = 0;
+        int endIndex = 0;
+
+        for (String query : queries) {
+            List<User> tempList = new ArrayList<>();
+            int occurrence = StringUtils.countMatches(query, QUERY_BINDING_SYMBOL);
+            endIndex += occurrence;
+
+            try (PreparedStatement prepStmt = dbConnection.prepareStatement(query)) {
+                populatePrepareStatement(sqlBuilder, prepStmt, startIndex, endIndex);
+                try (ResultSet rs = prepStmt.executeQuery()) {
                     while (rs.next()) {
-                        String userID = rs.getString(1);
-                        String userName = rs.getString(2);
-                        User user = getUser(userID, userName);
-                        user.setUserStoreDomain(getMyDomainName());
-                        tempUserList.add(user);
+                        processUserResultSet(rs, tempList);
                     }
-
-                    if (startIndex == 0) {
-                        list = tempUserList;
-                    } else {
-                        list.retainAll(tempUserList);
-                    }
-                    startIndex += occurrence;
                 }
+            }
+
+            if (startIndex == 0) {
+                finalUsers = tempList;
             } else {
-                prepStmt = dbConnection.prepareStatement(sqlBuilder.getQuery());
-                int occurrence = StringUtils.countMatches(sqlBuilder.getQuery(), "?");
-                populatePrepareStatement(sqlBuilder, prepStmt, 0, occurrence);
-                rs = prepStmt.executeQuery();
-                while (rs.next()) {
-                    String userID = rs.getString(1);
-                    String userName = rs.getString(2);
-                    User user = getUser(userID, userName);
-                    user.setUserStoreDomain(getMyDomainName());
-                    list.add(user);
-                }
+                finalUsers.retainAll(tempList);
             }
 
-            if (list.size() > 0) {
-                users = list;
-            }
-            result.setUsers(users);
-
-        } catch (Exception e) {
-            String msg = "Error occur while doGetUserList for multi attribute searching";
-            if (log.isDebugEnabled()) {
-                log.debug(msg, e);
-            }
-            throw new UserStoreException(msg, e);
-        } finally {
-            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+            startIndex += occurrence;
         }
 
-        return result;
+        return finalUsers;
+    }
+
+    private List<String> handleMultipleGroupAndClaimFiltersForUsernames(Connection dbConnection, SqlBuilder sqlBuilder)
+            throws SQLException {
+
+        List<String> finalUsernames = new ArrayList<>();
+        String[] queries = sqlBuilder.getQuery().split("INTERSECT ");
+        int startIndex = 0;
+        int endIndex = 0;
+
+        for (String query : queries) {
+            List<String> tempList = new ArrayList<>();
+            int occurrence = StringUtils.countMatches(query, QUERY_BINDING_SYMBOL);
+            endIndex += occurrence;
+
+            try (PreparedStatement prepStmt = dbConnection.prepareStatement(query)) {
+                populatePrepareStatement(sqlBuilder, prepStmt, startIndex, endIndex);
+                try (ResultSet rs = prepStmt.executeQuery()) {
+                    while (rs.next()) {
+                        processUsernameResultSet(rs, tempList);
+                    }
+                }
+            }
+
+            if (startIndex == 0) {
+                finalUsernames = tempList;
+            } else {
+                finalUsernames.retainAll(tempList);
+            }
+
+            startIndex += occurrence;
+        }
+
+        return finalUsernames;
+    }
+
+    private void processUserResultSet(ResultSet rs, List<User> userList) throws SQLException, UserStoreException {
+
+        String userID = rs.getString(1);
+        String userName = rs.getString(2);
+        if (StringUtils.isNotBlank(userID) && StringUtils.isNotBlank(userName)) {
+            addToUserIDCache(userID, userName, getMyDomainName());
+            addToUserNameCache(userID, userName, getMyDomainName());
+        }
+
+        User user = getUser(userID, userName);
+        user.setUserStoreDomain(getMyDomainName());
+        userList.add(user);
+    }
+
+    private void processUsernameResultSet(ResultSet rs, List<String> usernameList) throws SQLException {
+
+        String userID = rs.getString(1);
+        String userName = rs.getString(2);
+        if (StringUtils.isNotBlank(userID) && StringUtils.isNotBlank(userName)) {
+            addToUserIDCache(userID, userName, getMyDomainName());
+            addToUserNameCache(userID, userName, getMyDomainName());
+        }
+        userName = UserCoreUtil.addDomainToName(userName, getMyDomainName());
+        usernameList.add(userName);
+    }
+
+    /**
+     * Private class to hold the filter configs.
+     */
+    private static class FilterConfigs {
+
+        private boolean isGroupFiltering;
+        private boolean isUsernameFiltering;
+        private boolean isClaimFiltering;
+        private int totalMultiGroupFilters;
+        private int totalMultiClaimFilters;
+        private final List<ExpressionCondition> expressionConditions;
+
+        public FilterConfigs(boolean isGroupFiltering, boolean isUsernameFiltering, boolean isClaimFiltering,
+                             int totalMultiGroupFilters, int totalMultiClaimFilters) {
+
+            this.isGroupFiltering = isGroupFiltering;
+            this.isUsernameFiltering = isUsernameFiltering;
+            this.isClaimFiltering = isClaimFiltering;
+            this.totalMultiGroupFilters = totalMultiGroupFilters;
+            this.totalMultiClaimFilters = totalMultiClaimFilters;
+            this.expressionConditions = new ArrayList<>();
+        }
+
+        public boolean isGroupFiltering() {
+
+            return isGroupFiltering;
+        }
+
+        public void setGroupFiltering(boolean groupFiltering) {
+
+            isGroupFiltering = groupFiltering;
+        }
+
+        public boolean isUsernameFiltering() {
+
+            return isUsernameFiltering;
+        }
+
+        public void setUsernameFiltering(boolean usernameFiltering) {
+
+            isUsernameFiltering = usernameFiltering;
+        }
+
+        public boolean isClaimFiltering() {
+
+            return isClaimFiltering;
+        }
+
+        public void setClaimFiltering(boolean claimFiltering) {
+
+            isClaimFiltering = claimFiltering;
+        }
+
+        public int getTotalMultiGroupFilters() {
+
+            return totalMultiGroupFilters;
+        }
+
+        public void setTotalMultiGroupFilters(int totalMultiGroupFilters) {
+
+            this.totalMultiGroupFilters = totalMultiGroupFilters;
+        }
+
+        public int getTotalMultiClaimFilters() {
+
+            return totalMultiClaimFilters;
+        }
+
+        public void setTotalMultiClaimFilters(int totalMultiClaimFilters) {
+
+            this.totalMultiClaimFilters = totalMultiClaimFilters;
+        }
+
+        public List<ExpressionCondition> getExpressionConditions() {
+
+            return expressionConditions;
+        }
+
+    }
+
+    /**
+     * Private class to hold the offset and limit values.
+     */
+    private static class OffsetLimit {
+
+        private int offset;
+        private int limit;
+
+        public OffsetLimit(int offset, int limit) {
+
+            this.offset = offset;
+            this.limit = limit;
+        }
+
+        public int getOffset() {
+
+            return offset;
+        }
+
+        public void setOffset(int offset) {
+
+            this.offset = offset;
+        }
+
+        public int getLimit() {
+
+            return limit;
+        }
+
+        public void setLimit(int limit) {
+
+            this.limit = limit;
+        }
     }
 
     @Override
