@@ -127,11 +127,11 @@ public class KeyStoreManager {
     }
 
     /**
-     * Get the key store object for the given key store name
+     * Get the key store object for the given key store name.
      *
-     * @param keyStoreName key store name
-     * @return KeyStore object
-     * @throws Exception If there is not a key store with the given name
+     * @param keyStoreName  Key store name.
+     * @return KeyStore object.
+     * @throws Exception    If there is an error when retriving the given keystore.
      */
     public KeyStore getKeyStore(String keyStoreName) {
 
@@ -152,11 +152,11 @@ public class KeyStoreManager {
     }
 
     /**
-     * This method loads the private key of a given key store
+     * This method loads the private key of a given key store.
      *
-     * @param keyStoreName name of the key store
-     * @param alias        alias of the private key
-     * @return private key corresponding to the alias
+     * @param keyStoreName  Name of the key store.
+     * @param alias         Alias of the private key.
+     * @return Private key corresponding to the alias.
      */
     public Key getPrivateKey(String keyStoreName, String alias) {
 
@@ -177,10 +177,11 @@ public class KeyStoreManager {
     }
 
     /**
-     * This method loads the public certificate of a given key store
+     * This method loads the public certificate of a given key store.
      *
-     * @param keyStoreName name of the key store
-     * @return private key corresponding to the alias
+     * @param keyStoreName  Name of the key store.
+     * @param alias         Alias of the certificate.
+     * @return Public Certificate corresponding to the alias.
      */
     public Certificate getCertificate(String keyStoreName, String alias) {
 
@@ -214,7 +215,6 @@ public class KeyStoreManager {
         return new String(cryptoUtil.base64DecodeAndDecrypt(encryptedPassword));
 
     }
-
 
     /**
      * Get the key store password for the given key store name.
@@ -331,11 +331,11 @@ public class KeyStoreManager {
     }
 
     /**
-     * Load a given tenant keystore.
+     * Load the requested tenant keystore from registry.
      *
-     * @param tenant key store name
-     * @return tenant key store object
-     * @throws Exception
+     * @param keyStoreName  Name of the Tenant KeyStore.
+     * @return Key store object.
+     * @throws Exception    Exception if failed to retrive the given keystore from registry.
      */
     public KeyStore getTenantKeyStore(String keyStoreName) throws Exception {
 
@@ -447,11 +447,12 @@ public class KeyStoreManager {
     }
 
     /**
-     * Get custom keystores.
+     * Load custom key stores configured in Carbon.xml file.
+     * Custom key store files should reside in <IS-HOME>/repository/resources/security/
      *
-     * @param keyStoreName name of the custom key store. Must include the prefix "CustomKeyStore/"
-     * @return custom key store object
-     * @throws Exception Carbon Exception for tenants other than tenant 0
+     * @param keyStoreName  Name of the custom key store. Must start with the custom key store prefix.
+     * @return Key store object
+     * @throws Exception    Exception if failed to retrive the given key store.
      */
     public KeyStore getCustomKeyStore(String keyStoreName) throws Exception {
 
@@ -474,8 +475,6 @@ public class KeyStoreManager {
         return keyStore;
     }
 
-
-
     /**
      * Get the default private key, only allowed for tenant 0
      *
@@ -496,13 +495,13 @@ public class KeyStoreManager {
     }
 
     /**
-     * This method loads the private key of a given tenant key store
+     * This method loads the private key of a given tenant key store.
      *
-     * @param keyStoreName name of the tenant key store
-     * @param alias        alias of the private key
-     * @return private key corresponding to the alias
+     * @param keyStoreName  Name of the tenant key store.
+     * @param alias         Alias of the private key.
+     * @return Private key corresponding to the alias.
      */
-    public PrivateKey getTenantPrivateKey(String keyStoreName, String alias) throws Exception{
+    public PrivateKey getTenantPrivateKey(String keyStoreName, String alias) throws Exception {
 
         String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
         org.wso2.carbon.registry.api.Resource resource;
@@ -540,9 +539,9 @@ public class KeyStoreManager {
     /**
      * Get the private key, of a given custom keystore.
      *
-     * @param keyStoreName name of the custom key store. Must include the prefix "CustomKeyStore/"
-     * @return Private key
-     * @throws Exception Carbon Exception for tenants other than tenant 0
+     * @param keyStoreName  Name of the custom key store. Must include the prefix "CustomKeyStore/".
+     * @return Private key from custom keystore corresponding to the alias.
+     * @throws Exception    If failed to retrive the requested private key.
      */
     public PrivateKey getCustomKeyStorePrivateKey(String keyStoreName) throws Exception {
 
@@ -607,10 +606,12 @@ public class KeyStoreManager {
     }
 
     /**
-     * This method is used to get public certificates of tenant keystores
+     * This method is used to get public certificates of tenant keystores.
      *
-     * @return Public certificate of a given tenant keystore
-     * @throws Exception Permission denied for accessing primary key store
+     * @param keyStoreName      Name of the tenant key store.
+     * @param alias             Public certificate alias.
+     * @return Public certificate of a given tenant keystore.
+     * @throws Exception        If failed to retrive the requested public certificate from the tenant key store.
      */
     public Certificate getTenantCertificate(String keyStoreName, String alias) throws Exception {
 
@@ -618,10 +619,11 @@ public class KeyStoreManager {
     }
 
     /**
-     * This method is used to get public certificates of custom keystores
+     * This method is used to get public certificates of custom keystores.
      *
+     * @param keyStoreName      Custom key store name.
      * @return Public certificate of a given custom keystore
-     * @throws Exception Permission denied for accessing primary key store
+     * @throws Exception        If failed to retrive the requested public certificate from the custom key store.
      */
     public Certificate getCustomKeyStoreCertificate(String keyStoreName) throws Exception {
 

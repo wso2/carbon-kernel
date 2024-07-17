@@ -117,6 +117,12 @@ public class KeyStoreUtil {
         }
     }
 
+    /**
+     * This method checks if the given key store name is for a customkey store by checking the prefix.
+     *
+     * @param keyStoreName      Custom key store name.
+     * @return Boolean value indicating if the given name is for a custom key store.
+     */
     public static boolean isCustomKeyStore(String keyStoreName) {
 
         if (keyStoreName.startsWith(RegistryResources.SecurityManagement.CustomKeyStore.KEYSTORE_PREFIX)) {
@@ -125,13 +131,31 @@ public class KeyStoreUtil {
         return false;
     }
 
+    /**
+     * This method builds the QName object for a configuration within the carbon.xml namespace.
+     *
+     * @param localPart     Local part of the configuration.
+     * @return QName object.
+     */
     public static QName getQNameWithCarbonNS(String localPart) {
 
         return new QName(ServerConstants.CARBON_SERVER_XML_NAMESPACE, localPart);
     }
 
+    /**
+     * This method returns the OMElement object corrosponding to the custom key store configuration in Carbon.xml file.
+     *
+     * @param keyStoreName          Name of the custom key store.
+     * @param serverConfiguration   ServerConfigurationService instance.
+     * @return OMElement jobject for the requested configuration.
+     * @throws CarbonException      If failed to retrive the requested configuration.
+     */
     public static OMElement getCustomKeyStoreConfig(
             String keyStoreName, ServerConfigurationService serverConfiguration) throws CarbonException {
+
+        if (!KeyStoreUtil.isCustomKeyStore(keyStoreName)) {
+            throw new CarbonException("Invalid key store name. Custom key store name with the prefix expected.");
+        }
 
         String keyStoreFileName = keyStoreName
                 .substring(RegistryResources.SecurityManagement.CustomKeyStore.KEYSTORE_PREFIX.length());
@@ -161,7 +185,7 @@ public class KeyStoreUtil {
         }
 
         if (config == null) {
-            throw new SecurityException("No configuration found for custom key store : " + keyStoreFileName);
+            throw new CarbonException("No configuration found for custom key store : " + keyStoreFileName);
         }
 
         return config;

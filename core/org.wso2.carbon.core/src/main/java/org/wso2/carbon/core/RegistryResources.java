@@ -160,9 +160,9 @@ public final class RegistryResources {
         public static final String SERVER_INTERNAL_PRIVATE_KEY_PASSWORD = "Security.InternalKeyStore.KeyPassword";
         public static final String SERVER_INTERNAL_KEYSTORE_TYPE = "Security.InternalKeyStore.Type";
 
-        //Custom KeyStore related constants
+        // Custom KeyStore related constants.
         public static final class CustomKeyStore {
-            public static final String KEYSTORE_PREFIX = "CustomKeyStore/";
+            public static final String KEYSTORE_PREFIX = "CUSTOM/";
 
             public static final String ELEM_SECURITY = "Security";
             public static final String ELEM_CUSTOM_KEYSTORES = "CustomKeyStores";
