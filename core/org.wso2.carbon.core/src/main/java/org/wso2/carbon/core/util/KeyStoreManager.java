@@ -133,22 +133,17 @@ public class KeyStoreManager {
      * @return KeyStore object.
      * @throws Exception    If there is an error when retriving the given keystore.
      */
-    public KeyStore getKeyStore(String keyStoreName) {
+    public KeyStore getKeyStore(String keyStoreName) throws Exception {
 
-        try {
-            if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
-                return getPrimaryKeyStore();
-            }
-
-            if (KeyStoreUtil.isCustomKeyStore(keyStoreName)) {
-                return getCustomKeyStore(keyStoreName);
-            }
-
-            return getTenantKeyStore(keyStoreName);
-        } catch (Exception e) {
-            log.error("Error loading the key store : " + keyStoreName);
-            throw new SecurityException("Error loading the key store : " + keyStoreName, e);
+        if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
+            return getPrimaryKeyStore();
         }
+
+        if (KeyStoreUtil.isCustomKeyStore(keyStoreName)) {
+            return getCustomKeyStore(keyStoreName);
+        }
+
+        return getTenantKeyStore(keyStoreName);
     }
 
     /**
@@ -157,23 +152,19 @@ public class KeyStoreManager {
      * @param keyStoreName  Name of the key store.
      * @param alias         Alias of the private key.
      * @return Private key corresponding to the alias.
+     * @throws Exception    If there is an error when retriving the private key from given keystore.
      */
-    public Key getPrivateKey(String keyStoreName, String alias) {
+    public Key getPrivateKey(String keyStoreName, String alias) throws Exception {
 
-        try {
-            if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
-                return getDefaultPrivateKey();
-            }
-
-            if (KeyStoreUtil.isCustomKeyStore(keyStoreName)) {
-                return getCustomKeyStorePrivateKey(keyStoreName);
-            }
-
-            return getTenantPrivateKey(keyStoreName, alias);
-        } catch (Exception e) {
-            log.error("Error loading the private key from the key store : " + keyStoreName);
-            throw new SecurityException("Error loading the private key from the key store : " + keyStoreName, e);
+        if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
+            return getDefaultPrivateKey();
         }
+
+        if (KeyStoreUtil.isCustomKeyStore(keyStoreName)) {
+            return getCustomKeyStorePrivateKey(keyStoreName);
+        }
+
+        return getTenantPrivateKey(keyStoreName, alias);
     }
 
     /**
@@ -182,23 +173,19 @@ public class KeyStoreManager {
      * @param keyStoreName  Name of the key store.
      * @param alias         Alias of the certificate.
      * @return Public Certificate corresponding to the alias.
+     * @throws Exception    If there is an error when retriving the public certificate from given keystore.
      */
-    public Certificate getCertificate(String keyStoreName, String alias) {
+    public Certificate getCertificate(String keyStoreName, String alias) throws Exception {
 
-        try {
-            if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
-                return getDefaultPrimaryCertificate();
-            }
-
-            if (KeyStoreUtil.isCustomKeyStore(keyStoreName)) {
-                return getCustomKeyStoreCertificate(keyStoreName);
-            }
-
-            return getTenantCertificate(keyStoreName, alias);
-        } catch (Exception e) {
-            log.error("Error loading the private key from the key store : " + keyStoreName);
-            throw new SecurityException("Error loading the private key from the key store : " + keyStoreName, e);
+        if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
+            return getDefaultPrimaryCertificate();
         }
+
+        if (KeyStoreUtil.isCustomKeyStore(keyStoreName)) {
+            return getCustomKeyStoreCertificate(keyStoreName);
+        }
+
+        return getTenantCertificate(keyStoreName, alias);
     }
 
     /**
