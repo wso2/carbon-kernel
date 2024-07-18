@@ -179,10 +179,8 @@ public class AuditLog {
             if (this.recordedAt == null) {
                 recordedAt = Instant.now().toString();
             }
-            String impersonator = MDC.get(IMPERSONATOR);
-            if (this.impersonatorId == null && StringUtils.isNotEmpty(impersonator)) {
-
-                impersonatorId = impersonator;
+            if (this.impersonatorId == null) {
+                impersonatorId = MDC.get(IMPERSONATOR);
             }
             if (this.requestId == null) {
                 requestId = MDC.get(CORRELATION_ID_MDC);
