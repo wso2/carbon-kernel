@@ -33,7 +33,7 @@ import static org.wso2.carbon.CarbonConstants.LogEventConstants.CORRELATION_ID_M
  */
 public class AuditLog {
 
-    public static final String IMPERSONATOR = "impersonator";
+    public static final String IMPERSONATOR_ID = "impersonator";
 
     private final String id;
     private final String recordedAt;
@@ -180,7 +180,7 @@ public class AuditLog {
                 recordedAt = Instant.now().toString();
             }
             if (this.impersonatorId == null) {
-                impersonatorId = MDC.get(IMPERSONATOR);
+                impersonatorId = MDC.get(IMPERSONATOR_ID);
             }
             if (this.requestId == null) {
                 requestId = MDC.get(CORRELATION_ID_MDC);
