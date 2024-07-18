@@ -33,6 +33,8 @@ import static org.wso2.carbon.CarbonConstants.LogEventConstants.CORRELATION_ID_M
  */
 public class AuditLog {
 
+    public static final String IMPERSONATOR_ID = "impersonator";
+
     private final String id;
     private final String recordedAt;
     private final String requestId;
@@ -41,6 +43,7 @@ public class AuditLog {
     private final String targetId;
     private final String targetType;
     private final String action;
+    private final String impersonatorId;
     private final Map<String, Object> data;
 
     private AuditLog(AuditLogBuilder auditLogBuilder) {
@@ -53,6 +56,7 @@ public class AuditLog {
         this.targetId = auditLogBuilder.targetId;
         this.targetType = auditLogBuilder.targetType;
         this.action = auditLogBuilder.action;
+        this.impersonatorId = auditLogBuilder.impersonatorId;
         this.data = auditLogBuilder.data;
     }
 
@@ -96,6 +100,11 @@ public class AuditLog {
         return action;
     }
 
+    public String getImpersonatorId() {
+
+        return impersonatorId;
+    }
+
     public Map<String, Object> getData() {
 
         return data;
@@ -110,6 +119,7 @@ public class AuditLog {
         private String id;
         private String recordedAt;
         private String requestId;
+        private String impersonatorId;
         private final String initiatorId;
         private final String targetId;
         private final String initiatorType;
@@ -168,6 +178,9 @@ public class AuditLog {
             }
             if (this.recordedAt == null) {
                 recordedAt = Instant.now().toString();
+            }
+            if (this.impersonatorId == null) {
+                impersonatorId = MDC.get(IMPERSONATOR_ID);
             }
             if (this.requestId == null) {
                 requestId = MDC.get(CORRELATION_ID_MDC);
