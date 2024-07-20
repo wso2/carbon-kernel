@@ -154,17 +154,23 @@ public class KeyStoreManager {
      * @return Private key corresponding to the alias.
      * @throws Exception    If there is an error when retriving the private key from given keystore.
      */
-    public Key getPrivateKey(String keyStoreName, String alias) throws Exception {
+    public Key getPrivateKey(String keyStoreName, String alias) {
 
-        if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
-            return getDefaultPrivateKey();
+        try {
+            if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
+                return getDefaultPrivateKey();
+            }
+
+            if (KeyStoreUtil.isCustomKeyStore(keyStoreName)) {
+                return getCustomKeyStorePrivateKey(keyStoreName);
+            }
+
+            return getTenantPrivateKey(keyStoreName, alias);
+        } catch (Exception e) {
+            log.error("Error loading the private key from the key store : " + keyStoreName);
+            throw new SecurityException("Error loading the private key from the key store : " +
+                    keyStoreName, e);
         }
-
-        if (KeyStoreUtil.isCustomKeyStore(keyStoreName)) {
-            return getCustomKeyStorePrivateKey(keyStoreName);
-        }
-
-        return getTenantPrivateKey(keyStoreName, alias);
     }
 
     /**
