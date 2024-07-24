@@ -29,6 +29,7 @@ import org.wso2.carbon.utils.ServerConstants;
 import java.io.File;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
 import javax.xml.namespace.QName;
@@ -118,17 +119,14 @@ public class KeyStoreUtil {
     }
 
     /**
-     * This method checks if the given key store name is for a customkey store by checking the prefix.
+     * This method checks if the given key store name is for a custom key store by checking the prefix.
      *
      * @param keyStoreName      Custom key store name.
      * @return Boolean value indicating if the given name is for a custom key store.
      */
     public static boolean isCustomKeyStore(String keyStoreName) {
 
-        if (keyStoreName.startsWith(RegistryResources.SecurityManagement.CustomKeyStore.KEYSTORE_PREFIX)) {
-            return true;
-        }
-        return false;
+        return keyStoreName.startsWith(RegistryResources.SecurityManagement.CustomKeyStore.KEYSTORE_PREFIX);
     }
 
     /**
@@ -143,14 +141,14 @@ public class KeyStoreUtil {
     }
 
     /**
-     * This method returns the OMElement object corrosponding to the custom key store configuration in Carbon.xml file.
+     * This method returns the OMElement object corresponding to the custom key store configuration in Carbon.xml file.
      *
      * @param keyStoreName          Name of the custom key store.
      * @param serverConfiguration   ServerConfigurationService instance.
-     * @return OMElement jobject for the requested configuration.
-     * @throws CarbonException      If failed to retrive the requested configuration.
+     * @return OMElement object for the requested configuration.
+     * @throws CarbonException      If failed to retrieve the requested configuration.
      */
-    public static OMElement getCustomKeyStoreConfig(
+    public static OMElement getCustomKeyStoreConfigElement(
             String keyStoreName, ServerConfigurationService serverConfiguration) throws CarbonException {
 
         if (!KeyStoreUtil.isCustomKeyStore(keyStoreName)) {
@@ -162,20 +160,19 @@ public class KeyStoreUtil {
 
         OMElement config = null;
         try {
-            OMElement serverConfigElem = XMLUtils.toOM(serverConfiguration.getDocumentElement());
-            OMElement securityConfigElem = serverConfigElem.getFirstChildWithName(KeyStoreUtil
-                    .getQNameWithCarbonNS(RegistryResources.SecurityManagement.CustomKeyStore.ELEM_SECURITY));
-            OMElement customKeyStoresConfigElem = securityConfigElem.getFirstChildWithName(KeyStoreUtil
-                    .getQNameWithCarbonNS(RegistryResources.SecurityManagement.CustomKeyStore.ELEM_CUSTOM_KEYSTORES));
+            OMElement customKeyStoresConfigElem = XMLUtils.toOM(serverConfiguration.getDocumentElement())
+                    .getFirstChildWithName(KeyStoreUtil.getQNameWithCarbonNS(
+                            RegistryResources.SecurityManagement.CustomKeyStore.ELEM_SECURITY))
+                    .getFirstChildWithName(KeyStoreUtil.getQNameWithCarbonNS(
+                            RegistryResources.SecurityManagement.CustomKeyStore.ELEM_CUSTOM_KEYSTORES));
 
             Iterator<OMElement> iterator = customKeyStoresConfigElem.getChildElements();
             while (iterator.hasNext()) {
                 OMElement customKeyStoreConfig = iterator.next();
-                String[] location = customKeyStoreConfig.getFirstChildWithName(KeyStoreUtil.getQNameWithCarbonNS(
-                        RegistryResources.SecurityManagement.CustomKeyStore.PROP_LOCATION)).getText().split("/");
-                String keyStoreFileNameConfig = location[location.length - 1];
+                String location = customKeyStoreConfig.getFirstChildWithName(KeyStoreUtil.getQNameWithCarbonNS(
+                        RegistryResources.SecurityManagement.CustomKeyStore.PROP_LOCATION)).getText();
 
-                if (keyStoreFileName.equals(keyStoreFileNameConfig)) {
+                if (location.endsWith(keyStoreFileName)) {
                     config = customKeyStoreConfig;
                     break;
                 }
@@ -189,5 +186,47 @@ public class KeyStoreUtil {
         }
 
         return config;
+    }
+
+    /**
+     * This method returns the requested key store property value from the configuration.
+     *
+     * @param config                OMElement object of configuration.
+     * @param propertyName                  Property name.
+     * @return Configuration value as String.
+     * @throws CarbonException      If failed to retrieve the requested configuration.
+     */
+    public static String getCustomKeyStoreConfig(OMElement config, String propertyName) throws CarbonException {
+
+        validateKeyStoreConfigName(propertyName);
+
+        String configValue = config.getFirstChildWithName(getQNameWithCarbonNS(propertyName)).getText();
+
+        if (RegistryResources.SecurityManagement.CustomKeyStore.PROP_LOCATION.equals(propertyName)) {
+            // Replace carbon.home placeholder with proper location path
+            if (configValue.startsWith(RegistryResources.SecurityManagement.CARBON_HOME_PLACEHOLDER)) {
+                configValue = configValue.replace(RegistryResources.SecurityManagement.CARBON_HOME_PLACEHOLDER, "");
+                configValue = new File(".").getAbsolutePath() + configValue;
+            } else {
+                throw new CarbonException("Invalid key store location: " + configValue);
+            }
+        }
+
+        return configValue;
+    }
+
+    public static void validateKeyStoreConfigName(String propertyName) throws CarbonException {
+
+        String[] keyStoreProperties = {
+                RegistryResources.SecurityManagement.CustomKeyStore.PROP_LOCATION,
+                RegistryResources.SecurityManagement.CustomKeyStore.PROP_TYPE,
+                RegistryResources.SecurityManagement.CustomKeyStore.PROP_PASSWORD,
+                RegistryResources.SecurityManagement.CustomKeyStore.PROP_KEY_ALIAS,
+                RegistryResources.SecurityManagement.CustomKeyStore.PROP_KEY_PASSWORD
+        };
+
+        if (!Arrays.asList(keyStoreProperties).contains(propertyName)) {
+            throw new CarbonException("Requested key store configuration is invalid.");
+        }
     }
 }

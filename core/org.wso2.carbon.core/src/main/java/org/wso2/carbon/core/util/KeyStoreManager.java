@@ -453,14 +453,14 @@ public class KeyStoreManager {
             return customKeyStores.get(keyStoreName);
         }
 
-        OMElement config = KeyStoreUtil.getCustomKeyStoreConfig(keyStoreName, this.getServerConfigService());
+        OMElement config = KeyStoreUtil.getCustomKeyStoreConfigElement(keyStoreName, this.getServerConfigService());
 
-        String location = config.getFirstChildWithName(KeyStoreUtil.getQNameWithCarbonNS(
-                RegistryResources.SecurityManagement.CustomKeyStore.PROP_LOCATION)).getText();
-        String type = config.getFirstChildWithName(KeyStoreUtil.getQNameWithCarbonNS(
-                RegistryResources.SecurityManagement.CustomKeyStore.PROP_TYPE)).getText();
-        String password = config.getFirstChildWithName(KeyStoreUtil.getQNameWithCarbonNS(
-                RegistryResources.SecurityManagement.CustomKeyStore.PROP_PASSWORD)).getText();
+        String location = KeyStoreUtil.getCustomKeyStoreConfig(
+                config, RegistryResources.SecurityManagement.CustomKeyStore.PROP_LOCATION);
+        String type = KeyStoreUtil.getCustomKeyStoreConfig(
+                config, RegistryResources.SecurityManagement.CustomKeyStore.PROP_TYPE);
+        String password = KeyStoreUtil.getCustomKeyStoreConfig(
+                config, RegistryResources.SecurityManagement.CustomKeyStore.PROP_PASSWORD);
 
         KeyStore keyStore = loadKeyStoreFromFileSystem(location, password, type);
         customKeyStores.put(keyStoreName, keyStore);
@@ -538,12 +538,12 @@ public class KeyStoreManager {
      */
     private PrivateKey getCustomKeyStorePrivateKey(String keyStoreName) throws Exception {
 
-        OMElement config = KeyStoreUtil.getCustomKeyStoreConfig(keyStoreName, this.getServerConfigService());
+        OMElement config = KeyStoreUtil.getCustomKeyStoreConfigElement(keyStoreName, this.getServerConfigService());
 
-        String password = config.getFirstChildWithName(KeyStoreUtil.getQNameWithCarbonNS(
-                RegistryResources.SecurityManagement.CustomKeyStore.PROP_PASSWORD)).getText();
-        String alias = config.getFirstChildWithName(KeyStoreUtil.getQNameWithCarbonNS(
-                RegistryResources.SecurityManagement.CustomKeyStore.PROP_KEY_ALIAS)).getText();
+        String password = KeyStoreUtil.getCustomKeyStoreConfig(
+                config, RegistryResources.SecurityManagement.CustomKeyStore.PROP_PASSWORD);
+        String alias = KeyStoreUtil.getCustomKeyStoreConfig(
+                config, RegistryResources.SecurityManagement.CustomKeyStore.PROP_KEY_ALIAS);
 
         return (PrivateKey) getCustomKeyStore(keyStoreName).getKey(alias, password.toCharArray());
     }
@@ -620,9 +620,9 @@ public class KeyStoreManager {
      */
     private Certificate getCustomKeyStoreCertificate(String keyStoreName) throws Exception {
 
-        OMElement config = KeyStoreUtil.getCustomKeyStoreConfig(keyStoreName, this.getServerConfigService());
-        String alias = config.getFirstChildWithName(KeyStoreUtil.getQNameWithCarbonNS(
-                RegistryResources.SecurityManagement.CustomKeyStore.PROP_KEY_ALIAS)).getText();
+        OMElement config = KeyStoreUtil.getCustomKeyStoreConfigElement(keyStoreName, this.getServerConfigService());
+        String alias = KeyStoreUtil.getCustomKeyStoreConfig(
+                config, RegistryResources.SecurityManagement.CustomKeyStore.PROP_KEY_ALIAS);
 
         return getCustomKeyStore(keyStoreName).getCertificate(alias);
     }

@@ -174,6 +174,9 @@ public final class RegistryResources {
             public static final String PROP_KEY_PASSWORD = "KeyPassword";
         }
 
+        // carbon.home location placeholder.
+        public static final String CARBON_HOME_PLACEHOLDER = "${carbon.home}";
+
         //generated pub. key - multitenancy scenario
         public static final String TENANT_PUBKEY_RESOURCE = RegistryResources.ROOT +
                                                             "security/pub-key";
