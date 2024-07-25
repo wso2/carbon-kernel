@@ -27,7 +27,7 @@ import java.security.cert.X509Certificate;
 import java.util.HashMap;
 
 /**
- * A utility class that provides cached access to the contents of a KeyStore.
+ * A proxy class that provides cached access to the contents of a KeyStore.
  */
 public class CachedKeyStore {
 
