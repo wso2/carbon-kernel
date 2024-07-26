@@ -450,7 +450,7 @@ public class KeyStoreManager {
                     .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_PASSWORD);
             String alias = config
                     .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_KEY_ALIAS);
-            return getCachedPrimaryKeyStore().getKey(alias, password.toCharArray());
+            return (PrivateKey) getCachedPrimaryKeyStore().getKey(alias, password.toCharArray());
         }
         throw new CarbonException(ERROR_PRIMARY_KEY_STORE);
     }
@@ -497,7 +497,7 @@ public class KeyStoreManager {
             ServerConfigurationService config = this.getServerConfigService();
             String alias = config
                     .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_KEY_ALIAS);
-            return getCachedPrimaryKeyStore().getCertificate(alias);
+            return (X509Certificate) getCachedPrimaryKeyStore().getCertificate(alias);
         }
         throw new CarbonException(ERROR_PRIMARY_KEY_STORE);
     }

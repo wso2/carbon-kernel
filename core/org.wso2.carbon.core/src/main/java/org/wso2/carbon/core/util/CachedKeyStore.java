@@ -17,13 +17,12 @@
  */
 package org.wso2.carbon.core.util;
 
+import java.security.Key;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
-import java.security.cert.X509Certificate;
 import java.util.HashMap;
 
 /**
@@ -32,8 +31,8 @@ import java.util.HashMap;
 public class CachedKeyStore {
 
     private final KeyStore keyStore;
-    private final HashMap<String, PrivateKey> privateKeyMap = new HashMap<>();
-    private final HashMap<String, X509Certificate> publicCertMap = new HashMap<>();
+    private final HashMap<String, Key> privateKeyMap = new HashMap<>();
+    private final HashMap<String, Certificate> certMap = new HashMap<>();
     private final HashMap<String, Certificate[]> certChainMap = new HashMap<>();
 
     public CachedKeyStore(KeyStore keyStore) {
@@ -59,11 +58,11 @@ public class CachedKeyStore {
      * @param password The password to access the private key.
      * @return The default PrivateKey.
      */
-     public PrivateKey getKey(String alias, char[] password) {
+     public Key getKey(String alias, char[] password) {
 
          return privateKeyMap.computeIfAbsent(alias, key -> {
              try {
-                 return (PrivateKey) keyStore.getKey(alias, password);
+                 return keyStore.getKey(alias, password);
              } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException e) {
                  throw new RuntimeException(e);
              }
@@ -77,11 +76,11 @@ public class CachedKeyStore {
      * @param alias The alias of the certificate.
      * @return The default X509Certificate.
      */
-    public X509Certificate getCertificate(String alias) {
+    public Certificate getCertificate(String alias) {
 
-        return publicCertMap.computeIfAbsent(alias, key -> {
+        return certMap.computeIfAbsent(alias, key -> {
             try {
-                return (X509Certificate) keyStore.getCertificate(alias);
+                return keyStore.getCertificate(alias);
             } catch (KeyStoreException e) {
                 throw new RuntimeException(e);
             }
