@@ -22,17 +22,20 @@ import org.apache.axis2.description.AxisService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.protocol.HTTP;
+import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.core.transports.CarbonHttpRequest;
 import org.wso2.carbon.core.transports.CarbonHttpResponse;
 import org.wso2.carbon.core.transports.HttpGetRequestProcessor;
+import org.wso2.carbon.core.util.CachedKeyStore;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.core.util.KeyStoreUtil;
 import org.wso2.carbon.registry.core.Association;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
+import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.service.RegistryService;
 
 import java.io.IOException;
@@ -84,10 +87,9 @@ public class CertProcessor implements HttpGetRequestProcessor {
             
             KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(
                     MultitenantConstants.SUPER_TENANT_ID);
-            
-            KeyStore keyStore = null;
-            if(assoc.length < 1){
 
+            Certificate cert = null;
+            if (assoc.length < 1) {
                 boolean httpsEnabled = false;
                 Association[] associations =
                     registry.getAssociations(servicePath, RegistryResources.Associations.EXPOSED_TRANSPORTS);
@@ -100,37 +102,48 @@ public class CertProcessor implements HttpGetRequestProcessor {
                     }
                     resource.discard();
                 }
-                
-                if (httpsEnabled ||Boolean.valueOf(serviceResource.getProperty(RegistryResources.ServiceProperties.EXPOSED_ON_ALL_TANSPORTS))) {
-                    keyStore = keyStoreManager.getPrimaryKeyStore();
-                } 
+                if (httpsEnabled || Boolean.parseBoolean(
+                        serviceResource.getProperty(RegistryResources.ServiceProperties.EXPOSED_ON_ALL_TANSPORTS))) {
+                    cert = getPrimaryKeystoreCertificate(keyStoreManager);
+                }
             } else {
-                KeyStore ks = null;
                 String kspath = assoc[0].getDestinationPath();
-                if(kspath.equals(RegistryResources.SecurityManagement.PRIMARY_KEYSTORE_PHANTOM_RESOURCE)){
-                    keyStore = keyStoreManager.getPrimaryKeyStore();
-                }else{
-                    String keyStoreName = kspath.substring(kspath.lastIndexOf('/')+1);
-                    keyStore = keyStoreManager.getKeyStore(keyStoreName);
+                if (RegistryResources.SecurityManagement.PRIMARY_KEYSTORE_PHANTOM_RESOURCE.equals(kspath)) {
+                    cert = getPrimaryKeystoreCertificate(keyStoreManager);
+                } else {
+                    String keyStoreName = kspath.substring(kspath.lastIndexOf('/') + 1);
+                    KeyStore keyStore = keyStoreManager.getKeyStore(keyStoreName);
+                    String alias = null;
+                    if (keyStore != null) {
+                        alias = KeyStoreUtil.getPrivateKeyAlias(keyStore);
+                    }
+
+                    if (alias != null) {
+                        cert = KeyStoreUtil.getCertificate(alias, keyStore);
+                    }
                 }
             }
             serviceResource.discard();
 
-            String alias = null;
-            if(keyStore != null){
-                alias = KeyStoreUtil.getPrivateKeyAlias(keyStore);
-            }
-            
-            if(alias != null){
-                Certificate cert = KeyStoreUtil.getCertificate(alias, keyStore);
+            if (cert != null){
                 serializeCert(cert, response, outputStream, serviceName);
-            }else {
+            } else {
                 response.addHeader(HTTP.CONTENT_TYPE, "text/html");
                 outputStream.write(("<h4>Service " + serviceName +
-                                    " does not have a private key.</h4>").getBytes());
+                        " does not have a private key.</h4>").getBytes());
                 outputStream.flush();
             }
         }
+    }
+
+    private Certificate getPrimaryKeystoreCertificate(KeyStoreManager keyStoreManager) throws Exception {
+
+        CachedKeyStore cachedKeyStore = keyStoreManager.getCachedPrimaryKeyStore();
+        String alias =  KeyStoreUtil.getPrivateKeyAlias(cachedKeyStore.getKeystore());
+        if (alias != null) {
+            return cachedKeyStore.getCertificate(alias);
+        }
+        return null;
     }
 
     /**

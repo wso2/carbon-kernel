@@ -20,9 +20,6 @@ package org.wso2.carbon.core.util;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.base.api.ServerConfigurationService;
-import org.wso2.carbon.core.RegistryResources;
-import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.utils.ServerConstants;
 
 import java.security.*;
@@ -154,29 +151,19 @@ public class SignatureUtil {
     private static PrivateKey getDefaultPrivateKey() throws Exception {
         KeyStoreManager keyStoreMan = KeyStoreManager.getInstance(
                 MultitenantConstants.SUPER_TENANT_ID);
-        KeyStore keyStore = keyStoreMan.getPrimaryKeyStore();
-        ServerConfigurationService config = CarbonCoreDataHolder.getInstance().getServerConfigurationService();
-        String password = config
-                .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_PASSWORD);
-        String alias = config.getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_KEY_ALIAS);
-        return (PrivateKey) keyStore.getKey(alias, password.toCharArray());
+        return keyStoreMan.getDefaultPrivateKey();
     }
 
     private static PublicKey getDefaultPublicKey() throws Exception {
         KeyStoreManager keyStoreMan = KeyStoreManager.getInstance(
                 MultitenantConstants.SUPER_TENANT_ID);
-        KeyStore keyStore = keyStoreMan.getPrimaryKeyStore();
-        ServerConfigurationService config = CarbonCoreDataHolder.getInstance().getServerConfigurationService();
-        String alias = config
-                .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_KEY_ALIAS);
-        return (PublicKey) keyStore.getCertificate(alias).getPublicKey();
-
+        return keyStoreMan.getDefaultPublicKey();
     }
 
     private static PublicKey getPublicKey(byte[] thumb) throws Exception {
         KeyStoreManager keyStoreMan = KeyStoreManager.getInstance(
                 MultitenantConstants.SUPER_TENANT_ID);
-        KeyStore keyStore = keyStoreMan.getPrimaryKeyStore();
+        KeyStore keyStore = keyStoreMan.getCachedPrimaryKeyStore().getKeystore();
         PublicKey pubKey = null;
         Certificate cert = null;
         MessageDigest sha;
@@ -204,7 +191,7 @@ public class SignatureUtil {
     private static Certificate getCertificate(String alias) throws Exception {
         KeyStoreManager keyStoreMan = KeyStoreManager.getInstance(
                 MultitenantConstants.SUPER_TENANT_ID);
-        KeyStore keyStore = keyStoreMan.getPrimaryKeyStore();
+        CachedKeyStore keyStore = keyStoreMan.getCachedPrimaryKeyStore();
         Certificate cert = null;
         Certificate[] certs = keyStore.getCertificateChain(alias);
         if (certs == null || certs.length == 0) {

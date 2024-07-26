@@ -20,27 +20,20 @@ package org.wso2.carbon.core.bootup.validator;
 import com.jezhumble.javasysmon.JavaSysMon;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.base.api.ServerConfigurationService;
+import org.wso2.carbon.CarbonException;
+import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.bootup.validator.util.UnknownParameterException;
 import org.wso2.carbon.core.bootup.validator.util.ValidationResult;
+import org.wso2.carbon.core.util.CachedKeyStore;
+import org.wso2.carbon.core.util.KeyStoreManager;
 
-import javax.management.AttributeNotFoundException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanException;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
-import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -49,6 +42,14 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
 
 @Deprecated
 public class SystemValidator extends ConfigurationValidator {
@@ -219,11 +220,12 @@ public class SystemValidator extends ConfigurationValidator {
         ValidationResult result = new ValidationResult();
         String msg = null;
         boolean isValid;
-        KeyStore primaryKeyStore = getPrimaryKeyStore();
+        KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(MultitenantConstants.SUPER_TENANT_ID);
         X509Certificate wso2CarbonCert = null;
-        if (primaryKeyStore != null) {
-            wso2CarbonCert = (X509Certificate) primaryKeyStore.getCertificate(RegistryResources.SecurityManagement.DEFAULT_SECURITY_CERTIFICATE_ALIAS);
-        } else {
+        try {
+            wso2CarbonCert = (X509Certificate) keyStoreManager.getCachedPrimaryKeyStore()
+                    .getCertificate(RegistryResources.SecurityManagement.DEFAULT_SECURITY_CERTIFICATE_ALIAS);
+        } catch (CarbonException e){
             log.error("Error loading primary keystore, cannot validate keystore");
         }
 
@@ -238,38 +240,6 @@ public class SystemValidator extends ConfigurationValidator {
         result.setValidationMessage(msg);
         result.setValid(isValid);
         return result;
-    }
-
-    /**
-     * Load the primary key store
-     *
-     * @return primary key store object
-     * @throws IOException
-     * @throws CertificateException Permission denied for accessing security certificate
-     */
-    private KeyStore getPrimaryKeyStore() throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
-        KeyStore primaryKeyStore;
-        ServerConfigurationService config = ServerConfiguration.getInstance();
-        String file =
-                new File(config
-                        .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_FILE))
-                        .getAbsolutePath();
-        KeyStore store = KeyStore
-                .getInstance(config
-                        .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_TYPE));
-        String password = config
-                .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_PASSWORD);
-        FileInputStream in = null;
-        try {
-            in = new FileInputStream(file);
-            store.load(in, password.toCharArray());
-            primaryKeyStore = store;
-        } finally {
-            if (in != null) {
-                in.close();
-            }
-        }
-        return primaryKeyStore;
     }
 
     /**

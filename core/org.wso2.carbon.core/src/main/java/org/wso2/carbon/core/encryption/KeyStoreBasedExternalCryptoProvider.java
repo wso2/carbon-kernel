@@ -21,6 +21,7 @@ package org.wso2.carbon.core.encryption;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.core.util.CachedKeyStore;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.crypto.api.CertificateInfo;
 import org.wso2.carbon.crypto.api.CryptoContext;
@@ -322,7 +323,7 @@ public class KeyStoreBasedExternalCryptoProvider implements ExternalCryptoProvid
                         log.debug("Looking for the certificate in the super tenant using " + certificateInfo);
                     }
 
-                    KeyStore keyStore = keyStoreManager.getPrimaryKeyStore();
+                    CachedKeyStore keyStore = keyStoreManager.getCachedPrimaryKeyStore();
                     return keyStore.getCertificate(certificateInfo.getCertificateAlias());
                 } else {
 
@@ -376,7 +377,7 @@ public class KeyStoreBasedExternalCryptoProvider implements ExternalCryptoProvid
                     log.debug("Looking for the private key in the super tenant using " + privateKeyInfo);
                 }
 
-                KeyStore keyStore = keyStoreManager.getPrimaryKeyStore();
+                CachedKeyStore keyStore = keyStoreManager.getCachedPrimaryKeyStore();
                 privateKey = (PrivateKey) keyStore.getKey(privateKeyInfo.getKeyAlias(),
                         privateKeyInfo.getKeyPassword().toCharArray());
             } else {
