@@ -332,7 +332,7 @@ public class KeyStoreManager {
      */
     public CachedKeyStore getCachedPrimaryKeyStore() throws CarbonException {
 
-        if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
+        if (tenantId != MultitenantConstants.SUPER_TENANT_ID) {
             throw new CarbonException(ERROR_PRIMARY_KEY_STORE);
         }
         if (primaryKeyStore == null) {
