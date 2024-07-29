@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 
 public class CSRFConstants {
     public static final String CSRF_TOKEN = "csrftoken";
-    public static final String CSRF_TOKEN_PRNG = "SHA1PRNG";
+    public static final String CSRF_TOKEN_PRNG = "DRBG";
 
     public static final String METHOD_POST = "POST";
 

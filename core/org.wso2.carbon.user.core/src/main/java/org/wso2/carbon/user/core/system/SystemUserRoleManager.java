@@ -52,7 +52,7 @@ public class SystemUserRoleManager {
     private static Log log = LogFactory.getLog(SystemUserRoleManager.class);
     int tenantId;
     private DataSource dataSource;
-    private static final String SHA_1_PRNG = "SHA1PRNG";
+    private static final String RANDOM_ALG_DRBG = "DRBG";
 
     public SystemUserRoleManager(DataSource dataSource, int tenantId) throws UserStoreException {
         super();
@@ -373,13 +373,13 @@ public class SystemUserRoleManager {
 
             String saltValue = null;
             try {
-                SecureRandom secureRandom = SecureRandom.getInstance(SHA_1_PRNG);
+                SecureRandom secureRandom = SecureRandom.getInstance(RANDOM_ALG_DRBG);
                 byte[] bytes = new byte[16];
                 //secureRandom is automatically seeded by calling nextBytes
                 secureRandom.nextBytes(bytes);
                 saltValue = Base64.encode(bytes);
             } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException("SHA1PRNG algorithm could not be found.");
+                throw new RuntimeException("DRBG algorithm could not be found.");
             }
 
             String password = this.preparePassword(credentialObj, saltValue);

@@ -402,7 +402,7 @@ public final class UserCoreUtil {
 
         try {
             // the secure random
-            SecureRandom prng = SecureRandom.getInstance("SHA1PRNG");
+            SecureRandom prng = SecureRandom.getInstance("DRBG");
             for (int i = 0; i < length; i++) {
                 password[i] = passwordChars.charAt(prng.nextInt(passwordFeed.length()));
             }
