@@ -135,6 +135,10 @@ public class KeyStoreManager {
      */
     public KeyStore getKeyStore(String keyStoreName) throws Exception {
 
+        if (keyStoreName == null || keyStoreName.isEmpty()) {
+            throw new SecurityException("Key Store Name is null or empty.");
+        }
+
         if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
             return getPrimaryKeyStore();
         }
@@ -155,6 +159,13 @@ public class KeyStoreManager {
      * @throws Exception    If there is an error when retriving the private key from given keystore.
      */
     public Key getPrivateKey(String keyStoreName, String alias) {
+
+        if (keyStoreName == null || keyStoreName.isEmpty()) {
+            throw new SecurityException("Key Store Name is null or empty.");
+        }
+        if (alias == null || alias.isEmpty()) {
+            throw new SecurityException("Alias is null or empty.");
+        }
 
         try {
             if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
@@ -182,6 +193,13 @@ public class KeyStoreManager {
      * @throws Exception    If there is an error when retriving the public certificate from given keystore.
      */
     public Certificate getCertificate(String keyStoreName, String alias) throws Exception {
+
+        if (keyStoreName == null || keyStoreName.isEmpty()) {
+            throw new SecurityException("Key Store Name is null or empty.");
+        }
+        if (alias == null || alias.isEmpty()) {
+            throw new SecurityException("Alias is null or empty.");
+        }
 
         if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
             return getDefaultPrimaryCertificate();
@@ -513,7 +531,6 @@ public class KeyStoreManager {
 
         if (isCachedKeyStoreValid(keyStoreName)) {
             keyStore = tenantKeyStores.get(keyStoreName).getKeyStore();
-            return (PrivateKey) keyStore.getKey(alias, privateKeyPasswd.toCharArray());
         } else {
             byte[] bytes = (byte[]) resource.getContent();
             String keyStorePassword = new String(cryptoUtil.base64DecodeAndDecrypt(resource.getProperty(
@@ -525,8 +542,10 @@ public class KeyStoreManager {
 
             KeyStoreBean keyStoreBean = new KeyStoreBean(keyStore, resource.getLastModified());
             updateKeyStoreCache(keyStoreName, keyStoreBean);
-            return (PrivateKey) keyStore.getKey(alias, privateKeyPasswd.toCharArray());
+
         }
+
+        return (PrivateKey) keyStore.getKey(alias, privateKeyPasswd.toCharArray());
     }
 
     /**

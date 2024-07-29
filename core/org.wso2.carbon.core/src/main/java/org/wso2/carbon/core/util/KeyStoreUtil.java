@@ -151,12 +151,11 @@ public class KeyStoreUtil {
     public static OMElement getCustomKeyStoreConfigElement(
             String keyStoreName, ServerConfigurationService serverConfiguration) throws CarbonException {
 
-        if (!KeyStoreUtil.isCustomKeyStore(keyStoreName)) {
-            throw new CarbonException("Invalid key store name. Custom key store name with the prefix expected.");
+        // Remove prefix if exists
+        if (KeyStoreUtil.isCustomKeyStore(keyStoreName)) {
+            keyStoreName = keyStoreName.substring(
+                    RegistryResources.SecurityManagement.CustomKeyStore.KEYSTORE_PREFIX.length());
         }
-
-        String keyStoreFileName = keyStoreName
-                .substring(RegistryResources.SecurityManagement.CustomKeyStore.KEYSTORE_PREFIX.length());
 
         OMElement config = null;
         try {
@@ -172,7 +171,7 @@ public class KeyStoreUtil {
                 String location = customKeyStoreConfig.getFirstChildWithName(KeyStoreUtil.getQNameWithCarbonNS(
                         RegistryResources.SecurityManagement.CustomKeyStore.PROP_LOCATION)).getText();
 
-                if (location.endsWith(keyStoreFileName)) {
+                if (location.endsWith(keyStoreName)) {
                     config = customKeyStoreConfig;
                     break;
                 }
@@ -182,7 +181,7 @@ public class KeyStoreUtil {
         }
 
         if (config == null) {
-            throw new CarbonException("No configuration found for custom key store : " + keyStoreFileName);
+            throw new CarbonException("No configuration found for custom key store : " + keyStoreName);
         }
 
         return config;
