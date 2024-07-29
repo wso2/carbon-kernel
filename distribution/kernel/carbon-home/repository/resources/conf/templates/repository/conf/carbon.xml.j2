@@ -558,7 +558,7 @@
 
         <CustomKeyStores>
             {% for keystore in keystore.custom %}
-            <CustomKeyStore>
+            <KeyStore>
                 <!-- Keystore file location-->
                 <Location>${carbon.home}/repository/resources/security/{{keystore.file_name}}</Location>
                 <!-- Keystore type (JKS/PKCS12 etc.)-->
@@ -569,7 +569,7 @@
                 <KeyAlias>{{keystore.alias}}</KeyAlias>
                 <!-- Private Key password-->
                 <KeyPassword>{{keystore.key_password}}</KeyPassword>
-            </CustomKeyStore>
+            </KeyStore>
             {% endfor %}
         </CustomKeyStores>
         {% endif %}
