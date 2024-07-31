@@ -299,7 +299,7 @@ public class KeyStoreManager {
 
         registry.put(path, resource);
         resource.discard();
-        updateKeyStoreCache(name, new KeyStoreBean(keyStore, new Date()));
+        updateTenantKeyStoreCache(name, new KeyStoreBean(keyStore, new Date()));
     }
 
     /**
@@ -350,7 +350,7 @@ public class KeyStoreManager {
      */
     private KeyStore getTenantKeyStore(String keyStoreName) throws Exception {
 
-        if (isCachedKeyStoreValid(keyStoreName)) {
+        if (isCachedTenantKeyStoreValid(keyStoreName)) {
             return tenantKeyStores.get(keyStoreName).getKeyStore();
         }
 
@@ -529,7 +529,7 @@ public class KeyStoreManager {
                 .getProperty(RegistryResources.SecurityManagement.PROP_PRIVATE_KEY_PASS);
         String privateKeyPasswd = new String(cryptoUtil.base64DecodeAndDecrypt(encryptedPassword));
 
-        if (isCachedKeyStoreValid(keyStoreName)) {
+        if (isCachedTenantKeyStoreValid(keyStoreName)) {
             keyStore = tenantKeyStores.get(keyStoreName).getKeyStore();
         } else {
             byte[] bytes = (byte[]) resource.getContent();
@@ -541,15 +541,14 @@ public class KeyStoreManager {
             keyStore.load(stream, keyStorePassword.toCharArray());
 
             KeyStoreBean keyStoreBean = new KeyStoreBean(keyStore, resource.getLastModified());
-            updateKeyStoreCache(keyStoreName, keyStoreBean);
-
+            updateTenantKeyStoreCache(keyStoreName, keyStoreBean);
         }
 
         return (PrivateKey) keyStore.getKey(alias, privateKeyPasswd.toCharArray());
     }
 
     /**
-     * Get the private key, of a given custom keystore.
+     * Get the private key of a given custom keystore.
      *
      * @param keyStoreName  Name of the custom key store. Must include the prefix "CustomKeyStore/".
      * @return Private key from custom keystore corresponding to the alias.
@@ -646,7 +645,8 @@ public class KeyStoreManager {
         return getCustomKeyStore(keyStoreName).getCertificate(alias);
     }
 
-    private boolean isCachedKeyStoreValid(String keyStoreName) {
+    private boolean isCachedTenantKeyStoreValid(String keyStoreName) {
+
         String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
         boolean cachedKeyStoreValid = false;
         try {
@@ -671,7 +671,8 @@ public class KeyStoreManager {
         return cachedKeyStoreValid;
     }
 
-    private void updateKeyStoreCache(String keyStoreName, KeyStoreBean keyStoreBean) {
+    private void updateTenantKeyStoreCache(String keyStoreName, KeyStoreBean keyStoreBean) {
+
         if (tenantKeyStores.containsKey(keyStoreName)) {
             tenantKeyStores.replace(keyStoreName, keyStoreBean);
         } else {
@@ -680,6 +681,7 @@ public class KeyStoreManager {
     }
 
     public KeyStore loadKeyStoreFromFileSystem(String keyStorePath, String password, String type) {
+
         CarbonUtils.checkSecurity();
         String absolutePath = new File(keyStorePath).getAbsolutePath();
         FileInputStream inputStream = null;
