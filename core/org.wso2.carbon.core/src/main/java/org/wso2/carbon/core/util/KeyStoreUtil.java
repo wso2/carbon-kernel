@@ -126,7 +126,7 @@ public class KeyStoreUtil {
      */
     public static boolean isCustomKeyStore(String keyStoreName) {
 
-        return keyStoreName.startsWith(RegistryResources.SecurityManagement.CustomKeyStore.KEYSTORE_PREFIX);
+        return keyStoreName.startsWith(RegistryResources.SecurityManagement.CustomKeyStore.CUSTOM_KEYSTORE_PREFIX);
     }
 
     /**
@@ -151,10 +151,10 @@ public class KeyStoreUtil {
     public static OMElement getCustomKeyStoreConfigElement(
             String keyStoreName, ServerConfigurationService serverConfiguration) throws CarbonException {
 
-        // Remove prefix if exists
+        // Remove prefix if exists.
         if (KeyStoreUtil.isCustomKeyStore(keyStoreName)) {
             keyStoreName = keyStoreName.substring(
-                    RegistryResources.SecurityManagement.CustomKeyStore.KEYSTORE_PREFIX.length());
+                    RegistryResources.SecurityManagement.CustomKeyStore.CUSTOM_KEYSTORE_PREFIX.length());
         }
 
         OMElement config = null;
@@ -214,6 +214,13 @@ public class KeyStoreUtil {
         return configValue;
     }
 
+    /**
+     * This method validates the requested key store configuration name.
+     * Only 'Location', 'Type', 'Password', 'KeyAlias' and 'KeyPassword' are valid key store configuration names.
+     *
+     * @param propertyName          Requested key store configuration name.
+     * @throws CarbonException      If the requested key store configuration is invalid.
+     */
     public static void validateKeyStoreConfigName(String propertyName) throws CarbonException {
 
         String[] keyStoreProperties = {

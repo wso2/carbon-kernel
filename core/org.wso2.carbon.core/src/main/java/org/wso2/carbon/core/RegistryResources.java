@@ -162,7 +162,8 @@ public final class RegistryResources {
 
         // Custom KeyStore related constants.
         public static final class CustomKeyStore {
-            public static final String KEYSTORE_PREFIX = "CUSTOM/";
+
+            public static final String CUSTOM_KEYSTORE_PREFIX = "CUSTOM/";
 
             public static final String ELEM_SECURITY = "Security";
             public static final String ELEM_CUSTOM_KEYSTORES = "CustomKeyStores";

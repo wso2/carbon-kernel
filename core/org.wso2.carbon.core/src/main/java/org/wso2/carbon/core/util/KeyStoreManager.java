@@ -136,7 +136,7 @@ public class KeyStoreManager {
     public KeyStore getKeyStore(String keyStoreName) throws Exception {
 
         if (keyStoreName == null || keyStoreName.isEmpty()) {
-            throw new SecurityException("Key Store Name is null or empty.");
+            throw new SecurityException("Key store name is null or empty.");
         }
 
         if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
@@ -161,10 +161,10 @@ public class KeyStoreManager {
     public Key getPrivateKey(String keyStoreName, String alias) {
 
         if (keyStoreName == null || keyStoreName.isEmpty()) {
-            throw new SecurityException("Key Store Name is null or empty.");
+            throw new SecurityException("Key store name is null or empty.");
         }
         if (alias == null || alias.isEmpty()) {
-            throw new SecurityException("Alias is null or empty.");
+            throw new SecurityException("Private key alias is null or empty.");
         }
 
         try {
@@ -195,10 +195,10 @@ public class KeyStoreManager {
     public Certificate getCertificate(String keyStoreName, String alias) throws Exception {
 
         if (keyStoreName == null || keyStoreName.isEmpty()) {
-            throw new SecurityException("Key Store Name is null or empty.");
+            throw new SecurityException("Key store name is null or empty.");
         }
         if (alias == null || alias.isEmpty()) {
-            throw new SecurityException("Alias is null or empty.");
+            throw new SecurityException("Certificate alias is null or empty.");
         }
 
         if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
