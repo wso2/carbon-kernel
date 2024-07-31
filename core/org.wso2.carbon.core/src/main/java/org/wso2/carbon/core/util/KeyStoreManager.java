@@ -131,15 +131,22 @@ public class KeyStoreManager {
      * @param keyStoreName key store name
      * @return KeyStore object
      * @throws Exception If there is not a key store with the given name
+     * @deprecated Use {@link #getCachedKeyStore(String)} instead.
      */
+    @Deprecated
     public KeyStore getKeyStore(String keyStoreName) throws Exception {
 
+        return getCachedKeyStore(keyStoreName).getKeyStore();
+    }
+
+    public CachedKeyStore getCachedKeyStore(String keyStoreName) throws Exception {
+
         if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
-            return getPrimaryKeyStore();
+            return getCachedPrimaryKeyStore();
         }
 
         if (isCachedKeyStoreValid(keyStoreName)) {
-            return loadedKeyStores.get(keyStoreName).getKeyStore();
+            return loadedKeyStores.get(keyStoreName).getCachedKeyStore();
         }
 
         String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
@@ -162,7 +169,7 @@ public class KeyStoreManager {
             } else {
                 loadedKeyStores.put(keyStoreName, keyStoreBean);
             }
-            return keyStore;
+            return keyStoreBean.getCachedKeyStore();
         } else {
             throw new SecurityException("Key Store with a name : " + keyStoreName + " does not exist.");
         }
@@ -183,7 +190,6 @@ public class KeyStoreManager {
 
             String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
             org.wso2.carbon.registry.api.Resource resource;
-            KeyStore keyStore;
 
             if (registry.resourceExists(path)) {
                 resource = registry.get(path);
@@ -197,13 +203,13 @@ public class KeyStoreManager {
             String privateKeyPasswd = new String(cryptoUtil.base64DecodeAndDecrypt(encryptedPassword));
 
             if (isCachedKeyStoreValid(keyStoreName)) {
-                keyStore = loadedKeyStores.get(keyStoreName).getKeyStore();
+                CachedKeyStore keyStore = loadedKeyStores.get(keyStoreName).getCachedKeyStore();
                 return keyStore.getKey(alias, privateKeyPasswd.toCharArray());
             } else {
                 byte[] bytes = (byte[]) resource.getContent();
                 String keyStorePassword = new String(cryptoUtil.base64DecodeAndDecrypt(resource.getProperty(
                         RegistryResources.SecurityManagement.PROP_PASSWORD)));
-                keyStore = KeyStore.getInstance(resource
+                KeyStore keyStore = KeyStore.getInstance(resource
                         .getProperty(RegistryResources.SecurityManagement.PROP_TYPE));
                 ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
                 keyStore.load(stream, keyStorePassword.toCharArray());
@@ -320,7 +326,7 @@ public class KeyStoreManager {
     @Deprecated
     public KeyStore getPrimaryKeyStore() throws Exception {
 
-        return getCachedPrimaryKeyStore().getKeystore();
+        return getCachedPrimaryKeyStore().getKeyStore();
     }
 
     /**

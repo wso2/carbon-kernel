@@ -111,4 +111,20 @@ public class KeyStoreUtil {
         }
     }
 
+    public static Certificate getCertificate(String alias, CachedKeyStore store) throws AxisFault {
+        try {
+            Enumeration enumeration = store.getKeyStore().aliases();
+            while (enumeration.hasMoreElements()) {
+                String itemAlias = (String) enumeration.nextElement();
+                if (itemAlias.equals(alias)) {
+                    return store.getCertificate(alias);
+                }
+            }
+            return null;
+        } catch (Exception e) {
+            String msg = "Could not read certificates from keystore file. ";
+            throw new AxisFault(msg + e.getMessage());
+        }
+    }
+
 }

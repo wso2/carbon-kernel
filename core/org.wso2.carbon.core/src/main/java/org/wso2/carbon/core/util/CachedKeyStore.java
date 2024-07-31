@@ -45,7 +45,7 @@ public class CachedKeyStore {
      *
      * @return The KeyStore.
      */
-    public KeyStore getKeystore() {
+    public KeyStore getKeyStore() {
 
         return keyStore;
     }

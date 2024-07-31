@@ -22,7 +22,6 @@ import org.apache.axis2.description.AxisService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.protocol.HTTP;
-import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
@@ -35,12 +34,10 @@ import org.wso2.carbon.core.util.KeyStoreUtil;
 import org.wso2.carbon.registry.core.Association;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
-import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.service.RegistryService;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 
@@ -88,7 +85,7 @@ public class CertProcessor implements HttpGetRequestProcessor {
             KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(
                     MultitenantConstants.SUPER_TENANT_ID);
 
-            Certificate cert = null;
+            CachedKeyStore cachedKeyStore = null;
             if (assoc.length < 1) {
                 boolean httpsEnabled = false;
                 Association[] associations =
@@ -104,28 +101,26 @@ public class CertProcessor implements HttpGetRequestProcessor {
                 }
                 if (httpsEnabled || Boolean.parseBoolean(
                         serviceResource.getProperty(RegistryResources.ServiceProperties.EXPOSED_ON_ALL_TANSPORTS))) {
-                    cert = getPrimaryKeystoreCertificate(keyStoreManager);
+                    cachedKeyStore = keyStoreManager.getCachedPrimaryKeyStore();
                 }
             } else {
                 String kspath = assoc[0].getDestinationPath();
                 if (RegistryResources.SecurityManagement.PRIMARY_KEYSTORE_PHANTOM_RESOURCE.equals(kspath)) {
-                    cert = getPrimaryKeystoreCertificate(keyStoreManager);
+                    cachedKeyStore = keyStoreManager.getCachedPrimaryKeyStore();
                 } else {
-                    String keyStoreName = kspath.substring(kspath.lastIndexOf('/') + 1);
-                    KeyStore keyStore = keyStoreManager.getKeyStore(keyStoreName);
-                    String alias = null;
-                    if (keyStore != null) {
-                        alias = KeyStoreUtil.getPrivateKeyAlias(keyStore);
-                    }
-
-                    if (alias != null) {
-                        cert = KeyStoreUtil.getCertificate(alias, keyStore);
-                    }
+                    String keyStoreName = kspath.substring(kspath.lastIndexOf('/')+1);
+                    cachedKeyStore = keyStoreManager.getCachedKeyStore(keyStoreName);
                 }
             }
             serviceResource.discard();
 
-            if (cert != null){
+            String alias = null;
+            if (cachedKeyStore != null) {
+                alias = KeyStoreUtil.getPrivateKeyAlias(cachedKeyStore.getKeyStore());
+            }
+
+            if (alias != null) {
+                Certificate cert = KeyStoreUtil.getCertificate(alias, cachedKeyStore);
                 serializeCert(cert, response, outputStream, serviceName);
             } else {
                 response.addHeader(HTTP.CONTENT_TYPE, "text/html");
@@ -134,16 +129,6 @@ public class CertProcessor implements HttpGetRequestProcessor {
                 outputStream.flush();
             }
         }
-    }
-
-    private Certificate getPrimaryKeystoreCertificate(KeyStoreManager keyStoreManager) throws Exception {
-
-        CachedKeyStore cachedKeyStore = keyStoreManager.getCachedPrimaryKeyStore();
-        String alias =  KeyStoreUtil.getPrivateKeyAlias(cachedKeyStore.getKeystore());
-        if (alias != null) {
-            return cachedKeyStore.getCertificate(alias);
-        }
-        return null;
     }
 
     /**

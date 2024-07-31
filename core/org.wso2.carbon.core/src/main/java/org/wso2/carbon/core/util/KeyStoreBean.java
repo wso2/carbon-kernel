@@ -22,20 +22,32 @@ import java.security.KeyStore;
 import java.util.Date;
 
 public class KeyStoreBean {
-    private KeyStore keyStore;
+    private CachedKeyStore cachedKeyStore;
     private Date lastModifiedDate;
 
     public KeyStoreBean(KeyStore keyStore, Date lastModifiedDate) {
-        this.keyStore = keyStore;
+        this.cachedKeyStore = new CachedKeyStore(keyStore);
         this.lastModifiedDate = lastModifiedDate;
     }
 
+    public CachedKeyStore getCachedKeyStore() {
+
+        return cachedKeyStore;
+    }
+
+    public void setCachedKeyStore(CachedKeyStore cachedKeyStore) {
+
+        this.cachedKeyStore = cachedKeyStore;
+    }
+
     public KeyStore getKeyStore() {
-        return keyStore;
+
+        return cachedKeyStore.getKeyStore();
     }
 
     public void setKeyStore(KeyStore keyStore) {
-        this.keyStore = keyStore;
+
+        this.cachedKeyStore = new CachedKeyStore(keyStore);
     }
 
     public Date getLastModifiedDate() {

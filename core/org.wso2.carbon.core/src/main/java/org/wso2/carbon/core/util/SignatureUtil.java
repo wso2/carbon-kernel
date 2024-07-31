@@ -163,7 +163,7 @@ public class SignatureUtil {
     private static PublicKey getPublicKey(byte[] thumb) throws Exception {
         KeyStoreManager keyStoreMan = KeyStoreManager.getInstance(
                 MultitenantConstants.SUPER_TENANT_ID);
-        KeyStore keyStore = keyStoreMan.getCachedPrimaryKeyStore().getKeystore();
+        KeyStore keyStore = keyStoreMan.getCachedPrimaryKeyStore().getKeyStore();
         PublicKey pubKey = null;
         Certificate cert = null;
         MessageDigest sha;

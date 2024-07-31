@@ -333,7 +333,7 @@ public class KeyStoreBasedExternalCryptoProvider implements ExternalCryptoProvid
                     }
 
                     String keyStoreName = getTenantKeyStoreName(cryptoContext.getTenantDomain());
-                    KeyStore keyStore = keyStoreManager.getKeyStore(keyStoreName);
+                    CachedKeyStore keyStore = keyStoreManager.getCachedKeyStore(keyStoreName);
                     return keyStore.getCertificate(certificateInfo.getCertificateAlias());
                 }
             } catch (Exception e) { // KeyStoreManager throws 'Exception'.
