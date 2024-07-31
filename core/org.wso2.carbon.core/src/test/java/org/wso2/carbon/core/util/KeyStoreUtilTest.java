@@ -18,54 +18,130 @@
 
 package org.wso2.carbon.core.util;
 
+import org.apache.axiom.om.OMElement;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.carbon.CarbonException;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.utils.ServerConstants;
 
 import javax.xml.namespace.QName;
 
+import java.nio.file.Paths;
+
 import static org.testng.Assert.assertThrows;
-import static org.testng.AssertJUnit.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
-class KeyStoreUtilTest {
+public class KeyStoreUtilTest {
 
-    @Test
-    public void testIsCustomKeyStore() {
+    private static final String basedir = Paths.get("").toAbsolutePath().toString();
+    private static final String testDir = Paths.get(basedir, "src", "test", "resources").toString();
 
-        assertTrue(KeyStoreUtil.isCustomKeyStore("CUSTOM/myKeyStore"));
-        assertTrue(KeyStoreUtil.isCustomKeyStore("CUSTOM/@#$_keyStore"));
-        assertFalse(KeyStoreUtil.isCustomKeyStore("abcd"));
-        assertFalse(KeyStoreUtil.isCustomKeyStore(""));
-        assertFalse(KeyStoreUtil.isCustomKeyStore(" "));
+    @DataProvider(name = "KeyStoreNameDataProvider")
+    public Object[][] keyStoreNameDataProvider() {
+
+        return new Object[][] {
+                {"CUSTOM/myKeyStore", true},
+                {"CUSTOM/@#$_keyStore", true},
+                {"abcd", false},
+                {"", false},
+                {" ", false},
+        };
     }
 
-    @Test
-    public void testGetQNameWithCarbonNS() {
+    @Test(dataProvider = "KeyStoreNameDataProvider")
+    public void testIsCustomKeyStore(String keyStoreName, boolean expectedResult) {
 
-        QName qName1 = KeyStoreUtil.getQNameWithCarbonNS("localPart");
-        assertEquals(ServerConstants.CARBON_SERVER_XML_NAMESPACE, qName1.getNamespaceURI());
-        assertEquals("localPart", qName1.getLocalPart());
-
-        QName qName2 = KeyStoreUtil.getQNameWithCarbonNS("");
-        assertEquals(ServerConstants.CARBON_SERVER_XML_NAMESPACE, qName2.getNamespaceURI());
-        assertEquals("", qName2.getLocalPart());
+        assertEquals(KeyStoreUtil.isCustomKeyStore(keyStoreName), expectedResult);
     }
 
-    @Test
-    public void testValidateKeyStoreConfigName() {
+    @DataProvider(name = "QNameWithCarbonNSDataProvider")
+    public String[] qNameWithCarbonNSDataProvider() {
 
-        assertThrows(CarbonException.class, () -> KeyStoreUtil.validateKeyStoreConfigName(""));
-        assertThrows(CarbonException.class, () -> KeyStoreUtil.validateKeyStoreConfigName("ABC"));
-        assertThrows(CarbonException.class, () -> KeyStoreUtil.validateKeyStoreConfigName(" "));
+        return new String[] {
+                "localPart",
+                "",
+        };
+    }
+
+    @Test(dataProvider = "QNameWithCarbonNSDataProvider")
+    public void testGetQNameWithCarbonNS(String localPart) {
+
+        QName qName = KeyStoreUtil.getQNameWithCarbonNS(localPart);
+        assertEquals(ServerConstants.CARBON_SERVER_XML_NAMESPACE, qName.getNamespaceURI());
+        assertEquals(localPart, qName.getLocalPart());
+    }
+
+    @DataProvider(name = "CustomKeyStoreConfigDataProvider")
+    public String[][] customKeyStoreConfigDataProvider() {
+
+        return new String[][] {
+                {"custom.jks", "Location", basedir + "/./repository/resources/security/custom.jks"},
+                {"custom.jks", "Type", "JKS"},
+                {"custom.jks", "Password", "customPassword"},
+                {"custom.jks", "KeyAlias", "customAlias"},
+                {"custom.jks", "KeyPassword", "customKeyPass"},
+                {"testKey.jks", "Location", basedir + "/./repository/resources/security/testKey.jks"},
+                {"testKey.jks", "Type", "JKS"},
+                {"testKey.jks", "Password", "testPass"},
+                {"testKey.jks", "KeyAlias", "testKey"},
+                {"testKey.jks", "KeyPassword", "testKeyPass"}
+        };
+    }
+
+    // This test covers both getCustomKeyStoreConfigElement and getCustomKeyStoreConfig methods
+    @Test(dataProvider = "CustomKeyStoreConfigDataProvider")
+    public void testReadCustomKeyStoreConfigs(String keyStoreName, String configName, String expectedValue) {
 
         try {
-            KeyStoreUtil.validateKeyStoreConfigName("Location");
-            KeyStoreUtil.validateKeyStoreConfigName("Type");
-            KeyStoreUtil.validateKeyStoreConfigName("Password");
-            KeyStoreUtil.validateKeyStoreConfigName("KeyAlias");
-            KeyStoreUtil.validateKeyStoreConfigName("KeyPassword");
+            String serverConfigPath = Paths.get(testDir, "carbon.xml").toString();
+            ServerConfiguration serverConfiguration = ServerConfiguration.getInstance();
+            serverConfiguration.forceInit(serverConfigPath);
+            OMElement keyStoreConfigElement = KeyStoreUtil.getCustomKeyStoreConfigElement(keyStoreName, serverConfiguration);
+            assertEquals(KeyStoreUtil.getCustomKeyStoreConfig(keyStoreConfigElement, configName), expectedValue);
+        } catch (Exception e) {
+            // Print stacktrace and fail the test
+            e.printStackTrace();
+            fail();
+        }
+    }
+
+    @DataProvider(name = "CorrectKeyStoreConfigDataProvider")
+    public String[] correctKeyStoreConfigDataProvider() {
+
+        return new String[] {
+                "Location",
+                "Type",
+                "Password",
+                "KeyAlias",
+                "KeyPassword"
+        };
+    }
+
+    @Test(dataProvider = "CorrectKeyStoreConfigDataProvider")
+    public void testValidateCorrectKeyStoreConfigNames(String configName) {
+
+        try {
+            KeyStoreUtil.validateKeyStoreConfigName(configName);
         } catch (CarbonException e) {
             fail();
         }
+    }
+
+    @DataProvider(name = "IncorrectKeyStoreConfigDataProvider")
+    public String[] incorrectKeyStoreConfigDataProvider() {
+
+        return new String[] {
+                "ABCD",
+                "",
+                " "
+        };
+    }
+
+    @Test(dataProvider = "IncorrectKeyStoreConfigDataProvider")
+    public void testValidateIncorrectKeyStoreConfigName(String configName) {
+
+        assertThrows(CarbonException.class, () -> KeyStoreUtil.validateKeyStoreConfigName(configName));
     }
 }

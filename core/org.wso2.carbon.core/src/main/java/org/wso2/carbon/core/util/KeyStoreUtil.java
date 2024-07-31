@@ -202,7 +202,7 @@ public class KeyStoreUtil {
         String configValue = config.getFirstChildWithName(getQNameWithCarbonNS(propertyName)).getText();
 
         if (RegistryResources.SecurityManagement.CustomKeyStore.PROP_LOCATION.equals(propertyName)) {
-            // Replace carbon.home placeholder with proper location path
+            // Replace "{$carbon.home}" placeholder with proper location path
             if (configValue.startsWith(RegistryResources.SecurityManagement.CARBON_HOME_PLACEHOLDER)) {
                 configValue = configValue.replace(RegistryResources.SecurityManagement.CARBON_HOME_PLACEHOLDER, "");
                 configValue = new File(".").getAbsolutePath() + configValue;
