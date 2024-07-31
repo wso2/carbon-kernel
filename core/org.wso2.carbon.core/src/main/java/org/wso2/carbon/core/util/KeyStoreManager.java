@@ -311,6 +311,10 @@ public class KeyStoreManager {
      *                   than tenant 0
      */
     public KeyStore getPrimaryKeyStore() throws Exception {
+
+        if (log.isDebugEnabled()) {
+            log.debug("Loading primary key store.");
+        }
         if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
             if (primaryKeyStore == null) {
 
@@ -351,6 +355,9 @@ public class KeyStoreManager {
      */
     private KeyStore getTenantKeyStore(String keyStoreName) throws Exception {
 
+        if (log.isDebugEnabled()) {
+            log.debug("Loading tenant key store : " + keyStoreName);
+        }
         if (isCachedTenantKeyStoreValid(keyStoreName)) {
             return tenantKeyStores.get(keyStoreName).getKeyStore();
         }
@@ -468,6 +475,9 @@ public class KeyStoreManager {
      */
     private KeyStore getCustomKeyStore(String keyStoreName) throws Exception {
 
+        if (log.isDebugEnabled()) {
+            log.debug("Loading custom key store : " + keyStoreName);
+        }
         if (customKeyStores.containsKey(keyStoreName)) {
             return customKeyStores.get(keyStoreName);
         }
@@ -494,6 +504,10 @@ public class KeyStoreManager {
      * @throws Exception Carbon Exception for tenants other than tenant 0
      */
     public PrivateKey getDefaultPrivateKey() throws Exception {
+
+        if (log.isDebugEnabled()) {
+            log.debug("Loading primary key store private key.");
+        }
         if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
             ServerConfigurationService config = this.getServerConfigService();
             String password = config
@@ -515,6 +529,9 @@ public class KeyStoreManager {
      */
     private PrivateKey getTenantPrivateKey(String keyStoreName, String alias) throws Exception {
 
+        if (log.isDebugEnabled()) {
+            log.debug("Loading private key from tenant key store : " + keyStoreName + " alias: " + alias);
+        }
         String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
         org.wso2.carbon.registry.api.Resource resource;
         KeyStore keyStore;
@@ -564,6 +581,9 @@ public class KeyStoreManager {
         String alias = KeyStoreUtil.getCustomKeyStoreConfig(
                 config, RegistryResources.SecurityManagement.CustomKeyStore.PROP_KEY_ALIAS);
 
+        if (log.isDebugEnabled()) {
+            log.debug("Loading private key from custom key store : " + keyStoreName + " alias: " + alias);
+        }
         return (PrivateKey) getCustomKeyStore(keyStoreName).getKey(alias, password.toCharArray());
     }
 
@@ -607,6 +627,10 @@ public class KeyStoreManager {
      * @throws Exception Permission denied for accessing primary key store
      */
     public X509Certificate getDefaultPrimaryCertificate() throws Exception {
+
+        if (log.isDebugEnabled()) {
+            log.debug("Loading primary key store public certificate.");
+        }
         if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
             ServerConfigurationService config = this.getServerConfigService();
             String alias = config
