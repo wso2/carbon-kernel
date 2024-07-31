@@ -18,6 +18,7 @@
 package org.wso2.carbon.core.util;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonException;
@@ -135,7 +136,7 @@ public class KeyStoreManager {
      */
     public KeyStore getKeyStore(String keyStoreName) throws Exception {
 
-        if (keyStoreName == null || keyStoreName.isEmpty()) {
+        if (StringUtils.isEmpty(keyStoreName)) {
             throw new SecurityException("Key store name is null or empty.");
         }
 
@@ -160,10 +161,10 @@ public class KeyStoreManager {
      */
     public Key getPrivateKey(String keyStoreName, String alias) {
 
-        if (keyStoreName == null || keyStoreName.isEmpty()) {
+        if (StringUtils.isEmpty(keyStoreName)) {
             throw new SecurityException("Key store name is null or empty.");
         }
-        if (alias == null || alias.isEmpty()) {
+        if (StringUtils.isEmpty(alias)) {
             throw new SecurityException("Private key alias is null or empty.");
         }
 
@@ -194,10 +195,10 @@ public class KeyStoreManager {
      */
     public Certificate getCertificate(String keyStoreName, String alias) throws Exception {
 
-        if (keyStoreName == null || keyStoreName.isEmpty()) {
+        if (StringUtils.isEmpty(keyStoreName)) {
             throw new SecurityException("Key store name is null or empty.");
         }
-        if (alias == null || alias.isEmpty()) {
+        if (StringUtils.isEmpty(alias)) {
             throw new SecurityException("Certificate alias is null or empty.");
         }
 
