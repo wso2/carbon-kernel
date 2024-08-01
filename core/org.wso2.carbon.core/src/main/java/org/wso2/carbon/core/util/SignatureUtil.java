@@ -18,6 +18,7 @@
 package org.wso2.carbon.core.util;
 
 import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
@@ -31,9 +32,11 @@ import java.util.Enumeration;
 
 public class SignatureUtil {
 
-    private static final String THUMB_DIGEST_ALGORITHM = "SHA-1";
+    private static final String THUMB_DIGEST_ALGORITHM_SHA1 = "SHA-1";
+    private static final String THUMB_DIGEST_ALGORITHM_SHA256 = "SHA-256";
+    private static final String signatureAlgorithmSHA1 = "SHA1withRSA";
+    private static final String signatureAlgorithmSHA256 = "SHA256withRSA";
 
-    private static String signatureAlgorithm = "SHA1withRSA";
     private static String provider;
 
     private SignatureUtil() {
@@ -54,7 +57,14 @@ public class SignatureUtil {
      * @throws Exception
      */
     public static byte[] getThumbPrintForAlias(String alias) throws Exception {
-        MessageDigest sha = MessageDigest.getInstance(THUMB_DIGEST_ALGORITHM);
+
+        MessageDigest sha;
+        if (Boolean.parseBoolean(ServerConfiguration.getInstance().getFirstProperty(
+                ServerConstants.SIGNATURE_UTIL_ENABLE_SHA256_ALGO))) {
+            sha = MessageDigest.getInstance(THUMB_DIGEST_ALGORITHM_SHA256);
+        } else {
+            sha = MessageDigest.getInstance(THUMB_DIGEST_ALGORITHM_SHA1);
+        }
         sha.reset();
         Certificate cert = getCertificate(alias);
         sha.update(cert.getEncoded());
@@ -71,7 +81,14 @@ public class SignatureUtil {
      * @throws Exception
      */
     public static boolean validateSignature(byte[] thumb, String data, byte[] signature) throws Exception {
-        Signature signer = Signature.getInstance(signatureAlgorithm, provider);
+
+        Signature signer;
+        if (Boolean.parseBoolean(ServerConfiguration.getInstance().getFirstProperty(
+                ServerConstants.SIGNATURE_UTIL_ENABLE_SHA256_ALGO))) {
+            signer = Signature.getInstance(signatureAlgorithmSHA256, provider);
+        } else {
+            signer = Signature.getInstance(signatureAlgorithmSHA1, provider);
+        }
         signer.initVerify(getPublicKey(thumb));
         signer.update(data.getBytes());
         return signer.verify(signature);
@@ -86,7 +103,14 @@ public class SignatureUtil {
      * @throws Exception
      */
     public static boolean validateSignature(String data, byte[] signature) throws Exception {
-        Signature signer = Signature.getInstance(signatureAlgorithm, provider);
+
+        Signature signer;
+        if (Boolean.parseBoolean(ServerConfiguration.getInstance().getFirstProperty(
+                ServerConstants.SIGNATURE_UTIL_ENABLE_SHA256_ALGO))) {
+            signer = Signature.getInstance(signatureAlgorithmSHA256, provider);
+        } else {
+            signer = Signature.getInstance(signatureAlgorithmSHA1, provider);
+        }
         signer.initVerify(getDefaultPublicKey());
         signer.update(data.getBytes());
         return signer.verify(signature);
@@ -100,7 +124,14 @@ public class SignatureUtil {
      * @throws Exception
      */
     public static byte[] doSignature(String data) throws Exception {
-        Signature signer = Signature.getInstance(signatureAlgorithm, provider);
+
+        Signature signer;
+        if (Boolean.parseBoolean(ServerConfiguration.getInstance().getFirstProperty(
+                ServerConstants.SIGNATURE_UTIL_ENABLE_SHA256_ALGO))) {
+            signer = Signature.getInstance(signatureAlgorithmSHA256, provider);
+        } else {
+            signer = Signature.getInstance(signatureAlgorithmSHA1, provider);
+        }
         signer.initSign(getDefaultPrivateKey());
         signer.update(data.getBytes());
         return signer.sign();
@@ -134,7 +165,13 @@ public class SignatureUtil {
         KeyStore keyStore = keyStoreMan.getPrimaryKeyStore();
         PublicKey pubKey = null;
         Certificate cert = null;
-        MessageDigest sha = MessageDigest.getInstance(THUMB_DIGEST_ALGORITHM);
+        MessageDigest sha;
+        if (Boolean.parseBoolean(ServerConfiguration.getInstance().getFirstProperty(
+                ServerConstants.SIGNATURE_UTIL_ENABLE_SHA256_ALGO))) {
+            sha = MessageDigest.getInstance(THUMB_DIGEST_ALGORITHM_SHA256);
+        } else {
+            sha = MessageDigest.getInstance(THUMB_DIGEST_ALGORITHM_SHA1);
+        }
         sha.reset();
         for (Enumeration<String> e = keyStore.aliases(); e.hasMoreElements(); ) {
             String alias = e.nextElement();

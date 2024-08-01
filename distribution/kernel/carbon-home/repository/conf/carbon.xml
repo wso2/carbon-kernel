@@ -721,4 +721,9 @@
         </ConfigSync>
     </RemoteLogging>
 
+    <!-- Configure SignatureUtil algorithms -->
+    <SignatureUtil>
+        <EnableSHA256Algo>false</EnableSHA256Algo>
+    </SignatureUtil>
+
 </Server>
