@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.base.api.ServerConfigurationService;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.registry.api.Registry;
@@ -111,6 +112,8 @@ public class KeyStoreManager {
      * @return KeyStoreManager instance for that tenant
      */
     public static KeyStoreManager getInstance(int tenantId) {
+
+        log.debug("KeyStoreManager Instace created for teant id: " + tenantId);
         return getInstance(tenantId, CarbonCoreDataHolder.getInstance().
                 getServerConfigurationService(), CryptoUtil.lookupRegistryService());
     }
@@ -164,9 +167,6 @@ public class KeyStoreManager {
         if (StringUtils.isEmpty(keyStoreName)) {
             throw new SecurityException("Key store name is null or empty.");
         }
-        if (StringUtils.isEmpty(alias)) {
-            throw new SecurityException("Private key alias is null or empty.");
-        }
 
         try {
             if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
@@ -177,6 +177,10 @@ public class KeyStoreManager {
                 return getCustomKeyStorePrivateKey(keyStoreName);
             }
 
+            // Primary key store or custom key stores does not expect the key alias.
+            if (StringUtils.isEmpty(alias)) {
+                throw new SecurityException("Private key alias is null or empty.");
+            }
             return getTenantPrivateKey(keyStoreName, alias);
         } catch (Exception e) {
             log.error("Error loading the private key from the key store : " + keyStoreName);
@@ -198,9 +202,6 @@ public class KeyStoreManager {
         if (StringUtils.isEmpty(keyStoreName)) {
             throw new SecurityException("Key store name is null or empty.");
         }
-        if (StringUtils.isEmpty(alias)) {
-            throw new SecurityException("Certificate alias is null or empty.");
-        }
 
         if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
             return getDefaultPrimaryCertificate();
@@ -210,6 +211,10 @@ public class KeyStoreManager {
             return getCustomKeyStoreCertificate(keyStoreName);
         }
 
+        // Primary or custom key store methods does not expect alias.
+        if (StringUtils.isEmpty(alias)) {
+            throw new SecurityException("Certificate alias is null or empty.");
+        }
         return getTenantCertificate(keyStoreName, alias);
     }
 
