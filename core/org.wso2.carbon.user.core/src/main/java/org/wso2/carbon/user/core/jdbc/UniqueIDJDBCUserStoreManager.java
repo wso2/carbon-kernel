@@ -362,8 +362,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    public int doGetUserCountOfRoleWithID(String roleName)
-            throws UserStoreException {
+    public int doGetUserCountOfRoleWithID(String roleName) throws UserStoreException {
 
         RoleContext roleContext = createRoleContext(roleName);
         return getUserCountByRole(roleContext);

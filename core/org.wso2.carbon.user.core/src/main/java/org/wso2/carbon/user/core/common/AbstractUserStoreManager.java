@@ -13038,10 +13038,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (resolvedUserStoreManager instanceof AbstractUserStoreManager) {
                 return ((AbstractUserStoreManager) resolvedUserStoreManager)
                         .getUserListOfGroupWithID(userStore.getDomainFreeName(), filter, maxItemLimit);
-            } else {
-                return ((UniqueIDUserStoreManager) resolvedUserStoreManager)
-                        .getUserListOfGroupWithID(userStore.getDomainFreeName());
             }
+            return ((UniqueIDUserStoreManager) resolvedUserStoreManager)
+                    .getUserListOfGroupWithID(userStore.getDomainFreeName());
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
