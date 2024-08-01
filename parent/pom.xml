@@ -303,7 +303,7 @@
         <!-- Carbon Kernel Related Versions-->
         <carbon.kernel.version>4.9.27-SNAPSHOT</carbon.kernel.version>
         <carbon.kernel.exp.pkg.version>${carbon.kernel.version}</carbon.kernel.exp.pkg.version>
-        <carbon.kernel.imp.pkg.version>[4.9.26, 4.10.0)</carbon.kernel.imp.pkg.version>
+        <carbon.kernel.imp.pkg.version>[${carbon.kernel.version}, 4.10.0)</carbon.kernel.imp.pkg.version>
 
         <!-- Equinox dependency versions -->
         <version.equinox.simpleconfigurator>1.1.200.v20160504-1450</version.equinox.simpleconfigurator>
