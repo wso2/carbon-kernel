@@ -65,6 +65,7 @@ public class DatabaseUtil {
     private static final String DEFAULT_CORRELATION_LOG_INTERCEPTOR = "org.wso2.carbon.ndatasource.rdbms"
             + ".CorrelationLogInterceptor";
     private static final String CORRELATION_LOG_SYSTEM_PROPERTY = "enableCorrelationLogs";
+    private static final String SQL_INTEGRITY_VIOLATION_CODE = "23";
 
     /**
      * Gets a database pooling connection. If a pool is not created this will create a connection pool.
@@ -1002,7 +1003,8 @@ public class DatabaseUtil {
             for (Throwable subSQLException : e) {
                 if (subSQLException instanceof SQLIntegrityConstraintViolationException ||
                         StringUtils.containsIgnoreCase(e.getMessage(),
-                                "um_user_role_um_user_id_um_role_id_um_tenant_id_key")) {
+                                "um_user_role_um_user_id_um_role_id_um_tenant_id_key") ||
+                        e.getSQLState().startsWith(SQL_INTEGRITY_VIOLATION_CODE)) {
                     // If concurrent requests bypass the existing user validation check, it can throw an exception
                     // regarding unique key violation. Hence, we need to handle this exception and continue.
                     isUniqueKeyViolationException = true;
