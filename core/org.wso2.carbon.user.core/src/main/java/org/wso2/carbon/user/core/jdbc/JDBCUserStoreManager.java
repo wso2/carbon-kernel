@@ -5049,7 +5049,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     + " and circuit breaker open duration: " + circuitOpenDuration + "ms.");
         }
 
-        if (circuitOpenDuration >= getThresholdTimeoutInMilliseconds()) {
+        if (circuitOpenDuration > getThresholdTimeoutInMilliseconds()) {
             try {
                 Connection dbConnection = getConnection();
                 setCircuitBreakerState(CIRCUIT_STATE_CLOSE);
@@ -5066,7 +5066,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         } else {
             throw new CircuitBreakerOpenException(
                     "JDBC Connection circuit breaker is in open state for " + circuitOpenDuration
-                            + "ms and has not reach the threshold timeout: " + getThresholdTimeoutInMilliseconds()
+                            + "ms and has not exceeded the threshold timeout: " + getThresholdTimeoutInMilliseconds()
                             + "ms, hence avoid establishing the connection for domain " + getMyDomainName());
         }
     }
@@ -5083,7 +5083,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             log.debug("Connection circuit breaker state: " + getCircuitBreakerState()
                     + ", so trying to obtain the connection for domain " + getMyDomainName());
         }
-        int retryCounter = 0;
+        int retryCounter = 1;
         while (true) {
             try {
                 return getConnection();
@@ -5091,7 +5091,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 log.warn("Error occurred while obtaining JDBC connection for domain " + getMyDomainName()
                         + ". Hence, retry attempt to recover DB connection: " + retryCounter);
 
-                if (++retryCounter >= getConnectionRetryCount()) {
+                if (retryCounter >= getConnectionRetryCount()) {
                     log.error("Retry count exceeds above the maximum count: " + getConnectionRetryCount()
                             + " and failed for domain " + getMyDomainName());
                     setCircuitBreakerState(CIRCUIT_STATE_OPEN);
@@ -5099,6 +5099,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     throw new CircuitBreakerOpenException("Error occurred while obtaining connection for domain: "
                             + getMyDomainName() + " and circuit breaker state set to: " + getCircuitBreakerState(), e);
                 }
+                retryCounter++;
             }
         }
     }
@@ -5304,7 +5305,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     <= getThresholdTimeoutInMilliseconds()) {
 
                 log.warn("JDBC connection circuit breaker is in open state for " + circuitOpenDuration
-                        + "ms and has not reach the threshold timeout: " + getThresholdTimeoutInMilliseconds()
+                        + "ms and has not exceeded the threshold timeout: " + getThresholdTimeoutInMilliseconds()
                         + "ms, hence avoid establishing the " + getMyDomainName() + " domain JDBC connection.");
                 return true;
             }

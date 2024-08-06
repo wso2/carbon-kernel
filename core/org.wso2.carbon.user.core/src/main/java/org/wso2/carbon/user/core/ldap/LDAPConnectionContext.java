@@ -310,7 +310,7 @@ public class LDAPConnectionContext {
                     + getCircuitBreakerState() + " and circuit breaker open duration: "
                     + circuitOpenDuration + "ms.");
         }
-        if (circuitOpenDuration >= getThresholdTimeoutInMilliseconds()) {
+        if (circuitOpenDuration > getThresholdTimeoutInMilliseconds()) {
             try {
                 DirContext context = getDirContext();
                 setCircuitBreakerState(CIRCUIT_STATE_CLOSE);
@@ -326,7 +326,7 @@ public class LDAPConnectionContext {
         } else {
             throw new CircuitBreakerOpenException(
                     "LDAP connection circuit breaker is in open state for " + circuitOpenDuration
-                            + "ms and has not reach the threshold timeout: " + getThresholdTimeoutInMilliseconds()
+                            + "ms and has not exceeded the threshold timeout: " + getThresholdTimeoutInMilliseconds()
                             + "ms, hence avoid establishing the LDAP connection.");
         }
     }
@@ -344,7 +344,7 @@ public class LDAPConnectionContext {
                     + ", so trying to obtain the LDAP connection, connection URL: "
                     + environment.get(Context.PROVIDER_URL));
         }
-        int retryCounter = 0;
+        int retryCounter = 1;
         while (true) {
             try {
                 return getDirContext();
@@ -353,7 +353,7 @@ public class LDAPConnectionContext {
                         + environment.get(Context.PROVIDER_URL) + ". Hence, retry attempt to recover " +
                         "LDAP connection: " + retryCounter);
 
-                if (++retryCounter >= getConnectionRetryCount()) {
+                if (retryCounter >= getConnectionRetryCount()) {
                     log.error("Retry count exceeds above the maximum count: " + getConnectionRetryCount() +
                             " and failed for LDAP connection: " + environment.get(Context.PROVIDER_URL));
                     setCircuitBreakerState(CIRCUIT_STATE_OPEN);
@@ -361,6 +361,7 @@ public class LDAPConnectionContext {
                     throw new CircuitBreakerOpenException("Error occurred while obtaining LDAP connection, "
                             + "LDAP connection circuit breaker state set to: " + getCircuitBreakerState(), e);
                 }
+                retryCounter++;
             }
         }
     }
@@ -535,7 +536,7 @@ public class LDAPConnectionContext {
         switch (ldapConnectionCircuitBreakerState) {
         case CIRCUIT_STATE_OPEN:
             long circuitOpenDuration = System.currentTimeMillis() - thresholdStartTime;
-            if (circuitOpenDuration >= thresholdTimeoutInMilliseconds) {
+            if (circuitOpenDuration > thresholdTimeoutInMilliseconds) {
                 try {
                     if (log.isDebugEnabled()) {
                         log.debug("Trying to obtain LDAP connection, connection URL: " + environment
@@ -559,7 +560,7 @@ public class LDAPConnectionContext {
             } else {
                 throw new UserStoreException(
                         "LDAP connection circuit breaker is in open state for " + circuitOpenDuration
-                                + "ms and has not reach the threshold timeout: " + thresholdTimeoutInMilliseconds
+                                + "ms and has not exceeded the threshold timeout: " + thresholdTimeoutInMilliseconds
                                 + "ms, hence avoid establishing the LDAP connection.");
             }
         case CIRCUIT_STATE_CLOSE:
