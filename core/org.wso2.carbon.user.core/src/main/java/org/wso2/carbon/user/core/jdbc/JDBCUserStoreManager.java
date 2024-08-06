@@ -108,7 +108,7 @@ import static org.wso2.carbon.user.core.UserStoreConfigConstants.CONNECTION_RETR
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_COUNT;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.MAX_CONNECTION_RETRY_COUNT;
-import static org.wso2.carbon.user.core.UserStoreConfigConstants.MAX_CONNECTION_RETRY_DELAY_IN_MILLISECONDS;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.MIN_CONNECTION_RETRY_DELAY_IN_MILLISECONDS;
 
 import static org.wso2.carbon.user.core.util.DatabaseUtil.getLoggableSqlString;
 
@@ -227,6 +227,26 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             readGroupsEnabled = true;
         }
 
+        /* Set waiting time to re-establish connection after the specified retry count on failure attempts
+          if specified otherwise set default time.
+         */
+        String userStoreConnectionRetryDelayProperty = realmConfig.getUserStoreProperty(CONNECTION_RETRY_DELAY);
+        long userStoreConnectionRetryDelay = StringUtils.isNotEmpty(userStoreConnectionRetryDelayProperty) ?
+                Long.parseLong(userStoreConnectionRetryDelayProperty) : DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS;
+        long validatedConnectionRetryDelay = getValidatedThresholdTimeoutInMilliseconds(userStoreConnectionRetryDelay);
+        setThresholdTimeoutInMilliseconds(validatedConnectionRetryDelay);
+
+        // Set retry count for failure attempts.
+        String userStoreConnectionRetryCountProperty = realmConfig.getUserStoreProperty(CONNECTION_RETRY_COUNT);
+        int userStoreConnectionRetryCount = StringUtils.isNotEmpty(userStoreConnectionRetryCountProperty) ?
+                Integer.parseInt(userStoreConnectionRetryCountProperty) : DEFAULT_CONNECTION_RETRY_COUNT;
+        int validatedConnectionRetryCount = getValidatedConnectionRetryCount(userStoreConnectionRetryCount);
+        setConnectionRetryCount(validatedConnectionRetryCount);
+
+        // Used for Circuit breaker: By-default set to close state.
+        setCircuitBreakerState(CIRCUIT_STATE_CLOSE);
+        setThresholdStartTime(0);
+
 		/* Initialize user roles cache as implemented in AbstractUserStoreManager */
         initUserRolesCache();
     }
@@ -271,28 +291,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         if (log.isDebugEnabled()) {
             log.debug("Ended " + System.currentTimeMillis());
         }
-
-        /* Set waiting time to re-establish connection after the specified retry count on failure attempts
-          if specified otherwise set default time.
-         */
-        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(CONNECTION_RETRY_DELAY))) {
-            setThresholdTimeoutInMilliseconds(getValidatedThresholdTimeoutInMilliseconds(
-                    Long.parseLong(realmConfig.getUserStoreProperty(CONNECTION_RETRY_DELAY))));
-        } else {
-            setThresholdTimeoutInMilliseconds(DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS);
-        }
-
-        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(CONNECTION_RETRY_COUNT))) {
-            setConnectionRetryCount(getValidatedConnectionRetryCount(
-                    Integer.parseInt(realmConfig.getUserStoreProperty(CONNECTION_RETRY_COUNT))));
-        } else {
-            setConnectionRetryCount(DEFAULT_CONNECTION_RETRY_COUNT);
-        }
-
-        // Used for Circuit breaker: By-default set to close state.
-        setCircuitBreakerState(CIRCUIT_STATE_CLOSE);
-        setThresholdStartTime(0);
-
     }
 
     /**
@@ -386,26 +384,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         if (dataSource == null) {
             throw new UserStoreException("User Management Data Source is null");
         }
-
-        /* Set waiting time to re-establish connection after the specified retry count on failure attempts
-         * if specified otherwise set default time.
-         */
-        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(CONNECTION_RETRY_DELAY))) {
-            setThresholdTimeoutInMilliseconds(getValidatedThresholdTimeoutInMilliseconds(
-                    Long.parseLong(realmConfig.getUserStoreProperty(CONNECTION_RETRY_DELAY))));
-        } else {
-            setThresholdTimeoutInMilliseconds(DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS);
-        }
-
-        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(CONNECTION_RETRY_COUNT))) {
-            setConnectionRetryCount(getValidatedConnectionRetryCount(
-                    Integer.parseInt(realmConfig.getUserStoreProperty(CONNECTION_RETRY_COUNT))));
-        } else {
-            setConnectionRetryCount(DEFAULT_CONNECTION_RETRY_COUNT);
-        }
-        // Used for Circuit breaker: By-default set to close state.
-        setCircuitBreakerState(CIRCUIT_STATE_CLOSE);
-        setThresholdStartTime(0);
 
         properties.put(UserCoreConstants.DATA_SOURCE, dataSource);
 
@@ -5071,7 +5049,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     + " and circuit breaker open duration: " + circuitOpenDuration + "ms.");
         }
 
-        if (circuitOpenDuration >= getValidatedThresholdTimeoutInMilliseconds(getThresholdTimeoutInMilliseconds())) {
+        if (circuitOpenDuration >= getThresholdTimeoutInMilliseconds()) {
             try {
                 Connection dbConnection = getConnection();
                 setCircuitBreakerState(CIRCUIT_STATE_CLOSE);
@@ -5113,7 +5091,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 log.warn("Error occurred while obtaining JDBC connection for domain " + getMyDomainName()
                         + ". Hence, retry attempt to recover DB connection: " + retryCounter);
 
-                if (++retryCounter >= getValidatedConnectionRetryCount(getConnectionRetryCount())) {
+                if (++retryCounter >= getConnectionRetryCount()) {
                     log.error("Retry count exceeds above the maximum count: " + getConnectionRetryCount()
                             + " and failed for domain " + getMyDomainName());
                     setCircuitBreakerState(CIRCUIT_STATE_OPEN);
@@ -5241,10 +5219,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Convert retry waiting time string to long returning the
-     *      value after validating with max allowed connection retry delay.
+     * Return the validated retry waiting time with minimum retry waiting time.
      *
-     * @param retryWaitingTime Retry waiting time as a string.
+     * @param retryWaitingTime Retry waiting time.
      * @return Allowed Retry waiting time in milliseconds.
      *
      * @throws UserStoreException An error occurred while parsing the property value.
@@ -5252,40 +5229,35 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     protected long getValidatedThresholdTimeoutInMilliseconds(long retryWaitingTime) throws UserStoreException {
 
         try {
-
-            String maxRetryWaitingTime = ServerConfiguration.getInstance()
-                    .getFirstProperty(MAX_CONNECTION_RETRY_DELAY_IN_MILLISECONDS);
-            if (maxRetryWaitingTime != null && (retryWaitingTime <= Long.parseLong(maxRetryWaitingTime))) {
+            String minRetryWaitingTimeProperty = ServerConfiguration.getInstance()
+                    .getFirstProperty(MIN_CONNECTION_RETRY_DELAY_IN_MILLISECONDS);
+            if (StringUtils.isEmpty(minRetryWaitingTimeProperty)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Minimum retry delay in milliseconds is not configured. Hence, returning the given " +
+                            "retry delay in milliseconds: " + retryWaitingTime);
+                }
                 return retryWaitingTime;
             }
 
-            if (StringUtils.isNotEmpty(maxRetryWaitingTime)) {
-                setThresholdStartTime(Long.parseLong(maxRetryWaitingTime));
+            long minRetryWaitingTime = Long.parseLong(minRetryWaitingTimeProperty);
+            if (minRetryWaitingTime > retryWaitingTime) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Connection retry delay in milliseconds configured exceeds the allowed "
-                            + "waiting time. Hence, returning the max allowed connection retry delay in milliseconds: "
-                            + maxRetryWaitingTime);
+                    log.debug("Connection retry delay in milliseconds configured is less than the allowed minimum "
+                            + "waiting time. Hence, returning the min allowed connection retry delay in milliseconds: "
+                            + minRetryWaitingTime);
                 }
-                return Long.parseLong(maxRetryWaitingTime);
+                return minRetryWaitingTime;
             }
-
-            if (log.isDebugEnabled()) {
-                log.debug("Max Connection retry delay is not configured. Hence, returning the default "
-                        + "connection retry delay in milliseconds: " + DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS);
-            }
-            setThresholdStartTime(DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS);
-            return DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS;
-
+            return retryWaitingTime;
         } catch (NumberFormatException e) {
             throw new UserStoreException("Error occurred while parsing ConnectionRetryDelay property value");
         }
     }
 
     /**
-     * Convert connection retry count string to int returning the
-     *       value after validating with max allowed connection retry count.
+     * Return the validated retry count with maximum retry count.
      *
-     * @param connectionRetryCount Retry connection count as a string.
+     * @param connectionRetryCount Retry connection count.
      * @return Allowed Retry connection count.
      *
      * @throws UserStoreException An error occurred while parsing the property value.
@@ -5293,29 +5265,25 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     protected int getValidatedConnectionRetryCount(int connectionRetryCount) throws UserStoreException {
 
         try {
-
-            String maxConnectionRetryCount = ServerConfiguration.getInstance()
+            String maxConnectionRetryCountProperty = ServerConfiguration.getInstance()
                     .getFirstProperty(MAX_CONNECTION_RETRY_COUNT);
-            if (maxConnectionRetryCount != null && (connectionRetryCount
-                    <= Integer.parseInt(maxConnectionRetryCount))) {
+            if (StringUtils.isEmpty(maxConnectionRetryCountProperty)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Max Connection retry count is not configured. Hence, returning the given "
+                            + "retry count: " + connectionRetryCount);
+                }
                 return connectionRetryCount;
             }
 
-            if (StringUtils.isNotEmpty(maxConnectionRetryCount)) {
-                setConnectionRetryCount(Integer.parseInt(maxConnectionRetryCount));
+            int maxConnectionRetryCount = Integer.parseInt(maxConnectionRetryCountProperty);
+            if (connectionRetryCount > maxConnectionRetryCount) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Connection retry count configured exceeds the allowed max connection retry count. "
-                            + "Hence, returning the max allowed retry count: " + maxConnectionRetryCount);
+                    log.debug("Connection retry count configured exceeds the allowed maximum retry count. "
+                            + "Hence, returning the max allowed connection retry count: " + maxConnectionRetryCount);
                 }
-                return Integer.parseInt(maxConnectionRetryCount);
+                return maxConnectionRetryCount;
             }
-            if (log.isDebugEnabled()) {
-                log.debug("Max Connection retry count is not configured. Hence, returning the default "
-                        + "allowed retry count: " + DEFAULT_CONNECTION_RETRY_COUNT);
-            }
-            setConnectionRetryCount(DEFAULT_CONNECTION_RETRY_COUNT);
-            return DEFAULT_CONNECTION_RETRY_COUNT;
-
+            return connectionRetryCount;
         } catch (NumberFormatException e) {
             throw new UserStoreException("Error occurred while parsing ConnectionRetryCount property value.");
         }
@@ -5333,7 +5301,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
             long circuitOpenDuration = System.currentTimeMillis() - getThresholdStartTime();
             if (CIRCUIT_STATE_OPEN.equals(getCircuitBreakerState()) && circuitOpenDuration
-                    <= getValidatedThresholdTimeoutInMilliseconds(getThresholdTimeoutInMilliseconds())) {
+                    <= getThresholdTimeoutInMilliseconds()) {
 
                 log.warn("JDBC connection circuit breaker is in open state for " + circuitOpenDuration
                         + "ms and has not reach the threshold timeout: " + getThresholdTimeoutInMilliseconds()
