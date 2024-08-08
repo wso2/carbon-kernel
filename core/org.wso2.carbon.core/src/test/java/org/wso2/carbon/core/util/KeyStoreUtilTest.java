@@ -29,7 +29,6 @@ import javax.xml.namespace.QName;
 
 import java.nio.file.Paths;
 
-import static org.testng.Assert.assertThrows;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
@@ -101,8 +100,6 @@ public class KeyStoreUtilTest {
             OMElement keyStoreConfigElement = KeyStoreUtil.getCustomKeyStoreConfigElement(keyStoreName, serverConfiguration);
             assertEquals(KeyStoreUtil.getCustomKeyStoreConfig(keyStoreConfigElement, configName), expectedValue);
         } catch (Exception e) {
-            // Print stacktrace and fail the test
-            e.printStackTrace();
             fail();
         }
     }
@@ -139,9 +136,9 @@ public class KeyStoreUtilTest {
         };
     }
 
-    @Test(dataProvider = "IncorrectKeyStoreConfigDataProvider")
-    public void testValidateIncorrectKeyStoreConfigName(String configName) {
+    @Test(dataProvider = "IncorrectKeyStoreConfigDataProvider", expectedExceptions = CarbonException.class)
+    public void testValidateIncorrectKeyStoreConfigName(String configName) throws Exception {
 
-        assertThrows(CarbonException.class, () -> KeyStoreUtil.validateKeyStoreConfigName(configName));
+        KeyStoreUtil.validateKeyStoreConfigName(configName);
     }
 }
