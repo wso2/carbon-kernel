@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
- Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
--->
+  ~ Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
 
 <!--
     This is the main server configuration file
@@ -21,7 +23,7 @@
     ${carbon.home} represents the carbon.home system property.
     Other system properties can be specified in a similar manner.
 -->
-<Server xmlns="http://wso2.org/projects/carbon/carbon.xml" xmlns:svns="http://org.wso2.securevault/configuration">
+<Server xmlns="http://wso2.org/projects/carbon/carbon.xml">
 
     <!--
        Product Name
@@ -44,17 +46,12 @@
        This is will become part of the End Point Reference of the
        services deployed on this server instance.
     -->
-    {%if server.hostname is defined %}
-    <HostName>{{server.hostname}}</HostName>
-     {% endif %}
+    <!--HostName>www.wso2.org</HostName-->
+
     <!--
     Host name to be used for the Carbon management console
     -->
-     {%if server.mgt_console_hostname is defined %}
-    <MgtHostName>{{server.mgt_console_hostname}}</MgtHostName>
-     {%elif server.hostname is defined %}
-    <MgtHostName>{{server.hostname}}</MgtHostName>
-     {% endif %}
+    <!--MgtHostName>mgt.wso2.org</MgtHostName-->
 
     <!--
         The URL of the back end server. This is where the admin services are hosted and
@@ -65,10 +62,10 @@
     <!--
     <ServerURL>https://${carbon.local.ip}:${carbon.management.port}${carbon.context}/services/</ServerURL>
     -->
-     <!--
-     The URL of the index page. This is where the user will be redirected after signing in to the
-     carbon server.
-     -->
+    <!--
+    The URL of the index page. This is where the user will be redirected after signing in to the
+    carbon server.
+    -->
     <!-- IndexPageURL>/carbon/admin/index.jsp</IndexPageURL-->
 
     <!--
@@ -103,14 +100,10 @@
    	appserver - proxy context path. This specially required whenever you are generating URLs to displace in
    	Carbon UI components.
     -->
-    {% if server.proxy_context_path is defined %}
-    <MgtProxyContextPath>{{server.proxy_context_path}}</MgtProxyContextPath>
-    <ProxyContextPath>{{server.proxy_context_path}}</ProxyContextPath>
-    {% endif %}
-
-    {% if server.diagnostic_log_mode is defined %}
-    <DiagnosticLogMode>{{server.diagnostic_log_mode}}</DiagnosticLogMode>
-    {% endif %}
+    <!--
+    	<MgtProxyContextPath></MgtProxyContextPath>
+    	<ProxyContextPath></ProxyContextPath>
+    -->
 
     <!-- In-order to  get the registry http Port from the back-end when the default http transport is not the same-->
     <!--RegistryHttpPort>9763</RegistryHttpPort-->
@@ -119,10 +112,7 @@
     Number of items to be displayed on a management console page. This is used at the
     backend server for pagination of various items.
     -->
-    <!--This is used as the default items per page-->
-    <ItemsPerPage>{{server.default_items_per_page}}</ItemsPerPage>
-
-    <MaximumItemsPerPage>{{server.max_items_per_page}}</MaximumItemsPerPage>
+    <ItemsPerPage>15</ItemsPerPage>
 
     <!-- The endpoint URL of the cloud instance management Web service -->
     <!--<InstanceMgtWSEndpoint>https://ec2.amazonaws.com/</InstanceMgtWSEndpoint>-->
@@ -136,14 +126,14 @@
          the define value + Offset.
          e.g. Offset=2 and HTTPS port=9443 will set the effective HTTPS port to 9445
          -->
-        <Offset>{{server.offset | default('0')}}</Offset>
+        <Offset>0</Offset>
 
         <!-- The JMX Ports -->
         <JMX>
             <!--The port RMI registry is exposed-->
-            <RMIRegistryPort>{{monitoring.jmx.rmi_registry_port}}</RMIRegistryPort>
+            <RMIRegistryPort>9999</RMIRegistryPort>
             <!--The port RMI server should be exposed-->
-            <RMIServerPort>{{monitoring.jmx.rmi_server_port}}</RMIServerPort>
+            <RMIServerPort>11111</RMIServerPort>
         </JMX>
 
         <!-- Embedded LDAP server specific ports -->
@@ -154,20 +144,20 @@
             <KDCServerPort>8000</KDCServerPort>
         </EmbeddedLDAP>
 
-	<!--
-             Override datasources JNDIproviderPort defined in bps.xml and datasources.properties files
-	-->
-	<!--<JNDIProviderPort>2199</JNDIProviderPort>-->
-	<!--Override receive port of thrift based entitlement service.-->
-	<ThriftEntitlementReceivePort>10500</ThriftEntitlementReceivePort>
+        <!--
+                 Override datasources JNDIproviderPort defined in bps.xml and datasources.properties files
+        -->
+        <!--<JNDIProviderPort>2199</JNDIProviderPort>-->
+        <!--Override receive port of thrift based entitlement service.-->
+        <ThriftEntitlementReceivePort>10500</ThriftEntitlementReceivePort>
 
-    <!--
-     This is the proxy port of the worker cluster. These need to be configured in a scenario where
-     manager node is not exposed through the load balancer through which the workers are exposed
-     therefore doesn't have a proxy port.
-    <WorkerHttpProxyPort>80</WorkerHttpProxyPort>
-    <WorkerHttpsProxyPort>443</WorkerHttpsProxyPort>
-    -->
+        <!--
+         This is the proxy port of the worker cluster. These need to be configured in a scenario where
+         manager node is not exposed through the load balancer through which the workers are exposed
+         therefore doesn't have a proxy port.
+        <WorkerHttpProxyPort>80</WorkerHttpProxyPort>
+        <WorkerHttpsProxyPort>443</WorkerHttpsProxyPort>
+        -->
 
     </Ports>
 
@@ -265,48 +255,13 @@
     -->
     <Tenant>
         <LoadingPolicy>
-            {% if tenant_mgt.eager_loading_tenants is not defined %}
             <LazyLoading>
-                <IdleTime>{{tenant_mgt.tenant_idle_timeout | default('30')}}</IdleTime>
+                <IdleTime>30</IdleTime>
             </LazyLoading>
-            {% else %}
-            <EagerLoading>
-                <Include>{{tenant_mgt.eager_loading_tenants}}</Include>
-            </EagerLoading>
-            {% endif %}
+            <!-- <EagerLoading>
+                   <Include>*,!foo.com,!bar.com</Include>
+            </EagerLoading>-->
         </LoadingPolicy>
-
-        <!-- Flag to enable or disable tenant deletion -->
-        {% if tenant_mgt.tenant_deletion is defined %}
-        <TenantDelete>{{tenant_mgt.tenant_deletion}}</TenantDelete>
-        {% else %}
-        <TenantDelete>false</TenantDelete>
-        {% endif %}
-
-        <!-- Flag to enable or disable primary users deletion -->
-        {% if tenant_mgt.deletion.primary_users is defined %}
-        <DeletePrimaryUsersOnTenantDeletion>{{tenant_mgt.deletion.primary_users}}</DeletePrimaryUsersOnTenantDeletion>
-        {% else %}
-        <DeletePrimaryUsersOnTenantDeletion>false</DeletePrimaryUsersOnTenantDeletion>
-        {% endif %}
-
-        <!-- Configurations related to listener invocation by tenant admin service -->
-        <ListenerInvocationPolicy>
-            <!-- Flag to enable or disable listener invocation on tenant delete -->
-            {% if tenant_mgt.invoke_on_delete is defined %}
-            <InvokeOnDelete>{{tenant_mgt.invoke_on_delete}}</InvokeOnDelete>
-            {% else %}
-            <InvokeOnDelete>false</InvokeOnDelete>
-            {% endif %}
-        </ListenerInvocationPolicy>
-        {% if tenant_mgt.enable_tenant_theme_mgt is defined %}
-        <!--   Flag to enable or disable tenant theming for the management console    -->
-        <EnableTenantThemeManagement>{{tenant_mgt.enable_tenant_theme_mgt}}</EnableTenantThemeManagement>
-        {% endif %}
-        {% if tenant_mgt.signing_alg is defined %}
-        <!--  Public key certificate signing algorithm for tenants    -->
-        <SigningAlgorithm>{{tenant_mgt.signing_alg}}</SigningAlgorithm>
-        {% endif %}
     </Tenant>
 
     <!--
@@ -314,17 +269,7 @@
     -->
     <Cache>
         <!-- Default cache timeout in minutes -->
-        <DefaultCacheTimeout>{{server.default_cache_timeout}}</DefaultCacheTimeout>
-        <DefaultRealmCacheTimeout>{{server.default_realm_cache_timeout}}</DefaultRealmCacheTimeout>
-        <!-- Force all caches to act as local -->
-        <ForceLocalCache>{{server.force_local_cache}}</ForceLocalCache>
-        <DiscardEmptyCaches>{{server.discard_empty_caches}}</DiscardEmptyCaches>
-        {% if server.cache.invalidation_impl is defined %}
-        <CacheInvalidationImpl>{{server.cache.invalidation_impl}}</CacheInvalidationImpl>
-        {% else %}
-         <CacheInvalidationImpl>org.wso2.carbon.caching.impl.clustering.ClusterCacheInvalidationRequestSender</CacheInvalidationImpl>
-        {% endif %}
-        <CachePropagationEnabled>{{server.cache.propagation_enabled}}</CachePropagationEnabled>
+        <DefaultCacheTimeout>15</DefaultCacheTimeout>
     </Cache>
 
     <!--
@@ -379,15 +324,11 @@
          calling to BE server -->
         <clientAxis2XmlLocation>${carbon.home}/repository/conf/axis2/axis2_client.xml</clientAxis2XmlLocation>
         <!-- If this parameter is set, the ?wsdl on an admin service will not give the admin service wsdl. -->
-        {% if admin_service.wsdl.enable is sameas true %}
-        <HideAdminServiceWSDLs>false</HideAdminServiceWSDLs>
-        {% else %}
         <HideAdminServiceWSDLs>true</HideAdminServiceWSDLs>
-        {% endif %}
 
-	<!--WARNING-Use With Care! Uncommenting bellow parameter would expose all AdminServices in HTTP transport.
-	With HTTP transport your credentials and data routed in public channels are vulnerable for sniffing attacks.
-	Use bellow parameter ONLY if your communication channels are confirmed to be secured by other means -->
+        <!--WARNING-Use With Care! Uncommenting bellow parameter would expose all AdminServices in HTTP transport.
+        With HTTP transport your credentials and data routed in public channels are vulnerable for sniffing attacks.
+        Use bellow parameter ONLY if your communication channels are confirmed to be secured by other means -->
         <!--HttpAdminServices>*</HttpAdminServices-->
 
     </Axis2Config>
@@ -408,91 +349,9 @@
     </ServiceUserRoles>
 
     <!--
-       Configurations related to Carbon Crypto Service which is a crypto framework used inside Carbon products.
-    -->
-    <CryptoService>
-
-        <Enabled>true</Enabled>
-
-        <!-- The crypto provider which is used for internal data encryption and decryption -->
-        {% if encryption.internal_crypto_provider is defined %}
-        <InternalCryptoProviderClassName>{{encryption.internal_crypto_provider}}</InternalCryptoProviderClassName>
-        {% else %}
-        <InternalCryptoProviderClassName>org.wso2.carbon.crypto.provider.KeyStoreBasedInternalCryptoProvider</InternalCryptoProviderClassName>
-        {% endif %}
-
-        {% if encryption.key is defined %}
-        <Secret>{{encryption.key}}</Secret>
-        {% endif %}
-
-        {% if encryption.totpKey is defined %}
-        <TotpSecret>{{encryption.totpKey}}</TotpSecret>
-        {% endif %}
-        <!--
-            The crypto provider which is used for the crypto needs which come when communicating with external parties.
-            e.g. Signing, Decrypting.
-        -->
-        <ExternalCryptoProviderClassName>org.wso2.carbon.core.encryption.KeyStoreBasedExternalCryptoProvider</ExternalCryptoProviderClassName>
-
-        <!--
-            The list of key resolvers which will be used based on the context when handling crypto with external parties.
-
-            e.g. Resolving the public key of an external entity.
-        -->
-        <KeyResolvers>
-            <KeyResolver className="org.wso2.carbon.crypto.defaultProvider.resolver.ContextIndependentKeyResolver" priority="-1"/>
-        </KeyResolvers>
-
-        <!--
-            Uncomment the following configuration to use hardware security module for cryptographic operations.
-            Provide configurations as detailed in each tag.
-        -->
-
-        <!--
-            <HSMBasedCryptoProviderConfig>
-                <HSMConfiguration>
-                    <PKCS11Module>#AbsolutePathToHSMModule</PKCS11Module>
-                    <SlotConfiguration>
-                        <Slot id="#SlotID" pin="#UserPIN"/>
-                    </SlotConfiguration>
-                </HSMConfiguration>
-
-                <InternalProvider>
-                    <InternalProviderSlotID>#SlotIDOfInternalProvider</InternalProviderSlotID>
-                    <KeyAlias>#KeyAlias</KeyAlias>
-                </InternalProvider>
-
-                <ExternalProvider>
-                    <ExternalProviderSlotID>#SlotIDOfExternalProvider</ExternalProviderSlotID>
-                </ExternalProvider>
-
-                <HSMStore>
-                    <Enabled>false</Enabled>
-                </HSMStore>
-            </HSMBasedCryptoProviderConfig>
-        -->
-    </CryptoService>
-
-    <!--
       Enable following config to allow Emails as usernames.
     -->
-    <EnableEmailUserName>{{tenant_mgt.enable_email_domain | default('false')}}</EnableEmailUserName>
-    {% if tenant_mgt.user_info_handler is defined %}
-    <UserInfoHandler>{{tenant_mgt.user_info_handler}}</UserInfoHandler>
-    {% endif %}
-    <!--
-      Enable following config to flag input validation configuration.
-    -->
-    <InputValidationEnabled>{{tenant_mgt.enable_input_validation}}</InputValidationEnabled>
-    {% if password_trim.enable is defined %}
-      <EnablePasswordTrim>{{password_trim.enable}}</EnablePasswordTrim>
-    {% endif %}
-    {% if tenant_mgt.disable_email_domain_validation is defined %}
-      <DisableEmailUserNameValidation>{{tenant_mgt.disable_email_domain_validation}}</DisableEmailUserNameValidation>
-    {% endif %}
-    {% if tenant_mgt.enable_tenant_validation_for_nonsaas_username is defined %}
-      <EnableTenantValidationForNonSaaSUsername>{{tenant_mgt.enable_tenant_validation_for_nonsaas_username}}</EnableTenantValidationForNonSaaSUsername>
-    {% endif %}
+    <!--EnableEmailUserName>true</EnableEmailUserName-->
 
     <!--
       Security configurations
@@ -505,76 +364,21 @@
         <!-- KeyStore configurations for super tenant.-->
         <KeyStore>
             <!-- Keystore file location-->
-            <Location>${carbon.home}/repository/resources/security/{{keystore.primary.file_name}}</Location>
+            <Location>${carbon.home}/repository/resources/security/wso2carbon.p12</Location>
             <!-- Keystore type (JKS/PKCS12 etc.)-->
-            <Type>{{keystore.primary.type}}</Type>
+            <Type>PKCS12</Type>
             <!-- Keystore password-->
-            <Password>{{keystore.primary.password}}</Password>
+            <Password>wso2carbon</Password>
             <!-- Private Key alias-->
-            <KeyAlias>{{keystore.primary.alias}}</KeyAlias>
+            <KeyAlias>wso2carbon</KeyAlias>
             <!-- Private Key password-->
-            <KeyPassword>{{keystore.primary.key_password}}</KeyPassword>
+            <KeyPassword>wso2carbon</KeyPassword>
         </KeyStore>
         <!-- KeyStore configurations for newly created tenants (not applicable to existing tenants). -->
         <TenantKeyStore>
             <!-- Keystore type (JKS/PKCS12 etc.)-->
-            <Type>{{keystore.tenant.type}}</Type>
+            <Type>PKCS12</Type>
         </TenantKeyStore>
-
-
-        <!--
-            The KeyStore which is used for encrypting/decrypting internal data.
-            This block is read by Carbon Crypto Service.
-        -->
-        <InternalKeyStore>
-            <!-- Keystore file location-->
-            <Location>${carbon.home}/repository/resources/security/{{keystore.internal.file_name}}</Location>
-            <!-- Keystore type (JKS/PKCS12 etc.)-->
-            <Type>{{keystore.internal.type}}</Type>
-            <!-- Keystore password-->
-            <Password>{{keystore.internal.password}}</Password>
-            <!-- Private Key alias-->
-            <KeyAlias>{{keystore.internal.alias}}</KeyAlias>
-            <!-- Private Key password-->
-            <KeyPassword>{{keystore.internal.key_password}}</KeyPassword>
-        </InternalKeyStore>
-
-        <!--
-            KeyStore which will be used for SAML request/response signing if configured.
-            This is only supported for the super tenant ATM.
-        -->
-        <SAMLSignKeyStore>
-            <Location>${carbon.home}/repository/resources/security/{{keystore.saml.file_name}}</Location>
-            <!-- Keystore type (JKS/PKCS12 etc.)-->
-            <Type>{{keystore.saml.type}}</Type>
-            <!-- Keystore password-->
-            <Password>{{keystore.saml.password}}</Password>
-            <!-- Private Key alias-->
-            <KeyAlias>{{keystore.saml.alias}}</KeyAlias>
-            <!-- Private Key password-->
-            <KeyPassword>{{keystore.saml.key_password}}</KeyPassword>
-        </SAMLSignKeyStore>
-        {% if keystore.custom is defined %}
-
-        <CustomKeyStores>
-            {% for keystore in keystore.custom %}
-            <KeyStore>
-                <!-- Keystore file location-->
-                <Location>${carbon.home}/repository/resources/security/{{keystore.file_name}}</Location>
-                <!-- Keystore type (JKS/PKCS12 etc.)-->
-                <Type>{{keystore.type}}</Type>
-                <!-- Keystore password-->
-                <Password>{{keystore.password}}</Password>
-                <!-- Private Key alias-->
-                <KeyAlias>{{keystore.alias}}</KeyAlias>
-                <!-- Private Key password-->
-                <KeyPassword>{{keystore.key_password}}</KeyPassword>
-            </KeyStore>
-            {% endfor %}
-        </CustomKeyStores>
-        {% endif %}
-
-        <UserStorePasswordEncryption>{{keystore.userstore_password_encryption}}</UserStorePasswordEncryption>
 
         <!--
             System wide trust-store which is used to maintain the certificates of all
@@ -582,12 +386,40 @@
         -->
         <TrustStore>
             <!-- trust-store file location -->
-            <Location>${carbon.home}/repository/resources/security/{{truststore.file_name}}</Location>
+            <Location>${carbon.home}/repository/resources/security/client-truststore.p12</Location>
             <!-- trust-store type (JKS/PKCS12 etc.) -->
-            <Type>{{truststore.type}}</Type>
+            <Type>PKCS12</Type>
             <!-- trust-store password -->
-            <Password>{{truststore.password}}</Password>
+            <Password>wso2carbon</Password>
         </TrustStore>
+
+        // Custom KeyStore configurations for KeyStoreUtilTest test cases.
+        <CustomKeyStores>
+            <KeyStore>
+                <!-- Keystore file location-->
+                <Location>${carbon.home}/repository/resources/security/custom.jks</Location>
+                <!-- Keystore type (JKS/PKCS12 etc.)-->
+                <Type>JKS</Type>
+                <!-- Keystore password-->
+                <Password>customPassword</Password>
+                <!-- Private Key alias-->
+                <KeyAlias>customAlias</KeyAlias>
+                <!-- Private Key password-->
+                <KeyPassword>customKeyPass</KeyPassword>
+            </KeyStore>
+            <KeyStore>
+                <!-- Keystore file location-->
+                <Location>${carbon.home}/repository/resources/security/testKey.jks</Location>
+                <!-- Keystore type (JKS/PKCS12 etc.)-->
+                <Type>JKS</Type>
+                <!-- Keystore password-->
+                <Password>testPass</Password>
+                <!-- Private Key alias-->
+                <KeyAlias>testKey</KeyAlias>
+                <!-- Private Key password-->
+                <KeyPassword>testKeyPass</KeyPassword>
+            </KeyStore>
+        </CustomKeyStores>
 
         <!--
             The Authenticator configuration to be used at the JVM level. We extend the
@@ -601,21 +433,21 @@
                 exceptions at runtime.
             -->
             <!-- <Credential> -->
-                <!--
-                    the pattern that would match a subset of URLs for which this authenticator
-                    would be used
-                -->
-                <!-- <Pattern>regularExpression</Pattern> -->
-                <!--
-                    the type of this authenticator. Allowed values are:
-                    1. server
-                    2. proxy
-                -->
-                <!-- <Type>proxy</Type> -->
-                <!-- the username used to log in to server/proxy -->
-                <!-- <Username>username</Username> -->
-                <!-- the password used to log in to server/proxy -->
-                <!-- <Password>password</Password> -->
+            <!--
+                the pattern that would match a subset of URLs for which this authenticator
+                would be used
+            -->
+            <!-- <Pattern>regularExpression</Pattern> -->
+            <!--
+                the type of this authenticator. Allowed values are:
+                1. server
+                2. proxy
+            -->
+            <!-- <Type>proxy</Type> -->
+            <!-- the username used to log in to server/proxy -->
+            <!-- <Username>username</Username> -->
+            <!-- the password used to log in to server/proxy -->
+            <!-- <Password>password</Password> -->
             <!-- </Credential> -->
         </NetworkAuthenticatorConfig>
 
@@ -626,15 +458,14 @@
         -->
         <TomcatRealm>UserManager</TomcatRealm>
 
-	<!--Option to disable storing of tokens issued by STS-->
-	<DisableTokenStore>false</DisableTokenStore>
+        <!--Option to disable storing of tokens issued by STS-->
+        <DisableTokenStore>false</DisableTokenStore>
 
-    <STSCallBackHandlerName>{{sts.callback_handler}}</STSCallBackHandlerName>
-	<!--
-	 Security token store class name. If this is not set, default class will be
-	 org.wso2.carbon.security.util.SecurityTokenStore
-	-->
-	<!--TokenStoreClassName>org.wso2.carbon.identity.sts.store.DBTokenStore</TokenStoreClassName-->
+        <!--
+         Security token store class name. If this is not set, default class will be
+         org.wso2.carbon.security.util.SecurityTokenStore
+        -->
+        <!--TokenStoreClassName>org.wso2.carbon.identity.sts.store.DBTokenStore</TokenStoreClassName-->
 
         <XSSPreventionConfig>
             <Enabled>true</Enabled>
@@ -643,14 +474,14 @@
                 <!--Pattern></Pattern-->
             </Patterns>
         </XSSPreventionConfig>
-
-        {% if sts.signature_algorithm is defined %}
-        <STSSignatureAlgorithm>{{sts.signature_algorithm}}</STSSignatureAlgorithm>
-        {% endif %}
-        {% if sts.digest_algorithm is defined %}
-        <STSDigestAlgorithm>{{sts.digest_algorithm}}</STSDigestAlgorithm>
-        {% endif %}
     </Security>
+
+    <!--Hide unnecessary menu Items-->
+    <HideMenuItemIds>
+        <HideMenuItemId>claim_mgt_menu</HideMenuItemId>
+        <HideMenuItemId>identity_mgt_emailtemplate_menu</HideMenuItemId>
+        <HideMenuItemId>identity_security_questions_menu</HideMenuItemId>
+    </HideMenuItemIds>
 
     <!--
        The temporary work directory
@@ -693,7 +524,8 @@
         <!--
            The total file upload size limit in MB
         -->
-        <TotalFileSizeLimit>{{server.file_upload.file_size_limit}}</TotalFileSizeLimit>
+        <TotalFileSizeLimit>100</TotalFileSizeLimit>
+
         <Mapping>
             <Actions>
                 <Action>dbs</Action>
@@ -754,6 +586,16 @@
         <SvnUrlAppendTenantId>true</SvnUrlAppendTenantId>
     </DeploymentSynchronizer>
 
+    <!-- Deployment Synchronizer Configuration. Uncomment the following section when running with "registry based" dep sync.
+        In master nodes you need to set both AutoCommit and AutoCheckout to true
+        and in  worker nodes set only AutoCheckout to true.
+    -->
+    <!--<DeploymentSynchronizer>
+        <Enabled>true</Enabled>
+        <AutoCommit>false</AutoCommit>
+        <AutoCheckout>true</AutoCheckout>
+    </DeploymentSynchronizer>-->
+
     <!-- Mediation persistence configurations. Only valid if mediation features are available i.e. ESB -->
     <!--<MediationConfig>
         <LoadFromRegistry>false</LoadFromRegistry>
@@ -782,103 +624,34 @@
     <!-- Enable accessing Admin Console via HTTP -->
     <!-- EnableHTTPAdminConsole>true</EnableHTTPAdminConsole -->
 
-    <!-- Enable resolving absolute URLs for Admin Console -->
-    <AdminConsole>
-        <ResolveAbsoluteURLs>
-            <Enable>{{admin_console.resolve_absolute_urls.enable}}</Enable>
-        </ResolveAbsoluteURLs>
-    </AdminConsole>
     <!--
        Default Feature Repository of WSO2 Carbon.
     -->
     <FeatureRepository>
-	    <RepositoryName>default repository</RepositoryName>
-	    <RepositoryURL>${p2.repo.url}</RepositoryURL>
+        <RepositoryName>default repository</RepositoryName>
+        <RepositoryURL>http://product-dist.wso2.com/p2/carbon/releases/wilkes/</RepositoryURL>
     </FeatureRepository>
 
     <!--
 	Configure API Management
    -->
-   <APIManagement>
+    <APIManagement>
 
-	<!--Uses the embedded API Manager by default. If you want to use an external
-	API Manager instance to manage APIs, configure below  externalAPIManager-->
+        <!--Uses the embedded API Manager by default. If you want to use an external
+        API Manager instance to manage APIs, configure below  externalAPIManager-->
 
-	<Enabled>true</Enabled>
+        <Enabled>true</Enabled>
 
-	<!--Uncomment and configure API Gateway and
-	Publisher URLs to use external API Manager instance-->
+        <!--Uncomment and configure API Gateway and
+        Publisher URLs to use external API Manager instance-->
 
-	<!--ExternalAPIManager>
+        <!--ExternalAPIManager>
 
-		<APIGatewayURL>http://localhost:8281</APIGatewayURL>
-		<APIPublisherURL>http://localhost:8281/publisher</APIPublisherURL>
+            <APIGatewayURL>http://localhost:8281</APIGatewayURL>
+            <APIPublisherURL>http://localhost:8281/publisher</APIPublisherURL>
 
-	</ExternalAPIManager-->
+        </ExternalAPIManager-->
 
-	<LoadAPIContextsInServerStartup>true</LoadAPIContextsInServerStartup>
-   </APIManagement>
-
-    {% if sts.time_to_live is defined %}
-    <STSTimeToLive>{{sts.time_to_live}}</STSTimeToLive>
-    {% endif %}
-    {% if sts.host_name is defined %}
-    <STSHostName>{{sts.host_name}}</STSHostName>
-    {% endif %}
-
-
-    <!-- Configure disable/enable shutdown and restart from the Management Console UI -->
-
-     <disableShutdownRestartFromUI>
-        <disableShutdown>{{server.disable_shutdown_from_ui | default('false')}}</disableShutdown>
-        <disableRestart>{{server.disable_restart_from_ui | default('false')}}</disableRestart>
-     </disableShutdownRestartFromUI>
-
-    <!-- Configure disable/enable server shutdown and restart from API -->
-
-     <enableShutdownRestartFromAPI>
-        <enableShutdown>{{server.enable_shutdown_from_api}}</enableShutdown>
-        <enableRestart>{{server.enable_restart_from_api}}</enableRestart>
-     </enableShutdownRestartFromAPI>
-
-    <!-- Configure password validity period for initially set password -->
-    <DefaultPasswordValidityPeriod>{{password.default_validity_period}}</DefaultPasswordValidityPeriod>
-
-    <!-- Configure JCE provider -->
-    {% if jce_provider.provider_name is defined %}
-        <JCEProvider>{{jce_provider.provider_name}}</JCEProvider>
-    {% endif %}
-
-    <!-- Configure SignatureUtil algorithms -->
-    <SignatureUtil>
-        <EnableSHA256Algo>{{signature_util.enable_sha256_algo}}</EnableSHA256Algo>
-    </SignatureUtil>
-    <RemoteLogging>
-        <ConfigSync>
-      	    <Period>{{remote_logging.config_sync.period}}</Period>
-        </ConfigSync>
-    </RemoteLogging>
-
-    {% if default_management_ui.path is defined %}
-    <!-- Configure default management ui path for server -->
-    <DefaultManagementUIPath>{{default_management_ui.path}}</DefaultManagementUIPath>
-    {% endif %}
-
-    <!-- Configure legacy identity server authorization runtime -->
-    <EnableLegacyAuthzRuntime>{{legacy_authz_runtime.enable}}</EnableLegacyAuthzRuntime>
-
-    <!-- Optimize the user search through UIDs in UniqueJDBCUserStore -->
-    <JDBCUserStore>
-        <enableOptimizedJDBCSearch>{{jdbc_user_store.enable_optimized_jdbc_search}}</enableOptimizedJDBCSearch>
-    </JDBCUserStore>
-
-    <!-- Enable/Disable the deprecation banner in the management console -->
-    <ManagementConsoleDeprecationBannerEnabled>{{management_console_deprecation_banner.enable}}</ManagementConsoleDeprecationBannerEnabled>
-
-    <!-- Enable/Disable circuit breaker for userstores to ensure backward compatibility -->
-    <UserStore>
-        <enableCircuitBreakerForUserStores>{{user_store_commons.enable_circuit_breaker_for_user_stores}}</enableCircuitBreakerForUserStores>
-        <maxConnectionRetryCount>{{user_store_commons.max_connection_retry_count}}</maxConnectionRetryCount>
-        <maxConnectionRetryDelayInMilliSeconds>{{user_store_commons.max_connection_retry_delay_in_milli_seconds}}</maxConnectionRetryDelayInMilliSeconds>
-    </UserStore>
+        <LoadAPIContextsInServerStartup>true</LoadAPIContextsInServerStartup>
+    </APIManagement>
 </Server>
