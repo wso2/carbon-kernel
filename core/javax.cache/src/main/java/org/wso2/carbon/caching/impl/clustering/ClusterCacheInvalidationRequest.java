@@ -78,6 +78,10 @@ public class ClusterCacheInvalidationRequest extends ClusteringMessage {
             CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(cacheInfo.cacheManagerName);
             Cache<Object, Object> cache = cacheManager.getCache(cacheInfo.cacheName);
             if (cache instanceof CacheImpl) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Cache invalidation request received for cache " + cacheInfo.cacheName + " with key " +
+                            cacheInfo.cacheKey + " in tenant " + tenantDomain + " with tenant id " + tenantId);
+                }
                 if (CLEAR_ALL_PREFIX.equals(cacheInfo.cacheKey)) {
                     ((CacheImpl) cache).removeAllLocal();
                 } else {
