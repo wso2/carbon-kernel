@@ -13864,7 +13864,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isUniqueUserIdEnabledInUserStore(userStore)) {
             return getUserNameFromCurrentUserStore(userID, userStore);
         } else {
-            return userUniqueIDManger.getUser(userID, this, userStore.getDomainName()).getDomainQualifiedUsername();
+            User user = userUniqueIDManger.getUser(userID, this, userStore.getDomainName());
+            if (user == null) {
+                if (log.isDebugEnabled()) {
+                    log.debug(String.format("User with user id %s is not available in cache or database.", userID));
+                }
+                return null;
+            }
+            return user.getDomainQualifiedUsername();
         }
     }
 
