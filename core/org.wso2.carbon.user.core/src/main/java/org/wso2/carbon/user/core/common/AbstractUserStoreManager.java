@@ -12796,7 +12796,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // If unique id feature is not enabled, we have to call the legacy methods.
         if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-            User user = userUniqueIDManger.getUser(userID, this);
+            User user = userUniqueIDManger.getUser(userID, this, userStore.getDomainName());
             if (user == null) {
                 return false;
             }
@@ -13091,7 +13091,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isUniqueIdEnabled) {
             isUserExists = doCheckExistingUserWithID(userID);
         } else{
-            user = userUniqueIDManger.getUser(userID, this);
+            user = userUniqueIDManger.getUser(userID, this, userStore.getDomainName());
             isUserExists = user != null;
         }
 
@@ -13286,7 +13286,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // If unique id feature is not enabled, we have to call the legacy methods.
         if (!isUniqueIdEnabled) {
-            User user = userUniqueIDManger.getUser(userID, this);
+            User user = userUniqueIDManger.getUser(userID, this, userStore.getDomainName());
             return Arrays.asList(getUserClaimValues(user.getDomainQualifiedUsername(), profileName));
         }
 
@@ -13560,7 +13560,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             AuthenticationResult authenticationResult;
             try {
                 if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-                    User user = userUniqueIDManger.getUser(userID, this);
+                    User user = userUniqueIDManger.getUser(userID, this, userStore.getDomainName());
                     boolean auth = this.doAuthenticate(user.getUsername(), oldCredentialObj);
                     authenticationResult = new AuthenticationResult(auth ?
                             AuthenticationResult.AuthenticationStatus.SUCCESS :
@@ -13627,7 +13627,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             try {
                 // If unique id feature is not enabled, we have to call the legacy methods.
                 if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-                    User user = userUniqueIDManger.getUser(userID, this);
+                    User user = userUniqueIDManger.getUser(userID, this, userStore.getDomainName());
                     // If we don't have a record for this user, let's try to call directly using the user id.
                     if (user == null) {
                         updateCredential(userID, newCredential, oldCredential);
@@ -14249,7 +14249,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             userName = doGetUserNameFromUserID(userID);
             isUserEixisting = userName != null;
         } else {
-            user = userUniqueIDManger.getUser(userID, this);
+            user = userUniqueIDManger.getUser(userID, this, userStore.getDomainName());
             isUserEixisting = user != null;
             userName = user.getUsername();
         }
@@ -14471,7 +14471,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (!isReadOnly()) {
                 // If unique id feature is not enabled, we have to call the legacy methods.
                 if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-                    User user = userUniqueIDManger.getUser(userID, this);
+                    User user = userUniqueIDManger.getUser(userID, this, userStore.getDomainName());
                     doSetUserClaimValues(user.getUsername(), claims, profileName);
                 } else {
                     doSetUserClaimValuesWithID(userID, claims, profileName);
@@ -14575,7 +14575,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             if (!isReadOnly()) {
                 // If unique id feature is not enabled, we have to call the legacy methods.
                 if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-                    User user = userUniqueIDManger.getUser(userID, this);
+                    User user = userUniqueIDManger.getUser(userID, this, userStore.getDomainName());
                     doSetUserClaimValues(user.getUsername(), multiValuedClaimsToAdd, multiValuedClaimsToDelete,
                             claimsExcludingMultiValuedClaims, profileName);
                 } else {
@@ -14585,7 +14585,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         } catch (NotImplementedException e) {
             if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-                User user = userUniqueIDManger.getUser(userID, this);
+                User user = userUniqueIDManger.getUser(userID, this, userStore.getDomainName());
                 doSetUserClaimValues(user.getUsername(), claims, profileName);
             } else {
                 doSetUserClaimValuesWithID(userID, claims, profileName);
@@ -14758,7 +14758,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             try {
                 // If unique id feature is not enabled, we have to call the legacy methods.
                 if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-                    User user = userUniqueIDManger.getUser(userID, this);
+                    User user = userUniqueIDManger.getUser(userID, this, userStore.getDomainName());
                     doUpdateCredentialByAdmin(user.getUsername(), newCredential);
                 } else {
                     doUpdateCredentialByAdminWithID(userID, newCredentialObj);
@@ -14837,7 +14837,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isUniqueUserIdEnabledInUserStore(userStore)) {
             isUserEixisting = doCheckExistingUserWithID(userID);
         } else {
-            user = userUniqueIDManger.getUser(userID, this);
+            user = userUniqueIDManger.getUser(userID, this, userStore.getDomainName());
             isUserEixisting = user != null;
         }
 
@@ -14937,7 +14937,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isUniqueUserIdEnabledInUserStore(userStore)) {
             isUserExisting = doCheckExistingUserWithID(userID);
         } else {
-            user = userUniqueIDManger.getUser(userID, this);
+            user = userUniqueIDManger.getUser(userID, this, userStore.getDomainName());
             isUserExisting = user != null;
         }
 
@@ -16352,7 +16352,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // #################### Domain Name Free Zone Starts Here ################################
         // If unique id feature is not enabled, we have to call the legacy methods.
         if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-            User user = userUniqueIDManger.getUser(userID, this);
+            User user = userUniqueIDManger.getUser(userID, this, userStore.getDomainName());
             // If we don't have a record for this user, let's try to call directly using the user id.
             if (user == null) {
                 return false;
