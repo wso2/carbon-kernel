@@ -2436,6 +2436,13 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             throw new UserStoreException("The sql statement for add user property sql is null.");
         }
 
+        // Select and update lock the rows to be updated in a particular order before the actual update operation to
+        // prevent the deadlock scenario.
+        // Currently, this issue is only reproduced in SQL Server.
+        if (isMSSQLDB(dbConnection)) {
+            selectRowsForUpdate(dbConnection, userID);
+        }
+
         if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
             updateStringValuesToDatabase(dbConnection, sqlStmt, value, userID, tenantId, propertyName, profileName,
                     tenantId);
