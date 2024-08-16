@@ -1040,7 +1040,8 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                             if (answer.hasMore()) { // to check if there is a result
                                 while (answer.hasMore()) { // to check if there are more than one group
                                     if (count > 0) {
-                                        throw new UserStoreException("More than one group exist with name");
+                                        throw new UserStoreException("More than one group exist with name: " +
+                                                context.getRoleName());
                                     }
                                     sr = answer.next();
                                     count++;
