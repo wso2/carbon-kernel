@@ -362,8 +362,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     @Override
-    public int doGetUserCountOfRoleWithID(String roleName)
-            throws UserStoreException {
+    public int doGetUserCountOfRoleWithID(String roleName) throws UserStoreException {
 
         RoleContext roleContext = createRoleContext(roleName);
         return getUserCountByRole(roleContext);
@@ -2438,7 +2437,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
 
         if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-            updateStringValuesToDatabase(dbConnection, sqlStmt, value, userID, tenantId, propertyName, profileName,
+            updateStringValuesToDatabase(dbConnection, sqlStmt, value, propertyName, profileName, userID, tenantId,
                     tenantId);
         } else {
             updateStringValuesToDatabase(dbConnection, sqlStmt, value, userID, propertyName, profileName);
@@ -3032,8 +3031,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                         batchUpdateStringValuesToDatabase(prepStmt, propertyName, propertyValue, profileName, tenantId,
                                 userID, tenantId);
                     } else {
-                        batchUpdateStringValuesToDatabase(prepStmt, propertyValue, userID, tenantId, propertyName,
-                                profileName, tenantId);
+                        batchUpdateStringValuesToDatabase(prepStmt, propertyValue, propertyName, profileName, userID, tenantId,
+                                tenantId);
                     }
                 } else {
                     batchUpdateStringValuesToDatabase(prepStmt, propertyValue, userID, propertyName, profileName);
@@ -4409,10 +4408,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                                 " U.UM_ID = UA.UM_USER_ID");
             } else if (ORACLE.equals(dbType)) {
                 sqlStatement = new StringBuilder(
-                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT UM_USER_NAME, rownum AS rnum "
-                                + "FROM (SELECT  UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR"
-                                + ".UM_ROLE_ID INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID INNER JOIN "
-                                + "UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
+                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, rownum AS rnum "
+                                + "FROM (SELECT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR "
+                                + "ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID INNER "
+                                + "JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
             } else if (POSTGRE_SQL.equals(dbType)) {
                 sqlStatement = new StringBuilder(
                         "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN " +
@@ -4449,9 +4448,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                                 "INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID");
             } else if (ORACLE.equals(dbType)) {
                 sqlStatement = new StringBuilder(
-                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT UM_USER_NAME, rownum AS rnum "
-                                + "FROM (SELECT  UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR"
-                                + ".UM_ROLE_ID INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID");
+                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, rownum AS rnum "
+                                + "FROM (SELECT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR "
+                                + "ON R.UM_ID = UR.UM_ROLE_ID INNER JOIN UM_USER U ON UR.UM_USER_ID =U.UM_ID");
             } else if (POSTGRE_SQL.equals(dbType)) {
                 sqlStatement = new StringBuilder(
                         "SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER JOIN " +
@@ -4842,6 +4841,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         try (PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
             prepStmt.setString(1, userID);
             prepStmt.setInt(2, tenantId);
+            prepStmt.setInt(3, tenantId);
             prepStmt.executeQuery();
         } catch (SQLException e) {
             String errorMessage = "Error while selecting rows for updating user attributes";

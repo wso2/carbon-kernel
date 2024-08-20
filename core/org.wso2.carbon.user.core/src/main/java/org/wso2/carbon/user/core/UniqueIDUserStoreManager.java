@@ -174,7 +174,11 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
     /**
      * Get user list of group.
      *
-     * @param groupName Name of the group.
+     * @param groupName    Name of the group.
+     * @param filter       The string to filter out users.
+     * @param maxItemLimit The max item limit. If -1 then system maximum limit will be used. If the
+     *                     given value is greater than the system configured max limit it will be reset to
+     *                     the system configured max limit.
      * @return An array of users that belongs to the given group.
      * @throws UserStoreException Thrown by the underlying UserStoreManager.
      */

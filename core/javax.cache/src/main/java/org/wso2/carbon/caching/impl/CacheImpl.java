@@ -535,6 +535,10 @@ public class CacheImpl<K, V> implements Cache<K, V> {
      * the local cache.
      */
     public boolean removeLocal(Object key) {
+
+        if (log.isDebugEnabled()) {
+            log.debug("Initiating to remove local cache with key : " + key);
+        }
         Util.checkAccess(ownerTenantDomain, ownerTenantId);
         checkStatusStarted();
         lastAccessed = System.currentTimeMillis();
@@ -546,6 +550,10 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         }
         boolean removed = entry != null;
         if (removed) {
+            if (log.isDebugEnabled()) {
+                log.debug("Initiating cache entry removal for cache with key : " + key + "and tenant domain: "
+                        + ownerTenantDomain);
+            }
             notifyCacheEntryRemoved((K) key, (V) entry.getValue());
         }
         return localCache.get(key) == null;
@@ -663,11 +671,17 @@ public class CacheImpl<K, V> implements Cache<K, V> {
      */
     public void removeAllLocal() {
 
+        if (log.isDebugEnabled()) {
+            log.debug("Initiating to remove all local cache");
+        }
         Util.checkAccess(ownerTenantDomain, ownerTenantId);
         checkStatusStarted();
         lastAccessed = System.currentTimeMillis();
         Map<K, CacheEntry<K, V>> map = localCache;
         for (Map.Entry<K, CacheEntry<K, V>> entry : map.entrySet()) {
+            if (log.isDebugEnabled()) {
+                log.debug("Removing all cache entries from the cache : " + cacheName);
+            }
             notifyCacheEntryRemoved(entry.getKey(), entry.getValue().getValue());
         }
         map.clear();
