@@ -2437,7 +2437,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
 
         if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-            updateStringValuesToDatabase(dbConnection, sqlStmt, value, propertyName, profileName, userID, tenantId,
+            updateStringValuesToDatabase(dbConnection, sqlStmt, value, userID, tenantId, propertyName, profileName,
                     tenantId);
         } else {
             updateStringValuesToDatabase(dbConnection, sqlStmt, value, userID, propertyName, profileName);
@@ -3031,8 +3031,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                         batchUpdateStringValuesToDatabase(prepStmt, propertyName, propertyValue, profileName, tenantId,
                                 userID, tenantId);
                     } else {
-                        batchUpdateStringValuesToDatabase(prepStmt, propertyValue, propertyName, profileName, userID, tenantId,
-                                tenantId);
+                        batchUpdateStringValuesToDatabase(prepStmt, propertyValue, userID, tenantId, propertyName,
+                                profileName, tenantId);
                     }
                 } else {
                     batchUpdateStringValuesToDatabase(prepStmt, propertyValue, userID, propertyName, profileName);
@@ -4841,7 +4841,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         try (PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
             prepStmt.setString(1, userID);
             prepStmt.setInt(2, tenantId);
-            prepStmt.setInt(3, tenantId);
             prepStmt.executeQuery();
         } catch (SQLException e) {
             String errorMessage = "Error while selecting rows for updating user attributes";
