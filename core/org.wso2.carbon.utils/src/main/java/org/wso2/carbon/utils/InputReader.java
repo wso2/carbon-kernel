@@ -15,6 +15,7 @@
  */
 package org.wso2.carbon.utils;
 
+import org.apache.commons.io.IOUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -43,10 +44,15 @@ public class InputReader {
 
     public static String readPassword(String prompt) throws IOException {
         PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out), true);
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         String password = null;
-        while (password == null || password.length() == 0) {
-            password = new PasswordPrompt(prompt, out).getPassword(in);
+        BufferedReader in = null;
+        try {
+            in = new BufferedReader(new InputStreamReader(System.in));
+            while (password == null || password.length() == 0) {
+                password = new PasswordPrompt(prompt, out).getPassword(in);
+            }
+        } finally {
+            IOUtils.closeQuietly(in);
         }
         return password;
     }
