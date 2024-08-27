@@ -23,6 +23,9 @@ import org.apache.logging.log4j.message.Message;
 import org.apache.logging.log4j.message.SimpleMessage;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.wso2.carbon.base.CarbonBaseConstants;
+
+import java.io.File;
 
 import static org.testng.Assert.assertEquals;
 
@@ -40,7 +43,7 @@ public class TenantIdConverterTest {
      */
     @BeforeMethod
     public void setUp() {
-
+        System.setProperty(CarbonBaseConstants.CARBON_HOME, new File(".").getAbsolutePath());
         tenantIdConverter = TenantIdConverter.newInstance(null);
         Message msg = new SimpleMessage("Test logging");
         logEvent = Log4jLogEvent.newBuilder()
