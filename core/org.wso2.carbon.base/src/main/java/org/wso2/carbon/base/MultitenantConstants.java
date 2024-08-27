@@ -58,4 +58,7 @@ public class MultitenantConstants {
     public static final String TENANT_REQUEST_MSG_CTX = "TENANT_REQUEST_MSG_CTX";
 
     public static final String SSO_AUTH_SESSION_ID = "SSOAuthSessionID";
+
+    public static final String CONTEXT_DATA_TENANT_DOMAIN_FOR_LOGS = "tenantDomainForLogs";
+    public static final String CONTEXT_DATA_TENANT_ID_FOR_LOGS = "tenantIDForLogs";
 }
