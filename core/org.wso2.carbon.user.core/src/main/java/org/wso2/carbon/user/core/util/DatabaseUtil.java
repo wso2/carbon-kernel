@@ -264,11 +264,6 @@ public class DatabaseUtil {
                     .CONNECTION_PROPERTIES));
         }
 
-        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.INIT_SQL)) &&
-                !realmConfig.getUserStoreProperty(JDBCRealmConstants.INIT_SQL).trim().isEmpty()) {
-            poolProperties.setInitSQL(realmConfig.getUserStoreProperty(JDBCRealmConstants.INIT_SQL));
-        }
-
         if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.JDBC_INTERCEPTORS)) &&
                 !realmConfig.getUserStoreProperty(JDBCRealmConstants.JDBC_INTERCEPTORS).trim().isEmpty()) {
             poolProperties.setJdbcInterceptors(realmConfig.getUserStoreProperty(JDBCRealmConstants.JDBC_INTERCEPTORS));
@@ -499,11 +494,6 @@ public class DatabaseUtil {
                 !realmConfig.getRealmProperty(JDBCRealmConstants.CONNECTION_PROPERTIES).trim().isEmpty()) {
             poolProperties.setConnectionProperties(realmConfig.getRealmProperty(JDBCRealmConstants
                     .CONNECTION_PROPERTIES));
-        }
-
-        if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(JDBCRealmConstants.INIT_SQL)) &&
-                !realmConfig.getRealmProperty(JDBCRealmConstants.INIT_SQL).trim().isEmpty()) {
-            poolProperties.setInitSQL(realmConfig.getRealmProperty(JDBCRealmConstants.INIT_SQL));
         }
 
         if (StringUtils.isNotEmpty(realmConfig.getRealmProperty(JDBCRealmConstants.JDBC_INTERCEPTORS)) &&
