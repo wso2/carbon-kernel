@@ -694,8 +694,16 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID, "Update User Property With ID SQL",
                 JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID_SQL, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID_OPTIMIZED, "Update User Property" +
+                        " With ID Optimized SQL",
+                JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID_OPTIMIZED_SQL, "",
+                new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCRealmConstants.SELECT_USER_PROPERTIES_WITH_ID, "Select User Properties With ID SQL",
                 JDBCRealmConstants.SELECT_USER_PROPERTIES_WITH_ID_SQL, "",
+                new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCRealmConstants.SELECT_USER_PROPERTIES_WITH_ID_OPTIMIZED, "Select User " +
+                        "Properties With ID  Optimized SQL",
+                JDBCRealmConstants.SELECT_USER_PROPERTIES_WITH_ID_OPTIMIZED_SQL, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCCaseInsensitiveConstants.UPDATE_USER_PROPERTY_CASE_INSENSITIVE,
                 "Update User Property SQL With Case Insensitive Username",
