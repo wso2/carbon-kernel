@@ -8017,7 +8017,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         } else if (!noInternalRoles && !isAnInternalRole(filter) && !filter
                 .contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
             // When domain name is not present in the filter value.
-            if (filter == "*") {
+            if (Objects.equals(filter, "*")) {
                 roleList = hybridRoleManager.getHybridRoles(filter);
             } else {
                 // Since Application domain roles are stored in db with the "Application/" prefix, when domain is not

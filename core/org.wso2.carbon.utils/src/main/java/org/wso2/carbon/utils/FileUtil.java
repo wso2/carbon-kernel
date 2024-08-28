@@ -53,7 +53,7 @@ public class FileUtil {
                     } catch (IOException e) {
                         System.err.println(" Could not copy " + srcDir.getName() +
                                            " dir: " + e);
-                        System.exit(1);
+                        throw new IOException("Copy operation failed", e);
                     }
                 }
                 replaceDir = true;
@@ -69,7 +69,7 @@ public class FileUtil {
                 } catch (IOException e) {
                     System.err.println(" Could not copy " + srcDir.getName() +
                                        " dir: " + e);
-                    System.exit(1);
+                    throw new IOException("Copy operation failed", e);
                 }
             }
             replaceDir = true;
