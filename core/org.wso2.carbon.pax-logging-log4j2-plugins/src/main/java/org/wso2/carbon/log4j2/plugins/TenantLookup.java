@@ -19,6 +19,7 @@ package org.wso2.carbon.log4j2.plugins;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.lookup.StrLookup;
+import org.apache.logging.log4j.util.ReadOnlyStringMap;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.utils.xml.StringUtils;
@@ -28,20 +29,21 @@ import org.wso2.carbon.utils.xml.StringUtils;
  */
 @Plugin(name = "TenantLookup", category = StrLookup.CATEGORY)
 public class TenantLookup implements StrLookup {
+    String tenantDomain;
 
     @Override
     public String lookup(String s) {
-        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        if (StringUtils.isEmpty(tenantDomain)) {
-            tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
-        }
+        tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
         return tenantDomain;
     }
 
     @Override
     public String lookup(LogEvent logEvent, String s) {
-        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        if (StringUtils.isEmpty(tenantDomain)) {
+        ReadOnlyStringMap contextData = logEvent.getContextData();
+        if (contextData != null && contextData.size() != 0) {
+            tenantDomain = contextData.getValue(MultitenantConstants.CONTEXT_DATA_TENANT_DOMAIN_FOR_LOGS);
+        }
+        if (tenantDomain == null) {
             tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
         }
         return tenantDomain;

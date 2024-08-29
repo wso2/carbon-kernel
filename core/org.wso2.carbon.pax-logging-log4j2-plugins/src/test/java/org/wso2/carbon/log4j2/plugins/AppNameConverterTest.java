@@ -21,23 +21,31 @@ import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.impl.Log4jLogEvent;
 import org.apache.logging.log4j.message.Message;
 import org.apache.logging.log4j.message.SimpleMessage;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.testng.PowerMockTestCase;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.wso2.carbon.utils.logging.handler.TenantDomainSetter;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
+
+import java.io.File;
 
 import static org.testng.Assert.assertEquals;
 
 /**
  * Tests AppNameConverter class.
  */
-@PrepareForTest(TenantDomainSetter.class)
 public class AppNameConverterTest extends PowerMockTestCase {
 
     private AppNameConverter appNameConverter;
     private LogEvent logEvent;
     private static final String APP_NAME = "appName";
+
+    public AppNameConverterTest() {
+        System.setProperty("carbon.home", new File(".").getAbsolutePath());
+        PrivilegedCarbonContext cc = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+        cc.setTenantDomain("carbon.super");
+        cc.setTenantId(-1234);
+        PrivilegedCarbonContext.startTenantFlow();
+    }
 
     /**
      * Creates a log event to test appending of the AppName.
