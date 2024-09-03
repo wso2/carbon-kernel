@@ -179,6 +179,16 @@
             <artifactId>org.osgi.compendium</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.admin.advisory.mgt.stub</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.admin.advisory.mgt.ui</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -217,6 +227,8 @@
                             org.wso2.carbon.registry.core.service,
                             org.owasp.csrfguard.tag.*; version="${orbit.version.csrfguard}",
                             org.owasp.encoder.*;version="${owasp.encoder.wso2.imp.pkg.version}",
+                            org.wso2.carbon.admin.advisory.mgt.stub.*;version="${carbon.kernel.imp.pkg.version}",
+                            org.wso2.carbon.admin.advisory.mgt.ui.*;version="${carbon.kernel.imp.pkg.version}",
                             *;resolution:=optional
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
