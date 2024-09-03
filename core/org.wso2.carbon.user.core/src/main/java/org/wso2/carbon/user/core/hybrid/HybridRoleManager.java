@@ -791,7 +791,12 @@ public class HybridRoleManager {
         if (CollectionUtils.isEmpty(userNames)) {
             return new HashMap<>();
         }
-
+        userNames.forEach(username -> {
+            String sanitizedUsername = username.contains(UserCoreConstants.DOMAIN_SEPARATOR)
+                    ? UserCoreUtil.removeDomainFromName(username)
+                    : username;
+            userNames.set(userNames.indexOf(username), sanitizedUsername);
+        });
         Map<String, List<String>> hybridRoleListOfUsers = new HashMap<>();
         String sqlStmt = realmConfig.getRealmProperty(isRoleV2Using() ? HybridJDBCConstants.GET_ROLE_V2_LIST_OF_USERS :
                 HybridJDBCConstants.GET_ROLE_LIST_OF_USERS);
