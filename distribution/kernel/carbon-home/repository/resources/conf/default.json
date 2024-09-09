@@ -233,7 +233,7 @@
   "jdbc_user_store.enable_optimized_jdbc_search": false,
   "user_store_commons.enable_circuit_breaker_for_user_stores": true,
   "user_store_commons.max_connection_retry_count": "5",
-  "user_store_commons.max_connection_retry_delay_in_milli_seconds": "300000",
+  "user_store_commons.min_connection_retry_delay_in_milli_seconds": "60000",
   "clustering.agent": "org.wso2.carbon.hazelcast.HazelcastClusteringAgent",
   "database.registry_db.url" : "jdbc:h2:async:./repository/database/WSO2CARBON_DB;DB_CLOSE_ON_EXIT=FALSE",
   "database.registry_db.username" : "wso2carbon",
