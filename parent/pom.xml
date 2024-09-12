@@ -405,7 +405,7 @@
         <orbit.version.el.impl>2.2.wso2v1</orbit.version.el.impl>
 
         <!-- H2 Database Engine -->
-        <version.h2.engine>2.2.224.wso2v2</version.h2.engine>
+        <version.h2.engine>2.3.232.wso2v1</version.h2.engine>
 
         <!-- Abdera -->
         <version.abdera>1.0-wso2v2</version.abdera>
@@ -607,7 +607,7 @@
         <!-- Test integration -->
         <woden.api.version>1.0M9</woden.api.version>
         <maven.clean.plugin.version>2.4.1</maven.clean.plugin.version>
-        <version.com.google.code.gson>2.10.1</version.com.google.code.gson>
+        <version.com.google.code.gson>2.11.0</version.com.google.code.gson>
 
         <test.framework.version>4.4.3</test.framework.version>
         <testng.verson>6.10</testng.verson>
@@ -638,9 +638,9 @@
         <version.jinjava>2.7.2</version.jinjava>
         <version.cava-toml>0.5.0</version.cava-toml>
         <version.checkstyle>7.8.2</version.checkstyle>
-        <version.jackson>2.16.1</version.jackson>
-        <version.jackson.databind>2.16.0</version.jackson.databind>
-        <version.jackson.dataformat>2.16.0</version.jackson.dataformat>
+        <version.jackson>2.17.2</version.jackson>
+        <version.jackson.databind>2.17.2</version.jackson.databind>
+        <version.jackson.dataformat>2.17.2</version.jackson.dataformat>
         <version.guava>33.0.0-jre</version.guava>
         <version.ciphertool>1.1.0</version.ciphertool>
         <xml.unit.verions>2.6.2</xml.unit.verions>
