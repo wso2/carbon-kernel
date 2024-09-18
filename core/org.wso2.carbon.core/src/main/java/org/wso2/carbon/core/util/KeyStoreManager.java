@@ -447,8 +447,7 @@ public class KeyStoreManager {
                         new File(config
                                 .getFirstProperty(RegistryResources.SecurityManagement.SERVER_REGISTRY_KEYSTORE_FILE))
                                 .getAbsolutePath();
-                KeyStore store = KeystoreUtils
-                        .getKeystoreInstance(config
+                KeyStore store = KeystoreUtils.getKeystoreInstance(config
                                 .getFirstProperty(RegistryResources.SecurityManagement.SERVER_REGISTRY_KEYSTORE_TYPE));
                 String password = config
                         .getFirstProperty(RegistryResources.SecurityManagement.SERVER_REGISTRY_KEYSTORE_PASSWORD);
