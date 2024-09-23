@@ -224,7 +224,7 @@ public class KeystoreUtils {
 
     /**
      * Returns a {@link KeyStore} instance for the given type.
-     * Uses the BouncyCastle provider for the default file type, otherwise the default JCE provider.
+     * Uses the BouncyCastle provider for the p12 file type, otherwise the default JCE provider.
      *
      * @param keyStoreType  The type of the keystore.
      * @return              {@link KeyStore} instance.
