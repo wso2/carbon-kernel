@@ -222,6 +222,15 @@ public class KeystoreUtils {
         return isKeyStoreExists;
     }
 
+    /**
+     * Returns a {@link KeyStore} instance for the given type.
+     * Uses the BouncyCastle provider for the default file type, otherwise the default JCE provider.
+     *
+     * @param keyStoreType  The type of the keystore.
+     * @return              {@link KeyStore} instance.
+     * @throws KeyStoreException If the keystore type is unavailable.
+     * @throws NoSuchProviderException If the security provider is unavailable.
+     */
     public static KeyStore getKeystoreInstance(String keyStoreType) throws KeyStoreException, NoSuchProviderException {
 
         if (StoreFileType.defaultFileType.equals(keyStoreType)) {
