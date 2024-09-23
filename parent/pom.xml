@@ -502,8 +502,7 @@
         <hibernate.orbit.version>3.2.5.ga-wso2v1</hibernate.orbit.version>
 
         <!-- bouncycastle -->
-        <bouncycastle.pkix.version>1.77.0.wso2v2</bouncycastle.pkix.version>
-        <bouncycastle.provider.version>1.77.0.wso2v1</bouncycastle.provider.version>
+        <bouncycastle.version>1.78.1.wso2v1</bouncycastle.version>
         <imp.pkg.version.bcp>[1.0.0, 2.0.0)</imp.pkg.version.bcp>
 
         <!--BPS specific-->
@@ -983,12 +982,12 @@
             <dependency>
                 <groupId>org.wso2.orbit.org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk18on</artifactId>
-                <version>${bouncycastle.provider.version}</version>
+                <version>${bouncycastle.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.orbit.org.bouncycastle</groupId>
                 <artifactId>bcpkix-jdk18on</artifactId>
-                <version>${bouncycastle.pkix.version}</version>
+                <version>${bouncycastle.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.compass-project.wso2</groupId>
