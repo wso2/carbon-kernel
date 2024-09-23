@@ -22,11 +22,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonException;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchProviderException;
 
 /**
  * A collection of key store and trust store related utility methods.
@@ -214,5 +220,32 @@ public class KeystoreUtils {
             LOG.error(msg + e.getMessage());
         }
         return isKeyStoreExists;
+    }
+
+    /**
+     * Returns a {@link KeyStore} instance for the given type.
+     * Uses the BouncyCastle provider for the p12 file type, otherwise the default JCE provider.
+     *
+     * @param keyStoreType  The type of the keystore.
+     * @return              {@link KeyStore} instance.
+     * @throws KeyStoreException If the keystore type is unavailable.
+     * @throws NoSuchProviderException If the security provider is unavailable.
+     */
+    public static KeyStore getKeystoreInstance(String keyStoreType) throws KeyStoreException, NoSuchProviderException {
+
+        if (StoreFileType.defaultFileType.equals(keyStoreType)) {
+            return KeyStore.getInstance(keyStoreType, getJCEProvider());
+        } else {
+            return KeyStore.getInstance(keyStoreType);
+        }
+    }
+
+    private static String getJCEProvider() {
+
+        String provider = ServerConfiguration.getInstance().getFirstProperty(ServerConstants.JCE_PROVIDER);
+        if (!StringUtils.isBlank(provider)) {
+            return provider;
+        }
+        return ServerConstants.JCE_PROVIDER_BC;
     }
 }

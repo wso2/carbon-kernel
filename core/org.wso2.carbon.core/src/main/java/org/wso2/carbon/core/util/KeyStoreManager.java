@@ -33,6 +33,7 @@ import org.wso2.carbon.registry.core.exceptions.ResourceNotFoundException;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+import org.wso2.carbon.utils.security.KeystoreUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -328,8 +329,7 @@ public class KeyStoreManager {
                         new File(config
                                 .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_FILE))
                                 .getAbsolutePath();
-                KeyStore store = KeyStore
-                        .getInstance(config
+                KeyStore store = KeystoreUtils.getKeystoreInstance(config
                                 .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_TYPE));
                 String password = config
                         .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_PASSWORD);
@@ -371,7 +371,7 @@ public class KeyStoreManager {
         if (registry.resourceExists(path)) {
             org.wso2.carbon.registry.api.Resource resource = registry.get(path);
             byte[] bytes = (byte[]) resource.getContent();
-            KeyStore keyStore = KeyStore.getInstance(resource
+            KeyStore keyStore = KeystoreUtils.getKeystoreInstance(resource
                     .getProperty(RegistryResources.SecurityManagement.PROP_TYPE));
             CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
             String encryptedPassword = resource
@@ -412,7 +412,7 @@ public class KeyStoreManager {
                 String file = new File(config
                         .getFirstProperty(RegistryResources.SecurityManagement.SERVER_INTERNAL_KEYSTORE_FILE))
                         .getAbsolutePath();
-                KeyStore store = KeyStore.getInstance(config
+                KeyStore store = KeystoreUtils.getKeystoreInstance(config
                         .getFirstProperty(RegistryResources.SecurityManagement.SERVER_INTERNAL_KEYSTORE_TYPE));
                 String password = config
                         .getFirstProperty(RegistryResources.SecurityManagement.SERVER_INTERNAL_KEYSTORE_PASSWORD);
@@ -447,8 +447,7 @@ public class KeyStoreManager {
                         new File(config
                                 .getFirstProperty(RegistryResources.SecurityManagement.SERVER_REGISTRY_KEYSTORE_FILE))
                                 .getAbsolutePath();
-                KeyStore store = KeyStore
-                        .getInstance(config
+                KeyStore store = KeystoreUtils.getKeystoreInstance(config
                                 .getFirstProperty(RegistryResources.SecurityManagement.SERVER_REGISTRY_KEYSTORE_TYPE));
                 String password = config
                         .getFirstProperty(RegistryResources.SecurityManagement.SERVER_REGISTRY_KEYSTORE_PASSWORD);
@@ -558,7 +557,7 @@ public class KeyStoreManager {
             byte[] bytes = (byte[]) resource.getContent();
             String keyStorePassword = new String(cryptoUtil.base64DecodeAndDecrypt(resource.getProperty(
                     RegistryResources.SecurityManagement.PROP_PASSWORD)));
-            keyStore = KeyStore.getInstance(resource
+            keyStore = KeystoreUtils.getKeystoreInstance(resource
                     .getProperty(RegistryResources.SecurityManagement.PROP_TYPE));
             ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
             keyStore.load(stream, keyStorePassword.toCharArray());
@@ -716,7 +715,7 @@ public class KeyStoreManager {
         String absolutePath = new File(keyStorePath).getAbsolutePath();
         FileInputStream inputStream = null;
         try {
-            KeyStore store = KeyStore.getInstance(type);
+            KeyStore store = KeystoreUtils.getKeystoreInstance(type);
             inputStream = new FileInputStream(absolutePath);
             store.load(inputStream, password.toCharArray());
             return store;

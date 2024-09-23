@@ -46,6 +46,7 @@ import org.wso2.carbon.user.core.tracker.UserStoreManagerRegistry;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ServerConstants;
+import org.wso2.carbon.utils.security.KeystoreUtils;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 import org.wso2.securevault.commons.MiscellaneousUtil;
@@ -396,7 +397,7 @@ public class UserStoreConfigXMLProcessor {
         String keyAlias = serverConfigurationService.getFirstProperty(keyAliasXPath);
 
         try {
-            KeyStore store = KeyStore.getInstance(serverConfigurationService.getFirstProperty(typeXPath));
+            KeyStore store = KeystoreUtils.getKeystoreInstance(serverConfigurationService.getFirstProperty(typeXPath));
             String file = new File(serverConfigurationService.getFirstProperty(locationXPath)).getAbsolutePath();
             in = new FileInputStream(file);
             store.load(in, password.toCharArray());

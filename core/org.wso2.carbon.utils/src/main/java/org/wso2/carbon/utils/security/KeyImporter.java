@@ -57,11 +57,11 @@ public class KeyImporter {
         try (FileOutputStream fileOutputStream = new FileOutputStream(new File(targetStorePath).getAbsolutePath());
              FileInputStream fis = new FileInputStream(new File(sourceStorePath).getAbsolutePath());) {
 
-            KeyStore sourceStore = KeyStore.getInstance(getFileType(sourceStorePath));
+            KeyStore sourceStore = KeystoreUtils.getKeystoreInstance(getFileType(sourceStorePath));
             sourceStore.load(fis, sourceStorePass.toCharArray());
 
             Certificate cert = sourceStore.getCertificateChain(keyAlias)[0];
-            KeyStore targetStore = KeyStore.getInstance(getFileType(targetStorePath));
+            KeyStore targetStore = KeystoreUtils.getKeystoreInstance(getFileType(targetStorePath));
 
             File targetStoreFile = new File(targetStorePath);
             if (targetStoreFile.exists()) {
