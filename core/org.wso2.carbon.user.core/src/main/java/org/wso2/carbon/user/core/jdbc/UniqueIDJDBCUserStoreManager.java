@@ -2431,13 +2431,13 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     protected void updatePropertyWithID(Connection dbConnection, String userID, String propertyName, String value,
             String profileName) throws UserStoreException {
 
-        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID);
+        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID_OPTIMIZED);
         if (sqlStmt == null) {
             throw new UserStoreException("The sql statement for add user property sql is null.");
         }
 
         if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-            updateStringValuesToDatabase(dbConnection, sqlStmt, value, userID, tenantId, propertyName, profileName,
+            updateStringValuesToDatabase(dbConnection, sqlStmt, value, propertyName, profileName, userID, tenantId,
                     tenantId);
         } else {
             updateStringValuesToDatabase(dbConnection, sqlStmt, value, userID, propertyName, profileName);
@@ -3005,9 +3005,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             throw new UserStoreException(msg, e);
         }
 
-        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID + "-" + type);
+        String sqlStmt =
+                realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID + "-" + type);
         if (sqlStmt == null) {
-            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID);
+            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID_OPTIMIZED);
         }
         if (sqlStmt == null) {
             throw new UserStoreException("The sql statement for update user property sql is null.");
@@ -3031,8 +3032,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                         batchUpdateStringValuesToDatabase(prepStmt, propertyName, propertyValue, profileName, tenantId,
                                 userID, tenantId);
                     } else {
-                        batchUpdateStringValuesToDatabase(prepStmt, propertyValue, userID, tenantId, propertyName,
-                                profileName, tenantId);
+                        batchUpdateStringValuesToDatabase(prepStmt, propertyValue, propertyName, profileName, userID, tenantId,
+                                tenantId);
                     }
                 } else {
                     batchUpdateStringValuesToDatabase(prepStmt, propertyValue, userID, propertyName, profileName);
@@ -4837,10 +4838,11 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
      */
     private void selectRowsForUpdate(Connection dbConnection, String userID) throws UserStoreException {
 
-        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.SELECT_USER_PROPERTIES_WITH_ID);
+        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.SELECT_USER_PROPERTIES_WITH_ID_OPTIMIZED);
         try (PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
             prepStmt.setString(1, userID);
             prepStmt.setInt(2, tenantId);
+            prepStmt.setInt(3, tenantId);
             prepStmt.executeQuery();
         } catch (SQLException e) {
             String errorMessage = "Error while selecting rows for updating user attributes";
