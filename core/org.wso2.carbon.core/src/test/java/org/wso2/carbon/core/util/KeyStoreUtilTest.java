@@ -19,16 +19,26 @@
 package org.wso2.carbon.core.util;
 
 import org.apache.axiom.om.OMElement;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.base.api.ServerConfigurationService;
+import org.wso2.carbon.core.RegistryResources;
+import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.utils.ServerConstants;
 
 import javax.xml.namespace.QName;
 
 import java.nio.file.Paths;
 
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
@@ -36,6 +46,40 @@ public class KeyStoreUtilTest {
 
     private static final String basedir = Paths.get("").toAbsolutePath().toString();
     private static final String testDir = Paths.get(basedir, "src", "test", "resources").toString();
+
+    @Mock
+    private ServerConfigurationService serverConfigurationService;
+    @Mock
+    private CarbonCoreDataHolder carbonCoreDataHolder;
+
+    @BeforeClass
+    public void setUp() throws Exception {
+
+        initMocks(this);
+    }
+
+    @DataProvider(name = "PrimaryStoreDataProvider")
+    public Object[][] primaryStoreDataProvider() {
+        return new Object[][] {
+            {"wso2carbon.jks", true},
+            {"", false},
+            {"nonexistent.jks", false}
+        };
+    }
+
+    @Test(dataProvider = "PrimaryStoreDataProvider")
+    public void isPrimaryStore(String keyStoreId, boolean expectedResult) {
+
+        String primaryKeystoreFile = testDir + "/wso2carbon.jks";
+        try (MockedStatic<CarbonCoreDataHolder> carbonCoreDataHolder = mockStatic(CarbonCoreDataHolder.class)) {
+
+            carbonCoreDataHolder.when(CarbonCoreDataHolder::getInstance).thenReturn(this.carbonCoreDataHolder);
+            when(this.carbonCoreDataHolder.getServerConfigurationService()).thenReturn(serverConfigurationService);
+            when(serverConfigurationService.getFirstProperty(
+                    RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_FILE)).thenReturn(primaryKeystoreFile);
+            assertEquals(KeyStoreUtil.isPrimaryStore(keyStoreId), expectedResult);
+        }
+    }
 
     @DataProvider(name = "KeyStoreNameDataProvider")
     public Object[][] keyStoreNameDataProvider() {

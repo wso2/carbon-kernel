@@ -43,9 +43,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.Key;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
@@ -60,6 +64,7 @@ public class KeyStoreManager {
     private KeyStore primaryKeyStore = null;
     private KeyStore registryKeyStore = null;
     private KeyStore internalKeyStore = null;
+    private KeyStore trustStore = null;
     private static ConcurrentHashMap<String, KeyStoreManager> mtKeyStoreManagers =
             new ConcurrentHashMap<String, KeyStoreManager>();
     private static Log log = LogFactory.getLog(KeyStoreManager.class);
@@ -271,28 +276,50 @@ public class KeyStoreManager {
         ServerConfigurationService config = this.getServerConfigService();
 
         if (KeyStoreUtil.isPrimaryStore(name)) {
-            String file = new File(
-                    config
-                            .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_FILE))
-                    .getAbsolutePath();
-            FileOutputStream out = null;
-            try {
-                out = new FileOutputStream(file);
-                String password = config
-                        .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_PASSWORD);
-                keyStore.store(out, password.toCharArray());
-            } finally {
-                if (out != null) {
-                    out.close();
-                }
-            }
+            updatePrimaryKeyStore(keyStore);
             return;
         }
 
-        String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + name;
+        if (KeyStoreUtil.isTrustStore(name)) {
+            updateTrustStore(keyStore);
+            return;
+        }
 
+        updateTenantKeyStore(name, keyStore);
+    }
+
+    private void updatePrimaryKeyStore(KeyStore keyStore) throws Exception {
+
+        ServerConfigurationService config = this.getServerConfigService();
+        String file = new File(config
+                .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_FILE))
+                .getAbsolutePath();
+        try (FileOutputStream out = new FileOutputStream(file)) {
+            String password = config
+                    .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_PASSWORD);
+            keyStore.store(out, password.toCharArray());
+            primaryKeyStore = keyStore;
+        }
+    }
+
+    private void updateTrustStore(KeyStore keyStore) throws Exception {
+
+        ServerConfigurationService config = this.getServerConfigService();
+        String file = new File(config
+                .getFirstProperty(RegistryResources.SecurityManagement.SERVER_TRUSTSTORE_FILE))
+                .getAbsolutePath();
+        try (FileOutputStream out = new FileOutputStream(file)) {
+            String password = config
+                    .getFirstProperty(RegistryResources.SecurityManagement.SERVER_TRUSTSTORE_PASSWORD);
+            keyStore.store(out, password.toCharArray());
+            trustStore = keyStore;
+        }
+    }
+
+    private void updateTenantKeyStore(String keyStoreName, KeyStore keyStore) throws Exception {
+
+        String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
         org.wso2.carbon.registry.api.Resource resource = registry.get(path);
-
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
         String encryptedPassword = resource
@@ -301,12 +328,10 @@ public class KeyStoreManager {
         keyStore.store(outputStream, password.toCharArray());
         outputStream.flush();
         outputStream.close();
-
         resource.setContent(outputStream.toByteArray());
-
         registry.put(path, resource);
         resource.discard();
-        updateTenantKeyStoreCache(name, new KeyStoreBean(keyStore, new Date()));
+        updateTenantKeyStoreCache(keyStoreName, new KeyStoreBean(keyStore, new Date()));
     }
 
     /**
@@ -333,15 +358,9 @@ public class KeyStoreManager {
                                 .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_TYPE));
                 String password = config
                         .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_PASSWORD);
-                FileInputStream in = null;
-                try {
-                    in = new FileInputStream(file);
+                try (FileInputStream in = new FileInputStream(file)) {
                     store.load(in, password.toCharArray());
                     primaryKeyStore = store;
-                } finally {
-                    if (in != null) {
-                        in.close();
-                    }
                 }
             }
             return primaryKeyStore;
@@ -424,6 +443,35 @@ public class KeyStoreManager {
             return internalKeyStore;
         } else {
             throw new CarbonException("Permission denied for accessing internal key store. The internal key store is " +
+                    "available only for the super tenant.");
+        }
+    }
+
+    public KeyStore getTrustStore() throws CarbonException {
+
+        if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
+            if (trustStore == null) {
+                try {
+                    ServerConfigurationService config = this.getServerConfigService();
+                    String file = new File(config
+                            .getFirstProperty(RegistryResources.SecurityManagement.SERVER_TRUSTSTORE_FILE))
+                            .getAbsolutePath();
+                    KeyStore store = KeystoreUtils.getKeystoreInstance(config
+                            .getFirstProperty(RegistryResources.SecurityManagement.SERVER_TRUSTSTORE_TYPE));
+                    String password = config
+                            .getFirstProperty(RegistryResources.SecurityManagement.SERVER_TRUSTSTORE_PASSWORD);
+                    try (FileInputStream in = new FileInputStream(file)) {
+                        store.load(in, password.toCharArray());
+                        trustStore = store;
+                    }
+                } catch (KeyStoreException | NoSuchProviderException | IOException | CertificateException |
+                    NoSuchAlgorithmException e) {
+                    throw new CarbonException("Error loading trust store", e);
+                }
+            }
+            return trustStore;
+        } else {
+            throw new CarbonException("Permission denied for accessing trust store. The trust store is " +
                     "available only for the super tenant.");
         }
     }

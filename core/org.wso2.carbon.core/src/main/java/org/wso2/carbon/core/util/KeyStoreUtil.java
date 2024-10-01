@@ -20,6 +20,7 @@ package org.wso2.carbon.core.util;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.util.XMLUtils;
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.core.RegistryResources;
@@ -79,30 +80,21 @@ public class KeyStoreUtil {
     }
 
     public static boolean isPrimaryStore(String id) {
-        ServerConfigurationService config =
-                CarbonCoreDataHolder.getInstance().getServerConfigurationService();
-        String fileName = config
-                .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_FILE);
-        int index = fileName.lastIndexOf('/');
-        if (index != -1) {
-            String name = fileName.substring(index + 1);
-            if (name.equals(id)) {
-                return true;
-            }
-        } else {
-            index = fileName.lastIndexOf(File.separatorChar);
-            String name = null;
-            if (index != -1) {
-                name = fileName.substring(fileName.lastIndexOf(File.separatorChar));
-            } else {
-                name = fileName;
-            }
 
-            if (name.equals(id)) {
-                return true;
-            }
-        }
-        return false;
+        ServerConfigurationService config = CarbonCoreDataHolder.getInstance().getServerConfigurationService();
+        String fileName = config.getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_FILE);
+        int index = fileName.lastIndexOf('/');
+        String name = index != -1 ? fileName.substring(index + 1) : new File(fileName).getName();
+        return StringUtils.equals(name, id);
+    }
+
+    public static boolean isTrustStore(String id) {
+
+        ServerConfigurationService config = CarbonCoreDataHolder.getInstance().getServerConfigurationService();
+        String fileName = config.getFirstProperty(RegistryResources.SecurityManagement.SERVER_TRUSTSTORE_FILE);
+        int index = fileName.lastIndexOf('/');
+        String name = index != -1 ? fileName.substring(index + 1) : new File(fileName).getName();
+        return StringUtils.equals(name, id);
     }
 
     public static Certificate getCertificate(String alias, KeyStore store) throws AxisFault {
