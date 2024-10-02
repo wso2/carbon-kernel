@@ -425,7 +425,7 @@
         <Secret>{{encryption.key}}</Secret>
         {% endif %}
 
-    	{% if encryption.enable_old_key is defined %}
+    	{% if encryption.enable_key_id is defined %}
     	<EnableKeyId>{{encryption.enable_key_id}}</EnableKeyId>
     	{% endif %}
 	
