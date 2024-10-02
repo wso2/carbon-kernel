@@ -425,14 +425,13 @@
         <Secret>{{encryption.key}}</Secret>
         {% endif %}
 
-        <OldSecret>
-            {% if encryption.enable_old_key is defined %}
-            <Enabled>{{encryption.enable_old_key}}</Enabled>
-            {% endif %}
-            {% if encryption.old_key is defined %}
-            <Secret>{{encryption.old_key}}</Secret>
-            {% endif %}
-        </OldSecret>
+    	{% if encryption.enable_old_key is defined %}
+    	<EnableKeyId>{{encryption.enable_key_id}}</EnableKeyId>
+    	{% endif %}
+	
+    	{% if encryption.old_key is defined %}
+    	<OldSecret>{{encryption.old_key}}</Secret>
+    	{% endif %}
 
         {% if encryption.totpKey is defined %}
         <TotpSecret>{{encryption.totpKey}}</TotpSecret>
