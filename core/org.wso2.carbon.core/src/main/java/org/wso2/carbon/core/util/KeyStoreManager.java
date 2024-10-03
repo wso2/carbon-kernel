@@ -23,7 +23,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.base.api.ServerConfigurationService;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.registry.api.Registry;
@@ -134,6 +133,91 @@ public class KeyStoreManager {
                     serverConfigService, registryService));
         }
         return mtKeyStoreManagers.get(tenantIdStr);
+    }
+
+    public void addTrustStore(byte[] content, String filename, String password, String provider, String type)
+            throws CarbonException {
+
+        if (StringUtils.isBlank(filename)) {
+            throw new CarbonException("Key Store name can't be null");
+        }
+        if (KeyStoreUtil.isPrimaryStore(filename)) {
+            throw new CarbonException("Key store " + filename + " already available");
+        }
+        addKeystore(filename, content, password, provider, type, null);
+    }
+
+    public void addKeyStore(byte[] content, String filename, String password, String provider,
+                            String type, String privateKeyPass) throws CarbonException {
+
+        if (StringUtils.isBlank(filename)) {
+            throw new CarbonException("Key Store name can't be null");
+        }
+        if (KeyStoreUtil.isPrimaryStore(filename) || KeyStoreUtil.isTrustStore(filename)) {
+            throw new CarbonException("Key store " + filename + " already available");
+        }
+        addKeystore(filename, content, password, provider, type, privateKeyPass);
+    }
+
+    private void addKeystore(String filename, byte[] content, String password, String provider,
+                             String type, String privateKeyPass) throws CarbonException {
+
+        String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + filename;
+        try {
+            if (registry.resourceExists(path)) {
+                throw new CarbonException("Key store " + filename + " already available");
+            }
+            KeyStore keyStore = KeystoreUtils.getKeystoreInstance(type);
+            keyStore.load(new ByteArrayInputStream(content), password.toCharArray());
+
+            org.wso2.carbon.registry.api.Resource resource = registry.newResource();
+            resource.addProperty(RegistryResources.SecurityManagement.PROP_PASSWORD, encryptPassword(password));
+            resource.addProperty(RegistryResources.SecurityManagement.PROP_PROVIDER, provider);
+            resource.addProperty(RegistryResources.SecurityManagement.PROP_TYPE, type);
+
+            String pvtKeyAlias = KeyStoreUtil.getPrivateKeyAlias(keyStore);
+            if (StringUtils.isNotBlank(pvtKeyAlias)) {
+                resource.addProperty(RegistryResources.SecurityManagement.PROP_PRIVATE_KEY_ALIAS, pvtKeyAlias);
+                if (StringUtils.isNotBlank(privateKeyPass)) {
+                    resource.addProperty(RegistryResources.SecurityManagement.PROP_PRIVATE_KEY_PASS,
+                            encryptPassword(privateKeyPass));
+                    // Check weather private key password is correct.
+                    keyStore.getKey(pvtKeyAlias, privateKeyPass.toCharArray());
+                }
+            }
+            resource.setContent(content);
+            registry.put(path, resource);
+        } catch (Exception e) {
+            throw new CarbonException(e);
+        }
+    }
+
+    private String encryptPassword(String password) throws CryptoException {
+
+        return CryptoUtil.getDefaultCryptoUtil().encryptAndBase64Encode(password.getBytes());
+    }
+
+    public void deleteStore(String keyStoreName) throws CarbonException {
+
+        if (StringUtils.isBlank(keyStoreName)) {
+            throw new CarbonException("Key Store name can't be null");
+        }
+        if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
+            throw new CarbonException("Not allowed to delete the primary key store : " + keyStoreName);
+        }
+        if (KeyStoreUtil.isTrustStore(keyStoreName)) {
+            throw new CarbonException("Not allowed to delete the trust store : " + keyStoreName);
+        }
+        String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
+        try {
+            org.wso2.carbon.registry.api.Association[] assocs = registry.getAllAssociations(path);
+            if (assocs.length > 0) {
+                throw new CarbonException("Key store : " + keyStoreName + " is already in use and can't be deleted");
+            }
+            registry.delete(path);
+        } catch (org.wso2.carbon.registry.api.RegistryException e) {
+            throw new CarbonException(e);
+        }
     }
 
     /**

@@ -130,6 +130,7 @@ public final class RegistryResources {
         
         //properties
         public static final String PROP_PASSWORD = "password";
+        public static final String PROP_PROVIDER = "provider";
         public static final String PROP_ROLE = "role";
         public static final String PROP_DESCRIPTION = "description";
         public static final String PROP_USERS = "users";
