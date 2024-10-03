@@ -23,7 +23,6 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
-import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.base.ServerConfiguration;
@@ -32,9 +31,9 @@ import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.utils.ServerConstants;
 
-import javax.xml.namespace.QName;
-
 import java.nio.file.Paths;
+
+import javax.xml.namespace.QName;
 
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
@@ -78,6 +77,29 @@ public class KeyStoreUtilTest {
             when(serverConfigurationService.getFirstProperty(
                     RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_FILE)).thenReturn(primaryKeystoreFile);
             assertEquals(KeyStoreUtil.isPrimaryStore(keyStoreId), expectedResult);
+        }
+    }
+
+    @DataProvider(name = "TrustStoreDataProvider")
+    public Object[][] trustStoreDataProvider() {
+        return new Object[][] {
+            {"client-truststore.p12", true},
+            {"", false},
+            {"nonexistent.jks", false}
+        };
+    }
+
+    @Test(dataProvider = "TrustStoreDataProvider")
+    public void isTrustStore(String keyStoreId, boolean expectedResult) {
+
+        String trustStoreFile = testDir + "/client-truststore.p12";
+        try (MockedStatic<CarbonCoreDataHolder> carbonCoreDataHolder = mockStatic(CarbonCoreDataHolder.class)) {
+
+            carbonCoreDataHolder.when(CarbonCoreDataHolder::getInstance).thenReturn(this.carbonCoreDataHolder);
+            when(this.carbonCoreDataHolder.getServerConfigurationService()).thenReturn(serverConfigurationService);
+            when(serverConfigurationService.getFirstProperty(
+                    RegistryResources.SecurityManagement.SERVER_TRUSTSTORE_FILE)).thenReturn(trustStoreFile);
+            assertEquals(KeyStoreUtil.isTrustStore(keyStoreId), expectedResult);
         }
     }
 
