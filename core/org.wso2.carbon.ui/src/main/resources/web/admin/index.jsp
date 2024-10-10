@@ -79,11 +79,11 @@
                 jQuery.noConflict();
                 var refresh;
                 function refreshStats() {
-                    var url = baseCarbonURL + "server-admin/system_status_ajaxprocessor.jsp";
+                    var url = "<%=baseCarbonURL%>" + "server-admin/system_status_ajaxprocessor.jsp";
                     var data = null;
                     try {
                         jQuery.ajax({
-                            url: baseCarbonURL + "admin/jsp/session-validate.jsp",
+                            url: "<%=baseCarbonURL%>" + "admin/jsp/session-validate.jsp",
                             type: "GET",
                             dataType: "html",
                             data: data,
