@@ -132,8 +132,7 @@ rem find the version of the jdk
 set CMD=RUN %*
 
 :checkJdk17
-PATH %PATH%;%JAVA_HOME%\bin\
-for /f tokens^=2-5^ delims^=.-_^" %%j in ('java -fullversion 2^>^&1') do set "JAVA_VERSION=%%j%%k"
+for /f tokens^=2-5^ delims^=.-_^" %%j in ('"%JAVA_HOME%\bin\java" -fullversion 2^>^&1') do set "JAVA_VERSION=%%j%%k"
 if %JAVA_VERSION% LSS 110 goto unknownJdk
 if %JAVA_VERSION% GTR 170 goto unknownJdk
 goto jdk17
