@@ -111,9 +111,9 @@ public class JDBCUserStoreConstants {
         setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "false",
                 UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION,
                 new Property[] { USER.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
-        setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_ATTRIBUTES, "Case Insensitive Attributes", "",
+        setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_ATTRIBUTES, "Case Insensitive Attributes", "false",
                 UserStoreConfigConstants.CASE_INSENSITIVE_ATTRIBUTES_DESCRIPTION,
-                new Property[] { USER.getProperty(), STRING.getProperty(), FALSE.getProperty() });
+                new Property[] { USER.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
         setProperty(UserStoreConfigConstants.USE_CASE_SENSITIVE_USERNAME_FOR_CACHE_KEYS,
                 "Use Case Sensitive Username for Cache Keys", "true",
                 UserStoreConfigConstants.USE_CASE_SENSITIVE_USERNAME_FOR_CACHE_KEYS_DESCRIPTION,
