@@ -20,11 +20,13 @@ package org.wso2.carbon.user.core.jdbc.caseinsensitive;
 
 public class JDBCCaseInsensitiveConstants {
     public static final String SELECT_USER_CASE_INSENSITIVE = "SelectUserSQLCaseInsensitive";
+    public static final String COUNT_USERS_CASE_INSENSITIVE = "CountUsersSQLCaseInsensitive";
     public static final String SELECT_USER_NAME_CASE_INSENSITIVE = "SelectUserNameSQLCaseInsensitive";
     public static final String SELECT_USER_WITH_ID_CASE_INSENSITIVE = "SelectUserWithIDSQLCaseInsensitive";
     public static final String SELECT_USER_ID_FROM_USER_NAME_CASE_INSENSITIVE =
             "SelectUserIDFromUserNameSQLCaseInsensitive";
     public static final String GET_USER_FILTER_CASE_INSENSITIVE = "UserFilterSQLCaseInsensitive";
+    public static final String COUNT_USERS_WITH_FILTER_CASE_INSENSITIVE = "CountUsersWithFilterSQLInsensitive";
     public static final String GET_USER_FILTER_WITH_ID_CASE_INSENSITIVE = "UserFilterWithIDSQLCaseInsensitive";
     public static final String GET_USER_FILTER_WITH_ID_CASE_INSENSITIVE_WITH_ESCAPE =
             "UserFilterWithIDSQLCaseInsensitiveWithEscape";
@@ -85,6 +87,8 @@ public class JDBCCaseInsensitiveConstants {
             "UserNameUniqueAcrossTenantsSQLCaseInsensitiveWithID";
     public static final String SELECT_USER_SQL_CASE_INSENSITIVE = "SELECT * FROM UM_USER WHERE LOWER(UM_USER_NAME)" +
             "=LOWER(?) AND UM_TENANT_ID=?";
+    public static final String COUNT_USERS_SQL_CASE_INSENSITIVE = "SELECT COUNT(UM_USER_NAME) AS RESULT FROM UM_USER " +
+            "WHERE LOWER(UM_USER_NAME) LIKE LOWER(?) " + "AND UM_TENANT_ID = ?";
     public static final String SELECT_USER_NAME_SQL_CASE_INSENSITIVE =
             "SELECT UM_USER_ID, UM_USER_NAME, UM_USER_PASSWORD, UM_SALT_VALUE, "
                     + "UM_REQUIRE_CHANGE, UM_CHANGED_TIME FROM UM_USER WHERE LOWER(UM_USER_NAME)=LOWER(?) AND UM_TENANT_ID=?";
@@ -97,6 +101,8 @@ public class JDBCCaseInsensitiveConstants {
             + "UM_USER_ATTRIBUTE.UM_PROFILE_ID=? AND UM_USER_ATTRIBUTE.UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?";
     public static final String GET_USER_FILTER_SQL_CASE_INSENSITIVE = "SELECT UM_USER_NAME FROM UM_USER WHERE LOWER" +
             "(UM_USER_NAME) LIKE LOWER(?) AND UM_TENANT_ID=? ORDER BY UM_USER_NAME";
+    public static final String COUNT_USERS_WITH_FILTER_SQL_CASE_INSENSITIVE = "SELECT COUNT(UM_USER_NAME) AS RESULT " +
+            "FROM UM_USER WHERE LOWER(UM_USER_NAME) = LOWER(?) " + "AND UM_TENANT_ID = ?";
     public static final String GET_USER_FILTER_WITH_ID_SQL_CASE_INSENSITIVE = "SELECT UM_USER_ID, UM_USER_NAME FROM "
             + "UM_USER WHERE LOWER(UM_USER_NAME) LIKE LOWER(?) AND UM_TENANT_ID=? ORDER BY UM_USER_NAME";
     public static final String GET_USER_FILTER_WITH_ID_SQL_CASE_INSENSITIVE_WITH_ESCAPE = "SELECT UM_USER_ID, " +

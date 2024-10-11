@@ -4018,9 +4018,18 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         String sqlStmt;
         if (isUserNameClaim(claimUri)) {
-            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.COUNT_USERS);
+            if (isCaseSensitiveUsername()) {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.COUNT_USERS);
+            } else {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.COUNT_USERS_CASE_INSENSITIVE);
+            }
         } else if (ExpressionOperation.EQ.toString().equalsIgnoreCase(valueFilter)) {
-            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.COUNT_USERS_WITH_FILTER);
+            if (isCaseSensitiveUsername()) {
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.COUNT_USERS_WITH_FILTER);
+            } else {
+                sqlStmt = realmConfig.getUserStoreProperty(
+                        JDBCCaseInsensitiveConstants.COUNT_USERS_WITH_FILTER_CASE_INSENSITIVE);
+            }
         } else {
             sqlStmt = JDBCRealmConstants.COUNT_USERS_WITH_CLAIM_SQL;
         }

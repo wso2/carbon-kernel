@@ -325,6 +325,10 @@ public class JDBCUserStoreConstants {
                 "Select User SQL With Case Insensitive Username",
                 JDBCCaseInsensitiveConstants.SELECT_USER_SQL_CASE_INSENSITIVE, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCCaseInsensitiveConstants.COUNT_USERS_CASE_INSENSITIVE,
+                "Count Users SQL With Case Insensitive",
+                JDBCCaseInsensitiveConstants.COUNT_USERS_SQL_CASE_INSENSITIVE, "",
+                new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCCaseInsensitiveConstants.SELECT_USER_NAME_CASE_INSENSITIVE,
                 "Select User Name SQL With Case Insensitive Username",
                 JDBCCaseInsensitiveConstants.SELECT_USER_NAME_SQL_CASE_INSENSITIVE, "",
@@ -368,6 +372,10 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE,
                 "User Filter SQL With Case Insensitive Username",
                 JDBCCaseInsensitiveConstants.GET_USER_FILTER_SQL_CASE_INSENSITIVE, "",
+                new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCCaseInsensitiveConstants.COUNT_USERS_WITH_FILTER_CASE_INSENSITIVE,
+                "Count Users SQL With Filter With Case Insensitive",
+                JDBCCaseInsensitiveConstants.COUNT_USERS_WITH_FILTER_SQL_CASE_INSENSITIVE, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_USER_FILTER_WITH_ID_CASE_INSENSITIVE,
                 "User Filter With ID SQL With Case Insensitive Username",
