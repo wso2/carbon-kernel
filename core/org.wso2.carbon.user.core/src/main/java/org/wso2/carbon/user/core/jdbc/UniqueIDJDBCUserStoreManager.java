@@ -20,7 +20,6 @@ package org.wso2.carbon.user.core.jdbc;
 
 import org.apache.axiom.om.util.Base64;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -2553,7 +2552,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USERS_FOR_USERNAME);
                 }
             } else {
-                if ((!isCaseSensitiveUsername() && UID.equals(property)) || isCaseInsensitiveProperty(property)) {
+                if (!isCaseSensitiveUsername() && UID.equals(property) || isCaseInsensitiveAttributesEnabled()) {
                     sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.
                             GET_USERS_FOR_PROP_WITH_ID_CASE_INSENSITIVE);
                 } else {
@@ -2569,7 +2568,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_USER_FOR_USERNAME);
                 }
             } else {
-                if ((!isCaseSensitiveUsername() && UID.equals(property)) || isCaseInsensitiveProperty(property)) {
+                if (!isCaseSensitiveUsername() && UID.equals(property) || isCaseInsensitiveAttributesEnabled()) {
                     sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.
                             GET_USERS_FOR_CLAIM_VALUE_WITH_ID_CASE_INSENSITIVE);
                 } else {
@@ -3119,16 +3118,16 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
     }
 
-    private boolean isCaseInsensitiveProperty(String property) {
+    private boolean isCaseInsensitiveAttributesEnabled() {
 
         String caseInsensitiveAttributesProperty = realmConfig.getUserStoreProperty(
                 UserStoreConfigConstants.CASE_INSENSITIVE_ATTRIBUTES);
         if (StringUtils.isBlank(caseInsensitiveAttributesProperty)) {
             return false;
         }
-        String[] caseInsensitiveAttributes = Arrays.stream(caseInsensitiveAttributesProperty.split(","))
-                .map(String::trim).toArray(String[]::new);
-        return ArrayUtils.contains(caseInsensitiveAttributes, property);
+        /* The case-insensitive attributes can be already defined. For such cases also should be identified as
+           case-insensitive attributes enabled. */
+        return !"false".equalsIgnoreCase(caseInsensitiveAttributesProperty);
     }
 
     @Override
