@@ -111,9 +111,9 @@ public class JDBCUserStoreConstants {
         setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "false",
                 UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION,
                 new Property[] { USER.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
-        setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_ATTRIBUTES, "Case Insensitive Attributes", "",
+        setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_ATTRIBUTES, "Case Insensitive Attributes", "false",
                 UserStoreConfigConstants.CASE_INSENSITIVE_ATTRIBUTES_DESCRIPTION,
-                new Property[] { USER.getProperty(), STRING.getProperty(), FALSE.getProperty() });
+                new Property[] { USER.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
         setProperty(UserStoreConfigConstants.USE_CASE_SENSITIVE_USERNAME_FOR_CACHE_KEYS,
                 "Use Case Sensitive Username for Cache Keys", "true",
                 UserStoreConfigConstants.USE_CASE_SENSITIVE_USERNAME_FOR_CACHE_KEYS_DESCRIPTION,
@@ -138,25 +138,25 @@ public class JDBCUserStoreConstants {
                 new Property[] { USER.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCRealmConstants.MAX_ACTIVE, "Maximum Active Connections", "40", "The maximum number " +
                         "of active connections that can be allocated from the connection pool at the same time",
-                new Property[]{USER.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty()});
+                new Property[]{USER.getProperty(), NUMBER.getProperty(), FALSE.getProperty()});
         setAdvancedProperty(JDBCRealmConstants.MIN_IDLE, "Minimum Idle Connections", "5", "The minimum number of " +
                         "connections that can remain idle in the pool, without extra ones being created",
-                new Property[]{USER.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty()});
+                new Property[]{USER.getProperty(), NUMBER.getProperty(), FALSE.getProperty()});
         setAdvancedProperty(JDBCRealmConstants.MAX_IDLE, "Maximum Idle Connections", "6", "The maximum number of " +
                         "connections that can remain idle in the pool",
-                new Property[]{USER.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty()});
+                new Property[]{USER.getProperty(), NUMBER.getProperty(), FALSE.getProperty()});
         setAdvancedProperty(JDBCRealmConstants.MAX_WAIT, "Maximum Wait Time for Requests", "60000", "The maximum time" +
                         " that requests are expected to wait in the queue for a connection to be released",
-                new Property[]{USER.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty()});
+                new Property[]{USER.getProperty(), NUMBER.getProperty(), FALSE.getProperty()});
         setAdvancedProperty(JDBCRealmConstants.TEST_WHILE_IDLE, "Enable Test While Idle", "false", "The indication of" +
                         " whether connections will be validated when they remain idle",
                 new Property[]{USER.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty()});
         setAdvancedProperty(JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS, "Time Between Eviction Runs", "5000",
                 "The number of milliseconds to sleep between runs of the idle connection validation/cleaner thread",
-                new Property[]{USER.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty()});
+                new Property[]{USER.getProperty(), NUMBER.getProperty(), FALSE.getProperty()});
         setAdvancedProperty(JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS, "Minimum Idle Time Before Eviction",
                 "60000", "The minimum amount of time an object may sit idle in the pool before it is eligible for " +
-                        "eviction", new Property[]{USER.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty()});
+                        "eviction", new Property[]{USER.getProperty(), NUMBER.getProperty(), FALSE.getProperty()});
         setAdvancedProperty(UserStoreConfigConstants.maxUserNameListLength, "Maximum User List Length", "100",
                 UserStoreConfigConstants.maxUserNameListLengthDescription,
                 new Property[] { USER.getProperty(), NUMBER.getProperty(), FALSE.getProperty() });
@@ -325,6 +325,10 @@ public class JDBCUserStoreConstants {
                 "Select User SQL With Case Insensitive Username",
                 JDBCCaseInsensitiveConstants.SELECT_USER_SQL_CASE_INSENSITIVE, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCCaseInsensitiveConstants.COUNT_USERS_CASE_INSENSITIVE,
+                "Count Users SQL With Case Insensitive",
+                JDBCCaseInsensitiveConstants.COUNT_USERS_SQL_CASE_INSENSITIVE, "",
+                new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCCaseInsensitiveConstants.SELECT_USER_NAME_CASE_INSENSITIVE,
                 "Select User Name SQL With Case Insensitive Username",
                 JDBCCaseInsensitiveConstants.SELECT_USER_NAME_SQL_CASE_INSENSITIVE, "",
@@ -368,6 +372,10 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE,
                 "User Filter SQL With Case Insensitive Username",
                 JDBCCaseInsensitiveConstants.GET_USER_FILTER_SQL_CASE_INSENSITIVE, "",
+                new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCCaseInsensitiveConstants.COUNT_USERS_WITH_FILTER_CASE_INSENSITIVE,
+                "Count Users SQL With Filter With Case Insensitive",
+                JDBCCaseInsensitiveConstants.COUNT_USERS_WITH_FILTER_SQL_CASE_INSENSITIVE, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_USER_FILTER_WITH_ID_CASE_INSENSITIVE,
                 "User Filter With ID SQL With Case Insensitive Username",

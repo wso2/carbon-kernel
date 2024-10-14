@@ -194,8 +194,8 @@ public class UserStoreConfigConstants {
     public static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
     public static final String CASE_INSENSITIVE_USERNAME_DESCRIPTION = "Whether the username is case sensitive or not";
     public static final String CASE_INSENSITIVE_ATTRIBUTES = "CaseInsensitiveAttributes";
-    public static final String CASE_INSENSITIVE_ATTRIBUTES_DESCRIPTION = "Comma-separated list of user store maintained " +
-            "case insensitive attributes";
+    public static final String CASE_INSENSITIVE_ATTRIBUTES_DESCRIPTION = "Whether the other attributes are case " +
+            "sensitive or not";
 
     // Property for specify whether case-sensitive username can be used as the cache key.
     public static final String USE_CASE_SENSITIVE_USERNAME_FOR_CACHE_KEYS = "UseCaseSensitiveUsernameForCacheKeys";

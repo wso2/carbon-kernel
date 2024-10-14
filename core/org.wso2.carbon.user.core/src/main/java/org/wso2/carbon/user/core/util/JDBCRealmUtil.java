@@ -621,6 +621,10 @@ public class JDBCRealmUtil {
             properties.put(JDBCCaseInsensitiveConstants.SELECT_USER_CASE_INSENSITIVE, JDBCCaseInsensitiveConstants
                     .SELECT_USER_SQL_CASE_INSENSITIVE);
         }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.COUNT_USERS_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.COUNT_USERS_CASE_INSENSITIVE, JDBCCaseInsensitiveConstants
+                    .COUNT_USERS_SQL_CASE_INSENSITIVE);
+        }
         if (!properties.containsKey(JDBCCaseInsensitiveConstants.SELECT_USER_NAME_CASE_INSENSITIVE)) {
             properties.put(JDBCCaseInsensitiveConstants.SELECT_USER_NAME_CASE_INSENSITIVE,
                     JDBCCaseInsensitiveConstants.SELECT_USER_NAME_SQL_CASE_INSENSITIVE);
@@ -652,6 +656,10 @@ public class JDBCRealmUtil {
         if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE)) {
             properties.put(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE,
                     JDBCCaseInsensitiveConstants.GET_USER_FILTER_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.COUNT_USERS_WITH_FILTER_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.COUNT_USERS_WITH_FILTER_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.COUNT_USERS_WITH_FILTER_SQL_CASE_INSENSITIVE);
         }
         if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_USER_FILTER_WITH_ID_CASE_INSENSITIVE)) {
             properties.put(JDBCCaseInsensitiveConstants.GET_USER_FILTER_WITH_ID_CASE_INSENSITIVE,

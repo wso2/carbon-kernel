@@ -25,6 +25,9 @@ import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.utils.ServerConstants;
+import org.wso2.securevault.SecretResolver;
+import org.wso2.securevault.SecretResolverFactory;
+import org.wso2.securevault.commons.MiscellaneousUtil;
 
 import java.io.File;
 import java.security.KeyStore;
@@ -202,12 +205,21 @@ public class KeyStoreUtil {
         String configValue = config.getFirstChildWithName(getQNameWithCarbonNS(propertyName)).getText();
 
         if (RegistryResources.SecurityManagement.CustomKeyStore.PROP_LOCATION.equals(propertyName)) {
-            // Replace "{$carbon.home}" placeholder with proper location path
+            // Replace "{$carbon.home}" placeholder with proper location path.
             if (configValue.startsWith(RegistryResources.SecurityManagement.CARBON_HOME_PLACEHOLDER)) {
                 configValue = configValue.replace(RegistryResources.SecurityManagement.CARBON_HOME_PLACEHOLDER, "");
                 configValue = new File(".").getAbsolutePath() + configValue;
             } else {
                 throw new CarbonException("Invalid key store location: " + configValue);
+            }
+        }
+        if (RegistryResources.SecurityManagement.CustomKeyStore.PROP_PASSWORD.equals(propertyName) ||
+                RegistryResources.SecurityManagement.CustomKeyStore.PROP_KEY_PASSWORD.equals(propertyName)) {
+            // Enable support for cipher tool.
+            SecretResolver secretResolver = SecretResolverFactory.create(config, true);
+            String resolvedValue = MiscellaneousUtil.resolve(configValue, secretResolver);
+            if (resolvedValue != null && !resolvedValue.isEmpty()) {
+                configValue = resolvedValue;
             }
         }
 
