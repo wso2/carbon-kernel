@@ -122,6 +122,7 @@
         <module>org.wso2.carbon.application.deployer</module>
         <module>org.wso2.carbon.core</module>
         <module>org.wso2.carbon.bridge</module>
+        <module>org.wso2.carbon.http.client</module>
         <module>org.wso2.carbon.http.bridge</module>
         <module>org.wso2.carbon.servletbridge</module>
         <module>org.wso2.carbon.core.common</module>

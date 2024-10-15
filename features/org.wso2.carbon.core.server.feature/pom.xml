@@ -67,6 +67,8 @@
                                 </bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.admin.advisory.mgt:${carbon.kernel.version}
                                 </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.http.client:${carbon.kernel.version}
+                                </bundleDef>
                                 <bundleDef>org.wso2.orbit.org.bouncycastle:bcprov-jdk18on:${bouncycastle.version}
                                 </bundleDef>
                                 <bundleDef>org.wso2.orbit.org.bouncycastle:bcpkix-jdk18on:${bouncycastle.version}

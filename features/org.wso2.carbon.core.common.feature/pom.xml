@@ -100,6 +100,8 @@
                                     org.wso2.orbit.commons-collections:commons-collections:${orbit.version.commons.collection}
                                 </bundleDef>
                                 <bundleDef>org.apache.httpcomponents.wso2:httpcore:${orbit.version.httpcore}</bundleDef>
+                                <bundleDef>org.wso2.orbit.org.apache.httpcomponents:httpcore5:${orbit.version.httpcore5}</bundleDef>
+                                <bundleDef>org.wso2.orbit.org.apache.httpcomponents:httpclient5:${orbit.version.httpclient5}</bundleDef>
                                 <bundleDef>org.compass-project.wso2:compass:${version.compass}</bundleDef>
                                 <bundleDef>commons-lang.wso2:commons-lang:${orbit.version.commons.lang}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.poi:poi:${orbit.version.poi}</bundleDef>
