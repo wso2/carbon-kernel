@@ -79,22 +79,35 @@ public class KeyStoreUtil {
         return name;
     }
 
-    public static boolean isPrimaryStore(String id) {
+    /**
+     * Check whether the given key store is the primary store.
+     * @param fileName  File name of the key store.
+     *
+     * @return True if the given key store is the primary store.
+     */
+    public static boolean isPrimaryStore(String fileName) {
 
-        ServerConfigurationService config = CarbonCoreDataHolder.getInstance().getServerConfigurationService();
-        String fileName = config.getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_FILE);
-        int index = fileName.lastIndexOf('/');
-        String name = index != -1 ? fileName.substring(index + 1) : new File(fileName).getName();
-        return StringUtils.equals(name, id);
+        String keystorePath = CarbonCoreDataHolder.getInstance().getServerConfigurationService()
+                .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_FILE);
+        int index = keystorePath.lastIndexOf('/');
+        String keystoreName = index != -1 ? keystorePath.substring(index + 1) : new File(keystorePath).getName();
+        return StringUtils.equals(keystoreName, fileName);
     }
 
-    public static boolean isTrustStore(String id) {
+    /**
+     * Check whether the given key store is a trust store.
+     * @param fileName  File name of the key store.
+     *
+     * @return True if the given key store is a trust store.
+     */
+    public static boolean isTrustStore(String fileName) {
 
-        ServerConfigurationService config = CarbonCoreDataHolder.getInstance().getServerConfigurationService();
-        String fileName = config.getFirstProperty(RegistryResources.SecurityManagement.SERVER_TRUSTSTORE_FILE);
-        int index = fileName.lastIndexOf('/');
-        String name = index != -1 ? fileName.substring(index + 1) : new File(fileName).getName();
-        return StringUtils.equals(name, id);
+        String trustStorePath = CarbonCoreDataHolder.getInstance().getServerConfigurationService()
+                .getFirstProperty(RegistryResources.SecurityManagement.SERVER_TRUSTSTORE_FILE);
+        int index = trustStorePath.lastIndexOf('/');
+        String trustStoreName = index != -1 ? trustStorePath.substring(index + 1)
+                : new File(trustStorePath).getName();
+        return StringUtils.equals(trustStoreName, fileName);
     }
 
     public static Certificate getCertificate(String alias, KeyStore store) throws AxisFault {
