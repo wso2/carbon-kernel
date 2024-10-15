@@ -102,7 +102,8 @@ public class KeyStoreManagerTest {
 
             serverConfiguration.when(ServerConfiguration::getInstance).thenReturn(this.serverConfiguration);
             when(this.serverConfiguration.getFirstProperty(
-                    RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_FILE)).thenReturn(createPath(KEYSTORE_NAME).toString());
+                    RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_FILE)).thenReturn(
+                            createPath(KEYSTORE_NAME).toString());
             when(this.serverConfiguration.getFirstProperty(
                     RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_PASSWORD)).thenReturn(KEYSTORE_PASSWORD);
             when(this.serverConfiguration.getFirstProperty(
