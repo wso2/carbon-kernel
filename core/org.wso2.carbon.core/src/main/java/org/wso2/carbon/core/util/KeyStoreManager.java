@@ -26,8 +26,8 @@ import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.registry.api.Registry;
-import org.wso2.carbon.registry.core.Resource;
-import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.registry.api.RegistryException;
+import org.wso2.carbon.registry.api.Resource;
 import org.wso2.carbon.registry.core.exceptions.ResourceNotFoundException;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -38,8 +38,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.Key;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -76,6 +78,10 @@ public class KeyStoreManager {
     private ServerConfigurationService serverConfigService;
 
     private RegistryService registryService;
+
+    private static final String KEY_STORE_NAME_NULL_ERROR = "Key store name is null or empty.";
+    private static final String PERMISSION_DENIED_ERROR = "Permission denied for accessing %s. The %s is " +
+            "available only for the super tenant.";
 
     /**
      * Private Constructor of the KeyStoreManager
@@ -135,30 +141,41 @@ public class KeyStoreManager {
         return mtKeyStoreManagers.get(tenantIdStr);
     }
 
-    public void addKeyStore(byte[] content, String filename, String password, String provider,
-                            String type, String privateKeyPass) throws CarbonException {
+    /**
+     * Add new key store to the registry.
+     *
+     * @param keystoreContent   Key store object.
+     * @param filename          File name of the key store.
+     * @param password          Password of the key store.
+     * @param provider          Provider of the key store.
+     * @param type              Keys store type (JKS, PKCS12, etc).
+     * @param privateKeyPass    Password of the private key.
+     * @throws CarbonException  If an error occurs while adding the key store.
+     */
+    public void addKeyStore(byte[] keystoreContent, String filename, String password, String provider,
+                            String type, String privateKeyPass) {
 
         if (StringUtils.isBlank(filename)) {
-            throw new CarbonException("Key Store name can't be null");
+            throw new SecurityException(KEY_STORE_NAME_NULL_ERROR);
         }
         if (KeyStoreUtil.isPrimaryStore(filename) || KeyStoreUtil.isTrustStore(filename)) {
-            throw new CarbonException("Key store " + filename + " already available");
+            throw new SecurityException("Key store " + filename + " already available");
         }
-        addKeystore(filename, content, password, provider, type, privateKeyPass);
+        addKeystore(filename, keystoreContent, password, provider, type, privateKeyPass);
     }
 
-    private void addKeystore(String filename, byte[] content, String password, String provider,
-                             String type, String privateKeyPass) throws CarbonException {
+    private void addKeystore(String filename, byte[] keystoreContent, String password, String provider,
+                             String type, String privateKeyPass) {
 
         String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + filename;
-        try {
+        try (InputStream inputStream = new ByteArrayInputStream(keystoreContent)) {
             if (registry.resourceExists(path)) {
-                throw new CarbonException("Key store " + filename + " already available");
+                throw new SecurityException("Key store " + filename + " already available");
             }
             KeyStore keyStore = KeystoreUtils.getKeystoreInstance(type);
-            keyStore.load(new ByteArrayInputStream(content), password.toCharArray());
+            keyStore.load(inputStream, password.toCharArray());
 
-            org.wso2.carbon.registry.api.Resource resource = registry.newResource();
+            Resource resource = registry.newResource();
             resource.addProperty(RegistryResources.SecurityManagement.PROP_PASSWORD, encryptPassword(password));
             resource.addProperty(RegistryResources.SecurityManagement.PROP_PROVIDER, provider);
             resource.addProperty(RegistryResources.SecurityManagement.PROP_TYPE, type);
@@ -173,38 +190,49 @@ public class KeyStoreManager {
                     keyStore.getKey(pvtKeyAlias, privateKeyPass.toCharArray());
                 }
             }
-            resource.setContent(content);
+            resource.setContent(keystoreContent);
             registry.put(path, resource);
         } catch (Exception e) {
-            throw new CarbonException(e);
+            throw new SecurityException("Error adding key store " + filename, e);
         }
     }
 
-    private String encryptPassword(String password) throws CryptoException {
+    private String encryptPassword(String password) {
 
-        return CryptoUtil.getDefaultCryptoUtil().encryptAndBase64Encode(password.getBytes());
+        try {
+            return CryptoUtil.getDefaultCryptoUtil().encryptAndBase64Encode(password.getBytes());
+        } catch (CryptoException e) {
+            throw new SecurityException("Error encrypting the password", e);
+        }
     }
 
-    public void deleteStore(String keyStoreName) throws CarbonException {
+    /**
+     * Delete the key store from the registry.
+     *
+     * @param keyStoreName  Name of the key store.
+     * @throws CarbonException  If an error occurs while deleting the key store.
+     */
+    public void deleteStore(String keyStoreName) {
 
         if (StringUtils.isBlank(keyStoreName)) {
-            throw new CarbonException("Key Store name can't be null");
+            throw new SecurityException("Key Store name can't be null");
         }
         if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
-            throw new CarbonException("Not allowed to delete the primary key store : " + keyStoreName);
+            throw new SecurityException("Not allowed to delete the primary key store : " + keyStoreName);
         }
         if (KeyStoreUtil.isTrustStore(keyStoreName)) {
-            throw new CarbonException("Not allowed to delete the trust store : " + keyStoreName);
+            throw new SecurityException("Not allowed to delete the trust store : " + keyStoreName);
         }
         String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
         try {
             org.wso2.carbon.registry.api.Association[] assocs = registry.getAllAssociations(path);
             if (assocs.length > 0) {
-                throw new CarbonException("Key store : " + keyStoreName + " is already in use and can't be deleted");
+                throw new SecurityException("Key store : " + keyStoreName + " is already in use and can't be deleted");
             }
             registry.delete(path);
+            deleteKeyStoreFromCache(keyStoreName);
         } catch (org.wso2.carbon.registry.api.RegistryException e) {
-            throw new CarbonException(e);
+            throw new SecurityException("Error deleting key store : " + keyStoreName, e);
         }
     }
 
@@ -213,12 +241,12 @@ public class KeyStoreManager {
      *
      * @param keyStoreName  Key store name.
      * @return KeyStore object.
-     * @throws Exception    If there is an error when retriving the given keystore.
+     * @throws Exception    If there is an error when retrieving the given keystore.
      */
     public KeyStore getKeyStore(String keyStoreName) throws Exception {
 
         if (StringUtils.isEmpty(keyStoreName)) {
-            throw new SecurityException("Key store name is null or empty.");
+            throw new SecurityException(KEY_STORE_NAME_NULL_ERROR);
         }
 
         if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
@@ -243,7 +271,7 @@ public class KeyStoreManager {
     public Key getPrivateKey(String keyStoreName, String alias) {
 
         if (StringUtils.isEmpty(keyStoreName)) {
-            throw new SecurityException("Key store name is null or empty.");
+            throw new SecurityException(KEY_STORE_NAME_NULL_ERROR);
         }
 
         try {
@@ -278,7 +306,7 @@ public class KeyStoreManager {
     public Certificate getCertificate(String keyStoreName, String alias) throws Exception {
 
         if (StringUtils.isEmpty(keyStoreName)) {
-            throw new SecurityException("Key store name is null or empty.");
+            throw new SecurityException(KEY_STORE_NAME_NULL_ERROR);
         }
 
         if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
@@ -303,7 +331,7 @@ public class KeyStoreManager {
      * @return password of the key store
      * @throws Exception Error when reading the registry resource of decrypting the password
      */
-    public String getPassword(Resource resource) throws Exception {
+    public String getPassword(org.wso2.carbon.registry.core.Resource resource) throws Exception {
         CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
         String encryptedPassword = resource
                 .getProperty(RegistryResources.SecurityManagement.PROP_PRIVATE_KEY_PASS);
@@ -323,7 +351,7 @@ public class KeyStoreManager {
 
         String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
         if (registry.resourceExists(path)) {
-            org.wso2.carbon.registry.api.Resource resource = registry.get(path);
+            Resource resource = registry.get(path);
             CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
             String encryptedPassword = resource
                     .getProperty(RegistryResources.SecurityManagement.PROP_PASSWORD);
@@ -360,7 +388,7 @@ public class KeyStoreManager {
         updateTenantKeyStore(name, keyStore);
     }
 
-    private void updatePrimaryKeyStore(KeyStore keyStore) throws Exception {
+    private void updatePrimaryKeyStore(KeyStore keyStore) {
 
         ServerConfigurationService config = this.getServerConfigService();
         String file = new File(config
@@ -371,10 +399,12 @@ public class KeyStoreManager {
                     .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_PASSWORD);
             keyStore.store(out, password.toCharArray());
             primaryKeyStore = keyStore;
+        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
+            throw new SecurityException("Error updating primary key store", e);
         }
     }
 
-    private void updateTrustStore(KeyStore keyStore) throws Exception {
+    private void updateTrustStore(KeyStore keyStore)  {
 
         ServerConfigurationService config = this.getServerConfigService();
         String file = new File(config
@@ -385,25 +415,31 @@ public class KeyStoreManager {
                     .getFirstProperty(RegistryResources.SecurityManagement.SERVER_TRUSTSTORE_PASSWORD);
             keyStore.store(out, password.toCharArray());
             trustStore = keyStore;
+        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
+            throw new SecurityException("Error updating primary key store", e);
         }
     }
 
-    private void updateTenantKeyStore(String keyStoreName, KeyStore keyStore) throws Exception {
+    private void updateTenantKeyStore(String keyStoreName, KeyStore keyStore) {
 
         String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
-        org.wso2.carbon.registry.api.Resource resource = registry.get(path);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
-        String encryptedPassword = resource
-                .getProperty(RegistryResources.SecurityManagement.PROP_PASSWORD);
-        String password = new String(cryptoUtil.base64DecodeAndDecrypt(encryptedPassword));
-        keyStore.store(outputStream, password.toCharArray());
-        outputStream.flush();
-        outputStream.close();
-        resource.setContent(outputStream.toByteArray());
-        registry.put(path, resource);
-        resource.discard();
-        updateTenantKeyStoreCache(keyStoreName, new KeyStoreBean(keyStore, new Date()));
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            Resource resource = registry.get(path);
+            String encryptedPassword = resource
+                    .getProperty(RegistryResources.SecurityManagement.PROP_PASSWORD);
+            String password = new String(cryptoUtil.base64DecodeAndDecrypt(encryptedPassword));
+            keyStore.store(outputStream, password.toCharArray());
+            outputStream.flush();
+            outputStream.close();
+            resource.setContent(outputStream.toByteArray());
+            registry.put(path, resource);
+            resource.discard();
+            updateTenantKeyStoreCache(keyStoreName, new KeyStoreBean(keyStore, new Date()));
+        } catch (IOException | CryptoException | KeyStoreException | NoSuchAlgorithmException | CertificateException |
+                 RegistryException e) {
+            throw new SecurityException("Error updating tenanted key store : " + keyStoreName, e);
+        }
     }
 
     /**
@@ -437,8 +473,7 @@ public class KeyStoreManager {
             }
             return primaryKeyStore;
         } else {
-            throw new CarbonException("Permission denied for accessing primary key store. The primary key store is " +
-                    "available only for the super tenant.");
+            throw new CarbonException(String.format(PERMISSION_DENIED_ERROR, "primary key store", "primary key store"));
         }
     }
 
@@ -460,7 +495,7 @@ public class KeyStoreManager {
 
         String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
         if (registry.resourceExists(path)) {
-            org.wso2.carbon.registry.api.Resource resource = registry.get(path);
+            Resource resource = registry.get(path);
             byte[] bytes = (byte[]) resource.getContent();
             KeyStore keyStore = KeystoreUtils.getKeystoreInstance(resource
                     .getProperty(RegistryResources.SecurityManagement.PROP_TYPE));
@@ -473,11 +508,7 @@ public class KeyStoreManager {
             KeyStoreBean keyStoreBean = new KeyStoreBean(keyStore, resource.getLastModified());
             resource.discard();
 
-            if (tenantKeyStores.containsKey(keyStoreName)) {
-                tenantKeyStores.replace(keyStoreName, keyStoreBean);
-            } else {
-                tenantKeyStores.put(keyStoreName, keyStoreBean);
-            }
+            updateTenantKeyStoreCache(keyStoreName, keyStoreBean);
             return keyStore;
         } else {
             throw new SecurityException("Key Store with a name : " + keyStoreName + " does not exist.");
@@ -514,11 +545,17 @@ public class KeyStoreManager {
             }
             return internalKeyStore;
         } else {
-            throw new CarbonException("Permission denied for accessing internal key store. The internal key store is " +
-                    "available only for the super tenant.");
+            throw new CarbonException(String.format(PERMISSION_DENIED_ERROR, "internal key store", "internal key store"));
         }
     }
 
+    /**
+     * Load the trust store, this is allowed only for the super tenant
+     *
+     * @return trust store object
+     * @throws CarbonException Carbon Exception when trying to call this method from a tenant other
+     *                   than tenant 0
+     */
     public KeyStore getTrustStore() throws CarbonException {
 
         if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
@@ -538,13 +575,12 @@ public class KeyStoreManager {
                     }
                 } catch (KeyStoreException | NoSuchProviderException | IOException | CertificateException |
                     NoSuchAlgorithmException e) {
-                    throw new CarbonException("Error loading trust store", e);
+                    throw new SecurityException("Error loading trust store", e);
                 }
             }
             return trustStore;
         } else {
-            throw new CarbonException("Permission denied for accessing trust store. The trust store is " +
-                    "available only for the super tenant.");
+            throw new CarbonException(String.format(PERMISSION_DENIED_ERROR, "trust store", "trust store"));
         }
     }
     
@@ -584,8 +620,7 @@ public class KeyStoreManager {
             }
             return registryKeyStore;
         } else {
-            throw new CarbonException("Permission denied for accessing registry key store. The registry key store is" +
-                    " available only for the super tenant.");
+            throw new CarbonException(String.format(PERMISSION_DENIED_ERROR, "registry key store", "registry key store"));
         }
     }
 
@@ -640,8 +675,7 @@ public class KeyStoreManager {
                     .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_KEY_ALIAS);
             return (PrivateKey) primaryKeyStore.getKey(alias, password.toCharArray());
         }
-        throw new CarbonException("Permission denied for accessing primary key store. The primary key store is " +
-                "available only for the super tenant.");
+        throw new CarbonException(String.format(PERMISSION_DENIED_ERROR, "primary key store", "primary key store"));
     }
 
     /**
@@ -657,7 +691,7 @@ public class KeyStoreManager {
             log.debug("Loading private key from tenant key store : " + keyStoreName + " alias: " + alias);
         }
         String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
-        org.wso2.carbon.registry.api.Resource resource;
+        Resource resource;
         KeyStore keyStore;
 
         if (registry.resourceExists(path)) {
@@ -724,8 +758,7 @@ public class KeyStoreManager {
                     .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_KEY_ALIAS);
             return (PublicKey) primaryKeyStore.getCertificate(alias).getPublicKey();
         }
-        throw new CarbonException("Permission denied for accessing primary key store. The primary key store is " +
-                "available only for the super tenant.");
+        throw new CarbonException(String.format(PERMISSION_DENIED_ERROR, "primary key store", "primary key store"));
     }
 
     /**
@@ -740,8 +773,7 @@ public class KeyStoreManager {
             return config
                     .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_PASSWORD);
         }
-        throw new CarbonException("Permission denied for accessing primary key store. The primary key store is " +
-                "available only for the super tenant.");
+        throw new CarbonException(String.format(PERMISSION_DENIED_ERROR, "primary key store", "primary key store"));
     }
 
     /**
@@ -761,8 +793,7 @@ public class KeyStoreManager {
                     .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_KEY_ALIAS);
             return (X509Certificate) getPrimaryKeyStore().getCertificate(alias);
         }
-        throw new CarbonException("Permission denied for accessing primary key store. The primary key store is " +
-                "available only for the super tenant.");
+        throw new CarbonException(String.format(PERMISSION_DENIED_ERROR, "primary key store", "primary key store"));
     }
 
     /**
@@ -800,7 +831,7 @@ public class KeyStoreManager {
         boolean cachedKeyStoreValid = false;
         try {
             if (tenantKeyStores.containsKey(keyStoreName)) {
-                org.wso2.carbon.registry.api.Resource metaDataResource = registry.get(path);
+                Resource metaDataResource = registry.get(path);
                 KeyStoreBean keyStoreBean = tenantKeyStores.get(keyStoreName);
                 if (keyStoreBean.getLastModifiedDate().equals(metaDataResource.getLastModified())) {
                     cachedKeyStoreValid = true;
@@ -818,6 +849,11 @@ public class KeyStoreManager {
             throw new SecurityException(errorMsg, e);
         }
         return cachedKeyStoreValid;
+    }
+
+    private void deleteKeyStoreFromCache(String keyStoreName) {
+
+        tenantKeyStores.remove(keyStoreName);
     }
 
     private void updateTenantKeyStoreCache(String keyStoreName, KeyStoreBean keyStoreBean) {
