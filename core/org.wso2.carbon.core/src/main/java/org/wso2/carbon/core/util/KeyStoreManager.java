@@ -150,10 +150,10 @@ public class KeyStoreManager {
      * @param provider          Provider of the key store.
      * @param type              Keys store type (JKS, PKCS12, etc).
      * @param privateKeyPass    Password of the private key.
-     * @throws CarbonException  If an error occurs while adding the key store.
+     * @throws SecurityException  If an error occurs while adding the key store.
      */
     public void addKeyStore(byte[] keystoreContent, String filename, String password, String provider,
-                            String type, String privateKeyPass) {
+                            String type, String privateKeyPass) throws SecurityException {
 
         if (StringUtils.isBlank(filename)) {
             throw new SecurityException(KEY_STORE_NAME_NULL_ERROR);
@@ -210,9 +210,9 @@ public class KeyStoreManager {
      * Delete the key store from the registry.
      *
      * @param keyStoreName  Name of the key store.
-     * @throws CarbonException  If an error occurs while deleting the key store.
+     * @throws SecurityException  If an error occurs while deleting the key store.
      */
-    public void deleteStore(String keyStoreName) {
+    public void deleteStore(String keyStoreName) throws SecurityException {
 
         if (StringUtils.isBlank(keyStoreName)) {
             throw new SecurityException("Key Store name can't be null");
@@ -550,13 +550,14 @@ public class KeyStoreManager {
     }
 
     /**
-     * Load the trust store, this is allowed only for the super tenant
+     * Load the trust store, this is allowed only for the super tenant.
      *
-     * @return trust store object
+     * @return Trust store object.
+     * @throws SecurityException If an error occurs while loading the trust store.
      * @throws CarbonException Carbon Exception when trying to call this method from a tenant other
      *                   than tenant 0
      */
-    public KeyStore getTrustStore() throws CarbonException {
+    public KeyStore getTrustStore() throws CarbonException, SecurityException {
 
         if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
             if (trustStore == null) {
