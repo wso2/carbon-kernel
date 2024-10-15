@@ -176,38 +176,6 @@ public class KeyStoreManagerTest {
         }
     }
 
-    @Test(description = "Add TrustStore test")
-    public void testAddTrustStore() throws Exception {
-
-        byte[] keyStoreContent = readBytesFromFile(createPath(TRUSTSTORE_NAME).toString());
-
-        try (MockedStatic<CryptoUtil>cryptoUtil = mockStatic(CryptoUtil.class);
-             MockedStatic<KeyStoreManager> keyStoreManager = mockStatic(KeyStoreManager.class);
-             MockedStatic<KeystoreUtils> keystoreUtils = mockStatic(KeystoreUtils.class);
-             MockedStatic<KeyStoreUtil> keyStoreUtil = mockStatic(KeyStoreUtil.class)) {
-
-            cryptoUtil.when(CryptoUtil::lookupRegistryService).thenReturn(this.registryService);
-
-            keyStoreManager.when(() -> KeyStoreManager.getInstance(anyInt())).thenReturn(this.keyStoreManager);
-
-            keyStoreUtil.when(() -> KeyStoreUtil.isPrimaryStore(any())).thenReturn(false);
-            keyStoreUtil.when(() -> KeyStoreUtil.isTrustStore(any())).thenReturn(false);
-
-            keystoreUtils.when(() -> KeystoreUtils.getKeystoreInstance(anyString())).thenReturn(this.keyStore);
-
-            // Mocking Registry interactions
-            when(registry.newResource()).thenReturn(resource);
-            when(registry.resourceExists(anyString())).thenReturn(false);
-
-            // Mocking password encryption
-            cryptoUtil.when(CryptoUtil::getDefaultCryptoUtil).thenReturn(this.cryptoUtil);
-            when(this.cryptoUtil.encryptAndBase64Encode(any())).thenReturn("encryptedPassword");
-
-            this.keyStoreManager.addTrustStore(keyStoreContent, "new_truststore.jks", KEYSTORE_PASSWORD,
-                    " ", KEYSTORE_TYPE);
-        }
-    }
-
     @Test(description = "Delete KeyStore test")
     public void testDeleteKeyStore() throws Exception {
 

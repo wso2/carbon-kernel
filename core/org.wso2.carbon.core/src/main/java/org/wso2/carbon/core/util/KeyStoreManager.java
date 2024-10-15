@@ -135,18 +135,6 @@ public class KeyStoreManager {
         return mtKeyStoreManagers.get(tenantIdStr);
     }
 
-    public void addTrustStore(byte[] content, String filename, String password, String provider, String type)
-            throws CarbonException {
-
-        if (StringUtils.isBlank(filename)) {
-            throw new CarbonException("Key Store name can't be null");
-        }
-        if (KeyStoreUtil.isPrimaryStore(filename)) {
-            throw new CarbonException("Key store " + filename + " already available");
-        }
-        addKeystore(filename, content, password, provider, type, null);
-    }
-
     public void addKeyStore(byte[] content, String filename, String password, String provider,
                             String type, String privateKeyPass) throws CarbonException {
 
