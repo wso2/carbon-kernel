@@ -50,6 +50,9 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+/**
+ * KeyStoreManager test class.
+ */
 public class KeyStoreManagerTest {
 
     private static final String KEYSTORE_NAME = "wso2carbon.p12";
@@ -163,7 +166,6 @@ public class KeyStoreManagerTest {
 
             keystoreUtils.when(() -> KeystoreUtils.getKeystoreInstance(anyString())).thenReturn(this.keyStore);
 
-            // Mocking Registry interactions
             when(registry.newResource()).thenReturn(resource);
             when(registry.resourceExists(anyString())).thenReturn(false);
 

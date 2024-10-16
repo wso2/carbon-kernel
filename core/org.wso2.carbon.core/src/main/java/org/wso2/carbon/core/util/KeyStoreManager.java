@@ -554,8 +554,7 @@ public class KeyStoreManager {
      *
      * @return Trust store object.
      * @throws SecurityException If an error occurs while loading the trust store.
-     * @throws CarbonException Carbon Exception when trying to call this method from a tenant other
-     *                   than tenant 0
+     * @throws CarbonException Carbon Exception when trying to call this method from a tenant other than super tenant.
      */
     public KeyStore getTrustStore() throws CarbonException, SecurityException {
 

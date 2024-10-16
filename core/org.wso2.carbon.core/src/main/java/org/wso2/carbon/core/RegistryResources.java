@@ -161,7 +161,7 @@ public final class RegistryResources {
         public static final String SERVER_INTERNAL_PRIVATE_KEY_PASSWORD = "Security.InternalKeyStore.KeyPassword";
         public static final String SERVER_INTERNAL_KEYSTORE_TYPE = "Security.InternalKeyStore.Type";
 
-        // Trust store
+        // Trust store.
         public static final String SERVER_TRUSTSTORE_FILE = "Security.TrustStore.Location";
         public static final String SERVER_TRUSTSTORE_PASSWORD = "Security.TrustStore.Password";
         public static final String SERVER_TRUSTSTORE_TYPE = "Security.TrustStore.Type";
