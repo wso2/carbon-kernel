@@ -169,7 +169,6 @@ public class KeyStoreManagerTest {
             when(registry.newResource()).thenReturn(resource);
             when(registry.resourceExists(anyString())).thenReturn(false);
 
-            // Mocking password encryption
             cryptoUtil.when(CryptoUtil::getDefaultCryptoUtil).thenReturn(this.cryptoUtil);
             when(this.cryptoUtil.encryptAndBase64Encode(any())).thenReturn("encryptedPassword");
 
@@ -228,7 +227,7 @@ public class KeyStoreManagerTest {
             int bytesRead = 0;
             while (bytesRead < bytes.length) {
                 int read = inputStream.read(bytes, bytesRead, bytes.length - bytesRead);
-                if (read == -1) break; // End of file reached
+                if (read == -1) break;
                 bytesRead += read;
             }
         }
