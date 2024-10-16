@@ -74,14 +74,9 @@ public class KeyStoreManagerTest {
     private KeyStore keyStore;
 
     @BeforeClass
-    public void setUp() {
-
-        initMocks(this);
-    }
-
-    @BeforeClass
     public void setup() throws KeyStoreException, RegistryException {
 
+        initMocks(this);
         System.setProperty(CarbonBaseConstants.CARBON_HOME,
                 Paths.get(System.getProperty("user.dir"), "src", "test", "resources").toString());
 
