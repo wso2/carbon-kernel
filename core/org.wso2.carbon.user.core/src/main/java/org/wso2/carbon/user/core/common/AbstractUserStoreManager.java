@@ -3900,6 +3900,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         } finally {
             newCredentialObj.clear();
             oldCredentialObj.clear();
+            // This value is set in the validation lister if the password gets validated
+            // against the configured set of rules.
+            UserCoreUtil.removeSkipPasswordPatternValidationThreadLocal();
         }
     }
 
@@ -4145,6 +4148,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         } finally {
             newCredentialObj.clear();
+            // This value is set in the validation lister if the password gets validated
+            // against the configured set of rules.
+            UserCoreUtil.removeSkipPasswordPatternValidationThreadLocal();
         }
         // #################### </Listeners> #####################################################
 
@@ -13671,6 +13677,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         } finally {
             newCredentialObj.clear();
             oldCredentialObj.clear();
+            // This value is set in the validation lister if the password gets validated
+            // against the configured set of rules.
+            UserCoreUtil.removeSkipPasswordPatternValidationThreadLocal();
         }
     }
 
