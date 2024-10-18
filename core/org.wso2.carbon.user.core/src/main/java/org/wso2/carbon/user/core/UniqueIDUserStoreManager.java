@@ -22,6 +22,7 @@ import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.common.AuthenticationResult;
 import org.wso2.carbon.user.core.common.Group;
 import org.wso2.carbon.user.core.common.LoginIdentifier;
+import org.wso2.carbon.user.core.common.PaginatedUserResponse;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.model.Condition;
 import org.wso2.carbon.user.core.model.UniqueIDUserClaimSearchEntry;
@@ -431,6 +432,26 @@ public interface UniqueIDUserStoreManager extends UserStoreManager {
      */
     List<User> getUserListWithID(Condition condition, String domain, String profileName, int limit, int offset,
             String sortBy, String sortOrder) throws UserStoreException;
+
+    /**
+     * Retrieves response object containing the paginated users and total user count
+     *
+     * @param condition   Conditional filter.
+     * @param domain      User Store Domain.
+     * @param profileName User profile name.
+     * @param limit       No of search results. If the given value is greater than the system configured max limit
+     *                    it will be reset to the system configured max limit.
+     * @param offset      Start index of the user search.
+     * @return A PaginatedUserResponse object containing user list and total user count.
+     * @throws UserStoreException User Store Exception.
+     */
+    default PaginatedUserResponse getPaginatedUserListWithID(Condition condition, String domain, String profileName,
+                                                             int limit, int offset, String sortBy, String sortOrder)
+            throws UserStoreException {
+
+        return new PaginatedUserResponse(getUserListWithID(condition, domain, profileName, limit, offset,
+                sortBy, sortOrder));
+    }
 
     /**
      * Get claim values of users.
