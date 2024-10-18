@@ -22,6 +22,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -113,7 +114,6 @@ import static org.wso2.carbon.user.core.UserCoreConstants.DOMAIN_SEPARATOR;
 import static org.wso2.carbon.user.core.UserCoreConstants.INTERNAL_DOMAIN;
 import static org.wso2.carbon.user.core.UserCoreConstants.INTERNAL_SYSTEM_ROLE_PREFIX;
 import static org.wso2.carbon.user.core.UserCoreConstants.INTERNAL_ROLES_CLAIM;
-import static org.wso2.carbon.user.core.UserCoreConstants.PROP_ENABLE_CIRCUIT_BREAKER_FOR_USERSTORE;
 import static org.wso2.carbon.user.core.UserCoreConstants.ROLE_CLAIM;
 import static org.wso2.carbon.user.core.UserCoreConstants.SYSTEM_DOMAIN_NAME;
 import static org.wso2.carbon.user.core.UserCoreConstants.USER_STORE_GROUPS_CLAIM;
@@ -16734,7 +16734,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         getExpressionConditions(duplicateCondition, expressionConditions);
 
         // Check whether the request has IdentityClaims in filters.
-        boolean identityClaimsExistsInInitialCondition = hasIdentityClaimInitially(expressionConditions);
+        mapAttributesToLocalIdentityClaims(expressionConditions);
+        boolean identityClaimsExistsInInitialCondition = containsIdentityClaims(expressionConditions);
 
         if (identityClaimsExistsInInitialCondition) {
             if (expressionConditions.size() != countIdentityClaims(expressionConditions)) {
@@ -16860,6 +16861,119 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return filteredUsers;
     }
 
+    @Override
+    public PaginatedUserResponse getPaginatedUserListWithID(Condition condition, String domain, String profileName,
+                                                            int limit, int offset, String sortBy, String sortOrder)
+            throws UserStoreException {
+
+        PaginatedUserResponse paginatedUserResponse = new PaginatedUserResponse();
+        validateCondition(condition);
+        if (StringUtils.isNotEmpty(sortBy) && StringUtils.isNotEmpty(sortOrder)) {
+            throw new UserStoreException("Sorting is not supported.");
+        }
+
+        if (StringUtils.isEmpty(domain)) {
+            domain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+        }
+
+        if (StringUtils.isEmpty(profileName)) {
+            profileName = UserCoreConstants.DEFAULT_PROFILE;
+        }
+
+        handlePreGetUserListWithID(condition, domain, profileName, limit, offset, sortBy, sortOrder);
+        if (log.isDebugEnabled()) {
+            log.debug("Pre listener get conditional  user list for domain: " + domain);
+        }
+
+        UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(domain);
+        List<ExpressionCondition> expressionConditions = new ArrayList<>();
+
+        /* Duplicating condition object to ensure that nullifying the conditions in the flow does not affect the
+        validation in the next iteration of flow when the domain name is not in query params.*/
+        Condition duplicateCondition = getDuplicateCondition(condition);
+        getExpressionConditions(duplicateCondition, expressionConditions);
+        mapAttributesToLocalIdentityClaims(expressionConditions);
+
+        /* *****************************************************
+         * Logic to Filter Users Based on Identity & Non Identity Claims
+         ***************************************************** */
+
+        int identityClaimFilterCount = countIdentityClaims(expressionConditions);
+
+        /*
+         * Case 1: Only Non Identity Claims.
+         * If there are only non identity claims, filter users from the user store.
+         */
+        if (identityClaimFilterCount == 0) {
+            paginatedUserResponse = new PaginatedUserResponse(getFilteredUsers(duplicateCondition, profileName, limit,
+                    offset, sortBy, sortOrder, secondaryUserStoreManager));
+        }
+
+        /*
+         * Case 2: Both Identity and Non Identity claims exist.
+         * If identity claims are stored in user store, filter users from the user store.
+         * If identity claims are stored in identity store,
+         */
+        if (identityClaimFilterCount > 0) {
+            boolean nonIdentityClaimExist = expressionConditions.size() > identityClaimFilterCount;
+            List<String> identityClaimFilteredUserNames = new ArrayList<>();
+            // Call the listeners to get the filtered users from relevant identity store.
+            if (secondaryUserStoreManager != null) {
+                handlePreGetUserListWithIdentityClaims(condition, domain, profileName, limit, offset, sortBy,
+                        sortOrder, secondaryUserStoreManager, identityClaimFilteredUserNames,
+                        nonIdentityClaimExist);
+            }
+
+            /* If identity claims are stored in the identity store, all the identity claim filters should be removed
+               from the filter condition. */
+            expressionConditions = new ArrayList<>();
+            getExpressionConditions(duplicateCondition, expressionConditions);
+            if (countIdentityClaims(expressionConditions) > 0) {
+                /*
+                 * Case 2.1: Identity and Non Identity claims stored in user store.
+                 * Both identity & non identity claim filters can be applied for the user store.
+                 */
+                updateCondition(duplicateCondition, domain);
+                paginatedUserResponse = new PaginatedUserResponse(getFilteredUsers(duplicateCondition, profileName,
+                        limit, offset, sortBy, sortOrder, secondaryUserStoreManager));
+            } else {
+                if (!nonIdentityClaimExist) {
+                    /*
+                     * Case 2.2: Only Identity claims exist and stored in the identity store.
+                     */
+                    paginatedUserResponse =
+                            new PaginatedUserResponse(getUserListByUsernames(identityClaimFilteredUserNames));
+                } else {
+                    /*
+                     * Case 2.3: Identity claims stored in identity store and non identity claims stored in user store.
+                     */
+                    if (secondaryUserStoreManager == null) {
+                        return paginatedUserResponse;
+                    }
+                    List<String> nonIdentityClaimFilteredUsers = getFilteredUsernames(condition, profileName,
+                            Integer.MAX_VALUE, 0, sortBy, sortOrder, secondaryUserStoreManager);
+
+                    // Consider max user list configured in the user store.
+                    int maxUserListCount = limit;
+                    String maxUserListValue = secondaryUserStoreManager.getRealmConfiguration()
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST);
+                    if (NumberUtils.isNumber(maxUserListValue) && limit > Integer.parseInt(maxUserListValue)) {
+                        maxUserListCount = Integer.parseInt(maxUserListValue);
+                    }
+                    paginatedUserResponse = mergeIdentityNonIdentityClaimFilteredUsers(identityClaimFilteredUserNames,
+                            nonIdentityClaimFilteredUsers, offset, maxUserListCount);
+                }
+            }
+        }
+
+        handlePostGetUserListWithID(condition, domain, profileName, limit, offset, sortBy, sortOrder,
+                paginatedUserResponse.getFilteredUsers(), false);
+        if (log.isDebugEnabled()) {
+            log.debug("post listener get conditional  user list for domain: " + domain);
+        }
+        return paginatedUserResponse;
+    }
+
     /**
      * Retrieves the count of users based on the specified filtering conditions.
      *
@@ -16898,7 +17012,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         getExpressionConditions(duplicateCondition, expressionConditions);
 
         // Check whether the request has IdentityClaims in filters.
-        boolean identityClaimsExistsInInitialCondition = hasIdentityClaimInitially(expressionConditions);
+        mapAttributesToLocalIdentityClaims(expressionConditions);
+        boolean identityClaimsExistsInInitialCondition = countIdentityClaims(expressionConditions) > 0;
 
         if (identityClaimsExistsInInitialCondition) {
             if (expressionConditions.size() != countIdentityClaims(expressionConditions)) {
@@ -17179,42 +17294,40 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
-     * Check if the conditions have identity claim as filters.
+     * Map to corresponding identity claim for the attributes of the given filter condition.
      *
      * @param expressionConditions List of expression conditions.
      * @throws UserStoreException
      */
-    private boolean hasIdentityClaimInitially(List<ExpressionCondition> expressionConditions)
+    private void mapAttributesToLocalIdentityClaims(List<ExpressionCondition> expressionConditions)
             throws UserStoreException {
 
-        boolean hasIdentityClaims = false;
+        List<org.wso2.carbon.user.api.ClaimMapping> claimMapping;
         try {
-            org.wso2.carbon.user.api.ClaimMapping[] claimMapping = claimManager.getAllClaimMappings();
-
-            for (ExpressionCondition expressionCondition : expressionConditions) {
-                List<org.wso2.carbon.user.api.ClaimMapping> mappedClaim =
-                        Arrays.stream(claimMapping).filter(mapping -> Objects.equals(mapping.getMappedAttribute(),
-                                expressionCondition.getAttributeName())).collect(Collectors.toList());
-
-                //Obtaining relevant URI for the mapped attribute.
-                if (mappedClaim.size() == 1) {
-                    String tempClaimURI = mappedClaim.get(0).getClaim().getClaimUri();
-                    //Check if the claimURI are of type 'identity claims'.
-                    if (tempClaimURI.contains(IDENTITY_CLAIM_URI)) {
-                        hasIdentityClaims = true;
-                        expressionCondition.setAttributeName(tempClaimURI);
-                        if (log.isDebugEnabled()) {
-                            log.debug("Obtained the ClaimURI " + tempClaimURI + " from the map for the attribute : "
-                                    + expressionCondition.getAttributeName());
-                        }
-                    }
-                }
-            }
+            claimMapping = Arrays.asList(claimManager.getAllClaimMappings());
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException("Error occurred while checking the existence of identity claim filters " +
                     "from the expression nodes.", e);
         }
-        return hasIdentityClaims;
+        for (ExpressionCondition expressionCondition : expressionConditions) {
+            org.wso2.carbon.user.api.ClaimMapping mappedClaim = claimMapping.stream()
+                    .filter(mapping -> StringUtils.equals(mapping.getMappedAttribute(),
+                            expressionCondition.getAttributeName()))
+                    .findFirst().orElse(null);
+
+            if (mappedClaim == null) {
+                continue;
+            }
+
+            // Check if the claimURI are of type 'identity claims'.
+            if (mappedClaim.getClaim().getClaimUri().contains(IDENTITY_CLAIM_URI)) {
+                expressionCondition.setAttributeName(mappedClaim.getClaim().getClaimUri());
+                if (log.isDebugEnabled()) {
+                    log.debug("Obtained the ClaimURI " + mappedClaim.getClaim().getClaimUri() +
+                            " from the map for the attribute : " + expressionCondition.getAttributeName());
+                }
+            }
+        }
     }
 
     /**
@@ -19780,5 +19893,82 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     protected boolean isCircuitBreakerEnabledAndOpen() throws UserStoreException {
 
         return false;
+    }
+
+    /**
+     * Merge all identity claim filtered usernames and non identity claim filtered usernames in an efficient manner.
+     *
+     * @param identityClaimFilteredUsers    The username list of all the identity claim filtered users from identity
+     *                                      store.
+     * @param nonIdentityClaimFilteredUsers The username list of all the non identity claim filtered users from user
+     *                                      store.
+     * @param offset                        The offset requested for pagination.
+     * @param maxUserListCount                   The maximum user list count.
+     * @return A PaginatedUserResponse object including the paginated user list and the total user count match
+     * for both identity and non identity filter.
+     * @throws UserStoreException
+     */
+    private PaginatedUserResponse mergeIdentityNonIdentityClaimFilteredUsers(List<String> identityClaimFilteredUsers,
+                                                                             List<String> nonIdentityClaimFilteredUsers,
+                                                                             int offset, int maxUserListCount)
+            throws UserStoreException {
+
+        List<String> mergeUserList;
+        PaginatedUserResponse paginatedUserResponse = new PaginatedUserResponse();
+
+        // Joining two lists based on the minimum size list will give the higher performance.
+        if (identityClaimFilteredUsers.size() < nonIdentityClaimFilteredUsers.size()) {
+            Set<String> userHashSet = new HashSet<>(nonIdentityClaimFilteredUsers);
+            mergeUserList = identityClaimFilteredUsers.stream()
+                    .filter(userHashSet::contains)
+                    .collect(Collectors.toList());
+        } else {
+            Set<String> userHashSet = new HashSet<>(identityClaimFilteredUsers);
+            mergeUserList = nonIdentityClaimFilteredUsers.stream()
+                    .filter(userHashSet::contains)
+                    .collect(Collectors.toList());
+        }
+
+        /* The total user count which matches for both identity and non identity claim filter. Storing that information
+            to be used for downstream tasks without re calculating as it is costly operation. */
+        paginatedUserResponse.setTotalResults(mergeUserList.size());
+
+        // Pagination
+        if (offset <= 0) {
+            offset = 0;
+        } else {
+            offset = offset - 1;
+        }
+
+        int paginationLimit;
+        if (offset <= 0) {
+            paginationLimit = maxUserListCount;
+        } else {
+            paginationLimit = offset + maxUserListCount;
+        }
+
+        if (offset > mergeUserList.size()) {
+            return new PaginatedUserResponse();
+        }
+        if (mergeUserList.size() < paginationLimit) {
+            mergeUserList = mergeUserList.subList(offset, mergeUserList.size());
+        } else {
+            mergeUserList = mergeUserList.subList(offset, paginationLimit);
+        }
+        paginatedUserResponse.setFilteredUsers(getUserListByUsernames(mergeUserList));
+        return paginatedUserResponse;
+    }
+
+    private List<User> getUserListByUsernames(List<String> usernames) throws UserStoreException {
+
+        List<User> userList = new ArrayList<>();
+        for (String username : usernames) {
+            User user = getUser(getUserIDFromUserName(username), username);
+            user.setUserStoreDomain(UserCoreUtil.extractDomainFromName(username));
+            userList.add(user);
+            addToUserIDCache(user.getUserID(), user.getUsername(), user.getUserStoreDomain());
+            addToUserNameCache(user.getUserID(), user.getUsername(), user.getUserStoreDomain());
+        }
+        return userList;
     }
 }
