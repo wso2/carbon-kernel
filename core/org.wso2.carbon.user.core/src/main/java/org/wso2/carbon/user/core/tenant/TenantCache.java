@@ -76,9 +76,6 @@ public class TenantCache {
             carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
-            // Element already in the cache. Remove it first
-            clearCacheEntry(key);
-
             Cache<TenantIdKey, T> cache = getTenantCache();
             if (cache != null) {
                 cache.put(key, entry);
