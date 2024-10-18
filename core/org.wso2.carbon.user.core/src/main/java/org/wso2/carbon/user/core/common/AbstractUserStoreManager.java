@@ -8207,7 +8207,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     } else if (SYSTEM_DOMAIN_NAME.equalsIgnoreCase(domain)) {
                         userStore.setSystemStore(true);
                     } else {
-                        throw new UserStoreException("Invalid Domain Name");
+                        throw new UserStoreException(String.format( UserCoreErrorConstants.ErrorMessages
+                                .ERROR_CODE_INVALID_DOMAIN_NAME.getMessage(), domain),
+                                UserCoreErrorConstants.ErrorMessages.ERROR_CODE_INVALID_DOMAIN_NAME.getCode());
                     }
                 }
 
