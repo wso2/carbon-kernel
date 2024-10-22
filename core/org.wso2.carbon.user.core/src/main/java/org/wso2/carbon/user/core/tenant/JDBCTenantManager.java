@@ -564,7 +564,7 @@ public class JDBCTenantManager implements TenantManager {
         TenantSearchResult tenantSearchResult = new TenantSearchResult();
         String sortedOrder = sortBy + " " + sortOrder;
         try (Connection dbConnection = getDBConnection();
-             ResultSet resultSet = getTenantQueryResultSet(dbConnection, sortedOrder, offset, limit)) {
+             ResultSet resultSet = getTenantQueryResultSet(dbConnection, sortedOrder, offset, limit, filter)) {
             List<Tenant> tenantList = populateTenantList(resultSet);
             tenantSearchResult.setTenantList(tenantList);
             tenantSearchResult.setTotalTenantCount(getCountOfTenants());
@@ -1292,7 +1292,7 @@ public class JDBCTenantManager implements TenantManager {
     }
 
     private ResultSet getTenantQueryResultSet(Connection dbConnection, String sortedOrder, Integer offset,
-                                              Integer limit) throws SQLException, UserStoreException {
+                                              Integer limit, String filter) throws SQLException, UserStoreException {
 
         String dbType;
         try {
@@ -1305,47 +1305,61 @@ public class JDBCTenantManager implements TenantManager {
             throw new UserStoreException(msg, e);
         }
         PreparedStatement prepStmt;
-        String sqlQuery;
+        String sqlQuery = TenantConstants.LIST_TENANTS_PAGINATED_SQL;
         String sqlTail;
-        sqlQuery = TenantConstants.LIST_TENANTS_PAGINATED_SQL;
+        int offsetParameter;
+        int limitParameter;
+
+        String domainNameParameter = StringUtils.EMPTY;
+        String sqlFilter = StringUtils.EMPTY;
+        if (StringUtils.isNotBlank(filter)) {
+            if (filter.contains("*")) {
+                // Convert SCIM wildcards to SQL wildcards.
+                domainNameParameter = filter.trim().replace("*", "%");
+                sqlFilter = TenantConstants.LIST_TENANTS_DOMAIN_FILTER_LIKE;
+            } else {
+                domainNameParameter = filter.trim();
+                sqlFilter = TenantConstants.LIST_TENANTS_DOMAIN_FILTER_EQUAL;
+            }
+        }
 
         if (MYSQL.equalsIgnoreCase(dbType) || MARIADB.equalsIgnoreCase(dbType) || H2.equalsIgnoreCase(dbType)) {
             sqlTail = String.format(TenantConstants.LIST_TENANTS_MYSQL_TAIL, sortedOrder);
-            sqlQuery = sqlQuery + sqlTail;
-            prepStmt = dbConnection.prepareStatement(sqlQuery);
-            prepStmt.setInt(1, offset);
-            prepStmt.setInt(2, limit);
+            offsetParameter = offset;
+            limitParameter = limit;
         } else if (ORACLE.equalsIgnoreCase(dbType)) {
             sqlQuery = TenantConstants.LIST_TENANTS_PAGINATED_ORACLE;
             sqlTail = String.format(TenantConstants.LIST_TENANTS_ORACLE_TAIL, sortedOrder);
-            sqlQuery = sqlQuery + sqlTail;
-            prepStmt = dbConnection.prepareStatement(sqlQuery);
-            prepStmt.setInt(1, offset + limit);
-            prepStmt.setInt(2, offset);
+            offsetParameter = offset + limit;
+            limitParameter = offset;
         } else if (MSSQL.equalsIgnoreCase(dbType)) {
             sqlTail = String.format(TenantConstants.LIST_TENANTS_MSSQL_TAIL, sortedOrder);
-            sqlQuery = sqlQuery + sqlTail;
-            prepStmt = dbConnection.prepareStatement(sqlQuery);
-            prepStmt.setInt(1, offset);
-            prepStmt.setInt(2, limit);
+            offsetParameter = offset;
+            limitParameter = limit;
         } else if (DB2.equalsIgnoreCase(dbType)) {
             sqlQuery = TenantConstants.LIST_TENANTS_PAGINATED_DB2;
             sqlTail = String.format(TenantConstants.LIST_TENANTS_DB2_TAIL, sortedOrder);
-            sqlQuery = sqlQuery + sqlTail;
-            prepStmt = dbConnection.prepareStatement(sqlQuery);
-            prepStmt.setInt(1, offset + 1);
-            prepStmt.setInt(2, offset + limit);
+            offsetParameter = offset + 1;
+            limitParameter = offset + limit;
         } else if (POSTGRESQL.equalsIgnoreCase(dbType)) {
             sqlTail = String.format(TenantConstants.LIST_TENANTS_POSTGRESQL_TAIL, sortedOrder);
-            sqlQuery = sqlQuery + sqlTail;
-            prepStmt = dbConnection.prepareStatement(sqlQuery);
-            prepStmt.setInt(1, limit);
-            prepStmt.setInt(2, offset);
+            offsetParameter = limit;
+            limitParameter = offset;
         } else {
             String message = "Error while loading tenant from DB: Database driver could not be identified" +
                     " or not supported.";
             log.error(message);
             throw new UserStoreException(message);
+        }
+        sqlQuery = sqlQuery + sqlFilter + sqlTail;
+        prepStmt = dbConnection.prepareStatement(sqlQuery);
+        if (StringUtils.isBlank(sqlFilter)) {
+            prepStmt.setInt(1, offsetParameter);
+            prepStmt.setInt(2, limitParameter);
+        } else {
+            prepStmt.setString(1, domainNameParameter);
+            prepStmt.setInt(2, offsetParameter);
+            prepStmt.setInt(3, limitParameter);
         }
         return prepStmt.executeQuery();
     }
