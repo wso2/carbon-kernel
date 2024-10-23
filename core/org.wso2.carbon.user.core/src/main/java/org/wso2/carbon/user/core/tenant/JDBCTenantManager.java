@@ -88,6 +88,12 @@ public class JDBCTenantManager implements TenantManager {
     private static final String MARIADB = "mariadb";
     private static final String POSTGRESQL = "postgresql";
     private static final String H2 = "h2";
+    private static final String SPACE_SEPARATOR = " ";
+    private static final String DOMAIN_NAME = "domainName";
+    private static final String SQL_FILTER_STRING_ANY = "%";
+    private static final String SQL_WHERE_CLAUSE = "WHERE";
+    private static final String SQL_AND_CLAUSE = "AND";
+
     /**
      * Map which maps tenant domains to tenant IDs
      * <p/>
@@ -563,7 +569,7 @@ public class JDBCTenantManager implements TenantManager {
             throws UserStoreException {
 
         TenantSearchResult tenantSearchResult = new TenantSearchResult();
-        String sortedOrder = sortBy + " " + sortOrder;
+        String sortedOrder = sortBy + SPACE_SEPARATOR + sortOrder;
         String domainName = buildDomainNameFilter(filter);
         try (Connection dbConnection = getDBConnection();
              ResultSet resultSet = getTenantQueryResultSet(dbConnection, sortedOrder, offset, limit, domainName)) {
@@ -1280,11 +1286,11 @@ public class JDBCTenantManager implements TenantManager {
 
         String sqlFilter = StringUtils.EMPTY;
         if (StringUtils.isNotBlank(domainName)) {
-            if (domainName.contains("%")) {
-                sqlFilter = String.format(TenantConstants.LIST_TENANTS_DOMAIN_FILTER_LIKE, " WHERE");
-            } else {
-                sqlFilter = String.format(TenantConstants.LIST_TENANTS_DOMAIN_FILTER_EQUAL, " WHERE");
-            }
+            sqlFilter = SPACE_SEPARATOR + String.format(
+                    domainName.contains(SQL_FILTER_STRING_ANY)
+                            ? TenantConstants.LIST_TENANTS_DOMAIN_FILTER_LIKE
+                            : TenantConstants.LIST_TENANTS_DOMAIN_FILTER_EQUAL,
+                    SQL_WHERE_CLAUSE);
         }
         String sqlStmt = TenantConstants.LIST_TENANTS_COUNT_SQL + sqlFilter;
         int tenantCount = 0;
@@ -1325,11 +1331,11 @@ public class JDBCTenantManager implements TenantManager {
 
         String sqlFilter = StringUtils.EMPTY;
         if (StringUtils.isNotBlank(domainName)) {
-            if (domainName.contains("%")) {
-                sqlFilter = String.format(TenantConstants.LIST_TENANTS_DOMAIN_FILTER_LIKE, "AND");
-            } else {
-                sqlFilter = String.format(TenantConstants.LIST_TENANTS_DOMAIN_FILTER_EQUAL, "AND");
-            }
+            sqlFilter = String.format(
+                    domainName.contains(SQL_FILTER_STRING_ANY)
+                            ? TenantConstants.LIST_TENANTS_DOMAIN_FILTER_LIKE
+                            : TenantConstants.LIST_TENANTS_DOMAIN_FILTER_EQUAL,
+                    SQL_AND_CLAUSE);
         }
 
         if (MYSQL.equalsIgnoreCase(dbType) || MARIADB.equalsIgnoreCase(dbType) || H2.equalsIgnoreCase(dbType)) {
@@ -1376,12 +1382,12 @@ public class JDBCTenantManager implements TenantManager {
     private String buildDomainNameFilter(String filter) {
 
         if (StringUtils.isNotBlank(filter)) {
-            String[] filterArgs = filter.split(" ");
+            String[] filterArgs = filter.split(SPACE_SEPARATOR);
             if (filterArgs.length == 3) {
                 String filterAttribute = filterArgs[0];
                 String operation = filterArgs[1];
                 String attributeValue = filterArgs[2];
-                if (StringUtils.equalsIgnoreCase(filterAttribute, "domainName")) {
+                if (StringUtils.equalsIgnoreCase(filterAttribute, DOMAIN_NAME)) {
                     return generateFilterString(operation, attributeValue);
                 }
             }
@@ -1393,11 +1399,11 @@ public class JDBCTenantManager implements TenantManager {
 
         String formattedFilter = null;
         if (StringUtils.equalsIgnoreCase(operation, ExpressionOperation.SW.toString())) {
-            formattedFilter = attributeValue + "%";
+            formattedFilter = attributeValue + SQL_FILTER_STRING_ANY;
         } else if (StringUtils.equalsIgnoreCase(operation, ExpressionOperation.EW.toString())) {
-            formattedFilter = "%" + attributeValue;
+            formattedFilter = SQL_FILTER_STRING_ANY + attributeValue;
         } else if (StringUtils.equalsIgnoreCase(operation, ExpressionOperation.CO.toString())) {
-            formattedFilter = "%" + attributeValue + "%";
+            formattedFilter = SQL_FILTER_STRING_ANY + attributeValue + SQL_FILTER_STRING_ANY;
         } else if (StringUtils.equalsIgnoreCase(operation, ExpressionOperation.EQ.toString())) {
             formattedFilter = attributeValue;
         }
