@@ -1381,7 +1381,7 @@ public class JDBCTenantManager implements TenantManager {
                 String filterAttribute = filterArgs[0];
                 String operation = filterArgs[1];
                 String attributeValue = filterArgs[2];
-                if (StringUtils.equalsIgnoreCase(filterAttribute, "DOMAIN")) {
+                if (StringUtils.equalsIgnoreCase(filterAttribute, "domainName")) {
                     return generateFilterString(operation, attributeValue);
                 }
             }
