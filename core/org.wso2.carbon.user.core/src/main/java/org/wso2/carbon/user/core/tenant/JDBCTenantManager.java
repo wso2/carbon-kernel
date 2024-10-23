@@ -38,6 +38,7 @@ import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.user.core.hybrid.HybridJDBCConstants;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
+import org.wso2.carbon.user.core.model.ExpressionOperation;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -563,11 +564,12 @@ public class JDBCTenantManager implements TenantManager {
 
         TenantSearchResult tenantSearchResult = new TenantSearchResult();
         String sortedOrder = sortBy + " " + sortOrder;
+        String domainName = buildDomainNameFilter(filter);
         try (Connection dbConnection = getDBConnection();
-             ResultSet resultSet = getTenantQueryResultSet(dbConnection, sortedOrder, offset, limit, filter)) {
+             ResultSet resultSet = getTenantQueryResultSet(dbConnection, sortedOrder, offset, limit, domainName)) {
             List<Tenant> tenantList = populateTenantList(resultSet);
             tenantSearchResult.setTenantList(tenantList);
-            tenantSearchResult.setTotalTenantCount(getCountOfTenants());
+            tenantSearchResult.setTotalTenantCount(getCountOfTenants(domainName));
             tenantSearchResult.setLimit(limit);
             tenantSearchResult.setOffSet(offset);
             tenantSearchResult.setSortBy(sortBy);
@@ -1274,12 +1276,23 @@ public class JDBCTenantManager implements TenantManager {
      * @return number of tenant count.
      * @throws UserStoreException Error when getting count of tenants.
      */
-    private int getCountOfTenants() throws UserStoreException {
+    private int getCountOfTenants(String domainName) throws UserStoreException {
 
-        String sqlStmt = TenantConstants.LIST_TENANTS_COUNT_SQL;
+        String sqlFilter = StringUtils.EMPTY;
+        if (StringUtils.isNotBlank(domainName)) {
+            if (domainName.contains("%")) {
+                sqlFilter = String.format(TenantConstants.LIST_TENANTS_DOMAIN_FILTER_LIKE, " WHERE");
+            } else {
+                sqlFilter = String.format(TenantConstants.LIST_TENANTS_DOMAIN_FILTER_EQUAL, " WHERE");
+            }
+        }
+        String sqlStmt = TenantConstants.LIST_TENANTS_COUNT_SQL + sqlFilter;
         int tenantCount = 0;
         try (Connection dbConnection = getDBConnection();
              PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
+            if (StringUtils.isNotBlank(sqlFilter)) {
+                prepStmt.setString(1, domainName);
+            }
             try (ResultSet rs = prepStmt.executeQuery()) {
                 if (rs.next()) {
                     tenantCount = Integer.parseInt(rs.getString(1));
@@ -1292,7 +1305,7 @@ public class JDBCTenantManager implements TenantManager {
     }
 
     private ResultSet getTenantQueryResultSet(Connection dbConnection, String sortedOrder, Integer offset,
-                                              Integer limit, String filter) throws SQLException, UserStoreException {
+                                              Integer limit, String domainName) throws SQLException, UserStoreException {
 
         String dbType;
         try {
@@ -1310,16 +1323,12 @@ public class JDBCTenantManager implements TenantManager {
         int offsetParameter;
         int limitParameter;
 
-        String domainNameParameter = StringUtils.EMPTY;
         String sqlFilter = StringUtils.EMPTY;
-        if (StringUtils.isNotBlank(filter)) {
-            if (filter.contains("*")) {
-                // Convert SCIM wildcards to SQL wildcards.
-                domainNameParameter = filter.trim().replace("*", "%");
-                sqlFilter = TenantConstants.LIST_TENANTS_DOMAIN_FILTER_LIKE;
+        if (StringUtils.isNotBlank(domainName)) {
+            if (domainName.contains("%")) {
+                sqlFilter = String.format(TenantConstants.LIST_TENANTS_DOMAIN_FILTER_LIKE, "AND");
             } else {
-                domainNameParameter = filter.trim();
-                sqlFilter = TenantConstants.LIST_TENANTS_DOMAIN_FILTER_EQUAL;
+                sqlFilter = String.format(TenantConstants.LIST_TENANTS_DOMAIN_FILTER_EQUAL, "AND");
             }
         }
 
@@ -1357,11 +1366,42 @@ public class JDBCTenantManager implements TenantManager {
             prepStmt.setInt(1, offsetParameter);
             prepStmt.setInt(2, limitParameter);
         } else {
-            prepStmt.setString(1, domainNameParameter);
+            prepStmt.setString(1, domainName);
             prepStmt.setInt(2, offsetParameter);
             prepStmt.setInt(3, limitParameter);
         }
         return prepStmt.executeQuery();
+    }
+
+    private String buildDomainNameFilter(String filter) {
+
+        if (StringUtils.isNotBlank(filter)) {
+            String[] filterArgs = filter.split(" ");
+            if (filterArgs.length == 3) {
+                String filterAttribute = filterArgs[0];
+                String operation = filterArgs[1];
+                String attributeValue = filterArgs[2];
+                if (StringUtils.equalsIgnoreCase(filterAttribute, "DOMAIN")) {
+                    return generateFilterString(operation, attributeValue);
+                }
+            }
+        }
+        return StringUtils.EMPTY;
+    }
+
+    private String generateFilterString(String operation, String attributeValue) {
+
+        String formattedFilter = null;
+        if (StringUtils.equalsIgnoreCase(operation, ExpressionOperation.SW.toString())) {
+            formattedFilter = attributeValue + "%";
+        } else if (StringUtils.equalsIgnoreCase(operation, ExpressionOperation.EW.toString())) {
+            formattedFilter = "%" + attributeValue;
+        } else if (StringUtils.equalsIgnoreCase(operation, ExpressionOperation.CO.toString())) {
+            formattedFilter = "%" + attributeValue + "%";
+        } else if (StringUtils.equalsIgnoreCase(operation, ExpressionOperation.EQ.toString())) {
+            formattedFilter = attributeValue;
+        }
+        return formattedFilter;
     }
 
     private List<Tenant> populateTenantList(ResultSet resultSet)
