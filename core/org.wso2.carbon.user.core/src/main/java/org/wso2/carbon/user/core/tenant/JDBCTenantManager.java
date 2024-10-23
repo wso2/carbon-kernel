@@ -575,7 +575,7 @@ public class JDBCTenantManager implements TenantManager {
              ResultSet resultSet = getTenantQueryResultSet(dbConnection, sortedOrder, offset, limit, domainName)) {
             List<Tenant> tenantList = populateTenantList(resultSet);
             tenantSearchResult.setTenantList(tenantList);
-            tenantSearchResult.setTotalTenantCount(getCountOfTenants(domainName));
+            tenantSearchResult.setTotalTenantCount(getTenantResultCount(domainName));
             tenantSearchResult.setLimit(limit);
             tenantSearchResult.setOffSet(offset);
             tenantSearchResult.setSortBy(sortBy);
@@ -1282,7 +1282,7 @@ public class JDBCTenantManager implements TenantManager {
      * @return number of tenant count.
      * @throws UserStoreException Error when getting count of tenants.
      */
-    private int getCountOfTenants(String domainName) throws UserStoreException {
+    private int getTenantResultCount(String domainName) throws UserStoreException {
 
         String sqlFilter = StringUtils.EMPTY;
         if (StringUtils.isNotBlank(domainName)) {
