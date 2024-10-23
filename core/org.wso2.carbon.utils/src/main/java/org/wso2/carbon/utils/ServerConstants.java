@@ -148,6 +148,7 @@ public final class ServerConstants {
 
     public static final String FILE_RESOURCE_MAP = "file.resource.map";
     public static final String WORK_DIR = "WORK_DIR";
+    public static final String PUBLIC_CERTS_DIRECTORY_NAME = "pub_certs";
     public static final String CARBON_INSTANCE = "local_WSO2_WSAS";
     public static final String SERVER_NAME = "WSO2";
     public static final String GENERATED_PAGES = "local_wso2wsas.generated.pages";

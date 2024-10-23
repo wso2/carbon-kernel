@@ -19,8 +19,11 @@ package org.wso2.carbon.core.util;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
+import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.util.XMLUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.core.RegistryResources;
@@ -31,14 +34,23 @@ import org.wso2.securevault.SecretResolverFactory;
 import org.wso2.securevault.commons.MiscellaneousUtil;
 
 import java.io.File;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyStore;
+import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Map;
+
 import javax.xml.namespace.QName;
 
 public class KeyStoreUtil {
+
+    private static final Log log = LogFactory.getLog(KeyStoreUtil.class);
 
     /**
      * KeyStore name will be here.
@@ -251,5 +263,76 @@ public class KeyStoreUtil {
         if (!Arrays.asList(keyStoreProperties).contains(propertyName)) {
             throw new CarbonException("Requested key store configuration is invalid.");
         }
+    }
+
+    /**
+     * Dumping the generated public cert to a file.
+     *
+     * @param configurationContext Configuration context of the current message.
+     * @param cert                 Content of the certificate.
+     * @param fileName             File name.
+     * @return file system location of the public cert.
+     */
+    public static String dumpCert(ConfigurationContext configurationContext, byte[] cert, String fileName) {
+
+        if (!verifyCertExistence(fileName, configurationContext)) {
+            String workingDirectory = (String) configurationContext.getProperty(ServerConstants.WORK_DIR);
+            File publicCert = new File(workingDirectory + File.separator + ServerConstants.PUBLIC_CERTS_DIRECTORY_NAME);
+
+            if (fileName == null) {
+                fileName = System.currentTimeMillis() + new SecureRandom().nextDouble() + ".cert";
+            }
+            if (!publicCert.exists()) {
+                publicCert.mkdirs();
+            }
+
+            String filePath = workingDirectory + File.separator + ServerConstants.PUBLIC_CERTS_DIRECTORY_NAME +
+                    File.separator + fileName;
+            try (OutputStream outStream = Files.newOutputStream(Paths.get(filePath))) {
+                outStream.write(cert);
+            } catch (Exception e) {
+                String msg = "Error when writing the public certificate to a file";
+                log.error(msg, e);
+                throw new SecurityException(msg, e);
+            }
+
+            Map fileResourcesMap = (Map) configurationContext.getProperty(ServerConstants.FILE_RESOURCE_MAP);
+            if (fileResourcesMap == null) {
+                fileResourcesMap = new Hashtable();
+                configurationContext.setProperty(ServerConstants.FILE_RESOURCE_MAP, fileResourcesMap);
+            }
+            fileResourcesMap.put(fileName, filePath);
+        }
+        return ServerConstants.ContextPaths.DOWNLOAD_PATH + "?id=" + fileName;
+    }
+
+    /**
+     * Check whether the certificate is available in the file system.
+     *
+     * @param fileName             File name.
+     * @param configurationContext Configuration context of the current message.
+     * @return True if the certificate is available in the file system, false otherwise.
+     */
+    private static boolean verifyCertExistence(String fileName, ConfigurationContext configurationContext) {
+
+        String workingDirectory = (String) configurationContext.getProperty(ServerConstants.WORK_DIR);
+        String filePath =
+                workingDirectory + File.separator + ServerConstants.PUBLIC_CERTS_DIRECTORY_NAME + File.separator +
+                        fileName;
+        File pubCert = new File(
+                workingDirectory + File.separator + ServerConstants.PUBLIC_CERTS_DIRECTORY_NAME + File.separator +
+                        fileName);
+
+        // If cert is still available then exit.
+        if (pubCert.exists()) {
+            Map fileResourcesMap = (Map) configurationContext.getProperty(ServerConstants.FILE_RESOURCE_MAP);
+            if (fileResourcesMap == null) {
+                fileResourcesMap = new Hashtable();
+                configurationContext.setProperty(ServerConstants.FILE_RESOURCE_MAP, fileResourcesMap);
+            }
+            fileResourcesMap.putIfAbsent(fileName, filePath);
+            return true;
+        }
+        return false;
     }
 }
