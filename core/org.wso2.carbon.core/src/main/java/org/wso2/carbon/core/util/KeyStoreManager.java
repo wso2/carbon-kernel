@@ -18,16 +18,20 @@
 package org.wso2.carbon.core.util;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.util.UUIDGenerator;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonException;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
+import org.wso2.carbon.core.security.KeyStoreMetadata;
 import org.wso2.carbon.registry.api.Registry;
 import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.api.Resource;
+import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.exceptions.ResourceNotFoundException;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -38,7 +42,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,9 +53,12 @@ import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -82,6 +88,8 @@ public class KeyStoreManager {
     private static final String KEY_STORE_NAME_NULL_ERROR = "Key store name is null or empty.";
     private static final String PERMISSION_DENIED_ERROR = "Permission denied for accessing %s. The %s is " +
             "available only for the super tenant.";
+    private static final String ASSOCIATION_TENANT_KS_PUB_KEY = "assoc.tenant.ks.pub.key";
+    private static final String PROP_TENANT_PUB_KEY_FILE_NAME_APPENDER = "tenant.pub.key.file.name.appender";
 
     /**
      * Private Constructor of the KeyStoreManager
@@ -168,9 +176,14 @@ public class KeyStoreManager {
                              String type, String privateKeyPass) {
 
         String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + filename;
+        boolean isTenantPrimaryKeyStore = false;
         try (InputStream inputStream = new ByteArrayInputStream(keystoreContent)) {
             if (registry.resourceExists(path)) {
                 throw new SecurityException("Key store " + filename + " already available");
+            }
+            if (tenantId != MultitenantConstants.SUPER_TENANT_ID &&
+                    !registry.resourceExists(RegistryResources.SecurityManagement.KEY_STORES)) {
+                isTenantPrimaryKeyStore = true;
             }
             KeyStore keyStore = KeystoreUtils.getKeystoreInstance(type);
             keyStore.load(inputStream, password.toCharArray());
@@ -192,6 +205,11 @@ public class KeyStoreManager {
             }
             resource.setContent(keystoreContent);
             registry.put(path, resource);
+
+            if (isTenantPrimaryKeyStore) {
+                // Create the public key resource for tenant's primary keystore.
+                addTenantPublicKey(filename, (X509Certificate) keyStore.getCertificate(pvtKeyAlias));
+            }
         } catch (Exception e) {
             throw new SecurityException("Error adding key store " + filename, e);
         }
@@ -204,6 +222,47 @@ public class KeyStoreManager {
         } catch (CryptoException e) {
             throw new SecurityException("Error encrypting the password", e);
         }
+    }
+
+    /**
+     * Add tenant's public certificate to the database.
+     *
+     * @param keyStoreName Name of the key store.
+     * @param publicCert   Public certificate of the tenant.
+     * @throws SecurityException If an error occurs while adding the tenant's public certificate.
+     */
+    private void addTenantPublicKey(String keyStoreName, X509Certificate publicCert) throws SecurityException {
+
+        if (StringUtils.isBlank(keyStoreName)) {
+            throw new SecurityException(KEY_STORE_NAME_NULL_ERROR);
+        }
+
+        try {
+            // Create the public key resource.
+            Resource pubKeyResource = registry.newResource();
+            pubKeyResource.setContent(publicCert.getEncoded());
+            pubKeyResource.addProperty(PROP_TENANT_PUB_KEY_FILE_NAME_APPENDER, generatePublicCertId());
+            registry.put(RegistryResources.SecurityManagement.TENANT_PUBKEY_RESOURCE, pubKeyResource);
+
+            // Associate the public key with the keystore.
+            registry.addAssociation(RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName,
+                    RegistryResources.SecurityManagement.TENANT_PUBKEY_RESOURCE, ASSOCIATION_TENANT_KS_PUB_KEY);
+        } catch (RegistryException | CertificateEncodingException e) {
+            String msg = "Error when writing the keystore public cert to registry for keystore: " + keyStoreName;
+            throw new SecurityException(msg, e);
+        }
+    }
+
+    /**
+     * Generates an ID for the public certificate, which is used as a file name suffix for the certificate.
+     * e.g. If keystore name is 'example-com.jks', public cert name will be 'example-com-343743.cert'.
+     *
+     * @return generated id to be used as a file name appender.
+     */
+    private String generatePublicCertId() {
+
+        String uuid = UUIDGenerator.getUUID();
+        return uuid.substring(uuid.length() - 6, uuid.length() - 1);
     }
 
     /**
@@ -258,6 +317,85 @@ public class KeyStoreManager {
         }
 
         return getTenantKeyStore(keyStoreName);
+    }
+
+    /**
+     * Method to retrieve keystore metadata of all the keystores in a tenant.
+     *
+     * @param isSuperTenant Indication whether the querying super tenant data.
+     * @return KeyStoreMetaData[] Array of KeyStoreMetaData objects.
+     * @throws SecurityException If an error occurs while retrieving the keystore data.
+     */
+    public KeyStoreMetadata[] getKeyStoresMetadata(boolean isSuperTenant) throws SecurityException {
+
+        CarbonUtils.checkSecurity();
+        List<KeyStoreMetadata> metadataList = new ArrayList<>();
+
+        try {
+            if (!registry.resourceExists(RegistryResources.SecurityManagement.KEY_STORES)) {
+                return new KeyStoreMetadata[0];
+            }
+            Collection keyStoreCollection = (Collection) registry.get(RegistryResources.SecurityManagement.KEY_STORES);
+            String[] keyStoreFullnames = keyStoreCollection.getChildren();
+
+            for (String keyStoreFullname : keyStoreFullnames) {
+                if (RegistryResources.SecurityManagement.PRIMARY_KEYSTORE_PHANTOM_RESOURCE.equals(keyStoreFullname)) {
+                    continue;
+                }
+                metadataList.add(getKeyStoreMetadata(keyStoreFullname, isSuperTenant));
+            }
+            if (isSuperTenant) {
+                metadataList.add(getPrimaryKeyStoreMetadata());
+            }
+            return metadataList.toArray(new KeyStoreMetadata[0]);
+        } catch (RegistryException e) {
+            String msg = "Error when getting keyStore metadata.";
+            throw new SecurityException(msg, e);
+        }
+    }
+
+    private KeyStoreMetadata getKeyStoreMetadata(String keyStoreFullname, boolean isSuperTenant)
+            throws RegistryException {
+
+        Resource keyStoreResource = registry.get(keyStoreFullname);
+        int lastIndex = keyStoreFullname.lastIndexOf("/");
+        String name = keyStoreFullname.substring(lastIndex + 1);
+        String type = keyStoreResource.getProperty(RegistryResources.SecurityManagement.PROP_TYPE);
+        String provider = keyStoreResource.getProperty(RegistryResources.SecurityManagement.PROP_PROVIDER);
+        String alias = keyStoreResource.getProperty(RegistryResources.SecurityManagement.PROP_PRIVATE_KEY_ALIAS);
+
+        KeyStoreMetadata keyStoreMetadata = new KeyStoreMetadata();
+        keyStoreMetadata.setKeyStoreName(name);
+        keyStoreMetadata.setKeyStoreType(type);
+        keyStoreMetadata.setProvider(provider);
+        keyStoreMetadata.setPrivateStore(alias != null);
+
+        if (!isSuperTenant) {
+            org.wso2.carbon.registry.api.Association[] associations =
+                    registry.getAssociations(keyStoreFullname, ASSOCIATION_TENANT_KS_PUB_KEY);
+
+            if (associations != null && associations.length > 0) {
+                Resource pubKeyResource = registry.get(associations[0].getDestinationPath());
+                keyStoreMetadata.setPublicCertId(pubKeyResource.getProperty(PROP_TENANT_PUB_KEY_FILE_NAME_APPENDER));
+                keyStoreMetadata.setPublicCert((byte[]) pubKeyResource.getContent());
+            }
+        }
+        return keyStoreMetadata;
+    }
+
+    private KeyStoreMetadata getPrimaryKeyStoreMetadata() {
+
+        ServerConfiguration config = ServerConfiguration.getInstance();
+        String fileName = config.getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_FILE);
+        String type = config.getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_TYPE);
+        String name = KeyStoreUtil.getKeyStoreFileName(fileName);
+
+        KeyStoreMetadata primaryKeyStoreMetadata = new KeyStoreMetadata();
+        primaryKeyStoreMetadata.setKeyStoreName(name);
+        primaryKeyStoreMetadata.setKeyStoreType(type);
+        primaryKeyStoreMetadata.setProvider(" ");
+        primaryKeyStoreMetadata.setPrivateStore(true);
+        return primaryKeyStoreMetadata;
     }
 
     /**
