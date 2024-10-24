@@ -249,7 +249,6 @@ public class KeyStoreManager {
                     RegistryResources.SecurityManagement.TENANT_PUBKEY_RESOURCE, ASSOCIATION_TENANT_KS_PUB_KEY);
         } catch (RegistryException | CertificateEncodingException e) {
             String msg = "Error when writing the keystore public cert to registry for keystore: " + keyStoreName;
-            log.error(msg, e);
             throw new SecurityException(msg, e);
         }
     }
@@ -351,7 +350,6 @@ public class KeyStoreManager {
             return metadataList.toArray(new KeyStoreMetadata[0]);
         } catch (RegistryException e) {
             String msg = "Error when getting keyStore metadata.";
-            log.error(msg, e);
             throw new SecurityException(msg, e);
         }
     }
@@ -372,7 +370,6 @@ public class KeyStoreManager {
         keyStoreMetadata.setProvider(provider);
         keyStoreMetadata.setPrivateStore(alias != null);
 
-        // Dump the generated public key to the file system for sub tenants.
         if (!isSuperTenant) {
             org.wso2.carbon.registry.api.Association[] associations =
                     registry.getAssociations(keyStoreFullname, ASSOCIATION_TENANT_KS_PUB_KEY);
