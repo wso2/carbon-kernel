@@ -248,7 +248,7 @@ public class KeyStoreManager {
                     RegistryResources.SecurityManagement.TENANT_PUBKEY_RESOURCE,
                     RegistryResources.SecurityManagement.ASSOCIATION_TENANT_KS_PUB_KEY);
         } catch (RegistryException | CertificateEncodingException e) {
-            String msg = "Error when writing the keystore public cert to registry for keystore : " + keyStoreName;
+            String msg = "Error when writing the keystore public cert to registry for keystore: " + keyStoreName;
             log.error(msg, e);
             throw new SecurityException(msg, e);
         }
