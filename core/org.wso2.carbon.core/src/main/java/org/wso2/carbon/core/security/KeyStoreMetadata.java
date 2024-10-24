@@ -26,8 +26,9 @@ public class KeyStoreMetadata {
     private String keyStoreName;
     private String keyStoreType;
     private String provider;
-    private String pubKeyFilePath;
     private boolean isPrivateStore;
+    private byte[] publicCert;
+    private String publicCertName;
 
     public String getKeyStoreName() {
 
@@ -69,13 +70,23 @@ public class KeyStoreMetadata {
         isPrivateStore = privateStore;
     }
 
-    public String getPubKeyFilePath() {
+    public byte[] getPublicCert() {
 
-        return pubKeyFilePath;
+        return publicCert;
     }
 
-    public void setPubKeyFilePath(String pubKeyFilePath) {
+    public void setPublicCert(byte[] publicCert) {
 
-        this.pubKeyFilePath = pubKeyFilePath;
+        this.publicCert = publicCert;
+    }
+
+    public String getPublicCertName() {
+
+        return publicCertName;
+    }
+
+    public void setPublicCertName(String publicCertName) {
+
+        this.publicCertName = publicCertName;
     }
 }

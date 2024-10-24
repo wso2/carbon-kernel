@@ -19,7 +19,6 @@ package org.wso2.carbon.core.util;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.UUIDGenerator;
-import org.apache.axis2.context.MessageContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -61,8 +60,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static org.wso2.carbon.core.util.KeyStoreUtil.dumpCert;
 
 /**
  * The purpose of this class is to centrally manage the key stores.
@@ -177,9 +174,14 @@ public class KeyStoreManager {
                              String type, String privateKeyPass) {
 
         String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + filename;
+        boolean isTenantPrimaryKeyStore = false;
         try (InputStream inputStream = new ByteArrayInputStream(keystoreContent)) {
             if (registry.resourceExists(path)) {
                 throw new SecurityException("Key store " + filename + " already available");
+            }
+            if (tenantId != MultitenantConstants.SUPER_TENANT_ID &&
+                    !registry.resourceExists(RegistryResources.SecurityManagement.KEY_STORES)) {
+                isTenantPrimaryKeyStore = true;
             }
             KeyStore keyStore = KeystoreUtils.getKeystoreInstance(type);
             keyStore.load(inputStream, password.toCharArray());
@@ -201,6 +203,11 @@ public class KeyStoreManager {
             }
             resource.setContent(keystoreContent);
             registry.put(path, resource);
+
+            if (isTenantPrimaryKeyStore) {
+                // Create the public key resource for tenant's primary keystore.
+                addTenantPublicKey(filename, (X509Certificate) keyStore.getCertificate(pvtKeyAlias));
+            }
         } catch (Exception e) {
             throw new SecurityException("Error adding key store " + filename, e);
         }
@@ -222,7 +229,7 @@ public class KeyStoreManager {
      * @param publicCert   Public certificate of the tenant.
      * @throws SecurityException If an error occurs while adding the tenant's public certificate.
      */
-    public void addTenantPublicKey(String keyStoreName, X509Certificate publicCert) throws SecurityException {
+    private void addTenantPublicKey(String keyStoreName, X509Certificate publicCert) throws SecurityException {
 
         if (StringUtils.isBlank(keyStoreName)) {
             throw new SecurityException(KEY_STORE_NAME_NULL_ERROR);
@@ -373,13 +380,8 @@ public class KeyStoreManager {
                 Resource pubKeyResource = registry.get(associations[0].getDestinationPath());
                 String fileName = generatePubCertFileName(keyStoreFullname, pubKeyResource.getProperty(
                         RegistryResources.SecurityManagement.PROP_TENANT_PUB_KEY_FILE_NAME_APPENDER));
-
-                if (MessageContext.getCurrentMessageContext() != null) {
-                    String pubKeyFilePath =
-                            dumpCert(MessageContext.getCurrentMessageContext().getConfigurationContext(),
-                                    (byte[]) pubKeyResource.getContent(), fileName);
-                    keyStoreMetadata.setPubKeyFilePath(pubKeyFilePath);
-                }
+                keyStoreMetadata.setPublicCertName(fileName);
+                keyStoreMetadata.setPublicCert((byte[]) pubKeyResource.getContent());
             }
         }
         return keyStoreMetadata;
@@ -417,58 +419,6 @@ public class KeyStoreManager {
             }
         }
         return tenantName + "-" + uuid + ".cert";
-    }
-
-    /**
-     * Get keystore type.
-     *
-     * @param keyStoreName Keystore name.
-     * @return Keystore type.
-     * @throws SecurityException If an error occurs while retrieving the keystore type.
-     */
-    public String getKeyStoreType(String keyStoreName) throws SecurityException {
-
-        String keyStoreType;
-        ServerConfiguration serverConfig = ServerConfiguration.getInstance();
-        if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
-            keyStoreType =
-                    serverConfig.getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_TYPE);
-        } else if (KeyStoreUtil.isTrustStore(keyStoreName)) {
-            keyStoreType = serverConfig.getFirstProperty(RegistryResources.SecurityManagement.SERVER_TRUSTSTORE_TYPE);
-        } else {
-            String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
-            try {
-                if (!registry.resourceExists(path)) {
-                    throw new SecurityException("Keystore " + keyStoreName + " not found at " + path);
-                }
-                Resource resource = registry.get(path);
-                keyStoreType = resource.getProperty(RegistryResources.SecurityManagement.PROP_TYPE);
-            } catch (RegistryException e) {
-                String msg = "Error when getting keyStore type for the keystore : " + keyStoreName;
-                log.error(msg, e);
-                throw new SecurityException(msg, e);
-            }
-        }
-        return keyStoreType;
-    }
-
-    /**
-     * Check the existence of the key store for given keystore name.
-     *
-     * @return True if the key store exists, false otherwise.
-     * @throws Exception If an error occurs while checking the existence of the key store.
-     */
-    public boolean isKeyStoreExists(String keyStoreName) throws SecurityException {
-
-        if (StringUtils.isEmpty(keyStoreName)) {
-            throw new SecurityException(KEY_STORE_NAME_NULL_ERROR);
-        }
-        String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
-        try {
-            return registry.resourceExists(path);
-        } catch (RegistryException e) {
-            throw new SecurityException("Error checking the existence of the key store : " + keyStoreName, e);
-        }
     }
 
     /**
@@ -574,43 +524,6 @@ public class KeyStoreManager {
         } else {
             throw new SecurityException("Key Store with a name : " + keyStoreName + " does not exist.");
         }
-    }
-
-    /**
-     * Get the private key password for the given key store name.
-     *
-     * @param keyStoreName Key store name.
-     * @return Private key password.
-     * @throws SecurityException If there is an error when getting the private key password.
-     */
-    public String getPrivateKeyPassword(String keyStoreName) throws SecurityException {
-
-        String privateKeyPassword = null;
-        ServerConfiguration serverConfig = ServerConfiguration.getInstance();
-        if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
-            privateKeyPassword = serverConfig.getFirstProperty(
-                    RegistryResources.SecurityManagement.SERVER_PRIVATE_KEY_PASSWORD);
-        } else {
-            String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
-            try {
-                if (registry.resourceExists(path)) {
-                    Resource resource = registry.get(path);
-                    CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
-                    String encryptedPassword =
-                            resource.getProperty(RegistryResources.SecurityManagement.PROP_PRIVATE_KEY_PASS);
-                    if (encryptedPassword != null) {
-                        privateKeyPassword = new String(cryptoUtil.base64DecodeAndDecrypt(encryptedPassword));
-                    }
-                } else {
-                    throw new SecurityException("Key Store with a name : " + keyStoreName + " does not exist.");
-                }
-            } catch (RegistryException | CryptoException e) {
-                String msg = "Error when getting private key password for the keystore : " + keyStoreName;
-                log.error(msg, e);
-                throw new SecurityException(msg, e);
-            }
-        }
-        return privateKeyPassword;
     }
 
     /**
