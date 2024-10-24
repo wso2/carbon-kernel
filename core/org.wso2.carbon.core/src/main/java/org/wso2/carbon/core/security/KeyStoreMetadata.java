@@ -28,7 +28,7 @@ public class KeyStoreMetadata {
     private String provider;
     private boolean isPrivateStore;
     private byte[] publicCert;
-    private String publicCertName;
+    private String publicCertId;
 
     public String getKeyStoreName() {
 
@@ -80,13 +80,13 @@ public class KeyStoreMetadata {
         this.publicCert = publicCert;
     }
 
-    public String getPublicCertName() {
+    public String getPublicCertId() {
 
-        return publicCertName;
+        return publicCertId;
     }
 
-    public void setPublicCertName(String publicCertName) {
+    public void setPublicCertId(String publicCertId) {
 
-        this.publicCertName = publicCertName;
+        this.publicCertId = publicCertId;
     }
 }

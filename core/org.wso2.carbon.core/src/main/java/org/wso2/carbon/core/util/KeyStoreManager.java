@@ -378,9 +378,8 @@ public class KeyStoreManager {
 
             if (associations != null && associations.length > 0) {
                 Resource pubKeyResource = registry.get(associations[0].getDestinationPath());
-                String fileName = generatePubCertFileName(keyStoreFullname, pubKeyResource.getProperty(
+                keyStoreMetadata.setPublicCertId(pubKeyResource.getProperty(
                         RegistryResources.SecurityManagement.PROP_TENANT_PUB_KEY_FILE_NAME_APPENDER));
-                keyStoreMetadata.setPublicCertName(fileName);
                 keyStoreMetadata.setPublicCert((byte[]) pubKeyResource.getContent());
             }
         }
@@ -400,25 +399,6 @@ public class KeyStoreManager {
         primaryKeyStoreMetadata.setProvider(" ");
         primaryKeyStoreMetadata.setPrivateStore(true);
         return primaryKeyStoreMetadata;
-    }
-
-    /**
-     * This method is used to generate the file name of the public cert of a tenant.
-     *
-     * @param ksLocation Keystore location in the registry.
-     * @param uuid       UUID appender.
-     * @return file name of the public cert.
-     */
-    private String generatePubCertFileName(String ksLocation, String uuid) {
-
-        String tenantName = ksLocation.substring(ksLocation.lastIndexOf("/"));
-        for (KeystoreUtils.StoreFileType fileType : KeystoreUtils.StoreFileType.values()) {
-            String fileExtension = KeystoreUtils.StoreFileType.getExtension(fileType);
-            if (tenantName.endsWith(fileExtension)) {
-                tenantName = tenantName.replace(fileExtension, "");
-            }
-        }
-        return tenantName + "-" + uuid + ".cert";
     }
 
     /**
