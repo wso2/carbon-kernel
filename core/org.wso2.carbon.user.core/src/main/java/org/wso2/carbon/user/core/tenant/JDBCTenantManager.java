@@ -38,6 +38,7 @@ import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.user.core.hybrid.HybridJDBCConstants;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
+import org.wso2.carbon.user.core.model.ExpressionOperation;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -87,6 +88,12 @@ public class JDBCTenantManager implements TenantManager {
     private static final String MARIADB = "mariadb";
     private static final String POSTGRESQL = "postgresql";
     private static final String H2 = "h2";
+    private static final String SPACE_SEPARATOR = " ";
+    private static final String DOMAIN_NAME = "domainName";
+    private static final String SQL_FILTER_STRING_ANY = "%";
+    private static final String SQL_WHERE_CLAUSE = "WHERE";
+    private static final String SQL_AND_CLAUSE = "AND";
+
     /**
      * Map which maps tenant domains to tenant IDs
      * <p/>
@@ -562,12 +569,13 @@ public class JDBCTenantManager implements TenantManager {
             throws UserStoreException {
 
         TenantSearchResult tenantSearchResult = new TenantSearchResult();
-        String sortedOrder = sortBy + " " + sortOrder;
+        String sortedOrder = sortBy + SPACE_SEPARATOR + sortOrder;
+        String domainName = buildDomainNameFilter(filter);
         try (Connection dbConnection = getDBConnection();
-             ResultSet resultSet = getTenantQueryResultSet(dbConnection, sortedOrder, offset, limit)) {
+             ResultSet resultSet = getTenantQueryResultSet(dbConnection, sortedOrder, offset, limit, domainName)) {
             List<Tenant> tenantList = populateTenantList(resultSet);
             tenantSearchResult.setTenantList(tenantList);
-            tenantSearchResult.setTotalTenantCount(getCountOfTenants());
+            tenantSearchResult.setTotalTenantCount(getTenantResultCount(domainName));
             tenantSearchResult.setLimit(limit);
             tenantSearchResult.setOffSet(offset);
             tenantSearchResult.setSortBy(sortBy);
@@ -1274,12 +1282,23 @@ public class JDBCTenantManager implements TenantManager {
      * @return number of tenant count.
      * @throws UserStoreException Error when getting count of tenants.
      */
-    private int getCountOfTenants() throws UserStoreException {
+    private int getTenantResultCount(String domainName) throws UserStoreException {
 
-        String sqlStmt = TenantConstants.LIST_TENANTS_COUNT_SQL;
+        String sqlFilter = StringUtils.EMPTY;
+        if (StringUtils.isNotBlank(domainName)) {
+            sqlFilter = SPACE_SEPARATOR + String.format(
+                    domainName.contains(SQL_FILTER_STRING_ANY)
+                            ? TenantConstants.LIST_TENANTS_DOMAIN_FILTER_LIKE
+                            : TenantConstants.LIST_TENANTS_DOMAIN_FILTER_EQUAL,
+                    SQL_WHERE_CLAUSE);
+        }
+        String sqlStmt = TenantConstants.LIST_TENANTS_COUNT_SQL + sqlFilter;
         int tenantCount = 0;
         try (Connection dbConnection = getDBConnection();
              PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
+            if (StringUtils.isNotBlank(sqlFilter)) {
+                prepStmt.setString(1, domainName);
+            }
             try (ResultSet rs = prepStmt.executeQuery()) {
                 if (rs.next()) {
                     tenantCount = Integer.parseInt(rs.getString(1));
@@ -1292,7 +1311,7 @@ public class JDBCTenantManager implements TenantManager {
     }
 
     private ResultSet getTenantQueryResultSet(Connection dbConnection, String sortedOrder, Integer offset,
-                                              Integer limit) throws SQLException, UserStoreException {
+                                              Integer limit, String domainName) throws SQLException, UserStoreException {
 
         String dbType;
         try {
@@ -1305,49 +1324,90 @@ public class JDBCTenantManager implements TenantManager {
             throw new UserStoreException(msg, e);
         }
         PreparedStatement prepStmt;
-        String sqlQuery;
+        String sqlQuery = TenantConstants.LIST_TENANTS_PAGINATED_SQL;
         String sqlTail;
-        sqlQuery = TenantConstants.LIST_TENANTS_PAGINATED_SQL;
+        int offsetParameter;
+        int limitParameter;
+
+        String sqlFilter = StringUtils.EMPTY;
+        if (StringUtils.isNotBlank(domainName)) {
+            sqlFilter = String.format(
+                    domainName.contains(SQL_FILTER_STRING_ANY)
+                            ? TenantConstants.LIST_TENANTS_DOMAIN_FILTER_LIKE
+                            : TenantConstants.LIST_TENANTS_DOMAIN_FILTER_EQUAL,
+                    SQL_AND_CLAUSE);
+        }
 
         if (MYSQL.equalsIgnoreCase(dbType) || MARIADB.equalsIgnoreCase(dbType) || H2.equalsIgnoreCase(dbType)) {
             sqlTail = String.format(TenantConstants.LIST_TENANTS_MYSQL_TAIL, sortedOrder);
-            sqlQuery = sqlQuery + sqlTail;
-            prepStmt = dbConnection.prepareStatement(sqlQuery);
-            prepStmt.setInt(1, offset);
-            prepStmt.setInt(2, limit);
+            offsetParameter = offset;
+            limitParameter = limit;
         } else if (ORACLE.equalsIgnoreCase(dbType)) {
             sqlQuery = TenantConstants.LIST_TENANTS_PAGINATED_ORACLE;
             sqlTail = String.format(TenantConstants.LIST_TENANTS_ORACLE_TAIL, sortedOrder);
-            sqlQuery = sqlQuery + sqlTail;
-            prepStmt = dbConnection.prepareStatement(sqlQuery);
-            prepStmt.setInt(1, offset + limit);
-            prepStmt.setInt(2, offset);
+            offsetParameter = offset + limit;
+            limitParameter = offset;
         } else if (MSSQL.equalsIgnoreCase(dbType)) {
             sqlTail = String.format(TenantConstants.LIST_TENANTS_MSSQL_TAIL, sortedOrder);
-            sqlQuery = sqlQuery + sqlTail;
-            prepStmt = dbConnection.prepareStatement(sqlQuery);
-            prepStmt.setInt(1, offset);
-            prepStmt.setInt(2, limit);
+            offsetParameter = offset;
+            limitParameter = limit;
         } else if (DB2.equalsIgnoreCase(dbType)) {
             sqlQuery = TenantConstants.LIST_TENANTS_PAGINATED_DB2;
             sqlTail = String.format(TenantConstants.LIST_TENANTS_DB2_TAIL, sortedOrder);
-            sqlQuery = sqlQuery + sqlTail;
-            prepStmt = dbConnection.prepareStatement(sqlQuery);
-            prepStmt.setInt(1, offset + 1);
-            prepStmt.setInt(2, offset + limit);
+            offsetParameter = offset + 1;
+            limitParameter = offset + limit;
         } else if (POSTGRESQL.equalsIgnoreCase(dbType)) {
             sqlTail = String.format(TenantConstants.LIST_TENANTS_POSTGRESQL_TAIL, sortedOrder);
-            sqlQuery = sqlQuery + sqlTail;
-            prepStmt = dbConnection.prepareStatement(sqlQuery);
-            prepStmt.setInt(1, limit);
-            prepStmt.setInt(2, offset);
+            offsetParameter = limit;
+            limitParameter = offset;
         } else {
             String message = "Error while loading tenant from DB: Database driver could not be identified" +
                     " or not supported.";
             log.error(message);
             throw new UserStoreException(message);
         }
+        sqlQuery = sqlQuery + sqlFilter + sqlTail;
+        prepStmt = dbConnection.prepareStatement(sqlQuery);
+        if (StringUtils.isBlank(sqlFilter)) {
+            prepStmt.setInt(1, offsetParameter);
+            prepStmt.setInt(2, limitParameter);
+        } else {
+            prepStmt.setString(1, domainName);
+            prepStmt.setInt(2, offsetParameter);
+            prepStmt.setInt(3, limitParameter);
+        }
         return prepStmt.executeQuery();
+    }
+
+    private String buildDomainNameFilter(String filter) {
+
+        if (StringUtils.isNotBlank(filter)) {
+            String[] filterArgs = filter.split(SPACE_SEPARATOR);
+            if (filterArgs.length == 3) {
+                String filterAttribute = filterArgs[0];
+                String operation = filterArgs[1];
+                String attributeValue = filterArgs[2];
+                if (StringUtils.equalsIgnoreCase(filterAttribute, DOMAIN_NAME)) {
+                    return generateFilterString(operation, attributeValue);
+                }
+            }
+        }
+        return StringUtils.EMPTY;
+    }
+
+    private String generateFilterString(String operation, String attributeValue) {
+
+        String formattedFilter = null;
+        if (StringUtils.equalsIgnoreCase(operation, ExpressionOperation.SW.toString())) {
+            formattedFilter = attributeValue + SQL_FILTER_STRING_ANY;
+        } else if (StringUtils.equalsIgnoreCase(operation, ExpressionOperation.EW.toString())) {
+            formattedFilter = SQL_FILTER_STRING_ANY + attributeValue;
+        } else if (StringUtils.equalsIgnoreCase(operation, ExpressionOperation.CO.toString())) {
+            formattedFilter = SQL_FILTER_STRING_ANY + attributeValue + SQL_FILTER_STRING_ANY;
+        } else if (StringUtils.equalsIgnoreCase(operation, ExpressionOperation.EQ.toString())) {
+            formattedFilter = attributeValue;
+        }
+        return formattedFilter;
     }
 
     private List<Tenant> populateTenantList(ResultSet resultSet)
