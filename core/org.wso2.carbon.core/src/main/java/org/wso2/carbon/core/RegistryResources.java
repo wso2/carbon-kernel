@@ -121,7 +121,6 @@ public final class RegistryResources {
       
         public static final String DEFAULT_STORE = "default";
         public static final String ASSOCIATION_STORE_GROUP = "user-group-store";
-        public static final String ASSOCIATION_TENANT_KS_PUB_KEY = "assoc.tenant.ks.pub.key";
         public static final String KEY_STORES = RegistryResources.ROOT + "security/key-stores";
         public static final String ADMIN_ROLE = "admin";
         
@@ -138,7 +137,6 @@ public final class RegistryResources {
         public static final String PROP_PRIVATE_KEY_ALIAS = "privatekeyAlias";
         public static final String PROP_TYPE = "type";
         public static final String PROP_PRIVATE_KEY_PASS = "privatekeyPass";
-        public static final String PROP_TENANT_PUB_KEY_FILE_NAME_APPENDER = "tenant.pub.key.file.name.appender";
         
         //primary key store
         public static final String SERVER_PRIMARY_KEYSTORE_FILE = "Security.KeyStore.Location";

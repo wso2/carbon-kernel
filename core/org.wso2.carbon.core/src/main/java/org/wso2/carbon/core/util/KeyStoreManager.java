@@ -88,6 +88,8 @@ public class KeyStoreManager {
     private static final String KEY_STORE_NAME_NULL_ERROR = "Key store name is null or empty.";
     private static final String PERMISSION_DENIED_ERROR = "Permission denied for accessing %s. The %s is " +
             "available only for the super tenant.";
+    private static final String ASSOCIATION_TENANT_KS_PUB_KEY = "assoc.tenant.ks.pub.key";
+    private static final String PROP_TENANT_PUB_KEY_FILE_NAME_APPENDER = "tenant.pub.key.file.name.appender";
 
     /**
      * Private Constructor of the KeyStoreManager
@@ -239,14 +241,12 @@ public class KeyStoreManager {
             // Create the public key resource.
             Resource pubKeyResource = registry.newResource();
             pubKeyResource.setContent(publicCert.getEncoded());
-            pubKeyResource.addProperty(RegistryResources.SecurityManagement.PROP_TENANT_PUB_KEY_FILE_NAME_APPENDER,
-                    generatePubKeyFileNameAppender());
+            pubKeyResource.addProperty(PROP_TENANT_PUB_KEY_FILE_NAME_APPENDER, generatePublicCertId());
             registry.put(RegistryResources.SecurityManagement.TENANT_PUBKEY_RESOURCE, pubKeyResource);
 
             // Associate the public key with the keystore.
             registry.addAssociation(RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName,
-                    RegistryResources.SecurityManagement.TENANT_PUBKEY_RESOURCE,
-                    RegistryResources.SecurityManagement.ASSOCIATION_TENANT_KS_PUB_KEY);
+                    RegistryResources.SecurityManagement.TENANT_PUBKEY_RESOURCE, ASSOCIATION_TENANT_KS_PUB_KEY);
         } catch (RegistryException | CertificateEncodingException e) {
             String msg = "Error when writing the keystore public cert to registry for keystore: " + keyStoreName;
             log.error(msg, e);
@@ -255,11 +255,12 @@ public class KeyStoreManager {
     }
 
     /**
-     * This method is used to generate a file name appender for the public cert, e.g.example-com-343743.cert.
+     * Generates an ID for the public certificate, which is used as a file name suffix for the certificate.
+     * e.g. If keystore name is 'example-com.jks', public cert name will be 'example-com-343743.cert'.
      *
-     * @return generated string to be used as a file name appender.
+     * @return generated id to be used as a file name appender.
      */
-    private String generatePubKeyFileNameAppender() {
+    private String generatePublicCertId() {
 
         String uuid = UUIDGenerator.getUUID();
         return uuid.substring(uuid.length() - 6, uuid.length() - 1);
@@ -373,13 +374,12 @@ public class KeyStoreManager {
 
         // Dump the generated public key to the file system for sub tenants.
         if (!isSuperTenant) {
-            org.wso2.carbon.registry.api.Association[] associations = registry.getAssociations(
-                    keyStoreFullname, RegistryResources.SecurityManagement.ASSOCIATION_TENANT_KS_PUB_KEY);
+            org.wso2.carbon.registry.api.Association[] associations =
+                    registry.getAssociations(keyStoreFullname, ASSOCIATION_TENANT_KS_PUB_KEY);
 
             if (associations != null && associations.length > 0) {
                 Resource pubKeyResource = registry.get(associations[0].getDestinationPath());
-                keyStoreMetadata.setPublicCertId(pubKeyResource.getProperty(
-                        RegistryResources.SecurityManagement.PROP_TENANT_PUB_KEY_FILE_NAME_APPENDER));
+                keyStoreMetadata.setPublicCertId(pubKeyResource.getProperty(PROP_TENANT_PUB_KEY_FILE_NAME_APPENDER));
                 keyStoreMetadata.setPublicCert((byte[]) pubKeyResource.getContent());
             }
         }
