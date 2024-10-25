@@ -25,6 +25,7 @@
             <class name="org.wso2.carbon.core.dependencies.commons.collections.TestInvokerTransformer"/>
             <class name="org.wso2.carbon.core.multitenancy.transports.TenantTransportSender"/>
             <class name="org.wso2.carbon.core.util.KeyStoreUtilTest"/>
+            <class name="org.wso2.carbon.core.util.KeyStoreManagerTest"/>
         </classes>
     </test>
 </suite>
