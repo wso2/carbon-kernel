@@ -147,6 +147,7 @@ public final class CarbonContextDataHolder {
     private String tenantDomain;
     private String organizationId;
     private String applicationName;
+    private String applicationResidentOrganizationId;
 
     private Map<String, Object> properties;
 
@@ -1509,6 +1510,27 @@ public final class CarbonContextDataHolder {
             allowChange = true;
         }
         return allowChange;
+    }
+
+    /**
+     * Set the application resident organization id when the request comes in tenant perspective.
+     *
+     * @param applicationResidentOrganizationId Organization id of organization where the application resides.
+     */
+    public void setApplicationResidentOrganizationId(String applicationResidentOrganizationId) {
+
+        CarbonUtils.checkSecurity();
+        this.applicationResidentOrganizationId = applicationResidentOrganizationId;
+    }
+
+    /**
+     * Get the application resident organization id. This is set when the request comes in tenant perspective.
+     *
+     * @return Organization id of organization where the application resides.
+     */
+    public String getApplicationResidentOrganizationId() {
+
+        return applicationResidentOrganizationId;
     }
 
     /**
