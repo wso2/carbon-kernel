@@ -268,6 +268,7 @@ public class DefaultRealmService implements RealmService {
     public UserRealm initializeRealm(RealmConfiguration realmConfig, int tenantId)
             throws UserStoreException {
         ClaimBuilder.setBundleContext(bc);
+        ClaimBuilder.setUserStoreClass(realmConfig.getUserStoreClass());
         ProfileConfigurationBuilder.setBundleContext(bc);
         UserRealm userRealm = null;
         try {

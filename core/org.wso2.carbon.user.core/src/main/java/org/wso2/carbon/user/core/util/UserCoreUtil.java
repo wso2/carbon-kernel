@@ -916,6 +916,17 @@ public final class UserCoreUtil {
         }
     }
 
+    /**
+     * Checks if the given user store class is a JDBC user store class.
+     *
+     * @return `true` if the given user store class is a JDBC user store class, `false` otherwise.
+     */
+    public static boolean isPrimaryUSMJDBCUSM(String userStoreClass) {
+
+        return org.wso2.carbon.user.core.jdbc.UniqueIDJDBCUserStoreManager.class.getName()
+                    .equals(userStoreClass);
+    }
+
     public static void persistDomain(String domain, int tenantId, DataSource dataSource) throws UserStoreException {
         Connection dbConnection = null;
         try {

@@ -27,6 +27,7 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.claim.ClaimKey;
 import org.wso2.carbon.user.core.claim.ClaimMapping;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.File;
@@ -49,6 +50,7 @@ public class FileBasedClaimBuilder {
     public static final String LOCAL_NAME_CLAIM_URI = "ClaimURI";
     public static final String LOCAL_NAME_DESCRIPTION = "Description";
     public static final String LOCAL_NAME_ATTR_ID = "AttributeID";
+    public static final String LOCAL_NAME_SKIP_ATTR_MAPPING_FOR_NON_JDBC = "SkipAttributeMappingForNonJDBCUSM";
     public static final String ATTR_DIALECT_URI = "dialectURI";
     public static final String ATTR_CLAIM_URI_REGEX = "claimURIRegex";
     private static final String CLAIM_CONFIG = "claim-config.xml";
@@ -56,6 +58,7 @@ public class FileBasedClaimBuilder {
     private static Log log = LogFactory.getLog(FileBasedClaimBuilder.class);
     private static BundleContext bundleContext;
     private static InputStream inStream = null;
+    private static String userStoreClass;
     private int tenantId;
 
     public FileBasedClaimBuilder(int tenantId) {
@@ -64,6 +67,11 @@ public class FileBasedClaimBuilder {
 
     public static void setBundleContext(BundleContext bundleContext) {
         FileBasedClaimBuilder.bundleContext = bundleContext;
+    }
+
+    public static void setUserStoreClass(String userStoreClass) {
+
+        FileBasedClaimBuilder.userStoreClass = userStoreClass;
     }
 
     /**
@@ -93,6 +101,8 @@ public class FileBasedClaimBuilder {
         dom = getRootElement();
         Iterator dialectsIterator = dom.getChildrenWithName(new QName(LOCAL_NAME_DIALECTS));
 
+        boolean isPrimaryUSMJDBCUSM = UserCoreUtil.isPrimaryUSMJDBCUSM(userStoreClass);
+
         //Go through Dialects
         while (dialectsIterator.hasNext()) {
             OMElement dialects = (OMElement) dialectsIterator.next();
@@ -118,6 +128,9 @@ public class FileBasedClaimBuilder {
                     claim = new Claim();
                     claim.setDialectURI(dialectUri);
 
+                    boolean skipAttributeMappingForNonJDBCUSM = claimElement.getFirstChildWithName(
+                            new QName(LOCAL_NAME_SKIP_ATTR_MAPPING_FOR_NON_JDBC)) != null;
+
                     Iterator metadataIterator = claimElement.getChildElements();
                     Map<String, String> properties = new HashMap<>();
 
@@ -130,7 +143,10 @@ public class FileBasedClaimBuilder {
                             claim.setClaimUri(value);
                             claimUri = value;
                         }
-                        if (key.equals(LOCAL_NAME_ATTR_ID)) {
+                        // If the claim has SkipAttributeMappingForNonJDBCUSM element, then attribute mapping will be
+                        // skipped for non JDBC user store.
+                        if ((isPrimaryUSMJDBCUSM || !skipAttributeMappingForNonJDBCUSM) &&
+                                key.equals(LOCAL_NAME_ATTR_ID)) {
                             attributeId = value;
                         }
                         properties.put(key, value);

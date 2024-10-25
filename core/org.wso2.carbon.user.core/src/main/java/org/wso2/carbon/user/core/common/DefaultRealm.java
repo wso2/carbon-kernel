@@ -30,6 +30,7 @@ import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.claim.ClaimMapping;
 import org.wso2.carbon.user.core.claim.DefaultClaimManager;
+import org.wso2.carbon.user.core.claim.inmemory.FileBasedClaimBuilder;
 import org.wso2.carbon.user.core.claim.inmemory.InMemoryClaimManager;
 import org.wso2.carbon.user.core.claim.builder.ClaimBuilder;
 import org.wso2.carbon.user.core.claim.builder.ClaimBuilderException;
@@ -124,6 +125,7 @@ public class DefaultRealm implements UserRealm {
         Map<String, ProfileConfiguration> profileConfigs = new HashMap<String, ProfileConfiguration>();
 
         if (Boolean.parseBoolean(realmConfig.getRealmProperty(UserCoreClaimConstants.INITIALIZE_NEW_CLAIM_MANAGER))) {
+            FileBasedClaimBuilder.setUserStoreClass(realmConfig.getUserStoreClass());
             if (UserStoreMgtDSComponent.getClaimManagerFactory() != null) {
                 claimMan = UserStoreMgtDSComponent.getClaimManagerFactory().createClaimManager(tenantId);
             } else {

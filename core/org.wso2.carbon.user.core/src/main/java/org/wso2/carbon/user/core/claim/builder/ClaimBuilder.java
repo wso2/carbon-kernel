@@ -26,6 +26,7 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.claim.ClaimMapping;
 import org.wso2.carbon.user.core.claim.dao.ClaimDAO;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.sql.DataSource;
@@ -61,6 +62,7 @@ public class ClaimBuilder {
     public static final String LOCAL_NAME_DISPLAY_OREDR = "DisplayOrder";
     public static final String LOCAL_NAME_READ_ONLY = "ReadOnly";
     public static final String LOCAL_NAME_CHECKED_ATTR = "CheckedAttribute";
+    public static final String LOCAL_NAME_SKIP_ATTR_MAPPING_FOR_NON_JDBC = "SkipAttributeMappingForNonJDBCUSM";
 
 
     public static final String ATTR_DIALECT_URI = "dialectURI";
@@ -69,6 +71,7 @@ public class ClaimBuilder {
     private static BundleContext bundleContext;
     InputStream inStream = null;
     int tenantId;
+    private static String userStoreClass;
 
     public ClaimBuilder(int tenantId) {
         this.tenantId = tenantId;
@@ -76,6 +79,11 @@ public class ClaimBuilder {
 
     public static void setBundleContext(BundleContext bundleContext) {
         ClaimBuilder.bundleContext = bundleContext;
+    }
+
+    public static void setUserStoreClass(String userStoreClass) {
+
+        ClaimBuilder.userStoreClass = userStoreClass;
     }
 
     public Map<String, ClaimMapping> buildClaimMappingsFromDatabase(DataSource ds, String realmName)
@@ -128,6 +136,7 @@ public class ClaimBuilder {
         }
 
         dialectIterator = dialectRoot.getChildrenWithLocalName(LOCAL_NAME_DIALECT);
+        boolean isPrimaryUSMJDBCUSM = UserCoreUtil.isPrimaryUSMJDBCUSM(userStoreClass);
 
         claims = new HashMap<String, ClaimMapping>();
 
@@ -199,13 +208,19 @@ public class ClaimBuilder {
                     claim.setReadOnly(true);
                 }
 
-                attributeId = claimElement.getFirstChildWithName(new QName(LOCAL_NAME_ATTR_ID))
-                        .getText();
-
                 claimMapping = new ClaimMapping();
                 claimMapping.setClaim(claim);
-                setMappedAttributes(claimMapping, attributeId);
 
+                boolean skipAttributeMappingForNonJDBCUSM = claimElement.getFirstChildWithName(
+                        new QName(LOCAL_NAME_SKIP_ATTR_MAPPING_FOR_NON_JDBC)) != null;
+
+                // If the primary user store is non JDBC and claim has SkipAttributeMappingForNonJDBCUSM element
+                // skip attribute mapping.
+                if (isPrimaryUSMJDBCUSM || !skipAttributeMappingForNonJDBCUSM) {
+                    attributeId = claimElement.getFirstChildWithName(new QName(LOCAL_NAME_ATTR_ID))
+                            .getText();
+                    setMappedAttributes(claimMapping, attributeId);
+                }
                 claims.put(claimUri, claimMapping);
             }
         }
