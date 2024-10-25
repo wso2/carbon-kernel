@@ -21,19 +21,15 @@ import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.impl.Log4jLogEvent;
 import org.apache.logging.log4j.message.Message;
 import org.apache.logging.log4j.message.SimpleMessage;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.testng.PowerMockTestCase;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.wso2.carbon.utils.logging.handler.TenantDomainSetter;
 
 import static org.testng.Assert.assertEquals;
 
 /**
  * Tests AppNameConverter class.
  */
-@PrepareForTest(TenantDomainSetter.class)
-public class AppNameConverterTest extends PowerMockTestCase {
+public class AppNameConverterTest {
 
     private AppNameConverter appNameConverter;
     private LogEvent logEvent;

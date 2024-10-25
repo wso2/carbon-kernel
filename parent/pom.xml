@@ -621,8 +621,7 @@
         <jacoco.version>0.8.2</jacoco.version>
         <maven.surefire.plugin.version>2.22.0</maven.surefire.plugin.version>
         <maven.failsafe.plugin.version>2.22.0</maven.failsafe.plugin.version>
-        <mockito.version>2.23.4</mockito.version>
-        <powermock.version>2.0.2</powermock.version>
+        <mockito.version>5.3.1</mockito.version>
 
         <!-- OWASP CSRFGuard Version -->
         <orbit.version.csrfguard>3.1.0.wso2v4</orbit.version.csrfguard>
@@ -1779,16 +1778,6 @@
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>${mockito.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-api-mockito2</artifactId>
-                <version>${powermock.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-module-testng</artifactId>
-                <version>${powermock.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.xml.bind</groupId>
