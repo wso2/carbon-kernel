@@ -77,7 +77,7 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
         // Perform authentication
         //
         String userName = aCredentials[0];
-        String password = aCredentials[1];
+        char[] password = aCredentials[1].toCharArray();
 
         UserStoreManager authenticator;
         try {
@@ -90,7 +90,7 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
 
         try {
 
-            // for new cahing, every thread should has its own populated CC. During the deployment time we assume super tenant
+            // for new caching, every thread should have its own populated CC. During the deployment time we assume super tenant
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
@@ -177,5 +177,4 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
         // Clear the sensitive information stored in the string array
         Arrays.fill(credentials, null);
     }
-
 }
