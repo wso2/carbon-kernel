@@ -51,8 +51,8 @@ public class FileBasedClaimBuilder {
     public static final String LOCAL_NAME_CLAIM_URI = "ClaimURI";
     public static final String LOCAL_NAME_DESCRIPTION = "Description";
     public static final String LOCAL_NAME_ATTR_ID = "AttributeID";
-    public static final String LOCAL_NAME_EXCLUDED_USER_STORE_DOMAINS = "ExcludedUserStoreDomains";
-    public static final String LOCAL_NAME_USER_STORE_DOMAIN = "UserStoreDomain";
+    public static final String LOCAL_NAME_EXCLUDED_USER_STORES = "ExcludedUserStores";
+    public static final String LOCAL_NAME_USER_STORE = "UserStore";
     public static final String ATTR_DIALECT_URI = "dialectURI";
     public static final String ATTR_CLAIM_URI_REGEX = "claimURIRegex";
     private static final String CLAIM_CONFIG = "claim-config.xml";
@@ -130,17 +130,17 @@ public class FileBasedClaimBuilder {
                         OMElement metadata = (OMElement) metadataIterator.next();
                         String key = metadata.getQName().toString();
 
-                        if (LOCAL_NAME_EXCLUDED_USER_STORE_DOMAINS.equals(key)) {
+                        if (LOCAL_NAME_EXCLUDED_USER_STORES.equals(key)) {
                             Iterator userstoreIterator = metadata.getChildElements();
                             List<String> userStoreDomains = new ArrayList<>();
                             while (userstoreIterator.hasNext()) {
                                 OMElement userstore = (OMElement) userstoreIterator.next();
-                                if (LOCAL_NAME_USER_STORE_DOMAIN.equals(userstore.getLocalName())) {
+                                if (LOCAL_NAME_USER_STORE.equals(userstore.getLocalName())) {
                                     userStoreDomains.add(userstore.getText());
                                 }
                             }
                             String userStoresDomainsStr = String.join(",", userStoreDomains);
-                            properties.put(LOCAL_NAME_EXCLUDED_USER_STORE_DOMAINS, userStoresDomainsStr);
+                            properties.put(LOCAL_NAME_EXCLUDED_USER_STORES, userStoresDomainsStr);
                             continue;
                         }
 
