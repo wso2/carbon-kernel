@@ -35,8 +35,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -49,6 +51,8 @@ public class FileBasedClaimBuilder {
     public static final String LOCAL_NAME_CLAIM_URI = "ClaimURI";
     public static final String LOCAL_NAME_DESCRIPTION = "Description";
     public static final String LOCAL_NAME_ATTR_ID = "AttributeID";
+    public static final String LOCAL_NAME_EXCLUDED_USER_STORES = "ExcludedUserStores";
+    public static final String LOCAL_NAME_USER_STORE = "UserStore";
     public static final String ATTR_DIALECT_URI = "dialectURI";
     public static final String ATTR_CLAIM_URI_REGEX = "claimURIRegex";
     private static final String CLAIM_CONFIG = "claim-config.xml";
@@ -125,6 +129,21 @@ public class FileBasedClaimBuilder {
                     while (metadataIterator.hasNext()) {
                         OMElement metadata = (OMElement) metadataIterator.next();
                         String key = metadata.getQName().toString();
+
+                        if (LOCAL_NAME_EXCLUDED_USER_STORES.equals(key)) {
+                            Iterator userstoreIterator = metadata.getChildElements();
+                            List<String> userStoreDomains = new ArrayList<>();
+                            while (userstoreIterator.hasNext()) {
+                                OMElement userstore = (OMElement) userstoreIterator.next();
+                                if (LOCAL_NAME_USER_STORE.equals(userstore.getLocalName())) {
+                                    userStoreDomains.add(userstore.getText());
+                                }
+                            }
+                            String userStoresDomainsStr = String.join(",", userStoreDomains);
+                            properties.put(LOCAL_NAME_EXCLUDED_USER_STORES, userStoresDomainsStr);
+                            continue;
+                        }
+
                         String value = metadata.getText();
                         if (key.equals(LOCAL_NAME_CLAIM_URI)) {
                             claim.setClaimUri(value);
