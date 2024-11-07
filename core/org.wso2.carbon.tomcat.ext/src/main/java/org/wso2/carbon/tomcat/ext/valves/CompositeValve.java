@@ -4,7 +4,6 @@ import org.apache.catalina.Realm;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -42,22 +41,17 @@ public class CompositeValve extends ValveBase {
     @Override
     public void invoke(Request request, Response response) throws IOException, ServletException {
         try {
-            if (request.getContext() == null) {
-                if (StringUtils.isEmpty(request.getRequestURI())) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Could not handle the request. The request URI is invalid.");
-                    }
-                    return;
-                }
-                if (log.isDebugEnabled()) {
-                    log.debug("Could not handle the request, could be due to the maxHttpHeaderSize limitation.");
-                }
+            String enableSaaSParam;
+            Realm realm;
+            if (request.getContext() != null) {
+                enableSaaSParam = request.getContext().findParameter(ENABLE_SAAS);
+                realm = request.getContext().getRealm();
+            } else {
+                log.error("Could not handle the request: " + request.getRequestURI() +
+                        ", since the request context is null. This could be due to multiple reasons, " +
+                        "such as maxHttpHeaderSize limitation, or the request having no context.");
                 return;
             }
-            
-            String enableSaaSParam =
-                    request.getContext().findParameter(ENABLE_SAAS);
-            Realm realm = request.getContext().getRealm();
 
             // deprecation notice since Carbon 4.4. Users should configure SaaS mode by adding the CarbonTomcatRealm to the
             // META-INF/context.xml. See javadocs at @org.wso2.carbon.tomcat.ext.realms.CarbonTomcatRealm.
@@ -76,8 +70,6 @@ public class CompositeValve extends ValveBase {
             // ------------ Absolutely no code below this line -----------------------
             // --------- Valve chaining happens from here onwards --------------------
 
-        } catch (NullPointerException e) {
-            log.error("Could not handle the request, could be due to the maxHttpHeaderSize limitation. ", e);
         } catch (Exception e) {
             log.error("Could not handle the request: " + request.getRequestURI(), e);
         }
