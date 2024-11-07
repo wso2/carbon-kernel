@@ -25,7 +25,6 @@ import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.core.RegistryResources;
-import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.registry.core.Association;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -80,7 +79,6 @@ public class KeyStoreManagerTest {
         System.setProperty(CarbonBaseConstants.CARBON_HOME,
                 Paths.get(System.getProperty("user.dir"), "src", "test", "resources").toString());
 
-        CarbonCoreDataHolder.getInstance().setRegistryService(this.registryService);
         when(this.registryService.getGovernanceSystemRegistry(anyInt())).thenReturn(this.registry);
         keyStoreManager = KeyStoreManager.getInstance(
                 MultitenantConstants.SUPER_TENANT_ID, serverConfiguration, registryService);
@@ -91,8 +89,11 @@ public class KeyStoreManagerTest {
     public void testGetPrimaryKeyStore() throws Exception {
 
         try (MockedStatic<ServerConfiguration> serverConfiguration = mockStatic(ServerConfiguration.class);
+             MockedStatic<CryptoUtil>cryptoUtil = mockStatic(CryptoUtil.class);
              MockedStatic<KeyStoreManager> keyStoreManager = mockStatic(KeyStoreManager.class);
              MockedStatic<KeystoreUtils> keystoreUtils = mockStatic(KeystoreUtils.class)) {
+
+            cryptoUtil.when(CryptoUtil::lookupRegistryService).thenReturn(this.registryService);
 
             keystoreUtils.when(() -> KeystoreUtils.getKeystoreInstance(anyString())).thenReturn(this.keyStore);
 
@@ -116,8 +117,11 @@ public class KeyStoreManagerTest {
     public void testGetTrustStore() throws Exception {
 
         try (MockedStatic<ServerConfiguration> serverConfiguration = mockStatic(ServerConfiguration.class);
+             MockedStatic<CryptoUtil>cryptoUtil = mockStatic(CryptoUtil.class);
              MockedStatic<KeyStoreManager> keyStoreManager = mockStatic(KeyStoreManager.class);
              MockedStatic<KeystoreUtils> keystoreUtils = mockStatic(KeystoreUtils.class)) {
+
+            cryptoUtil.when(CryptoUtil::lookupRegistryService).thenReturn(this.registryService);
 
             keystoreUtils.when(() -> KeystoreUtils.getKeystoreInstance(anyString())).thenReturn(this.keyStore);
 
@@ -146,6 +150,8 @@ public class KeyStoreManagerTest {
              MockedStatic<KeystoreUtils> keystoreUtils = mockStatic(KeystoreUtils.class);
              MockedStatic<KeyStoreUtil> keyStoreUtil = mockStatic(KeyStoreUtil.class)) {
 
+            cryptoUtil.when(CryptoUtil::lookupRegistryService).thenReturn(this.registryService);
+
             keyStoreManager.when(() -> KeyStoreManager.getInstance(anyInt())).thenReturn(this.keyStoreManager);
 
             keyStoreUtil.when(() -> KeyStoreUtil.isPrimaryStore(any())).thenReturn(false);
@@ -160,8 +166,8 @@ public class KeyStoreManagerTest {
             cryptoUtil.when(CryptoUtil::getDefaultCryptoUtil).thenReturn(this.cryptoUtil);
             when(this.cryptoUtil.encryptAndBase64Encode(any())).thenReturn("encryptedPassword");
 
-            this.keyStoreManager.addKeyStore(keyStoreContent, "new_keystore.jks",
-                    KEYSTORE_PASSWORD.toCharArray(), " ", KEYSTORE_TYPE, KEYSTORE_PASSWORD.toCharArray());
+            this.keyStoreManager.addKeyStore(keyStoreContent, "new_keystore.jks", KEYSTORE_PASSWORD,
+                    " ", KEYSTORE_TYPE, KEYSTORE_PASSWORD);
         }
     }
 
