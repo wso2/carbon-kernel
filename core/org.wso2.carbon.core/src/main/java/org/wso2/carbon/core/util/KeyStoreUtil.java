@@ -32,12 +32,10 @@ import org.wso2.securevault.commons.MiscellaneousUtil;
 
 import java.io.File;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.security.cert.Certificate;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
-
 import javax.xml.namespace.QName;
 
 public class KeyStoreUtil {
@@ -48,7 +46,7 @@ public class KeyStoreUtil {
      * @param store - keyStore
      * @return
      */
-    public static String getPrivateKeyAlias(KeyStore store) throws KeyStoreException {
+    public static String getPrivateKeyAlias(KeyStore store) throws Exception {
         String alias = null;
         Enumeration<String> enums = store.aliases();
         while(enums.hasMoreElements()){

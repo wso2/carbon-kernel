@@ -18,6 +18,7 @@
 package org.wso2.carbon.core.util;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.util.UUIDGenerator;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,17 +27,24 @@ import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
-import org.wso2.carbon.core.keystore.persistence.KeyStoreRegistryPersistenceManager;
 import org.wso2.carbon.core.security.KeyStoreMetadata;
+import org.wso2.carbon.registry.api.Registry;
+import org.wso2.carbon.registry.api.RegistryException;
+import org.wso2.carbon.registry.api.Resource;
+import org.wso2.carbon.registry.core.Collection;
+import org.wso2.carbon.registry.core.exceptions.ResourceNotFoundException;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.security.KeystoreUtils;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.Key;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -45,9 +53,10 @@ import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -67,7 +76,7 @@ public class KeyStoreManager {
             new ConcurrentHashMap<String, KeyStoreManager>();
     private static Log log = LogFactory.getLog(KeyStoreManager.class);
 
-    private final KeyStoreRegistryPersistenceManager keyStoreRegistryPersistenceManager;
+    private Registry registry = null;
     private ConcurrentHashMap<String, KeyStoreBean> tenantKeyStores = null;
     private ConcurrentHashMap<String, KeyStore> customKeyStores = null;
     private int tenantId = MultitenantConstants.SUPER_TENANT_ID;
@@ -79,6 +88,8 @@ public class KeyStoreManager {
     private static final String KEY_STORE_NAME_NULL_ERROR = "Key store name is null or empty.";
     private static final String PERMISSION_DENIED_ERROR = "Permission denied for accessing %s. The %s is " +
             "available only for the super tenant.";
+    private static final String ASSOCIATION_TENANT_KS_PUB_KEY = "assoc.tenant.ks.pub.key";
+    private static final String PROP_TENANT_PUB_KEY_FILE_NAME_APPENDER = "tenant.pub.key.file.name.appender";
 
     /**
      * Private Constructor of the KeyStoreManager
@@ -89,26 +100,24 @@ public class KeyStoreManager {
      */
     private KeyStoreManager(int tenantId, ServerConfigurationService serverConfigService,
                             RegistryService registryService) {
-
         this.serverConfigService = serverConfigService;
         this.registryService = registryService;
-        this.keyStoreRegistryPersistenceManager = new KeyStoreRegistryPersistenceManager();
         tenantKeyStores = new ConcurrentHashMap<String, KeyStoreBean>();
         customKeyStores = new ConcurrentHashMap<String, KeyStore>();
         this.tenantId = tenantId;
+        try {
+            registry = registryService.getGovernanceSystemRegistry(tenantId);
+        } catch (RegistryException e) {
+            String message = "Error when retrieving the system governance registry";
+            log.error(message, e);
+            throw new SecurityException(message, e);
+        }
     }
 
     public ServerConfigurationService getServerConfigService() {
         return serverConfigService;
     }
 
-    /**
-     * Get the instance of the RegistryService
-     *
-     * @return RegistryService instance
-     * @deprecated Use CryptoUtil#lookupRegistryService() instead.
-     */
-    @Deprecated
     public RegistryService getRegistryService() {
         return registryService;
     }
@@ -123,34 +132,14 @@ public class KeyStoreManager {
      */
     public static KeyStoreManager getInstance(int tenantId) {
 
-        return initializeKeyStoreManager(tenantId, CarbonCoreDataHolder.getInstance().getServerConfigurationService(),
-                CryptoUtil.lookupRegistryService());
+        log.debug("KeyStoreManager Instace created for teant id: " + tenantId);
+        return getInstance(tenantId, CarbonCoreDataHolder.getInstance().
+                getServerConfigurationService(), CryptoUtil.lookupRegistryService());
     }
 
-    /**
-     * Get a KeyStoreManager instance for that tenant. This method will return an KeyStoreManager
-     * instance if exists, or creates a new one. Only use this at runtime, or else,
-     * use KeyStoreManager#getInstance(UserRegistry, ServerConfigurationService).
-     *
-     * @param tenantId            id of the corresponding tenant.
-     * @param serverConfigService ServerConfigurationService instance.
-     * @param registryService     RegistryService instance.
-     * @return KeyStoreManager instance for that tenant.
-     * @deprecated Use KeyStoreManager#getInstance(int) instead.
-     */
-    @Deprecated
     public static KeyStoreManager getInstance(int tenantId,
                                               ServerConfigurationService serverConfigService,
                                               RegistryService registryService) {
-
-        return initializeKeyStoreManager(tenantId, serverConfigService, registryService);
-    }
-
-    private static KeyStoreManager initializeKeyStoreManager(int tenantId,
-                                                             ServerConfigurationService serverConfigService,
-                                                             RegistryService registryService) {
-
-        log.debug("KeyStoreManager Instance created for tenant id: " + tenantId);
         CarbonUtils.checkSecurity();
         String tenantIdStr = Integer.toString(tenantId);
         if (!mtKeyStoreManagers.containsKey(tenantIdStr)) {
@@ -161,7 +150,7 @@ public class KeyStoreManager {
     }
 
     /**
-     * Add new key store.
+     * Add new key store to the registry.
      *
      * @param keystoreContent   Key store object.
      * @param filename          File name of the key store.
@@ -170,44 +159,9 @@ public class KeyStoreManager {
      * @param type              Keys store type (JKS, PKCS12, etc).
      * @param privateKeyPass    Password of the private key.
      * @throws SecurityException  If an error occurs while adding the key store.
-     * @deprecated Use {@link #addKeyStore(byte[], String, char[], String, String, char[])} instead.
      */
-    @Deprecated
     public void addKeyStore(byte[] keystoreContent, String filename, String password, String provider,
                             String type, String privateKeyPass) throws SecurityException {
-
-        char[] passwordChar = new char[0];
-        char[] privateKeyPasswordChar = new char[0];
-        try {
-            if (password == null) {
-                throw new SecurityException("Key store password can't be null");
-            } else if (privateKeyPass == null) {
-                passwordChar = password.toCharArray();
-                addKeyStore(keystoreContent, filename, passwordChar, provider, type, null);
-            } else {
-                passwordChar = password.toCharArray();
-                privateKeyPasswordChar = privateKeyPass.toCharArray();
-                addKeyStore(keystoreContent, filename, passwordChar, provider, type, privateKeyPasswordChar);
-            }
-        } finally {
-            Arrays.fill(passwordChar, '\0');
-            Arrays.fill(privateKeyPasswordChar, '\0');
-        }
-    }
-
-    /**
-     * Add new key store.
-     *
-     * @param keystoreContent        Key store object.
-     * @param filename               File name of the key store.
-     * @param passwordChar           Password of the key store as a character array.
-     * @param provider               Provider of the key store.
-     * @param type                   Keys store type (JKS, PKCS12, etc).
-     * @param privateKeyPasswordChar Password of the private key as a character array.
-     * @throws SecurityException If an error occurs while adding the key store.
-     */
-    public void addKeyStore(byte[] keystoreContent, String filename, char[] passwordChar, String provider, String type,
-                            char[] privateKeyPasswordChar) throws SecurityException {
 
         if (StringUtils.isBlank(filename)) {
             throw new SecurityException(KEY_STORE_NAME_NULL_ERROR);
@@ -215,12 +169,104 @@ public class KeyStoreManager {
         if (KeyStoreUtil.isPrimaryStore(filename) || KeyStoreUtil.isTrustStore(filename)) {
             throw new SecurityException("Key store " + filename + " already available");
         }
-        keyStoreRegistryPersistenceManager.addKeystore(filename, keystoreContent, provider, type, passwordChar,
-                privateKeyPasswordChar, tenantId);
+        addKeystore(filename, keystoreContent, password, provider, type, privateKeyPass);
+    }
+
+    private void addKeystore(String filename, byte[] keystoreContent, String password, String provider,
+                             String type, String privateKeyPass) {
+
+        String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + filename;
+        boolean isTenantPrimaryKeyStore = false;
+        try (InputStream inputStream = new ByteArrayInputStream(keystoreContent)) {
+            if (registry.resourceExists(path)) {
+                throw new SecurityException("Key store " + filename + " already available");
+            }
+            if (tenantId != MultitenantConstants.SUPER_TENANT_ID &&
+                    !registry.resourceExists(RegistryResources.SecurityManagement.KEY_STORES)) {
+                isTenantPrimaryKeyStore = true;
+            }
+            KeyStore keyStore = KeystoreUtils.getKeystoreInstance(type);
+            keyStore.load(inputStream, password.toCharArray());
+
+            Resource resource = registry.newResource();
+            resource.addProperty(RegistryResources.SecurityManagement.PROP_PASSWORD, encryptPassword(password));
+            resource.addProperty(RegistryResources.SecurityManagement.PROP_PROVIDER, provider);
+            resource.addProperty(RegistryResources.SecurityManagement.PROP_TYPE, type);
+
+            String pvtKeyAlias = KeyStoreUtil.getPrivateKeyAlias(keyStore);
+            if (StringUtils.isNotBlank(pvtKeyAlias)) {
+                resource.addProperty(RegistryResources.SecurityManagement.PROP_PRIVATE_KEY_ALIAS, pvtKeyAlias);
+                if (StringUtils.isNotBlank(privateKeyPass)) {
+                    resource.addProperty(RegistryResources.SecurityManagement.PROP_PRIVATE_KEY_PASS,
+                            encryptPassword(privateKeyPass));
+                    // Check weather private key password is correct.
+                    keyStore.getKey(pvtKeyAlias, privateKeyPass.toCharArray());
+                }
+            }
+            resource.setContent(keystoreContent);
+            registry.put(path, resource);
+
+            if (isTenantPrimaryKeyStore) {
+                // Create the public key resource for tenant's primary keystore.
+                addTenantPublicKey(filename, (X509Certificate) keyStore.getCertificate(pvtKeyAlias));
+            }
+        } catch (Exception e) {
+            throw new SecurityException("Error adding key store " + filename, e);
+        }
+    }
+
+    private String encryptPassword(String password) {
+
+        try {
+            return CryptoUtil.getDefaultCryptoUtil().encryptAndBase64Encode(password.getBytes());
+        } catch (CryptoException e) {
+            throw new SecurityException("Error encrypting the password", e);
+        }
     }
 
     /**
-     * Delete the given key store.
+     * Add tenant's public certificate to the database.
+     *
+     * @param keyStoreName Name of the key store.
+     * @param publicCert   Public certificate of the tenant.
+     * @throws SecurityException If an error occurs while adding the tenant's public certificate.
+     */
+    private void addTenantPublicKey(String keyStoreName, X509Certificate publicCert) throws SecurityException {
+
+        if (StringUtils.isBlank(keyStoreName)) {
+            throw new SecurityException(KEY_STORE_NAME_NULL_ERROR);
+        }
+
+        try {
+            // Create the public key resource.
+            Resource pubKeyResource = registry.newResource();
+            pubKeyResource.setContent(publicCert.getEncoded());
+            pubKeyResource.addProperty(PROP_TENANT_PUB_KEY_FILE_NAME_APPENDER, generatePublicCertId());
+            registry.put(RegistryResources.SecurityManagement.TENANT_PUBKEY_RESOURCE, pubKeyResource);
+
+            // Associate the public key with the keystore.
+            registry.addAssociation(RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName,
+                    RegistryResources.SecurityManagement.TENANT_PUBKEY_RESOURCE, ASSOCIATION_TENANT_KS_PUB_KEY);
+        } catch (RegistryException | CertificateEncodingException e) {
+            String msg = "Error when writing the keystore public cert to registry for keystore: " + keyStoreName;
+            throw new SecurityException(msg, e);
+        }
+    }
+
+    /**
+     * Generates an ID for the public certificate, which is used as a file name suffix for the certificate.
+     * e.g. If keystore name is 'example-com.jks', public cert name will be 'example-com-343743.cert'.
+     *
+     * @return generated id to be used as a file name appender.
+     */
+    private String generatePublicCertId() {
+
+        String uuid = UUIDGenerator.getUUID();
+        return uuid.substring(uuid.length() - 6, uuid.length() - 1);
+    }
+
+    /**
+     * Delete the key store from the registry.
      *
      * @param keyStoreName  Name of the key store.
      * @throws SecurityException  If an error occurs while deleting the key store.
@@ -236,8 +282,17 @@ public class KeyStoreManager {
         if (KeyStoreUtil.isTrustStore(keyStoreName)) {
             throw new SecurityException("Not allowed to delete the trust store : " + keyStoreName);
         }
-        keyStoreRegistryPersistenceManager.deleteKeyStore(keyStoreName, tenantId);
-        deleteKeyStoreFromCache(keyStoreName);
+        String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
+        try {
+            org.wso2.carbon.registry.api.Association[] assocs = registry.getAllAssociations(path);
+            if (assocs.length > 0) {
+                throw new SecurityException("Key store : " + keyStoreName + " is already in use and can't be deleted");
+            }
+            registry.delete(path);
+            deleteKeyStoreFromCache(keyStoreName);
+        } catch (org.wso2.carbon.registry.api.RegistryException e) {
+            throw new SecurityException("Error deleting key store : " + keyStoreName, e);
+        }
     }
 
     /**
@@ -274,11 +329,58 @@ public class KeyStoreManager {
     public KeyStoreMetadata[] getKeyStoresMetadata(boolean isSuperTenant) throws SecurityException {
 
         CarbonUtils.checkSecurity();
-        List<KeyStoreMetadata> metadataList = keyStoreRegistryPersistenceManager.listKeyStores(tenantId);
-        if (isSuperTenant) {
-            metadataList.add(getPrimaryKeyStoreMetadata());
+        List<KeyStoreMetadata> metadataList = new ArrayList<>();
+
+        try {
+            if (!registry.resourceExists(RegistryResources.SecurityManagement.KEY_STORES)) {
+                return new KeyStoreMetadata[0];
+            }
+            Collection keyStoreCollection = (Collection) registry.get(RegistryResources.SecurityManagement.KEY_STORES);
+            String[] keyStoreFullnames = keyStoreCollection.getChildren();
+
+            for (String keyStoreFullname : keyStoreFullnames) {
+                if (RegistryResources.SecurityManagement.PRIMARY_KEYSTORE_PHANTOM_RESOURCE.equals(keyStoreFullname)) {
+                    continue;
+                }
+                metadataList.add(getKeyStoreMetadata(keyStoreFullname, isSuperTenant));
+            }
+            if (isSuperTenant) {
+                metadataList.add(getPrimaryKeyStoreMetadata());
+            }
+            return metadataList.toArray(new KeyStoreMetadata[0]);
+        } catch (RegistryException e) {
+            String msg = "Error when getting keyStore metadata.";
+            throw new SecurityException(msg, e);
         }
-        return metadataList.toArray(new KeyStoreMetadata[0]);
+    }
+
+    private KeyStoreMetadata getKeyStoreMetadata(String keyStoreFullname, boolean isSuperTenant)
+            throws RegistryException {
+
+        Resource keyStoreResource = registry.get(keyStoreFullname);
+        int lastIndex = keyStoreFullname.lastIndexOf("/");
+        String name = keyStoreFullname.substring(lastIndex + 1);
+        String type = keyStoreResource.getProperty(RegistryResources.SecurityManagement.PROP_TYPE);
+        String provider = keyStoreResource.getProperty(RegistryResources.SecurityManagement.PROP_PROVIDER);
+        String alias = keyStoreResource.getProperty(RegistryResources.SecurityManagement.PROP_PRIVATE_KEY_ALIAS);
+
+        KeyStoreMetadata keyStoreMetadata = new KeyStoreMetadata();
+        keyStoreMetadata.setKeyStoreName(name);
+        keyStoreMetadata.setKeyStoreType(type);
+        keyStoreMetadata.setProvider(provider);
+        keyStoreMetadata.setPrivateStore(alias != null);
+
+        if (!isSuperTenant) {
+            org.wso2.carbon.registry.api.Association[] associations =
+                    registry.getAssociations(keyStoreFullname, ASSOCIATION_TENANT_KS_PUB_KEY);
+
+            if (associations != null && associations.length > 0) {
+                Resource pubKeyResource = registry.get(associations[0].getDestinationPath());
+                keyStoreMetadata.setPublicCertId(pubKeyResource.getProperty(PROP_TENANT_PUB_KEY_FILE_NAME_APPENDER));
+                keyStoreMetadata.setPublicCert((byte[]) pubKeyResource.getContent());
+            }
+        }
+        return keyStoreMetadata;
     }
 
     private KeyStoreMetadata getPrimaryKeyStoreMetadata() {
@@ -366,9 +468,7 @@ public class KeyStoreManager {
      * @param resource key store resource
      * @return password of the key store
      * @throws Exception Error when reading the registry resource of decrypting the password
-     * @deprecated Use KeyStoreRegistryPersistenceManager#gePrivateKeyPassword(String) instead.
      */
-    @Deprecated
     public String getPassword(org.wso2.carbon.registry.core.Resource resource) throws Exception {
         CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
         String encryptedPassword = resource
@@ -387,7 +487,20 @@ public class KeyStoreManager {
      */
     public String getKeyStorePassword(String keyStoreName) throws Exception {
 
-        return String.valueOf(keyStoreRegistryPersistenceManager.getKeyStorePassword(keyStoreName, tenantId));
+        String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
+        if (registry.resourceExists(path)) {
+            Resource resource = registry.get(path);
+            CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
+            String encryptedPassword = resource
+                    .getProperty(RegistryResources.SecurityManagement.PROP_PASSWORD);
+            if(encryptedPassword != null){
+                return new String(cryptoUtil.base64DecodeAndDecrypt(encryptedPassword));
+            } else {
+                throw new SecurityException("Key Store Password of " + keyStoreName + " does not exist.");                
+            }
+        } else {
+            throw new SecurityException("Key Store with a name : " + keyStoreName + " does not exist.");
+        }
     }
 
     /**
@@ -447,8 +560,24 @@ public class KeyStoreManager {
 
     private void updateTenantKeyStore(String keyStoreName, KeyStore keyStore) {
 
-        keyStoreRegistryPersistenceManager.updateKeyStore(keyStoreName, keyStore, tenantId);
-        updateTenantKeyStoreCache(keyStoreName, new KeyStoreBean(keyStore, new Date()));
+        String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
+        CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            Resource resource = registry.get(path);
+            String encryptedPassword = resource
+                    .getProperty(RegistryResources.SecurityManagement.PROP_PASSWORD);
+            String password = new String(cryptoUtil.base64DecodeAndDecrypt(encryptedPassword));
+            keyStore.store(outputStream, password.toCharArray());
+            outputStream.flush();
+            outputStream.close();
+            resource.setContent(outputStream.toByteArray());
+            registry.put(path, resource);
+            resource.discard();
+            updateTenantKeyStoreCache(keyStoreName, new KeyStoreBean(keyStore, new Date()));
+        } catch (IOException | CryptoException | KeyStoreException | NoSuchAlgorithmException | CertificateException |
+                 RegistryException e) {
+            throw new SecurityException("Error updating tenanted key store : " + keyStoreName, e);
+        }
     }
 
     /**
@@ -487,7 +616,7 @@ public class KeyStoreManager {
     }
 
     /**
-     * Load the requested tenant keystore.
+     * Load the requested tenant keystore from registry.
      *
      * @param keyStoreName  Name of the Tenant KeyStore.
      * @return Key store object.
@@ -502,11 +631,26 @@ public class KeyStoreManager {
             return tenantKeyStores.get(keyStoreName).getKeyStore();
         }
 
-        KeyStore keyStore = keyStoreRegistryPersistenceManager.getKeyStore(keyStoreName, tenantId);
-        KeyStoreBean keyStoreBean = new KeyStoreBean(keyStore,
-                keyStoreRegistryPersistenceManager.getKeyStoreLastModifiedDate(keyStoreName, tenantId));
-        updateTenantKeyStoreCache(keyStoreName, keyStoreBean);
-        return keyStore;
+        String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
+        if (registry.resourceExists(path)) {
+            Resource resource = registry.get(path);
+            byte[] bytes = (byte[]) resource.getContent();
+            KeyStore keyStore = KeystoreUtils.getKeystoreInstance(resource
+                    .getProperty(RegistryResources.SecurityManagement.PROP_TYPE));
+            CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
+            String encryptedPassword = resource
+                    .getProperty(RegistryResources.SecurityManagement.PROP_PASSWORD);
+            String password = new String(cryptoUtil.base64DecodeAndDecrypt(encryptedPassword));
+            ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
+            keyStore.load(stream, password.toCharArray());
+            KeyStoreBean keyStoreBean = new KeyStoreBean(keyStore, resource.getLastModified());
+            resource.discard();
+
+            updateTenantKeyStoreCache(keyStoreName, keyStoreBean);
+            return keyStore;
+        } else {
+            throw new SecurityException("Key Store with a name : " + keyStoreName + " does not exist.");
+        }
     }
 
     /**
@@ -681,18 +825,40 @@ public class KeyStoreManager {
      */
     private PrivateKey getTenantPrivateKey(String keyStoreName, String alias) throws Exception {
 
-
         if (log.isDebugEnabled()) {
             log.debug("Loading private key from tenant key store : " + keyStoreName + " alias: " + alias);
         }
-        char[] privateKeyPasswordChar = new char[0];
-        try {
-            KeyStore keyStore = getTenantKeyStore(keyStoreName);
-            privateKeyPasswordChar = keyStoreRegistryPersistenceManager.getPrivateKeyPassword(keyStoreName, tenantId);
-            return (PrivateKey) keyStore.getKey(alias, privateKeyPasswordChar);
-        } finally {
-            Arrays.fill(privateKeyPasswordChar, '\0');
+        String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
+        Resource resource;
+        KeyStore keyStore;
+
+        if (registry.resourceExists(path)) {
+            resource = registry.get(path);
+        } else {
+            throw new SecurityException("Given Key store is not available in registry : " + keyStoreName);
         }
+
+        CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
+        String encryptedPassword = resource
+                .getProperty(RegistryResources.SecurityManagement.PROP_PRIVATE_KEY_PASS);
+        String privateKeyPasswd = new String(cryptoUtil.base64DecodeAndDecrypt(encryptedPassword));
+
+        if (isCachedTenantKeyStoreValid(keyStoreName)) {
+            keyStore = tenantKeyStores.get(keyStoreName).getKeyStore();
+        } else {
+            byte[] bytes = (byte[]) resource.getContent();
+            String keyStorePassword = new String(cryptoUtil.base64DecodeAndDecrypt(resource.getProperty(
+                    RegistryResources.SecurityManagement.PROP_PASSWORD)));
+            keyStore = KeystoreUtils.getKeystoreInstance(resource
+                    .getProperty(RegistryResources.SecurityManagement.PROP_TYPE));
+            ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
+            keyStore.load(stream, keyStorePassword.toCharArray());
+
+            KeyStoreBean keyStoreBean = new KeyStoreBean(keyStore, resource.getLastModified());
+            updateTenantKeyStoreCache(keyStoreName, keyStoreBean);
+        }
+
+        return (PrivateKey) keyStore.getKey(alias, privateKeyPasswd.toCharArray());
     }
 
     /**
@@ -799,14 +965,30 @@ public class KeyStoreManager {
 
     private boolean isCachedTenantKeyStoreValid(String keyStoreName) {
 
-        if (tenantKeyStores.containsKey(keyStoreName)) {
-            Date keyStoreLastModifiedDateFromStorage =
-                    keyStoreRegistryPersistenceManager.getKeyStoreLastModifiedDate(keyStoreName, tenantId);
-            KeyStoreBean keyStoreBean = tenantKeyStores.get(keyStoreName);
-            return keyStoreBean.getLastModifiedDate().equals(keyStoreLastModifiedDateFromStorage);
+        String path = RegistryResources.SecurityManagement.KEY_STORES + "/" + keyStoreName;
+        boolean cachedKeyStoreValid = false;
+        try {
+            if (tenantKeyStores.containsKey(keyStoreName)) {
+                Resource metaDataResource = registry.get(path);
+                KeyStoreBean keyStoreBean = tenantKeyStores.get(keyStoreName);
+                if (keyStoreBean.getLastModifiedDate().equals(metaDataResource.getLastModified())) {
+                    cachedKeyStoreValid = true;
+                }
+            }
+        } catch (org.wso2.carbon.registry.api.RegistryException e) {
+            String errorMsg = "Error reading key store meta data from registry.";
+            if (e instanceof ResourceNotFoundException) {
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMsg, e);
+                }
+                return false;
+            }
+            log.error(errorMsg, e);
+            throw new SecurityException(errorMsg, e);
         }
-        return false;
+        return cachedKeyStoreValid;
     }
+
     private void deleteKeyStoreFromCache(String keyStoreName) {
 
         tenantKeyStores.remove(keyStoreName);
