@@ -225,10 +225,11 @@
                         <Bundle-SymbolicName>org.wso2.carbon.core</Bundle-SymbolicName>
                         <Bundle-Activator>org.wso2.carbon.core.internal.CarbonCoreActivator</Bundle-Activator>
                         <Private-Package>
-                            org.wso2.carbon.core.internal, org.wso2.carbon.core.encryption
+                            org.wso2.carbon.core.internal, org.wso2.carbon.core.encryption, org.wso2.carbon.core.keystore.persistence
                         </Private-Package>
                         <Export-Package>
                             !org.wso2.carbon.core.internal,
+                            !org.wso2.carbon.core.keystore.persistence,
                             org.wso2.carbon.core.*; version="${carbon.kernel.exp.pkg.version}",
                         </Export-Package>
                         <Import-Package>
