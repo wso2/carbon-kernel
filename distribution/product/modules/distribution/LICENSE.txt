@@ -135,7 +135,7 @@ org.wso2.carbon.core.common_4.9.0.jar                                           
 org.eclipse.equinox.frameworkadmin_2.0.300.v20160504-1450.jar                                       bundle         epl1
 org.wso2.carbon.queuing_4.9.0.jar                                                                   bundle         apache2
 commons-lang_2.6.0.wso2v1.jar                                                                       bundle         apache2
-commons-io_2.11.0.wso2v1.jar                                                                        bundle         apache2
+commons-io_2.17.0.wso2v1.jar                                                                        bundle         apache2
 org.wso2.carbon.securevault_4.9.0.jar                                                               bundle         apache2
 tomcat-catalina-ha_9.0.58.wso2v1.jar                                                                bundle         apache2
 org.wso2.carbon.server.admin_4.9.0.jar                                                              bundle         apache2
