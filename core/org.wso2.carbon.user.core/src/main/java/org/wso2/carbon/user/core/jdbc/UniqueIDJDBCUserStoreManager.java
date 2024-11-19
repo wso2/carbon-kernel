@@ -2308,7 +2308,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
             }
-            if (e instanceof SQLIntegrityConstraintViolationException) {
+            if (e instanceof SQLIntegrityConstraintViolationException || e.getErrorCode() == 2627) {
                 // Duplicate entry
                 throw new UserStoreException(msg, ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE.getCode(), e);
             } else {
