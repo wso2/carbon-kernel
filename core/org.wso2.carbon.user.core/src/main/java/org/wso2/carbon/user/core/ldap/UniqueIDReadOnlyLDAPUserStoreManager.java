@@ -1158,6 +1158,9 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                     String domainName = realmConfig
                             .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
 
+                    if (StringUtils.isEmpty(id)) {
+                        continue;
+                    }
                     userObject = getUser(id, userName);
                     userObject.setDisplayName(displayName);
                     userObject.setUserStoreDomain(domainName);
