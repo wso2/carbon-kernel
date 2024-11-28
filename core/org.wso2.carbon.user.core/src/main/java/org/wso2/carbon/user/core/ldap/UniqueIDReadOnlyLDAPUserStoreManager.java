@@ -407,6 +407,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         List<String> results = new ArrayList<>();
         String searchFilter;
         String userPropertyName = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+        String userIdProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
         searchFilter = getSearchFilter(loginIdentifiers);
 
         DirContext dirContext = this.connectionSource.getContext();
@@ -416,7 +417,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         if (debug) {
             log.debug("Listing users with SearchFilter: " + searchFilter);
         }
-        String[] returnedAttributes = new String[]{userPropertyName, serviceNameAttribute};
+        String[] returnedAttributes = new String[]{userPropertyName, serviceNameAttribute, userIdProperty};
         try {
             String searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
             String[] searchBaseArray = searchBases.split("#");
@@ -451,22 +452,36 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                             }
                         }
                         String propertyValue = attrBuffer.toString();
+                        // Length needs to be more than userAttributeSeparator.length() for a valid
+                        // attribute, since we attach userAttributeSeparator.
+                        // attach userAttributeSeparator.
+                        if (StringUtils.isBlank(propertyValue)
+                                || propertyValue.trim().length() <= userAttributeSeparator.length()) {
+                            continue;
+                        }
                         Attribute serviceNameObject = attributes.get(serviceNameAttribute);
                         String serviceNameAttributeValue = null;
                         if (serviceNameObject != null) {
                             serviceNameAttributeValue = (String) serviceNameObject.get();
                         }
-                        // Length needs to be more than userAttributeSeparator.length() for a valid
-                        // attribute, since we
-                        // attach userAttributeSeparator.
-                        if (propertyValue != null && propertyValue.trim().length() > userAttributeSeparator.length()) {
-                            if (LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE.equals(serviceNameAttributeValue)) {
-                                continue;
-                            }
-                            propertyValue = propertyValue
-                                    .substring(0, propertyValue.length() - userAttributeSeparator.length());
-                            results.add(propertyValue);
+                        Attribute userIdObject = attributes.get(userIdProperty);
+                        Object userIdAttributeValue = null;
+                        if (userIdObject != null) {
+                            userIdAttributeValue = userIdObject.get();
                         }
+
+                        /* Service Principals are not considered as users if the user store property
+                         * 'ListServicePrincipalEntities' is disabled. They are identified by the 'sn'
+                         * attribute. Even if the property is enabled, they are not returned if the user
+                         * id attribute is null.
+                         */
+                        if (LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE.equals(serviceNameAttributeValue)
+                                && (shouldSkipServicePrincipals() || userIdAttributeValue == null)) {
+                            continue;
+                        }
+                        propertyValue = propertyValue
+                                .substring(0, propertyValue.length() - userAttributeSeparator.length());
+                        results.add(propertyValue);
                     }
                 }
             }
@@ -804,23 +819,29 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                         log.debug("Result found ..");
                         Attribute userName = sr.getAttributes().get(userNameProperty);
                         Attribute userID = sr.getAttributes().get(userIDProperty);
-
-                        /*
-                         * If this is a service principle, just ignore and
-                         * iterate rest of the array. The entity is a service if
-                         * value of surname is Service
-                         */
                         Attribute attrSurname = sr.getAttributes().get(serviceNameAttribute);
+                        String serviceName = null;
 
                         if (attrSurname != null) {
                             if (log.isDebugEnabled()) {
                                 log.debug(serviceNameAttribute + " : " + attrSurname);
                             }
-                            String serviceName = (String) attrSurname.get();
-                            if (serviceName != null && serviceName
-                                    .equals(LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE)) {
-                                continue;
-                            }
+                            serviceName = (String) attrSurname.get();
+                        }
+                        Attribute userIdObject = sr.getAttributes().get(userIDProperty);
+                        Object userIdAttributeValue = null;
+                        if (userIdObject != null) {
+                            userIdAttributeValue = userIdObject.get();
+                        }
+
+                        /* Service Principals are not considered as users if the user store property
+                         * 'ListServicePrincipalEntities' is disabled. They are identified by the 'sn'
+                         * attribute. Even if the property is enabled, they are not returned if the user
+                         * id attribute is null.
+                         */
+                        if (LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE.equals(serviceName)
+                                && (shouldSkipServicePrincipals() || userIdAttributeValue == null)) {
+                            continue;
                         }
 
                         /*
@@ -1453,22 +1474,36 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                             }
                         }
                         String propertyValue = attrBuffer.toString();
+                        // Length needs to be more than userAttributeSeparator.length() for a valid
+                        // attribute, since we
+                        // attach userAttributeSeparator.
+                        if (StringUtils.isBlank(propertyValue)
+                                || propertyValue.trim().length() <= userAttributeSeparator.length()) {
+                            continue;
+                        }
                         Attribute serviceNameObject = attributes.get(serviceNameAttribute);
                         String serviceNameAttributeValue = null;
                         if (serviceNameObject != null) {
                             serviceNameAttributeValue = (String) serviceNameObject.get();
                         }
-                        // Length needs to be more than userAttributeSeparator.length() for a valid
-                        // attribute, since we
-                        // attach userAttributeSeparator.
-                        if (propertyValue != null && propertyValue.trim().length() > userAttributeSeparator.length()) {
-                            if (LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE.equals(serviceNameAttributeValue)) {
-                                continue;
-                            }
-                            propertyValue = propertyValue
-                                    .substring(0, propertyValue.length() - userAttributeSeparator.length());
-                            values.add(propertyValue);
+                        Attribute userIdObject = attributes.get(userIDProperty);
+                        Object userIdAttributeValue = null;
+                        if (userIdObject != null) {
+                            userIdAttributeValue = userIdObject.get();
                         }
+
+                        /* Service Principals are not considered as users if the user store property
+                         * 'ListServicePrincipalEntities' is disabled. They are identified by the 'sn'
+                         * attribute. Even if the property is enabled, they are not returned if the user
+                         * id attribute is null.
+                         */
+                        if (LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE.equals(serviceNameAttributeValue)
+                                && (shouldSkipServicePrincipals() || userIdAttributeValue == null)) {
+                            continue;
+                        }
+                        propertyValue = propertyValue
+                                .substring(0, propertyValue.length() - userAttributeSeparator.length());
+                        values.add(propertyValue);
                     }
                 }
             }
@@ -3402,36 +3437,42 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                     }
                 }
                 String userNamePropertyValue = attrBuffer.toString();
+                /* Length needs to be more than userAttributeSeparator.length() for a valid attribute,
+                since we attach userAttributeSeparator. */
+                if (userNamePropertyValue.trim().length() <= userAttributeSeparator.length()) {
+                    continue;
+                }
                 Attribute serviceNameObject = attributes.get(returnedAttributes.get(1));
                 String serviceNameAttributeValue = null;
                 if (serviceNameObject != null) {
                     serviceNameAttributeValue = (String) serviceNameObject.get();
                 }
-                /* Length needs to be more than userAttributeSeparator.length() for a valid attribute,
-                since we attach userAttributeSeparator. */
-                if (userNamePropertyValue.trim().length() > userAttributeSeparator.length()) {
-                    if (LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE.equals(serviceNameAttributeValue)) {
-                        continue;
-                    }
-                    userNamePropertyValue = userNamePropertyValue.substring(0, userNamePropertyValue.length() -
-                            userAttributeSeparator.length());
-
-                    Attribute userIdObject =
-                            attributes.get(realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE));
-                    String userIdAttributeValue = null;
-                    if (userIdObject != null) {
-                        userIdAttributeValue = resolveLdapAttributeValue(userIdObject.get());
-                    }
-
-                    String domain = this.getRealmConfiguration()
-                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
-
-                    User user = getUser(userIdAttributeValue, userNamePropertyValue);
-                    user.setDisplayName(null);
-                    user.setUserStoreDomain(domain);
-                    user.setTenantDomain(getTenantDomain(tenantId));
-                    finalUserList.add(user);
+                String userIdProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
+                Attribute userIdObject = attributes.get(userIdProperty);
+                String userIdAttributeValue = null;
+                if (userIdObject != null) {
+                    userIdAttributeValue = resolveLdapAttributeValue(userIdObject.get());
                 }
+                /* Service Principals are not considered as users if the user store property
+                 * 'ListServicePrincipalEntities' is disabled. They are identified by the 'sn'
+                 * attribute. Even if the property is enabled, they are not returned if the user
+                 * id attribute is null.
+                 */
+                if (LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE.equals(serviceNameAttributeValue)
+                        && (shouldSkipServicePrincipals() || StringUtils.isBlank(userIdAttributeValue))) {
+                    continue;
+                }
+                userNamePropertyValue = userNamePropertyValue.substring(0, userNamePropertyValue.length() -
+                        userAttributeSeparator.length());
+
+                String domain = this.getRealmConfiguration()
+                        .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+
+                User user = getUser(userIdAttributeValue, userNamePropertyValue);
+                user.setDisplayName(null);
+                user.setUserStoreDomain(domain);
+                user.setTenantDomain(getTenantDomain(tenantId));
+                finalUserList.add(user);
             }
         } catch (NamingException e) {
             log.error(String.format("Error occurred while getting user list from non group filter %s", e.getMessage()));
@@ -3530,25 +3571,26 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 if (searchResult.getAttributes() != null) {
                     Attribute userName = searchResult.getAttributes().
                             get(realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE));
-                    Attribute userID = searchResult.getAttributes().
-                            get(realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE));
-                    /*
-                     * If this is a service principle, just ignore and
-                     * iterate rest of the array. The entity is a service if
-                     * value of surname is Service.
-                     */
+                    String userIdProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
+                    Attribute userID = searchResult.getAttributes().get(userIdProperty);
                     String serviceNameAttribute = "sn";
+                    String serviceName = null;
                     Attribute attrSurname = searchResult.getAttributes().get(serviceNameAttribute);
-
                     if (attrSurname != null) {
                         if (log.isDebugEnabled()) {
                             log.debug(serviceNameAttribute + " : " + attrSurname);
                         }
-                        String serviceName = (String) attrSurname.get();
-                        if (serviceName != null && serviceName
-                                .equals(LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE)) {
-                            continue;
-                        }
+                        serviceName = (String) attrSurname.get();
+                    }
+
+                    /* Service Principals are not considered as users if the user store property
+                     * 'ListServicePrincipalEntities' is disabled. They are identified by the 'sn'
+                     * attribute. Even if the property is enabled, they are not returned if the user
+                     * id attribute is null.
+                     */
+                    if (LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE.equals(serviceName)
+                            && (shouldSkipServicePrincipals() || userID.get() == null)) {
+                        continue;
                     }
                     String name = null;
                     String displayName = null;

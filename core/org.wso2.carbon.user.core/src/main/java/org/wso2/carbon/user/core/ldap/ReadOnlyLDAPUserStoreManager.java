@@ -1004,22 +1004,17 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         log.debug("Result found ..");
                         Attribute attr = sr.getAttributes().get(userNameProperty);
 
-						/*
-						 * If this is a service principle, just ignore and
-						 * iterate rest of the array. The entity is a service if
-						 * value of surname is Service
-						 */
-                        Attribute attrSurname = sr.getAttributes().get(serviceNameAttribute);
-
-                        if (attrSurname != null) {
-                            if (debug) {
-                                log.debug(serviceNameAttribute + " : " + attrSurname);
-                            }
-                            String serviceName = (String) attrSurname.get();
-                            if (serviceName != null
-                                    && serviceName
-                                    .equals(LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE)) {
-                                continue;
+                        if (shouldSkipServicePrincipals()) {
+                            Attribute attrSurname = sr.getAttributes().get(serviceNameAttribute);
+                            if (attrSurname != null) {
+                                if (debug) {
+                                    log.debug(serviceNameAttribute + " : " + attrSurname);
+                                }
+                                String serviceName = (String) attrSurname.get();
+                                if (StringUtils.isNotBlank(serviceName)
+                                        && LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE.equals(serviceName)) {
+                                    continue;
+                                }
                             }
                         }
 
@@ -2871,22 +2866,26 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                             }
                         }
                         String propertyValue = attrBuffer.toString();
-                        Attribute serviceNameObject = attributes.get(serviceNameAttribute);
-                        String serviceNameAttributeValue = null;
-                        if (serviceNameObject != null) {
-                            serviceNameAttributeValue = (String) serviceNameObject.get();
-                        }
                         // Length needs to be more than userAttributeSeparator.length() for a valid
                         // attribute, since we
                         // attach userAttributeSeparator.
-                        if (propertyValue != null && propertyValue.trim().length() > userAttributeSeparator.length()) {
-                            if (LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE.equals(serviceNameAttributeValue)) {
-                                continue;
-                            }
-                            propertyValue = propertyValue.substring(0, propertyValue.length() -
-                                    userAttributeSeparator.length());
-                            values.add(propertyValue);
+                        if (StringUtils.isBlank(propertyValue)
+                                || propertyValue.trim().length() <= userAttributeSeparator.length()) {
+                            continue;
                         }
+                        if (shouldSkipServicePrincipals()) {
+                            Attribute serviceNameObject = attributes.get(serviceNameAttribute);
+                            String serviceNameAttributeValue = null;
+                            if (serviceNameObject != null) {
+                                serviceNameAttributeValue = (String) serviceNameObject.get();
+                                if (LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE.equals(serviceNameAttributeValue)) {
+                                    continue;
+                                }
+                            }
+                        }
+                        propertyValue = propertyValue.substring(0, propertyValue.length() -
+                                userAttributeSeparator.length());
+                        values.add(propertyValue);
                     }
                 }
             }
@@ -3406,21 +3405,25 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     }
                 }
                 String propertyValue = attrBuffer.toString();
-                Attribute serviceNameObject = attributes.get(returnedAttributes.get(1));
-                String serviceNameAttributeValue = null;
-                if (serviceNameObject != null) {
-                    serviceNameAttributeValue = (String) serviceNameObject.get();
-                }
                 /* Length needs to be more than userAttributeSeparator.length() for a valid attribute,
                 since we attach userAttributeSeparator. */
-                if (propertyValue.trim().length() > userAttributeSeparator.length()) {
-                    if (LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE.equals(serviceNameAttributeValue)) {
-                        continue;
-                    }
-                    propertyValue = propertyValue.substring(0, propertyValue.length() -
-                            userAttributeSeparator.length());
-                    finalUserList.add(propertyValue);
+                if (propertyValue.trim().length() <= userAttributeSeparator.length()) {
+                    continue;
                 }
+
+                if (shouldSkipServicePrincipals()) {
+                    Attribute serviceNameObject = attributes.get(returnedAttributes.get(1));
+                    String serviceNameAttributeValue = null;
+                    if (serviceNameObject != null) {
+                        serviceNameAttributeValue = (String) serviceNameObject.get();
+                        if (LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE.equals(serviceNameAttributeValue)) {
+                            continue;
+                        }
+                    }
+                }
+                propertyValue = propertyValue.substring(0, propertyValue.length() -
+                        userAttributeSeparator.length());
+                finalUserList.add(propertyValue);
             }
         } catch (NamingException e) {
             log.error(String.format("Error occurred while getting user list from non group filter %s", e.getMessage()));
@@ -4886,5 +4889,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             }
         }
         return false;
+    }
+
+    protected boolean shouldSkipServicePrincipals() {
+
+        return !Boolean.parseBoolean(realmConfig.getUserStoreProperty(LDAPConstants.LIST_SERVICE_PRINCIPAL_ENTITIES));
     }
 }
