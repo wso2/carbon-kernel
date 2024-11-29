@@ -1486,7 +1486,6 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                         if (serviceNameObject != null) {
                             serviceNameAttributeValue = (String) serviceNameObject.get();
                         }
-
                         Attribute userIdObject = attributes.get(userIDProperty);
                         Object userIdAttributeValue = null;
                         if (userIdObject != null) {
