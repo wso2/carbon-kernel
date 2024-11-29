@@ -435,4 +435,26 @@ public class PrivilegedCarbonContext extends CarbonContext {
     public void setApplicationName(String applicationName) {
         getCarbonContextDataHolder().setApplicationName(applicationName);
     }
+
+    /**
+     * Set the organization id of the organization where the application is resident when the request comes in
+     * tenant perspective.
+     *
+     * @param applicationResidentOrgId Organization id of the organization where the application is resident.
+     */
+    public void setApplicationResidentOrganizationId(String applicationResidentOrgId) {
+
+        getCarbonContextDataHolder().setApplicationResidentOrganizationId(applicationResidentOrgId);
+    }
+
+    /**
+     * Get the organization id of the organization where the application resides. This will be set when the request
+     * comes in tenant perspective.
+     *
+     * @return Organization id of the organization where the application resides.
+     */
+    public String getApplicationResidentOrganizationId() {
+
+        return getCarbonContextDataHolder().getApplicationResidentOrganizationId();
+    }
 }
