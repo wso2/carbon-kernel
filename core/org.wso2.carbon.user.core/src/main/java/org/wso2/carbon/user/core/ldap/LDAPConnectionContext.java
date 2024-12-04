@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2005-2024, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 LLC. licenses this file to you under the Apache License,
+ * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.wso2.carbon.user.core.ldap;
 
 import org.apache.commons.lang.StringUtils;
@@ -94,8 +93,6 @@ public class LDAPConnectionContext {
     private static final int CORRELATION_LOG_INITIALIZATION_ARGS_LENGTH = 0;
     private static final String CORRELATION_LOG_SEPARATOR = "|";
     private static final String CORRELATION_LOG_SYSTEM_PROPERTY = "enableCorrelationLogs";
-    public static final String SECURITY_AUTHENTICATION_SIMPLE = "simple";
-    public static final String SECURITY_AUTHENTICATION_NONE = "none";
 
     private int connectionRetryCount;
     private String ldapConnectionCircuitBreakerState;
@@ -173,7 +170,7 @@ public class LDAPConnectionContext {
             initialContextFactory = "com.sun.jndi.ldap.LdapCtxFactory";
         }
         environment.put(Context.INITIAL_CONTEXT_FACTORY, initialContextFactory);
-        environment.put(Context.SECURITY_AUTHENTICATION, SECURITY_AUTHENTICATION_SIMPLE);
+        environment.put(Context.SECURITY_AUTHENTICATION, "simple");
 
         /**
          * In carbon JNDI context we need to by pass specific tenant context and we need the base
@@ -611,9 +608,9 @@ public class LDAPConnectionContext {
             }
         }
 
-        tempEnv.put(Context.SECURITY_AUTHENTICATION, SECURITY_AUTHENTICATION_NONE);
+        tempEnv.put(Context.SECURITY_AUTHENTICATION, "none");
 
-        return getContextForEnvironmentVariables(tempEnv, userDN, password);
+        return getContextForEnvironmentVariables(tempEnv);
     }
 
     /**
@@ -636,24 +633,22 @@ public class LDAPConnectionContext {
         }
 
         try {
-            // Create a temp env for this particular authentication session by copying the original env.
-            // Following logic help to re-use the connection pool in authentication.
+            //create a temp env for this particular authentication session by copying the original env
             Hashtable<String, Object> tempEnv = new Hashtable<>();
             for (Object key : environment.keySet()) {
-                if (!Context.SECURITY_PRINCIPAL.equals(key) && !Context.SECURITY_CREDENTIALS.equals(key) &&
-                        !Context.SECURITY_AUTHENTICATION.equals(key)) {
-                    tempEnv.put((String) key, environment.get(key));
-                }
+                tempEnv.put((String) key, environment.get(key));
             }
-            tempEnv.put(Context.SECURITY_AUTHENTICATION, SECURITY_AUTHENTICATION_NONE);
+            //replace connection name and password with the passed credentials to this method
+            tempEnv.put(Context.SECURITY_PRINCIPAL, userDN);
+            tempEnv.put(Context.SECURITY_CREDENTIALS, credentialObj.getBytes());
 
-            return getContextForEnvironmentVariables(tempEnv, userDN, credentialObj.getBytes());
+            return getContextForEnvironmentVariables(tempEnv);
         } finally {
             credentialObj.clear();
         }
     }
 
-    private LdapContext getContextForEnvironmentVariables(Hashtable<?, ?> environment, String userDN, Object password)
+    private LdapContext getContextForEnvironmentVariables(Hashtable<?, ?> environment)
             throws UserStoreException, NamingException {
 
         LdapContext context = null;
@@ -664,11 +659,6 @@ public class LDAPConnectionContext {
         if (dcMap == null) {
             //replace environment properties with these credentials
             context = getLdapContext(tempEnv, null);
-            context.addToEnvironment(Context.SECURITY_AUTHENTICATION, SECURITY_AUTHENTICATION_SIMPLE);
-            context.addToEnvironment(Context.SECURITY_PRINCIPAL, userDN);
-            context.addToEnvironment(Context.SECURITY_CREDENTIALS, password);
-            context.reconnect(null);
-            context.addToEnvironment(Context.SECURITY_AUTHENTICATION, SECURITY_AUTHENTICATION_NONE);
         } else if (dcMap != null && dcMap.size() != 0) {
             try {
                 //first try the first entry in dcMap, if it fails, try iteratively
