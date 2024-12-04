@@ -109,6 +109,29 @@ public class SignatureUtil {
     }
 
     /**
+     * Validates the signature with the given public key.
+     *
+     * @param data      Data on which the signature is performed
+     * @param signature The signature.
+     * @param publicKey The public key.
+     * @return
+     * @throws Exception
+     */
+    public static boolean validateSignature(String data, byte[] signature, PublicKey publicKey) throws Exception {
+
+        Signature signer;
+        if (Boolean.parseBoolean(ServerConfiguration.getInstance().getFirstProperty(
+                ServerConstants.SIGNATURE_UTIL_ENABLE_SHA256_ALGO))) {
+            signer = Signature.getInstance(signatureAlgorithmSHA256, getJCEProvider());
+        } else {
+            signer = Signature.getInstance(signatureAlgorithmSHA1, getJCEProvider());
+        }
+        signer.initVerify(publicKey);
+        signer.update(data.getBytes());
+        return signer.verify(signature);
+    }
+
+    /**
      * Validate the signature with the default thumbprint.
      *
      * @param data      The data which is used to perfrom the signature.
@@ -147,6 +170,28 @@ public class SignatureUtil {
             signer = Signature.getInstance(signatureAlgorithmSHA1, getJCEProvider());
         }
         signer.initSign(getDefaultPrivateKey());
+        signer.update(data.getBytes());
+        return signer.sign();
+    }
+
+    /**
+     * Performs the signature with the given private key.
+     *
+     * @param data       Data to be signed.
+     * @param privateKey The private key.
+     * @return The signature is returned.
+     * @throws Exception
+     */
+    public static byte[] doSignature(String data, PrivateKey privateKey) throws Exception {
+
+        Signature signer;
+        if (Boolean.parseBoolean(ServerConfiguration.getInstance().getFirstProperty(
+                ServerConstants.SIGNATURE_UTIL_ENABLE_SHA256_ALGO))) {
+            signer = Signature.getInstance(signatureAlgorithmSHA256, getJCEProvider());
+        } else {
+            signer = Signature.getInstance(signatureAlgorithmSHA1, getJCEProvider());
+        }
+        signer.initSign(privateKey);
         signer.update(data.getBytes());
         return signer.sign();
     }
