@@ -115,20 +115,25 @@ public class SignatureUtil {
      * @param signature The signature.
      * @param publicKey The public key.
      * @return
-     * @throws Exception
+     * @throws SecurityException
      */
-    public static boolean validateSignature(String data, byte[] signature, PublicKey publicKey) throws Exception {
+    public static boolean validateSignature(String data, byte[] signature, PublicKey publicKey)
+            throws SecurityException {
 
         Signature signer;
-        if (Boolean.parseBoolean(ServerConfiguration.getInstance().getFirstProperty(
-                ServerConstants.SIGNATURE_UTIL_ENABLE_SHA256_ALGO))) {
-            signer = Signature.getInstance(signatureAlgorithmSHA256, getJCEProvider());
-        } else {
-            signer = Signature.getInstance(signatureAlgorithmSHA1, getJCEProvider());
+        try {
+            if (Boolean.parseBoolean(ServerConfiguration.getInstance().getFirstProperty(
+                    ServerConstants.SIGNATURE_UTIL_ENABLE_SHA256_ALGO))) {
+                signer = Signature.getInstance(signatureAlgorithmSHA256, getJCEProvider());
+            } else {
+                signer = Signature.getInstance(signatureAlgorithmSHA1, getJCEProvider());
+            }
+            signer.initVerify(publicKey);
+            signer.update(data.getBytes());
+            return signer.verify(signature);
+        } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchProviderException | SignatureException e) {
+            throw new SecurityException(e.getMessage(), e);
         }
-        signer.initVerify(publicKey);
-        signer.update(data.getBytes());
-        return signer.verify(signature);
     }
 
     /**
@@ -180,20 +185,24 @@ public class SignatureUtil {
      * @param data       Data to be signed.
      * @param privateKey The private key.
      * @return The signature is returned.
-     * @throws Exception
+     * @throws SecurityException
      */
-    public static byte[] doSignature(String data, PrivateKey privateKey) throws Exception {
+    public static byte[] doSignature(String data, PrivateKey privateKey) throws SecurityException {
 
         Signature signer;
-        if (Boolean.parseBoolean(ServerConfiguration.getInstance().getFirstProperty(
-                ServerConstants.SIGNATURE_UTIL_ENABLE_SHA256_ALGO))) {
-            signer = Signature.getInstance(signatureAlgorithmSHA256, getJCEProvider());
-        } else {
-            signer = Signature.getInstance(signatureAlgorithmSHA1, getJCEProvider());
+        try {
+            if (Boolean.parseBoolean(ServerConfiguration.getInstance().getFirstProperty(
+                    ServerConstants.SIGNATURE_UTIL_ENABLE_SHA256_ALGO))) {
+                signer = Signature.getInstance(signatureAlgorithmSHA256, getJCEProvider());
+            } else {
+                signer = Signature.getInstance(signatureAlgorithmSHA1, getJCEProvider());
+            }
+            signer.initSign(privateKey);
+            signer.update(data.getBytes());
+            return signer.sign();
+        } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchProviderException | SignatureException e) {
+            throw new SecurityException(e.getMessage(), e);
         }
-        signer.initSign(privateKey);
-        signer.update(data.getBytes());
-        return signer.sign();
     }
 
     private static PrivateKey getDefaultPrivateKey() throws Exception {
