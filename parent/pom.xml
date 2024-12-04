@@ -657,6 +657,9 @@
 
         <httpcomponents-httpclient.wso2.version>4.5.13.wso2v1</httpcomponents-httpclient.wso2.version>
         <httpcomponents-httpclient.imp.pkg.version.range>[4.3.1.wso2v2,5.0.0)</httpcomponents-httpclient.imp.pkg.version.range>
+
+        <org.wso2.carbon.database.utils.version>2.2.2</org.wso2.carbon.database.utils.version>
+        <org.wso2.carbon.database.utils.version.range>[2.1.0,3.0.0)</org.wso2.carbon.database.utils.version.range>
     </properties>
 
     <dependencyManagement>
@@ -1924,6 +1927,11 @@
                 <groupId>org.wso2.orbit.org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
                 <version>${httpcomponents-httpclient.wso2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.utils</groupId>
+                <artifactId>org.wso2.carbon.database.utils</artifactId>
+                <version>${org.wso2.carbon.database.utils.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

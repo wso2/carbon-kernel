@@ -458,6 +458,10 @@
             <!-- Keystore type (JKS/PKCS12 etc.)-->
             <Type>PKCS12</Type>
         </TenantKeyStore>
+        <KeyStores>
+            <!-- Keystore file location-->
+            <DataStorageType>registry</DataStorageType>
+        </KeyStores>
 
         <!--
             The KeyStore which is used for encrypting/decrypting internal data.

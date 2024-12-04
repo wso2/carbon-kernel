@@ -83,6 +83,7 @@ public class CarbonCoreServiceComponent {
 
             carbonServerManager = new CarbonServerManager();
             carbonServerManager.start(ctxt.getBundleContext());
+            CarbonCoreDataHolder.getInstance().initDataSource();
         } catch (Throwable e) {
             log.error("Failed to activate Carbon Core bundle ", e);
         }

@@ -26,7 +26,8 @@ import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
-import org.wso2.carbon.core.keystore.persistence.RegistryKeyStorePersistenceManager;
+import org.wso2.carbon.core.keystore.persistence.KeyStorePersistenceManager;
+import org.wso2.carbon.core.keystore.persistence.KeyStorePersistenceManagerFactory;
 import org.wso2.carbon.core.security.KeyStoreMetadata;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -67,7 +68,7 @@ public class KeyStoreManager {
             new ConcurrentHashMap<String, KeyStoreManager>();
     private static Log log = LogFactory.getLog(KeyStoreManager.class);
 
-    private final RegistryKeyStorePersistenceManager registryKeyStorePersistenceManager;
+    private final KeyStorePersistenceManager keyStorePersistenceManager;
     private ConcurrentHashMap<String, KeyStoreBean> tenantKeyStores = null;
     private ConcurrentHashMap<String, KeyStore> customKeyStores = null;
     private int tenantId = MultitenantConstants.SUPER_TENANT_ID;
@@ -92,7 +93,7 @@ public class KeyStoreManager {
 
         this.serverConfigService = serverConfigService;
         this.registryService = registryService;
-        this.registryKeyStorePersistenceManager = new RegistryKeyStorePersistenceManager();
+        this.keyStorePersistenceManager = KeyStorePersistenceManagerFactory.getKeyStorePersistenceManager();
         tenantKeyStores = new ConcurrentHashMap<String, KeyStoreBean>();
         customKeyStores = new ConcurrentHashMap<String, KeyStore>();
         this.tenantId = tenantId;
@@ -215,7 +216,7 @@ public class KeyStoreManager {
         if (KeyStoreUtil.isPrimaryStore(filename) || KeyStoreUtil.isTrustStore(filename)) {
             throw new SecurityException("Key store " + filename + " already available");
         }
-        registryKeyStorePersistenceManager.addKeystore(filename, keystoreContent, provider, type, passwordChar,
+        keyStorePersistenceManager.addKeystore(filename, keystoreContent, provider, type, passwordChar,
                 privateKeyPasswordChar, tenantId);
     }
 
@@ -236,7 +237,7 @@ public class KeyStoreManager {
         if (KeyStoreUtil.isTrustStore(keyStoreName)) {
             throw new SecurityException("Not allowed to delete the trust store : " + keyStoreName);
         }
-        registryKeyStorePersistenceManager.deleteKeyStore(keyStoreName, tenantId);
+        keyStorePersistenceManager.deleteKeyStore(keyStoreName, tenantId);
         deleteKeyStoreFromCache(keyStoreName);
     }
 
@@ -274,7 +275,7 @@ public class KeyStoreManager {
     public KeyStoreMetadata[] getKeyStoresMetadata(boolean isSuperTenant) throws SecurityException {
 
         CarbonUtils.checkSecurity();
-        List<KeyStoreMetadata> metadataList = registryKeyStorePersistenceManager.listKeyStores(tenantId);
+        List<KeyStoreMetadata> metadataList = keyStorePersistenceManager.listKeyStores(tenantId);
         if (isSuperTenant) {
             metadataList.add(getPrimaryKeyStoreMetadata());
         }
@@ -387,7 +388,7 @@ public class KeyStoreManager {
      */
     public String getKeyStorePassword(String keyStoreName) throws Exception {
 
-        return String.valueOf(registryKeyStorePersistenceManager.getKeyStorePassword(keyStoreName, tenantId));
+        return String.valueOf(keyStorePersistenceManager.getKeyStorePassword(keyStoreName, tenantId));
     }
 
     /**
@@ -447,7 +448,7 @@ public class KeyStoreManager {
 
     private void updateTenantKeyStore(String keyStoreName, KeyStore keyStore) {
 
-        registryKeyStorePersistenceManager.updateKeyStore(keyStoreName, keyStore, tenantId);
+        keyStorePersistenceManager.updateKeyStore(keyStoreName, keyStore, tenantId);
         updateTenantKeyStoreCache(keyStoreName, new KeyStoreBean(keyStore, new Date()));
     }
 
@@ -502,9 +503,9 @@ public class KeyStoreManager {
             return tenantKeyStores.get(keyStoreName).getKeyStore();
         }
 
-        KeyStore keyStore = registryKeyStorePersistenceManager.getKeyStore(keyStoreName, tenantId);
+        KeyStore keyStore = keyStorePersistenceManager.getKeyStore(keyStoreName, tenantId);
         KeyStoreBean keyStoreBean = new KeyStoreBean(keyStore,
-                registryKeyStorePersistenceManager.getKeyStoreLastModifiedDate(keyStoreName, tenantId));
+                keyStorePersistenceManager.getKeyStoreLastModifiedDate(keyStoreName, tenantId));
         updateTenantKeyStoreCache(keyStoreName, keyStoreBean);
         return keyStore;
     }
@@ -688,7 +689,7 @@ public class KeyStoreManager {
         char[] privateKeyPasswordChar = new char[0];
         try {
             KeyStore keyStore = getTenantKeyStore(keyStoreName);
-            privateKeyPasswordChar = registryKeyStorePersistenceManager.getPrivateKeyPassword(keyStoreName, tenantId);
+            privateKeyPasswordChar = keyStorePersistenceManager.getPrivateKeyPassword(keyStoreName, tenantId);
             return (PrivateKey) keyStore.getKey(alias, privateKeyPasswordChar);
         } finally {
             Arrays.fill(privateKeyPasswordChar, '\0');
@@ -801,7 +802,7 @@ public class KeyStoreManager {
 
         if (tenantKeyStores.containsKey(keyStoreName)) {
             Date keyStoreLastModifiedDateFromStorage =
-                    registryKeyStorePersistenceManager.getKeyStoreLastModifiedDate(keyStoreName, tenantId);
+                    keyStorePersistenceManager.getKeyStoreLastModifiedDate(keyStoreName, tenantId);
             KeyStoreBean keyStoreBean = tenantKeyStores.get(keyStoreName);
             return keyStoreBean.getLastModifiedDate().equals(keyStoreLastModifiedDateFromStorage);
         }

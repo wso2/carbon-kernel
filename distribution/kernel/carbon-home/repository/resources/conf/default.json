@@ -133,6 +133,7 @@
   "keystore.tls.password": "$ref{keystore.primary.password}",
   "keystore.tls.alias": "$ref{keystore.primary.alias}",
   "keystore.tls.key_password": "$ref{keystore.primary.key_password}",
+  "keystores.data_storage_type": "registry",
   "truststore.file_name": "client-truststore.p12",
   "truststore.type": "PKCS12",
   "truststore.password": "wso2carbon",

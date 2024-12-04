@@ -22,14 +22,19 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.HttpService;
 import org.wso2.carbon.base.api.ServerConfigurationService;
+import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.core.clustering.api.CoordinatedActivity;
 import org.wso2.carbon.crypto.api.CryptoService;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.user.core.util.DatabaseUtil;
 
-import org.wso2.carbon.core.clustering.api.CoordinatedActivity;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.sql.DataSource;
 
 /**
  * This singleton data holder contains all the data required by the Carbon core OSGi bundle
@@ -49,6 +54,7 @@ public class CarbonCoreDataHolder {
 
     private List<CoordinatedActivity> coordinatedActivities = new ArrayList<CoordinatedActivity>() ;
     private CryptoService cryptoService;
+    private DataSource dataSource;
 
     public  static CarbonCoreDataHolder getInstance() {
         return instance;
@@ -165,5 +171,20 @@ public class CarbonCoreDataHolder {
     public CryptoService getCryptoService() {
 
         return cryptoService;
+    }
+
+    public DataSource getDataSource() {
+
+        return dataSource;
+    }
+
+    public void initDataSource() {
+
+        try {
+            this.dataSource = DatabaseUtil.getRealmDataSource(CarbonContext.getThreadLocalCarbonContext().
+                    getUserRealm().getRealmConfiguration());
+        } catch (UserStoreException e) {
+            log.error("Error while retrieving user management data source.", e);
+        }
     }
 }
