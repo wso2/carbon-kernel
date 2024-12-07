@@ -40,7 +40,6 @@ import java.security.NoSuchProviderException;
 public class KeystoreUtils {
 
     private static Log LOG = LogFactory.getLog(KeystoreUtils.class);
-    private static final String FALLBACK_TENANTED_KEYSTORE_FILE_TYPE = "JKS";
     private static final String KEY_STORES = "/repository/security/key-stores";
 
     /**
@@ -51,7 +50,6 @@ public class KeystoreUtils {
         PKCS12(".p12");
 
         private final String extension;
-        private static final String defaultFileType = "PKCS12";
 
         StoreFileType(String extension) {
 
@@ -79,7 +77,7 @@ public class KeystoreUtils {
             if (StringUtils.isNotBlank(keystoreTypesForNewTenants)) {
                 return keystoreTypesForNewTenants;
             }
-            return FALLBACK_TENANTED_KEYSTORE_FILE_TYPE;
+            return JKS.name();
         }
 
         /**
@@ -142,23 +140,25 @@ public class KeystoreUtils {
      */
     public static String getKeyStoreFileType(String tenantDomain) {
 
-        String keystoreType = CarbonUtils.getServerConfiguration().getFirstProperty("Security.KeyStore.Type");
-        try {
-            StoreFileType.validateFileType(keystoreType);
-        } catch (CarbonException e) {
-            LOG.error("Unsupported file type for key store file", e);
-        }
-
+        String keystoreType;
         if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
-            return keystoreType;
+            keystoreType = CarbonUtils.getServerConfiguration().getFirstProperty("Security.KeyStore.Type");
+            try {
+                StoreFileType.validateFileType(keystoreType);
+                return keystoreType;
+            } catch (CarbonException e) {
+                LOG.error("Unsupported file type for key store file: " + keystoreType, e);
+            }
+        } else {
+            keystoreType = StoreFileType.defaultFileType();
+            String keystoreExtension = getExtensionByFileType(keystoreType);
+            String ksName = tenantDomain.trim().replace(".", "-");
+            if (StoreFileType.PKCS12.name().equals(keystoreType) &&
+                    isFileExistInRegistry(ksName + keystoreExtension)) {
+                return keystoreType;
+            }
         }
-
-        String ksName = tenantDomain.trim().replace(".", "-");
-        if (isFileExistInRegistry(ksName + getExtensionByFileType(keystoreType))) {
-            return keystoreType;
-        }
-
-        return FALLBACK_TENANTED_KEYSTORE_FILE_TYPE;
+        return StoreFileType.JKS.name();
     }
 
     /**
@@ -233,7 +233,7 @@ public class KeystoreUtils {
      */
     public static KeyStore getKeystoreInstance(String keyStoreType) throws KeyStoreException, NoSuchProviderException {
 
-        if (StoreFileType.defaultFileType.equals(keyStoreType)) {
+        if (StoreFileType.PKCS12.name().equals(keyStoreType)) {
             return KeyStore.getInstance(keyStoreType, getJCEProvider());
         } else {
             return KeyStore.getInstance(keyStoreType);
