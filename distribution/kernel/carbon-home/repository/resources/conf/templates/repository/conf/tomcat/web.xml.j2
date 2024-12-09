@@ -120,9 +120,9 @@
     {% endfor %}
 
     {% for listener in tomcat.listener %}
-        <listener>
-            <listener-class>{{listener.class}}</listener-class>
-        </listener>
+    <listener>
+        <listener-class>{{listener.class}}</listener-class>
+    </listener>
     {% endfor %}
 
     <servlet>
