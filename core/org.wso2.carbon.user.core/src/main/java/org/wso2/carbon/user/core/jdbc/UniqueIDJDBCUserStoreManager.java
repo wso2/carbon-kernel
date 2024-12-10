@@ -1396,6 +1396,11 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             throw new IllegalArgumentException("userName cannot be null.");
         }
 
+        // Return null for the system user to prevent redundant DB queries, as it would return null anyway.
+        if (UserCoreUtil.isRegistrySystemUser(userName)) {
+            return null;
+        }
+
         Connection dbConnection = null;
         String sqlStmt;
         PreparedStatement prepStmt = null;
