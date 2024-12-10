@@ -1235,4 +1235,16 @@ public final class UserCoreUtil {
                 && Boolean.parseBoolean(realmConfiguration.getAuthorizationManagerProperty(
                 UserCoreConstants.RealmConfig.PROPERTY_GROUP_AND_ROLE_SEPARATION_IMPROVEMENTS_ENABLED));
     }
+
+    /**
+     * Checks whether the role claim should be shown when group role separation improvement is enabled.
+     *
+     * @param realmConfiguration Realm configuration.
+     * @return Whether the role claim should be shown when group role separation improvement is enabled.
+     */
+    public static boolean isShowRoleClaimOnGroupRoleSeparationEnabled(RealmConfiguration realmConfiguration) {
+
+        return Boolean.parseBoolean(realmConfiguration.getAuthorizationManagerProperty(
+                UserCoreConstants.RealmConfig.PROPERTY_SHOW_ROLE_CLAIM_ON_GROUP_ROLE_SEPARATION));
+    }
 }

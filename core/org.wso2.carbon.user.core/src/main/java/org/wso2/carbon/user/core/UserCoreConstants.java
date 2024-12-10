@@ -213,6 +213,8 @@ public class UserCoreConstants {
         // Configuration to enable or disable groups and roles separation improvements.
         public static final String PROPERTY_GROUP_AND_ROLE_SEPARATION_IMPROVEMENTS_ENABLED =
                 "GroupAndRoleSeparationImprovementsEnabled";
+        public static final String PROPERTY_SHOW_ROLE_CLAIM_ON_GROUP_ROLE_SEPARATION =
+                "ShowRoleClaimOnGroupRoleSeparation";
 
         public static final String PROPERTY_CASE_SENSITIVITY = "CaseSensitiveAuthorizationRules";
 
