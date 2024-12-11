@@ -1237,14 +1237,14 @@ public final class UserCoreUtil {
     }
 
     /**
-     * Checks whether the role claim should be shown when group role separation improvement is enabled.
+     * Checks whether the legacy role claim should be shown when group role separation improvement is enabled.
      *
      * @param realmConfiguration Realm configuration.
      * @return Whether the role claim should be shown when group role separation improvement is enabled.
      */
-    public static boolean isShowRoleClaimOnGroupRoleSeparationEnabled(RealmConfiguration realmConfiguration) {
+    public static boolean isShowLegacyRoleClaimOnGroupRoleSeparationEnabled(RealmConfiguration realmConfiguration) {
 
         return Boolean.parseBoolean(realmConfiguration.getAuthorizationManagerProperty(
-                UserCoreConstants.RealmConfig.PROPERTY_SHOW_ROLE_CLAIM_ON_GROUP_ROLE_SEPARATION));
+                UserCoreConstants.RealmConfig.PROPERTY_SHOW_LEGACY_ROLE_CLAIM));
     }
 }
