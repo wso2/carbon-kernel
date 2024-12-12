@@ -16,11 +16,10 @@
  * under the License.
  */
 
-package org.wso2.carbon.core.keystore.persistence;
+package org.wso2.carbon.keystore.persistence;
 
-import org.wso2.carbon.core.security.KeyStoreMetadata;
+import org.wso2.carbon.keystore.persistence.model.KeyStoreModel;
 
-import java.security.KeyStore;
 import java.util.Date;
 import java.util.List;
 
@@ -32,26 +31,20 @@ public interface KeyStorePersistenceManager {
     /**
      * Add the key store to the data storage.
      *
-     * @param keyStoreName           Name of the key store.
-     * @param keystoreContent        Content of the key store.
-     * @param provider               Provider of the key store.
-     * @param keyStorePasswordChar   Key Store Password as a character string.
-     * @param privateKeyPasswordChar Private key password as a character string.
-     * @param tenantId               Tenant ID.
+     * @param keyStoreModel Key store model.
      * @throws SecurityException If an error occurs while adding the key store.
      */
-    void addKeystore(String keyStoreName, byte[] keystoreContent, String provider, String type,
-                     char[] keyStorePasswordChar, char[] privateKeyPasswordChar, int tenantId);
+    void addKeystore(KeyStoreModel keyStoreModel) throws SecurityException;
 
     /**
      * Get the key store from the data storage.
      *
      * @param keyStoreName Name of the key store.
      * @param tenantId     Tenant Id.
-     * @return Key store.
+     * @return Key store model.
      * @throws SecurityException If an error occurs while getting the key store.
      */
-    KeyStore getKeyStore(String keyStoreName, int tenantId) throws SecurityException;
+    KeyStoreModel getKeyStore(String keyStoreName, int tenantId) throws SecurityException;
 
     /**
      * Method to retrieve list of keystore metadata of all the keystores in a tenant.
@@ -60,16 +53,14 @@ public interface KeyStorePersistenceManager {
      * @return List of KeyStoreMetaData objects.
      * @throws SecurityException If an error occurs while retrieving the keystore data.
      */
-    List<KeyStoreMetadata> listKeyStores(int tenantId) throws SecurityException;
+    List<KeyStoreModel> listKeyStores(int tenantId) throws SecurityException;
 
     /**
      * Update the key store in the data storage.
      *
-     * @param keyStoreName Key store name.
-     * @param keyStore     Updated key store.
-     * @param tenantId     Tenant Id.
+     * @param keyStoreModel Key store model.
      */
-    void updateKeyStore(String keyStoreName, KeyStore keyStore, int tenantId);
+    void updateKeyStore(KeyStoreModel keyStoreModel);
 
     /**
      * Delete the key store from the data storage.
@@ -96,7 +87,7 @@ public interface KeyStorePersistenceManager {
      * @return KeyStore Password as a character array.
      * @throws SecurityException If there is an error while getting the key store password.
      */
-    char[] getKeyStorePassword(String keyStoreName, int tenantId) throws SecurityException;
+    String getEncryptedKeyStorePassword(String keyStoreName, int tenantId) throws SecurityException;
 
     /**
      * Get the private key password as a character array for the given key store name.
@@ -106,5 +97,5 @@ public interface KeyStorePersistenceManager {
      * @return Private key password as a character array.
      * @throws SecurityException If an error occurs while getting the private key password.
      */
-    char[] getPrivateKeyPassword(String keyStoreName, int tenantId) throws SecurityException;
+    String getEncryptedPrivateKeyPassword(String keyStoreName, int tenantId) throws SecurityException;
 }

@@ -24,8 +24,8 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.context.internal.OSGiDataHolder;
 import org.wso2.carbon.core.RegistryResources;
-import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.registry.core.Association;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -80,7 +80,7 @@ public class KeyStoreManagerTest {
         System.setProperty(CarbonBaseConstants.CARBON_HOME,
                 Paths.get(System.getProperty("user.dir"), "src", "test", "resources").toString());
 
-        CarbonCoreDataHolder.getInstance().setRegistryService(this.registryService);
+        OSGiDataHolder.getInstance().setRegistryService(this.registryService);
         when(this.registryService.getGovernanceSystemRegistry(anyInt())).thenReturn(this.registry);
         keyStoreManager = KeyStoreManager.getInstance(
                 MultitenantConstants.SUPER_TENANT_ID, serverConfiguration, registryService);
