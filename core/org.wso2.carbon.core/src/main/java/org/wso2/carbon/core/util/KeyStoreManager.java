@@ -27,7 +27,7 @@ import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
-import org.wso2.carbon.core.security.KeyStoreBasicModel;
+import org.wso2.carbon.core.security.KeyStoreMetadata;
 import org.wso2.carbon.keystore.persistence.RegistryKeyStorePersistenceManager;
 import org.wso2.carbon.keystore.persistence.model.KeyStoreModel;
 import org.wso2.carbon.registry.core.service.RegistryService;
@@ -308,10 +308,10 @@ public class KeyStoreManager {
      * @return KeyStoreMetaData[] Array of KeyStoreMetaData objects.
      * @throws SecurityException If an error occurs while retrieving the keystore data.
      */
-    public KeyStoreBasicModel[] getKeyStoresMetadata(boolean isSuperTenant) throws SecurityException {
+    public KeyStoreMetadata[] getKeyStoresMetadata(boolean isSuperTenant) throws SecurityException {
 
         CarbonUtils.checkSecurity();
-        List<KeyStoreBasicModel> metadataList = new ArrayList<>();
+        List<KeyStoreMetadata> metadataList = new ArrayList<>();
         List<KeyStoreModel> keyStoreList = registryKeyStorePersistenceManager.listKeyStores(tenantId);
         for (KeyStoreModel keyStoreModel : keyStoreList) {
             metadataList.add(getKeyStoreMetaDataFromKeyStoreModel(keyStoreModel));
@@ -320,22 +320,22 @@ public class KeyStoreManager {
         if (isSuperTenant) {
             metadataList.add(getPrimaryKeyStoreMetadata());
         }
-        return metadataList.toArray(new KeyStoreBasicModel[0]);
+        return metadataList.toArray(new KeyStoreMetadata[0]);
     }
 
-    private KeyStoreBasicModel getPrimaryKeyStoreMetadata() {
+    private KeyStoreMetadata getPrimaryKeyStoreMetadata() {
 
         ServerConfiguration config = ServerConfiguration.getInstance();
         String fileName = config.getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_FILE);
         String type = config.getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_TYPE);
         String name = KeyStoreUtil.getKeyStoreFileName(fileName);
 
-        KeyStoreBasicModel primaryKeyStoreBasicModel = new KeyStoreBasicModel();
-        primaryKeyStoreBasicModel.setKeyStoreName(name);
-        primaryKeyStoreBasicModel.setKeyStoreType(type);
-        primaryKeyStoreBasicModel.setProvider(" ");
-        primaryKeyStoreBasicModel.setPrivateStore(true);
-        return primaryKeyStoreBasicModel;
+        KeyStoreMetadata primaryKeyStoreMetadata = new KeyStoreMetadata();
+        primaryKeyStoreMetadata.setKeyStoreName(name);
+        primaryKeyStoreMetadata.setKeyStoreType(type);
+        primaryKeyStoreMetadata.setProvider(" ");
+        primaryKeyStoreMetadata.setPrivateStore(true);
+        return primaryKeyStoreMetadata;
     }
 
     /**
@@ -924,9 +924,9 @@ public class KeyStoreManager {
         }
     }
 
-    private KeyStoreBasicModel getKeyStoreMetaDataFromKeyStoreModel(KeyStoreModel keyStoreModel) {
+    private KeyStoreMetadata getKeyStoreMetaDataFromKeyStoreModel(KeyStoreModel keyStoreModel) {
 
-        KeyStoreBasicModel metadata = new KeyStoreBasicModel();
+        KeyStoreMetadata metadata = new KeyStoreMetadata();
         metadata.setKeyStoreName(keyStoreModel.getName());
         metadata.setProvider(keyStoreModel.getProvider());
         metadata.setKeyStoreType(keyStoreModel.getType());

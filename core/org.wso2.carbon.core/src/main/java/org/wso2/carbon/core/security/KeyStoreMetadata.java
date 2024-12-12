@@ -21,7 +21,7 @@ package org.wso2.carbon.core.security;
 /**
  * This class holds the metadata of a keystore.
  */
-public class KeyStoreBasicModel {
+public class KeyStoreMetadata {
 
     private String keyStoreName;
     private String keyStoreType;
