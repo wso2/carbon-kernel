@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.core.security;
+package org.wso2.carbon.keystore.persistence.model;
 
 /**
  * This class holds the metadata of a keystore.

@@ -16,43 +16,38 @@
  * under the License.
  */
 
-package org.wso2.carbon.core.keystore.persistence;
+package org.wso2.carbon.keystore.persistence;
 
 import org.apache.axiom.om.util.UUIDGenerator;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.core.RegistryResources;
-import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
-import org.wso2.carbon.core.security.KeyStoreMetadata;
-import org.wso2.carbon.core.util.CryptoException;
-import org.wso2.carbon.core.util.CryptoUtil;
-import org.wso2.carbon.core.util.KeyStoreUtil;
+import org.wso2.carbon.context.internal.OSGiDataHolder;
+import org.wso2.carbon.keystore.persistence.model.KeyStoreMetadata;
+import org.wso2.carbon.keystore.persistence.model.KeyStoreModel;
 import org.wso2.carbon.registry.api.Association;
+import org.wso2.carbon.registry.api.Collection;
 import org.wso2.carbon.registry.api.Registry;
 import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.api.Resource;
-import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
-import org.wso2.carbon.utils.security.KeystoreUtils;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
+import static org.wso2.carbon.keystore.persistence.PersistenceManagerConstants.RegistryResources.KEY_STORES;
+import static org.wso2.carbon.keystore.persistence.PersistenceManagerConstants.RegistryResources.PRIMARY_KEYSTORE_PHANTOM_RESOURCE;
+import static org.wso2.carbon.keystore.persistence.PersistenceManagerConstants.RegistryResources.PROP_PASSWORD;
+import static org.wso2.carbon.keystore.persistence.PersistenceManagerConstants.RegistryResources.PROP_PRIVATE_KEY_ALIAS;
+import static org.wso2.carbon.keystore.persistence.PersistenceManagerConstants.RegistryResources.PROP_PRIVATE_KEY_PASS;
+import static org.wso2.carbon.keystore.persistence.PersistenceManagerConstants.RegistryResources.PROP_PROVIDER;
+import static org.wso2.carbon.keystore.persistence.PersistenceManagerConstants.RegistryResources.PROP_TYPE;
+import static org.wso2.carbon.keystore.persistence.PersistenceManagerConstants.RegistryResources.TENANT_PUBKEY_RESOURCE;
 
 /**
  * This implementation handles the keystore storage/persistence related logics in the Registry.
@@ -67,59 +62,42 @@ public class RegistryKeyStorePersistenceManager implements KeyStorePersistenceMa
     /**
      * Add the key store to the registry.
      *
-     * @param keyStoreName           Name of the key store.
-     * @param keystoreContent        Content of the key store.
-     * @param provider               Provider of the key store.
-     * @param keyStorePasswordChar   Key Store Password as a character array.
-     * @param privateKeyPasswordChar Private key password as a character array.
-     * @param tenantId               Tenant ID.
+     * @param keyStoreModel KeyStore model object.
      * @throws SecurityException If an error occurs while adding the key store.
      */
-    public void addKeystore(String keyStoreName, byte[] keystoreContent, String provider, String type,
-                            char[] keyStorePasswordChar, char[] privateKeyPasswordChar, int tenantId)
-            throws SecurityException {
+    public void addKeystore(KeyStoreModel keyStoreModel) throws SecurityException {
 
-        Registry registry = getGovernanceRegistry(tenantId);
-        if (isKeyStoreExistsInRegistry(keyStoreName, registry)) {
-            throw new SecurityException("Key store " + keyStoreName + " already available");
+        Registry registry = getGovernanceRegistry(keyStoreModel.getTenantId());
+        if (isKeyStoreExistsInRegistry(keyStoreModel.getName(), registry)) {
+            throw new SecurityException("Key store " + keyStoreModel.getName() + " already available");
         }
 
         boolean isTenantPrimaryKeyStore = false;
-        try (InputStream inputStream = new ByteArrayInputStream(keystoreContent)) {
-            if (tenantId != MultitenantConstants.SUPER_TENANT_ID &&
-                    !registry.resourceExists(RegistryResources.SecurityManagement.KEY_STORES)) {
+        try {
+            if (keyStoreModel.getTenantId() != MultitenantConstants.SUPER_TENANT_ID &&
+                    !registry.resourceExists(KEY_STORES)) {
                 isTenantPrimaryKeyStore = true;
             }
 
-            KeyStore keyStore = KeystoreUtils.getKeystoreInstance(type);
-            keyStore.load(inputStream, keyStorePasswordChar);
-            String pvtKeyAlias = KeyStoreUtil.getPrivateKeyAlias(keyStore);
-
             Resource resource = registry.newResource();
-            resource.addProperty(RegistryResources.SecurityManagement.PROP_PASSWORD,
-                    encryptPassword(keyStorePasswordChar));
-            resource.addProperty(RegistryResources.SecurityManagement.PROP_PROVIDER, provider);
-            resource.addProperty(RegistryResources.SecurityManagement.PROP_TYPE, keyStore.getType());
-            resource.setContent(keystoreContent);
+            resource.addProperty(PROP_PASSWORD, keyStoreModel.getEncryptedPassword());
+            resource.addProperty(PROP_PROVIDER, keyStoreModel.getProvider());
+            resource.addProperty(PROP_TYPE, keyStoreModel.getType());
+            resource.setContent(keyStoreModel.getContent());
 
-            if (StringUtils.isNotBlank(pvtKeyAlias)) {
-                resource.addProperty(RegistryResources.SecurityManagement.PROP_PRIVATE_KEY_ALIAS, pvtKeyAlias);
-                if (ArrayUtils.isNotEmpty(privateKeyPasswordChar)) {
-                    resource.addProperty(RegistryResources.SecurityManagement.PROP_PRIVATE_KEY_PASS,
-                            encryptPassword(privateKeyPasswordChar));
-                    // Check weather private key password is correct.
-                    keyStore.getKey(pvtKeyAlias, privateKeyPasswordChar);
-                }
+            if (StringUtils.isNotBlank(keyStoreModel.getPrivateKeyAlias())) {
+                resource.addProperty(PROP_PRIVATE_KEY_ALIAS, keyStoreModel.getEncryptedPrivateKeyPass());
             }
-            registry.put(getKeyStorePath(keyStoreName), resource);
+            if (StringUtils.isNotBlank(keyStoreModel.getEncryptedPrivateKeyPass())) {
+                resource.addProperty(PROP_PRIVATE_KEY_PASS, keyStoreModel.getEncryptedPrivateKeyPass());
+            }
 
             if (isTenantPrimaryKeyStore) {
                 // Create the public key resource for tenant's primary keystore.
-                addTenantPublicKey(keyStoreName, (X509Certificate) keyStore.getCertificate(pvtKeyAlias), registry);
+                addTenantPublicKey(keyStoreModel.getName(), keyStoreModel.getPublicCert(), registry);
             }
-        } catch (IOException | KeyStoreException | NoSuchAlgorithmException | NoSuchProviderException |
-                 UnrecoverableKeyException | CertificateException | RegistryException e) {
-            throw new SecurityException("Error adding key store " + keyStoreName, e);
+        } catch (RegistryException e) {
+            throw new SecurityException("Error adding key store " + keyStoreModel.getName(), e);
         }
     }
 
@@ -138,12 +116,11 @@ public class RegistryKeyStorePersistenceManager implements KeyStorePersistenceMa
             Resource pubKeyResource = registry.newResource();
             pubKeyResource.setContent(publicCert.getEncoded());
             pubKeyResource.addProperty(PROP_TENANT_PUB_KEY_FILE_NAME_APPENDER, generatePublicCertId());
-            registry.put(RegistryResources.SecurityManagement.TENANT_PUBKEY_RESOURCE, pubKeyResource);
+            registry.put(TENANT_PUBKEY_RESOURCE, pubKeyResource);
 
             // Associate the public key with the keystore.
-            registry.addAssociation(
-                    RegistryResources.SecurityManagement.KEY_STORES + REGISTRY_PATH_SEPARATOR + keyStoreName,
-                    RegistryResources.SecurityManagement.TENANT_PUBKEY_RESOURCE, ASSOCIATION_TENANT_KS_PUB_KEY);
+            registry.addAssociation(KEY_STORES + REGISTRY_PATH_SEPARATOR + keyStoreName,
+                    TENANT_PUBKEY_RESOURCE, ASSOCIATION_TENANT_KS_PUB_KEY);
         } catch (RegistryException | CertificateEncodingException e) {
             throw new SecurityException("Error when writing the keystore public cert to registry for keystore: " +
                     keyStoreName, e);
@@ -170,35 +147,30 @@ public class RegistryKeyStorePersistenceManager implements KeyStorePersistenceMa
      * @return Key store.
      * @throws SecurityException If an error occurs while getting the key store.
      */
-    public KeyStore getKeyStore(String keyStoreName, int tenantId) throws SecurityException {
+    public KeyStoreModel getKeyStore(String keyStoreName, int tenantId) throws SecurityException {
 
         Registry registry = getGovernanceRegistry(tenantId);
         if (!isKeyStoreExistsInRegistry(keyStoreName, registry)) {
             throw new SecurityException("Key Store with a name: " + keyStoreName + " does not exist.");
         }
 
-        char[] passwordChar = new char[0];
         try {
             Resource resource = registry.get(getKeyStorePath(keyStoreName));
-            byte[] bytes = (byte[]) resource.getContent();
-            KeyStore keyStore = KeystoreUtils.getKeystoreInstance(resource
-                    .getProperty(RegistryResources.SecurityManagement.PROP_TYPE));
-            passwordChar = getKeyStorePasswordFromRegistryResource(resource, keyStoreName);
-            ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
-            keyStore.load(stream, passwordChar);
+            KeyStoreModel keyStoreModel = new KeyStoreModel();
+            keyStoreModel.setName(keyStoreName);
+            keyStoreModel.setType(resource.getProperty(PROP_TYPE));
+            keyStoreModel.setContent((byte[]) resource.getContent());
+            keyStoreModel.setEncryptedPassword(resource.getProperty(PROP_PASSWORD));
             resource.discard();
-            return keyStore;
-        } catch (RegistryException | KeyStoreException | NoSuchProviderException | IOException | CertificateException |
-                 NoSuchAlgorithmException e) {
+            return keyStoreModel;
+        } catch (RegistryException e) {
             throw new SecurityException("Error getting key store: " + keyStoreName, e);
-        } finally {
-            clearPasswordCharArray(passwordChar);
         }
     }
 
     private String getKeyStorePath(String keyStoreName) {
 
-        return RegistryResources.SecurityManagement.KEY_STORES + REGISTRY_PATH_SEPARATOR + keyStoreName;
+        return KEY_STORES + REGISTRY_PATH_SEPARATOR + keyStoreName;
     }
 
     /**
@@ -213,15 +185,15 @@ public class RegistryKeyStorePersistenceManager implements KeyStorePersistenceMa
         Registry registry = getGovernanceRegistry(tenantId);
         List<KeyStoreMetadata> metadataList = new ArrayList<>();
         try {
-            if (!registry.resourceExists(RegistryResources.SecurityManagement.KEY_STORES)) {
+            if (!registry.resourceExists(KEY_STORES)) {
                 return metadataList;
             }
 
-            Collection keyStoreCollection = (Collection) registry.get(RegistryResources.SecurityManagement.KEY_STORES);
+            Collection keyStoreCollection = (Collection) registry.get(KEY_STORES);
             String[] keyStorePaths = keyStoreCollection.getChildren();
 
             for (String keyStorePath : keyStorePaths) {
-                if (RegistryResources.SecurityManagement.PRIMARY_KEYSTORE_PHANTOM_RESOURCE.equals(keyStorePath)) {
+                if (PRIMARY_KEYSTORE_PHANTOM_RESOURCE.equals(keyStorePath)) {
                     continue;
                 }
                 metadataList.add(getKeyStoreMetadata(keyStorePath, registry, tenantId));
@@ -238,9 +210,9 @@ public class RegistryKeyStorePersistenceManager implements KeyStorePersistenceMa
         Resource keyStoreResource = registry.get(keyStorePath);
         int lastIndex = keyStorePath.lastIndexOf(REGISTRY_PATH_SEPARATOR);
         String name = keyStorePath.substring(lastIndex + 1);
-        String type = keyStoreResource.getProperty(RegistryResources.SecurityManagement.PROP_TYPE);
-        String provider = keyStoreResource.getProperty(RegistryResources.SecurityManagement.PROP_PROVIDER);
-        String alias = keyStoreResource.getProperty(RegistryResources.SecurityManagement.PROP_PRIVATE_KEY_ALIAS);
+        String type = keyStoreResource.getProperty(PROP_TYPE);
+        String provider = keyStoreResource.getProperty(PROP_PROVIDER);
+        String alias = keyStoreResource.getProperty(PROP_PRIVATE_KEY_ALIAS);
 
         KeyStoreMetadata keyStoreMetadata = new KeyStoreMetadata();
         keyStoreMetadata.setKeyStoreName(name);
@@ -263,28 +235,19 @@ public class RegistryKeyStorePersistenceManager implements KeyStorePersistenceMa
     /**
      * Update the key store in the registry.
      *
-     * @param keyStoreName Key store name.
-     * @param keyStore     Updated key store.
-     * @param tenantId     Tenant Id.
+     * @param keyStoreModel Key store model.
      */
-    public void updateKeyStore(String keyStoreName, KeyStore keyStore, int tenantId) {
+    public void updateKeyStore(KeyStoreModel keyStoreModel) {
 
-        Registry registry = getGovernanceRegistry(tenantId);
-        char[] passwordChar = new char[0];
+        Registry registry = getGovernanceRegistry(keyStoreModel.getTenantId());
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            String path = getKeyStorePath(keyStoreName);
+            String path = getKeyStorePath(keyStoreModel.getName());
             Resource resource = registry.get(path);
-            passwordChar = getKeyStorePasswordFromRegistryResource(resource, keyStoreName);
-            keyStore.store(outputStream, passwordChar);
-            outputStream.flush();
-            resource.setContent(outputStream.toByteArray());
+            resource.setContent(keyStoreModel.getContent());
             registry.put(path, resource);
             resource.discard();
-        } catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException |
-                 RegistryException e) {
-            throw new SecurityException("Error updating tenanted key store: " + keyStoreName, e);
-        } finally {
-            clearPasswordCharArray(passwordChar);
+        } catch (IOException | RegistryException e) {
+            throw new SecurityException("Error updating tenanted key store: " + keyStoreModel.getName(), e);
         }
     }
 
@@ -329,13 +292,13 @@ public class RegistryKeyStorePersistenceManager implements KeyStorePersistenceMa
     }
 
     /**
-     * Get the password for the given key store name.
+     * Get the encrypted password for the given key store name.
      *
      * @param keyStoreName Key store name.
      * @return KeyStore Password.
      * @throws SecurityException If there is an error while getting the key store password.
      */
-    public char[] getKeyStorePassword(String keyStoreName, int tenantId) throws SecurityException {
+    public String getEncryptedKeyStorePassword(String keyStoreName, int tenantId) throws SecurityException {
 
         Registry registry = getGovernanceRegistry(tenantId);
         if (!isKeyStoreExistsInRegistry(keyStoreName, registry)) {
@@ -344,7 +307,7 @@ public class RegistryKeyStorePersistenceManager implements KeyStorePersistenceMa
 
         try {
             Resource resource = registry.get(getKeyStorePath(keyStoreName));
-            return getKeyStorePasswordFromRegistryResource(resource, keyStoreName);
+            return resource.getProperty(PROP_PASSWORD);
         } catch (RegistryException e) {
             throw new SecurityException("Error getting password for key store: " + keyStoreName, e);
         }
@@ -358,16 +321,16 @@ public class RegistryKeyStorePersistenceManager implements KeyStorePersistenceMa
      * @return Private key password as a character array.
      * @throws SecurityException If an error occurs while getting the private key password.
      */
-    public char[] getPrivateKeyPassword(String keyStoreName, int tenantId) throws SecurityException {
+    public String getEncryptedPrivateKeyPassword(String keyStoreName, int tenantId) throws SecurityException {
 
         Registry registry = getGovernanceRegistry(tenantId);
         try {
             Resource resource = registry.get(getKeyStorePath(keyStoreName));
-            String encryptedPassword = resource.getProperty(RegistryResources.SecurityManagement.PROP_PRIVATE_KEY_PASS);
+            String encryptedPassword = resource.getProperty(PROP_PRIVATE_KEY_PASS);
             if (encryptedPassword == null) {
                 throw new SecurityException("Private Key Password of " + keyStoreName + " does not exist.");
             }
-            return decryptPassword(encryptedPassword);
+            return encryptedPassword;
         } catch (RegistryException e) {
             throw new SecurityException("Error getting private key password for key store: " + keyStoreName, e);
         }
@@ -382,57 +345,12 @@ public class RegistryKeyStorePersistenceManager implements KeyStorePersistenceMa
         }
     }
 
-    private char[] getKeyStorePasswordFromRegistryResource(Resource resource, String keyStoreName) {
-
-        String encryptedPassword = resource.getProperty(RegistryResources.SecurityManagement.PROP_PASSWORD);
-        if (encryptedPassword == null) {
-            throw new SecurityException("Key Store Password of " + keyStoreName + " does not exist.");
-        }
-        return decryptPassword(encryptedPassword);
-    }
-
     private Registry getGovernanceRegistry(int tenantId) {
 
         try {
-            return CarbonCoreDataHolder.getInstance().getRegistryService().getGovernanceSystemRegistry(tenantId);
+            return OSGiDataHolder.getInstance().getRegistryService().getGovernanceSystemRegistry(tenantId);
         } catch (Exception e) {
             throw new SecurityException("Error while getting the registry for tenant: " + tenantId, e);
         }
-    }
-
-    /**
-     * This method encrypts the given passwordChar using the default crypto util.
-     *
-     * @param passwordChar Password to be encrypted as a character array.
-     * @return encrypted password.
-     */
-    private String encryptPassword(char[] passwordChar) {
-
-        try {
-            return CryptoUtil.getDefaultCryptoUtil().encryptAndBase64Encode(String.valueOf(passwordChar).getBytes());
-        } catch (CryptoException e) {
-            throw new SecurityException("Error encrypting the passwordChar", e);
-        }
-    }
-
-    /**
-     * This method decrypts the given encrypted password using the default crypto util.
-     *
-     * @param encryptedPassword Encrypted password.
-     * @return decrypted password as a character array.
-     */
-    private char[] decryptPassword(String encryptedPassword) {
-
-        try {
-            CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
-            return new String(cryptoUtil.base64DecodeAndDecrypt(encryptedPassword)).toCharArray();
-        } catch (CryptoException e) {
-            throw new SecurityException("Error decrypting the password", e);
-        }
-    }
-
-    private static void clearPasswordCharArray(char[] passwordChar) {
-
-        Arrays.fill(passwordChar, '\0');
     }
 }
