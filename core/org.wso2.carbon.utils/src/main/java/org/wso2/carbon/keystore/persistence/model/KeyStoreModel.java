@@ -18,8 +18,6 @@
 
 package org.wso2.carbon.keystore.persistence.model;
 
-import java.security.cert.X509Certificate;
-
 /**
  * This is the model class for the key store.
  */
@@ -34,7 +32,7 @@ public class KeyStoreModel {
     byte[] content;
     int tenantId;
     String publicCertId;
-    X509Certificate publicCert;
+    byte[] publicCert;
 
     public KeyStoreModel() {
 
@@ -42,7 +40,7 @@ public class KeyStoreModel {
 
     public KeyStoreModel(String name, String type, String provider, String encryptedPassword, String privateKeyAlias,
                          String encryptedPrivateKeyPass, byte[] content, int tenantId, String publicCertId,
-                         X509Certificate publicCert) {
+                         byte[] publicCert) {
 
         this.name = name;
         this.type = type;
@@ -146,12 +144,12 @@ public class KeyStoreModel {
         this.encryptedPrivateKeyPass = encryptedPrivateKeyPass;
     }
 
-    public X509Certificate getPublicCert() {
+    public byte[] getPublicCert() {
 
         return publicCert;
     }
 
-    public void setPublicCert(X509Certificate publicCert) {
+    public void setPublicCert(byte[] publicCert) {
 
         this.publicCert = publicCert;
     }

@@ -23,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.internal.OSGiDataHolder;
-import org.wso2.carbon.keystore.persistence.model.KeyStoreMetadata;
 import org.wso2.carbon.keystore.persistence.model.KeyStoreModel;
 import org.wso2.carbon.registry.api.Association;
 import org.wso2.carbon.registry.api.Collection;
@@ -34,8 +33,6 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -86,11 +83,12 @@ public class RegistryKeyStorePersistenceManager implements KeyStorePersistenceMa
             resource.setContent(keyStoreModel.getContent());
 
             if (StringUtils.isNotBlank(keyStoreModel.getPrivateKeyAlias())) {
-                resource.addProperty(PROP_PRIVATE_KEY_ALIAS, keyStoreModel.getEncryptedPrivateKeyPass());
+                resource.addProperty(PROP_PRIVATE_KEY_ALIAS, keyStoreModel.getPrivateKeyAlias());
             }
             if (StringUtils.isNotBlank(keyStoreModel.getEncryptedPrivateKeyPass())) {
                 resource.addProperty(PROP_PRIVATE_KEY_PASS, keyStoreModel.getEncryptedPrivateKeyPass());
             }
+            registry.put(getKeyStorePath(keyStoreModel.getName()), resource);
 
             if (isTenantPrimaryKeyStore) {
                 // Create the public key resource for tenant's primary keystore.
@@ -108,20 +106,20 @@ public class RegistryKeyStorePersistenceManager implements KeyStorePersistenceMa
      * @param publicCert   Public certificate of the tenant.
      * @throws SecurityException If an error occurs while adding the tenant's public certificate.
      */
-    private void addTenantPublicKey(String keyStoreName, X509Certificate publicCert, Registry registry)
+    private void addTenantPublicKey(String keyStoreName, byte[] publicCert, Registry registry)
             throws SecurityException {
 
         try {
             // Create the public key resource.
             Resource pubKeyResource = registry.newResource();
-            pubKeyResource.setContent(publicCert.getEncoded());
+            pubKeyResource.setContent(publicCert);
             pubKeyResource.addProperty(PROP_TENANT_PUB_KEY_FILE_NAME_APPENDER, generatePublicCertId());
             registry.put(TENANT_PUBKEY_RESOURCE, pubKeyResource);
 
             // Associate the public key with the keystore.
             registry.addAssociation(KEY_STORES + REGISTRY_PATH_SEPARATOR + keyStoreName,
                     TENANT_PUBKEY_RESOURCE, ASSOCIATION_TENANT_KS_PUB_KEY);
-        } catch (RegistryException | CertificateEncodingException e) {
+        } catch (RegistryException e) {
             throw new SecurityException("Error when writing the keystore public cert to registry for keystore: " +
                     keyStoreName, e);
         }
@@ -180,13 +178,13 @@ public class RegistryKeyStorePersistenceManager implements KeyStorePersistenceMa
      * @return List of KeyStoreMetaData objects.
      * @throws SecurityException If an error occurs while retrieving the keystore data.
      */
-    public List<KeyStoreMetadata> listKeyStores(int tenantId) throws SecurityException {
+    public List<KeyStoreModel> listKeyStores(int tenantId) throws SecurityException {
 
         Registry registry = getGovernanceRegistry(tenantId);
-        List<KeyStoreMetadata> metadataList = new ArrayList<>();
+        List<KeyStoreModel> keyStoreList = new ArrayList<>();
         try {
             if (!registry.resourceExists(KEY_STORES)) {
-                return metadataList;
+                return keyStoreList;
             }
 
             Collection keyStoreCollection = (Collection) registry.get(KEY_STORES);
@@ -196,15 +194,15 @@ public class RegistryKeyStorePersistenceManager implements KeyStorePersistenceMa
                 if (PRIMARY_KEYSTORE_PHANTOM_RESOURCE.equals(keyStorePath)) {
                     continue;
                 }
-                metadataList.add(getKeyStoreMetadata(keyStorePath, registry, tenantId));
+                keyStoreList.add(getKeyStoreData(keyStorePath, registry, tenantId));
             }
-            return metadataList;
+            return keyStoreList;
         } catch (RegistryException e) {
             throw new SecurityException("Error when getting keyStore metadata.", e);
         }
     }
 
-    private KeyStoreMetadata getKeyStoreMetadata(String keyStorePath, Registry registry, int tenantId)
+    private KeyStoreModel getKeyStoreData(String keyStorePath, Registry registry, int tenantId)
             throws RegistryException {
 
         Resource keyStoreResource = registry.get(keyStorePath);
@@ -214,22 +212,22 @@ public class RegistryKeyStorePersistenceManager implements KeyStorePersistenceMa
         String provider = keyStoreResource.getProperty(PROP_PROVIDER);
         String alias = keyStoreResource.getProperty(PROP_PRIVATE_KEY_ALIAS);
 
-        KeyStoreMetadata keyStoreMetadata = new KeyStoreMetadata();
-        keyStoreMetadata.setKeyStoreName(name);
-        keyStoreMetadata.setKeyStoreType(type);
-        keyStoreMetadata.setProvider(provider);
-        keyStoreMetadata.setPrivateStore(alias != null);
+        KeyStoreModel keyStoreModel = new KeyStoreModel();
+        keyStoreModel.setName(name);
+        keyStoreModel.setType(type);
+        keyStoreModel.setProvider(provider);
+        keyStoreModel.setPrivateKeyAlias(alias);
 
         if (tenantId != MultitenantConstants.SUPER_TENANT_ID) {
             Association[] associations = registry.getAssociations(keyStorePath, ASSOCIATION_TENANT_KS_PUB_KEY);
             if (associations != null && associations.length > 0) {
                 Resource pubKeyResource = registry.get(associations[0].getDestinationPath());
-                keyStoreMetadata.setPublicCertId(pubKeyResource.getProperty(PROP_TENANT_PUB_KEY_FILE_NAME_APPENDER));
-                keyStoreMetadata.setPublicCert((byte[]) pubKeyResource.getContent());
+                keyStoreModel.setPublicCertId(pubKeyResource.getProperty(PROP_TENANT_PUB_KEY_FILE_NAME_APPENDER));
+                keyStoreModel.setPublicCert((byte[]) pubKeyResource.getContent());
             }
         }
 
-        return keyStoreMetadata;
+        return keyStoreModel;
     }
 
     /**

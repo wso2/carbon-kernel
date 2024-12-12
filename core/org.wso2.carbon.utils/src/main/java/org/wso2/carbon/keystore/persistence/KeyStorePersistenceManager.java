@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.keystore.persistence;
 
-import org.wso2.carbon.keystore.persistence.model.KeyStoreMetadata;
 import org.wso2.carbon.keystore.persistence.model.KeyStoreModel;
 
 import java.util.Date;
@@ -54,7 +53,7 @@ public interface KeyStorePersistenceManager {
      * @return List of KeyStoreMetaData objects.
      * @throws SecurityException If an error occurs while retrieving the keystore data.
      */
-    List<KeyStoreMetadata> listKeyStores(int tenantId) throws SecurityException;
+    List<KeyStoreModel> listKeyStores(int tenantId) throws SecurityException;
 
     /**
      * Update the key store in the data storage.

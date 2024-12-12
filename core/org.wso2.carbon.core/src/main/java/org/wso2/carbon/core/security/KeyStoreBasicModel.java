@@ -16,12 +16,12 @@
  * under the License.
  */
 
-package org.wso2.carbon.keystore.persistence.model;
+package org.wso2.carbon.core.security;
 
 /**
  * This class holds the metadata of a keystore.
  */
-public class KeyStoreMetadata {
+public class KeyStoreBasicModel {
 
     private String keyStoreName;
     private String keyStoreType;

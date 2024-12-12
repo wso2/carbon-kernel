@@ -27,8 +27,8 @@ import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
+import org.wso2.carbon.core.security.KeyStoreBasicModel;
 import org.wso2.carbon.keystore.persistence.RegistryKeyStorePersistenceManager;
-import org.wso2.carbon.keystore.persistence.model.KeyStoreMetadata;
 import org.wso2.carbon.keystore.persistence.model.KeyStoreModel;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -53,6 +53,7 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -227,6 +228,7 @@ public class KeyStoreManager {
         keyStoreModel.setContent(keystoreContent);
         keyStoreModel.setType(type);
         keyStoreModel.setProvider(provider);
+        keyStoreModel.setTenantId(tenantId);
 
         try (InputStream inputStream = new ByteArrayInputStream(keystoreContent)) {
             KeyStore keyStore = KeystoreUtils.getKeystoreInstance(type);
@@ -234,7 +236,7 @@ public class KeyStoreManager {
             String pvtKeyAlias = KeyStoreUtil.getPrivateKeyAlias(keyStore);
             if (StringUtils.isNotBlank(pvtKeyAlias)) {
                 keyStoreModel.setPrivateKeyAlias(pvtKeyAlias);
-                X509Certificate publicCert = (X509Certificate) keyStore.getCertificate(pvtKeyAlias);
+                byte[] publicCert = keyStore.getCertificate(pvtKeyAlias).getEncoded();
 
                 if (publicCert != null) {
                     keyStoreModel.setPublicCert(publicCert);
@@ -306,29 +308,34 @@ public class KeyStoreManager {
      * @return KeyStoreMetaData[] Array of KeyStoreMetaData objects.
      * @throws SecurityException If an error occurs while retrieving the keystore data.
      */
-    public KeyStoreMetadata[] getKeyStoresMetadata(boolean isSuperTenant) throws SecurityException {
+    public KeyStoreBasicModel[] getKeyStoresMetadata(boolean isSuperTenant) throws SecurityException {
 
         CarbonUtils.checkSecurity();
-        List<KeyStoreMetadata> metadataList = registryKeyStorePersistenceManager.listKeyStores(tenantId);
+        List<KeyStoreBasicModel> metadataList = new ArrayList<>();
+        List<KeyStoreModel> keyStoreList = registryKeyStorePersistenceManager.listKeyStores(tenantId);
+        for (KeyStoreModel keyStoreModel : keyStoreList) {
+            metadataList.add(getKeyStoreMetaDataFromKeyStoreModel(keyStoreModel));
+        }
+
         if (isSuperTenant) {
             metadataList.add(getPrimaryKeyStoreMetadata());
         }
-        return metadataList.toArray(new KeyStoreMetadata[0]);
+        return metadataList.toArray(new KeyStoreBasicModel[0]);
     }
 
-    private KeyStoreMetadata getPrimaryKeyStoreMetadata() {
+    private KeyStoreBasicModel getPrimaryKeyStoreMetadata() {
 
         ServerConfiguration config = ServerConfiguration.getInstance();
         String fileName = config.getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_FILE);
         String type = config.getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_TYPE);
         String name = KeyStoreUtil.getKeyStoreFileName(fileName);
 
-        KeyStoreMetadata primaryKeyStoreMetadata = new KeyStoreMetadata();
-        primaryKeyStoreMetadata.setKeyStoreName(name);
-        primaryKeyStoreMetadata.setKeyStoreType(type);
-        primaryKeyStoreMetadata.setProvider(" ");
-        primaryKeyStoreMetadata.setPrivateStore(true);
-        return primaryKeyStoreMetadata;
+        KeyStoreBasicModel primaryKeyStoreBasicModel = new KeyStoreBasicModel();
+        primaryKeyStoreBasicModel.setKeyStoreName(name);
+        primaryKeyStoreBasicModel.setKeyStoreType(type);
+        primaryKeyStoreBasicModel.setProvider(" ");
+        primaryKeyStoreBasicModel.setPrivateStore(true);
+        return primaryKeyStoreBasicModel;
     }
 
     /**
@@ -421,9 +428,14 @@ public class KeyStoreManager {
      */
     public String getKeyStorePassword(String keyStoreName) {
 
+        return String.valueOf(getKeyStorePasswordAsCharArray(keyStoreName));
+    }
+
+    private char[] getKeyStorePasswordAsCharArray(String keyStoreName) {
+
         String encryptedPassword =
                 registryKeyStorePersistenceManager.getEncryptedKeyStorePassword(keyStoreName, tenantId);
-        return String.valueOf (decryptPassword(encryptedPassword));
+        return decryptPassword(encryptedPassword);
     }
 
     /**
@@ -486,7 +498,7 @@ public class KeyStoreManager {
         char[] passwordChar = new char[0];
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             KeyStoreModel keyStoreModel = new KeyStoreModel();
-            passwordChar = getKeyStorePassword(keyStoreName).toCharArray();
+            passwordChar = getKeyStorePasswordAsCharArray(keyStoreName);
             keyStore.store(outputStream, passwordChar);
             outputStream.flush();
             keyStoreModel.setName(keyStoreName);
@@ -910,6 +922,22 @@ public class KeyStoreManager {
                 log.warn("Error when closing the input stream.", e);
             }
         }
+    }
+
+    private KeyStoreBasicModel getKeyStoreMetaDataFromKeyStoreModel(KeyStoreModel keyStoreModel) {
+
+        KeyStoreBasicModel metadata = new KeyStoreBasicModel();
+        metadata.setKeyStoreName(keyStoreModel.getName());
+        metadata.setProvider(keyStoreModel.getProvider());
+        metadata.setKeyStoreType(keyStoreModel.getType());
+        metadata.setPrivateStore(keyStoreModel.getPrivateKeyAlias() != null);
+        String publicCertId = keyStoreModel.getPublicCertId();
+
+        if (StringUtils.isNotBlank(publicCertId)) {
+            metadata.setPublicCertId(keyStoreModel.getPublicCertId());
+            metadata.setPublicCert(keyStoreModel.getPublicCert());
+        }
+        return metadata;
     }
 
     /**
