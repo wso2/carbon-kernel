@@ -26,6 +26,8 @@
             <class name="org.wso2.carbon.core.multitenancy.transports.TenantTransportSender"/>
             <class name="org.wso2.carbon.core.util.KeyStoreUtilTest"/>
             <class name="org.wso2.carbon.core.util.KeyStoreManagerTest"/>
+            <class name="org.wso2.carbon.core.keystore.persistence.JDBCKeyStorePersistenceManagerTest"/>
+            <class name="org.wso2.carbon.core.keystore.persistence.RegistryKeyStorePersistenceManagerTest"/>
         </classes>
     </test>
 </suite>
