@@ -229,7 +229,6 @@
                         </Private-Package>
                         <Export-Package>
                             !org.wso2.carbon.core.internal,
-                            !org.wso2.carbon.core.keystore.persistence,
                             org.wso2.carbon.core.*; version="${carbon.kernel.exp.pkg.version}",
                         </Export-Package>
                         <Import-Package>
