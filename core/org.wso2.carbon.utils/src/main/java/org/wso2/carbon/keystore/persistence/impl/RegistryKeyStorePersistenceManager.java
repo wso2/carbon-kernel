@@ -16,13 +16,14 @@
  * under the License.
  */
 
-package org.wso2.carbon.keystore.persistence;
+package org.wso2.carbon.keystore.persistence.impl;
 
 import org.apache.axiom.om.util.UUIDGenerator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.internal.OSGiDataHolder;
+import org.wso2.carbon.keystore.persistence.KeyStorePersistenceManager;
 import org.wso2.carbon.keystore.persistence.model.KeyStoreModel;
 import org.wso2.carbon.registry.api.Association;
 import org.wso2.carbon.registry.api.Collection;
@@ -37,14 +38,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.wso2.carbon.keystore.persistence.PersistenceManagerConstants.RegistryResources.KEY_STORES;
-import static org.wso2.carbon.keystore.persistence.PersistenceManagerConstants.RegistryResources.PRIMARY_KEYSTORE_PHANTOM_RESOURCE;
-import static org.wso2.carbon.keystore.persistence.PersistenceManagerConstants.RegistryResources.PROP_PASSWORD;
-import static org.wso2.carbon.keystore.persistence.PersistenceManagerConstants.RegistryResources.PROP_PRIVATE_KEY_ALIAS;
-import static org.wso2.carbon.keystore.persistence.PersistenceManagerConstants.RegistryResources.PROP_PRIVATE_KEY_PASS;
-import static org.wso2.carbon.keystore.persistence.PersistenceManagerConstants.RegistryResources.PROP_PROVIDER;
-import static org.wso2.carbon.keystore.persistence.PersistenceManagerConstants.RegistryResources.PROP_TYPE;
-import static org.wso2.carbon.keystore.persistence.PersistenceManagerConstants.RegistryResources.TENANT_PUBKEY_RESOURCE;
+import static org.wso2.carbon.keystore.persistence.constant.PersistenceManagerConstants.RegistryResources.KEY_STORES;
+import static org.wso2.carbon.keystore.persistence.constant.PersistenceManagerConstants.RegistryResources.PRIMARY_KEYSTORE_PHANTOM_RESOURCE;
+import static org.wso2.carbon.keystore.persistence.constant.PersistenceManagerConstants.RegistryResources.PROP_PASSWORD;
+import static org.wso2.carbon.keystore.persistence.constant.PersistenceManagerConstants.RegistryResources.PROP_PRIVATE_KEY_ALIAS;
+import static org.wso2.carbon.keystore.persistence.constant.PersistenceManagerConstants.RegistryResources.PROP_PRIVATE_KEY_PASS;
+import static org.wso2.carbon.keystore.persistence.constant.PersistenceManagerConstants.RegistryResources.PROP_PROVIDER;
+import static org.wso2.carbon.keystore.persistence.constant.PersistenceManagerConstants.RegistryResources.PROP_TYPE;
+import static org.wso2.carbon.keystore.persistence.constant.PersistenceManagerConstants.RegistryResources.TENANT_PUBKEY_RESOURCE;
 
 /**
  * This implementation handles the keystore storage/persistence related logics in the Registry.

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.keystore.persistence;
+package org.wso2.carbon.keystore.persistence.constant;
 
 /**
  * Constants used in the persistence manager.

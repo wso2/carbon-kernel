@@ -256,7 +256,8 @@
                         <Export-Package>
                             !org.wso2.carbon.utils.resolver,
                             org.wso2.carbon,
-                            org.wso2.carbon.keystore.persistence.*;
+                            org.wso2.carbon.keystore.persistence,
+                            org.wso2.carbon.keystore.persistence.model,
                             org.wso2.carbon.utils.*,
                             org.wso2.carbon.context,
                             !org.wso2.carbon.context.internal
@@ -265,6 +266,7 @@
                         <Private-Package>
                             org.wso2.carbon.context.internal,
                             org.wso2.carbon.utils.resolver,
+                            org.wso2.carbon.keystore.persistence.impl,
                         </Private-Package>
                         <Import-Package>
                             !org.wso2.carbon,

@@ -28,7 +28,8 @@ import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.core.security.KeyStoreMetadata;
-import org.wso2.carbon.keystore.persistence.RegistryKeyStorePersistenceManager;
+import org.wso2.carbon.keystore.persistence.KeyStorePersistenceManager;
+import org.wso2.carbon.keystore.persistence.KeyStorePersistenceManagerFactory;
 import org.wso2.carbon.keystore.persistence.model.KeyStoreModel;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -74,7 +75,7 @@ public class KeyStoreManager {
             new ConcurrentHashMap<String, KeyStoreManager>();
     private static Log log = LogFactory.getLog(KeyStoreManager.class);
 
-    private final RegistryKeyStorePersistenceManager registryKeyStorePersistenceManager;
+    private final KeyStorePersistenceManager keyStorePersistenceManager;
     private ConcurrentHashMap<String, KeyStoreBean> tenantKeyStores = null;
     private ConcurrentHashMap<String, KeyStore> customKeyStores = null;
     private int tenantId = MultitenantConstants.SUPER_TENANT_ID;
@@ -99,7 +100,7 @@ public class KeyStoreManager {
 
         this.serverConfigService = serverConfigService;
         this.registryService = registryService;
-        this.registryKeyStorePersistenceManager = new RegistryKeyStorePersistenceManager();
+        this.keyStorePersistenceManager = KeyStorePersistenceManagerFactory.getKeyStorePersistenceManager();
         tenantKeyStores = new ConcurrentHashMap<String, KeyStoreBean>();
         customKeyStores = new ConcurrentHashMap<String, KeyStore>();
         this.tenantId = tenantId;
@@ -253,7 +254,7 @@ public class KeyStoreManager {
         }
 
         keyStoreModel.setEncryptedPassword(encryptPassword(passwordChar));
-        registryKeyStorePersistenceManager.addKeystore(keyStoreModel);
+        keyStorePersistenceManager.addKeystore(keyStoreModel);
     }
 
     /**
@@ -273,7 +274,7 @@ public class KeyStoreManager {
         if (KeyStoreUtil.isTrustStore(keyStoreName)) {
             throw new SecurityException("Not allowed to delete the trust store : " + keyStoreName);
         }
-        registryKeyStorePersistenceManager.deleteKeyStore(keyStoreName, tenantId);
+        keyStorePersistenceManager.deleteKeyStore(keyStoreName, tenantId);
         deleteKeyStoreFromCache(keyStoreName);
     }
 
@@ -312,7 +313,7 @@ public class KeyStoreManager {
 
         CarbonUtils.checkSecurity();
         List<KeyStoreMetadata> metadataList = new ArrayList<>();
-        List<KeyStoreModel> keyStoreList = registryKeyStorePersistenceManager.listKeyStores(tenantId);
+        List<KeyStoreModel> keyStoreList = keyStorePersistenceManager.listKeyStores(tenantId);
         for (KeyStoreModel keyStoreModel : keyStoreList) {
             metadataList.add(getKeyStoreMetaDataFromKeyStoreModel(keyStoreModel));
         }
@@ -434,7 +435,7 @@ public class KeyStoreManager {
     private char[] getKeyStorePasswordAsCharArray(String keyStoreName) {
 
         String encryptedPassword =
-                registryKeyStorePersistenceManager.getEncryptedKeyStorePassword(keyStoreName, tenantId);
+                keyStorePersistenceManager.getEncryptedKeyStorePassword(keyStoreName, tenantId);
         return decryptPassword(encryptedPassword);
     }
 
@@ -504,7 +505,7 @@ public class KeyStoreManager {
             keyStoreModel.setName(keyStoreName);
             keyStoreModel.setContent(outputStream.toByteArray());
             keyStoreModel.setTenantId(tenantId);
-            registryKeyStorePersistenceManager.updateKeyStore(keyStoreModel);
+            keyStorePersistenceManager.updateKeyStore(keyStoreModel);
             updateTenantKeyStoreCache(keyStoreName, new KeyStoreBean(keyStore, new Date()));
         } catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
             throw new SecurityException("Error updating tenanted key store: " + keyStoreName, e);
@@ -564,7 +565,7 @@ public class KeyStoreManager {
             return tenantKeyStores.get(keyStoreName).getKeyStore();
         }
 
-        KeyStoreModel keyStoreModel = registryKeyStorePersistenceManager.getKeyStore(keyStoreName, tenantId);
+        KeyStoreModel keyStoreModel = keyStorePersistenceManager.getKeyStore(keyStoreName, tenantId);
 
         char[] passwordChar = new char[0];
         try {
@@ -574,7 +575,7 @@ public class KeyStoreManager {
             ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
             keyStore.load(stream, passwordChar);
             KeyStoreBean keyStoreBean = new KeyStoreBean(keyStore,
-                    registryKeyStorePersistenceManager.getKeyStoreLastModifiedDate(keyStoreName, tenantId));
+                    keyStorePersistenceManager.getKeyStoreLastModifiedDate(keyStoreName, tenantId));
             updateTenantKeyStoreCache(keyStoreName, keyStoreBean);
             return keyStore;
         } catch (KeyStoreException | NoSuchProviderException | IOException | CertificateException |
@@ -765,7 +766,7 @@ public class KeyStoreManager {
         try {
             KeyStore keyStore = getTenantKeyStore(keyStoreName);
             String encryptedPrivateKeyPassword =
-                    registryKeyStorePersistenceManager.getEncryptedPrivateKeyPassword(keyStoreName, tenantId);
+                    keyStorePersistenceManager.getEncryptedPrivateKeyPassword(keyStoreName, tenantId);
             privateKeyPasswordChar = decryptPassword(encryptedPrivateKeyPassword);
             return (PrivateKey) keyStore.getKey(alias, privateKeyPasswordChar);
         } finally {
@@ -879,7 +880,7 @@ public class KeyStoreManager {
 
         if (tenantKeyStores.containsKey(keyStoreName)) {
             Date keyStoreLastModifiedDateFromStorage =
-                    registryKeyStorePersistenceManager.getKeyStoreLastModifiedDate(keyStoreName, tenantId);
+                    keyStorePersistenceManager.getKeyStoreLastModifiedDate(keyStoreName, tenantId);
             KeyStoreBean keyStoreBean = tenantKeyStores.get(keyStoreName);
             return keyStoreBean.getLastModifiedDate().equals(keyStoreLastModifiedDateFromStorage);
         }
