@@ -197,6 +197,11 @@
             <scope>test</scope>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.utils</groupId>
+            <artifactId>org.wso2.carbon.database.utils</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

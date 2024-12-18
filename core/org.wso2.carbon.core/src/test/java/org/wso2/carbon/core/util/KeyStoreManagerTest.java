@@ -31,6 +31,7 @@ import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.session.UserRegistry;
+import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.security.KeystoreUtils;
 
 import java.io.File;
@@ -70,6 +71,8 @@ public class KeyStoreManagerTest {
     private Resource resource;
     @Mock
     private CryptoUtil cryptoUtil;
+
+    MockedStatic<CarbonUtils> carbonUtils;
     private KeyStoreManager keyStoreManager;
     private KeyStore keyStore;
 
@@ -79,6 +82,10 @@ public class KeyStoreManagerTest {
         initMocks(this);
         System.setProperty(CarbonBaseConstants.CARBON_HOME,
                 Paths.get(System.getProperty("user.dir"), "src", "test", "resources").toString());
+        carbonUtils = mockStatic(CarbonUtils.class);
+        carbonUtils.when(CarbonUtils::getServerConfiguration).thenReturn(this.serverConfiguration);
+        when(this.serverConfiguration.getFirstProperty("KeyStoreDataPersistenceManager.DataStorageType")).
+                thenReturn("registry");
 
         OSGiDataHolder.getInstance().setRegistryService(this.registryService);
         when(this.registryService.getGovernanceSystemRegistry(anyInt())).thenReturn(this.registry);
