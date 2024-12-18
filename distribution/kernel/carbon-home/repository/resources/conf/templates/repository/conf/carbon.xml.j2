@@ -890,9 +890,18 @@
     </UserStore>
 
     <KeyStoreDataPersistenceManager>
-        <!-- Keystore Data Storage Type (database/hybrid)-->
-        <DataStorageType>{{keystores.data_storage_type}}</DataStorageType>
+        <!--
+            This section provide the ability to configure the storage type for the keystores that used to store data in the
+            registry in IS 7.0.0 or earlier.
+
+            Applicable values:
+                - "database" - Data will be store in tables in the specified tables in the identity database.
+                - "hybrid"   - Any new changes stored in "database" and any existing data read from "registry" allowing data to
+                                on-demand migrate.
+                Default value is "database".
+        -->
+        <DataStorageType>{{data_storage_type.keystores}}</DataStorageType>
         <!-- Include a data source name from the set of data sources defined in master-datasources.xml -->
-        <DataSourceName>{{keystore_data.datasource}}</DataSourceName>
+        <DataSourceName>{{keystore.datasource}}</DataSourceName>
     </KeyStoreDataPersistenceManager>
 </Server>
