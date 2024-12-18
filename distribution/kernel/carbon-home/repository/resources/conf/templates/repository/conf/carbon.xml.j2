@@ -529,7 +529,6 @@
             <Type>{{keystore.tenant.type}}</Type>
         </TenantKeyStore>
 
-
         <!--
             The KeyStore which is used for encrypting/decrypting internal data.
             This block is read by Carbon Crypto Service.
@@ -889,4 +888,11 @@
         <maxConnectionRetryCount>{{user_store_commons.max_connection_retry_count}}</maxConnectionRetryCount>
         <minConnectionRetryDelayInMilliSeconds>{{user_store_commons.min_connection_retry_delay_in_milli_seconds}}</minConnectionRetryDelayInMilliSeconds>
     </UserStore>
+
+    <KeyStoreDataPersistenceManager>
+        <!-- Keystore Data Storage Type (database/hybrid)-->
+        <DataStorageType>{{keystores.data_storage_type}}</DataStorageType>
+        <!-- Include a data source name from the set of data sources defined in master-datasources.xml -->
+        <DataSourceName>{{keystore_data.datasource}}</DataSourceName>
+    </KeyStoreDataPersistenceManager>
 </Server>

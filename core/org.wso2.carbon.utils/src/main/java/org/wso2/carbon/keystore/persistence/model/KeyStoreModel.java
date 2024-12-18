@@ -30,7 +30,6 @@ public class KeyStoreModel {
     String privateKeyAlias;
     String encryptedPrivateKeyPass;
     byte[] content;
-    int tenantId;
     String publicCertId;
     byte[] publicCert;
 
@@ -39,8 +38,7 @@ public class KeyStoreModel {
     }
 
     public KeyStoreModel(String name, String type, String provider, String encryptedPassword, String privateKeyAlias,
-                         String encryptedPrivateKeyPass, byte[] content, int tenantId, String publicCertId,
-                         byte[] publicCert) {
+                         String encryptedPrivateKeyPass, byte[] content, String publicCertId, byte[] publicCert) {
 
         this.name = name;
         this.type = type;
@@ -49,7 +47,6 @@ public class KeyStoreModel {
         this.privateKeyAlias = privateKeyAlias;
         this.encryptedPrivateKeyPass = encryptedPrivateKeyPass;
         this.content = content;
-        this.tenantId = tenantId;
         this.publicCertId = publicCertId;
         this.publicCert = publicCert;
     }
@@ -92,16 +89,6 @@ public class KeyStoreModel {
     public void setProvider(String provider) {
 
         this.provider = provider;
-    }
-
-    public int getTenantId() {
-
-        return tenantId;
-    }
-
-    public void setTenantId(int tenantId) {
-
-        this.tenantId = tenantId;
     }
 
     public byte[] getContent() {

@@ -21,6 +21,7 @@ package org.wso2.carbon.keystore.persistence;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.keystore.persistence.impl.JDBCKeyStorePersistenceManager;
 import org.wso2.carbon.keystore.persistence.impl.RegistryKeyStorePersistenceManager;
 import org.wso2.carbon.utils.CarbonUtils;
 
@@ -31,7 +32,7 @@ public class KeyStorePersistenceManagerFactory {
 
     private static final Log LOG = LogFactory.getLog(KeyStorePersistenceManagerFactory.class);
     private static final String KEYSTORE_STORAGE_TYPE =
-            CarbonUtils.getServerConfiguration().getFirstProperty("Security.KeyStores.DataStorageType");
+            CarbonUtils.getServerConfiguration().getFirstProperty("KeyStoreDataPersistenceManager.DataStorageType");
     private static final String REGISTRY = "registry";
     private static final String HYBRID = "hybrid";
     private static final String DATABASE = "database";
@@ -42,15 +43,25 @@ public class KeyStorePersistenceManagerFactory {
 
     public static KeyStorePersistenceManager getKeyStorePersistenceManager() {
 
-        KeyStorePersistenceManager defaultKeyStorePersistenceManager = new RegistryKeyStorePersistenceManager();
+        KeyStorePersistenceManager defaultKeyStorePersistenceManager = new JDBCKeyStorePersistenceManager();
         if (StringUtils.isNotBlank(KEYSTORE_STORAGE_TYPE)) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("KeyStore storage type is set to: " + KEYSTORE_STORAGE_TYPE);
             }
             switch (KEYSTORE_STORAGE_TYPE) {
                 case REGISTRY:
+                    LOG.warn("Registry based KeyStore persistence manager was initialized");
                     return new RegistryKeyStorePersistenceManager();
+                case DATABASE:
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Database based KeyStore persistence manager was initialized");
+                    }
+                    return defaultKeyStorePersistenceManager;
                 default:
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("KeyStore storage type is not properly set. Defaulting to the Default KeyStore " +
+                                "Persistence Manager.");
+                    }
                     return defaultKeyStorePersistenceManager;
             }
         }

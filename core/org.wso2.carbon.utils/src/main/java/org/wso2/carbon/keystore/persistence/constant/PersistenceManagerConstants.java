@@ -27,6 +27,8 @@ public class PersistenceManagerConstants {
 
     }
 
+    public static final String KEYSTORE_SCHEMA_VERSION = "1.0.0";
+
     public static class RegistryResources {
 
         private RegistryResources() {
@@ -45,4 +47,53 @@ public class PersistenceManagerConstants {
         public static final String TENANT_PUBKEY_RESOURCE = ROOT + "security/pub-key";
     }
 
+    public static class KeyStoreTableColumns {
+
+        private KeyStoreTableColumns() {
+
+        }
+
+        public static final String ID = "ID";
+        public static final String NAME = "NAME";
+        public static final String TYPE = "TYPE";
+        public static final String PROVIDER = "PROVIDER";
+        public static final String PASSWORD = "PASSWORD";
+        public static final String PRIVATE_KEY_ALIAS = "PRIVATE_KEY_ALIAS";
+        public static final String PRIVATE_KEY_PASS = "PRIVATE_KEY_PASS";
+        public static final String CONTENT = "CONTENT";
+        public static final String PUB_CERT_ID = "PUB_CERT_ID";
+        public static final String TENANT_ID = "TENANT_ID";
+        public static final String VERSION = "VERSION";
+        public static final String CREATED_AT = "CREATED_AT";
+        public static final String UPDATED_AT = "UPDATED_AT";
+    }
+
+    public static class SqlQueries {
+
+        private SqlQueries() {
+
+        }
+
+        public static final String ADD_KEY_STORE = "INSERT INTO KEY_STORE (NAME, TYPE, PROVIDER, PASSWORD, " +
+                "PRIVATE_KEY_ALIAS, PRIVATE_KEY_PASS, CONTENT, PUB_CERT_ID, TENANT_ID, VERSION, CREATED_AT, " +
+                "UPDATED_AT) VALUES (:NAME;, :TYPE;, :PROVIDER;, :PASSWORD;, :PRIVATE_KEY_ALIAS;, " +
+                ":PRIVATE_KEY_PASS;, :CONTENT;, :PUB_CERT_ID;, :TENANT_ID;, :VERSION;, :CREATED_AT;, :UPDATED_AT;);";
+        public static final String GET_KEY_STORE = "SELECT NAME, TYPE, PROVIDER, PASSWORD, PRIVATE_KEY_ALIAS, " +
+                "PRIVATE_KEY_PASS, CONTENT, PUB_CERT_ID  FROM KEY_STORE WHERE " +
+                "NAME = :NAME; AND TENANT_ID = :TENANT_ID;";
+        public static final String IS_KEYSTORE_EXISTS =
+                "SELECT ID FROM KEY_STORE WHERE NAME = :NAME; AND TENANT_ID = :TENANT_ID;";
+        public static final String LIST_KEY_STORES = "SELECT NAME, TYPE, PROVIDER, PASSWORD, PRIVATE_KEY_ALIAS, " +
+                "PRIVATE_KEY_PASS, CONTENT, PUB_CERT_ID  FROM KEY_STORE WHERE TENANT_ID = :TENANT_ID;";
+        public static final String UPDATE_KEY_STORE = "UPDATE KEY_STORE SET CONTENT = :CONTENT;, " +
+                "UPDATED_AT = :UPDATED_AT; WHERE NAME = :NAME; AND TENANT_ID = :TENANT_ID;";
+        public static final String DELETE_KEY_STORE =
+                "DELETE FROM KEY_STORE WHERE NAME = :NAME; AND TENANT_ID = :TENANT_ID;";
+        public static final String GET_KEY_STORE_LAST_UPDATED_TIME =
+                "SELECT UPDATED_AT FROM KEY_STORE WHERE NAME = :NAME; AND TENANT_ID = :TENANT_ID;";
+        public static final String GET_ENCRYPTED_KEY_STORE_PASSWORD =
+                "SELECT PASSWORD FROM KEY_STORE WHERE NAME = :NAME; AND TENANT_ID = :TENANT_ID;";
+        public static final String GET_ENCRYPTED_PRIVATE_KEY_PASSWORD =
+                "SELECT PRIVATE_KEY_PASS FROM KEY_STORE WHERE NAME = :NAME; AND TENANT_ID = :TENANT_ID;";
+    }
 }

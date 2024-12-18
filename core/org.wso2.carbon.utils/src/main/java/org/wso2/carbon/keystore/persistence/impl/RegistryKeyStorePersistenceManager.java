@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static org.wso2.carbon.keystore.persistence.constant.PersistenceManagerConstants.RegistryResources.KEY_STORES;
 import static org.wso2.carbon.keystore.persistence.constant.PersistenceManagerConstants.RegistryResources.PRIMARY_KEYSTORE_PHANTOM_RESOURCE;
@@ -57,23 +58,17 @@ public class RegistryKeyStorePersistenceManager implements KeyStorePersistenceMa
     private static final String ASSOCIATION_TENANT_KS_PUB_KEY = "assoc.tenant.ks.pub.key";
     private static final String PROP_TENANT_PUB_KEY_FILE_NAME_APPENDER = "tenant.pub.key.file.name.appender";
 
-    /**
-     * Add the key store to the registry.
-     *
-     * @param keyStoreModel KeyStore model object.
-     * @throws SecurityException If an error occurs while adding the key store.
-     */
-    public void addKeystore(KeyStoreModel keyStoreModel) throws SecurityException {
+    @Override
+    public void addKeystore(KeyStoreModel keyStoreModel, int tenantId) throws SecurityException {
 
-        Registry registry = getGovernanceRegistry(keyStoreModel.getTenantId());
+        Registry registry = getGovernanceRegistry(tenantId);
         if (isKeyStoreExistsInRegistry(keyStoreModel.getName(), registry)) {
             throw new SecurityException("Key store " + keyStoreModel.getName() + " already available");
         }
 
         boolean isTenantPrimaryKeyStore = false;
         try {
-            if (keyStoreModel.getTenantId() != MultitenantConstants.SUPER_TENANT_ID &&
-                    !registry.resourceExists(KEY_STORES)) {
+            if (tenantId != MultitenantConstants.SUPER_TENANT_ID && !registry.resourceExists(KEY_STORES)) {
                 isTenantPrimaryKeyStore = true;
             }
 
@@ -138,15 +133,8 @@ public class RegistryKeyStorePersistenceManager implements KeyStorePersistenceMa
         return uuid.substring(uuid.length() - 6, uuid.length() - 1);
     }
 
-    /**
-     * Get the key store from the registry.
-     *
-     * @param keyStoreName Name of the key store.
-     * @param tenantId     Tenant Id.
-     * @return Key store.
-     * @throws SecurityException If an error occurs while getting the key store.
-     */
-    public KeyStoreModel getKeyStore(String keyStoreName, int tenantId) throws SecurityException {
+    @Override
+    public Optional<KeyStoreModel> getKeyStore(String keyStoreName, int tenantId) throws SecurityException {
 
         Registry registry = getGovernanceRegistry(tenantId);
         if (!isKeyStoreExistsInRegistry(keyStoreName, registry)) {
@@ -161,10 +149,16 @@ public class RegistryKeyStorePersistenceManager implements KeyStorePersistenceMa
             keyStoreModel.setContent((byte[]) resource.getContent());
             keyStoreModel.setEncryptedPassword(resource.getProperty(PROP_PASSWORD));
             resource.discard();
-            return keyStoreModel;
+            return Optional.of(keyStoreModel);
         } catch (RegistryException e) {
             throw new SecurityException("Error getting key store: " + keyStoreName, e);
         }
+    }
+
+    @Override
+    public boolean isKeyStoreExists(String keyStoreName, int tenantId) throws SecurityException {
+
+        return isKeyStoreExistsInRegistry(keyStoreName, getGovernanceRegistry(tenantId));
     }
 
     private String getKeyStorePath(String keyStoreName) {
@@ -172,13 +166,7 @@ public class RegistryKeyStorePersistenceManager implements KeyStorePersistenceMa
         return KEY_STORES + REGISTRY_PATH_SEPARATOR + keyStoreName;
     }
 
-    /**
-     * Method to retrieve list of keystore metadata of all the keystores in a tenant.
-     *
-     * @param tenantId Tenant Id.
-     * @return List of KeyStoreMetaData objects.
-     * @throws SecurityException If an error occurs while retrieving the keystore data.
-     */
+    @Override
     public List<KeyStoreModel> listKeyStores(int tenantId) throws SecurityException {
 
         Registry registry = getGovernanceRegistry(tenantId);
@@ -231,14 +219,10 @@ public class RegistryKeyStorePersistenceManager implements KeyStorePersistenceMa
         return keyStoreModel;
     }
 
-    /**
-     * Update the key store in the registry.
-     *
-     * @param keyStoreModel Key store model.
-     */
-    public void updateKeyStore(KeyStoreModel keyStoreModel) {
+    @Override
+    public void updateKeyStore(KeyStoreModel keyStoreModel, int tenantId) throws SecurityException {
 
-        Registry registry = getGovernanceRegistry(keyStoreModel.getTenantId());
+        Registry registry = getGovernanceRegistry(tenantId);
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             String path = getKeyStorePath(keyStoreModel.getName());
             Resource resource = registry.get(path);
@@ -250,13 +234,7 @@ public class RegistryKeyStorePersistenceManager implements KeyStorePersistenceMa
         }
     }
 
-    /**
-     * Delete the key store from the registry.
-     *
-     * @param keyStoreName Name of the key store.
-     * @param tenantId     Tenant Id.
-     * @throws SecurityException If an error occurs while deleting the key store.
-     */
+    @Override
     public void deleteKeyStore(String keyStoreName, int tenantId) throws SecurityException {
 
         Registry registry = getGovernanceRegistry(tenantId);
@@ -272,13 +250,7 @@ public class RegistryKeyStorePersistenceManager implements KeyStorePersistenceMa
         }
     }
 
-    /**
-     * Get the last modified date of the key store.
-     *
-     * @param keyStoreName Key store name.
-     * @param tenantId     Tenant Id.
-     * @return Last modified date of the key store.
-     */
+    @Override
     public Date getKeyStoreLastModifiedDate(String keyStoreName, int tenantId) {
 
         Registry registry = getGovernanceRegistry(tenantId);
@@ -290,13 +262,7 @@ public class RegistryKeyStorePersistenceManager implements KeyStorePersistenceMa
         }
     }
 
-    /**
-     * Get the encrypted password for the given key store name.
-     *
-     * @param keyStoreName Key store name.
-     * @return KeyStore Password.
-     * @throws SecurityException If there is an error while getting the key store password.
-     */
+    @Override
     public String getEncryptedKeyStorePassword(String keyStoreName, int tenantId) throws SecurityException {
 
         Registry registry = getGovernanceRegistry(tenantId);
@@ -312,14 +278,7 @@ public class RegistryKeyStorePersistenceManager implements KeyStorePersistenceMa
         }
     }
 
-    /**
-     * Get the private key password as a character array for the given key store name.
-     *
-     * @param keyStoreName Key store name.
-     * @param tenantId     Tenant Id.
-     * @return Private key password as a character array.
-     * @throws SecurityException If an error occurs while getting the private key password.
-     */
+    @Override
     public String getEncryptedPrivateKeyPassword(String keyStoreName, int tenantId) throws SecurityException {
 
         Registry registry = getGovernanceRegistry(tenantId);

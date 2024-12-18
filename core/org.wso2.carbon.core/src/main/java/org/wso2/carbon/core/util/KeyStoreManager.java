@@ -18,6 +18,7 @@
 package org.wso2.carbon.core.util;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.axis2.util.UUIDGenerator;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.logging.Log;
@@ -32,6 +33,7 @@ import org.wso2.carbon.keystore.persistence.KeyStorePersistenceManager;
 import org.wso2.carbon.keystore.persistence.KeyStorePersistenceManagerFactory;
 import org.wso2.carbon.keystore.persistence.model.KeyStoreModel;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.security.KeystoreUtils;
@@ -58,6 +60,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -220,7 +223,8 @@ public class KeyStoreManager {
         if (StringUtils.isBlank(filename)) {
             throw new SecurityException(KEY_STORE_NAME_NULL_ERROR);
         }
-        if (KeyStoreUtil.isPrimaryStore(filename) || KeyStoreUtil.isTrustStore(filename)) {
+        if (KeyStoreUtil.isPrimaryStore(filename) || KeyStoreUtil.isTrustStore(filename) ||
+                keyStorePersistenceManager.isKeyStoreExists(filename, tenantId)) {
             throw new SecurityException("Key store " + filename + " already available");
         }
 
@@ -229,7 +233,6 @@ public class KeyStoreManager {
         keyStoreModel.setContent(keystoreContent);
         keyStoreModel.setType(type);
         keyStoreModel.setProvider(provider);
-        keyStoreModel.setTenantId(tenantId);
 
         try (InputStream inputStream = new ByteArrayInputStream(keystoreContent)) {
             KeyStore keyStore = KeystoreUtils.getKeystoreInstance(type);
@@ -237,10 +240,12 @@ public class KeyStoreManager {
             String pvtKeyAlias = KeyStoreUtil.getPrivateKeyAlias(keyStore);
             if (StringUtils.isNotBlank(pvtKeyAlias)) {
                 keyStoreModel.setPrivateKeyAlias(pvtKeyAlias);
-                byte[] publicCert = keyStore.getCertificate(pvtKeyAlias).getEncoded();
-
-                if (publicCert != null) {
-                    keyStoreModel.setPublicCert(publicCert);
+                if (isTenantPrimaryKeyStore(filename)) {
+                    byte[] publicCert = keyStore.getCertificate(pvtKeyAlias).getEncoded();
+                    if (publicCert != null) {
+                        keyStoreModel.setPublicCert(publicCert);
+                        keyStoreModel.setPublicCertId(generatePublicCertId());
+                    }
                 }
                 if (ArrayUtils.isNotEmpty(privateKeyPasswordChar)) {
                     // Check weather private key password is correct.
@@ -254,7 +259,7 @@ public class KeyStoreManager {
         }
 
         keyStoreModel.setEncryptedPassword(encryptPassword(passwordChar));
-        keyStorePersistenceManager.addKeystore(keyStoreModel);
+        keyStorePersistenceManager.addKeystore(keyStoreModel, tenantId);
     }
 
     /**
@@ -504,8 +509,7 @@ public class KeyStoreManager {
             outputStream.flush();
             keyStoreModel.setName(keyStoreName);
             keyStoreModel.setContent(outputStream.toByteArray());
-            keyStoreModel.setTenantId(tenantId);
-            keyStorePersistenceManager.updateKeyStore(keyStoreModel);
+            keyStorePersistenceManager.updateKeyStore(keyStoreModel, tenantId);
             updateTenantKeyStoreCache(keyStoreName, new KeyStoreBean(keyStore, new Date()));
         } catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
             throw new SecurityException("Error updating tenanted key store: " + keyStoreName, e);
@@ -565,7 +569,13 @@ public class KeyStoreManager {
             return tenantKeyStores.get(keyStoreName).getKeyStore();
         }
 
-        KeyStoreModel keyStoreModel = keyStorePersistenceManager.getKeyStore(keyStoreName, tenantId);
+        Optional<KeyStoreModel> keyStoreResult = keyStorePersistenceManager.getKeyStore(keyStoreName, tenantId);
+        KeyStoreModel keyStoreModel;
+        if (keyStoreResult.isPresent()) {
+            keyStoreModel = keyStoreResult.get();
+        } else {
+            throw new SecurityException("Key Store with a name: " + keyStoreName + " does not exist.");
+        }
 
         char[] passwordChar = new char[0];
         try {
@@ -654,7 +664,7 @@ public class KeyStoreManager {
             throw new CarbonException(String.format(PERMISSION_DENIED_ERROR, "trust store", "trust store"));
         }
     }
-    
+
     /**
      * Load the register key store, this is allowed only for the super tenant
      *
@@ -936,7 +946,20 @@ public class KeyStoreManager {
 
         if (StringUtils.isNotBlank(publicCertId)) {
             metadata.setPublicCertId(keyStoreModel.getPublicCertId());
-            metadata.setPublicCert(keyStoreModel.getPublicCert());
+            if (keyStoreModel.getPublicCert() != null) {
+                metadata.setPublicCert(keyStoreModel.getPublicCert());
+            } else {
+                byte[] keystoreContent = keyStoreModel.getContent();
+                try (InputStream inputStream = new ByteArrayInputStream(keystoreContent)) {
+                    KeyStore keyStore = KeyStore.getInstance(keyStoreModel.getType());
+                    keyStore.load(inputStream, decryptPassword(keyStoreModel.getEncryptedPassword()));
+                    X509Certificate publicCert =
+                            (X509Certificate) keyStore.getCertificate(keyStoreModel.getPrivateKeyAlias());
+                    metadata.setPublicCert(publicCert.getEncoded());
+                } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {
+                    throw new SecurityException("Error getting public cert from keystore", e);
+                }
+            }
         }
         return metadata;
     }
@@ -975,5 +998,48 @@ public class KeyStoreManager {
     private static void clearPasswordCharArray(char[] passwordChar) {
 
         Arrays.fill(passwordChar, '\0');
+    }
+
+    private static String generatePublicCertId() {
+
+        String uuid = UUIDGenerator.getUUID();
+        return uuid.substring(uuid.length() - 6, uuid.length() - 1);
+    }
+
+    /**
+     * This method checks whether the given key store is the given tenant's primary key store.
+     *
+     * @param keyStoreName Name of the key store.
+     * @return true if the given key store is the given tenant's primary key store.
+     */
+    private boolean isTenantPrimaryKeyStore(String keyStoreName) {
+
+        if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
+            return false;
+        } else return StringUtils.equals(keyStoreName, generateTenantPrimaryKeyStoreName());
+    }
+
+    /**
+     * This method generates the tenant primary key store name using the tenant domain.
+     *
+     * @return tenant primary key store name.
+     */
+    private String generateTenantPrimaryKeyStoreName() {
+
+        String ksName = getTenantDomainName().trim().replace(".", "-");
+        return (ksName + KeystoreUtils.getExtensionByFileType(KeystoreUtils.StoreFileType.defaultFileType()));
+    }
+
+    private String getTenantDomainName() throws SecurityException {
+
+        try {
+            RealmService realmService = CarbonCoreDataHolder.getInstance().getRealmService();
+            if (realmService == null) {
+                throw new SecurityException("Error in getting the domain name, realm service is null.");
+            }
+            return realmService.getTenantManager().getDomain(tenantId);
+        } catch (Exception e) {
+            throw new SecurityException("Error in getting the domain name for the tenant id: " + tenantId, e);
+        }
     }
 }

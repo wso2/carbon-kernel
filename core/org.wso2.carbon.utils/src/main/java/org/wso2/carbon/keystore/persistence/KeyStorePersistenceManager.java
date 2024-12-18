@@ -22,6 +22,7 @@ import org.wso2.carbon.keystore.persistence.model.KeyStoreModel;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * This interface supports the persistence/storage related logics of key stores.
@@ -32,9 +33,10 @@ public interface KeyStorePersistenceManager {
      * Add the key store to the data storage.
      *
      * @param keyStoreModel Key store model.
+     * @param tenantId      Tenant Id.
      * @throws SecurityException If an error occurs while adding the key store.
      */
-    void addKeystore(KeyStoreModel keyStoreModel) throws SecurityException;
+    void addKeystore(KeyStoreModel keyStoreModel, int tenantId) throws SecurityException;
 
     /**
      * Get the key store from the data storage.
@@ -44,7 +46,17 @@ public interface KeyStorePersistenceManager {
      * @return Key store model.
      * @throws SecurityException If an error occurs while getting the key store.
      */
-    KeyStoreModel getKeyStore(String keyStoreName, int tenantId) throws SecurityException;
+    Optional<KeyStoreModel> getKeyStore(String keyStoreName, int tenantId) throws SecurityException;
+
+    /**
+     * Check whether the given keystore exists or not.
+     *
+     * @param keyStoreName Key store name.
+     * @param tenantId     Tenant ID.
+     * @return whether the tenant primary keystore exists or not.
+     * @throws SecurityException If an error occurs.
+     */
+    boolean isKeyStoreExists(String keyStoreName, int tenantId) throws SecurityException;
 
     /**
      * Method to retrieve list of keystore metadata of all the keystores in a tenant.
@@ -59,8 +71,9 @@ public interface KeyStorePersistenceManager {
      * Update the key store in the data storage.
      *
      * @param keyStoreModel Key store model.
+     * @param tenantId      Tenant Id.
      */
-    void updateKeyStore(KeyStoreModel keyStoreModel);
+    void updateKeyStore(KeyStoreModel keyStoreModel, int tenantId) throws SecurityException;
 
     /**
      * Delete the key store from the data storage.
