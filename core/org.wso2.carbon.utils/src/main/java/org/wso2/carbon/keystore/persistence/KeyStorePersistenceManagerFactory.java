@@ -21,7 +21,6 @@ package org.wso2.carbon.keystore.persistence;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.keystore.persistence.impl.JDBCKeyStorePersistenceManager;
 import org.wso2.carbon.keystore.persistence.impl.RegistryKeyStorePersistenceManager;
 import org.wso2.carbon.utils.CarbonUtils;
 
@@ -43,7 +42,7 @@ public class KeyStorePersistenceManagerFactory {
 
     public static KeyStorePersistenceManager getKeyStorePersistenceManager() {
 
-        KeyStorePersistenceManager defaultKeyStorePersistenceManager = new JDBCKeyStorePersistenceManager();
+        KeyStorePersistenceManager defaultKeyStorePersistenceManager = new RegistryKeyStorePersistenceManager();
         if (StringUtils.isNotBlank(KEYSTORE_STORAGE_TYPE)) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("KeyStore storage type is set to: " + KEYSTORE_STORAGE_TYPE);

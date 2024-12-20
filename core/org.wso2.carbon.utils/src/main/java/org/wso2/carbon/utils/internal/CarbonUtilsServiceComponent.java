@@ -1,5 +1,6 @@
 package org.wso2.carbon.utils.internal;
 
+import org.apache.commons.lang3.StringUtils;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -25,7 +26,11 @@ public class CarbonUtilsServiceComponent {
         ctx.getBundleContext().registerService(GhostMetaArtifactsLoader.class.getName(), serviceMetaArtifactsLoader, null);
         // Read and set diagnostic logs config.
         CarbonUtils.setDiagnosticLogMode(PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId());
-        CarbonUtilsDataHolder.getInstance().setDataSource(getKeyStoreDataSource());
+        DataSource dataSource = getKeyStoreDataSource();
+        if (dataSource == null) {
+            throw new RuntimeException("Data source is not available for KeyStore Data Persistence Manager.");
+        }
+        CarbonUtilsDataHolder.getInstance().setDataSource(dataSource);
     }
 
     @Reference(name = "org.wso2.carbon.utils.ConfigurationContextService", cardinality = ReferenceCardinality.MANDATORY,
@@ -42,7 +47,7 @@ public class CarbonUtilsServiceComponent {
 
         String dataSourceName = CarbonUtils.getServerConfiguration().getFirstProperty(
                 "KeyStoreDataPersistenceManager.DataSourceName");
-        if (dataSourceName != null) {
+        if (StringUtils.isNotBlank(dataSourceName)) {
             try {
                 return InitialContext.doLookup(dataSourceName);
             } catch (NamingException e) {

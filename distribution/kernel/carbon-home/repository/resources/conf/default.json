@@ -251,6 +251,6 @@
   "database.registry_db.pool_options.validationInterval" : "30000",
   "database.registry_db.pool_options.defaultAutoCommit" : "true",
   "admin_console.resolve_absolute_urls.enable": true,
-  "data_storage_type.keystores": "database",
+  "data_storage_type.keystores": "registry",
   "keystore.datasource": "jdbc/SHARED_DB"
 }

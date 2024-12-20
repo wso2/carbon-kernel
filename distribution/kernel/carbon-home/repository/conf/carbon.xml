@@ -749,7 +749,7 @@
 
     <KeyStoreDataPersistenceManager>
         <!-- Keystore data storage type-->
-        <DataStorageType>database</DataStorageType>
+        <DataStorageType>registry</DataStorageType>
         <!-- Include a data source name from the set of data sources defined in master-datasources.xml -->
         <DataSourceName>jdbc/SHARED_DB</DataSourceName>
     </KeyStoreDataPersistenceManager>
