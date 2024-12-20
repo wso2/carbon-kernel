@@ -13794,6 +13794,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return null;
         } else {
             if (StringUtils.isEmpty(userID)) {
+                // Return null for the system user to prevent redundant DB queries, as it would return null anyway.
+                if (UserCoreUtil.isRegistrySystemUser(userName)) {
+                    return null;
+                }
                 if (isUniqueUserIdEnabledInUserStore(userStore)) {
                     userID = doGetUserIDFromUserNameWithID(userName);
                     if (StringUtils.isEmpty(userID)) {
