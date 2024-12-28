@@ -41,7 +41,6 @@ public class KeystoreUtils {
 
     private static Log LOG = LogFactory.getLog(KeystoreUtils.class);
     private static final String FALLBACK_TENANTED_KEYSTORE_FILE_TYPE = "JKS";
-    private static final String KEY_STORES = "/repository/security/key-stores";
     private static final KeyStorePersistenceManager keyStorePersistenceManager =
             KeyStorePersistenceManagerFactory.getKeyStorePersistenceManager();
 
@@ -143,22 +142,24 @@ public class KeystoreUtils {
      */
     public static String getKeyStoreFileType(String tenantDomain) {
 
-        String keystoreType = CarbonUtils.getServerConfiguration().getFirstProperty("Security.KeyStore.Type");
-        try {
-            StoreFileType.validateFileType(keystoreType);
-        } catch (CarbonException e) {
-            LOG.error("Unsupported file type for key store file", e);
-        }
-
+        String keystoreType;
         if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
+            keystoreType = CarbonUtils.getServerConfiguration().getFirstProperty("Security.KeyStore.Type");
+            try {
+                StoreFileType.validateFileType(keystoreType);
+            } catch (CarbonException e) {
+                LOG.error("Unsupported file type for key store file", e);
+            }
             return keystoreType;
+        } else {
+            keystoreType = StoreFileType.defaultFileType();
+            String ksName = tenantDomain.trim().replace(".", "-");
+            String ksExtension = getExtensionByFileType(keystoreType);
+            if (StoreFileType.PKCS12.name().equals(keystoreType) && isKeyStoreExists(ksName + ksExtension)) {
+                return keystoreType;
+            }
+            return FALLBACK_TENANTED_KEYSTORE_FILE_TYPE;
         }
-
-        String ksName = tenantDomain.trim().replace(".", "-");
-        if (isKeyStoreExists(ksName + getExtensionByFileType(keystoreType))) {
-            return keystoreType;
-        }
-        return StoreFileType.JKS.name();
     }
 
     /**
