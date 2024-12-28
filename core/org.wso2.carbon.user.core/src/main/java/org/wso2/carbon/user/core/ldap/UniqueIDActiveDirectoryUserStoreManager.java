@@ -262,10 +262,16 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
                     dirContext.unbind(compoundName);
                 } catch (NamingException e1) {
                     errorMessage = "Error while accessing the Active Directory for user : " + userName;
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(errorMessage, e);
+                    }
                     throw new UserStoreException(errorMessage, e);
                 }
                 errorMessage = "Error while enabling the user account. Please check password policy at DC for user : "
                         + userName;
+            }
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
         } finally {

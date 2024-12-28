@@ -13,7 +13,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel</artifactId>
-        <version>4.10.26-SNAPSHOT</version>
+        <version>4.10.31-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -237,6 +237,11 @@
             <groupId>org.wso2.orbit.org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.utils</groupId>
+            <artifactId>org.wso2.carbon.database.utils</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <properties>
@@ -256,6 +261,8 @@
                         <Export-Package>
                             !org.wso2.carbon.utils.resolver,
                             org.wso2.carbon,
+                            org.wso2.carbon.keystore.persistence,
+                            org.wso2.carbon.keystore.persistence.model,
                             org.wso2.carbon.utils.*,
                             org.wso2.carbon.context,
                             !org.wso2.carbon.context.internal
@@ -264,16 +271,20 @@
                         <Private-Package>
                             org.wso2.carbon.context.internal,
                             org.wso2.carbon.utils.resolver,
+                            org.wso2.carbon.keystore.persistence.impl,
+                            org.wso2.carbon.keystore.persistence.constant,
                         </Private-Package>
                         <Import-Package>
                             !org.wso2.carbon,
                             !org.wso2.carbon.utils.*,
                             !org.wso2.carbon.context,
                             javax.cache.*,
+                            javax.sql.*,
                             org.apache.axis2.*; version="${imp.pkg.version.axis2}",
                             org.apache.axiom.*; version="${imp.pkg.version.axiom}",
                             javax.xml.stream.*; version="1.0.1",
                             org.bouncycastle.*; version="${imp.pkg.version.bcp}",
+                            org.wso2.carbon.database.utils.jdbc.*;version="${org.wso2.carbon.database.utils.version.range}",
                             *;resolution:=optional
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>

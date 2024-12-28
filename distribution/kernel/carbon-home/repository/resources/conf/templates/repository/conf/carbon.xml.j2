@@ -529,7 +529,6 @@
             <Type>{{keystore.tenant.type}}</Type>
         </TenantKeyStore>
 
-
         <!--
             The KeyStore which is used for encrypting/decrypting internal data.
             This block is read by Carbon Crypto Service.
@@ -889,4 +888,20 @@
         <maxConnectionRetryCount>{{user_store_commons.max_connection_retry_count}}</maxConnectionRetryCount>
         <minConnectionRetryDelayInMilliSeconds>{{user_store_commons.min_connection_retry_delay_in_milli_seconds}}</minConnectionRetryDelayInMilliSeconds>
     </UserStore>
+
+    <KeyStoreDataPersistenceManager>
+        <!--
+            This section provide the ability to configure the storage type for the keystores that used to store data in the
+            registry in IS 7.0.0 or earlier.
+
+            Applicable values:
+                - "database" - Data will be store in tables in the specified tables in the identity database.
+                - "hybrid"   - Any new changes stored in "database" and any existing data read from "registry" allowing data to
+                                on-demand migrate.
+                Default value is "database".
+        -->
+        <DataStorageType>{{data_storage_type.keystores}}</DataStorageType>
+        <!-- Include a data source name from the set of data sources defined in master-datasources.xml -->
+        <DataSourceName>{{keystore.datasource}}</DataSourceName>
+    </KeyStoreDataPersistenceManager>
 </Server>

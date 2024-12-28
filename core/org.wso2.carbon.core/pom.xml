@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel</artifactId>
-        <version>4.10.26-SNAPSHOT</version>
+        <version>4.10.31-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -197,6 +197,11 @@
             <scope>test</scope>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.utils</groupId>
+            <artifactId>org.wso2.carbon.database.utils</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -225,11 +230,10 @@
                         <Bundle-SymbolicName>org.wso2.carbon.core</Bundle-SymbolicName>
                         <Bundle-Activator>org.wso2.carbon.core.internal.CarbonCoreActivator</Bundle-Activator>
                         <Private-Package>
-                            org.wso2.carbon.core.internal, org.wso2.carbon.core.encryption, org.wso2.carbon.core.keystore.persistence
+                            org.wso2.carbon.core.internal, org.wso2.carbon.core.encryption
                         </Private-Package>
                         <Export-Package>
                             !org.wso2.carbon.core.internal,
-                            !org.wso2.carbon.core.keystore.persistence,
                             org.wso2.carbon.core.*; version="${carbon.kernel.exp.pkg.version}",
                         </Export-Package>
                         <Import-Package>

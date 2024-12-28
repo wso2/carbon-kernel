@@ -21,6 +21,7 @@ public class CarbonUtilsServiceComponent {
         ctx.getBundleContext().registerService(GhostMetaArtifactsLoader.class.getName(), serviceMetaArtifactsLoader, null);
         // Read and set diagnostic logs config.
         CarbonUtils.setDiagnosticLogMode(PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId());
+        CarbonUtilsDataHolder.getInstance().setDataSource();
     }
 
     @Reference(name = "org.wso2.carbon.utils.ConfigurationContextService", cardinality = ReferenceCardinality.MANDATORY,

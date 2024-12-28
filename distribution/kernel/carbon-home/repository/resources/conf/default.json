@@ -19,6 +19,7 @@
   "authorization_manager.properties.GetAllRolesOfUserEnabled": "false",
   "authorization_manager.properties.GroupAndRoleSeparationEnabled": "true",
   "authorization_manager.properties.GroupAndRoleSeparationImprovementsEnabled": "true",
+  "authorization_manager.properties.ShowLegacyRoleClaim": "false",
   "realm_manager.data_source": "SHARED_DB",
   "realm_manager.properties.isCascadeDeleteEnabled": true,
   "user_store.properties.ReadGroups": true,
@@ -31,6 +32,9 @@
   "user_store.properties.MultiAttributeSeparator": ",",
   "user_store.properties.MaxUserNameListLength": "100",
   "user_store.properties.MaxRoleNameListLength": "100",
+  "registry.local_datasource": "jdbc/WSO2CarbonDB",
+  "registry.gov_datasource": "jdbc/SHARED_DB",
+  "registry.config_datasource": "jdbc/SHARED_DB",
   "governance_data.data_source": "SHARED_DB",
   "governance_data.cache_id": "$ref{database.shared_db.username}@$ref{database.shared_db.url}",
   "governance_data.enable_cache": true,
@@ -246,5 +250,7 @@
   "database.registry_db.pool_options.validationQuery" : "SELECT 1",
   "database.registry_db.pool_options.validationInterval" : "30000",
   "database.registry_db.pool_options.defaultAutoCommit" : "true",
-  "admin_console.resolve_absolute_urls.enable": true
+  "admin_console.resolve_absolute_urls.enable": true,
+  "data_storage_type.keystores": "database",
+  "keystore.datasource": "jdbc/SHARED_DB"
 }

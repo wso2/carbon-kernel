@@ -24,8 +24,8 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.context.RegistryType;
-import org.wso2.carbon.registry.api.RegistryException;
+import org.wso2.carbon.keystore.persistence.KeyStorePersistenceManager;
+import org.wso2.carbon.keystore.persistence.KeyStorePersistenceManagerFactory;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -41,6 +41,8 @@ public class KeystoreUtils {
 
     private static Log LOG = LogFactory.getLog(KeystoreUtils.class);
     private static final String KEY_STORES = "/repository/security/key-stores";
+    private static final KeyStorePersistenceManager keyStorePersistenceManager =
+            KeyStorePersistenceManagerFactory.getKeyStorePersistenceManager();
 
     /**
      * A collection of file type extensions against the store file type.
@@ -140,23 +142,20 @@ public class KeystoreUtils {
      */
     public static String getKeyStoreFileType(String tenantDomain) {
 
-        String keystoreType;
+        String keystoreType = CarbonUtils.getServerConfiguration().getFirstProperty("Security.KeyStore.Type");
+        try {
+            StoreFileType.validateFileType(keystoreType);
+        } catch (CarbonException e) {
+            LOG.error("Unsupported file type for key store file", e);
+        }
+
         if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
-            keystoreType = CarbonUtils.getServerConfiguration().getFirstProperty("Security.KeyStore.Type");
-            try {
-                StoreFileType.validateFileType(keystoreType);
-                return keystoreType;
-            } catch (CarbonException e) {
-                LOG.error("Unsupported file type for key store file: " + keystoreType, e);
-            }
-        } else {
-            keystoreType = StoreFileType.defaultFileType();
-            String keystoreExtension = getExtensionByFileType(keystoreType);
-            String ksName = tenantDomain.trim().replace(".", "-");
-            if (StoreFileType.PKCS12.name().equals(keystoreType) &&
-                    isFileExistInRegistry(ksName + keystoreExtension)) {
-                return keystoreType;
-            }
+            return keystoreType;
+        }
+
+        String ksName = tenantDomain.trim().replace(".", "-");
+        if (isKeyStoreExists(ksName + getExtensionByFileType(keystoreType))) {
+            return keystoreType;
         }
         return StoreFileType.JKS.name();
     }
@@ -207,19 +206,10 @@ public class KeystoreUtils {
         return getExtensionByFileType(getTrustStoreFileType());
     }
 
-    private static boolean isFileExistInRegistry(String keyStoreName) {
+    private static boolean isKeyStoreExists(String keyStoreName) {
 
-        boolean isKeyStoreExists = false;
-        try {
-            if (PrivilegedCarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.USER_GOVERNANCE)
-                    .resourceExists(KEY_STORES + "/" + keyStoreName)) {
-                isKeyStoreExists = true;
-            }
-        } catch (RegistryException e) {
-            String msg = "Error while checking the existance of keystore.  ";
-            LOG.error(msg + e.getMessage());
-        }
-        return isKeyStoreExists;
+        return keyStorePersistenceManager.isKeyStoreExists(keyStoreName,
+                PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId());
     }
 
     /**
