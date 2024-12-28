@@ -40,6 +40,7 @@ import java.security.NoSuchProviderException;
 public class KeystoreUtils {
 
     private static Log LOG = LogFactory.getLog(KeystoreUtils.class);
+    private static final String FALLBACK_TENANTED_KEYSTORE_FILE_TYPE = "JKS";
     private static final String KEY_STORES = "/repository/security/key-stores";
     private static final KeyStorePersistenceManager keyStorePersistenceManager =
             KeyStorePersistenceManagerFactory.getKeyStorePersistenceManager();
@@ -79,7 +80,7 @@ public class KeystoreUtils {
             if (StringUtils.isNotBlank(keystoreTypesForNewTenants)) {
                 return keystoreTypesForNewTenants;
             }
-            return JKS.name();
+            return FALLBACK_TENANTED_KEYSTORE_FILE_TYPE;
         }
 
         /**
