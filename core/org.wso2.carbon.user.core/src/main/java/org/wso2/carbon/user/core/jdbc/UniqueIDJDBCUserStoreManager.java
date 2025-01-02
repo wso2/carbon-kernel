@@ -1663,7 +1663,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
 
             String sqlStmt3 = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_GROUP_LAST_MODIFIED);
-            if (StringUtils.isBlank(sqlStmt3) && !isShared) {
+            if (StringUtils.isBlank(sqlStmt3) && !isShared && isUniqueGroupIdEnabled()) {
                 throw new UserStoreException("The sql statement for update group last modified time is null.");
             }
 
@@ -1699,7 +1699,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     }
                 }
             }
-            if (!isShared && (deletedUserIDs != null || newUserIDs != null)) {
+            if (!isShared && (deletedUserIDs != null || newUserIDs != null) && isUniqueGroupIdEnabled()) {
                 this.updateValuesToDatabaseWithUTCTime(dbConnection, sqlStmt3, new Date(), roleName, tenantId);
             }
             dbConnection.commit();
@@ -1811,7 +1811,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     if (sqlStmt1 == null) {
                         throw new UserStoreException("The sql statement for remove user from role is null.");
                     }
-                    if (StringUtils.isBlank(sqlStmt3)) {
+                    if (StringUtils.isBlank(sqlStmt3) && isUniqueGroupIdEnabled()) {
                         throw new UserStoreException("The sql statement for update group last modified time is null.");
                     }
                     if (sqlStmt1.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
@@ -1823,14 +1823,16 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
                     // If there are common groups in new and deleted, their modified time should only be updated
                     // during the add operation.
-                    if (ArrayUtils.isNotEmpty(newRoles)) {
-                        List<String> rolesToDeleteOnly =
-                                (List<String>) CollectionUtils.subtract(Arrays.asList(roles), Arrays.asList(newRoles));
-                        this.updateValuesToDatabaseWithUTCTimeInBatchMode(dbConnection, sqlStmt3, new Date(),
-                                rolesToDeleteOnly, tenantId);
-                    } else {
-                        this.updateValuesToDatabaseWithUTCTimeInBatchMode(dbConnection, sqlStmt3, new Date(),
-                                roles, tenantId);
+                    if (isUniqueGroupIdEnabled()) {
+                        if (ArrayUtils.isNotEmpty(newRoles)) {
+                            List<String> rolesToDeleteOnly = (List<String>) CollectionUtils.subtract(
+                                    Arrays.asList(roles), Arrays.asList(newRoles));
+                            this.updateValuesToDatabaseWithUTCTimeInBatchMode(dbConnection, sqlStmt3,
+                                    new Date(), rolesToDeleteOnly, tenantId);
+                        } else {
+                            this.updateValuesToDatabaseWithUTCTimeInBatchMode(dbConnection, sqlStmt3,
+                                    new Date(), roles, tenantId);
+                        }
                     }
                 }
                 if (sharedRoles.length > 0) {
@@ -1873,7 +1875,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     if (sqlStmt2 == null) {
                         throw new UserStoreException("The sql statement for add user to role is null.");
                     }
-                    if (StringUtils.isBlank(sqlStmt3)) {
+                    if (StringUtils.isBlank(sqlStmt3) && isUniqueGroupIdEnabled()) {
                         throw new UserStoreException("The sql statement for update group last modified time is null.");
                     }
                     if (sqlStmt2.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
@@ -1889,8 +1891,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     } else {
                         DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, newRoles, userID);
                     }
-                    this.updateValuesToDatabaseWithUTCTimeInBatchMode(dbConnection, sqlStmt3, new Date(), roles,
-                            tenantId);
+                    if (isUniqueGroupIdEnabled()) {
+                        this.updateValuesToDatabaseWithUTCTimeInBatchMode(dbConnection, sqlStmt3,
+                                new Date(), roles, tenantId);
+                    }
                 }
                 if (sharedRoles.length > 0) {
                     sqlStmt2 = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_SHARED_ROLE_TO_USER_WITH_ID);
