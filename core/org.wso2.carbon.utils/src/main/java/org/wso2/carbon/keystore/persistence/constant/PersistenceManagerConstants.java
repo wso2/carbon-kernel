@@ -77,7 +77,7 @@ public class PersistenceManagerConstants {
         public static final String ADD_KEY_STORE = "INSERT INTO KEY_STORE (NAME, TYPE, PROVIDER, PASSWORD, " +
                 "PRIVATE_KEY_ALIAS, PRIVATE_KEY_PASS, CONTENT, PUB_CERT_ID, TENANT_ID, VERSION, CREATED_AT, " +
                 "UPDATED_AT) VALUES (:NAME;, :TYPE;, :PROVIDER;, :PASSWORD;, :PRIVATE_KEY_ALIAS;, " +
-                ":PRIVATE_KEY_PASS;, :CONTENT;, :PUB_CERT_ID;, :TENANT_ID;, :VERSION;, :CREATED_AT;, :UPDATED_AT;);";
+                ":PRIVATE_KEY_PASS;, :CONTENT;, :PUB_CERT_ID;, :TENANT_ID;, :VERSION;, :CREATED_AT;, :UPDATED_AT;)";
         public static final String GET_KEY_STORE = "SELECT NAME, TYPE, PROVIDER, PASSWORD, PRIVATE_KEY_ALIAS, " +
                 "PRIVATE_KEY_PASS, CONTENT, PUB_CERT_ID  FROM KEY_STORE WHERE " +
                 "NAME = :NAME; AND TENANT_ID = :TENANT_ID;";

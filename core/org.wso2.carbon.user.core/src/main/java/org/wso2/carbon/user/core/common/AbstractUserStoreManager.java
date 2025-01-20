@@ -13794,6 +13794,10 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             return null;
         } else {
             if (StringUtils.isEmpty(userID)) {
+                // Return null for the system user to prevent redundant DB queries, as it would return null anyway.
+                if (UserCoreUtil.isRegistrySystemUser(userName)) {
+                    return null;
+                }
                 if (isUniqueUserIdEnabledInUserStore(userStore)) {
                     userID = doGetUserIDFromUserNameWithID(userName);
                     if (StringUtils.isEmpty(userID)) {
@@ -15916,9 +15920,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 } else {
                     // If the underlying user store does not support the unique ID generation, then we have to generate
                     // the ID and keep the mapping in our side.
+                    String uniqueId = UUID.randomUUID().toString();
+                    claims.put(UserCoreClaimConstants.USER_ID_CLAIM_URI, uniqueId);
                     doAddUser(userName, credentialObj, externalRoles.toArray(new String[0]), claims, profileName,
                             false);
-                    user = userUniqueIDManger.addUser(userStore.getDomainFreeName(), profileName, this);
+                    user = new User();
+                    user.setUserID(uniqueId);
+                    user.setUsername(userStore.getDomainFreeName());
+                    user.setUserStoreDomain(this.getMyDomainName());
                 }
             } catch (UserStoreException ex) {
                 handleAddUserFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_ADDING_USER.getCode(),
