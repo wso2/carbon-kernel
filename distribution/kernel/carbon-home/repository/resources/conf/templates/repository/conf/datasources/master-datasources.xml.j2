@@ -18,6 +18,13 @@
                     <username>{{database.registry_db.username}}</username>
                     <password>{{database.registry_db.password}}</password>
                     <driverClassName>{{database.registry_db.driver}}</driverClassName>
+                    {% if database.registry_db.db_props %}
+                        <databaseProps>
+                             {% for property_name,property_value in database.registry_db.db_props.items() %}
+                                 <property name="{{property_name}}">{{property_value}}</property>
+                             {% endfor %}
+                        </databaseProps>
+                    {% endif %}
                     {% for property_name,property_value in database.registry_db.pool_options.items() %}
                     <{{property_name}}>{{property_value}}</{{property_name}}>
                     {% endfor %}
@@ -36,6 +43,13 @@
                     <username>{{database.shared_db.username}}</username>
                     <password>{{database.shared_db.password}}</password>
                     <driverClassName>{{database.shared_db.driver}}</driverClassName>
+                    {% if database.shared_db.db_props %}
+                        <databaseProps>
+                                {% for property_name,property_value in database.shared_db.db_props.items() %}
+                                    <property name="{{property_name}}">{{property_value}}</property>
+                                {% endfor %}
+                        </databaseProps>
+                    {% endif %}
                     {% for property_name,property_value in database.shared_db.pool_options.items() %}
                     <{{property_name}}>{{property_value}}</{{property_name}}>
                         {% endfor %}
@@ -57,6 +71,13 @@
                     <username>{{database.user.username}}</username>
                     <password>{{database.user.password}}</password>
                     <driverClassName>{{database.user.driver}}</driverClassName>
+                    {% if database.user.db_props %}
+                        <databaseProps>
+                                {% for property_name,property_value in database.user.db_props.items() %}
+                                    <property name="{{property_name}}">{{property_value}}</property>
+                                {% endfor %}
+                        </databaseProps>
+                    {% endif %}
                     {% for property_name,property_value in database.user.pool_options.items() %}
                     <{{property_name}}>{{property_value}}</{{property_name}}>
                         {% endfor %}
@@ -79,6 +100,13 @@
                     <username>{{database.config.username}}</username>
                     <password>{{database.config.password}}</password>
                     <driverClassName>{{database.config.driver}}</driverClassName>
+                    {% if database.config.db_props %}
+                        <databaseProps>
+                                {% for property_name,property_value in database.config.db_props.items() %}
+                                    <property name="{{property_name}}">{{property_value}}</property>
+                                {% endfor %}
+                        </databaseProps>
+                    {% endif %}
                     {% for property_name,property_value in database.config.pool_options.items() %}
                     <{{property_name}}>{{property_value}}</{{property_name}}>
                         {% endfor %}
@@ -101,6 +129,13 @@
                      <username>{{data.username}}</username>
                      <password>{{data.password}}</password>
                      <driverClassName>{{data.driver}}</driverClassName>
+                    {% if data.db_props %}
+                        <databaseProps>
+                             {% for property_name,property_value in data.db_props.items() %}
+                                 <property name="{{property_name}}">{{property_value}}</property>
+                             {% endfor %}
+                        </databaseProps>
+                    {% endif %}
                     {% for property_name,property_value in data.pool_options.items() %}
                      <{{property_name}}>{{property_value}}</{{property_name}}>
                     {% endfor %}
