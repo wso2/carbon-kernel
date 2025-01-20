@@ -1821,8 +1821,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                         DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt1, roles, userID);
                     }
 
-                    // If there are common groups in new and deleted, their modified time should only be updated
-                    // during the add operation.
+                    // When the same group is added and removed from a user, the total effect is not a change for 
+                    // that corresponding group. Hence skipping last modified time update.
                     if (isUniqueGroupIdEnabled()) {
                         if (ArrayUtils.isNotEmpty(newRoles)) {
                             List<String> rolesToDeleteOnly = (List<String>) CollectionUtils.subtract(
