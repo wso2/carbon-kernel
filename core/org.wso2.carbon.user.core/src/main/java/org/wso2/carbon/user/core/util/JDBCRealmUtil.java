@@ -602,6 +602,14 @@ public class JDBCRealmUtil {
         if (!properties.containsKey(JDBCRealmConstants.UPDATE_GROUP_NAME)) {
             properties.put(JDBCRealmConstants.UPDATE_GROUP_NAME, JDBCRealmConstants.UPDATE_GROUP_NAME_SQL);
         }
+        if (!properties.containsKey(JDBCRealmConstants.UPDATE_GROUP_LAST_MODIFIED)) {
+            properties.put(JDBCRealmConstants.UPDATE_GROUP_LAST_MODIFIED,
+                    JDBCRealmConstants.UPDATE_GROUP_LAST_MODIFIED_SQL);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.UPDATE_GROUP_LAST_MODIFIED_WITH_GROUP_ID)) {
+            properties.put(JDBCRealmConstants.UPDATE_GROUP_LAST_MODIFIED_WITH_GROUP_ID,
+                    JDBCRealmConstants.UPDATE_GROUP_LAST_MODIFIED_WITH_GROUP_ID_SQL);
+        }
 
         //openedge
         if (!properties.containsKey(JDBCRealmConstants.ADD_USER_TO_ROLE_OPENEDGE)) {

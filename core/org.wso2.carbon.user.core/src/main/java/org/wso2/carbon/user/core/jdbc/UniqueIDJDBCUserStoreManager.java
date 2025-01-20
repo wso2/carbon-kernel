@@ -20,6 +20,7 @@ package org.wso2.carbon.user.core.jdbc;
 
 import org.apache.axiom.om.util.Base64;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -84,11 +85,14 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
+
 import javax.sql.DataSource;
 
 import static java.time.ZoneOffset.UTC;
@@ -1657,6 +1661,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             if (sqlStmt2 == null) {
                 throw new UserStoreException("The sql statement for add user to role is null.");
             }
+
+            String sqlStmt3 = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_GROUP_LAST_MODIFIED);
+            if (StringUtils.isBlank(sqlStmt3) && !isShared && isUniqueGroupIdEnabled()) {
+                throw new UserStoreException("The sql statement for update group last modified time is null.");
+            }
+
             if (deletedUserIDs != null) {
                 if (isShared) {
                     DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt1, roleName, tenantId,
@@ -1689,6 +1699,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     }
                 }
             }
+            if (!isShared && (deletedUserIDs != null || newUserIDs != null) && isUniqueGroupIdEnabled()) {
+                this.updateValuesToDatabaseWithUTCTime(dbConnection, sqlStmt3, new Date(), roleName, tenantId);
+            }
             dbConnection.commit();
         } catch (SQLException e) {
             DatabaseUtil.rollBack(dbConnection);
@@ -1708,7 +1721,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
-
     }
 
     @Override
@@ -1784,6 +1796,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             if (userNames.length > 1) {
                 userID = userNames[1];
             }
+            String sqlStmt3 = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_GROUP_LAST_MODIFIED);
+
             if (deletedRoles != null && deletedRoles.length > 0) {
                 // Break the provided role list based on whether roles are shared or not
                 RoleBreakdown breakdown = getSharedRoleBreakdown(deletedRoles);
@@ -1797,11 +1811,28 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     if (sqlStmt1 == null) {
                         throw new UserStoreException("The sql statement for remove user from role is null.");
                     }
+                    if (StringUtils.isBlank(sqlStmt3) && isUniqueGroupIdEnabled()) {
+                        throw new UserStoreException("The sql statement for update group last modified time is null.");
+                    }
                     if (sqlStmt1.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                         DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt1, roles, tenantId, userID,
                                 tenantId, tenantId);
                     } else {
                         DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt1, roles, userID);
+                    }
+
+                    // When the same group is added and removed from a user, the total effect is not a change for 
+                    // that corresponding group. Hence skipping last modified time update.
+                    if (isUniqueGroupIdEnabled()) {
+                        if (ArrayUtils.isNotEmpty(newRoles)) {
+                            List<String> rolesToDeleteOnly = (List<String>) CollectionUtils.subtract(
+                                    Arrays.asList(roles), Arrays.asList(newRoles));
+                            this.updateValuesToDatabaseWithUTCTimeInBatchMode(dbConnection, sqlStmt3,
+                                    new Date(), rolesToDeleteOnly, tenantId);
+                        } else {
+                            this.updateValuesToDatabaseWithUTCTimeInBatchMode(dbConnection, sqlStmt3,
+                                    new Date(), roles, tenantId);
+                        }
                     }
                 }
                 if (sharedRoles.length > 0) {
@@ -1844,6 +1875,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     if (sqlStmt2 == null) {
                         throw new UserStoreException("The sql statement for add user to role is null.");
                     }
+                    if (StringUtils.isBlank(sqlStmt3) && isUniqueGroupIdEnabled()) {
+                        throw new UserStoreException("The sql statement for update group last modified time is null.");
+                    }
                     if (sqlStmt2.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                         if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
                             DatabaseUtil
@@ -1856,6 +1890,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                         }
                     } else {
                         DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, newRoles, userID);
+                    }
+                    if (isUniqueGroupIdEnabled()) {
+                        this.updateValuesToDatabaseWithUTCTimeInBatchMode(dbConnection, sqlStmt3,
+                                new Date(), roles, tenantId);
                     }
                 }
                 if (sharedRoles.length > 0) {
@@ -1891,7 +1929,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
-
     }
 
     @Override
@@ -2367,6 +2404,84 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     log.debug("No rows were updated");
                 }
                 log.debug("Executed query is " + sqlStmt + " and number of updated rows :: " + count);
+            }
+
+            if (localConnection) {
+                dbConnection.commit();
+            }
+        } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
+            String msg = "Error occurred while updating string values to database.";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            if (e instanceof SQLIntegrityConstraintViolationException) {
+                // Duplicate entry
+                throw new UserStoreException(msg, ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE.getCode(), e);
+            }
+            // Other SQL Exception
+            throw new UserStoreException(msg, e);
+        } finally {
+            if (localConnection) {
+                DatabaseUtil.closeAllConnections(dbConnection);
+            }
+            DatabaseUtil.closeAllConnections(null, prepStmt);
+        }
+    }
+
+    private void updateValuesToDatabaseWithUTCTimeInBatchMode(Connection dbConnection, String sqlStmt,
+                                                              Object... params) throws UserStoreException {
+
+        PreparedStatement prepStmt = null;
+        boolean localConnection = false;
+        try {
+            Instant currentInstant = Instant.now();
+            if (dbConnection == null) {
+                localConnection = true;
+                dbConnection = getDBConnection();
+            }
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            int batchParamIndex = -1;
+            if (params != null && params.length > 0) {
+                for (int i = 0; i < params.length; i++) {
+                    Object param = params[i];
+                    if (param == null) {
+                        throw new UserStoreException("Invalid data provided");
+                    } else if (param instanceof String[]) {
+                        batchParamIndex = i;
+                    } else if (param instanceof String) {
+                        if (isStoreUserAttributeAsUnicode()) {
+                            prepStmt.setNString(i + 1, (String) param);
+                        } else {
+                            prepStmt.setString(i + 1, (String) param);
+                        }
+                    } else if (param instanceof Integer) {
+                        prepStmt.setInt(i + 1, (Integer) param);
+                    } else if (param instanceof Date) {
+                        // Convert the current date-time to UTC time with ISO Date time format.
+                        OffsetDateTime offsetDateTime = currentInstant.atOffset(ZoneOffset.UTC);
+                        LocalDateTime localDateTime = offsetDateTime.toLocalDateTime();
+                        int nanoSeconds = localDateTime.getNano();
+                        int roundedNanoSeconds = (nanoSeconds / 1000000) * 1000000;
+                        LocalDateTime formattedDateTime = localDateTime.withNano(roundedNanoSeconds);
+                        prepStmt.setTimestamp(i + 1, Timestamp.valueOf(formattedDateTime));
+                    } else if (param instanceof Boolean) {
+                        prepStmt.setBoolean(i + 1, (Boolean) param);
+                    }
+                }
+            }
+            if (batchParamIndex != -1) {
+                String[] values = (String[]) params[batchParamIndex];
+                for (String value : values) {
+                    prepStmt.setString(batchParamIndex + 1, value);
+                    prepStmt.addBatch();
+                }
+            }
+
+            int[] count = prepStmt.executeBatch();
+            if (log.isDebugEnabled()) {
+                log.debug("Executed a batch update. Query is : " + sqlStmt + ": and result is"
+                        + Arrays.toString(count));
             }
 
             if (localConnection) {

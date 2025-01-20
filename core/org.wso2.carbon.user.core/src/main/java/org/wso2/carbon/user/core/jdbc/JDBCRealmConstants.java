@@ -154,6 +154,8 @@ public final class JDBCRealmConstants {
     public static final String GET_GROUP_FILTER_WITH_LAST_MODIFIED = "GetGroupFilterWithLastModifiedSQL";
     public static final String ADD_GROUP = "AddGroupSQL";
     public static final String UPDATE_GROUP_NAME = "UpdateGroupNameSQL";
+    public static final String UPDATE_GROUP_LAST_MODIFIED = "UpdateGroupLastModifiedTimeSQL";
+    public static final String UPDATE_GROUP_LAST_MODIFIED_WITH_GROUP_ID = "UpdateGroupLastModifiedTimeWithGroupIDSQL";
     public static final String COUNT_ROLES_SQL = "SELECT COUNT(UM_ROLE_NAME) AS RESULT FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? AND " +
             "UM_TENANT_ID = ?";
     public static final String COUNT_USERS_WITH_CLAIM_SQL = "SELECT COUNT(UM_USER_ID) AS RESULT FROM UM_USER_ATTRIBUTE WHERE UM_ATTR_NAME = ? " +
@@ -530,6 +532,10 @@ public final class JDBCRealmConstants {
             "UM_CREATED_TIME, UM_LAST_MODIFIED) VALUES (?, ?, ?, ?, ?)";
     public static final String UPDATE_GROUP_NAME_SQL = "UPDATE UM_ROLE set UM_ROLE_NAME = ?, UM_LAST_MODIFIED = ? " +
             "WHERE UM_ROLE_UUID = ? AND UM_TENANT_ID = ?";
+    public static final String UPDATE_GROUP_LAST_MODIFIED_SQL = "UPDATE UM_ROLE set UM_LAST_MODIFIED = ? " +
+            "WHERE UM_ROLE_NAME = ? AND UM_TENANT_ID = ?";
+    public static final String UPDATE_GROUP_LAST_MODIFIED_WITH_GROUP_ID_SQL = "UPDATE UM_ROLE set " +
+            "UM_LAST_MODIFIED = ? WHERE UM_ROLE_UUID = ? AND UM_TENANT_ID = ?";
 
     // properties
     public static final String DATASOURCE = "dataSource";
