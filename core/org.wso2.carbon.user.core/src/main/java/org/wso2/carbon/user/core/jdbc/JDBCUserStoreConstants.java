@@ -689,6 +689,13 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(JDBCRealmConstants.UPDATE_GROUP_NAME, "Update Group Name SQL",
                 JDBCRealmConstants.UPDATE_GROUP_NAME_SQL, "",
                 new Property[]{GROUP.getProperty(), SQL.getProperty(), FALSE.getProperty()});
+        setAdvancedProperty(JDBCRealmConstants.UPDATE_GROUP_LAST_MODIFIED, "Update Group Last Modified Time SQL",
+                JDBCRealmConstants.UPDATE_GROUP_LAST_MODIFIED_SQL, "",
+                new Property[]{GROUP.getProperty(), SQL.getProperty(), FALSE.getProperty()});
+        setAdvancedProperty(JDBCRealmConstants.UPDATE_GROUP_LAST_MODIFIED_WITH_GROUP_ID,
+                "Update Group Last Modified Time With Group ID SQL",
+                JDBCRealmConstants.UPDATE_GROUP_LAST_MODIFIED_WITH_GROUP_ID_SQL, "",
+                new Property[]{GROUP.getProperty(), SQL.getProperty(), FALSE.getProperty()});
 
         setAdvancedProperty(JDBCRealmConstants.ADD_USER_PROPERTY, "Add User Property SQL",
                 JDBCRealmConstants.ADD_USER_PROPERTY_SQL, "",
