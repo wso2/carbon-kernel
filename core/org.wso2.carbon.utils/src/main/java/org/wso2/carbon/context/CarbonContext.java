@@ -110,6 +110,14 @@ public class CarbonContext {
     }
 
     /**
+     * Instantiate a CarbonContext with the current CarbonContext holder.
+     */
+    protected CarbonContext() {
+
+        this.carbonContextHolder = CarbonContextDataHolder.getThreadLocalCarbonContextHolder();
+    }
+
+    /**
      * Utility method to obtain the current CarbonContext holder after an instance of a
      * CarbonContext has been created.
      *
