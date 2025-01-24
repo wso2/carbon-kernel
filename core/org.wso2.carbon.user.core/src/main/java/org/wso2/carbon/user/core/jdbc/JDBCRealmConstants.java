@@ -149,6 +149,7 @@ public final class JDBCRealmConstants {
     public static final String GET_GROUP_NAME_FROM_GROUP_ID = "GetGroupNameFromGroupIDSQL";
     public static final String GET_GROUP_FROM_GROUP_NAME = "GetGroupFromGroupNameSQL";
     public static final String GET_GROUP_FROM_GROUP_ID = "GetGroupFromGroupIDSQL";
+    public static final String GET_GROUP_FILTER_WITH_GROUP_NAME = "GetGroupFilterWithGroupNameSQL";
     public static final String GET_GROUP_FILTER_WITH_GROUP_ID = "GetGroupFilterWithGroupIDSQL";
     public static final String GET_GROUP_FILTER_WITH_CREATED_DATE = "GetGroupFilterWithCreatedDateSQL";
     public static final String GET_GROUP_FILTER_WITH_LAST_MODIFIED = "GetGroupFilterWithLastModifiedSQL";
@@ -519,6 +520,9 @@ public final class JDBCRealmConstants {
             "UM_LAST_MODIFIED FROM UM_ROLE WHERE UM_ROLE_NAME = ? AND UM_TENANT_ID = ?";
     public static final String GET_GROUP_FROM_GROUP_ID_SQL = "SELECT UM_ROLE_NAME, UM_CREATED_TIME, UM_LAST_MODIFIED " +
             "FROM UM_ROLE WHERE UM_ROLE_UUID = ? AND UM_TENANT_ID = ?";
+    public static final String GET_GROUP_FILTER_WITH_GROUP_NAME_SQL = "SELECT UM_ROLE_NAME, UM_ROLE_UUID, " +
+            "UM_CREATED_TIME, UM_LAST_MODIFIED FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? AND UM_TENANT_ID = ? " +
+            "ORDER BY UM_ROLE_NAME;";
     public static final String GET_GROUP_FILTER_WITH_GROUP_ID_SQL = "SELECT UM_ROLE_NAME, UM_ROLE_UUID, " +
             "UM_CREATED_TIME, UM_LAST_MODIFIED FROM UM_ROLE WHERE UM_ROLE_UUID LIKE ? AND UM_TENANT_ID = ? " +
             "ORDER BY UM_ROLE_NAME;";

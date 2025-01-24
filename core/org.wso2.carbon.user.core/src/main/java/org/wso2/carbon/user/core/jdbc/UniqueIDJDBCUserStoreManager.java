@@ -99,6 +99,8 @@ import static java.time.ZoneOffset.UTC;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_ID_ATTRIBUTE;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_NAME_ATTRIBUTE;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.groupNameAttribute;
 import static org.wso2.carbon.user.core.constants.UserCoreDBConstants.SQL_STATEMENT_PARAMETER_PLACEHOLDER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
@@ -4228,6 +4230,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         String sqlStmt = null;
         Timestamp timestampValueForSQL = null;
         switch (attributeName) {
+            case GROUP_NAME_ATTRIBUTE:
+                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_GROUP_FILTER_WITH_GROUP_NAME);
+                break;
             case GROUP_ID_ATTRIBUTE:
                 sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_GROUP_FILTER_WITH_GROUP_ID);
                 break;
@@ -5073,7 +5078,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         String attributeName = expressionCondition.getAttributeName();
         String operation = expressionCondition.getOperation();
 
-        if (StringUtils.equals(attributeName, GROUP_ID_ATTRIBUTE) ||
+        if (StringUtils.equals(attributeName, GROUP_NAME_ATTRIBUTE) ||
+                StringUtils.equals(attributeName, GROUP_ID_ATTRIBUTE) ||
                 StringUtils.equals(attributeName, GROUP_CREATED_DATE_ATTRIBUTE) ||
                 StringUtils.equals(attributeName, GROUP_LAST_MODIFIED_DATE_ATTRIBUTE)) {
             if ((StringUtils.equals(attributeName, GROUP_CREATED_DATE_ATTRIBUTE) ||
