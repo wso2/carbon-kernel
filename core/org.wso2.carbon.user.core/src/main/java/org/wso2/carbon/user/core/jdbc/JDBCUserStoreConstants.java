@@ -683,6 +683,9 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(JDBCRealmConstants.GET_GROUP_FROM_GROUP_ID, "Get Group From Group ID SQL",
                 JDBCRealmConstants.GET_GROUP_FROM_GROUP_ID_SQL, "",
                 new Property[]{GROUP.getProperty(), SQL.getProperty(), FALSE.getProperty()});
+        setAdvancedProperty(JDBCRealmConstants.GET_GROUP_FILTER_WITH_GROUP_NAME, "Group Filter SQL With Group Name",
+                JDBCRealmConstants.GET_GROUP_FILTER_WITH_GROUP_NAME_SQL, "",
+                new Property[]{GROUP.getProperty(), SQL.getProperty(), FALSE.getProperty()});
         setAdvancedProperty(JDBCRealmConstants.ADD_GROUP, "Add Group SQL",
                 JDBCRealmConstants.ADD_GROUP_SQL, "",
                 new Property[]{GROUP.getProperty(), SQL.getProperty(), FALSE.getProperty()});
