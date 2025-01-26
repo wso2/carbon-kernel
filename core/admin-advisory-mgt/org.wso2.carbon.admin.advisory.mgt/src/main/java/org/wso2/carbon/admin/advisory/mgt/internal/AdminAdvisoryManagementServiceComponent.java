@@ -28,6 +28,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.wso2.carbon.admin.advisory.mgt.dao.AdminAdvisoryBannerDAO;
 import org.wso2.carbon.admin.advisory.mgt.service.AdminAdvisoryManagementService;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -91,5 +92,20 @@ public class AdminAdvisoryManagementServiceComponent {
     protected void unsetRealmService(RealmService realmService) {
 
         dataHolder.setRealmService(null);
+    }
+
+    @Reference(
+            name = "admin.advisory.banner.dao.service",
+            cardinality = ReferenceCardinality.OPTIONAL,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetAdminAdvisoryBannerDAOService")
+    protected void setAdminAdvisoryBannerDAOService(AdminAdvisoryBannerDAO adminAdvisoryBannerDAOService) {
+
+        dataHolder.setAdminAdvisoryBannerDAOService(adminAdvisoryBannerDAOService);
+    }
+
+    protected void unsetAdminAdvisoryBannerDAOService(AdminAdvisoryBannerDAO adminAdvisoryBannerDAOService) {
+
+        dataHolder.setAdminAdvisoryBannerDAOService(null);
     }
 }

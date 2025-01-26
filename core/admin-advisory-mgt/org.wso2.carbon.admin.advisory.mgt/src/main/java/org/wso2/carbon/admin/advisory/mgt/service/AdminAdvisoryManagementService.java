@@ -20,22 +20,24 @@ package org.wso2.carbon.admin.advisory.mgt.service;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.admin.advisory.mgt.constants.AdminAdvisoryManagementConstants;
+import org.wso2.carbon.admin.advisory.mgt.dao.AdminAdvisoryBannerDAO;
 import org.wso2.carbon.admin.advisory.mgt.dto.AdminAdvisoryBannerDTO;
 import org.wso2.carbon.admin.advisory.mgt.exception.AdminAdvisoryMgtException;
-import org.wso2.carbon.admin.advisory.mgt.util.RegistryResourceConfig;
+import org.wso2.carbon.admin.advisory.mgt.internal.AdminAdvisoryManagementDataHolder;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.registry.core.Resource;
-import org.wso2.carbon.registry.core.ResourceImpl;
+
+import java.util.Optional;
 
 /**
  * This service is to configure the Admin Advisory Management functionality.
  */
 public class AdminAdvisoryManagementService {
 
-    protected static final Log LOG = LogFactory.getLog(AdminAdvisoryManagementService.class);
-    private static final String ADMIN_ADVISORY_BANNER_PATH = "identity/config/adminAdvisoryBanner";
-    private final RegistryResourceConfig registryResourceConfig = new RegistryResourceConfig();
+    private static final Log LOG = LogFactory.getLog(AdminAdvisoryManagementService.class);
+
+    private static final Boolean ENABLE_BANNER_BY_DEFAULT = false;
+    private static final String DEFAULT_BANNER_CONTENT = "Warning - unauthorized use of this tool is strictly " +
+            "prohibited. All activities performed using this tool are logged and monitored.";
 
     /**
      * This method is used to save the Admin advisory banner configurations which is specific to tenant.
@@ -44,12 +46,13 @@ public class AdminAdvisoryManagementService {
      */
     public void saveAdminAdvisoryConfig(AdminAdvisoryBannerDTO adminAdvisoryBanner) throws AdminAdvisoryMgtException {
 
+        AdminAdvisoryBannerDAO adminAdvisoryBannerDAO =
+                AdminAdvisoryManagementDataHolder.getInstance().getAdminAdvisoryBannerDAOService();
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        Resource bannerResource = createAdminBannerRegistryResource(adminAdvisoryBanner);
-
-        registryResourceConfig.putRegistryResource(bannerResource, ADMIN_ADVISORY_BANNER_PATH, tenantDomain);
+        adminAdvisoryBannerDAO.saveAdminAdvisoryConfig(adminAdvisoryBanner, tenantDomain);
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Admin advisory banner configuration saved successfully for tenant: " + tenantDomain);
+            LOG.debug("Admin advisory banner configurations successfully stored in storage: " +
+                    adminAdvisoryBannerDAO.getClass() + " for tenant: " + tenantDomain + ".");
         }
     }
 
@@ -60,55 +63,28 @@ public class AdminAdvisoryManagementService {
      */
     public AdminAdvisoryBannerDTO getAdminAdvisoryConfig() throws AdminAdvisoryMgtException {
 
-        AdminAdvisoryBannerDTO adminAdvisoryBanner;
+        AdminAdvisoryBannerDAO adminAdvisoryBannerDAO =
+                AdminAdvisoryManagementDataHolder.getInstance().getAdminAdvisoryBannerDAOService();
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        Optional<AdminAdvisoryBannerDTO> optionalAdminAdvisoryBanner =
+                adminAdvisoryBannerDAO.loadAdminAdvisoryConfig(tenantDomain);
 
-        Resource registryResource = registryResourceConfig.getRegistryResource(ADMIN_ADVISORY_BANNER_PATH,
-                tenantDomain);
-        if (registryResource != null) {
-            adminAdvisoryBanner = createAdminAdvisoryBannerDTO(registryResource);
+        if (optionalAdminAdvisoryBanner.isPresent()) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Admin advisory banner configuration loaded successfully for tenant: " + tenantDomain);
+                LOG.debug("Admin advisory banner configurations successfully loaded from storage: " +
+                        adminAdvisoryBannerDAO.getClass() + " for tenant: " + tenantDomain + ".");
             }
+            return optionalAdminAdvisoryBanner.get();
         } else {
-            adminAdvisoryBanner = new AdminAdvisoryBannerDTO();
-            adminAdvisoryBanner.setEnableBanner(AdminAdvisoryManagementConstants.ENABLE_BANNER_BY_DEFAULT);
-            adminAdvisoryBanner.setBannerContent(AdminAdvisoryManagementConstants.DEFAULT_BANNER_CONTENT);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Admin advisory banner configurations are not available in storage: " +
+                        adminAdvisoryBannerDAO.getClass() +
+                        ". Hence, default configurations will be used for tenant: " + tenantDomain + ".");
+            }
+            AdminAdvisoryBannerDTO adminAdvisoryBanner = new AdminAdvisoryBannerDTO();
+            adminAdvisoryBanner.setEnableBanner(ENABLE_BANNER_BY_DEFAULT);
+            adminAdvisoryBanner.setBannerContent(DEFAULT_BANNER_CONTENT);
+            return adminAdvisoryBanner;
         }
-
-        return adminAdvisoryBanner;
-    }
-
-    /**
-     * This method is used to convert AdminAdvisoryBannerDTO to Resource object to be saved in registry.
-     *
-     * @return Resource object.
-     */
-    private Resource createAdminBannerRegistryResource(AdminAdvisoryBannerDTO adminAdvisoryBannerDTO) {
-
-        // Set resource properties.
-        Resource bannerResource = new ResourceImpl();
-        bannerResource.setProperty(AdminAdvisoryManagementConstants.ENABLE_BANNER,
-                String.valueOf(adminAdvisoryBannerDTO.getEnableBanner()));
-        bannerResource.setProperty(AdminAdvisoryManagementConstants.BANNER_CONTENT,
-                String.valueOf(adminAdvisoryBannerDTO.getBannerContent()));
-
-        return bannerResource;
-    }
-
-    /**
-     * This method is used to convert Resource object to AdminAdvisoryBannerDTO to be saved in registry.
-     *
-     * @return AdminAdvisoryBannerDTO object.
-     */
-    private AdminAdvisoryBannerDTO createAdminAdvisoryBannerDTO(Resource bannerResource) {
-
-        AdminAdvisoryBannerDTO adminAdvisoryBannerDTO = new AdminAdvisoryBannerDTO();
-        String enableBanner = bannerResource.getProperty(AdminAdvisoryManagementConstants.ENABLE_BANNER);
-        String content = bannerResource.getProperty(AdminAdvisoryManagementConstants.BANNER_CONTENT);
-        adminAdvisoryBannerDTO.setEnableBanner(Boolean.parseBoolean(enableBanner));
-        adminAdvisoryBannerDTO.setBannerContent(content);
-
-        return adminAdvisoryBannerDTO;
     }
 }

@@ -69,11 +69,16 @@
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Axis2Module>${project.artifactId}-${project.version}</Axis2Module>
                         <Private-Package>
-                            org.wso2.carbon.admin.advisory.mgt.internal
+                            org.wso2.carbon.admin.advisory.mgt.internal,
+                            org.wso2.carbon.admin.advisory.mgt.dao.impl
                         </Private-Package>
                         <Export-Package>
                             !org.wso2.carbon.admin.advisory.mgt.internal,
-                            org.wso2.carbon.admin.advisory.mgt.*
+                            !org.wso2.carbon.admin.advisory.mgt.dao.impl,
+                            org.wso2.carbon.admin.advisory.mgt.dao,
+                            org.wso2.carbon.admin.advisory.mgt.dto,
+                            org.wso2.carbon.admin.advisory.mgt.service,
+                            org.wso2.carbon.admin.advisory.mgt.exception
                         </Export-Package>
                         <Import-Package>
                             org.osgi.framework.*,
@@ -86,5 +91,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
