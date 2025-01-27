@@ -584,6 +584,10 @@ public class JDBCRealmUtil {
         if (!properties.containsKey(JDBCRealmConstants.GET_GROUP_FROM_GROUP_ID)) {
             properties.put(JDBCRealmConstants.GET_GROUP_FROM_GROUP_ID, JDBCRealmConstants.GET_GROUP_FROM_GROUP_ID_SQL);
         }
+        if (!properties.containsKey(JDBCRealmConstants.GET_GROUP_FILTER_WITH_GROUP_NAME)) {
+            properties.put(JDBCRealmConstants.GET_GROUP_FILTER_WITH_GROUP_NAME,
+                    JDBCRealmConstants.GET_GROUP_FILTER_WITH_GROUP_NAME_SQL);
+        }
         if (!properties.containsKey(JDBCRealmConstants.GET_GROUP_FILTER_WITH_GROUP_ID)) {
             properties.put(JDBCRealmConstants.GET_GROUP_FILTER_WITH_GROUP_ID,
                     JDBCRealmConstants.GET_GROUP_FILTER_WITH_GROUP_ID_SQL);
