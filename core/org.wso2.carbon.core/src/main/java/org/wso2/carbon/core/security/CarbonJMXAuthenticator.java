@@ -108,6 +108,7 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
 
                 // Clear the sensitive information from memory
                 clearCredentials((String[]) credentials);
+                clearPassword(password);
                 UserRealmService userRealmService = CarbonCoreDataHolder.getInstance().getRealmService();
                 TenantManager tenantManager = userRealmService.getTenantManager();
                 String tenantDomain = MultitenantUtils.getTenantDomain(userName);
@@ -176,5 +177,11 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
 
         // Clear the sensitive information stored in the string array
         Arrays.fill(credentials, null);
+    }
+
+    private void clearPassword(char[] password) {
+
+        // Clear the sensitive information stored in the char array
+        Arrays.fill(password, '\0');
     }
 }
