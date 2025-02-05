@@ -1341,7 +1341,7 @@
                 <version>${version.ant.contrib}</version>
             </dependency>
             <dependency>
-                <groupId>org.codehaus.jettison.wso2</groupId>
+                <groupId>org.wso2.orbit.org.codehaus.jettison</groupId>
                 <artifactId>jettison</artifactId>
                 <version>${orbit.version.jettison}</version>
             </dependency>
