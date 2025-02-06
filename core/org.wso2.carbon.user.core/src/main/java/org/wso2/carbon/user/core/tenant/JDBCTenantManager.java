@@ -1352,8 +1352,8 @@ public class JDBCTenantManager implements TenantManager {
             offsetParameter = offset;
             limitParameter = limit;
         } else if (DB2.equalsIgnoreCase(dbType)) {
-            sqlQuery = TenantConstants.LIST_TENANTS_PAGINATED_DB2;
-            sqlTail = String.format(TenantConstants.LIST_TENANTS_DB2_TAIL, sortedOrder);
+            sqlQuery = String.format(TenantConstants.LIST_TENANTS_PAGINATED_DB2, sortedOrder);
+            sqlTail = TenantConstants.LIST_TENANTS_DB2_TAIL;
             offsetParameter = offset + 1;
             limitParameter = offset + limit;
         } else if (POSTGRESQL.equalsIgnoreCase(dbType)) {
