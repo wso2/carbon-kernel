@@ -216,6 +216,9 @@
                                 <featureArtifactDef>
                                     org.wso2.carbon:org.wso2.carbon.core.runtime.feature:${carbon.kernel.version}
                                 </featureArtifactDef>
+                                <featureArtifactDef>
+                                    org.wso2.carbon.utils:org.wso2.carbon.database.utils.feature:${org.wso2.carbon.database.utils.version}
+                                </featureArtifactDef>
                             </featureArtifacts>
                         </configuration>
                     </execution>

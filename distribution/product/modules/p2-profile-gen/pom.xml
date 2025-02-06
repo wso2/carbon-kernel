@@ -80,6 +80,9 @@
                                 <featureArtifactDef>
                                     org.wso2.ciphertool:org.wso2.ciphertool.feature:${version.ciphertool}
                                 </featureArtifactDef>
+                                <featureArtifactDef>
+                                    org.wso2.carbon.utils:org.wso2.carbon.database.utils.feature:${org.wso2.carbon.database.utils.version}
+                                </featureArtifactDef>
                             </featureArtifacts>
                         </configuration>
                     </execution>
@@ -105,6 +108,10 @@
                                 <feature>
                                     <id>org.wso2.ciphertool.feature.group</id>
                                     <version>${version.ciphertool}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.database.utils.feature.group</id>
+                                    <version>${org.wso2.carbon.database.utils.version}</version>
                                 </feature>
                             </features>
                         </configuration>

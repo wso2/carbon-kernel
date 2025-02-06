@@ -73,9 +73,10 @@
                                 </bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.poi:poi-ooxml:${orbit.version.poi.ooxml}
                                 </bundleDef>
-                                <bundleDef>org.wso2.carbon.utils:org.wso2.carbon.database.utils:${org.wso2.carbon.database.utils.version}
-                                </bundleDef>
                             </bundles>
+                            <importFeatures>
+                                <importFeatureDef>org.wso2.carbon.database.utils:compatible:${org.wso2.carbon.database.utils.version}</importFeatureDef>
+                            </importFeatures>
                         </configuration>
                     </execution>
                 </executions>
