@@ -162,6 +162,7 @@ public final class XsdUtil {
                                 }
                             }
                             outstream.flush();
+                            instream.close();
                             return;
                         }
                     }
