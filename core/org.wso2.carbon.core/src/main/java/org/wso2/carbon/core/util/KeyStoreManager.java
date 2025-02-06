@@ -445,6 +445,20 @@ public class KeyStoreManager {
     }
 
     /**
+     * Get the private key password for the given key store name.
+     *
+     * @param keyStoreName key store name.
+     * @return Private key password as a character array/
+     */
+    public char[] getPrivateKeyPassword(String keyStoreName) throws CarbonException {
+
+        if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
+            return getPrimaryPrivateKeyPasssword().toCharArray();
+        }
+        return getKeyStorePasswordAsCharArray(keyStoreName);
+    }
+
+    /**
      * Update the key store with the given name using the modified key store object provided.
      *
      * @param name     key store name
