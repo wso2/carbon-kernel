@@ -31,6 +31,15 @@
     <url>http://wso2.org</url>
     <description>This feature contains the carbon core server features</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.wso2.carbon.utils</groupId>
+            <artifactId>org.wso2.carbon.database.utils.feature</artifactId>
+            <version>${org.wso2.carbon.database.utils.version}</version>
+            <type>zip</type>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -73,9 +82,12 @@
                                 </bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.poi:poi-ooxml:${orbit.version.poi.ooxml}
                                 </bundleDef>
-                                <bundleDef>org.wso2.carbon.utils:org.wso2.carbon.database.utils:${org.wso2.carbon.database.utils.version}
-                                </bundleDef>
                             </bundles>
+                            <importFeatures>
+                                <importFeatureDef>
+                                    org.wso2.carbon.database.utils:compatible:${org.wso2.carbon.database.utils.version}
+                                </importFeatureDef>
+                            </importFeatures>
                         </configuration>
                     </execution>
                 </executions>
