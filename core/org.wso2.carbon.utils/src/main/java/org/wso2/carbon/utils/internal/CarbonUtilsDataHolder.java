@@ -47,7 +47,6 @@ public class CarbonUtilsDataHolder {
 
     public void setDataSource() {
 
-        LOG.info("Initializing KeyStore Data Source at the bundle activation.");
         initializeDatasource();
         if (dataSource == null) {
             LOG.error("KeyStore Data source was not initialized at the bundle activation.");
