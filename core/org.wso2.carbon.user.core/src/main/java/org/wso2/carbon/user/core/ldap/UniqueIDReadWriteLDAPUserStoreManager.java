@@ -187,7 +187,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         DirContext dirContext = null;
         try {
             dirContext = connectionSource.getContext();
-            log.info("LDAP connection created successfully in read-write mode");
+            log.debug("LDAP connection created successfully in read-write mode");
         } catch (Exception e) {
             // Skipped to throw a UserStoreException and log the error message in-order to successfully initiate and
             // create the user-store object.

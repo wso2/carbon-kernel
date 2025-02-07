@@ -251,7 +251,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         try {
             dirContext = connectionSource.getContext();
             if (this.isReadOnly()) {
-                log.info("LDAP connection created successfully in read-only mode");
+                log.debug("LDAP connection created successfully in read-only mode");
             }
         } catch (Exception e) {
             // Skipped to throw a UserStoreException and log the error message in-order to successfully initiate and
