@@ -483,6 +483,7 @@ org.owasp.csrfguard.unprotected.oauthiwa=%servletContext%/commonauth/iwa/*
 org.owasp.csrfguard.unprotected.thrift=%servletContext%/thriftAuthenticator/*
 org.owasp.csrfguard.unprotected.mex=%servletContext%/mexut/*
 org.owasp.csrfguard.unprotected.identity=%servletContext%/identity/*
+org.owasp.csrfguard.unprotected.pushAuth=%servletContext%/push-auth/*
 {% for unprotected_service in owasp.csrfguard.unprotected.service %}
 org.owasp.csrfguard.unprotected.{{unprotected_service.name}}={{unprotected_service.service}}
 {% endfor %}
