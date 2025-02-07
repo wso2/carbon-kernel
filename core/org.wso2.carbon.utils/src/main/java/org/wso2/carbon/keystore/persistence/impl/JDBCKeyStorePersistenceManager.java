@@ -89,7 +89,7 @@ public class JDBCKeyStorePersistenceManager implements KeyStorePersistenceManage
                 preparedStatement.setTimeStamp(UPDATED_AT, currentTime, CALENDAR);
             }), keyStore, false);
         } catch (DataAccessException e) {
-            throw new SecurityException("Error while adding the key store.", e);
+            throw new SecurityException("Error while adding the key store: " + keyStore.getName(), e);
         }
     }
 
@@ -105,7 +105,7 @@ public class JDBCKeyStorePersistenceManager implements KeyStorePersistenceManage
                 preparedStatement.setInt(TENANT_ID, tenantId);
             }));
         } catch (DataAccessException e) {
-            throw new SecurityException("Error while retrieving key store.", e);
+            throw new SecurityException("Error while retrieving key store: " + keyStoreName, e);
         }
         return Optional.ofNullable(keyStoreModel);
     }
@@ -122,7 +122,8 @@ public class JDBCKeyStorePersistenceManager implements KeyStorePersistenceManage
                     }));
             return keystoreID != null;
         } catch (DataAccessException e) {
-            throw new SecurityException("Error while checking Tenant Primary KeyStore existence", e);
+            throw new SecurityException("Error while checking the KeyStore existence for keystore name: "
+                    + keyStoreName, e);
         }
     }
 
@@ -137,7 +138,7 @@ public class JDBCKeyStorePersistenceManager implements KeyStorePersistenceManage
                     preparedStatement.setInt(TENANT_ID, tenantId)
             ));
         } catch (DataAccessException e) {
-            throw new SecurityException("Error while retrieving key store list of tenant.", e);
+            throw new SecurityException("Error while retrieving key store list of tenant: " + tenantId, e);
         }
         return keyStores;
     }
@@ -155,7 +156,7 @@ public class JDBCKeyStorePersistenceManager implements KeyStorePersistenceManage
                 preparedStatement.setInt(TENANT_ID, tenantId);
             }));
         } catch (DataAccessException e) {
-            throw new SecurityException("Error while updating key store.", e);
+            throw new SecurityException("Error while updating key store: " + keyStoreModel.getName(), e);
         }
     }
 
@@ -169,7 +170,7 @@ public class JDBCKeyStorePersistenceManager implements KeyStorePersistenceManage
                 preparedStatement.setInt(TENANT_ID, tenantId);
             }));
         } catch (DataAccessException e) {
-            throw new SecurityException("Error while deleting key store.", e);
+            throw new SecurityException("Error while deleting key store: " + keyStoreName, e);
         }
 
     }
@@ -185,7 +186,8 @@ public class JDBCKeyStorePersistenceManager implements KeyStorePersistenceManage
                 preparedStatement.setInt(TENANT_ID, tenantId);
             }));
         } catch (DataAccessException e) {
-            throw new SecurityException("Error while retrieving key store last modified date.", e);
+            throw new SecurityException("Error while retrieving key store last modified date for keystore: " +
+                    keyStoreName, e);
         }
     }
 
@@ -215,7 +217,7 @@ public class JDBCKeyStorePersistenceManager implements KeyStorePersistenceManage
                 preparedStatement.setInt(TENANT_ID, tenantId);
             }));
         } catch (DataAccessException e) {
-            throw new SecurityException("Error while retrieving private key password.", e);
+            throw new SecurityException("Error while retrieving private key password :" + keyStoreName, e);
         }
     }
 
