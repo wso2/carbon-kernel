@@ -146,9 +146,6 @@ public class ReadOnlyLDAPUserStoreConstants {
                 "Use Case Sensitive Username for Cache Keys", "true",
                 UserStoreConfigConstants.USE_CASE_SENSITIVE_USERNAME_FOR_CACHE_KEYS_DESCRIPTION,
                 new Property[] { USER.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
-
-        setProperty("ReadOnly", "", "true", "",
-                new Property[] { USER.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
     }
 
     private static void setMandatoryProperty(String name, String displayName, String value, String description,
