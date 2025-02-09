@@ -174,6 +174,41 @@ public class KeyStoreManager {
     /**
      * Add new key store.
      *
+     * @param keystoreContent   Key store object.
+     * @param filename          File name of the key store.
+     * @param password          Password of the key store.
+     * @param provider          Provider of the key store.
+     * @param type              Keys store type (JKS, PKCS12, etc).
+     * @param privateKeyPass    Password of the private key.
+     * @throws SecurityException  If an error occurs while adding the key store.
+     * @deprecated Use {@link #addKeyStore(byte[], String, char[], String, String, char[])} instead.
+     */
+    @Deprecated
+    public void addKeyStore(byte[] keystoreContent, String filename, String password, String provider,
+                            String type, String privateKeyPass) throws SecurityException {
+
+        char[] passwordChar = new char[0];
+        char[] privateKeyPasswordChar = new char[0];
+        try {
+            if (password == null) {
+                throw new SecurityException("Key store password can't be null");
+            } else if (privateKeyPass == null) {
+                passwordChar = password.toCharArray();
+                addKeyStore(keystoreContent, filename, passwordChar, provider, type, null);
+            } else {
+                passwordChar = password.toCharArray();
+                privateKeyPasswordChar = privateKeyPass.toCharArray();
+                addKeyStore(keystoreContent, filename, passwordChar, provider, type, privateKeyPasswordChar);
+            }
+        } finally {
+            Arrays.fill(passwordChar, '\0');
+            Arrays.fill(privateKeyPasswordChar, '\0');
+        }
+    }
+
+    /**
+     * Add new key store.
+     *
      * @param keystoreContent        Key store object.
      * @param filename               File name of the key store.
      * @param passwordChar           Password of the key store as a character array.
