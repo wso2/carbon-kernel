@@ -86,6 +86,7 @@ import javax.xml.transform.Source;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
@@ -112,6 +113,9 @@ public class CarbonUtils {
     private static final List<String> allowedDeployers = new ArrayList<String>() {{
         add("org.apache.axis2.deployment.ServiceDeployer");
     }};
+    private static String JAVAX_TRANSFORMER_PROP_VAL =
+            "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl";
+
 
     public static boolean isAdminConsoleEnabled() {
         boolean enableAdminConsole = false;
@@ -1210,8 +1214,24 @@ public class CarbonUtils {
      */
     public static TransformerFactory getSecureTransformerFactory() throws TransformerConfigurationException {
 
-        TransformerFactory factory = TransformerFactory.newInstance();
-        factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        TransformerFactory factory;
+        try {
+            // Prevent XXE Attack by ensure using the correct factory class to create TrasformerFactory instance.
+            // This will instruct Java to use to version which supports using ACCESS_EXTERNAL_DTD argument.
+            factory = TransformerFactory.newInstance(JAVAX_TRANSFORMER_PROP_VAL, null);
+        } catch (TransformerFactoryConfigurationError e) {
+            log.error("Failed to load default TransformerFactory", e);
+            // This part uses the default implementation of xalan.
+            factory = TransformerFactory.newInstance();
+        }
+        try {
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        } catch (TransformerConfigurationException e) {
+            log.error("Failed to load XML Processor Feature " + XMLConstants.FEATURE_SECURE_PROCESSING +
+                    " for secure-processing.");
+        }
+        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
         return factory;
     }
 
