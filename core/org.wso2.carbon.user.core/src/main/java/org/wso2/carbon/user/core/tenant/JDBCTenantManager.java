@@ -1284,19 +1284,22 @@ public class JDBCTenantManager implements TenantManager {
      */
     private int getTenantResultCount(String domainName) throws UserStoreException {
 
-        String sqlFilter = StringUtils.EMPTY;
+        String sqlFilter;
         if (StringUtils.isNotBlank(domainName)) {
             sqlFilter = SPACE_SEPARATOR + String.format(
                     domainName.contains(SQL_FILTER_STRING_ANY)
                             ? TenantConstants.LIST_TENANTS_DOMAIN_FILTER_LIKE
                             : TenantConstants.LIST_TENANTS_DOMAIN_FILTER_EQUAL,
-                    SQL_WHERE_CLAUSE);
+                    SQL_WHERE_CLAUSE) + SPACE_SEPARATOR + SQL_AND_CLAUSE +
+                    TenantConstants.COUNT_TENANTS_EXCLUDING_ORGANIZATIONS_SQL;
+        } else {
+            sqlFilter = SPACE_SEPARATOR + SQL_WHERE_CLAUSE + TenantConstants.COUNT_TENANTS_EXCLUDING_ORGANIZATIONS_SQL;
         }
         String sqlStmt = TenantConstants.LIST_TENANTS_COUNT_SQL + sqlFilter;
         int tenantCount = 0;
         try (Connection dbConnection = getDBConnection();
              PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
-            if (StringUtils.isNotBlank(sqlFilter)) {
+            if (StringUtils.isNotBlank(domainName)) {
                 prepStmt.setString(1, domainName);
             }
             try (ResultSet rs = prepStmt.executeQuery()) {
