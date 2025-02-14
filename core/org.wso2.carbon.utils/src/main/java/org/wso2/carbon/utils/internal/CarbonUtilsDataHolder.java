@@ -61,10 +61,14 @@ public class CarbonUtilsDataHolder {
             try {
                 dataSource = InitialContext.doLookup(dataSourceName);
                 if (dataSource == null) {
-                    LOG.warn("Data source for KeyStore Data Persistence not found: " + dataSourceName);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Data source for KeyStore Data Persistence not found: " + dataSourceName);
+                    }
                 }
             } catch (NamingException e) {
-                LOG.error("Error in looking up keystore data source due to a NamingException: ", e);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Error in looking up keystore data source due to a NamingException: ", e);
+                }
             }
             int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
             if (dataSource == null && tenantId != MultitenantConstants.SUPER_TENANT_ID) {
