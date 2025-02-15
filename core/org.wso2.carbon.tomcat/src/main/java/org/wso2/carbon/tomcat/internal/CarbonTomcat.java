@@ -258,6 +258,13 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
             ctx.setPath(contextPath);
             ctx.setDocBase(webappFilePath);
             ctx.setRealm(host.getRealm());
+
+            /*
+            This can be removed once the issue mentioned in https://github.com/wso2/product-is/issues/22632
+            is addressed in Tomcat.
+            */
+            ((StandardContext) ctx).setNotFoundClassResourceCacheSize(0);
+
             // We dont need to init the DefaultWebXML since we maintain a web.xml file for a carbon server.
             // hence removing ctx.addLifecycleListener(new Tomcat.DefaultWebXmlListener()); code
             if (lifecycleListener != null) {
