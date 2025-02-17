@@ -31,7 +31,7 @@ import org.wso2.carbon.utils.CarbonUtils;
 public class KeyStorePersistenceManagerFactory {
 
     private static final Log LOG = LogFactory.getLog(KeyStorePersistenceManagerFactory.class);
-    private static final String KEYSTORE_STORAGE_TYPE =
+    private static String KEYSTORE_STORAGE_TYPE =
             CarbonUtils.getServerConfiguration().getFirstProperty("KeyStoreDataPersistenceManager.DataStorageType");
     private static final String REGISTRY = "registry";
     private static final String HYBRID = "hybrid";
