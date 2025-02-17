@@ -1,4 +1,5 @@
 {
+  "registry_mode.readOnly": false,
   "server.default_cache_timeout": "15m",
   "server.default_realm_cache_timeout": "30m",
   "server.force_local_cache": true,
