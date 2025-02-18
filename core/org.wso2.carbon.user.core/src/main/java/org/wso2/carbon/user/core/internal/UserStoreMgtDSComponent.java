@@ -236,7 +236,7 @@ public class UserStoreMgtDSComponent {
             if (method != null) {
                 method.setAccessible(true);
                 method.invoke(object, claimManager);
-                log.info("Claim manager set for " + object.getClass());
+                log.debug("Claim manager set for " + object.getClass());
                 method.setAccessible(false);
             } else {
                 throw new NoSuchMethodException();
