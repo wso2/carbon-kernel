@@ -104,6 +104,7 @@ import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_CREATED_D
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_ID_ATTRIBUTE;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.dateAndTimePattern;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_LDAP_TIMESTAMP_EXTRACTION;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_ID;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_NAME;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_NO_USER_WITH_USERNAME;
@@ -123,6 +124,7 @@ import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.NUMBER;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataTypes.STRING;
 import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.TRANSFORM_OBJECTGUID_TO_UUID;
+import static org.wso2.carbon.user.core.ldap.LDAPConstants.DEFAULT_LDAP_BASIC_TIMESTAMP_FORMAT;
 import static org.wso2.carbon.user.core.ldap.LDAPConstants.DEFAULT_LDAP_TIME_FORMATS_PATTERN;
 import static org.wso2.carbon.user.core.ldap.LDAPConstants.GROUP_NAME_ATTRIBUTE;
 
@@ -1750,7 +1752,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         // For sorting groupNameAttribute will be used.
         String groupNameAttribute = realmConfig.getUserStoreProperty(GROUP_NAME_ATTRIBUTE);
         LDAPSearchSpecification ldapSearchSpecification = new LDAPSearchSpecification(realmConfig,
-                mapConditionsToLDAPGroupAttributes(expressionConditions), true);
+                mapConditionsToLDAPGroupAttributes(expressionConditions), true, getLDAPGroupTimestampFormat());
         DirContext dirContext = this.connectionSource.getContext();
         LdapContext ldapContext = (LdapContext) dirContext;
         try {
@@ -4245,5 +4247,104 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             JNDIUtil.closeContext(dirContext);
         }
         return list;
+    }
+
+    /**
+     * Get the LDAP timestamp format by reading a sample timestamp from LDAP.
+     *
+     * If a timestamp format is explicitly configured, it will be used. Otherwise, a sample timestamp will be read from
+     * LDAP group entries and the format will be inferred using regex. If no format can be inferred, the default RFC
+     * 4517 (https://www.ietf.org/rfc/rfc4517.txt) format will be used.
+     *
+     * @return The LDAP timestamp format for group entries.
+     * @throws UserStoreException If an error occurs during LDAP search or connection.
+     */
+    private String getLDAPGroupTimestampFormat() throws UserStoreException {
+
+        // Check if a timestamp format is explicitly configured.
+        String configuredFormat = realmConfig.getUserStoreProperty(UserStoreConfigConstants.dateAndTimePattern);
+        if (StringUtils.isNotBlank(configuredFormat)) {
+            return configuredFormat;
+        }
+
+        DirContext dirContext = null;
+        try {
+            dirContext = connectionSource.getContext();
+
+            // Get the group created date attribute name.
+            String groupCreatedAttributeName =
+                    realmConfig.getUserStoreProperty(UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE);
+            if (StringUtils.isBlank(groupCreatedAttributeName)) {
+                groupCreatedAttributeName = LDAPConstants.DEFAULT_GROUP_CREATED_DATE_ATTRIBUTE;
+            }
+
+            SearchControls searchCtls = new SearchControls();
+            searchCtls.setReturningAttributes(new String[]{groupCreatedAttributeName});
+            searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+
+            // Search for group entries to infer the timestamp format.
+            String groupSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE);
+            if (StringUtils.isNotBlank(groupSearchBase)) {
+                NamingEnumeration<SearchResult> answer = null;
+                try {
+                    answer = dirContext.search(groupSearchBase, "(objectClass=*)", searchCtls);
+                    String detectedFormat = inferLDAPTimestampFormat(answer, groupCreatedAttributeName);
+                    if (detectedFormat != null) {
+                        return detectedFormat;
+                    }
+                } finally {
+                    JNDIUtil.closeNamingEnumeration(answer);
+                }
+            }
+        } catch (NamingException e) {
+            throw new UserStoreException(
+                    ERROR_DURING_LDAP_TIMESTAMP_EXTRACTION.getMessage(),
+                    ERROR_DURING_LDAP_TIMESTAMP_EXTRACTION.getCode(), e);
+        } finally {
+            JNDIUtil.closeContext(dirContext);
+        }
+
+        // Fallback to the basic RFC 4517 Generalized Time syntax.
+        return DEFAULT_LDAP_BASIC_TIMESTAMP_FORMAT;
+    }
+
+    /**
+     * Infers the LDAP group timestamp format from a sample LDAP entry.
+     * The patterns checked here correspond to formats defined in DEFAULT_LDAP_TIME_FORMATS_PATTERN
+     * ("[uuuuMMddHHmmss[,SSS][.SSS]X][uuuuMMddHHmmss[,SS][.SS]X][uuuuMMddHHmm[,S][.S]X]").
+     *
+     * @param answer                 A NamingEnumeration containing LDAP search results.
+     * @param timestampAttributeName The LDAP attribute name containing the timestamp.
+     * @return The inferred timestamp format string, or null if not detected.
+     * @throws NamingException If an error occurs while accessing LDAP attributes.
+     */
+    private String inferLDAPTimestampFormat(NamingEnumeration<SearchResult> answer, String timestampAttributeName)
+            throws NamingException {
+
+        if (answer != null && answer.hasMore()) {
+            SearchResult sr = answer.next();
+            Attribute attr = sr.getAttributes().get(timestampAttributeName);
+            if (attr != null) {
+                String sampleTimestamp = (String) attr.get();
+                // Case 1: 14 digits with no fractional seconds, e.g. 20250130083725Z or with offset ±HHMM
+                if (sampleTimestamp.matches("^\\d{14}([-+]\\d{4}|Z)$")) {
+                    return "uuuuMMddHHmmssX";
+                }
+                // Case 2: 14 digits with 3-digit fraction (comma or period), e.g. 20250130083725,801Z
+                // or 20250130083725.801Z
+                else if (sampleTimestamp.matches("^\\d{14}[,\\.]\\d{3}([-+]\\d{4}|Z)$")) {
+                    return sampleTimestamp.contains(",") ? "uuuuMMddHHmmss,SSSX" : "uuuuMMddHHmmss.SSSX";
+                }
+                // Case 3: 14 digits with 2-digit fraction, e.g. 20250130083725,80Z or 20250130083725.80Z
+                else if (sampleTimestamp.matches("^\\d{14}[,\\.]\\d{2}([-+]\\d{4}|Z)$")) {
+                    return sampleTimestamp.contains(",") ? "uuuuMMddHHmmss,SSX" : "uuuuMMddHHmmss.SSX";
+                }
+                // Case 4: 12 digits (up to minute) with 1-digit fraction, e.g. 202501300837,8Z or 202501300837.8Z
+                else if (sampleTimestamp.matches("^\\d{12}[,\\.]\\d{1}([-+]\\d{4}|Z)$")) {
+                    return sampleTimestamp.contains(",") ? "uuuuMMddHHmm,SX" : "uuuuMMddHHmm.SX";
+                }
+            }
+        }
+        return null;
     }
 }

@@ -20,15 +20,24 @@ package org.wso2.carbon.user.core.ldap;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.core.UserStoreClientException;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.model.ExpressionAttribute;
 import org.wso2.carbon.user.core.model.ExpressionCondition;
 import org.wso2.carbon.user.core.model.ExpressionOperation;
 
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import javax.naming.directory.SearchControls;
 
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages;
+import static org.wso2.carbon.user.core.ldap.LDAPConstants.DEFAULT_GROUP_CREATED_DATE_ATTRIBUTE;
+import static org.wso2.carbon.user.core.ldap.LDAPConstants.DEFAULT_GROUP_LAST_MODIFIED_DATE_ATTRIBUTE;
+import static org.wso2.carbon.user.core.ldap.LDAPConstants.DEFAULT_LDAP_BASIC_TIMESTAMP_FORMAT;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_CREATED_DATE_ATTRIBUTE;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_ID_ATTRIBUTE;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_LAST_MODIFIED_DATE_ATTRIBUTE;
@@ -42,6 +51,7 @@ public class LDAPSearchSpecification {
     private static final String EQUALS_SIGN = "=";
     private static final String SERVICE_NAME_ATTRIBUTE = "sn";
     private static final String VALUE_SEPARATOR = ",";
+    private final String ldapTimestampFormat;
 
     private RealmConfiguration realmConfig;
     private SearchControls searchControls = new SearchControls();
@@ -66,7 +76,15 @@ public class LDAPSearchSpecification {
                                    boolean isGroupAttributeFiltering)
             throws UserStoreException {
 
+        this(realmConfig, expressionConditions, isGroupAttributeFiltering, DEFAULT_LDAP_BASIC_TIMESTAMP_FORMAT);
+    }
+
+    public LDAPSearchSpecification(RealmConfiguration realmConfig, List<ExpressionCondition> expressionConditions,
+                                   boolean isGroupAttributeFiltering, String ldapTimestampFormat)
+            throws UserStoreException {
+
         this.realmConfig = realmConfig;
+        this.ldapTimestampFormat = ldapTimestampFormat;
         this.searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
         for (ExpressionCondition expressionCondition : expressionConditions) {
@@ -216,6 +234,13 @@ public class LDAPSearchSpecification {
                 property = getClaimProperty(expressionCondition);
                 if (property == null) continue;
             }
+
+            // Check if this is a group timestamp attribute.
+            if (isGroupAttributeFiltering && isGroupTimestampAttribute(attributeName)) {
+                // Convert ISO timestamp to LDAP format by replacing the value.
+                value = new StringBuilder(convertFromStandardToLDAPFormat(value.toString()));
+            }
+
             ExpressionCondition condition = new ExpressionCondition(operation, String.valueOf(property),
                     String.valueOf(value));
             ldapFilterQueryBuilder.addFilter(condition, isMembershipMultiGroupFilters);
@@ -322,6 +347,66 @@ public class LDAPSearchSpecification {
             return null;
         }
         return property;
+    }
+
+    /**
+     * Determines if the given attribute name is a group timestamp attribute.
+     *
+     * @param attributeName The LDAP attribute name to check.
+     * @return True if the attribute is a group timestamp attribute; false otherwise.
+     */
+    private boolean isGroupTimestampAttribute(String attributeName) {
+
+        // Get configured attribute names, falling back to defaults if not configured.
+        String configuredCreatedTime = realmConfig.getUserStoreProperty(GROUP_CREATED_DATE_ATTRIBUTE);
+        String configuredModifiedTime = realmConfig.getUserStoreProperty(GROUP_LAST_MODIFIED_DATE_ATTRIBUTE);
+
+        String createdTimeAttr = StringUtils.isNotBlank(configuredCreatedTime) ?
+                configuredCreatedTime : DEFAULT_GROUP_CREATED_DATE_ATTRIBUTE;
+        String modifiedTimeAttr = StringUtils.isNotBlank(configuredModifiedTime) ?
+                configuredModifiedTime : DEFAULT_GROUP_LAST_MODIFIED_DATE_ATTRIBUTE;
+
+        return createdTimeAttr.equals(attributeName) || modifiedTimeAttr.equals(attributeName);
+    }
+
+    /**
+     * Converts an ISO 8601 timestamp to the LDAP timestamp format.
+     * <p>
+     * This method parses the given ISO 8601 timestamp (e.g. "2025-02-13T09:16:53.572Z")
+     * and formats it to the LDAP generalized time format (e.g. "20250213091653.572Z")
+     * using the configured LDAP timestamp format.
+     *
+     * @param isoTimestamp The timestamp in ISO 8601 format.
+     * @return The timestamp in LDAP format.
+     * @throws UserStoreException If the conversion fails due to parsing or formatting errors.
+     */
+    private String convertFromStandardToLDAPFormat(String isoTimestamp) throws UserStoreException {
+
+        if (StringUtils.isBlank(isoTimestamp)) {
+            return isoTimestamp;
+        }
+
+        OffsetDateTime odt;
+        try {
+            // Attempt to parse the provided ISO 8601 timestamp.
+            odt = OffsetDateTime.parse(isoTimestamp);
+        } catch (DateTimeParseException e) {
+            throw new UserStoreClientException(
+                    String.format(ErrorMessages.ERROR_INVALID_ISO_TIMESTAMP.getMessage(), isoTimestamp),
+                    ErrorMessages.ERROR_INVALID_ISO_TIMESTAMP.getCode(),
+                    e);
+        }
+
+        try {
+            // Use the configured LDAP timestamp format (or default) to format the timestamp.
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(ldapTimestampFormat);
+            return odt.withOffsetSameInstant(ZoneOffset.UTC).format(formatter);
+        } catch (Exception e) {
+            throw new UserStoreException(
+                    String.format(ErrorMessages.ERROR_DURING_LDAP_TIMESTAMP_CONVERSION.getMessage(), isoTimestamp),
+                    ErrorMessages.ERROR_DURING_LDAP_TIMESTAMP_CONVERSION.getCode(),
+                    e);
+        }
     }
 
     public SearchControls getSearchControls() {

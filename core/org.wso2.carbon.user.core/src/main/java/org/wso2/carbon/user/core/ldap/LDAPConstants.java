@@ -112,6 +112,7 @@ public class LDAPConstants {
      */
     public static final String DEFAULT_LDAP_TIME_FORMATS_PATTERN = "[uuuuMMddHHmmss[,SSS][.SSS]X]" +
             "[uuuuMMddHHmmss[,SS][.SS]X][uuuuMMddHHmm[,S][.S]X]";
+    public static final String DEFAULT_LDAP_BASIC_TIMESTAMP_FORMAT = "uuuuMMddHHmmssX";
 
     public static final String LIST_SERVICE_PRINCIPAL_ENTITIES = "ListServicePrincipalEntities";
 }
