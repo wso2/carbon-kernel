@@ -167,7 +167,7 @@
      if (CarbonUtils.isManagementConsoleBannerEnabled()) {
     %>
     <div style="background-color: #fff5e8;text-align: justify;padding: 10px;align-self: center;">
-        Management Console is currently operating in legacy mode. It offers limited functionality, including Multi-Tenancy, XACML, and Keystore Management. For a more comprehensive suite of features, we strongly recommend using the new console.
+        The Management Console is currently operating in legacy mode, which offers limited functionality. For a more comprehensive suite of features, we strongly recommend using the new console.
     </div>
     <%
     }
