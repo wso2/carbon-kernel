@@ -75,6 +75,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -4261,9 +4263,9 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
      */
     private String getLDAPGroupTimestampFormat() throws UserStoreException {
 
-        // Check if a timestamp format is explicitly configured.
+        // Check if a timestamp format is explicitly configured and use if only it has a single timestamp format.
         String configuredFormat = realmConfig.getUserStoreProperty(UserStoreConfigConstants.dateAndTimePattern);
-        if (StringUtils.isNotBlank(configuredFormat)) {
+        if (StringUtils.isNotBlank(configuredFormat) && hasSingleTimestampFormat(configuredFormat)) {
             return configuredFormat;
         }
 
@@ -4306,6 +4308,60 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
 
         // Fallback to the basic RFC 4517 Generalized Time syntax.
         return DEFAULT_LDAP_BASIC_TIMESTAMP_FORMAT;
+    }
+
+    /**
+     * Checks whether the configured timestamp format contains a single format.
+     *
+     * This method uses the regex pattern "\\[[^\\[\\]]+\\]" to locate bracketed segments.
+     * Breakdown of the regex:
+     * - "\\[" matches a literal '['.
+     * - "[^\\[\\]]+" matches one or more characters that are NOT '[' or ']'. This ensures that any matched
+     *   segment does not contain nested brackets.
+     * - "\\]" matches a literal ']'.
+     *
+     * The method counts the number of these bracketed segments in the given string. It returns true
+     * if the count is either 0 (i.e. no optional segment, like in a plain format "uuuuMMddHHmmssX")
+     * or exactly 1, and returns false if more than one segment is detected.
+     *
+     * Examples:
+     * - "uuuuMMddHHmmssX" 
+     *      returns true (plain format, no bracketed optional part).
+     * - "uuuuMMddHHmmss[.SSS]X" 
+     *      returns true (one optional bracketed segment "[.SSS]").
+     * - "[uuuuMMddHHmmss[.SSS]X]" 
+     *      returns true. Although the outer brackets enclose the whole string, the regex only matches the inner
+     *      segment "[.SSS]", so only one valid bracketed segment is counted.
+     * - "[uuuuMMddHHmmss[.SSS][,SSS]X]" 
+     *      returns false because it detects two segments ("[.SSS]" and "[,SSS]").
+     * - "[uuuuMMddHHmmss[.SSS]X][uuuuMMddHHmmss[.SS]X]" 
+     *      returns false since it finds two separate bracketed segments (one from each outer part).
+     *
+     * @param configuredFormat The timestamp format configuration string.
+     * @return true if the configuration contains zero or one bracketed segment; false if it contains more than one.
+     */
+    private boolean hasSingleTimestampFormat(String configuredFormat) {
+
+        if (StringUtils.isBlank(configuredFormat)) {
+            return false;
+        }
+
+        // Create a Pattern object with the regex that matches a bracketed segment without nested brackets.
+        Pattern pattern = Pattern.compile("\\[[^\\[\\]]+\\]");
+        Matcher matcher = pattern.matcher(configuredFormat);
+
+        int count = 0;
+        // Iterate over all matches found by the matcher.
+        while (matcher.find()) {
+            count++;
+            // If more than one match is found, the configuration is invalid.
+            if (count > 1) {
+                return false;
+            }
+        }
+
+        // Valid if zero or one match was found.
+        return count <= 1;
     }
 
     /**
