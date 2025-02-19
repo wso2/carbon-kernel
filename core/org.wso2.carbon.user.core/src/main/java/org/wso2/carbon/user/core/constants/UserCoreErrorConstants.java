@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2018-2025, WSO2 LLC. (https://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -245,6 +245,7 @@ public class UserCoreErrorConstants {
         ERROR_UNSUPPORTED_DATE_SEARCH_FILTER("60011", "Unsupported date seacrh filter."),
         ERROR_SYSTEM_RESERVED_DOMAIN_IN_GROUP("60012", "Group name: %s contains a system reserved " +
                 "domain name"),
+        ERROR_INVALID_ISO_TIMESTAMP("60013", "Timestamp '%s' is not in valid ISO 8601 format."),
 
         // Server error codes related to group operations.
         ERROR_DURING_PRE_GET_GROUP_BY_ID("65001",
@@ -298,7 +299,11 @@ public class UserCoreErrorConstants {
         ERROR_DURING_POST_UPDATE_USER_LIST_OF_GROUP("65029",
                 "Un-expected error during post updating user list of groups with ID, %s"),
         ERROR_WHILE_UPDATE_USER_LIST_OF_GROUP("65030",
-                "Un-expected error while updating user list of group, %s");
+                "Un-expected error while updating user list of group, %s"),
+        ERROR_DURING_LDAP_TIMESTAMP_EXTRACTION("65031",
+                "Error connecting to LDAP server for timestamp extraction."),
+        ERROR_DURING_LDAP_TIMESTAMP_CONVERSION("65032",
+                "Error converting ISO timestamp '%s' to LDAP format.");
 
         private final String code;
         private final String message;
