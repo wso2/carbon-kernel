@@ -84,9 +84,15 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
 String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
 ConfigurationContext configContext = (ConfigurationContext) config.getServletContext()
     .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-AdminAdvisoryBannerDTO adminConfig = getAdminBannerConfig(backendServerURL, configContext);
-Boolean enableBanner = adminConfig.getEnableBanner();
-String bannerContent = adminConfig.getBannerContent();
+boolean isMCEnabled = !Boolean.parseBoolean(System.getProperty("optimize"));
+
+boolean enableBanner = false;
+String bannerContent = "";
+if (isMCEnabled) {
+    AdminAdvisoryBannerDTO adminConfig = getAdminBannerConfig(backendServerURL, configContext);
+    enableBanner = adminConfig.getEnableBanner();
+    bannerContent = adminConfig.getBannerContent();
+}
 %>
 
 <fmt:bundle basename="org.wso2.carbon.i18n.Resources">
@@ -224,6 +230,7 @@ String bannerContent = adminConfig.getBannerContent();
                         </table>
                     </div>
                 </td>
+                <% if (isMCEnabled) { %>
                 <td width="20%">
                     <div id="loginbox">
                         <h2><fmt:message key="sign.in"/></h2>
@@ -297,6 +304,7 @@ String bannerContent = adminConfig.getBannerContent();
                         </a>
                     </div>
                 </td>
+                <% } %>
             </tr>
         </table>
     </div>
