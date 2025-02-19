@@ -36,6 +36,7 @@
         session.setAttribute(CarbonConstants.SERVER_URL, serverURL);
     }
 
+    boolean isMCEnabled = !Boolean.parseBoolean(System.getProperty("optimize"));
 %>
 <!--[IF IE 7]>
 	<style>
@@ -137,12 +138,16 @@
 		                <li class="right">
 		                    <a href="../admin/logout_action.jsp"><fmt:message key="sign.out"/></a>
 		                </li>
-		                <%  } else { %>
+		                <%  } else if (isMCEnabled) { %>
 		                <li class="right">
 		                    <a href="../admin/login.jsp"><fmt:message key="sign.in"/></a>
 		                </li>
 		                <%  } %>
+
+		                <%  if (isMCEnabled) { %>
 		                <li class="middle">|</li>
+		                <%  } %>
+
 		                <li class="middle">
 		                    <a target="_blank" href="<%=userGuideURL %>"><fmt:message key="docs"/></a>
 		                </li>
@@ -167,7 +172,11 @@
      if (CarbonUtils.isManagementConsoleBannerEnabled()) {
     %>
     <div style="background-color: #fff5e8;text-align: justify;padding: 10px;align-self: center;">
-        The Management Console is currently operating in legacy mode, which offers limited functionality. For a more comprehensive suite of features, we strongly recommend using the new console.
+        <% if (isMCEnabled) { %>
+            The Management Console is currently operating in legacy mode, which offers limited functionality. For a more comprehensive suite of features, we strongly recommend using the new console.
+        <% } else { %>
+            The Management Console is currently disabled and recommends to the new console. Refer to the documentation for more information.
+        <% }%>
     </div>
     <%
     }
