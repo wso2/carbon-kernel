@@ -173,6 +173,18 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     private String userDnCacheName;
     private boolean userDnCacheEnabled = true;
 
+    // Regex pattern to match bracketed segments without nested brackets.
+    private static final Pattern TIMESTAMP_FORMAT_PATTERN = Pattern.compile("\\[[^\\[\\]]+\\]");
+
+    // Regex patterns for LDAP timestamp formats.
+    private static final Pattern NO_FRACTION_TIMESTAMP_PATTERN = Pattern.compile("^\\d{14}([-+]\\d{4}|Z)$");
+    private static final Pattern THREE_DIGIT_FRACTION_TIMESTAMP_PATTERN =
+            Pattern.compile("^\\d{14}[,\\.]\\d{3}([-+]\\d{4}|Z)$");
+    private static final Pattern TWO_DIGIT_FRACTION_TIMESTAMP_PATTERN =
+            Pattern.compile("^\\d{14}[,\\.]\\d{2}([-+]\\d{4}|Z)$");
+    private static final Pattern ONE_DIGIT_FRACTION_TIMESTAMP_PATTERN =
+            Pattern.compile("^\\d{12}[,\\.]\\d{1}([-+]\\d{4}|Z)$");
+
     static {
         setAdvancedProperties();
     }
@@ -4346,9 +4358,8 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             return false;
         }
 
-        // Create a Pattern object with the regex that matches a bracketed segment without nested brackets.
-        Pattern pattern = Pattern.compile("\\[[^\\[\\]]+\\]");
-        Matcher matcher = pattern.matcher(configuredFormat);
+        // Pattern with the regex that match bracketed segments without nested brackets.
+        Matcher matcher = TIMESTAMP_FORMAT_PATTERN.matcher(configuredFormat);
 
         int count = 0;
         // Iterate over all matches found by the matcher.
@@ -4383,20 +4394,20 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             if (attr != null) {
                 String sampleTimestamp = (String) attr.get();
                 // Case 1: 14 digits with no fractional seconds, e.g. 20250130083725Z or with offset ±HHMM
-                if (sampleTimestamp.matches("^\\d{14}([-+]\\d{4}|Z)$")) {
+                if (NO_FRACTION_TIMESTAMP_PATTERN.matcher(sampleTimestamp).matches()) {
                     return "uuuuMMddHHmmssX";
                 }
                 // Case 2: 14 digits with 3-digit fraction (comma or period), e.g. 20250130083725,801Z
                 // or 20250130083725.801Z
-                else if (sampleTimestamp.matches("^\\d{14}[,\\.]\\d{3}([-+]\\d{4}|Z)$")) {
+                else if (THREE_DIGIT_FRACTION_TIMESTAMP_PATTERN.matcher(sampleTimestamp).matches()) {
                     return sampleTimestamp.contains(",") ? "uuuuMMddHHmmss,SSSX" : "uuuuMMddHHmmss.SSSX";
                 }
                 // Case 3: 14 digits with 2-digit fraction, e.g. 20250130083725,80Z or 20250130083725.80Z
-                else if (sampleTimestamp.matches("^\\d{14}[,\\.]\\d{2}([-+]\\d{4}|Z)$")) {
+                else if (TWO_DIGIT_FRACTION_TIMESTAMP_PATTERN.matcher(sampleTimestamp).matches()) {
                     return sampleTimestamp.contains(",") ? "uuuuMMddHHmmss,SSX" : "uuuuMMddHHmmss.SSX";
                 }
                 // Case 4: 12 digits (up to minute) with 1-digit fraction, e.g. 202501300837,8Z or 202501300837.8Z
-                else if (sampleTimestamp.matches("^\\d{12}[,\\.]\\d{1}([-+]\\d{4}|Z)$")) {
+                else if (ONE_DIGIT_FRACTION_TIMESTAMP_PATTERN.matcher(sampleTimestamp).matches()) {
                     return sampleTimestamp.contains(",") ? "uuuuMMddHHmm,SX" : "uuuuMMddHHmm.SX";
                 }
             }
