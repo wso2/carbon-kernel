@@ -120,7 +120,7 @@ public class JDBCUserStoreConstants {
                 new Property[] { USER.getProperty(), BOOLEAN.getProperty(), TRUE.getProperty() });
 
         //set Advanced properties
-        setAdvancedProperty("IsBulkImportSupported", "Is Bulk Import Supported", "false",
+        setAdvancedProperty("IsBulkImportSupported", "Is Bulk Import Supported", "true",
                 "Support Bulk User Import Operation for this user store",
                 new Property[] { USER.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCRealmConstants.DIGEST_FUNCTION, "Password Hashing Algorithm", "SHA-256",
