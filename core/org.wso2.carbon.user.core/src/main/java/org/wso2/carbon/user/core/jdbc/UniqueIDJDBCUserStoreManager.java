@@ -2021,6 +2021,19 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         throw new NotImplementedException("This functionality is not yet implemented for UniqueID JDBC userstores.");
     }
 
+    private void processMultiValuedAttributes(Connection dbConnection, String userId,
+                                              Map<String, String> processedClaimAttributes, String profileName)
+            throws UserStoreException {
+
+        for (Map.Entry<String, String> entry : processedClaimAttributes.entrySet()) {
+            String claimURI = entry.getKey();
+            String claimValue = entry.getValue();
+            if (claimValue != null && claimValue.contains(",")) {
+                deletePropertyWithID(dbConnection, userId, claimURI, profileName);
+            }
+        }
+    }
+
     @Override
     protected void doSetUserAttributesWithID(String userId, Map<String, String> processedClaimAttributes,
                                              String profileName) throws UserStoreException {
@@ -2032,7 +2045,22 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             Map<String, String> alreadyAvailableProperties = getUserPropertyValuesWithID(userId,
                     receivedProperties.toArray(new String[0]), profileName);
 
+            /* this.getRealmConfiguration().getUserStoreProperties().get(UserCoreConstants.MULTI_VALUE_SEPARATE_STORE_PROPERTIES);
+              Process only those claims instead of using comma as the deciding factor.
+            */
+            List<String> removeKeys = new ArrayList<>();
+            for (String key : alreadyAvailableProperties.keySet()) {
+                if (alreadyAvailableProperties.get(key).contains(",")) {
+                    removeKeys.add(key);
+                }
+            }
+            for (String key : removeKeys) {
+                alreadyAvailableProperties.remove(key);
+            }
+
+
             dbConnection = getDBConnection();
+            processMultiValuedAttributes(dbConnection, userId, processedClaimAttributes, profileName);
             addPropertiesWithID(dbConnection, userId, filterNewlyAddedProperties(processedClaimAttributes,
                     alreadyAvailableProperties), profileName);
             updateProperties(dbConnection, userId, filterUpdatedProperties(processedClaimAttributes,
@@ -3197,28 +3225,41 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     private void batchUpdateStringValuesToDatabase(PreparedStatement prepStmt, Object... params)
             throws UserStoreException {
 
+        String claim = params[3].toString();
+        String[] claims = claim.split(",");
+        List<Object[]> paramsList = new ArrayList<>();
+        if (claims.length > 1) {
+            for (String c : claims) {
+                Object[] params1 = params.clone();
+                params1[3] = c;
+                paramsList.add(params1);
+            }
+        }
+        paramsList.add(params);
         try {
-            if (params != null && params.length > 0) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param == null) {
-                        throw new UserStoreException("Invalid data provided");
-                    } else if (param instanceof String) {
-                        if (isStoreUserAttributeAsUnicode()) {
-                            prepStmt.setNString(i + 1, (String) param);
-                        } else {
-                            prepStmt.setString(i + 1, (String) param);
+            for (Object[] params1 : paramsList) {
+                if (params1 != null && params1.length > 0) {
+                    for (int i = 0; i < params1.length; i++) {
+                        Object param = params1[i];
+                        if (param == null) {
+                            throw new UserStoreException("Invalid data provided");
+                        } else if (param instanceof String) {
+                            if (isStoreUserAttributeAsUnicode()) {
+                                prepStmt.setNString(i + 1, (String) param);
+                            } else {
+                                prepStmt.setString(i + 1, (String) param);
+                            }
+                        } else if (param instanceof Integer) {
+                            prepStmt.setInt(i + 1, (Integer) param);
+                        } else if (param instanceof Date) {
+                            prepStmt.setTimestamp(i + 1, new Timestamp(System.currentTimeMillis()));
+                        } else if (param instanceof Boolean) {
+                            prepStmt.setBoolean(i + 1, (Boolean) param);
                         }
-                    } else if (param instanceof Integer) {
-                        prepStmt.setInt(i + 1, (Integer) param);
-                    } else if (param instanceof Date) {
-                        prepStmt.setTimestamp(i + 1, new Timestamp(System.currentTimeMillis()));
-                    } else if (param instanceof Boolean) {
-                        prepStmt.setBoolean(i + 1, (Boolean) param);
                     }
                 }
+                prepStmt.addBatch();
             }
-            prepStmt.addBatch();
         } catch (SQLException e) {
             String msg = "Error occurred while updating property values to database.";
             if (log.isDebugEnabled()) {
