@@ -492,7 +492,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 roleID = rs.getString(1);
             }
             if (StringUtils.isEmpty(roleID)) {
-                String errorMessage = "Group name : " + roleName + " does not exist in the user store.";
+                String errorMessage = "Group name: " + roleName + " does not exist in the user store.";
                 throw new UserStoreClientException(errorMessage);
             }
             return Integer.parseInt(roleID);
