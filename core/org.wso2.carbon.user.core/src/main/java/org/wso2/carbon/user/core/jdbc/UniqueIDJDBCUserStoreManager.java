@@ -456,7 +456,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         try {
             dbConnection = getDBConnection();
             prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setString(1, roleId);
+            prepStmt.setInt(1, Integer.parseInt(roleId));
             prepStmt.setInt(2, tenantId);
             rs = prepStmt.executeQuery();
             while (rs.next()) {
