@@ -447,7 +447,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     public int getUserCountByRole(RoleContext ctx) throws UserStoreException {
 
         String roleName = ctx.getRoleName();
-        String roleId = getRoleIdByName(ctx.getRoleName(), tenantId);
+        int roleId = getRoleIdByName(ctx.getRoleName(), tenantId);
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -456,7 +456,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         try {
             dbConnection = getDBConnection();
             prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setInt(1, Integer.parseInt(roleId));
+            prepStmt.setInt(1, roleId);
             prepStmt.setInt(2, tenantId);
             rs = prepStmt.executeQuery();
             while (rs.next()) {
@@ -475,7 +475,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
     }
 
-    private String getRoleIdByName(String roleName, int tenantId) throws UserStoreException {
+    private int getRoleIdByName(String roleName, int tenantId) throws UserStoreException {
 
         String roleID = null;
         Connection dbConnection = null;
@@ -491,7 +491,11 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             while (rs.next()) {
                 roleID = rs.getString(1);
             }
-            return roleID;
+            if (StringUtils.isEmpty(roleID)) {
+                String errorMessage = "Group name : " + roleName + " does not exist in the user store.";
+                throw new UserStoreClientException(errorMessage);
+            }
+            return Integer.parseInt(roleID);
         } catch (SQLException e) {
             String errorMessage =
                     "Error occurred while getting the role id for the role : " + roleName;
