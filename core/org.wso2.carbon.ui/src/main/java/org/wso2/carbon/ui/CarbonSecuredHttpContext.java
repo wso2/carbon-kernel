@@ -338,11 +338,7 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
             }
             // Before bypassing, set the backendURL properly so that it doesn't fail
             String contextPath = request.getContextPath();
-            String backendServerURL = request.getParameter("backendURL");
-            if (backendServerURL == null) {
-                backendServerURL = CarbonUIUtil.getServerURL(session.getServletContext(),
-                        request.getSession());
-            }
+            String backendServerURL = CarbonUIUtil.getServerURL(session.getServletContext(), request.getSession());
             if ("/".equals(contextPath)) {
                 contextPath = "";
             }
