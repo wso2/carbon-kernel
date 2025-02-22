@@ -492,11 +492,7 @@ public abstract class AbstractCarbonUIAuthenticator implements CarbonUIAuthentic
         HttpSession session = request.getSession();
         ServletContext servletContext = session.getServletContext();
 
-        String backendServerURL = request.getParameter("backendURL");
-
-        if (backendServerURL == null) {
-            backendServerURL = CarbonUIUtil.getServerURL(servletContext, request.getSession());
-        }
+        String backendServerURL = CarbonUIUtil.getServerURL(servletContext, request.getSession());
 
         if (backendServerURL != null) {
             session.setAttribute(CarbonConstants.SERVER_URL, backendServerURL);

@@ -171,10 +171,7 @@ public class BasicAuthUIAuthenticator extends AbstractCarbonUIAuthenticator {
             throws AxisFault {
         HttpSession session = request.getSession();
         ServletContext servletContext = session.getServletContext();
-        String backendServerURL = request.getParameter("backendURL");
-        if (backendServerURL == null) {
-            backendServerURL = CarbonUIUtil.getServerURL(servletContext, request.getSession());
-        }
+        String backendServerURL = CarbonUIUtil.getServerURL(servletContext, request.getSession());
         session.setAttribute(CarbonConstants.SERVER_URL, backendServerURL);
 
         ConfigurationContext configContext = (ConfigurationContext) servletContext
