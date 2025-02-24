@@ -324,7 +324,12 @@
         {% else %}
          <CacheInvalidationImpl>org.wso2.carbon.caching.impl.clustering.ClusterCacheInvalidationRequestSender</CacheInvalidationImpl>
         {% endif %}
+        <{% if server.cache.propagation_enabled is defined %}
         <CachePropagationEnabled>{{server.cache.propagation_enabled}}</CachePropagationEnabled>
+        {% endif %}
+        {% if server.cache.periodic_cleanup_enabled is defined %}
+        <CachePeriodicCleanupEnabled>{{server.cache.periodic_cleanup_enabled}}</CachePeriodicCleanupEnabled>
+        {% endif %}
     </Cache>
 
     <!--

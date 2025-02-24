@@ -170,6 +170,24 @@ public final class Util {
         return false;
     }
 
+    /**
+     * Return whether the cache periodic cleanup enabled or not.
+     *
+     * @return boolean.
+     */
+    public static boolean isPeriodicCacheCleanUpEnabled() {
+
+        ServerConfigurationService serverConfigService = DataHolder.getInstance().getServerConfigurationService();
+        if (serverConfigService != null) {
+            String cacheCleanUp = serverConfigService.getFirstProperty(
+                    CachingConstants.PERIODIC_CACHE_CLEANUP_ENABLED);
+            if (StringUtils.isNotEmpty(cacheCleanUp)) {
+                return Boolean.parseBoolean(cacheCleanUp.trim());
+            }
+        }
+        return false;
+    }
+
     private Util() {
     }
 }
