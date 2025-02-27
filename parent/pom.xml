@@ -11,6 +11,7 @@
     <artifactId>carbon-parent</artifactId>
     <packaging>pom</packaging>
     <version>4.10.43-SNAPSHOT</version>
+
     <name>WSO2 Carbon - Parent Pom</name>
     <description>WSO2 Carbon Kernel Parent Pom</description>
     <url>http://wso2.org</url>
@@ -547,6 +548,7 @@
         <version.opencsv>1.8.wso2v1</version.opencsv>
 
         <orbit.version.httpcore>4.4.16.wso2v1</orbit.version.httpcore>
+        <httpcomponents.wso2.httpcore5.version>5.3.3</httpcomponents.wso2.httpcore5.version>
         <orbit.version.wsdl4j>1.6.2.wso2v4</orbit.version.wsdl4j>
         <orbit.version.commons.httpclient>3.1.0.wso2v6</orbit.version.commons.httpclient>
         <orbit.version.commons.pool>1.5.6.wso2v1</orbit.version.commons.pool>
@@ -656,6 +658,7 @@
         <version.saaj.impl>1.5.0</version.saaj.impl>
 
         <httpcomponents-httpclient.wso2.version>4.5.13.wso2v1</httpcomponents-httpclient.wso2.version>
+        <httpcomponents.wso2.httpclient5.version>5.4.1</httpcomponents.wso2.httpclient5.version>
         <httpcomponents-httpclient.imp.pkg.version.range>[4.3.1.wso2v2,5.0.0)</httpcomponents-httpclient.imp.pkg.version.range>
 
         <org.wso2.carbon.database.utils.version>2.2.4</org.wso2.carbon.database.utils.version>
@@ -1177,6 +1180,11 @@
                 <groupId>org.apache.httpcomponents.wso2</groupId>
                 <artifactId>httpcore</artifactId>
                 <version>${orbit.version.httpcore}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore5</artifactId>
+                <version>${httpcomponents.wso2.httpcore5.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.sf.ehcache.wso2</groupId>
@@ -1927,6 +1935,11 @@
                 <groupId>org.wso2.orbit.org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
                 <version>${httpcomponents-httpclient.wso2.version}</version>
+            </dependency>
+            <dependency>
+            <groupId>org.wso2.orbit.org.apache.httpcomponents</groupId>
+            <artifactId>httpclient5</artifactId>
+            <version>${httpcomponents.wso2.httpclient5.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.utils</groupId>
