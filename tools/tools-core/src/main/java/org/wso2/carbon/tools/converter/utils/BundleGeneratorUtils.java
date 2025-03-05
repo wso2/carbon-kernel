@@ -296,7 +296,7 @@ public class BundleGeneratorUtils {
                     }
                 });
 
-        logger.log(Level.FINE, "Returning a List<String> of packages from the JAR file " + jarFile.toString());
+        logger.log(Level.FINE, "Returning a List<String> of packages from the JAR file " + jarFile);
         return exportedPackagesList;
     }
 
