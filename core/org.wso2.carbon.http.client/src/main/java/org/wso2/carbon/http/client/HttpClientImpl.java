@@ -5,10 +5,8 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
-import org.apache.hc.client5.http.ssl.ClientTlsStrategyBuilder;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.wso2.carbon.utils.CustomHostNameVerifier;
 
 import javax.net.ssl.HostnameVerifier;
@@ -20,10 +18,11 @@ import static org.wso2.carbon.CarbonConstants.DEFAULT_AND_LOCALHOST;
 import static org.wso2.carbon.CarbonConstants.HOST_NAME_VERIFIER;
 
 /**
- *
+ * Class to create Http clients with connection managers.
  */
 public abstract class HttpClientImpl implements HttpClient, CloseableHttpClientFactory {
 
+    // --- deprecated ---
     protected HttpClientConnectionManager connectionManager;
 
     protected HttpClientImpl() {
@@ -36,6 +35,7 @@ public abstract class HttpClientImpl implements HttpClient, CloseableHttpClientF
     protected void setConnectionManager(HttpClientConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
     }
+    // -------
 
     private CloseableHttpClient getClient() {
         return HttpClients.custom()
@@ -45,8 +45,8 @@ public abstract class HttpClientImpl implements HttpClient, CloseableHttpClientF
     }
 
     /**
-     * @param url
-     * @return
+     * @param url: URL to send the GET request.
+     * @return InputStream: Response content as an input stream.
      */
     @Override
     public InputStream get(String url) {
@@ -81,14 +81,9 @@ public abstract class HttpClientImpl implements HttpClient, CloseableHttpClientF
      *
      * @return CloseableHttpClient.
      */
-    public CloseableHttpClient createClientWithCustomVerifier() {
+    public static CloseableHttpClient createClientWithCustomVerifier() {
 
         HttpClientBuilder httpClientBuilder = HttpClients.custom().useSystemProperties();
-//        if (DEFAULT_AND_LOCALHOST.equals(System.getProperty(HOST_NAME_VERIFIER))) {
-//            httpClientBuilder.setHostnameVerifier(new CustomHostNameVerifier());
-//        } else if (ALLOW_ALL.equals(System.getProperty(HOST_NAME_VERIFIER))) {
-//            httpClientBuilder.setHostnameVerifier(NoopHostnameVerifier.INSTANCE);
-//        }
 
         HostnameVerifier hostnameVerifier;
         if (DEFAULT_AND_LOCALHOST.equals(System.getProperty(HOST_NAME_VERIFIER))) {
@@ -99,11 +94,8 @@ public abstract class HttpClientImpl implements HttpClient, CloseableHttpClientF
             hostnameVerifier = null;
         }
 
-        TlsStrategy tlsStrategy = ClientTlsStrategyBuilder.create()
-                                .setHostnameVerifier(hostnameVerifier).build();
-
-
-        httpClientBuilder.setConnectionManager(connectionManager)
+        httpClientBuilder.setConnectionManager(
+                PoolingConnectionHttpClientImpl.getConnectionManagerWithCustomVerifier(hostnameVerifier))
                 .setConnectionManagerShared(true);
 
         return httpClientBuilder.build();

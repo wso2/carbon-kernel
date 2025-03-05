@@ -64,7 +64,8 @@ public class PoolingConnectionHttpClientImpl {
 //        super.setConnectionManager(poolingHttpClientConnectionManager);
 //    }
 
-    public static PoolingHttpClientConnectionManager getConnectionManagerWithCustomVerifier(HostnameVerifier hostnameVerifier) {
+    public static PoolingHttpClientConnectionManager getConnectionManagerWithCustomVerifier
+            (HostnameVerifier hostnameVerifier) {
 
         // TODO - May need to remove trusting all certificates
         // Create a custom SSL context to trust all certificates (including self-signed)
