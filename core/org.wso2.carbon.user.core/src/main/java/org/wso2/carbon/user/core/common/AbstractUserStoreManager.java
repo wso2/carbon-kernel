@@ -128,6 +128,7 @@ import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMe
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_SYSTEM_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_INVALID_DOMAIN_NAME;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_ROLE_ALREADY_EXISTS;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_POST_GET_GROUP;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_DURING_POST_GET_GROUPS_LIST_BY_USER_ID;
@@ -8207,7 +8208,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     } else if (SYSTEM_DOMAIN_NAME.equalsIgnoreCase(domain)) {
                         userStore.setSystemStore(true);
                     } else {
-                        throw new UserStoreException("Invalid Domain Name");
+                        throw new UserStoreException(String.format(ERROR_CODE_INVALID_DOMAIN_NAME.getMessage(), domain),
+                                ERROR_CODE_INVALID_DOMAIN_NAME.getCode());
                     }
                 }
 
