@@ -30,8 +30,7 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.utils</artifactId>
-            <version>4.10.43-SNAPSHOT</version>
-            <scope>compile</scope>
+            <version>4.10.43-SNAPSHOT</version> <!--Should remove this -->
         </dependency>
     </dependencies>
     <build>
