@@ -7,6 +7,7 @@ import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.core5.http.HttpEntity;
+import org.wso2.carbon.http.client.exception.HttpClientException;
 import org.wso2.carbon.utils.CustomHostNameVerifier;
 
 import javax.net.ssl.HostnameVerifier;
@@ -22,66 +23,67 @@ import static org.wso2.carbon.CarbonConstants.HOST_NAME_VERIFIER;
  */
 public abstract class HttpClientImpl implements HttpClient, CloseableHttpClientFactory {
 
-    // --- deprecated ---
-    protected HttpClientConnectionManager connectionManager;
+//    // --- deprecated ---
+//    protected HttpClientConnectionManager connectionManager;
+//
+//    protected HttpClientImpl() {
+//    }
+//
+//    protected HttpClientImpl(HttpClientConnectionManager connectionManager) {
+//        this.connectionManager = connectionManager;
+//    }
+//
+//    protected void setConnectionManager(HttpClientConnectionManager connectionManager) {
+//        this.connectionManager = connectionManager;
+//    }
+//    // -------
+//
+//    private CloseableHttpClient getClient() {
+//        return HttpClients.custom()
+//                .setConnectionManager(connectionManager)
+//                .setConnectionManagerShared(true)
+//                .build();
+//    }
 
-    protected HttpClientImpl() {
-    }
-
-    protected HttpClientImpl(HttpClientConnectionManager connectionManager) {
-        this.connectionManager = connectionManager;
-    }
-
-    protected void setConnectionManager(HttpClientConnectionManager connectionManager) {
-        this.connectionManager = connectionManager;
-    }
-    // -------
-
-    private CloseableHttpClient getClient() {
-        return HttpClients.custom()
-                .setConnectionManager(connectionManager)
-                .setConnectionManagerShared(true)
-                .build();
-    }
-
-    /**
-     * @param url: URL to send the GET request.
-     * @return InputStream: Response content as an input stream.
-     */
-    @Override
-    public InputStream get(String url) {
-
-        HttpGet getUrl = new HttpGet(url);
-
-        try (CloseableHttpClient httpClient = getClient()) {
-            return httpClient.execute(getUrl, response -> {
-                HttpEntity entity = response.getEntity();
-                if (entity != null) {
-                    return entity.getContent();
-                } else {
-                    return null;
-                }
-            });
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public void closeConnectionManager() {
-        try {
-            connectionManager.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    /**
+//     * @param url: URL to send the GET request.
+//     * @return InputStream: Response content as an input stream.
+//     */
+//    @Override
+//    public InputStream get(String url) throws HttpClientException {
+//
+//        HttpGet getUrl = new HttpGet(url);
+//
+//        try (CloseableHttpClient httpClient = getClient()) {
+//            return httpClient.execute(getUrl, response -> {
+//                HttpEntity entity = response.getEntity();
+//                if (entity != null) {
+//                    return entity.getContent();
+//                } else {
+//                    return null;
+//                }
+//            });
+//        } catch (IOException e) {
+//            throw new HttpClientException("Error occurred while executing the GET request.", e);
+//        }
+//    }
+//
+//    /**
+//     * Close the connection manager.
+//     *
+//     * @throws HttpClientException
+//     */
+//    @Override
+//    public void closeConnectionManager() throws HttpClientException {
+//        connectionManager.close();
+//    }
 
     /**
      * Get a httpclient with custom hostname verifier.
      *
      * @return CloseableHttpClient.
      */
-    public static CloseableHttpClient createClientWithCustomVerifier() {
+    public static CloseableHttpClient createClientWithCustomVerifier() throws HttpClientException {
 
         HttpClientBuilder httpClientBuilder = HttpClients.custom().useSystemProperties();
 

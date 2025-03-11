@@ -13,6 +13,7 @@ import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
+import org.wso2.carbon.http.client.exception.HttpClientException;
 
 import javax.net.ssl.HostnameVerifier;
 import java.security.KeyManagementException;
@@ -65,7 +66,7 @@ public class PoolingConnectionHttpClientImpl {
 //    }
 
     public static PoolingHttpClientConnectionManager getConnectionManagerWithCustomVerifier
-            (HostnameVerifier hostnameVerifier) {
+            (HostnameVerifier hostnameVerifier) throws HttpClientException {
 
         // TODO - May need to remove trusting all certificates
         // Create a custom SSL context to trust all certificates (including self-signed)
@@ -74,7 +75,7 @@ public class PoolingConnectionHttpClientImpl {
             sslContextBuilder = SSLContexts.custom()
                     .loadTrustMaterial((chain, authType) -> true);
         } catch (NoSuchAlgorithmException | KeyStoreException e) {
-            throw new RuntimeException(e);
+            throw new HttpClientException("Error occurred while creating the SSL context.", e);
         }
 
         TlsSocketStrategy tlsSocketStrategy = null;
@@ -87,7 +88,7 @@ public class PoolingConnectionHttpClientImpl {
                     .setTlsVersions(TLS.V_1_3)
                     .build();
         } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            throw new RuntimeException(e);
+            throw new HttpClientException("Error occurred while creating the TLS socket strategy.", e);
         }
 
         return getConnectionManager(tlsSocketStrategy);
