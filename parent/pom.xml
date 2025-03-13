@@ -658,7 +658,7 @@
         <httpcomponents-httpclient.wso2.version>4.5.13.wso2v1</httpcomponents-httpclient.wso2.version>
         <httpcomponents-httpclient.imp.pkg.version.range>[4.3.1.wso2v2,5.0.0)</httpcomponents-httpclient.imp.pkg.version.range>
 
-        <org.wso2.carbon.database.utils.version>2.2.4</org.wso2.carbon.database.utils.version>
+        <org.wso2.carbon.database.utils.version>2.2.7</org.wso2.carbon.database.utils.version>
         <org.wso2.carbon.database.utils.version.range>[2.1.0,3.0.0)</org.wso2.carbon.database.utils.version.range>
     </properties>
 
