@@ -552,6 +552,9 @@
         <orbit.version.commons.httpclient>3.1.0.wso2v6</orbit.version.commons.httpclient>
         <orbit.version.commons.pool>1.5.6.wso2v1</orbit.version.commons.pool>
 
+        <orbit.version.httpcore5>5.3.1.wso2v1</orbit.version.httpcore5>
+        <orbit.version.httpclient5>5.4.1.wso2v1</orbit.version.httpclient5>
+
         <orbit.version.encoder>1.2.0.wso2v1</orbit.version.encoder>
 
         <!--Drools-->
@@ -661,9 +664,6 @@
 
         <org.wso2.carbon.database.utils.version>2.2.4</org.wso2.carbon.database.utils.version>
         <org.wso2.carbon.database.utils.version.range>[2.1.0,3.0.0)</org.wso2.carbon.database.utils.version.range>
-
-        <httpcomponents.core5.httpcore5.version>5.3.3</httpcomponents.core5.httpcore5.version>
-        <httpcomponents.client5.httpclient5.version>5.4.1</httpcomponents.client5.httpclient5.version>
     </properties>
 
     <dependencyManagement>
@@ -1933,14 +1933,14 @@
                 <version>${httpcomponents-httpclient.wso2.version}</version>
             </dependency>
             <dependency>
-            <groupId>org.apache.httpcomponents.client5</groupId>
-            <artifactId>httpclient5</artifactId>
-            <version>${httpcomponents.client5.httpclient5.version}</version>
+                <groupId>org.wso2.orbit.org.apache.httpcomponents</groupId>
+                <artifactId>httpcore5</artifactId>
+                <version>${orbit.version.httpcore5}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.httpcomponents.core5</groupId>
-                <artifactId>httpcore5</artifactId>
-                <version>${httpcomponents.core5.httpcore5.version}</version>
+                <groupId>org.wso2.orbit.org.apache.httpcomponents</groupId>
+                <artifactId>httpclient5</artifactId>
+                <version>${orbit.version.httpclient5}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.utils</groupId>

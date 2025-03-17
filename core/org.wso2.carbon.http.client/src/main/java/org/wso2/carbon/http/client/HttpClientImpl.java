@@ -56,12 +56,19 @@ public abstract class HttpClientImpl implements HttpClient, CloseableHttpClientF
 //    }
 //    // -------
 //
-//    private CloseableHttpClient getClient() {
-//        return HttpClients.custom()
-//                .setConnectionManager(connectionManager)
-//                .setConnectionManagerShared(true)
-//                .build();
-//    }
+
+    /**
+     * Create a http client.
+     *
+     * @return CloseableHttpClient.
+     */
+    public static CloseableHttpClient createClient() throws HttpClientException {
+        return HttpClients.custom()
+                .useSystemProperties()
+                .setConnectionManager(PoolingConnectionHttpClientImpl.getConnectionManager())
+                .setConnectionManagerShared(true)
+                .build();
+    }
 
 //    /**
 //     * @param url: URL to send the GET request.

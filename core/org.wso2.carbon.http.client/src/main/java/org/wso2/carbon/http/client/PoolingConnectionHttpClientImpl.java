@@ -83,6 +83,10 @@ public class PoolingConnectionHttpClientImpl {
 //        super.setConnectionManager(poolingHttpClientConnectionManager);
 //    }
 
+    public static PoolingHttpClientConnectionManager getConnectionManager() throws HttpClientException {
+        return getConnectionManagerWithCustomVerifier(null);
+    }
+
     public static PoolingHttpClientConnectionManager getConnectionManagerWithCustomVerifier
             (HostnameVerifier hostnameVerifier) throws HttpClientException {
 
