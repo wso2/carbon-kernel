@@ -58,13 +58,25 @@ public abstract class HttpClientImpl implements HttpClient, CloseableHttpClientF
 //
 
     /**
+     * Create a http client with system properties.
+     *
+     * @return CloseableHttpClient.
+     */
+    public static CloseableHttpClient createSystemClient() {
+        return HttpClients.custom()
+                .useSystemProperties()
+                .setConnectionManager(PoolingConnectionHttpClientImpl.getConnectionManager())
+                .setConnectionManagerShared(true)
+                .build();
+    }
+
+    /**
      * Create a http client.
      *
      * @return CloseableHttpClient.
      */
-    public static CloseableHttpClient createClient() throws HttpClientException {
+    public static CloseableHttpClient createDefaultClient() {
         return HttpClients.custom()
-                .useSystemProperties()
                 .setConnectionManager(PoolingConnectionHttpClientImpl.getConnectionManager())
                 .setConnectionManagerShared(true)
                 .build();
@@ -108,7 +120,7 @@ public abstract class HttpClientImpl implements HttpClient, CloseableHttpClientF
      *
      * @return CloseableHttpClient.
      */
-    public static CloseableHttpClient createClientWithCustomVerifier() throws HttpClientException {
+    public static CloseableHttpClient createClientWithCustomVerifier() {
 
         HttpClientBuilder httpClientBuilder = HttpClients.custom().useSystemProperties();
 

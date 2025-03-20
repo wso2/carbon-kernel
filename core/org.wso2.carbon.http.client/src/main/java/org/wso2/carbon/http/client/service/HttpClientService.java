@@ -36,7 +36,11 @@ public class HttpClientService {
     }
 
 
-    public static CloseableHttpClient createClient() throws HttpClientException {
-        return HttpClientImpl.createClient();
+    public static CloseableHttpClient createSystemClient() {
+        return HttpClientImpl.createSystemClient();
+    }
+
+    public static CloseableHttpClient createDefaultClient() {
+        return HttpClientImpl.createDefaultClient();
     }
 }

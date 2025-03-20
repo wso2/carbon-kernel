@@ -83,35 +83,18 @@ public class PoolingConnectionHttpClientImpl {
 //        super.setConnectionManager(poolingHttpClientConnectionManager);
 //    }
 
-    public static PoolingHttpClientConnectionManager getConnectionManager() throws HttpClientException {
+    public static PoolingHttpClientConnectionManager getConnectionManager() {
         return getConnectionManagerWithCustomVerifier(null);
     }
 
     public static PoolingHttpClientConnectionManager getConnectionManagerWithCustomVerifier
-            (HostnameVerifier hostnameVerifier) throws HttpClientException {
+            (HostnameVerifier hostnameVerifier){
 
-        // TODO - May need to remove trusting all certificates
-        // Create a custom SSL context to trust all certificates (including self-signed)
-        SSLContextBuilder sslContextBuilder = null;  // Trust all certificates
-        try {
-            sslContextBuilder = SSLContexts.custom()
-                    .loadTrustMaterial((chain, authType) -> true);
-        } catch (NoSuchAlgorithmException | KeyStoreException e) {
-            throw new HttpClientException("Error occurred while creating the SSL context.", e);
-        }
-
-        TlsSocketStrategy tlsSocketStrategy = null;
-        // Create the PoolingHttpClientConnectionManager with SSL support
-        // Use the custom SSL context
-        try {
-            tlsSocketStrategy = (TlsSocketStrategy) ClientTlsStrategyBuilder.create()
-                    .setHostnameVerifier(hostnameVerifier)
-                    .setSslContext(sslContextBuilder.build())  // Use the custom SSL context
-                    .setTlsVersions(TLS.V_1_3)
-                    .build();
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            throw new HttpClientException("Error occurred while creating the TLS socket strategy.", e);
-        }
+        TlsSocketStrategy tlsSocketStrategy = (TlsSocketStrategy) ClientTlsStrategyBuilder.create()
+                .setHostnameVerifier(hostnameVerifier)
+                .setSslContext(SSLContexts.createSystemDefault())
+                .setTlsVersions(TLS.V_1_3)
+                .build();
 
         return getConnectionManager(tlsSocketStrategy);
     }
