@@ -19,6 +19,7 @@ package javax.cache;
 
 import java.io.Serializable;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Cache Information to Send to invalidate Cache
@@ -26,7 +27,7 @@ import java.util.UUID;
 public class CacheEntryInfo implements Serializable {
 
     private static final long serialVersionUID = 90L;
-    private final String uuid = UUID.randomUUID().toString();
+    private final String uuid = generateFastUUID();
     private final long timestamp = System.currentTimeMillis();
     private String cacheManagerName;
     private String cacheName;
@@ -115,6 +116,13 @@ public class CacheEntryInfo implements Serializable {
                 ", tenantDomain='" + tenantDomain + '\'' +
                 ", tenantId=" + tenantId +
                 '}';
+    }
+
+    private static String generateFastUUID() {
+
+        long most = ThreadLocalRandom.current().nextLong();
+        long least = ThreadLocalRandom.current().nextLong();
+        return new UUID(most, least).toString();
     }
 }
 

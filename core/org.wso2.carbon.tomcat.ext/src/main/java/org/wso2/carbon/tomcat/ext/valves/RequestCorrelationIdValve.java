@@ -19,6 +19,7 @@
 package org.wso2.carbon.tomcat.ext.valves;
 
 import com.google.gson.Gson;
+import java.util.concurrent.ThreadLocalRandom;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
@@ -115,7 +116,7 @@ public class RequestCorrelationIdValve extends ValveBase {
 
             if (associateToThreadMap.size() == 0) {
                 // Put the default generated correlation ID.
-                associateToThreadMap.put(correlationIdMdc, UUID.randomUUID().toString());
+                associateToThreadMap.put(correlationIdMdc, generateFastUUID());
             }
 
             // TraceId has to be added response header.
@@ -145,6 +146,13 @@ public class RequestCorrelationIdValve extends ValveBase {
             disAssociateFromThread();
             ThreadContext.clearAll();
         }
+    }
+
+    private String generateFastUUID() {
+
+        long most = ThreadLocalRandom.current().nextLong();
+        long least = ThreadLocalRandom.current().nextLong();
+        return new UUID(most, least).toString();
     }
 
     /**
