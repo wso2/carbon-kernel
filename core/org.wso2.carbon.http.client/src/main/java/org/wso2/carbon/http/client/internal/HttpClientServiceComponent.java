@@ -35,7 +35,7 @@ import org.wso2.carbon.http.client.service.HttpClientService;
 )
 public class HttpClientServiceComponent {
 
-    private static final Log log = LogFactory.getLog(HttpClientServiceComponent.class);
+    private static final Log LOG = LogFactory.getLog(HttpClientServiceComponent.class);
     private HttpClientDataHolder dataHolder = HttpClientDataHolder.getInstance();
 
     @Activate
@@ -45,15 +45,15 @@ public class HttpClientServiceComponent {
         try {
             bundleContext.registerService(HttpClientService.class.getName(),
                     new HttpClientService(), null);
-            log.debug("HttpClient bundle is activated.");
+            LOG.debug("HttpClient bundle is activated.");
         } catch (Throwable e) {
-            log.error("Failed to activate HttpClient bundle.", e);
+            LOG.error("Failed to activate HttpClient bundle.", e);
         }
     }
 
     @Deactivate
     protected void deactivate(ComponentContext ctxt) {
 
-        log.debug("HttpClient bundle is deactivated.");
+        LOG.debug("HttpClient bundle is deactivated.");
     }
 }

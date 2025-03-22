@@ -20,6 +20,9 @@ package org.wso2.carbon.http.client;
 
 import org.wso2.carbon.http.client.exception.HttpClientException;
 
+/**
+ * Interface for creating CloseableHttpClientFactory.
+ */
 public interface CloseableHttpClientFactory {
 
     void closeConnectionManager() throws HttpClientException;
