@@ -20,6 +20,9 @@ package org.wso2.carbon.http.client;
 
 import org.wso2.carbon.http.client.exception.HttpClientException;
 
+/**
+ * Interface for HttpClient.
+ */
 public interface HttpClient {
 
     <T> T get(String url) throws HttpClientException;

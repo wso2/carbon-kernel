@@ -41,6 +41,7 @@ public abstract class HttpClientImpl implements HttpClient, CloseableHttpClientF
      * @return CloseableHttpClient.
      */
     public static CloseableHttpClient createSystemClient() {
+
         return HttpClients.custom()
                 .useSystemProperties()
                 .setConnectionManager(PoolingConnectionHttpClientImpl.getConnectionManager())
@@ -54,6 +55,7 @@ public abstract class HttpClientImpl implements HttpClient, CloseableHttpClientF
      * @return CloseableHttpClient.
      */
     public static CloseableHttpClient createDefaultClient() {
+
         return HttpClients.custom()
                 .setConnectionManager(PoolingConnectionHttpClientImpl.getConnectionManager())
                 .setConnectionManagerShared(true)

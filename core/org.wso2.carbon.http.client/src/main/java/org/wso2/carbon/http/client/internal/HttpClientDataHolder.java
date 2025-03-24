@@ -20,7 +20,7 @@ package org.wso2.carbon.http.client.internal;
 
 
 /**
- * This singleton data holder contains all the data required by the admin advisory management OSGi bundle.
+ * This singleton data holder contains all the data required by the http client OSGi bundle.
  */
 public class HttpClientDataHolder {
 

@@ -27,16 +27,11 @@ import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.ssl.TLS;
 import org.apache.hc.core5.pool.PoolConcurrencyPolicy;
 import org.apache.hc.core5.pool.PoolReusePolicy;
-import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
-import org.wso2.carbon.http.client.exception.HttpClientException;
 
 import javax.net.ssl.HostnameVerifier;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 
 public class PoolingConnectionHttpClientImpl {
     private static final int MAX_TOTAL_CONNECTIONS = 100;
@@ -46,49 +41,25 @@ public class PoolingConnectionHttpClientImpl {
     private static final int CONNECTION_SOCKET_TIMEOUT_MINUTES = 1;
     private static final int CONNECT_TIMEOUT_MINUTES = 1;
     private static final int TIME_TO_LIVE_MINUTES = 10;
-//
-//    public PoolingConnectionHttpClientImpl() {
-//        super(getConnectionManager());
-//    }
 
-//    public PoolingConnectionHttpClientImpl(
-//            int maxTotalConnections,
-//            int maxConnectionsPerRoute,
-//            int socketTimeoutMinutes,
-//            int connectionSocketTimeoutMinutes,
-//            int connectTimeoutMinutes,
-//            int timeToLiveMinutes
-//    ) {
-//        super();
-//
-//        MAX_TOTAL_CONNECTIONS = maxTotalConnections;
-//        MAX_CONNECTIONS_PER_ROUTE = maxConnectionsPerRoute;
-//        SOCKET_TIMEOUT_MINUTES = socketTimeoutMinutes;
-//        CONNECTION_SOCKET_TIMEOUT_MINUTES = connectionSocketTimeoutMinutes;
-//        CONNECT_TIMEOUT_MINUTES = connectTimeoutMinutes;
-//        TIME_TO_LIVE_MINUTES = timeToLiveMinutes;
-//
-//        PoolingHttpClientConnectionManager poolingHttpClientConnectionManager = getConnectionManager();
-//
-//        poolingHttpClientConnectionManager.setDefaultMaxPerRoute(maxConnectionsPerRoute);
-//        poolingHttpClientConnectionManager.setMaxTotal(maxTotalConnections);
-//        poolingHttpClientConnectionManager.setDefaultSocketConfig(SocketConfig.custom()
-//                .setSoTimeout(Timeout.ofMinutes(socketTimeoutMinutes))
-//                .build());
-//        poolingHttpClientConnectionManager.setDefaultConnectionConfig(ConnectionConfig.custom()
-//                .setSocketTimeout(Timeout.ofMinutes(connectionSocketTimeoutMinutes))
-//                .setConnectTimeout(Timeout.ofMinutes(connectTimeoutMinutes))
-//                .setTimeToLive(TimeValue.ofMinutes(timeToLiveMinutes))
-//                .build());
-//        super.setConnectionManager(poolingHttpClientConnectionManager);
-//    }
-
+    /**
+     * Create a connection manager with default configurations.
+     *
+     * @return PoolingHttpClientConnectionManager
+     */
     public static PoolingHttpClientConnectionManager getConnectionManager() {
+
         return getConnectionManagerWithCustomVerifier(null);
     }
 
+    /**
+     * Create a connection manager with a custom hostname verifier.
+     *
+     * @param hostnameVerifier HostnameVerifier
+     * @return PoolingHttpClientConnectionManager
+     */
     public static PoolingHttpClientConnectionManager getConnectionManagerWithCustomVerifier
-            (HostnameVerifier hostnameVerifier){
+            (HostnameVerifier hostnameVerifier) {
 
         TlsSocketStrategy tlsSocketStrategy = (TlsSocketStrategy) ClientTlsStrategyBuilder.create()
                 .setHostnameVerifier(hostnameVerifier)
@@ -99,6 +70,12 @@ public class PoolingConnectionHttpClientImpl {
         return getConnectionManager(tlsSocketStrategy);
     }
 
+    /**
+     * Create a connection manager with a custom TLS socket strategy.
+     *
+     * @param tlsSocketStrategy TlsSocketStrategy
+     * @return PoolingHttpClientConnectionManager
+     */
     public static PoolingHttpClientConnectionManager getConnectionManager(TlsSocketStrategy tlsSocketStrategy) {
 
         SocketConfig socketConfig = SocketConfig.custom()
@@ -127,8 +104,8 @@ public class PoolingConnectionHttpClientImpl {
             PoolConcurrencyPolicy poolConcurrencyPolicy,
             PoolReusePolicy poolReusePolicy,
             ConnectionConfig connectionConfig
-    )
-    {
+    ) {
+
         return PoolingHttpClientConnectionManagerBuilder.create()
                 .setTlsSocketStrategy(tlsSocketStrategy)
                 .setDefaultSocketConfig(socketConfig)
