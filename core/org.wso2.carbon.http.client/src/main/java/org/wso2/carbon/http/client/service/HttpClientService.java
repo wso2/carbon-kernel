@@ -32,13 +32,8 @@ public class HttpClientService {
     }
 
 
-    public static CloseableHttpClient createSystemClient() {
+    public static CloseableHttpClient createClientWithSystemProperties() {
 
-        return HttpClientImpl.createSystemClient();
-    }
-
-    public static CloseableHttpClient createDefaultClient() {
-
-        return HttpClientImpl.createDefaultClient();
+        return HttpClientImpl.createClientWithSystemProperties();
     }
 }

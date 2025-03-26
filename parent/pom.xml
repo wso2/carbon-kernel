@@ -507,6 +507,7 @@
 
         <!-- bouncycastle -->
         <bouncycastle.version>1.78.1.wso2v1</bouncycastle.version>
+        <new.bouncycastle.version>1.78.1</new.bouncycastle.version>
         <imp.pkg.version.bcp>[1.0.0, 2.0.0)</imp.pkg.version.bcp>
 
         <!--BPS specific-->
@@ -989,6 +990,16 @@
                 <groupId>org.wso2.eclipse.osgi</groupId>
                 <artifactId>org.eclipse.osgi.compatibility.state</artifactId>
                 <version>${equinox.osgi.compatibility.state.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bctls-jdk18on</artifactId>
+                <version>${new.bouncycastle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcutil-jdk18on</artifactId>
+                <version>${new.bouncycastle.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.orbit.org.bouncycastle</groupId>
