@@ -18,7 +18,7 @@ package org.wso2.carbon.core.internal;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-//import org.bouncycastle.jsse.provider.BouncyCastleJsseProvider;
+import org.bouncycastle.jsse.provider.BouncyCastleJsseProvider;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.base.ServerConfiguration;
@@ -91,8 +91,8 @@ public class CarbonCoreActivator implements BundleActivator {
         if (log.isDebugEnabled()) {
             log.debug(providerName + " security provider is successfully registered in JVM.");
         }
-//        Security.insertProviderAt(new BouncyCastleJsseProvider(), 1);
-//        System.setProperty("jdk.tls.namedGroups", "X25519MLKEM768, X25519");
+        Security.insertProviderAt(new BouncyCastleJsseProvider(), 1);
+        System.setProperty("jdk.tls.namedGroups", "X25519MLKEM768, X25519");
     }
 
     public void stop(BundleContext context) throws Exception {
