@@ -22,7 +22,6 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jsse.provider.BouncyCastleJsseProvider;
 import org.wso2.carbon.utils.CustomHostNameVerifier;
 
@@ -40,9 +39,6 @@ import static org.wso2.carbon.CarbonConstants.HOST_NAME_VERIFIER;
 public abstract class HttpClientImpl implements HttpClient, CloseableHttpClientFactory {
 
     static {
-        if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
-            Security.addProvider(new BouncyCastleProvider());
-        }
         Security.insertProviderAt(new BouncyCastleJsseProvider(), 1);
 
         System.setProperty("jdk.tls.namedGroups", "X25519MLKEM768, X25519");
