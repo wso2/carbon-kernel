@@ -78,6 +78,8 @@
                             org.apache.commons.logging.*; version="${import.package.version.commons.logging}",
                             org.apache.hc.client5.http.*; version="${orbit.version.httpclient5}",
                             org.apache.hc.core5.http.*; version="${orbit.version.httpcore5}",
+                            org.bouncycastle.jce.provider*; version="${new.bouncycastle.version}
+                            org.bouncycastle.jsse.provider*; version="${new.bouncycastle.version}
                             *;resolution:=optional
                         </Import-Package>
                         <Export-Package>
