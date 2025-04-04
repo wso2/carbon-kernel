@@ -202,14 +202,6 @@
             <artifactId>org.wso2.carbon.database.utils</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bctls-jdk18on</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcutil-jdk18on</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
@@ -255,7 +247,7 @@
                             javax.xml.stream.*; version=1.0.1,
                             org.wso2.carbon.registry.core.service,
                             org.wso2.carbon.user.core.*; version=0.0.0,
-<!--                            org.bouncycastle.*; version="${imp.pkg.version.bcp}",-->
+                            org.bouncycastle.*; version="${imp.pkg.version.bcp}",
                             *;resolution:=optional
                         </Import-Package>
                         <Embed-Dependency>
