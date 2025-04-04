@@ -30,10 +30,15 @@ import org.apache.hc.core5.pool.PoolReusePolicy;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
+import org.wso2.carbon.http.client.exception.HttpClientException;
+
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 
 import javax.net.ssl.HostnameVerifier;
 
 public class PoolingConnectionHttpClientImpl {
+
     private static final int MAX_TOTAL_CONNECTIONS = 100;
     private static final int MAX_CONNECTIONS_PER_ROUTE = 5;
 
@@ -61,11 +66,15 @@ public class PoolingConnectionHttpClientImpl {
     public static PoolingHttpClientConnectionManager getConnectionManagerWithCustomVerifier
             (HostnameVerifier hostnameVerifier) {
 
-        TlsSocketStrategy tlsSocketStrategy = (TlsSocketStrategy) ClientTlsStrategyBuilder.create()
-                .setHostnameVerifier(hostnameVerifier)
-                .setSslContext(SSLContexts.createSystemDefault())
-                .setTlsVersions(TLS.V_1_3)
-                .build();
+        TlsSocketStrategy tlsSocketStrategy;
+        try {
+            tlsSocketStrategy = (TlsSocketStrategy) ClientTlsStrategyBuilder.create()
+                    .setHostnameVerifier(hostnameVerifier)
+                    .setSslContext(SSLContexts.custom().setProvider("BCJSSE").build())
+                    .build();
+        } catch (NoSuchAlgorithmException | KeyManagementException e) {
+            throw new RuntimeException(e);
+        }
 
         return getConnectionManager(tlsSocketStrategy);
     }

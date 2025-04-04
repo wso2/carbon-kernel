@@ -33,7 +33,7 @@ import static org.wso2.carbon.CarbonConstants.HOST_NAME_VERIFIER;
 /**
  * Class to create Http clients with connection managers.
  */
-public abstract class HttpClientImpl implements HttpClient, CloseableHttpClientFactory {
+public abstract class HttpClientImpl {
 
     /**
      * Create a http client with system properties.
