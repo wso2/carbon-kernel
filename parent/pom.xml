@@ -551,6 +551,9 @@
         <orbit.version.commons.httpclient>3.1.0.wso2v6</orbit.version.commons.httpclient>
         <orbit.version.commons.pool>1.5.6.wso2v1</orbit.version.commons.pool>
 
+        <orbit.version.httpcore5>5.3.1.wso2v1</orbit.version.httpcore5>
+        <orbit.version.httpclient5>5.4.1.wso2v1</orbit.version.httpclient5>
+
         <orbit.version.encoder>1.2.0.wso2v1</orbit.version.encoder>
 
         <!--Drools-->
@@ -1927,6 +1930,16 @@
                 <groupId>org.wso2.orbit.org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
                 <version>${httpcomponents-httpclient.wso2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.org.apache.httpcomponents</groupId>
+                <artifactId>httpcore5</artifactId>
+                <version>${orbit.version.httpcore5}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.org.apache.httpcomponents</groupId>
+                <artifactId>httpclient5</artifactId>
+                <version>${orbit.version.httpclient5}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.utils</groupId>

@@ -242,6 +242,14 @@
             <artifactId>org.wso2.carbon.database.utils</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.apache.httpcomponents</groupId>
+            <artifactId>httpclient5</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.apache.httpcomponents</groupId>
+            <artifactId>httpcore5</artifactId>
+        </dependency>
     </dependencies>
 
     <properties>
