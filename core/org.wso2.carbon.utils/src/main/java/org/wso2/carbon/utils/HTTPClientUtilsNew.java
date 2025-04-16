@@ -15,13 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.carbon.utils;
 
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.ssl.ClientTlsStrategyBuilder;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.TlsSocketStrategy;
-import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 
 import javax.net.ssl.HostnameVerifier;
 
