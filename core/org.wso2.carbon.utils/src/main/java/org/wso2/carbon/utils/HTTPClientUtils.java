@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2023,2025, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,9 +17,15 @@
  */
 package org.wso2.carbon.utils;
 
-import org.apache.http.conn.ssl.X509HostnameVerifier;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.ssl.ClientTlsStrategyBuilder;
+import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
+import org.apache.hc.client5.http.ssl.TlsSocketStrategy;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
+
+import javax.net.ssl.HostnameVerifier;
 
 import static org.wso2.carbon.CarbonConstants.ALLOW_ALL;
 import static org.wso2.carbon.CarbonConstants.DEFAULT_AND_LOCALHOST;
@@ -40,14 +46,45 @@ public class HTTPClientUtils {
      *
      * @return HttpClientBuilder.
      */
-    public static HttpClientBuilder createClientWithCustomVerifier() {
+    public static org.apache.http.impl.client.HttpClientBuilder createClientWithCustomVerifier() {
 
-        HttpClientBuilder httpClientBuilder = HttpClientBuilder.create().useSystemProperties();
+        org.apache.http.impl.client.HttpClientBuilder httpClientBuilder =
+                org.apache.http.impl.client.HttpClientBuilder.create().useSystemProperties();
         if (DEFAULT_AND_LOCALHOST.equals(System.getProperty(HOST_NAME_VERIFIER))) {
             X509HostnameVerifier hostnameVerifier = new CustomHostNameVerifier();
             httpClientBuilder.setHostnameVerifier(hostnameVerifier);
         } else if (ALLOW_ALL.equals(System.getProperty(HOST_NAME_VERIFIER))) {
             httpClientBuilder.setHostnameVerifier(new AllowAllHostnameVerifier());
+        }
+
+        return httpClientBuilder;
+    }
+
+    /**
+     * Get the httpclient builder with custom hostname verifier.
+     *
+     * @return HttpClientBuilder.
+     */
+    public static HttpClientBuilder createClientWithCustomVerifierNew() {
+
+        HttpClientBuilder httpClientBuilder = HttpClientBuilder.create().useSystemProperties();
+
+        HostnameVerifier hostnameVerifier = null;
+        if (DEFAULT_AND_LOCALHOST.equals(System.getProperty(HOST_NAME_VERIFIER))) {
+            hostnameVerifier = new CustomHostNameVerifierNew();
+        } else if (ALLOW_ALL.equals(System.getProperty(HOST_NAME_VERIFIER))) {
+            hostnameVerifier = NoopHostnameVerifier.INSTANCE;
+        }
+
+        if (hostnameVerifier != null) {
+            httpClientBuilder.setConnectionManager(
+                    PoolingHttpClientConnectionManagerBuilder.create().useSystemProperties()
+                            .setTlsSocketStrategy(
+                                    (TlsSocketStrategy) ClientTlsStrategyBuilder.create()
+                                            .setHostnameVerifier(hostnameVerifier)
+                            )
+                            .build()
+            );
         }
 
         return httpClientBuilder;
