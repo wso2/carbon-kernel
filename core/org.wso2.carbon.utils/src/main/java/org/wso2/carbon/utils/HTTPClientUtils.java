@@ -22,8 +22,6 @@ import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuil
 import org.apache.hc.client5.http.ssl.ClientTlsStrategyBuilder;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.TlsSocketStrategy;
-import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
-import org.apache.http.conn.ssl.X509HostnameVerifier;
 
 import javax.net.ssl.HostnameVerifier;
 
@@ -51,10 +49,10 @@ public class HTTPClientUtils {
         org.apache.http.impl.client.HttpClientBuilder httpClientBuilder =
                 org.apache.http.impl.client.HttpClientBuilder.create().useSystemProperties();
         if (DEFAULT_AND_LOCALHOST.equals(System.getProperty(HOST_NAME_VERIFIER))) {
-            X509HostnameVerifier hostnameVerifier = new CustomHostNameVerifier();
+            org.apache.http.conn.ssl.X509HostnameVerifier hostnameVerifier = new CustomHostNameVerifier();
             httpClientBuilder.setHostnameVerifier(hostnameVerifier);
         } else if (ALLOW_ALL.equals(System.getProperty(HOST_NAME_VERIFIER))) {
-            httpClientBuilder.setHostnameVerifier(new AllowAllHostnameVerifier());
+            httpClientBuilder.setHostnameVerifier(new org.apache.http.conn.ssl.AllowAllHostnameVerifier());
         }
 
         return httpClientBuilder;
