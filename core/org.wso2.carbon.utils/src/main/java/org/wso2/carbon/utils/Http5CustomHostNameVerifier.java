@@ -30,13 +30,13 @@ import javax.net.ssl.SSLSession;
 /**
  * Custom hostname verifier class.
  */
-public class CustomHostNameVerifierNew implements HttpClientHostnameVerifier {
+public class Http5CustomHostNameVerifier implements HttpClientHostnameVerifier {
 
     private static final String[] LOCALHOSTS = {"::1", "127.0.0.1", "localhost", "localhost.localdomain"};
 
     private final DefaultHostnameVerifier hostnameVerifier;
 
-    public CustomHostNameVerifierNew() {
+    public Http5CustomHostNameVerifier() {
 
         this.hostnameVerifier = new DefaultHostnameVerifier();
     }

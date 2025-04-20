@@ -44,6 +44,7 @@ public class HTTPClientUtils {
      *
      * @return HttpClientBuilder.
      */
+    @Deprecated
     public static org.apache.http.impl.client.HttpClientBuilder createClientWithCustomVerifier() {
 
         org.apache.http.impl.client.HttpClientBuilder httpClientBuilder =
@@ -63,13 +64,13 @@ public class HTTPClientUtils {
      *
      * @return HttpClientBuilder.
      */
-    public static HttpClientBuilder createClientWithCustomVerifierNew() {
+    public static HttpClientBuilder createHttp5ClientWithCustomVerifier() {
 
         HttpClientBuilder httpClientBuilder = HttpClientBuilder.create().useSystemProperties();
 
         HostnameVerifier hostnameVerifier = null;
         if (DEFAULT_AND_LOCALHOST.equals(System.getProperty(HOST_NAME_VERIFIER))) {
-            hostnameVerifier = new CustomHostNameVerifierNew();
+            hostnameVerifier = new Http5CustomHostNameVerifier();
         } else if (ALLOW_ALL.equals(System.getProperty(HOST_NAME_VERIFIER))) {
             hostnameVerifier = NoopHostnameVerifier.INSTANCE;
         }
