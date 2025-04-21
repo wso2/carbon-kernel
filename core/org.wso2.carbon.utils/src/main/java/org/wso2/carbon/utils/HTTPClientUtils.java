@@ -42,6 +42,9 @@ public class HTTPClientUtils {
     /**
      * Get the httpclient builder with custom hostname verifier.
      *
+     * @deprecated This method uses the Apache HTTP Client 4.x. Use {@link #createHttp5ClientWithCustomVerifier()}
+     * which implements Apache HTTP Client 5.x instead.
+     *
      * @return HttpClientBuilder.
      */
     @Deprecated
@@ -77,12 +80,12 @@ public class HTTPClientUtils {
 
         if (hostnameVerifier != null) {
             httpClientBuilder.setConnectionManager(
-                    PoolingHttpClientConnectionManagerBuilder.create().useSystemProperties()
-                            .setTlsSocketStrategy(
-                                    (TlsSocketStrategy) ClientTlsStrategyBuilder.create()
-                                            .setHostnameVerifier(hostnameVerifier)
-                            )
-                            .build()
+                PoolingHttpClientConnectionManagerBuilder.create().useSystemProperties()
+                    .setTlsSocketStrategy(
+                        (TlsSocketStrategy) ClientTlsStrategyBuilder.create()
+                            .setHostnameVerifier(hostnameVerifier)
+                    )
+                    .build()
             );
         }
 
