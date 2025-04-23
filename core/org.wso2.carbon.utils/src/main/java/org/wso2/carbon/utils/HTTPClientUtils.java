@@ -84,6 +84,7 @@ public class HTTPClientUtils {
                     .setTlsSocketStrategy(
                         (TlsSocketStrategy) ClientTlsStrategyBuilder.create()
                             .setHostnameVerifier(hostnameVerifier)
+                            .build()
                     )
                     .build()
             );
