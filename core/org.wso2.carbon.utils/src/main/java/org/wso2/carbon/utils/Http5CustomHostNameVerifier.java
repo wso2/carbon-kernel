@@ -97,26 +97,6 @@ public class Http5CustomHostNameVerifier implements HttpClientHostnameVerifier {
             throw new SSLException("Certificate parsing error", e);
         }
     }
-    
-    /**
-     * Method similar to original class for API compatibility.
-     */
-    public void verify(String hostname, String[] commonNames, String[] subjectAlternativeNames) throws SSLException {
-        String[] subjectAltsWithLocalhosts = (String[]) ArrayUtils.addAll(subjectAlternativeNames, LOCALHOSTS);
-        
-        boolean hasValidCommonNames = Optional.ofNullable(commonNames)
-                .filter(names -> names.length > 0)
-                .map(names -> names[0])
-                .isPresent();
-        if (hasValidCommonNames && !ArrayUtils.contains(subjectAlternativeNames, commonNames[0])) {
-            subjectAltsWithLocalhosts = (String[]) ArrayUtils.add(subjectAltsWithLocalhosts, commonNames[0]);
-        }
-        
-        if (!Arrays.asList(subjectAltsWithLocalhosts).contains(hostname) && 
-            !Arrays.asList(LOCALHOSTS).contains(hostname)) {
-            throw new SSLException("Hostname verification failed");
-        }
-    }
 
     private List<String> extractSubjectAltNames(X509Certificate cert) throws CertificateParsingException {
         Collection<List<?>> subjectAltNames = cert.getSubjectAlternativeNames();
