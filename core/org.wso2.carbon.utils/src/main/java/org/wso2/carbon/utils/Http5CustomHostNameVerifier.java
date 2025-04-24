@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
@@ -43,11 +42,13 @@ public class Http5CustomHostNameVerifier implements HttpClientHostnameVerifier {
     private final DefaultHostnameVerifier hostnameVerifier;
 
     public Http5CustomHostNameVerifier() {
+
         this.hostnameVerifier = new DefaultHostnameVerifier();
     }
 
     @Override
     public boolean verify(String host, SSLSession session) {
+
         // For localhost verification, always return true
         if (Arrays.asList(LOCALHOSTS).contains(host)) {
             return true;
@@ -65,6 +66,7 @@ public class Http5CustomHostNameVerifier implements HttpClientHostnameVerifier {
     
     @Override
     public void verify(String host, X509Certificate cert) throws SSLException {
+
         // For localhost verification, always pass
         if (Arrays.asList(LOCALHOSTS).contains(host)) {
             return;
@@ -99,6 +101,7 @@ public class Http5CustomHostNameVerifier implements HttpClientHostnameVerifier {
     }
 
     private List<String> extractSubjectAltNames(X509Certificate cert) throws CertificateParsingException {
+
         Collection<List<?>> subjectAltNames = cert.getSubjectAlternativeNames();
         List<String> result = new ArrayList<>();
         
@@ -118,6 +121,7 @@ public class Http5CustomHostNameVerifier implements HttpClientHostnameVerifier {
     }
 
     private String[] extractCommonNames(X509Certificate cert) {
+
         X500Principal principal = cert.getSubjectX500Principal();
         String dn = principal.getName(X500Principal.RFC2253);
         
