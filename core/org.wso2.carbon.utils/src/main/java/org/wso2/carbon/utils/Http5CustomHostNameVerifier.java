@@ -40,45 +40,35 @@ import javax.security.auth.x500.X500Principal;
  */
 public class Http5CustomHostNameVerifier implements HttpClientHostnameVerifier {
 
+    public static final Http5CustomHostNameVerifier INSTANCE = new Http5CustomHostNameVerifier();
+    private static final DefaultHostnameVerifier DEFAULT_HOSTNAME_VERIFIER = new DefaultHostnameVerifier();
+
     private static final Logger LOG = LoggerFactory.getLogger(Http5CustomHostNameVerifier.class);
 
     private static final String[] LOCALHOSTS = {"::1", "127.0.0.1", "localhost", "localhost.localdomain"};
-    private final DefaultHostnameVerifier hostnameVerifier;
 
-    public Http5CustomHostNameVerifier() {
+    private Http5CustomHostNameVerifier() {
 
-        this.hostnameVerifier = new DefaultHostnameVerifier();
     }
 
     @Override
     public boolean verify(String host, SSLSession session) {
 
-        // For localhost verification, always return true.
-        if (Arrays.asList(LOCALHOSTS).contains(host)) {
+        try {
+            Certificate[] certs = session.getPeerCertificates();
+            X509Certificate x509 = (X509Certificate) certs[0];
+            this.verify(host, x509);
             return true;
-        } else {
-            try {
-                Certificate[] certs = session.getPeerCertificates();
-                X509Certificate x509 = (X509Certificate) certs[0];
-                this.verify(host, x509);
-                return true;
-            } catch (SSLException e) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(e.getMessage(), e);
-                }
-
-                return false;
+        } catch (SSLException e) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(e.getMessage(), e);
             }
+            return false;
         }
     }
     
     @Override
     public void verify(String host, X509Certificate cert) throws SSLException {
-
-        // For localhost verification, always pass.
-        if (Arrays.asList(LOCALHOSTS).contains(host)) {
-            return;
-        }
         
         try {
             // Extract subject alternative names.
@@ -102,7 +92,7 @@ public class Http5CustomHostNameVerifier implements HttpClientHostnameVerifier {
             }
             
             // If not in the extended list, use the default verifier.
-            hostnameVerifier.verify(host, cert);
+            DEFAULT_HOSTNAME_VERIFIER.verify(host, cert);
         } catch (CertificateParsingException e) {
             throw new SSLException("Certificate parsing error", e);
         }
@@ -116,11 +106,20 @@ public class Http5CustomHostNameVerifier implements HttpClientHostnameVerifier {
         if (subjectAltNames != null) {
             for (List<?> san : subjectAltNames) {
                 if (san != null && san.size() >= 2) {
-                    // DNS names are type 2, IP addresses are type 7.
-                    Integer type = (Integer) san.get(0);
-                    if (type == 2 || type == 7) {
-                        String value = (String) san.get(1);
-                        result.add(value);
+                    Object typeObj = san.get(0);
+                    // Check object type for safety, and it is expected to be Integer.
+                    if (typeObj instanceof Integer) {
+                        Integer type = (Integer) san.get(0);
+                        // DNS names are type 2, IP addresses are type 7.
+                        if (type.equals(2) || type.equals(7)) {
+                            Object valueObj = san.get(1);
+                            // Check object type for safety, and it is expected to be String or byte[].
+                            if (valueObj instanceof String) {
+                                result.add((String) valueObj);
+                            } else if (valueObj instanceof byte[]) {
+                                result.add(new String((byte []) valueObj));
+                            }
+                        }
                     }
                 }
             }
@@ -131,11 +130,13 @@ public class Http5CustomHostNameVerifier implements HttpClientHostnameVerifier {
     private String[] extractCommonNames(X509Certificate cert) {
 
         X500Principal principal = cert.getSubjectX500Principal();
-        String dn = principal.getName(X500Principal.RFC2253);
+        String distinguishedNames = principal.getName(X500Principal.RFC2253);
         
-        // Parse the DN to find CN.
-        for (String part : dn.split(",")) {
+        // Split distinguishedNames string by commas, to get the part containing the common names.
+        for (String part : distinguishedNames.split(",")) {
+            // Check if the part starts with "CN=" representing common name.
             if (part.toLowerCase().startsWith("cn=")) {
+                // Omit the "CN=" prefix (first three characters) and trim the value.
                 return new String[] {part.substring(3).trim()};
             }
         }
