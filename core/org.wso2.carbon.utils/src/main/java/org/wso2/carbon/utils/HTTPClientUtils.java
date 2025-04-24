@@ -63,7 +63,7 @@ public class HTTPClientUtils {
     }
 
     /**
-     * Get the httpclient builder with custom hostname verifier.
+     * Get Apache HTTP Client 5 httpclient builder with custom hostname verifier.
      *
      * @return HttpClientBuilder.
      */

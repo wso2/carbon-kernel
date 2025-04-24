@@ -20,6 +20,8 @@ package org.wso2.carbon.utils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hc.client5.http.ssl.DefaultHostnameVerifier;
 import org.apache.hc.client5.http.ssl.HttpClientHostnameVerifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.security.cert.Certificate;
 import java.security.cert.CertificateParsingException;
@@ -34,9 +36,11 @@ import javax.net.ssl.SSLSession;
 import javax.security.auth.x500.X500Principal;
 
 /**
- * Custom hostname verifier class written using Apache Http Client 5.
+ * Custom hostname verifier class with Apache Http Client 5.
  */
 public class Http5CustomHostNameVerifier implements HttpClientHostnameVerifier {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Http5CustomHostNameVerifier.class);
 
     private static final String[] LOCALHOSTS = {"::1", "127.0.0.1", "localhost", "localhost.localdomain"};
     private final DefaultHostnameVerifier hostnameVerifier;
@@ -49,7 +53,7 @@ public class Http5CustomHostNameVerifier implements HttpClientHostnameVerifier {
     @Override
     public boolean verify(String host, SSLSession session) {
 
-        // For localhost verification, always return true
+        // For localhost verification, always return true.
         if (Arrays.asList(LOCALHOSTS).contains(host)) {
             return true;
         } else {
@@ -58,7 +62,11 @@ public class Http5CustomHostNameVerifier implements HttpClientHostnameVerifier {
                 X509Certificate x509 = (X509Certificate) certs[0];
                 this.verify(host, x509);
                 return true;
-            } catch (SSLException ex) {
+            } catch (SSLException e) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(e.getMessage(), e);
+                }
+
                 return false;
             }
         }
@@ -67,40 +75,40 @@ public class Http5CustomHostNameVerifier implements HttpClientHostnameVerifier {
     @Override
     public void verify(String host, X509Certificate cert) throws SSLException {
 
-        // For localhost verification, always pass
+        // For localhost verification, always pass.
         if (Arrays.asList(LOCALHOSTS).contains(host)) {
             return;
         }
         
         try {
-            // Extract subject alternative names
-            List<String> subjectAltNames = extractSubjectAltNames(cert);
-            String[] subjectAlternativeNames = subjectAltNames.toArray(new String[0]);
+            // Extract subject alternative names.
+            String[] subjectAlternativeNames = extractSubjectAlternativeNames(cert);
             
-            // Extract CN from subject
+            // Extract CN from subject.
             String[] commonNames = extractCommonNames(cert);
             
-            // Merge subject alternative names with localhosts
-            String[] subjectAltsWithLocalhosts = (String[]) ArrayUtils.addAll(subjectAlternativeNames, LOCALHOSTS);
-            
-            boolean hasValidCommonNames = commonNames.length > 0;
-            if (hasValidCommonNames && !ArrayUtils.contains(subjectAlternativeNames, commonNames[0])) {
-                subjectAltsWithLocalhosts = (String[]) ArrayUtils.add(subjectAltsWithLocalhosts, commonNames[0]);
+            // Merge subject alternative names with localhosts.
+            String[] subjectAlternativeNamesWithLocalhosts =
+                    (String[]) ArrayUtils.addAll(subjectAlternativeNames, LOCALHOSTS);
+
+            if (commonNames.length > 0 && !ArrayUtils.contains(subjectAlternativeNames, commonNames[0])) {
+                subjectAlternativeNamesWithLocalhosts =
+                        (String[]) ArrayUtils.add(subjectAlternativeNamesWithLocalhosts, commonNames[0]);
             }
             
-            // Check if the host matches any of our accepted names
-            if (ArrayUtils.contains(subjectAltsWithLocalhosts, host)) {
+            // Check if the host matches any of our accepted names.
+            if (ArrayUtils.contains(subjectAlternativeNamesWithLocalhosts, host)) {
                 return;
             }
             
-            // If not in the extended list, use the default verifier
+            // If not in the extended list, use the default verifier.
             hostnameVerifier.verify(host, cert);
         } catch (CertificateParsingException e) {
             throw new SSLException("Certificate parsing error", e);
         }
     }
 
-    private List<String> extractSubjectAltNames(X509Certificate cert) throws CertificateParsingException {
+    private String[] extractSubjectAlternativeNames(X509Certificate cert) throws CertificateParsingException {
 
         Collection<List<?>> subjectAltNames = cert.getSubjectAlternativeNames();
         List<String> result = new ArrayList<>();
@@ -108,7 +116,7 @@ public class Http5CustomHostNameVerifier implements HttpClientHostnameVerifier {
         if (subjectAltNames != null) {
             for (List<?> san : subjectAltNames) {
                 if (san != null && san.size() >= 2) {
-                    // DNS names are type 2, IP addresses are type 7
+                    // DNS names are type 2, IP addresses are type 7.
                     Integer type = (Integer) san.get(0);
                     if (type == 2 || type == 7) {
                         String value = (String) san.get(1);
@@ -117,7 +125,7 @@ public class Http5CustomHostNameVerifier implements HttpClientHostnameVerifier {
                 }
             }
         }
-        return result;
+        return result.toArray(new String[0]);
     }
 
     private String[] extractCommonNames(X509Certificate cert) {
@@ -125,7 +133,7 @@ public class Http5CustomHostNameVerifier implements HttpClientHostnameVerifier {
         X500Principal principal = cert.getSubjectX500Principal();
         String dn = principal.getName(X500Principal.RFC2253);
         
-        // Parse the DN to find CN
+        // Parse the DN to find CN.
         for (String part : dn.split(",")) {
             if (part.toLowerCase().startsWith("cn=")) {
                 return new String[] {part.substring(3).trim()};
