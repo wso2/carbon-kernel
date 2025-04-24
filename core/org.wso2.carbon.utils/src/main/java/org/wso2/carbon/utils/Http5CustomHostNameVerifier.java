@@ -27,7 +27,6 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -131,15 +130,18 @@ public class Http5CustomHostNameVerifier implements HttpClientHostnameVerifier {
 
         X500Principal principal = cert.getSubjectX500Principal();
         String distinguishedNames = principal.getName(X500Principal.RFC2253);
-        
-        // Split distinguishedNames string by commas, to get the part containing the common names.
-        for (String part : distinguishedNames.split(",")) {
-            // Check if the part starts with "CN=" representing common name.
-            if (part.toLowerCase().startsWith("cn=")) {
-                // Omit the "CN=" prefix (first three characters) and trim the value.
-                return new String[] {part.substring(3).trim()};
+
+        if (distinguishedNames != null && !distinguishedNames.isEmpty()) {
+            // Split distinguishedNames string by commas, to get the part containing the common names.
+            for (String part : distinguishedNames.split(",")) {
+                // Check if the part starts with "CN=" representing common name.
+                if (part.toLowerCase().startsWith("cn=")) {
+                    // Omit the "CN=" prefix (first three characters) and trim the value.
+                    return new String[] {part.substring(3).trim()};
+                }
             }
         }
+
         return new String[0];
     }
 }
