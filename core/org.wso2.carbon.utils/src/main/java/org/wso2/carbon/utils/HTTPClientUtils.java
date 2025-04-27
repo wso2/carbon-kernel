@@ -92,4 +92,23 @@ public class HTTPClientUtils {
 
         return httpClientBuilder;
     }
+
+    /**
+     * Get Apache HTTP Client 5 httpclient builder with hostname verifier, trusting all certificates.
+     *
+     * @return HttpClientBuilder.
+     */
+    public static HttpClientBuilder createHttp5ClientWithTrustAllCertificates() {
+
+        return HttpClientBuilder.create().useSystemProperties()
+            .setConnectionManager(
+                PoolingHttpClientConnectionManagerBuilder.create().useSystemProperties()
+                    .setTlsSocketStrategy(
+                        (TlsSocketStrategy) ClientTlsStrategyBuilder.create()
+                            .setHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                            .build()
+                    )
+                    .build()
+            );
+    }
 }
