@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.carbon.utils;
 
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
@@ -106,6 +107,24 @@ public class HTTPClientUtils {
                     .setTlsSocketStrategy(
                         (TlsSocketStrategy) ClientTlsStrategyBuilder.create()
                             .setHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                            .build()
+                    )
+                    .build()
+            );
+    }
+
+    /**
+     * Get Apache HTTP Client 5 httpclient builder with system properties.
+     *
+     * @return HttpClientBuilder.
+     */
+    public static HttpClientBuilder createHttp5ClientWithSystemProperties() {
+
+        return HttpClientBuilder.create().useSystemProperties()
+            .setConnectionManager(
+                PoolingHttpClientConnectionManagerBuilder.create().useSystemProperties()
+                    .setTlsSocketStrategy(
+                        (TlsSocketStrategy) ClientTlsStrategyBuilder.create().useSystemProperties()
                             .build()
                     )
                     .build()
