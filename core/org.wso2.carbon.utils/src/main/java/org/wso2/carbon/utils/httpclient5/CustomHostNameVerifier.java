@@ -15,7 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.utils;
+
+package org.wso2.carbon.utils.httpclient5;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hc.client5.http.ssl.DefaultHostnameVerifier;
@@ -37,16 +38,16 @@ import javax.security.auth.x500.X500Principal;
 /**
  * Custom hostname verifier class with Apache Http Client 5.
  */
-public class Http5CustomHostNameVerifier implements HttpClientHostnameVerifier {
+public class CustomHostNameVerifier implements HttpClientHostnameVerifier {
 
-    public static final Http5CustomHostNameVerifier INSTANCE = new Http5CustomHostNameVerifier();
+    public static final CustomHostNameVerifier INSTANCE = new CustomHostNameVerifier();
     private static final DefaultHostnameVerifier DEFAULT_HOSTNAME_VERIFIER = new DefaultHostnameVerifier();
 
-    private static final Logger LOG = LoggerFactory.getLogger(Http5CustomHostNameVerifier.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CustomHostNameVerifier.class);
 
     private static final String[] LOCALHOSTS = {"::1", "127.0.0.1", "localhost", "localhost.localdomain"};
 
-    private Http5CustomHostNameVerifier() {
+    private CustomHostNameVerifier() {
 
     }
 
