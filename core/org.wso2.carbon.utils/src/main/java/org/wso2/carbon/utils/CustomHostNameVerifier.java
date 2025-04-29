@@ -24,7 +24,10 @@ import java.util.Optional;
 
 /**
  * Custom hostname verifier class.
+ *
+ * @deprecated This class uses the Apache HTTP Client 4.x. Use Apache HTTP Client 5.x instead.
  */
+@Deprecated
 public class CustomHostNameVerifier extends AbstractVerifier {
 
     private final static String[] LOCALHOSTS = {"::1", "127.0.0.1", "localhost", "localhost.localdomain"};
