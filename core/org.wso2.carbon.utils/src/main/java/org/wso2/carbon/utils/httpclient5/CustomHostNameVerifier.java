@@ -45,7 +45,7 @@ public class CustomHostNameVerifier implements HttpClientHostnameVerifier {
 
     private static final Logger LOG = LoggerFactory.getLogger(CustomHostNameVerifier.class);
 
-    private static final String[] LOCALHOSTS = {"::1", "127.0.0.1", "localhost", "localhost.localdomain"};
+    private static final String[] LOCALHOST_ALTERNATIVES = {"::1", "127.0.0.1", "localhost", "localhost.localdomain"};
 
     private CustomHostNameVerifier() {
 
@@ -77,9 +77,9 @@ public class CustomHostNameVerifier implements HttpClientHostnameVerifier {
             // Extract CN from subject.
             String[] commonNames = extractCommonNames(cert);
             
-            // Merge subject alternative names with localhosts.
+            // Merge subject alternative names with localhost alternatives.
             String[] subjectAlternativeNamesWithLocalhosts =
-                    (String[]) ArrayUtils.addAll(subjectAlternativeNames, LOCALHOSTS);
+                    (String[]) ArrayUtils.addAll(subjectAlternativeNames, LOCALHOST_ALTERNATIVES);
 
             if (commonNames.length > 0 && !ArrayUtils.contains(subjectAlternativeNames, commonNames[0])) {
                 subjectAlternativeNamesWithLocalhosts =
