@@ -40,15 +40,23 @@ import javax.security.auth.x500.X500Principal;
  */
 public class CustomHostNameVerifier implements HttpClientHostnameVerifier {
 
-    public static final CustomHostNameVerifier INSTANCE = new CustomHostNameVerifier();
+    private static CustomHostNameVerifier customHostNameVerifierInstance = null;
     private static final DefaultHostnameVerifier DEFAULT_HOSTNAME_VERIFIER = new DefaultHostnameVerifier();
 
     private static final Logger LOG = LoggerFactory.getLogger(CustomHostNameVerifier.class);
 
-    private static final String[] LOCALHOST_ALTERNATIVES = {"::1", "127.0.0.1", "localhost", "localhost.localdomain"};
+    private static final String[] LOCALHOST_SAN = {"::1", "127.0.0.1", "localhost", "localhost.localdomain"};
 
     private CustomHostNameVerifier() {
 
+    }
+
+    public static CustomHostNameVerifier getInstance() {
+
+        if (customHostNameVerifierInstance == null) {
+            customHostNameVerifierInstance = new CustomHostNameVerifier();
+        }
+        return customHostNameVerifierInstance;
     }
 
     @Override
@@ -79,7 +87,7 @@ public class CustomHostNameVerifier implements HttpClientHostnameVerifier {
             
             // Merge subject alternative names with localhost alternatives.
             String[] subjectAlternativeNamesWithLocalhosts =
-                    (String[]) ArrayUtils.addAll(subjectAlternativeNames, LOCALHOST_ALTERNATIVES);
+                    (String[]) ArrayUtils.addAll(subjectAlternativeNames, LOCALHOST_SAN);
 
             if (commonNames.length > 0 && !ArrayUtils.contains(subjectAlternativeNames, commonNames[0])) {
                 subjectAlternativeNamesWithLocalhosts =
