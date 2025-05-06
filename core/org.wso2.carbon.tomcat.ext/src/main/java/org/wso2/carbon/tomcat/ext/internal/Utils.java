@@ -119,7 +119,11 @@ public class Utils {
             if (request.getContext() != null) {
                 appName = request.getContext().getName();
                 if ("".equals(appName)) {
-                    return appName;
+                    try {
+                        return resolveAppNameFromRequestUri(uri);
+                    } catch (IllegalStateException | IllegalArgumentException e) {
+                        return appName;
+                    }
                 } else if (!appName.equals("/")) {
                     return appName.substring(1);
                 } else {
@@ -137,6 +141,20 @@ public class Utils {
             appName = temp;
         }
         return appName;
+    }
+
+    private static String resolveAppNameFromRequestUri(String uri) {
+
+        if (uri == null) {
+            throw new IllegalArgumentException("Request URI is empty.");
+        }
+
+        String appName = StringUtils.substringAfterLast(uri, "/");
+        if (StringUtils.isNotEmpty(appName) || StringUtils.isNotBlank(appName)) {
+            return appName;
+        }
+
+        throw new IllegalStateException("Unable to resolve application name from URI: " + uri);
     }
 
 
