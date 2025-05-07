@@ -71,25 +71,6 @@ public class HTTPClientUtils {
     }
 
     /**
-     * Get httpclient builder with hostname verifier that trusts all certificates.
-     *
-     * @return HttpClientBuilder.
-     */
-    public static HttpClientBuilder createClientWithTrustAllCertificates() {
-
-        return HttpClientBuilder.create().useSystemProperties()
-            .setConnectionManager(
-                PoolingHttpClientConnectionManagerBuilder.create().useSystemProperties()
-                    .setTlsSocketStrategy(
-                        (TlsSocketStrategy) ClientTlsStrategyBuilder.create()
-                            .setHostnameVerifier(NoopHostnameVerifier.INSTANCE)
-                            .build()
-                    )
-                    .build()
-            );
-    }
-
-    /**
      * Get httpclient builder with system properties.
      *
      * @return HttpClientBuilder.
