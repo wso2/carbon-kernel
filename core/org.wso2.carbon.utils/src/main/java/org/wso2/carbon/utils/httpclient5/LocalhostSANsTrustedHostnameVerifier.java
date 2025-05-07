@@ -38,25 +38,25 @@ import javax.security.auth.x500.X500Principal;
 /**
  * Custom hostname verifier class with Apache Http Client 5.
  */
-public class CustomHostNameVerifier implements HttpClientHostnameVerifier {
+public class LocalhostSANsTrustedHostnameVerifier implements HttpClientHostnameVerifier {
 
-    private static CustomHostNameVerifier customHostNameVerifierInstance = null;
+    private static LocalhostSANsTrustedHostnameVerifier hostNameVerifierInstance = null;
     private static final DefaultHostnameVerifier DEFAULT_HOSTNAME_VERIFIER = new DefaultHostnameVerifier();
 
-    private static final Logger LOG = LoggerFactory.getLogger(CustomHostNameVerifier.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LocalhostSANsTrustedHostnameVerifier.class);
 
-    private static final String[] LOCALHOST_SAN = {"::1", "127.0.0.1", "localhost", "localhost.localdomain"};
+    private static final String[] LOCALHOST_SANS = {"::1", "127.0.0.1", "localhost", "localhost.localdomain"};
 
-    private CustomHostNameVerifier() {
+    private LocalhostSANsTrustedHostnameVerifier() {
 
     }
 
-    public static CustomHostNameVerifier getInstance() {
+    public static LocalhostSANsTrustedHostnameVerifier getInstance() {
 
-        if (customHostNameVerifierInstance == null) {
-            customHostNameVerifierInstance = new CustomHostNameVerifier();
+        if (hostNameVerifierInstance == null) {
+            hostNameVerifierInstance = new LocalhostSANsTrustedHostnameVerifier();
         }
-        return customHostNameVerifierInstance;
+        return hostNameVerifierInstance;
     }
 
     @Override
@@ -87,7 +87,7 @@ public class CustomHostNameVerifier implements HttpClientHostnameVerifier {
             
             // Merge subject alternative names with localhost alternatives.
             String[] subjectAlternativeNamesWithLocalhosts =
-                    (String[]) ArrayUtils.addAll(subjectAlternativeNames, LOCALHOST_SAN);
+                    (String[]) ArrayUtils.addAll(subjectAlternativeNames, LOCALHOST_SANS);
 
             if (commonNames.length > 0 && !ArrayUtils.contains(subjectAlternativeNames, commonNames[0])) {
                 subjectAlternativeNamesWithLocalhosts =
@@ -108,11 +108,16 @@ public class CustomHostNameVerifier implements HttpClientHostnameVerifier {
 
     private String[] extractSubjectAlternativeNames(X509Certificate cert) throws CertificateParsingException {
 
+        // This is a collection of SANs, where each element of the collection is a pair of objects.
+        // Each pair contains an Integer (the type of the name) and a String or byte[] (the name itself).
         Collection<List<?>> subjectAltNames = cert.getSubjectAlternativeNames();
+
         List<String> result = new ArrayList<>();
         
         if (subjectAltNames != null) {
+            // Iterate through each element of the collection of SANs.
             for (List<?> san : subjectAltNames) {
+                // Check if the SAN is a pair of objects, i.e., it has two elements.
                 if (san != null && san.size() >= 2) {
                     Object typeObj = san.get(0);
                     // Check object type for safety, and it is expected to be Integer.

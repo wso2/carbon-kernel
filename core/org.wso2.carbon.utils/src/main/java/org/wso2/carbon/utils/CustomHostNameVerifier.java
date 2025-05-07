@@ -25,7 +25,13 @@ import java.util.Optional;
 /**
  * Custom hostname verifier class.
  *
- * @deprecated This class uses the Apache HTTP Client 4.x. Use Apache HTTP Client 5.x instead.
+ * @deprecated
+ *
+ * This class is deprecated as part of an effort to unify all HTTP client implementations
+ * across the products. Apache HTTP Client 5.x is chosen for this effort
+ * since it is the latest stable version, and this class was written using Apache HTTP Client 4.x.
+ *
+ * Use {@link org.wso2.carbon.utils.httpclient5.LocalhostSANsTrustedHostnameVerifier} instead.
  */
 @Deprecated
 public class CustomHostNameVerifier extends AbstractVerifier {

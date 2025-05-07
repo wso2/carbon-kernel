@@ -50,7 +50,7 @@ public class HTTPClientUtils {
 
         HostnameVerifier hostnameVerifier = null;
         if (DEFAULT_AND_LOCALHOST.equals(System.getProperty(HOST_NAME_VERIFIER))) {
-            hostnameVerifier = CustomHostNameVerifier.getInstance();
+            hostnameVerifier = LocalhostSANsTrustedHostnameVerifier.getInstance();
         } else if (ALLOW_ALL.equals(System.getProperty(HOST_NAME_VERIFIER))) {
             hostnameVerifier = NoopHostnameVerifier.INSTANCE;
         }
