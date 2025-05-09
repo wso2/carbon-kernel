@@ -40,7 +40,7 @@ import javax.security.auth.x500.X500Principal;
  */
 public class LocalhostSANsTrustedHostnameVerifier implements HttpClientHostnameVerifier {
 
-    private static LocalhostSANsTrustedHostnameVerifier hostNameVerifierInstance = null;
+    private static LocalhostSANsTrustedHostnameVerifier hostNameVerifierInstance = new LocalhostSANsTrustedHostnameVerifier();
     private static final DefaultHostnameVerifier DEFAULT_HOSTNAME_VERIFIER = new DefaultHostnameVerifier();
 
     private static final Logger LOG = LoggerFactory.getLogger(LocalhostSANsTrustedHostnameVerifier.class);
@@ -53,9 +53,6 @@ public class LocalhostSANsTrustedHostnameVerifier implements HttpClientHostnameV
 
     public static LocalhostSANsTrustedHostnameVerifier getInstance() {
 
-        if (hostNameVerifierInstance == null) {
-            hostNameVerifierInstance = new LocalhostSANsTrustedHostnameVerifier();
-        }
         return hostNameVerifierInstance;
     }
 
@@ -108,8 +105,8 @@ public class LocalhostSANsTrustedHostnameVerifier implements HttpClientHostnameV
 
     private String[] extractSubjectAlternativeNames(X509Certificate cert) throws CertificateParsingException {
 
-        // This is a collection of SANs, where each element of the collection is a pair of objects.
-        // Each pair contains an Integer (the type of the name) and a String or byte[] (the name itself).
+        // getSubjectAlternativeNames returns a collection of SANs, where each SAN is represented as list with two elements.
+        // The 0th element of the list contains the type of the SAN as an integer and 1st element contains the SAN value as a String or byte[].
         Collection<List<?>> subjectAltNames = cert.getSubjectAlternativeNames();
 
         List<String> result = new ArrayList<>();

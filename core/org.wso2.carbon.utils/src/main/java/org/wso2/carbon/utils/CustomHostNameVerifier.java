@@ -28,8 +28,7 @@ import java.util.Optional;
  * @deprecated
  *
  * This class is deprecated as part of an effort to unify all HTTP client implementations
- * across the products. Apache HTTP Client 5.x is chosen for this effort
- * since it is the latest stable version, and this class was written using Apache HTTP Client 4.x.
+ * in the product.
  *
  * Use {@link org.wso2.carbon.utils.httpclient5.LocalhostSANsTrustedHostnameVerifier} instead.
  */
