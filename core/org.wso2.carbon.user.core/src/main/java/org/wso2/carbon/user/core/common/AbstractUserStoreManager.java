@@ -8568,7 +8568,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (StringUtils.isNotEmpty(userName)) {
             return StringUtils.equals(UserCoreUtil.extractDomainFromName(userName), domainName);
         }
-        return (abstractUserStoreManager.doGetUserNameFromUserIDWithID(userId) != null);
+        userName = abstractUserStoreManager.doGetUserNameFromUserIDWithID(userId);
+        if (StringUtils.isNotEmpty(userName)) {
+            addToUserNameCache(userId, userName, getUserStoreWithID(userId));
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -13862,15 +13868,22 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     protected String doGetUserNameFromUserID(String userID) throws UserStoreException {
 
+        String userName;
         if (isUniqueUserIdEnabled()) {
-            String userName = getFromUserNameCache(userID);
+            userName = getFromUserNameCache(userID);
             if (StringUtils.isNotEmpty(userName)) {
                 return UserCoreUtil.removeDomainFromName(userName);
             }
-            return doGetUserNameFromUserIDWithID(userID);
+            userName = doGetUserNameFromUserIDWithID(userID);
+        } else {
+            User user = userUniqueIDManger.getUser(userID, this);
+            userName = user != null ? user.getUsername() : null;
         }
-        User user = userUniqueIDManger.getUser(userID, this);
-        return user.getUsername();
+        if (StringUtils.isNotEmpty(userName)) {
+            addToUserNameCache(userID, userName, getUserStoreWithID(userID));
+        }
+
+        return userName;
     }
 
     /**
