@@ -69,22 +69,4 @@ public class HTTPClientUtils {
 
         return httpClientBuilder;
     }
-
-    /**
-     * Get httpclient builder with system properties.
-     *
-     * @return HttpClientBuilder.
-     */
-    public static HttpClientBuilder createClientWithSystemProperties() {
-
-        return HttpClientBuilder.create().useSystemProperties()
-            .setConnectionManager(
-                PoolingHttpClientConnectionManagerBuilder.create().useSystemProperties()
-                    .setTlsSocketStrategy(
-                        (TlsSocketStrategy) ClientTlsStrategyBuilder.create().useSystemProperties()
-                            .build()
-                    )
-                    .build()
-            );
-    }
 }
