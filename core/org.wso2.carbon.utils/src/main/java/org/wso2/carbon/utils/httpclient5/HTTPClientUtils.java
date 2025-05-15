@@ -44,7 +44,7 @@ public class HTTPClientUtils {
      *
      * @return HttpClientBuilder.
      */
-    public static HttpClientBuilder createClientWithCustomVerifier() {
+    public static HttpClientBuilder createClientWithCustomHostnameVerifier() {
 
         HttpClientBuilder httpClientBuilder = HttpClientBuilder.create().useSystemProperties();
 
