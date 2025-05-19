@@ -53,7 +53,7 @@ public class LocalhostSANsTrustedHostnameVerifier implements HttpClientHostnameV
 
     public static LocalhostSANsTrustedHostnameVerifier getInstance() {
 
-        return hostNameVerifierInstance;
+        return INSTANCE;
     }
 
     @Override
@@ -105,8 +105,9 @@ public class LocalhostSANsTrustedHostnameVerifier implements HttpClientHostnameV
 
     private String[] extractSubjectAlternativeNames(X509Certificate cert) throws CertificateParsingException {
 
-        // getSubjectAlternativeNames returns a collection of SANs, where each SAN is represented as list with two elements.
-        // The 0th element of the list contains the type of the SAN as an integer and 1st element contains the SAN value as a String or byte[].
+        // getSubjectAlternativeNames returns a collection of SANs, where each SAN is represented as list with two
+        // elements. The 0th element of the list contains the type of the SAN as an integer and 1st element contains
+        // the SAN value as a String or byte[].
         Collection<List<?>> subjectAltNames = cert.getSubjectAlternativeNames();
 
         List<String> result = new ArrayList<>();
