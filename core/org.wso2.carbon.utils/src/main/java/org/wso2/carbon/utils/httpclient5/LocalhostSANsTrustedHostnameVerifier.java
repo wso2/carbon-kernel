@@ -53,7 +53,7 @@ public class LocalhostSANsTrustedHostnameVerifier implements HttpClientHostnameV
 
     public static LocalhostSANsTrustedHostnameVerifier getInstance() {
 
-        return hostNameVerifierInstance;
+        return INSTANCE;
     }
 
     @Override
