@@ -40,7 +40,7 @@ import javax.security.auth.x500.X500Principal;
  */
 public class LocalhostSANsTrustedHostnameVerifier implements HttpClientHostnameVerifier {
 
-    private static LocalhostSANsTrustedHostnameVerifier hostNameVerifierInstance = new LocalhostSANsTrustedHostnameVerifier();
+    private static final LocalhostSANsTrustedHostnameVerifier INSTANCE = new LocalhostSANsTrustedHostnameVerifier();
     private static final DefaultHostnameVerifier DEFAULT_HOSTNAME_VERIFIER = new DefaultHostnameVerifier();
 
     private static final Logger LOG = LoggerFactory.getLogger(LocalhostSANsTrustedHostnameVerifier.class);
