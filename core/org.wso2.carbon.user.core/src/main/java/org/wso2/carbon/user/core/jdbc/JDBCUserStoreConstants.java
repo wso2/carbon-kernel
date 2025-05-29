@@ -56,6 +56,7 @@ public class JDBCUserStoreConstants {
             "display name of the user";
     public static final String DISPLAY_NAME_ATTRIBUTE = "DisplayNameAttribute";
     public static final String STORE_USER_ATTRIBUTE_VALUE_AS_UNICODE = "StoreUserAttributeValueAsUnicode";
+    public static final String USER_ATTRIBUTE_MIGRATION_STATE = "UserAttributeColumnMigrationState";
 
     static {
 
@@ -657,7 +658,11 @@ public class JDBCUserStoreConstants {
                 "On Delete User, Remove User Attribute SQL With Case Insensitive Username",
                 JDBCCaseInsensitiveConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE_SQL_CASE_INSENSITIVE, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
-
+        setAdvancedProperty(USER_ATTRIBUTE_MIGRATION_STATE, "User Attribute Migration State", "",
+                "Defines the current state of the user attribute column migration. This controls whether " +
+                        "user attributes are read from or written to the old or new (Unicode-supported) column. " +
+                        "If unset, the default legacy behavior is used.",
+                new Property[] { USER.getProperty(), STRING.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCRealmConstants.UPDATE_USER_PASSWORD, "Update User Password SQL",
                 JDBCRealmConstants.UPDATE_USER_PASSWORD_SQL, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
