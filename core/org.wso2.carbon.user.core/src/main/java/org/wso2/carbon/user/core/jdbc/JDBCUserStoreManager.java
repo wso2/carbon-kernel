@@ -141,6 +141,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private static final String MARIADB = "mariadb";
     private static final String POSTGRESQL = "postgresql";
 
+    private static final String STATE_DUAL_WRITE = "DualWrite";
+    private static final String STATE_READ_UNICODE_DUAL_WRITE = "ReadUnicodeDualWrite";
+    private static final String STATE_UNICODE = "Unicode";
+
     private static final int MAX_ITEM_LIMIT_UNLIMITED = -1;
     public static final String PRIMARY_USER_STORE_DOMAIN = "PRIMARY";
 
@@ -1249,8 +1253,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             if (isCaseSensitiveUsername()) {
                 sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_PROPS_FOR_PROFILE);
             } else {
-                sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.GET_PROPS_FOR_PROFILE_CASE_INSENSITIVE);
+                sqlStmt = realmConfig.getUserStoreProperty(
+                        JDBCCaseInsensitiveConstants.GET_PROPS_FOR_PROFILE_CASE_INSENSITIVE);
             }
+            sqlStmt = replaceReadUserAttributeColumnWithUnicodeColumn(dbConnection, sqlStmt);
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, userName);
             prepStmt.setString(2, profileName);
@@ -1478,7 +1484,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             if (isCaseSensitiveUsername()) {
                 uniquenesSql = realmConfig.getUserStoreProperty(JDBCRealmConstants.USER_NAME_UNIQUE);
             } else {
-                uniquenesSql = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.USER_NAME_UNIQUE_CASE_INSENSITIVE);
+                uniquenesSql = realmConfig.getUserStoreProperty(
+                        JDBCCaseInsensitiveConstants.USER_NAME_UNIQUE_CASE_INSENSITIVE);
             }
             isExisting = isValueExisting(uniquenesSql, null, userName);
             if (log.isDebugEnabled()) {
@@ -2849,20 +2856,32 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_USER_PROPERTY
                     + "-" + type);
             if (sqlStmt == null) {
-                sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_USER_PROPERTY);
+                if (shouldWriteToBothUserAttributeColumns(type)) {
+                    sqlStmt = JDBCRealmConstants.ADD_USER_PROPERTY_UNICODE_SQL;
+                } else {
+                    sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_USER_PROPERTY);
+                }
+            } else if (UserCoreConstants.MSSQL_TYPE.equals(type) && shouldWriteToBothUserAttributeColumns(type)) {
+                sqlStmt = JDBCRealmConstants.ADD_USER_PROPERTY_UNICODE_MSSQL_SQL;
             }
             if (sqlStmt == null) {
                 throw new UserStoreException("The sql statement for add user property sql is null");
             }
+            sqlStmt = replaceWriteUserAttributeColumnWithUnicodeColumn(type, sqlStmt);
 
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                 if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
                     updateStringValuesToDatabase(dbConnection, sqlStmt, propertyName, value,
                             profileName, tenantId, userName, tenantId);
+                } else if (shouldWriteToBothUserAttributeColumns(type)) {
+                    updateStringValuesToDatabase(dbConnection, sqlStmt, userName, tenantId,
+                            propertyName, value, value, profileName, tenantId);
                 } else {
                     updateStringValuesToDatabase(dbConnection, sqlStmt, userName, tenantId,
                             propertyName, value, profileName, tenantId);
                 }
+            } else if (shouldWriteToBothUserAttributeColumns(type)) {
+                updateStringValuesToDatabase(dbConnection, sqlStmt, userName, propertyName, value, value, profileName);
             } else {
                 updateStringValuesToDatabase(dbConnection, sqlStmt, userName, propertyName, value, profileName);
             }
@@ -2886,19 +2905,40 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      */
     protected void updateProperty(Connection dbConnection, String userName, String propertyName,
                                   String value, String profileName) throws UserStoreException {
+
         String sqlStmt;
+        String type;
+        try {
+            type = DatabaseCreator.getDatabaseType(dbConnection);
+        } catch (Exception e) {
+            throw new UserStoreException("Error occurred while getting the database type.", e);
+        }
         if (isCaseSensitiveUsername()) {
             sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY);
+            if (shouldWriteToBothUserAttributeColumns(type)) {
+                sqlStmt = JDBCRealmConstants.UPDATE_USER_PROPERTY_UNICODE_SQL;
+            }
         } else {
             sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.UPDATE_USER_PROPERTY_CASE_INSENSITIVE);
+            if (shouldWriteToBothUserAttributeColumns(type)) {
+                sqlStmt = JDBCCaseInsensitiveConstants.UPDATE_USER_PROPERTY_SQL_CASE_INSENSITIVE_UNICODE;
+            }
         }
         if (sqlStmt == null) {
             throw new UserStoreException("The sql statement for add user property sql is null");
         }
+        sqlStmt = replaceWriteUserAttributeColumnWithUnicodeColumn(type, sqlStmt);
 
         if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-            updateStringValuesToDatabase(dbConnection, sqlStmt, value, userName, tenantId,
-                    propertyName, profileName, tenantId);
+            if (shouldWriteToBothUserAttributeColumns(type)) {
+                updateStringValuesToDatabase(dbConnection, sqlStmt, value, value, userName, tenantId,
+                        propertyName, profileName, tenantId);
+            } else {
+                updateStringValuesToDatabase(dbConnection, sqlStmt, value, userName, tenantId,
+                        propertyName, profileName, tenantId);
+            }
+        } else if (shouldWriteToBothUserAttributeColumns(type)) {
+            updateStringValuesToDatabase(dbConnection, sqlStmt, value, value, userName, propertyName, profileName);
         } else {
             updateStringValuesToDatabase(dbConnection, sqlStmt, value, userName, propertyName, profileName);
         }
@@ -2952,6 +2992,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         if (sqlStmt == null) {
             throw new UserStoreException("The sql statement for add user property sql is null");
         }
+        sqlStmt = replaceReadUserAttributeColumnWithUnicodeColumn(dbConnection, sqlStmt);
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         String value = null;
@@ -3249,6 +3290,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         List<String> list = new ArrayList<String>();
         try {
             dbConnection = getDBConnection();
+            sqlStmt = replaceReadUserAttributeColumnWithUnicodeColumn(dbConnection, sqlStmt);
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             int count = 0;
             prepStmt.setString(++count, property);
@@ -3403,6 +3445,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
 
             sqlStmt = sqlStmt.replaceFirst("\\?", dynamicString);
+            sqlStmt = replaceReadUserAttributeColumnWithUnicodeColumn(dbConnection, sqlStmt);
             prepStmt = dbConnection.prepareStatement(sqlStmt);
 
             int index = 1;
@@ -3614,11 +3657,20 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         if (sqlStmt == null) {
             if (isCaseSensitiveUsername()) {
                 sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_USER_PROPERTY);
+                if (shouldWriteToBothUserAttributeColumns(type)) {
+                    sqlStmt = JDBCRealmConstants.ADD_USER_PROPERTY_UNICODE_SQL;
+                }
             } else {
                 sqlStmt = realmConfig
                         .getUserStoreProperty(JDBCCaseInsensitiveConstants.ADD_USER_PROPERTY_CASE_INSENSITIVE);
+                if (shouldWriteToBothUserAttributeColumns(type)) {
+                    sqlStmt = JDBCCaseInsensitiveConstants.ADD_USER_PROPERTY_SQL_CASE_INSENSITIVE_UNICODE;
+                }
             }
+        } else if (UserCoreConstants.MSSQL_TYPE.equals(type) && shouldWriteToBothUserAttributeColumns(type)) {
+            sqlStmt = JDBCCaseInsensitiveConstants.ADD_USER_PROPERTY_MSSQL_SQL_CASE_INSENSITIVE_UNICODE;
         }
+        sqlStmt = replaceWriteUserAttributeColumnWithUnicodeColumn(type, sqlStmt);
 
         PreparedStatement prepStmt = null;
         boolean localConnection = false;
@@ -3645,10 +3697,16 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
                         batchUpdateStringValuesToDatabase(useNString, prepStmt, propertyName, propertyValue,
                                 profileName, tenantId, userName, tenantId);
+                    } else if (shouldWriteToBothUserAttributeColumns(type)) {
+                        batchUpdateStringValuesToDatabase(useNString, prepStmt, userName, tenantId, propertyName,
+                                propertyValue, propertyValue, profileName, tenantId);
                     } else {
                         batchUpdateStringValuesToDatabase(useNString, prepStmt, userName, tenantId, propertyName,
                                 propertyValue, profileName, tenantId);
                     }
+                } else if (shouldWriteToBothUserAttributeColumns(type)) {
+                    batchUpdateStringValuesToDatabase(useNString, prepStmt, userName, propertyName, propertyValue,
+                                propertyValue, profileName);
                 } else {
                     batchUpdateStringValuesToDatabase(useNString, prepStmt, userName, propertyName, propertyValue,
                                 profileName);
@@ -3721,14 +3779,21 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         if (sqlStmt == null) {
             if (isCaseSensitiveUsername()) {
                 sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY);
+                if (shouldWriteToBothUserAttributeColumns(type)) {
+                    sqlStmt = JDBCRealmConstants.UPDATE_USER_PROPERTY_UNICODE_SQL;
+                }
             } else {
                 sqlStmt = realmConfig
                         .getUserStoreProperty(JDBCCaseInsensitiveConstants.UPDATE_USER_PROPERTY_CASE_INSENSITIVE);
+                if (shouldWriteToBothUserAttributeColumns(type)) {
+                    sqlStmt = JDBCCaseInsensitiveConstants.UPDATE_USER_PROPERTY_SQL_CASE_INSENSITIVE_UNICODE;
+                }
             }
         }
         if (sqlStmt == null) {
             throw new UserStoreException("The sql statement for update user property sql is null");
         }
+        sqlStmt = replaceWriteUserAttributeColumnWithUnicodeColumn(type, sqlStmt);
 
         PreparedStatement prepStmt = null;
         boolean localConnection = false;
@@ -3748,10 +3813,16 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
                         batchUpdateStringValuesToDatabase(useNString, prepStmt, propertyName, propertyValue,
                                 profileName, tenantId, userName, tenantId);
+                    } else if (shouldWriteToBothUserAttributeColumns(type)) {
+                        batchUpdateStringValuesToDatabase(useNString, prepStmt, propertyValue, propertyValue,
+                                userName, tenantId, propertyName, profileName, tenantId);
                     } else {
                         batchUpdateStringValuesToDatabase(useNString, prepStmt, propertyValue, userName, tenantId,
                                 propertyName, profileName, tenantId);
                     }
+                } else if (shouldWriteToBothUserAttributeColumns(type)) {
+                    batchUpdateStringValuesToDatabase(useNString, prepStmt, propertyValue, userName, propertyValue,
+                            propertyName, profileName);
                 } else {
                     batchUpdateStringValuesToDatabase(useNString, prepStmt, propertyValue, userName, propertyName,
                             profileName);
@@ -3946,10 +4017,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants
                         .GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED + "-" + type);
                 if (sqlStmt == null) {
-                    sqlStmt = realmConfig.getUserStoreProperty(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED);
+                    sqlStmt = realmConfig.getUserStoreProperty(
+                            JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED);
                 }
             }
 
+            sqlStmt = replaceReadUserAttributeColumnWithUnicodeColumn(type, sqlStmt);
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, filter);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
@@ -4063,8 +4136,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             valueFilter = valueFilter.replace("?", "_");
         }
 
-        try (Connection dbConnection = getDBConnection();
-             PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
+        try (Connection dbConnection = getDBConnection()) {
+            sqlStmt = replaceReadUserAttributeColumnWithUnicodeColumn(dbConnection, sqlStmt);
+            PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt);
             String domainName = getMyDomainName();
             if (StringUtils.isEmpty(domainName)) {
                 domainName = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
@@ -4293,6 +4367,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             if (sqlStmt == null) {
                 sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_PAGINATED_USERS_FOR_PROP);
             }
+            sqlStmt = replaceReadUserAttributeColumnWithUnicodeColumn(type, sqlStmt);
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, property);
             if (shouldUseNString(dbConnection)) {
@@ -4526,6 +4601,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                         "UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID" + roleUserJoinClause + "UM_USER U " +
                         "ON UR.UM_USER_ID = U.UM_ID INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
             }
+            sqlStatement = new StringBuilder(
+                    replaceReadUserAttributeColumnWithUnicodeColumn(dbType, sqlStatement.toString()));
             sqlBuilder = new SqlBuilder(sqlStatement)
                     .where("U.UM_TENANT_ID = ?", tenantId)
                     .where("UA.UM_TENANT_ID = ?", tenantId)
@@ -4559,7 +4636,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 sqlStatement = new StringBuilder("SELECT DISTINCT UM_USER_NAME FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR" +
                         " ON R.UM_ID = UR.UM_ROLE_ID" + roleUserJoinClause + "UM_USER U ON UR.UM_USER_ID = U.UM_ID");
             }
-
+            sqlStatement = new StringBuilder(
+                    replaceReadUserAttributeColumnWithUnicodeColumn(dbType, sqlStatement.toString()));
             sqlBuilder = new SqlBuilder(sqlStatement)
                     .where("U.UM_TENANT_ID = ?", tenantId);
             if (!isGroupFilteringWithNEOperator) {
@@ -4583,6 +4661,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 sqlStatement = new StringBuilder("SELECT DISTINCT UM_USER_NAME FROM UM_USER U INNER JOIN " +
                         "UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
             }
+            sqlStatement = new StringBuilder(
+                    replaceReadUserAttributeColumnWithUnicodeColumn(dbType, sqlStatement.toString()));
             sqlBuilder = new SqlBuilder(sqlStatement)
                     .where("U.UM_TENANT_ID = ?", tenantId)
                     .where("UA.UM_TENANT_ID = ?", tenantId)
@@ -4600,7 +4680,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             } else {
                 sqlStatement = new StringBuilder("SELECT UM_USER_NAME FROM UM_USER U");
             }
-
+            sqlStatement = new StringBuilder(
+                    replaceReadUserAttributeColumnWithUnicodeColumn(dbType, sqlStatement.toString()));
             sqlBuilder = new SqlBuilder(sqlStatement)
                     .where("U.UM_TENANT_ID = ?", tenantId);
         } else {
@@ -4902,6 +4983,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         try {
             dbConnection = getDBConnection();
             sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_PAGINATED_USERS_COUNT_FOR_PROP);
+            sqlStmt = replaceReadUserAttributeColumnWithUnicodeColumn(dbConnection, sqlStmt);
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, property);
             if (shouldUseNString(dbConnection)) {
@@ -5040,6 +5122,63 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             log.warn("Error occurred while getting the database type.", e);
             return false;
         }
+    }
+
+    protected String replaceReadUserAttributeColumnWithUnicodeColumn(Connection dbConnection, String sqlStmt) {
+
+        try {
+            String type = DatabaseCreator.getDatabaseType(dbConnection);
+            return replaceReadUserAttributeColumnWithUnicodeColumn(type, sqlStmt);
+        } catch (Exception e) {
+            log.warn("Error occurred while getting the database type.", e);
+        }
+        return sqlStmt;
+    }
+
+    protected String replaceReadUserAttributeColumnWithUnicodeColumn(String type, String sqlStmt) {
+
+        if (StringUtils.isNotBlank(sqlStmt) && shouldReadFromUnicodeUserAttributeColumn(type)) {
+            return sqlStmt.replace("UM_ATTR_VALUE", "UM_ATTR_VALUE_UNICODE");
+        }
+        return sqlStmt;
+    }
+
+    protected String replaceWriteUserAttributeColumnWithUnicodeColumn(String type, String sqlStmt) {
+
+        if (StringUtils.isNotBlank(sqlStmt) && shouldWriteOnlyToUnicodeUserAttributeColumn(type)) {
+            return sqlStmt.replace("UM_ATTR_VALUE", "UM_ATTR_VALUE_UNICODE");
+        }
+        return sqlStmt;
+    }
+
+    private boolean shouldReadFromUnicodeUserAttributeColumn(String type) {
+
+        return STATE_READ_UNICODE_DUAL_WRITE.equalsIgnoreCase(getUserAttributeMigrationState(type))
+                || STATE_UNICODE.equalsIgnoreCase(getUserAttributeMigrationState(type));
+    }
+
+    protected boolean shouldWriteToBothUserAttributeColumns(String type) {
+
+        return STATE_DUAL_WRITE.equalsIgnoreCase(getUserAttributeMigrationState(type))
+                || STATE_READ_UNICODE_DUAL_WRITE.equalsIgnoreCase(getUserAttributeMigrationState(type));
+    }
+
+    protected boolean shouldWriteOnlyToUnicodeUserAttributeColumn(String type) {
+
+        return STATE_UNICODE.equalsIgnoreCase(getUserAttributeMigrationState(type));
+    }
+
+    private String getUserAttributeMigrationState(String type) {
+
+        try {
+            if (MSSQL.equalsIgnoreCase(type) || MYSQL.equalsIgnoreCase(type) || MARIADB.equalsIgnoreCase(type)) {
+                return realmConfig.getUserStoreProperty(
+                        JDBCUserStoreConstants.USER_ATTRIBUTE_MIGRATION_STATE);
+            }
+        } catch (Exception e) {
+            log.warn("Error occurred while getting the database type.", e);
+        }
+        return StringUtils.EMPTY;
     }
 
     /**
