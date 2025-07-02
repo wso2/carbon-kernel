@@ -10,7 +10,7 @@
 
     <groupId>org.wso2.carbon</groupId>
     <artifactId>samples</artifactId>
-    <version>4.10.63</version>
+    <version>4.10.64-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>WSO2 Carbon - Samples</name>
     <description>Carbon kernel sample</description>
@@ -43,8 +43,4 @@
             </plugin>
         </plugins>
     </build>
-
-  <scm>
-    <tag>v4.10.63</tag>
-  </scm>
 </project>

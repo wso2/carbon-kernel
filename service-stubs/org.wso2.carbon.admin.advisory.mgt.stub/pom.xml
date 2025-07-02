@@ -3,7 +3,7 @@
     <parent>
         <artifactId>carbon-kernel-service-stubs</artifactId>
         <groupId>org.wso2.carbon</groupId>
-        <version>4.10.63</version>
+        <version>4.10.64-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
