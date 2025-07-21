@@ -37,6 +37,7 @@ public class SqlBuilder {
     private Map<Integer, Integer> integerParameters = new HashMap<>();
     private Map<Integer, String> stringParameters = new HashMap<>();
     private Map<Integer, Long> longParameters = new HashMap<>();
+    private final List<Integer> attrValueIndexes = new ArrayList<>();
     private boolean addedWhereStatement = false;
 
     public SqlBuilder(StringBuilder sql) {
@@ -72,6 +73,9 @@ public class SqlBuilder {
     public SqlBuilder where(String expr, String value) {
 
         wheres.add(expr);
+        if (expr.contains("UM_ATTR_VALUE")) {
+            attrValueIndexes.add(count);
+        }
         stringParameters.put(count, value);
         count++;
         return this;
@@ -91,6 +95,11 @@ public class SqlBuilder {
         longParameters.put(count, value);
         count++;
         return this;
+    }
+
+    public List<Integer> getAttributeValueIndexes() {
+
+        return attrValueIndexes;
     }
 
     public Map<Integer, Integer> getIntegerParameters() {
