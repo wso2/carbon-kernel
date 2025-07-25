@@ -3786,7 +3786,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      * @param params
      * @throws UserStoreException
      */
-    private void batchUpdateStringValuesToDatabase(boolean useNString, PreparedStatement prepStmt, int unicodeParamIndex,
+    private void batchUpdateStringValuesToDatabase(boolean useNString, PreparedStatement prepStmt, int attrValueIndex,
                                                    Object... params) throws UserStoreException {
 
         try {
@@ -3796,7 +3796,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     if (param == null) {
                         throw new UserStoreException("Invalid data provided");
                     } else if (param instanceof String) {
-                        if (unicodeParamIndex == i && useNString) {
+                        if (attrValueIndex == i && useNString) {
                             prepStmt.setNString(i + 1, (String) param);
                         } else {
                             prepStmt.setString(i + 1, (String) param);
