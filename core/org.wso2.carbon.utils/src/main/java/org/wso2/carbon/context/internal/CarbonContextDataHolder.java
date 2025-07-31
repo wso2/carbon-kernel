@@ -148,6 +148,7 @@ public final class CarbonContextDataHolder {
     private String organizationId;
     private String applicationName;
     private String applicationResidentOrganizationId;
+    private List<String> allowedScopes = new ArrayList<>();
 
     private Map<String, Object> properties;
 
@@ -1539,6 +1540,17 @@ public final class CarbonContextDataHolder {
     public static void destroyCurrentCarbonContextHolder() {
         currentContextHolder.remove();
         parentContextHolderStack.remove();
+    }
+
+    public void setAllowedScopes(List<String> allowedScopes) {
+
+        CarbonUtils.checkSecurity();
+        this.allowedScopes = allowedScopes;
+    }
+
+    public List<String> getAllowedScopes() {
+
+        return allowedScopes;
     }
 
     private static class CarbonContextCleanupTask implements

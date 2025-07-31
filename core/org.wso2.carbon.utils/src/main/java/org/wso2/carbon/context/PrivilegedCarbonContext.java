@@ -457,4 +457,12 @@ public class PrivilegedCarbonContext extends CarbonContext {
 
         return getCarbonContextDataHolder().getApplicationResidentOrganizationId();
     }
+
+    public void setAllowedScopes(List<String> allowedScopes) {
+        getCarbonContextDataHolder().setAllowedScopes(allowedScopes);
+    }
+
+    public List<String> getAllowedScopes() {
+        return getCarbonContextDataHolder().getAllowedScopes();
+    }
 }
