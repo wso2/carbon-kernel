@@ -77,7 +77,7 @@ public class SqlBuilder {
         if (expr.contains(UserCoreConstants.UM_ATTRIBUTE_COLUMN)) {
             // If the expression contains UM_ATTRIBUTE_COLUMN, we need to track the index of this value
             // for later use in the SQL statement.
-            attrValueIndexes.add(count - 1);
+            attrValueIndexes.add(count);
         }
         stringParameters.put(count, value);
         count++;
