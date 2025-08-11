@@ -1659,18 +1659,18 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
             // do all 4 possibilities
             if (sqlStmt1.contains(UserCoreConstants.UM_TENANT_COLUMN) && (saltValue == null)) {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, -1, userName, password, "",
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, userName, password, "",
                         requirePasswordChange, new Date(), tenantId);
             } else if (sqlStmt1.contains(UserCoreConstants.UM_TENANT_COLUMN) && (saltValue != null)) {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, -1, userName, password,
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, userName, password,
                         saltValue, requirePasswordChange, new Date(),
                         tenantId);
             } else if (!sqlStmt1.contains(UserCoreConstants.UM_TENANT_COLUMN) &&
                     (saltValue == null)) {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, -1, userName, password, "",
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, userName, password, "",
                         requirePasswordChange, new Date());
             } else {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, -1, userName, password, saltValue,
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, userName, password, saltValue,
                         requirePasswordChange, new Date());
             }
 
@@ -1790,9 +1790,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             dbConnection = getDBConnection();
             String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_ROLE);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt, -1, roleName, tenantId);
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt, roleName, tenantId);
             } else {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt, -1, roleName);
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt, roleName);
             }
             if (userList != null) {
                 // add role to user
@@ -1872,10 +1872,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             roleName = ctx.getRoleName();
             dbConnection = getDBConnection();
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt, -1, newRoleName, roleName,
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt, newRoleName, roleName,
                         tenantId);
             } else {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt, -1, newRoleName, roleName);
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt, newRoleName, roleName);
             }
             dbConnection.commit();
         } catch (SQLException e) {
@@ -2006,12 +2006,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         try {
             dbConnection = getDBConnection();
             if (sqlStmt1.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, -1, roleName, tenantId,
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, roleName, tenantId,
                         tenantId);
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt2, -1, roleName, tenantId);
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt2, roleName, tenantId);
             } else {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, -1, roleName);
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt2, -1, roleName);
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, roleName);
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt2, roleName);
             }
             //this.userRealm.getAuthorizationManager().clearRoleAuthorization(roleName);
             dbConnection.commit();
@@ -2068,15 +2068,15 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         try {
             dbConnection = getDBConnection();
             if (sqlStmt1.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, -1, userName, tenantId,
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, userName, tenantId,
                         tenantId);
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt2, -1, userName, tenantId,
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt2, userName, tenantId,
                         tenantId);
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt3, -1, userName, tenantId);
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt3, userName, tenantId);
             } else {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, -1, userName);
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt2, -1, userName);
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt3, -1, userName);
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt1, userName);
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt2, userName);
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt3, userName);
             }
             dbConnection.commit();
         } catch (SQLException e) {
@@ -2673,15 +2673,15 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         String password = this.preparePassword(newCredential, saltValue);
 
         if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN) && saltValue == null) {
-            updateStringValuesToDatabase(null, sqlStmt, -1, password, "", false, new Date(), userName,
+            updateStringValuesToDatabase(null, sqlStmt, password, "", false, new Date(), userName,
                     tenantId);
         } else if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN) && saltValue != null) {
-            updateStringValuesToDatabase(null, sqlStmt, -1, password, saltValue, false, new Date(),
+            updateStringValuesToDatabase(null, sqlStmt, password, saltValue, false, new Date(),
                     userName, tenantId);
         } else if (!sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN) && saltValue == null) {
-            updateStringValuesToDatabase(null, sqlStmt, -1, password, "", false, new Date(), userName);
+            updateStringValuesToDatabase(null, sqlStmt, password, "", false, new Date(), userName);
         } else {
-            updateStringValuesToDatabase(null, sqlStmt, -1, password, saltValue, false, new Date(),
+            updateStringValuesToDatabase(null, sqlStmt, password, saltValue, false, new Date(),
                     userName);
         }
     }
@@ -2767,14 +2767,21 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         return saltValue;
     }
 
+    private void updateStringValuesToDatabase(Connection dbConnection, String sqlStmt, Object... params)
+            throws UserStoreException {
+
+        updateStringValuesToDatabaseWithNStringAtIndex(dbConnection, sqlStmt, -1, params);
+    }
+
     /**
      * @param dbConnection
      * @param sqlStmt
      * @param params
      * @throws UserStoreException
      */
-    private void updateStringValuesToDatabase(Connection dbConnection, String sqlStmt, int attrValueIndex,
-                                              Object... params) throws UserStoreException {
+    private void updateStringValuesToDatabaseWithNStringAtIndex(Connection dbConnection, String sqlStmt,
+                                                                int attrValueIndex, Object... params)
+            throws UserStoreException {
 
         PreparedStatement prepStmt = null;
         boolean localConnection = false;
@@ -2863,14 +2870,15 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                 if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
-                    updateStringValuesToDatabase(dbConnection, sqlStmt, 1, propertyName, value,
-                            profileName, tenantId, userName, tenantId);
+                    updateStringValuesToDatabaseWithNStringAtIndex(dbConnection, sqlStmt, 1, propertyName,
+                            value, profileName, tenantId, userName, tenantId);
                 } else {
-                    updateStringValuesToDatabase(dbConnection, sqlStmt, 3, userName, tenantId,
-                            propertyName, value, profileName, tenantId);
+                    updateStringValuesToDatabaseWithNStringAtIndex(dbConnection, sqlStmt, 3, userName,
+                            tenantId, propertyName, value, profileName, tenantId);
                 }
             } else {
-                updateStringValuesToDatabase(dbConnection, sqlStmt, 2, userName, propertyName, value, profileName);
+                updateStringValuesToDatabaseWithNStringAtIndex(dbConnection, sqlStmt, 2, userName,
+                        propertyName, value, profileName);
             }
         } catch (Exception e) {
             String msg = "Error occurred while adding user property for user : " + userName + " & property name : " +
@@ -2903,10 +2911,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         }
 
         if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-            updateStringValuesToDatabase(dbConnection, sqlStmt, 0, value, userName, tenantId,
-                    propertyName, profileName, tenantId);
+            updateStringValuesToDatabaseWithNStringAtIndex(dbConnection, sqlStmt, 0, value, userName,
+                    tenantId, propertyName, profileName, tenantId);
         } else {
-            updateStringValuesToDatabase(dbConnection, sqlStmt, 0, value, userName, propertyName, profileName);
+            updateStringValuesToDatabaseWithNStringAtIndex(dbConnection, sqlStmt, 0, value, userName,
+                    propertyName, profileName);
         }
 
     }
@@ -2931,10 +2940,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         }
 
         if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-            updateStringValuesToDatabase(dbConnection, sqlStmt, -1, userName, tenantId, propertyName,
+            updateStringValuesToDatabase(dbConnection, sqlStmt, userName, tenantId, propertyName,
                     profileName, tenantId);
         } else {
-            updateStringValuesToDatabase(dbConnection, sqlStmt, -1, userName, propertyName, profileName);
+            updateStringValuesToDatabase(dbConnection, sqlStmt, userName, propertyName, profileName);
         }
     }
 
@@ -3509,9 +3518,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             dbConnection = getDBConnection();
             String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_SHARED_ROLE);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt, -1, true, roleName, tenantId);
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt, true, roleName, tenantId);
             } else {
-                this.updateStringValuesToDatabase(dbConnection, sqlStmt, -1, true, roleName);
+                this.updateStringValuesToDatabase(dbConnection, sqlStmt, true, roleName);
             }
             if (userList != null) {
                 // add role to user
