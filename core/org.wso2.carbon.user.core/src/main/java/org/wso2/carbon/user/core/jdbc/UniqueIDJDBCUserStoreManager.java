@@ -2607,7 +2607,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
 
         if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-            updateStringValuesToDatabase(dbConnection, sqlStmt,  userID, tenantId, propertyName, profileName, tenantId);
+            updateStringValuesToDatabase(dbConnection, sqlStmt, userID, tenantId, propertyName, profileName, tenantId);
         } else {
             updateStringValuesToDatabase(dbConnection, sqlStmt, userID, propertyName, profileName);
         }
