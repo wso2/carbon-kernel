@@ -10,7 +10,7 @@
     <groupId>org.wso2.carbon</groupId>
     <artifactId>carbon-parent</artifactId>
     <packaging>pom</packaging>
-    <version>4.10.70-SNAPSHOT</version>
+    <version>4.10.76-SNAPSHOT</version>
     <name>WSO2 Carbon - Parent Pom</name>
     <description>WSO2 Carbon Kernel Parent Pom</description>
     <url>http://wso2.org</url>
@@ -301,7 +301,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon Kernel Related Versions-->
-        <carbon.kernel.version>4.10.70-SNAPSHOT</carbon.kernel.version>
+        <carbon.kernel.version>4.10.76-SNAPSHOT</carbon.kernel.version>
         <carbon.kernel.exp.pkg.version>${carbon.kernel.version}</carbon.kernel.exp.pkg.version>
         <carbon.kernel.imp.pkg.version>[${carbon.kernel.version}, 5.0.0)</carbon.kernel.imp.pkg.version>
 
@@ -445,7 +445,7 @@
         <axiom.osgi.version>1.2.11-wso2v28</axiom.osgi.version>
         <axiom.osgi.version.range>[1.2.11, 1.3.0)</axiom.osgi.version.range>
         <commons-text.orbit.version>1.10.0.wso2v2</commons-text.orbit.version>
-        <commons-lang3.orbit.version>3.4.0.wso2v1</commons-lang3.orbit.version>
+        <commons-lang3.orbit.version>3.18.0.wso2v1</commons-lang3.orbit.version>
 
 
         <!-- Spring Framework -->
@@ -526,8 +526,8 @@
         <version.commons.logging>1.2</version.commons.logging>
 
         <!--PAX Logging related dependency versions-->
-        <pax.logging.api.version>2.1.0-wso2v4</pax.logging.api.version>
-        <pax.logging.log4j2.version>2.1.0-wso2v4</pax.logging.log4j2.version>
+        <pax.logging.api.version>2.1.0-wso2v5</pax.logging.api.version>
+        <pax.logging.log4j2.version>2.1.0-wso2v5</pax.logging.log4j2.version>
 
         <!--<version.opensaml2>2.4.1.wso2v1</version.opensaml2>-->
         <version.compass>2.0.1.wso2v2</version.compass>
