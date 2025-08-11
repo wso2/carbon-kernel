@@ -2770,7 +2770,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private void updateStringValuesToDatabase(Connection dbConnection, String sqlStmt, Object... params)
             throws UserStoreException {
 
-        updateStringValuesToDatabaseWithNStringAtIndex(dbConnection, sqlStmt, -1, params);
+        updateStringValuesToDatabaseIncludingUMAttrValue(dbConnection, sqlStmt, -1, params);
     }
 
     /**
@@ -2779,7 +2779,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      * @param params
      * @throws UserStoreException
      */
-    private void updateStringValuesToDatabaseWithNStringAtIndex(Connection dbConnection, String sqlStmt,
+    private void updateStringValuesToDatabaseIncludingUMAttrValue(Connection dbConnection, String sqlStmt,
                                                                 int attrValueIndex, Object... params)
             throws UserStoreException {
 
@@ -2870,14 +2870,14 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                 if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
-                    updateStringValuesToDatabaseWithNStringAtIndex(dbConnection, sqlStmt, 1, propertyName,
+                    updateStringValuesToDatabaseIncludingUMAttrValue(dbConnection, sqlStmt, 1, propertyName,
                             value, profileName, tenantId, userName, tenantId);
                 } else {
-                    updateStringValuesToDatabaseWithNStringAtIndex(dbConnection, sqlStmt, 3, userName,
+                    updateStringValuesToDatabaseIncludingUMAttrValue(dbConnection, sqlStmt, 3, userName,
                             tenantId, propertyName, value, profileName, tenantId);
                 }
             } else {
-                updateStringValuesToDatabaseWithNStringAtIndex(dbConnection, sqlStmt, 2, userName,
+                updateStringValuesToDatabaseIncludingUMAttrValue(dbConnection, sqlStmt, 2, userName,
                         propertyName, value, profileName);
             }
         } catch (Exception e) {
@@ -2911,10 +2911,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         }
 
         if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-            updateStringValuesToDatabaseWithNStringAtIndex(dbConnection, sqlStmt, 0, value, userName,
+            updateStringValuesToDatabaseIncludingUMAttrValue(dbConnection, sqlStmt, 0, value, userName,
                     tenantId, propertyName, profileName, tenantId);
         } else {
-            updateStringValuesToDatabaseWithNStringAtIndex(dbConnection, sqlStmt, 0, value, userName,
+            updateStringValuesToDatabaseIncludingUMAttrValue(dbConnection, sqlStmt, 0, value, userName,
                     propertyName, profileName);
         }
 

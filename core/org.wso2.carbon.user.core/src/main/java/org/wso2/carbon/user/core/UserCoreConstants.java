@@ -45,6 +45,7 @@ public class UserCoreConstants {
     public static final short ALLOW = 1;
 
     public static final String UM_TENANT_COLUMN = "UM_TENANT_ID";
+    public static final String UM_ATTRIBUTE_COLUMN = "UM_ATTR_VALUE";
 
     public static final String SQL_ESCAPE_KEYWORD = "ESCAPE";
 

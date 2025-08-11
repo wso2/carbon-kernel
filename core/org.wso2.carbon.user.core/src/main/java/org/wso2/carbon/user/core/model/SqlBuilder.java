@@ -18,6 +18,7 @@
 package org.wso2.carbon.user.core.model;
 
 import org.apache.commons.lang.StringUtils;
+import org.wso2.carbon.user.core.UserCoreConstants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,8 +74,10 @@ public class SqlBuilder {
     public SqlBuilder where(String expr, String value) {
 
         wheres.add(expr);
-        if (expr.contains("UM_ATTR_VALUE")) {
-            attrValueIndexes.add(count);
+        if (expr.contains(UserCoreConstants.UM_ATTRIBUTE_COLUMN)) {
+            // If the expression contains UM_ATTRIBUTE_COLUMN, we need to track the index of this value
+            // for later use in the SQL statement.
+            attrValueIndexes.add(count - 1);
         }
         stringParameters.put(count, value);
         count++;

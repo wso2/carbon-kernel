@@ -2326,10 +2326,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     private void updateStringValuesToDatabase(Connection dbConnection, String sqlStmt, Object... params)
             throws UserStoreException {
 
-        updateStringValuesToDatabaseWithNStringAtIndex(dbConnection, sqlStmt, -1, params);
+        updateStringValuesToDatabaseIncludingUMAttrValue(dbConnection, sqlStmt, -1, params);
     }
 
-    private void updateStringValuesToDatabaseWithNStringAtIndex(Connection dbConnection, String sqlStmt,
+    private void updateStringValuesToDatabaseIncludingUMAttrValue(Connection dbConnection, String sqlStmt,
                                                                 int attrValueIndex, Object... params)
             throws UserStoreException {
 
@@ -2551,14 +2551,14 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                 if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
-                    updateStringValuesToDatabaseWithNStringAtIndex(dbConnection, sqlStmt, 1, propertyName, value,
+                    updateStringValuesToDatabaseIncludingUMAttrValue(dbConnection, sqlStmt, 1, propertyName, value,
                             profileName, tenantId, userID, tenantId);
                 } else {
-                    updateStringValuesToDatabaseWithNStringAtIndex(dbConnection, sqlStmt, 3, userID, tenantId,
+                    updateStringValuesToDatabaseIncludingUMAttrValue(dbConnection, sqlStmt, 3, userID, tenantId,
                             propertyName, value, profileName, tenantId);
                 }
             } else {
-                updateStringValuesToDatabaseWithNStringAtIndex(dbConnection, sqlStmt, 2, userID, propertyName,
+                updateStringValuesToDatabaseIncludingUMAttrValue(dbConnection, sqlStmt, 2, userID, propertyName,
                         value, profileName);
             }
         } catch (Exception e) {
@@ -2580,10 +2580,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
 
         if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-            updateStringValuesToDatabaseWithNStringAtIndex(dbConnection, sqlStmt, 0, value, propertyName, profileName,
+            updateStringValuesToDatabaseIncludingUMAttrValue(dbConnection, sqlStmt, 0, value, propertyName, profileName,
                     userID, tenantId, tenantId);
         } else {
-            updateStringValuesToDatabaseWithNStringAtIndex(dbConnection, sqlStmt, 0, value, userID, propertyName,
+            updateStringValuesToDatabaseIncludingUMAttrValue(dbConnection, sqlStmt, 0, value, userID, propertyName,
                     profileName);
         }
 
