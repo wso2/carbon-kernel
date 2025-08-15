@@ -103,6 +103,7 @@ public class SqlBuilder {
     }
 
     public SqlBuilder where(String expr, Timestamp value) {
+
         if (value == null) {
             throw new IllegalArgumentException("Timestamp value cannot be null");
         }
@@ -182,10 +183,10 @@ public class SqlBuilder {
     public void setTail(String tail, Timestamp... placeHolders) {
 
         if (tail == null) {
-            throw new IllegalArgumentException("tail parameter cannot be null");
+            throw new IllegalArgumentException("Tail parameter cannot be null");
         }
         if (placeHolders == null) {
-            throw new IllegalArgumentException("placeHolders array cannot be null");
+            throw new IllegalArgumentException("PlaceHolders array cannot be null");
         }
         for (Timestamp value : placeHolders) {
             if (value == null) {
