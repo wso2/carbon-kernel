@@ -181,6 +181,17 @@ public class SqlBuilder {
 
     public void setTail(String tail, Timestamp... placeHolders) {
 
+        if (tail == null) {
+            throw new IllegalArgumentException("tail parameter cannot be null");
+        }
+        if (placeHolders == null) {
+            throw new IllegalArgumentException("placeHolders array cannot be null");
+        }
+        for (Timestamp value : placeHolders) {
+            if (value == null) {
+                throw new IllegalArgumentException("Timestamp value in placeHolders cannot be null");
+            }
+        }
         if (this.tail == null) {
             this.tail = new StringBuilder(tail);
         } else {
