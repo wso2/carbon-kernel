@@ -103,7 +103,9 @@ public class SqlBuilder {
     }
 
     public SqlBuilder where(String expr, Timestamp value) {
-
+        if (value == null) {
+            throw new IllegalArgumentException("Timestamp value cannot be null");
+        }
         wheres.add(expr);
         timestampParameters.put(count, value);
         count++;
