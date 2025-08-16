@@ -20,6 +20,7 @@ package org.wso2.carbon.user.core.model;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.user.core.UserCoreConstants;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,6 +39,7 @@ public class SqlBuilder {
     private Map<Integer, Integer> integerParameters = new HashMap<>();
     private Map<Integer, String> stringParameters = new HashMap<>();
     private Map<Integer, Long> longParameters = new HashMap<>();
+    private Map<Integer, Timestamp> timestampParameters = new HashMap<>();
     private final List<Integer> attrValueIndexes = new ArrayList<>();
     private boolean addedWhereStatement = false;
 
@@ -100,6 +102,17 @@ public class SqlBuilder {
         return this;
     }
 
+    public SqlBuilder where(String expr, Timestamp value) {
+
+        if (value == null) {
+            throw new IllegalArgumentException("Timestamp value cannot be null");
+        }
+        wheres.add(expr);
+        timestampParameters.put(count, value);
+        count++;
+        return this;
+    }
+
     public List<Integer> getAttributeValueIndexes() {
 
         return attrValueIndexes;
@@ -118,6 +131,11 @@ public class SqlBuilder {
     public Map<Integer, Long> getLongParameters() {
 
         return longParameters;
+    }
+
+    public Map<Integer, Timestamp> getTimestampParameters() {
+
+        return timestampParameters;
     }
 
     public void setTail(String tail, Integer... placeHolders) {
@@ -162,6 +180,31 @@ public class SqlBuilder {
         }
     }
 
+    public void setTail(String tail, Timestamp... placeHolders) {
+
+        if (tail == null) {
+            throw new IllegalArgumentException("Tail parameter cannot be null");
+        }
+        if (placeHolders == null) {
+            throw new IllegalArgumentException("PlaceHolders array cannot be null");
+        }
+        for (Timestamp value : placeHolders) {
+            if (value == null) {
+                throw new IllegalArgumentException("Timestamp value in placeHolders cannot be null");
+            }
+        }
+        if (this.tail == null) {
+            this.tail = new StringBuilder(tail);
+        } else {
+            this.tail.append(tail);
+        }
+
+        for (Timestamp value : placeHolders) {
+            timestampParameters.put(count, value);
+            count++;
+        }
+    }
+
     /**
      * Get sql statement part only.
      *
@@ -196,6 +239,8 @@ public class SqlBuilder {
             integerParameters.put(count, (Integer) value);
         } else if (value instanceof Long) {
             longParameters.put(count, (Long) value);
+        } else if (value instanceof Timestamp) {
+            timestampParameters.put(count, (Timestamp) value);
         }
         count++;
     }
@@ -238,6 +283,7 @@ public class SqlBuilder {
         integerParameters.forEach((idx, val) -> parametersArray[idx - 1] = val);
         stringParameters.forEach((idx, val) -> parametersArray[idx - 1] = val);
         longParameters.forEach((idx, val) -> parametersArray[idx - 1] = val);
+        timestampParameters.forEach((idx, val) -> parametersArray[idx - 1] = val);
 
         return new ArrayList<>(Arrays.asList(parametersArray));
     }
@@ -268,6 +314,8 @@ public class SqlBuilder {
                     integerParameters.put(count, (Integer) param);
                 } else if (param instanceof Long) {
                     longParameters.put(count, (Long) param);
+                } else if (param instanceof Timestamp) {
+                    timestampParameters.put(count, (Timestamp) param);
                 }
                 count++;
             }
