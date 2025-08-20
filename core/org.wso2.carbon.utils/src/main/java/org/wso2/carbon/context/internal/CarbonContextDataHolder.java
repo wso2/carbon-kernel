@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.DiscoveryService;
 import org.wso2.carbon.base.UnloadTenantTask;
+import org.wso2.carbon.context.OperationScopeValidationContext;
 import org.wso2.carbon.queuing.CarbonQueue;
 import org.wso2.carbon.queuing.CarbonQueueManager;
 import org.wso2.carbon.queuing.QueuingException;
@@ -148,7 +149,7 @@ public final class CarbonContextDataHolder {
     private String organizationId;
     private String applicationName;
     private String applicationResidentOrganizationId;
-    private List<String> allowedScopes = new ArrayList<>();
+    private OperationScopeValidationContext operationScopeValidationContext;
 
     private Map<String, Object> properties;
 
@@ -1535,22 +1536,32 @@ public final class CarbonContextDataHolder {
     }
 
     /**
+     * Get the operation scope validation context.
+     *
+     * @return OperationScopeValidationContext
+     */
+    public OperationScopeValidationContext getOperationScopeValidationContext() {
+
+        return operationScopeValidationContext;
+    }
+
+    /**
+     * Set the operation scope validation context.
+     *
+     * @param operationScopeValidationContext OperationScopeValidationContext
+     */
+    public void setOperationScopeValidationContext(
+            OperationScopeValidationContext operationScopeValidationContext) {
+
+        this.operationScopeValidationContext = operationScopeValidationContext;
+    }
+
+    /**
      * This method will destroy the current CarbonContext holder.
      */
     public static void destroyCurrentCarbonContextHolder() {
         currentContextHolder.remove();
         parentContextHolderStack.remove();
-    }
-
-    public void setAllowedScopes(List<String> allowedScopes) {
-
-        CarbonUtils.checkSecurity();
-        this.allowedScopes = allowedScopes;
-    }
-
-    public List<String> getAllowedScopes() {
-
-        return allowedScopes;
     }
 
     private static class CarbonContextCleanupTask implements

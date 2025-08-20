@@ -38,7 +38,6 @@ import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 
-
 /**
  * This CarbonContext provides users the ability to carry out privileged actions such as
  * switching tenant flows, setting tenant ID etc.
@@ -458,11 +457,23 @@ public class PrivilegedCarbonContext extends CarbonContext {
         return getCarbonContextDataHolder().getApplicationResidentOrganizationId();
     }
 
-    public void setAllowedScopes(List<String> allowedScopes) {
-        getCarbonContextDataHolder().setAllowedScopes(allowedScopes);
+    /**
+     * Set the operation scope validation context.
+     *
+     * @param operationScopeValidationContext Operation scope validation context.
+     */
+    public void setOperationScopeValidationContext(OperationScopeValidationContext operationScopeValidationContext) {
+
+        getCarbonContextDataHolder().setOperationScopeValidationContext(operationScopeValidationContext);
     }
 
-    public List<String> getAllowedScopes() {
-        return getCarbonContextDataHolder().getAllowedScopes();
+    /**
+     * Get the operation scope validation context.
+     *
+     * @return Operation scope validation context.
+     */
+    public OperationScopeValidationContext getOperationScopeValidationContext() {
+
+        return getCarbonContextDataHolder().getOperationScopeValidationContext();
     }
 }
