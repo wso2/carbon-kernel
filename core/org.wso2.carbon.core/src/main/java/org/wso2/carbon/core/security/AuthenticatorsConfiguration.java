@@ -78,16 +78,26 @@ public class AuthenticatorsConfiguration {
 
         private Map<String, String> parameters = new Hashtable<String, String>();
 
+        private final Map<String, Map<String, String>> parameterMap;
+
         private List<String> authenticationSkippingUrls = new ArrayList<String>();
 
         private List<String> sessionValidationSkippingUrls = new ArrayList<String>();
 
         private AuthenticatorConfig(String name, int priority, boolean disabled, Map<String,
-                String> params) {
+                String> params, Map<String, Map<String, String>> paramMap) {
             this.name = name;
             this.priority = priority;
             this.disabled = disabled;
             this.parameters = params;
+
+            // Make sure that outer map and inner maps are unmodifiable.
+            Map<String, Map<String, String>> unmodifiableParamMap = new HashMap<>();
+            for (Map.Entry<String, Map<String, String>> entry : paramMap.entrySet()) {
+                unmodifiableParamMap.put(entry.getKey(), 
+                    Collections.unmodifiableMap(new HashMap<>(entry.getValue())));
+            }
+            this.parameterMap = Collections.unmodifiableMap(unmodifiableParamMap);
         }
 
         public String getName() {
@@ -104,6 +114,14 @@ public class AuthenticatorsConfiguration {
 
         public Map<String, String> getParameters() {
             return parameters;
+        }
+
+        public Map<String, Map<String, String>> getParameterMap() {
+            return parameterMap;
+        }
+
+        public Map<String, String> getConfigFromParameterMap(String configName) {
+            return parameterMap.get(configName);
         }
 
         public void addAuthenticationSkippingUrl(String url) {
@@ -208,10 +226,36 @@ public class AuthenticatorsConfiguration {
         }
 
         // read the config parameters
-        Map<String, String> parameterMap = new Hashtable<String, String>();
+        Map<String, String> parameterMap = new Hashtable<>();
+        Map<String, Map<String, String>> nestedParameterMap = new HashMap<>();
+        
         for(Iterator configElemItr = authenticatorElem.getChildrenWithLocalName(ELEM_CONFIG);
             configElemItr.hasNext();){
             OMElement configElement = (OMElement)configElemItr.next();
+            
+            // Only process configs that have an explicit name attribute.
+            OMAttribute configNameAttr = configElement.getAttribute(new QName(ATTR_NAME));
+            if(configNameAttr == null){
+                // Skip configs without name attribute - process parameters for flat map only.
+                for(Iterator paramIterator = configElement.getChildrenWithLocalName(ELEM_PARAMETER);
+                    paramIterator.hasNext();){
+                    OMElement paramElem = (OMElement)paramIterator.next();
+                    OMAttribute paramNameAttr = paramElem.getAttribute(new QName(ATTR_NAME));
+                    if(paramNameAttr == null){
+                        log.warn("An Authenticator Parameter should have a name attribute. Skipping the parameter.");
+                        continue;
+                    }
+                    // Add to flat map for backward compatibility.
+                    parameterMap.put(paramNameAttr.getAttributeValue(), paramElem.getText());
+                }
+                continue;
+            }
+            
+            String configName = configNameAttr.getAttributeValue();
+            
+            // Create a map for this config's parameters.
+            Map<String, String> configParametersMap = new HashMap<>();
+            
             for(Iterator paramIterator = configElement.getChildrenWithLocalName(ELEM_PARAMETER);
                 paramIterator.hasNext();){
                 OMElement paramElem = (OMElement)paramIterator.next();
@@ -220,12 +264,22 @@ public class AuthenticatorsConfiguration {
                     log.warn("An Authenticator Parameter should have a name attribute. Skipping the parameter.");
                     continue;
                 }
-                parameterMap.put(paramNameAttr.getAttributeValue(), paramElem.getText());
+                String paramName = paramNameAttr.getAttributeValue();
+                String paramValue = paramElem.getText();
+                
+                // Add to both the flat map (for backward compatibility) and the nested map.
+                parameterMap.put(paramName, paramValue);
+                configParametersMap.put(paramName, paramValue);
+            }
+            
+            // Add the config parameters to the nested parameterMap if it has any parameters.
+            if(!configParametersMap.isEmpty()){
+                nestedParameterMap.put(configName, configParametersMap);
             }
         }
 
         AuthenticatorConfig authenticatorConfig = new AuthenticatorConfig(authenticatorName,
-                priority, disabled, parameterMap);
+                priority, disabled, parameterMap, nestedParameterMap);
 
         // read authentication skipping urls
         for(Iterator configElemItr = authenticatorElem.getChildrenWithLocalName(ELEM_SKIP_AUTHENTICATION);
