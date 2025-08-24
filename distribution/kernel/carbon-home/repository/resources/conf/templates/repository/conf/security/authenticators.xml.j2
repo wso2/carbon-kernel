@@ -67,8 +67,19 @@
             {% for key,value in admin_console.authenticator.mutual_ssl_authenticator.config.items() %}
             <Parameter name="{{key}}">{{value}}</Parameter>
             {% endfor %}
-	    </Config>
-    </Authenticator>
+        </Config>
+
+        <!-- Named configurations for new nested parameter map -->
+        {% if admin_console.authenticator.mutual_ssl_authenticator.named_configs is defined %}
+            {% for config_name, config_params in admin_console.authenticator.mutual_ssl_authenticator.named_configs.items() %}
+            <Config name="{{config_name}}">
+                {% for key, value in config_params.items() %}
+                <Parameter name="{{key}}">{{value}}</Parameter>
+                {% endfor %}
+            </Config>
+            {% endfor %}
+        {% endif %}
+        </Authenticator>
 
     {% if admin_console.authenticator.iwa_ui_authenticator is defined %}
     <Authenticator
