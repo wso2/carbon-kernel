@@ -196,52 +196,53 @@ public class AuthenticatorsConfiguration {
     }
 
     /**
-     * Create AuthenticatorConfig elements for each authenticator entry
-     * @param authenticatorElem OMElement for Authenticator
-     * @return  AuthenticatorConfig object
+     * Create AuthenticatorConfig elements for each authenticator entry.
+     *
+     * @param authenticatorElem OMElement for Authenticator.
+     * @return AuthenticatorConfig object.
      */
     private AuthenticatorConfig processAuthenticatorElement(OMElement authenticatorElem) {
         // read the name of the authenticator. this is a mandatory attribute.
         OMAttribute nameAttr = authenticatorElem.getAttribute(new QName(ATTR_NAME));
         // if the name is not given, do not register this authenticator
-        if(nameAttr == null){
+        if (nameAttr == null) {
             log.warn("Each Authenticator Configuration should have a unique name attribute. +" +
-                     "This Authenticator will not be registered.");
+                    "This Authenticator will not be registered.");
             return null;
         }
         String authenticatorName = nameAttr.getAttributeValue();
 
         // check whether the disabled attribute is set
         boolean disabled = false;
-        if(authenticatorElem.getAttribute(new QName(ATTR_DISABLED)) != null){
+        if (authenticatorElem.getAttribute(new QName(ATTR_DISABLED)) != null) {
             disabled = Boolean.parseBoolean(authenticatorElem.getAttribute(
                     new QName(ATTR_DISABLED)).getAttributeValue());
         }
 
         // read the priority
         int priority = 0;
-        for(Iterator priorityElemItr = authenticatorElem.getChildrenWithLocalName(ELEM_PRIORITY);
-            priorityElemItr.hasNext();){
-            priority = Integer.parseInt(((OMElement)priorityElemItr.next()).getText());
+        for (Iterator priorityElemItr = authenticatorElem.getChildrenWithLocalName(ELEM_PRIORITY);
+             priorityElemItr.hasNext(); ) {
+            priority = Integer.parseInt(((OMElement) priorityElemItr.next()).getText());
         }
 
         // read the config parameters
         Map<String, String> parameterMap = new Hashtable<>();
         Map<String, Map<String, String>> nestedParameterMap = new HashMap<>();
-        
-        for(Iterator configElemItr = authenticatorElem.getChildrenWithLocalName(ELEM_CONFIG);
-            configElemItr.hasNext();){
-            OMElement configElement = (OMElement)configElemItr.next();
-            
+
+        for (Iterator configElemItr = authenticatorElem.getChildrenWithLocalName(ELEM_CONFIG);
+             configElemItr.hasNext(); ) {
+            OMElement configElement = (OMElement) configElemItr.next();
+
             // Only process configs that have an explicit name attribute.
             OMAttribute configNameAttr = configElement.getAttribute(new QName(ATTR_NAME));
-            if(configNameAttr == null){
+            if (configNameAttr == null) {
                 // Skip configs without name attribute - process parameters for flat map only.
-                for(Iterator paramIterator = configElement.getChildrenWithLocalName(ELEM_PARAMETER);
-                    paramIterator.hasNext();){
-                    OMElement paramElem = (OMElement)paramIterator.next();
+                for (Iterator paramIterator = configElement.getChildrenWithLocalName(ELEM_PARAMETER);
+                     paramIterator.hasNext(); ) {
+                    OMElement paramElem = (OMElement) paramIterator.next();
                     OMAttribute paramNameAttr = paramElem.getAttribute(new QName(ATTR_NAME));
-                    if(paramNameAttr == null){
+                    if (paramNameAttr == null) {
                         log.warn("An Authenticator Parameter should have a name attribute. Skipping the parameter.");
                         continue;
                     }
@@ -250,30 +251,30 @@ public class AuthenticatorsConfiguration {
                 }
                 continue;
             }
-            
+
             String configName = configNameAttr.getAttributeValue();
-            
+
             // Create a map for this config's parameters.
             Map<String, String> configParametersMap = new HashMap<>();
-            
-            for(Iterator paramIterator = configElement.getChildrenWithLocalName(ELEM_PARAMETER);
-                paramIterator.hasNext();){
-                OMElement paramElem = (OMElement)paramIterator.next();
+
+            for (Iterator paramIterator = configElement.getChildrenWithLocalName(ELEM_PARAMETER);
+                 paramIterator.hasNext(); ) {
+                OMElement paramElem = (OMElement) paramIterator.next();
                 OMAttribute paramNameAttr = paramElem.getAttribute(new QName(ATTR_NAME));
-                if(paramNameAttr == null){
+                if (paramNameAttr == null) {
                     log.warn("An Authenticator Parameter should have a name attribute. Skipping the parameter.");
                     continue;
                 }
                 String paramName = paramNameAttr.getAttributeValue();
                 String paramValue = paramElem.getText();
-                
+
                 // Add to both the flat map (for backward compatibility) and the nested map.
                 parameterMap.put(paramName, paramValue);
                 configParametersMap.put(paramName, paramValue);
             }
-            
+
             // Add the config parameters to the nested parameterMap if it has any parameters.
-            if(!configParametersMap.isEmpty()){
+            if (!configParametersMap.isEmpty()) {
                 nestedParameterMap.put(configName, configParametersMap);
             }
         }
@@ -282,12 +283,12 @@ public class AuthenticatorsConfiguration {
                 priority, disabled, parameterMap, nestedParameterMap);
 
         // read authentication skipping urls
-        for(Iterator configElemItr = authenticatorElem.getChildrenWithLocalName(ELEM_SKIP_AUTHENTICATION);
-            configElemItr.hasNext();){
-            OMElement configElement = (OMElement)configElemItr.next();
-            for(Iterator paramIterator = configElement.getChildrenWithLocalName(ELEM_URL_CONTAINS);
-                paramIterator.hasNext();){
-                OMElement urlElement = (OMElement)paramIterator.next();
+        for (Iterator configElemItr = authenticatorElem.getChildrenWithLocalName(ELEM_SKIP_AUTHENTICATION);
+             configElemItr.hasNext(); ) {
+            OMElement configElement = (OMElement) configElemItr.next();
+            for (Iterator paramIterator = configElement.getChildrenWithLocalName(ELEM_URL_CONTAINS);
+                 paramIterator.hasNext(); ) {
+                OMElement urlElement = (OMElement) paramIterator.next();
 
                 if (urlElement.getText() != null && !urlElement.getText().isEmpty()) {
                     authenticatorConfig.addAuthenticationSkippingUrl(urlElement.getText().trim());
@@ -296,12 +297,12 @@ public class AuthenticatorsConfiguration {
         }
 
         // read session validation skipping urls
-        for(Iterator configElemItr = authenticatorElem.getChildrenWithLocalName(ELEM_SKIP_SESSION_VALIDATION);
-            configElemItr.hasNext();){
-            OMElement configElement = (OMElement)configElemItr.next();
-            for(Iterator paramIterator = configElement.getChildrenWithLocalName(ELEM_URL_CONTAINS);
-                paramIterator.hasNext();){
-                OMElement urlElement = (OMElement)paramIterator.next();
+        for (Iterator configElemItr = authenticatorElem.getChildrenWithLocalName(ELEM_SKIP_SESSION_VALIDATION);
+             configElemItr.hasNext(); ) {
+            OMElement configElement = (OMElement) configElemItr.next();
+            for (Iterator paramIterator = configElement.getChildrenWithLocalName(ELEM_URL_CONTAINS);
+                 paramIterator.hasNext(); ) {
+                OMElement urlElement = (OMElement) paramIterator.next();
 
                 if (urlElement.getText() != null && !urlElement.getText().isEmpty()) {
                     authenticatorConfig.addSessionValidationSkippingUrl(urlElement.getText().trim());
