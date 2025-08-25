@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.DiscoveryService;
 import org.wso2.carbon.base.UnloadTenantTask;
+import org.wso2.carbon.context.OperationScopeValidationContext;
 import org.wso2.carbon.queuing.CarbonQueue;
 import org.wso2.carbon.queuing.CarbonQueueManager;
 import org.wso2.carbon.queuing.QueuingException;
@@ -148,6 +149,7 @@ public final class CarbonContextDataHolder {
     private String organizationId;
     private String applicationName;
     private String applicationResidentOrganizationId;
+    private OperationScopeValidationContext operationScopeValidationContext;
 
     private Map<String, Object> properties;
 
@@ -1531,6 +1533,27 @@ public final class CarbonContextDataHolder {
     public String getApplicationResidentOrganizationId() {
 
         return applicationResidentOrganizationId;
+    }
+
+    /**
+     * Get the operation scope validation context.
+     *
+     * @return OperationScopeValidationContext
+     */
+    public OperationScopeValidationContext getOperationScopeValidationContext() {
+
+        return operationScopeValidationContext;
+    }
+
+    /**
+     * Set the operation scope validation context.
+     *
+     * @param operationScopeValidationContext OperationScopeValidationContext
+     */
+    public void setOperationScopeValidationContext(
+            OperationScopeValidationContext operationScopeValidationContext) {
+
+        this.operationScopeValidationContext = operationScopeValidationContext;
     }
 
     /**
