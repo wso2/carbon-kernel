@@ -808,7 +808,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         ResultSet rs = null;
         PreparedStatement prepStmt = null;
         String sqlstmt;
-        String password;
         boolean isAuthed = false;
 
         try {
@@ -869,8 +868,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
                     authenticationResult.setFailureReason(new FailureReason("Password change required."));
                 } else {
-                    password = preparePassword(credential, saltValue);
-                    if ((storedPassword != null) && (storedPassword.equals(password))) {
+                    if (validatePassword(credential, storedPassword, saltValue)) {
                         isAuthed = true;
                         user = new User(userID, userName, userName, null, null, null, null);
                         try {
@@ -950,7 +948,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         ResultSet rs = null;
         PreparedStatement prepStmt = null;
         String sqlstmt;
-        String password;
         boolean isAuthed = false;
 
         try {
@@ -1018,8 +1015,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
                     authenticationResult.setFailureReason(new FailureReason("Password change required."));
                 } else {
-                    password = preparePassword(credential, saltValue);
-                    if ((storedPassword != null) && (storedPassword.equals(password))) {
+                    if (validatePassword(credential, storedPassword, saltValue)) {
                         isAuthed = true;
                         user = getUser(userID, userName);
                         user.setPreferredUsername(preferredUserNameProperty);
@@ -1066,7 +1062,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         ResultSet rs = null;
         PreparedStatement prepStmt = null;
         String sqlstmt;
-        String password;
         boolean isAuthed = false;
 
         try {
@@ -1106,8 +1101,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
                     authenticationResult.setFailureReason(new FailureReason("Password change required."));
                 } else {
-                    password = preparePassword(credential, saltValue);
-                    if ((storedPassword != null) && (storedPassword.equals(password))) {
+                    if (validatePassword(credential, storedPassword, saltValue)) {
                         isAuthed = true;
                         user = getUser(userID, userName);
                         authenticationResult = new AuthenticationResult(
@@ -1167,7 +1161,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         ResultSet rs = null;
         PreparedStatement prepStmt = null;
         String sqlstmt;
-        String password;
         boolean isAuthed = false;
 
         try {
@@ -1212,8 +1205,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     authenticationResult = new AuthenticationResult(AuthenticationResult.AuthenticationStatus.FAIL);
                     authenticationResult.setFailureReason(new FailureReason("Password change required."));
                 } else {
-                    password = preparePassword(credential, saltValue);
-                    if ((storedPassword != null) && (storedPassword.equals(password))) {
+                    if (validatePassword(credential, storedPassword, saltValue)) {
                         isAuthed = true;
                         user = getUser(userID, userName);
                         authenticationResult = new AuthenticationResult(

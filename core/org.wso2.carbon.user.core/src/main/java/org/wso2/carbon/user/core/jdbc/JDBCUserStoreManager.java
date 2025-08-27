@@ -1528,7 +1528,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         ResultSet rs = null;
         PreparedStatement prepStmt = null;
         String sqlstmt = null;
-        String password = null;
         boolean isAuthed = false;
 
         try {
@@ -1571,8 +1570,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 if (requireChange == true && changedTime.before(date)) {
                     isAuthed = false;
                 } else {
-                    password = this.preparePassword(credential, saltValue);
-                    if ((storedPassword != null) && (storedPassword.equals(password))) {
+                    if (this.validatePassword(credential, storedPassword, saltValue)) {
                         isAuthed = true;
                     }
                 }
@@ -3049,6 +3047,33 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         try {
             return passwordHashProcessor.hashPassword(password, saltValue);
+        } catch (PasswordHashingException e) {
+            throw new UserStoreException(e);
+        }
+    }
+
+    /**
+     * Validates a given password against a stored hashed password using a salt.
+     *
+     * @param password The original password value, which can be a String or a character array.
+     * @param storedPassword The stored password hash as a String.
+     * @param saltValue The salt used during the hashing of the original password.
+     * @return A boolean value indicating whether the password is valid (true) or not (false).
+     * @throws UserStoreException If an error occurs during the validation process.
+     */
+    protected boolean validatePassword(Object password, String storedPassword, String saltValue)
+            throws UserStoreException {
+
+        if (passwordHashProcessor == null) {
+            throw new UserStoreException("PasswordHashProcessor is not initialized.");
+        }
+
+        if (!passwordHashProcessor.hasCustomValidator()) {
+            return storedPassword != null && storedPassword.equals(preparePassword(password, saltValue));
+        }
+
+        try {
+            return passwordHashProcessor.validatePassword(password, storedPassword, saltValue);
         } catch (PasswordHashingException e) {
             throw new UserStoreException(e);
         }

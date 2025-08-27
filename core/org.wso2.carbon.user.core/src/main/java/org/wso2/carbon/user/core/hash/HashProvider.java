@@ -20,6 +20,7 @@ package org.wso2.carbon.user.core.hash;
 
 import org.wso2.carbon.user.core.exceptions.HashProviderException;
 
+import java.security.MessageDigest;
 import java.util.Map;
 
 /**
@@ -49,6 +50,39 @@ public interface HashProvider {
      * @throws HashProviderException If an error occurred while getting the hash value.
      */
     byte[] calculateHash(char[] plainText, String salt) throws HashProviderException;
+
+    /**
+     * Checks if this HashProvider implementation supports the built-in
+     * {@link #validateHash(char[], byte[], String)} method.
+     * <p>
+     * This method serves as a feature flag for callers, allowing them to
+     * determine whether they should use the provider's native validation
+     * logic or fall back to a manual validation process.
+     * </p>
+     *
+     * @return true if the provider offers a built-in validation method, false otherwise.
+     */
+    default boolean supportsValidateHash() {
+
+        return false;
+    }
+
+    /**
+     * Validate the plain text password against a hashed password with the given salt.
+     *
+     * @param plainText The plain text password to validate.
+     * @param hashedPassword The stored hashed password to compare against.
+     * @param salt The salt used to hash the password.
+     * @return true if the passwords match, false otherwise.
+     * @throws HashProviderException If an error occurred during validation.
+     */
+    default boolean validateHash(char[] plainText, byte[] hashedPassword, String salt) throws HashProviderException {
+
+        if (plainText == null || hashedPassword == null) {
+            return false;
+        }
+        return MessageDigest.isEqual(hashedPassword, calculateHash(plainText, salt));
+    }
 
     /**
      * Get HashProvider parameters.

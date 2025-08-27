@@ -144,6 +144,77 @@ public class PasswordHashProcessor {
     }
 
     /**
+     * Checks if a pluggable {@link HashProvider} is configured and supports
+     * its own built-in validation logic.
+     * <p>
+     * This method allows callers to determine whether they should delegate the
+     * password validation to this processor or handle it manually.
+     * </p>
+     *
+     * @return true if a custom provider with a supported validation method is configured;
+     * false otherwise.
+     */
+    public boolean hasCustomValidator() {
+
+        return hashProvider != null && hashProvider.supportsValidateHash();
+    }
+
+    /**
+     * Validates a given password against a stored hashed password using a salt.
+     * <p>
+     * If a pluggable {@link HashProvider} is configured, it will be used for validation.
+     * Otherwise, the method falls back to standard {@link MessageDigest} validation.
+     * </p>
+     *
+     * @param password       The password object to be validated (e.g., char[], String).
+     * @param hashedPassword The stored password hash as a String.
+     * @param saltValue      Optional salt value used during hashing.
+     * @return True if the password is valid, false otherwise.
+     * @throws PasswordHashingException If validation fails due to an unsupported algorithm,
+     * a configuration error, or a runtime issue with the provider.
+     */
+    public boolean validatePassword(Object password, String hashedPassword, String saltValue)
+            throws PasswordHashingException {
+
+        if (hashedPassword == null) {
+            return false;
+        }
+        Secret credentialObj = getSecret(password);
+        try {
+            String digestFunction = hashConfigProperties.get(PASSWORD_HASH_DIGEST_FUNCTION);
+            if (digestFunction == null || digestFunction.equals(PASSWORD_HASH_METHOD_PLAIN_TEXT)) {
+                return hashedPassword.equals(new String(credentialObj.getChars()));
+            }
+            if (hashProvider != null && hashProvider.supportsValidateHash()) {
+                return validatePasswordWithProvider(credentialObj, hashedPassword, saltValue);
+            } else {
+                return hashedPassword.equals(hashPassword(password, saltValue));
+            }
+        } finally {
+            credentialObj.clear();
+        }
+    }
+
+    /**
+     * Performs password validation using a pluggable {@link HashProvider} implementation.
+     *
+     * @param credentialObj  Secret-wrapped password object.
+     * @param hashedPassword The stored password hash as a String.
+     * @param saltValue      Optional salt value to apply.
+     * @return True if the password is valid, false otherwise.
+     * @throws PasswordHashingServerException If the validation process fails at runtime.
+     */
+    private boolean validatePasswordWithProvider(Secret credentialObj, String hashedPassword, String saltValue)
+            throws PasswordHashingServerException {
+
+        try {
+            return hashProvider.validateHash(credentialObj.getChars(), Base64.decode(hashedPassword), saltValue);
+        } catch (HashProviderException e) {
+            throw new PasswordHashingServerException("Error occurred while validating password with HashProvider.", e);
+        }
+    }
+
+    /**
      * Converts the provided password object to a {@link Secret} for secure handling.
      *
      * @param password The password object (char[], String, etc.).
