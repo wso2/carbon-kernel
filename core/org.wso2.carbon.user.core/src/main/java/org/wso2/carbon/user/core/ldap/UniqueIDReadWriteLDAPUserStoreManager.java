@@ -452,6 +452,13 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                     continue;
                 }
 
+                if (attributeName == null || attributeName.equals(EMPTY_ATTRIBUTE_STRING)) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("No attribute mapping defined for claim: " + claimURI + ". Hence skipping it.");
+                    }
+                    continue;
+                }
+
                 if (log.isDebugEnabled()) {
                     log.debug("Mapped attribute: " + attributeName);
                     log.debug("Attribute value: " + claims.get(entry.getKey()));
