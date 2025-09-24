@@ -78,9 +78,9 @@ public class ServerConfiguration implements ServerConfigurationService {
 	public static final String AXIS2_CONFIG_REPO_LOCATION = "Axis2Config.RepositoryLocation";
 
 	/**
-	 * Constant to be used to disable admin services.
+	 * Constant to be used to enable admin services.
 	 */
-	public static final String AXIS2_CONFIG_DISABLE_ADMIN_SERVICES = "Axis2Config.DisableAdminServices";
+	public static final String AXIS2_CONFIG_ENABLE_ADMIN_SERVICES = "Axis2Config.EnableAdminServices";
 	/**
 	 * Constant to be used for properties storing the http port of the servlet
 	 * transport.

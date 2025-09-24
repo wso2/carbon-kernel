@@ -353,8 +353,8 @@
         <!--
             Disable registering admin services.
         -->
-        {% if server.disable_admin_services is defined %}
-        <DisableAdminServices>{{server.disable_admin_services}}</DisableAdminServices>
+        {% if server.enable_admin_services is defined %}
+        <EnableAdminServices>{{server.enable_admin_services}}</EnableAdminServices>
         {% endif %}
 
         <!--

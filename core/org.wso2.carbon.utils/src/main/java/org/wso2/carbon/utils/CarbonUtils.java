@@ -1258,14 +1258,14 @@ public class CarbonUtils {
      }
 
     /**
-     * Check if admin services are disabled or not.
-     * Enabled by default for latest IS versions.
-     * @return disableAdminServices.
+     * Check if admin services are enabled or not.
+     * Disabled by default for latest IS versions.
+     * @return enableAdminServices.
      */
-    public static boolean disableAdminServices() {
+    public static boolean isAdminServicesFeatureEnabled() {
 
         return Boolean.parseBoolean(ServerConfiguration.getInstance()
-                .getFirstProperty(ServerConfiguration.AXIS2_CONFIG_DISABLE_ADMIN_SERVICES));
+                .getFirstProperty(ServerConfiguration.AXIS2_CONFIG_ENABLE_ADMIN_SERVICES));
     }
 
     /**

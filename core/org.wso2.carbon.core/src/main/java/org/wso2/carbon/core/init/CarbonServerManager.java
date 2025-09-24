@@ -479,7 +479,7 @@ public final class CarbonServerManager implements Controllable {
 
             // If Carbon Kernel is running in the optimized mode, we do not deploy service resided in bundles.
             // Most of these services are either admin services or hidden services.
-            if (!CarbonUtils.isOptimized() && !CarbonUtils.disableAdminServices()) {
+            if (!CarbonUtils.isOptimized() || CarbonUtils.isAdminServicesFeatureEnabled()) {
                 //Deploying Web service which resides in bundles
                 Axis2ServiceRegistry serviceRegistry = new Axis2ServiceRegistry(serverConfigContext);
                 serviceRegistry.register(bundleContext.getBundles());

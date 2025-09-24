@@ -84,7 +84,7 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
 String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
 ConfigurationContext configContext = (ConfigurationContext) config.getServletContext()
     .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-boolean isMCEnabled = !Boolean.parseBoolean(System.getProperty("optimize")) && !CarbonUtils.disableAdminServices();
+boolean isMCEnabled = !Boolean.parseBoolean(System.getProperty("optimize")) || CarbonUtils.isAdminServicesFeatureEnabled();
 
 boolean enableBanner = false;
 String bannerContent = "";
