@@ -56,11 +56,13 @@ public class XSLTBasedUIEnabledHandler extends UIEnabledHandler {
     protected List<String> editViews = new ArrayList<String>();
     protected List<String> newViews = new ArrayList<String>();
 
-    private TransformerFactory transformerFactory;
+    private TransformerFactory transformerFactory = TransformerFactory.newInstance();
 
     public XSLTBasedUIEnabledHandler() {
 
         try {
+            transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
             transformerFactory = getSecureTransformerFactory();
         } catch (TransformerConfigurationException e) {
             log.error("Failed to load XML Processor Feature" + XMLConstants.FEATURE_SECURE_PROCESSING, e);
