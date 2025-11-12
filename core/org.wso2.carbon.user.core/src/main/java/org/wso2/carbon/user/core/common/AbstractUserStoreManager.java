@@ -16949,8 +16949,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
          * If there are only non identity claims, filter users from the user store.
          */
         if (identityClaimFilterCount == 0) {
-            paginatedUserResponse = new PaginatedUserResponse(getFilteredUsers(duplicateCondition, profileName, limit,
-                    offset, sortBy, sortOrder, secondaryUserStoreManager));
+            List<User> filteredUsers = getFilteredUsers(duplicateCondition, profileName, limit,
+                    offset, sortBy, sortOrder, secondaryUserStoreManager);
+            paginatedUserResponse = new PaginatedUserResponse(filteredUsers);
+            if (filteredUsers != null) {
+                paginatedUserResponse.setTotalResults(filteredUsers.size());
+            }
         }
 
         /*
@@ -16978,15 +16982,21 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                  * Both identity & non identity claim filters can be applied for the user store.
                  */
                 updateCondition(duplicateCondition, domain);
-                paginatedUserResponse = new PaginatedUserResponse(getFilteredUsers(duplicateCondition, profileName,
-                        limit, offset, sortBy, sortOrder, secondaryUserStoreManager));
+                List<User> filteredUsers = getFilteredUsers(duplicateCondition, profileName,
+                        limit, offset, sortBy, sortOrder, secondaryUserStoreManager);
+                paginatedUserResponse = new PaginatedUserResponse(filteredUsers);
+                if (filteredUsers != null) {
+                    paginatedUserResponse.setTotalResults(filteredUsers.size());
+                }
             } else {
                 if (!nonIdentityClaimExist) {
                     /*
                      * Case 2.2: Only Identity claims exist and stored in the identity store.
                      */
+                    List<User> filteredUsers = getUserListByUsernames(identityClaimFilteredUserNames);
                     paginatedUserResponse =
-                            new PaginatedUserResponse(getUserListByUsernames(identityClaimFilteredUserNames));
+                            new PaginatedUserResponse(filteredUsers);
+                    paginatedUserResponse.setTotalResults(filteredUsers.size());
                 } else {
                     /*
                      * Case 2.3: Identity claims stored in identity store and non identity claims stored in user store.
