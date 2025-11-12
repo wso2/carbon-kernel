@@ -62,7 +62,7 @@ public class JDBCUserStoreConstants {
         //setMandatoryProperty
         setMandatoryProperty(JDBCRealmConstants.URL, "Connection URL", "", "URL of the user store database", false,
                 new Property[] { CONNECTION.getProperty(), STRING.getProperty(), TRUE.getProperty() });
-        setMandatoryProperty(JDBCRealmConstants.USER_NAME, "Connection Name", "", "Username for the database", false,
+        setMandatoryProperty(JDBCRealmConstants.USER_NAME, "Username", "", "Username for the database", false,
                 new Property[] { CONNECTION.getProperty(), STRING.getProperty(), TRUE.getProperty() });
         setMandatoryProperty(JDBCRealmConstants.PASSWORD, "Connection Password", "", "Password for the database", true,
                 new Property[] { CONNECTION.getProperty(), PASSWORD.getProperty(), TRUE.getProperty() });
