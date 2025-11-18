@@ -74,6 +74,8 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.sql.DataSource;
 
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_COUNT;
+
 /**
  * This class is capable of get connected to an external or internal LDAP based user store in
  * read/write mode. Create, Update, Delete users and groups are supported.
@@ -2309,6 +2311,11 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         setAdvancedProperty(UserStoreConfigConstants.STARTTLS_ENABLED,
                 UserStoreConfigConstants.STARTTLS_ENABLED_DISPLAY_NAME, "false",
                 UserStoreConfigConstants.STARTTLS_ENABLED_DESCRIPTION);
+        /* Added for Circuit Breaker Implementation.*/
+        setAdvancedProperty(UserStoreConfigConstants.CONNECTION_RETRY_COUNT,
+                UserStoreConfigConstants.CONNECTION_RETRY_COUNT_DISPLAY_NAME,
+                String.valueOf(DEFAULT_CONNECTION_RETRY_COUNT),
+                UserStoreConfigConstants.CONNECTION_RETRY_COUNT_DESCRIPTION);
         setAdvancedProperty(UserStoreConfigConstants.CONNECTION_RETRY_DELAY,
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DISPLAY_NAME,
                 String.valueOf(UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS),
