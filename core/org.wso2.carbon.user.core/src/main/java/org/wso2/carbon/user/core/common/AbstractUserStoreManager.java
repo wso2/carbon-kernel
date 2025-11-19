@@ -11017,6 +11017,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         }
                     }
 
+                    if (authenticationResult.getAuthenticationStatus()
+                            == AuthenticationResult.AuthenticationStatus.SUCCESS) {
+                        authenticated = true;
+                    }
+
                     if (authenticated) {
                         // Set domain in thread local variable for subsequent operations
                         UserCoreUtil.setDomainInThreadLocal(
