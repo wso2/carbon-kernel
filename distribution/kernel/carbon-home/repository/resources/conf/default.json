@@ -223,6 +223,9 @@
   "signature_util.enable_sha256_algo" : false,
   "clustering.agent": "org.wso2.carbon.hazelcast.HazelcastClusteringAgent",
   "remote_logging.config_sync.period": "15",
-  "admin_console.resolve_absolute_urls.enable": false
-
+  "admin_console.resolve_absolute_urls.enable": false,
+  "jdbc_user_store.enable_optimized_jdbc_search": false,
+  "user_store_commons.enable_circuit_breaker_for_user_stores": true,
+  "user_store_commons.max_connection_retry_count": "5",
+  "user_store_commons.min_connection_retry_delay_in_milli_seconds": "60000"
 }
