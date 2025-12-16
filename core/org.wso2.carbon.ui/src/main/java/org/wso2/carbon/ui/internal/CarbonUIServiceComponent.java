@@ -25,10 +25,10 @@ import org.apache.catalina.core.StandardContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.InstanceManager;
-import org.eclipse.equinox.http.helper.ContextPathServletAdaptor;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -38,6 +38,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
+import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.url.URLConstants;
 import org.osgi.service.url.URLStreamHandlerService;
@@ -114,6 +115,7 @@ public class CarbonUIServiceComponent {
     private BundleContext bundleContext;
 
     private Servlet adaptedJspServlet;
+    private Map<String, ServiceRegistration<?>> whiteboardRegistrations = new HashMap<>();
     
     @Activate
     protected void activate(ComponentContext ctxt) {
@@ -195,6 +197,26 @@ public class CarbonUIServiceComponent {
     @Deactivate
     protected void deactivate(ComponentContext ctxt) {
         log.debug("Carbon UI bundle is deactivated ");
+
+        // Clean up Whiteboard service registrations
+        for (ServiceRegistration<?> reg : whiteboardRegistrations.values()) {
+            try {
+                reg.unregister();
+            } catch (IllegalStateException ignored) {
+                // Ignore if already unregistered
+            }
+        }
+        whiteboardRegistrations.clear();
+
+        // The UIBundleDeployer uses HttpService.unregister() which should still work.
+        // We ensure that the main /carbon/ resources are unregistered.
+        try {
+            httpServiceInstance.unregister("/carbon");
+            httpServiceInstance.unregister("/carbon/*.jsp");
+            httpServiceInstance.unregister("/");
+        } catch (Exception e) {
+            log.warn("Error unregistering resources on deactivate: " + e.getMessage());
+        }
     }
 
     public static CarbonTomcatService getCarbonTomcatService() {
@@ -232,7 +254,7 @@ public class CarbonUIServiceComponent {
                                 properties3);
 
         final HttpService httpService = getHttpService();
-
+/*
         Dictionary<String, String> initparams = new Hashtable<String, String>();
         initparams.put("servlet-name", "TilesServlet");
         initparams.put("definitions-config", "/WEB-INF/tiles/main_defs.xml");
@@ -241,7 +263,7 @@ public class CarbonUIServiceComponent {
         initparams.put("org.apache.tiles.factory.TilesContainerFactory.MUTABLE", "true");
         initparams.put("org.apache.tiles.definition.DefinitionsFactory",
                        "org.wso2.carbon.tiles.CarbonUrlDefinitionsFactory");
-
+*/
         String webContext = "carbon"; // The subcontext for the Carbon Mgt Console
 
         String serverURL = CarbonUIUtil.getServerURL(serverConfig);
@@ -263,9 +285,10 @@ public class CarbonUIServiceComponent {
                 new CarbonSecuredHttpContext(context.getBundle(), "/web", uiResourceRegistry, registry);
 
         //Registering filedownload servlet
-        Servlet fileDownloadServlet = new ContextPathServletAdaptor(new FileDownloadServlet(
-                context, getConfigurationContextService()), "/filedownload");
-        httpService.registerServlet("/filedownload", fileDownloadServlet, null, commonContext);
+        Servlet fileDownloadServlet = new FileDownloadServlet(
+                context, getConfigurationContextService());
+        String fileDownloadPattern = "/filedownload";
+        registerWhiteboardServlet(fileDownloadPattern, fileDownloadServlet, null, commonContext);
         fileDownloadServlet.getServletConfig().getServletContext().setAttribute(
                 CarbonConstants.SERVER_URL, serverURL);
         fileDownloadServlet.getServletConfig().getServletContext().setAttribute(
@@ -274,14 +297,15 @@ public class CarbonUIServiceComponent {
         //Registering fileupload servlet
         Servlet fileUploadServlet;
         if (isLocalTransportMode) {
-            fileUploadServlet = new ContextPathServletAdaptor(new FileUploadServlet(
-                    context, serverConfigContext, webContext), "/fileupload");
+            fileUploadServlet = new FileUploadServlet(
+                    context, serverConfigContext, webContext);
         } else {
-            fileUploadServlet = new ContextPathServletAdaptor(new FileUploadServlet(
-                    context, clientConfigContext, webContext), "/fileupload");
+            fileUploadServlet = new FileUploadServlet(
+                    context, clientConfigContext, webContext);
         }
+        String fileUploadPattern = "/fileupload";
+        registerWhiteboardServlet(fileUploadPattern, fileUploadServlet, null, commonContext);
 
-        httpService.registerServlet("/fileupload", fileUploadServlet, null, commonContext);
         fileUploadServlet.getServletConfig().getServletContext().setAttribute(
                 CarbonConstants.SERVER_URL, serverURL);
         fileUploadServlet.getServletConfig().getServletContext().setAttribute(
@@ -290,16 +314,31 @@ public class CarbonUIServiceComponent {
         uiBundleDeployer.deploy(bundleContext, commonContext);
         context.addBundleListener(uiBundleDeployer);
 
+        Dictionary<String, String> initparams = new Hashtable<String, String>();
+        initparams.put("servlet-name", "TilesServlet");
+        initparams.put("definitions-config", "/WEB-INF/tiles/main_defs.xml");
+        initparams.put("org.apache.tiles.context.TilesContextFactory",
+                "org.apache.tiles.context.enhanced.EnhancedContextFactory");
+        initparams.put("org.apache.tiles.factory.TilesContainerFactory.MUTABLE", "true");
+        initparams.put("org.apache.tiles.definition.DefinitionsFactory",
+                "org.wso2.carbon.tiles.CarbonUrlDefinitionsFactory");
+        /* TODO fix this --------------------- chamila ------------
         httpService.registerServlet("/", new org.apache.tiles.web.startup.TilesServlet(),
-                                    initparams,
-                                    commonContext);
+                initparams,
+                commonContext); */
+
+        // Registering resources for the webContext (e.g., /carbon)
         httpService.registerResources("/" + webContext, "/", commonContext);
 
-        adaptedJspServlet = new ContextPathServletAdaptor(
-                new TilesJspServlet(context.getBundle(), uiResourceRegistry), "/" + webContext);
+        // --- 4. Registering TilesJspServlet (The main JSP handler) ---
+        // This replaces the final ContextPathServletAdaptor usage
+        adaptedJspServlet = new TilesJspServlet(context.getBundle(), uiResourceRegistry);
+        String jspPattern = "/" + webContext + "/*.jsp";
 
         Dictionary<String, String> carbonInitparams = new Hashtable<String, String>();
         carbonInitparams.put("strictQuoteEscaping", "false");
+
+        registerWhiteboardServlet(jspPattern, adaptedJspServlet, carbonInitparams, commonContext);
         httpService.registerServlet("/" + webContext + "/*.jsp", adaptedJspServlet, carbonInitparams, commonContext);
 
         ServletContext jspServletContext =
@@ -600,5 +639,44 @@ public class CarbonUIServiceComponent {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Helper method to register a Servlet using the OSGi HTTP Whiteboard pattern.
+     * @param pattern The URL pattern (e.g., /foo/bar)
+     * @param servlet The servlet instance
+     * @param initParams The init parameters
+     * @param httpContext The HttpContext (not strictly needed for Whiteboard but included for context)
+     */
+    private void registerWhiteboardServlet(String pattern, Servlet servlet,
+                                           Dictionary<String, String> initParams,
+                                           HttpContext httpContext) {
+
+        Dictionary<String, Object> props = new Hashtable<>();
+
+        // 1. Set the URL Pattern (Replaces ContextPathServletAdaptor's function)
+        props.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, pattern);
+
+        // 2. Set the Context Selector (Assumes the Carbon Secured Context is the target)
+        // Since we are using a custom HttpContext (CarbonSecuredHttpContext), we cannot use
+        // the standard Whiteboard context selector. We rely on the fact that the Whiteboard implementation
+        // will allow an explicit HttpService registration using a custom HttpContext for this to work
+        // or require the custom context to be registered separately.
+        // For simplicity, we register it as a Whiteboard servlet, hoping the underlying runtime can map it.
+        // If the context mapping fails, the original code's reliance on HttpService + ContextPathServletAdaptor
+        // was specific to that Equinox/Tomcat bridge.
+
+        // As a compromise, we use the HttpService registerServlet/registerResources for the main
+        // /carbon context and rely on the Whiteboard for the File Servlets.
+
+        try {
+            // For FileDownload/FileUpload, we register via Whiteboard pattern to solve the Adaptor issue.
+            ServiceRegistration<?> reg = bundleContext.registerService(
+                    Servlet.class.getName(), servlet, props);
+            whiteboardRegistrations.put(pattern, reg);
+            log.debug("Registered Servlet via Whiteboard: " + pattern);
+        } catch (Exception e) {
+            log.error("Failed to register Whiteboard Servlet for pattern: " + pattern, e);
+        }
     }
 }

@@ -36,15 +36,17 @@ import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.core.runtime.adaptor.EclipseStarter;
-import org.eclipse.equinox.http.helper.FilterServletAdaptor;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
+import org.osgi.service.http.context.ServletContextHelper;
+import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.base.CarbonContextHolderBase;
@@ -93,6 +95,7 @@ import org.wso2.carbon.utils.deployment.GhostDeployerUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.servlet.Filter;
+import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
@@ -102,6 +105,7 @@ import java.net.SocketException;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -179,6 +183,9 @@ public final class CarbonServerManager implements Controllable {
     private GenericArtifactUnloader genericArtifactUnloader = new GenericArtifactUnloader();
     private static final ScheduledExecutorService artifactsCleanupExec =
             Executors.newScheduledThreadPool(1, new CarbonThreadFactory(new ThreadGroup("ArtifactCleanupThread")));
+    private ServiceRegistration<ServletContextHelper> servletContextHelperServiceRegistration;
+    private ServiceRegistration<Servlet> servletServiceRegistration;
+    private ServiceRegistration<Filter> filterServiceRegistration;
 
     public CarbonServerManager() {
     }
@@ -552,12 +559,39 @@ public final class CarbonServerManager implements Controllable {
                 servicePath = "/" + servicePath;
             }
             ServiceReference filterServiceReference = bundleContext.getServiceReference(Filter.class.getName());
+
             if (filterServiceReference != null) {
                 Filter filter = (Filter) bundleContext.getService(filterServiceReference);
-                httpService.registerServlet(servicePath, new FilterServletAdaptor(filter, null, carbonServlet), null, defaultHttpContext);
-            } else {
-                httpService.registerServlet(servicePath, carbonServlet, null, defaultHttpContext);
+                Dictionary<String, String> props = new Hashtable<>();
+                props.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_PATTERN, servicePath + "/*");
+                filterServiceRegistration =
+                        bundleContext.registerService(Filter.class, filter, props);
+                bundleContext.ungetService(filterServiceReference);
             }
+
+            Dictionary<String, String> resourceProps = new Hashtable<>();
+            resourceProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_NAME, "serviceContext");
+            resourceProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_PATH, servicePath);
+            resourceProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_RESOURCE_PATTERN, servicePath + "/*");
+            servletContextHelperServiceRegistration =
+                    bundleContext.registerService(ServletContextHelper.class, (ServletContextHelper) defaultHttpContext,
+                            resourceProps);
+
+            Dictionary<String, Object> carbonServletProperties = new Hashtable<>();
+            carbonServletProperties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/*"); // TODO is this path correct
+            carbonServletProperties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_SELECT, "(osgi.http.whiteboard.context.name=serviceContext)");
+            servletServiceRegistration =
+                    bundleContext.registerService(Servlet.class, carbonServlet, carbonServletProperties);
+
+            /*
+            Dictionary<String, Object> servletProps = new Hashtable<>();
+            servletProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, servicePath + "/*");
+            servletProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_SELECT, "(osgi.http.whiteboard.context.name=default)");
+
+            // CarbonServlet must implement javax.servlet.Servlet
+            ServiceRegistration<?> servletServiceRegistration = bundleContext.registerService(Servlet.class.getName(), carbonServlet, servletProps);
+            */
+
             HTTPGetProcessorListener getProcessorListener =
                     new HTTPGetProcessorListener(carbonServlet, bundleContext);
             // Check whether there are any services that expose HTTPGetRequestProcessors
@@ -942,18 +976,14 @@ public final class CarbonServerManager implements Controllable {
             }
 
             // un-registering the carbonServlet
-            String servicePath = "/services";   // default path
-            String path = serverConfigContext.getServicePath();
-            if (path != null) {
-                servicePath = path.trim();
+            if (servletContextHelperServiceRegistration != null) {
+                servletContextHelperServiceRegistration.unregister();
             }
-            if (!servicePath.startsWith("/")) {
-                servicePath = "/" + servicePath;
+            if (servletServiceRegistration != null) {
+                servletServiceRegistration.unregister();
             }
-            try {
-                CarbonCoreDataHolder.getInstance().getHttpService().unregister(servicePath);
-            } catch (Exception e) {
-                log.error("Failed to Un-register Servlets ", e);
+            if (filterServiceRegistration != null) {
+                filterServiceRegistration.unregister();
             }
         }
 

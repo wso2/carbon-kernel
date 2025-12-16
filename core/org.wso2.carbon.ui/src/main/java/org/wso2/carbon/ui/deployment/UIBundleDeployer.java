@@ -17,8 +17,7 @@ package org.wso2.carbon.ui.deployment;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.equinox.http.helper.ContextPathServletAdaptor;
-import org.eclipse.equinox.http.helper.FilterServletAdaptor;
+
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -26,10 +25,12 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.framework.SynchronousBundleListener;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
+import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
 import org.osgi.util.tracker.ServiceTracker;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.CarbonException;
@@ -54,6 +55,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class UIBundleDeployer implements SynchronousBundleListener {
 
@@ -66,6 +69,9 @@ public class UIBundleDeployer implements SynchronousBundleListener {
             new BundleBasedUIResourceProvider(bundleResourcePath);
     //Used to hide the menus in the management console.
     private List<String> hideMenuIds = new ArrayList<>();
+
+    private final Map<String, ServiceRegistration<?>> servletRegistrations = new ConcurrentHashMap<>();
+    private final Map<String, ServiceRegistration<?>> filterRegistrations = new ConcurrentHashMap<>();
 
     public UIResourceProvider getBundleBasedUIResourcePrvider() {
         return bundleBasedUIResourceProvider;
@@ -416,23 +422,66 @@ public class UIBundleDeployer implements SynchronousBundleListener {
         } catch (Exception e) {
             throw new CarbonException("An instance of HttpService is not available");
         }
+        String key = urlPattern;
         try {
             if (event == ServiceEvent.REGISTERED) {
-                Servlet adaptedJspServlet = new ContextPathServletAdaptor(servlet, urlPattern);
-                if (associatedFilter == null) {
-                    httpService.registerServlet(urlPattern, adaptedJspServlet, params, httpContext);
-                } else {
-                    httpService.registerServlet(urlPattern,
-                            new FilterServletAdaptor(associatedFilter, null, adaptedJspServlet), params, httpContext);
-                }
-                if (servletAttrs != null) {
-                    for (Enumeration enm = servletAttrs.keys(); enm.hasMoreElements();) {
-                        String key = (String) enm.nextElement();
-                        adaptedJspServlet.getServletConfig().getServletContext().setAttribute(key, servletAttrs.get(key));
+                // 1. Prepare properties for the Servlet registration
+                Dictionary<String, Object> servletProps = new Hashtable<>();
+
+                // Set the URL Pattern. This replaces ContextPathServletAdaptor's function by defining the path.
+                servletProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, urlPattern);
+
+                // Set the Context Selector (assuming the default Carbon UI context)
+                servletProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_SELECT,
+                        "(osgi.http.whiteboard.context.name=default)"); // Assuming default context // TODO check the context
+
+                // Copy Init Params from the Dictionary to the service properties
+                if (params != null) {
+                    for (Enumeration enm = params.keys(); enm.hasMoreElements();) {
+                        String k = (String) enm.nextElement();
+                        // Whiteboard uses init.prefix.name for parameters
+                        servletProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX + k, params.get(k));
                     }
                 }
+
+                // 2. Handle associated Filter
+                if (associatedFilter != null) {
+                    // Register the Filter separately as a Whiteboard Filter.
+                    // This replaces FilterServletAdaptor's function.
+                    Dictionary<String, Object> filterProps = new Hashtable<>();
+
+                    // Filter pattern must match the servlet pattern
+                    filterProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_PATTERN, urlPattern);
+                    filterProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_SELECT,
+                            "(osgi.http.whiteboard.context.name=default)");
+
+                    // Register the Filter instance
+                    ServiceRegistration<?> filterReg = bundleContext.registerService(
+                            javax.servlet.Filter.class.getName(), associatedFilter, filterProps);
+
+                    filterRegistrations.put(key, filterReg);
+                    log.debug("Registered Filter for URL " + urlPattern);
+                }
+
+                // 3. Register the actual Servlet instance
+                ServiceRegistration<?> servletReg = bundleContext.registerService(
+                        Servlet.class.getName(), servlet, servletProps);
+
+                servletRegistrations.put(key, servletReg);
+                log.debug("Registered Servlet for URL " + urlPattern);
             } else if (event == ServiceEvent.UNREGISTERING) {
-                httpService.unregister(urlPattern);
+                // Unregister the Servlet
+                ServiceRegistration<?> servletReg = servletRegistrations.remove(key);
+                if (servletReg != null) {
+                    servletReg.unregister();
+                }
+
+                // Unregister the associated Filter if it exists
+                ServiceRegistration<?> filterReg = filterRegistrations.remove(key);
+                if (filterReg != null) {
+                    filterReg.unregister();
+                }
+                log.debug("Unregistered Servlet and Filter for URL " + urlPattern);
             }
 
         } catch (Exception e) {
@@ -498,7 +547,9 @@ public class UIBundleDeployer implements SynchronousBundleListener {
             if (associatedFilterObj != null) {
                 associatedFilter = (javax.servlet.Filter) associatedFilterObj;
             }
-
+            if (event == ServiceEvent.REGISTERED) {
+                bundleContext.ungetService(sr);
+            }
             try {
                 registerServlet(servlet, urlPattern, params, attributes, event, associatedFilter);
             } catch (CarbonException e) {
