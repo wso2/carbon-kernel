@@ -36,7 +36,6 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
@@ -48,7 +47,7 @@
                             org.wso2.carbon.base.*; version="1.0.0"
                         </Export-Package>
                         <Import-Package>
-                            javax.activation.*;version="[0.0.0, 1.0.0)",
+                            javax.activation.*;version="[1.0.0, 2.0.0)",
                             javax.servlet; version="${imp.pkg.version.javax.servlet}",
                             javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
                             org.wso2.securevault.*,
@@ -59,6 +58,9 @@
                         <Import-Package>
                             *;resolution:=optional
                         </Import-Package>
+                        <Provide-Capability>
+                            osgi.service;objectClass=org.wso2.carbon.base.api.ServerConfigurationService
+                        </Provide-Capability>
                     </instructions>
                 </configuration>
             </plugin>
@@ -67,12 +69,19 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <inherited>true</inherited>
                 <configuration>
+                    <argLine>
+                        --add-opens=java.base/java.lang=ALL-UNNAMED
+                        --add-opens=java.base/java.util=ALL-UNNAMED
+                    </argLine>
                     <classpathDependencyExcludes>
                         <classpathDependencyExclude>org.wso2.org.ops4j.pax.logging:pax-logging-api</classpathDependencyExclude>
                     </classpathDependencyExcludes>
                     <systemPropertyVariables>
                         <java.util.logging.manager>org.apache.logging.log4j.jul.LogManager</java.util.logging.manager>
                     </systemPropertyVariables>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+                    </suiteXmlFiles>
                 </configuration>
             </plugin>
         </plugins>
@@ -118,6 +127,7 @@
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>javax.servlet</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.wso2.orbit.xerces</groupId>
             <artifactId>xercesImpl</artifactId>

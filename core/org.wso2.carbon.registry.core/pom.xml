@@ -54,7 +54,7 @@
                             org.wso2.carbon.user.*,
                             org.wso2.carbon.utils.*,
                             !javax.xml.namespace,
-                            javax.activation.*;version="[0.0.0, 1.0.0)",
+                            javax.activation.*;version="[1.0.0, 2.0.0)",
                             org.apache.abdera.*; version="${imp.pkg.version.abdera}",
                             javax.xml.namespace; version=0.0.0,
                             javax.servlet; version="${imp.pkg.version.javax.servlet}",
@@ -68,6 +68,11 @@
                             *;resolution:=optional
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
+                        <Provide-Capability>
+                            osgi.service;objectClass=org.wso2.carbon.registry.core.service.RegistryService,
+                            osgi.service;objectClass=org.wso2.carbon.registry.api.RegistryService,
+                            osgi.service;objectClass=org.wso2.carbon.registry.core.service.TenantRegistryLoader
+                        </Provide-Capability>
                         <Embed-Dependency>
                             acegi-security;scope=compile|runtime;inline=false
                         </Embed-Dependency>
@@ -102,7 +107,8 @@
                         </goals>
                         <configuration>
                             <skip>false</skip>
-                            <forkMode>pertest</forkMode>
+                            <forkCount>1</forkCount>
+                            <reuseForks>false</reuseForks>
                             <argLine>-enableassertions</argLine>
                             <testFailureIgnore>false</testFailureIgnore>
                             <reportsDirectory>${project.build.directory}/surefire-reports-0</reportsDirectory>
@@ -126,7 +132,8 @@
                         </goals>
                         <configuration>
                             <skip>false</skip>
-                            <forkMode>pertest</forkMode>
+                            <forkCount>1</forkCount>
+                            <reuseForks>false</reuseForks>
                             <argLine>-enableassertions</argLine>
                             <testFailureIgnore>false</testFailureIgnore>
                             <reportsDirectory>${project.build.directory}/surefire-reports-1</reportsDirectory>
@@ -150,7 +157,8 @@
                         </goals>
                         <configuration>
                             <skip>false</skip>
-                            <forkMode>pertest</forkMode>
+                            <forkCount>1</forkCount>
+                            <reuseForks>false</reuseForks>
                             <argLine>-enableassertions</argLine>
                             <testFailureIgnore>false</testFailureIgnore>
                             <reportsDirectory>${project.build.directory}/surefire-reports-2</reportsDirectory>
@@ -174,7 +182,8 @@
                         </goals>
                         <configuration>
                             <skip>false</skip>
-                            <forkMode>pertest</forkMode>
+                            <forkCount>1</forkCount>
+                            <reuseForks>false</reuseForks>
                             <argLine>-enableassertions</argLine>
                             <testFailureIgnore>false</testFailureIgnore>
                             <reportsDirectory>${project.build.directory}/surefire-reports-3</reportsDirectory>
@@ -198,7 +207,8 @@
                         </goals>
                         <configuration>
                             <skip>false</skip>
-                            <forkMode>pertest</forkMode>
+                            <forkCount>1</forkCount>
+                            <reuseForks>false</reuseForks>
                             <argLine>-enableassertions</argLine>
                             <testFailureIgnore>false</testFailureIgnore>
                             <reportsDirectory>${project.build.directory}/surefire-reports-4</reportsDirectory>
@@ -226,7 +236,8 @@
                         </goals>
                         <configuration>
                             <skip>false</skip>
-                            <forkMode>pertest</forkMode>
+                            <forkCount>1</forkCount>
+                            <reuseForks>false</reuseForks>
                             <argLine>-enableassertions</argLine>
                             <testFailureIgnore>false</testFailureIgnore>
                             <reportsDirectory>${project.build.directory}/surefire-reports-5</reportsDirectory>
@@ -254,7 +265,8 @@
                         </goals>
                         <configuration>
                             <skip>false</skip>
-                            <forkMode>pertest</forkMode>
+                            <forkCount>1</forkCount>
+                            <reuseForks>false</reuseForks>
                             <argLine>-enableassertions</argLine>
                             <testFailureIgnore>false</testFailureIgnore>
                             <reportsDirectory>${project.build.directory}/surefire-reports-6</reportsDirectory>
@@ -282,7 +294,8 @@
                         </goals>
                         <configuration>
                             <skip>false</skip>
-                            <forkMode>pertest</forkMode>
+                            <forkCount>1</forkCount>
+                            <reuseForks>false</reuseForks>
                             <argLine>-enableassertions</argLine>
                             <testFailureIgnore>false</testFailureIgnore>
                             <reportsDirectory>${project.build.directory}/surefire-reports-7</reportsDirectory>
@@ -310,7 +323,8 @@
                         </goals>
                         <configuration>
                             <skip>false</skip>
-                            <forkMode>pertest</forkMode>
+                            <forkCount>1</forkCount>
+                            <reuseForks>false</reuseForks>
                             <argLine>-enableassertions</argLine>
                             <testFailureIgnore>false</testFailureIgnore>
                             <reportsDirectory>${project.build.directory}/surefire-reports-8</reportsDirectory>
@@ -376,9 +390,14 @@
             <artifactId>annotations</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.osgi</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.osgi.services</artifactId>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.testng</groupId>-->
+<!--            <artifactId>testng</artifactId>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

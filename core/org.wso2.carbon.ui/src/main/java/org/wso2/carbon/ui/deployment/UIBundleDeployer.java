@@ -17,8 +17,6 @@ package org.wso2.carbon.ui.deployment;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.equinox.http.helper.ContextPathServletAdaptor;
-import org.eclipse.equinox.http.helper.FilterServletAdaptor;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -30,11 +28,14 @@ import org.osgi.framework.SynchronousBundleListener;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
+import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
 import org.osgi.util.tracker.ServiceTracker;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.ui.BundleBasedUIResourceProvider;
+import org.wso2.carbon.ui.ContextPathServletAdaptor;
+import org.wso2.carbon.ui.FilterServletAdaptor;
 import org.wso2.carbon.ui.deployment.beans.CarbonUIDefinitions;
 import org.wso2.carbon.ui.deployment.beans.Component;
 import org.wso2.carbon.ui.deployment.beans.CustomUIDefenitions;
@@ -44,9 +45,6 @@ import org.wso2.carbon.ui.internal.CarbonUIServiceComponent;
 import org.wso2.carbon.ui.transports.fileupload.FileUploadExecutorManager;
 import org.wso2.carbon.ui.util.UIResourceProvider;
 
-import javax.servlet.Servlet;
-import javax.servlet.ServletException;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
@@ -54,6 +52,10 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.servlet.Filter;
+import javax.servlet.Servlet;
+import javax.servlet.ServletException;
 
 public class UIBundleDeployer implements SynchronousBundleListener {
 
@@ -425,6 +427,18 @@ public class UIBundleDeployer implements SynchronousBundleListener {
                     httpService.registerServlet(urlPattern,
                             new FilterServletAdaptor(associatedFilter, null, adaptedJspServlet), params, httpContext);
                 }
+//                Dictionary<String, Object> properties = new Hashtable<>();
+//                properties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, urlPattern);
+//                for (Enumeration enm = params.keys(); enm.hasMoreElements();) {
+//                    String key = (String) enm.nextElement();
+//                    properties.put("servlet.init." + key, params.get(key));
+//                }
+//                CarbonUIServiceComponent.getBundleContext().registerService(Servlet.class, servlet, properties);
+//                if (associatedFilter != null) {
+//                    Dictionary<String, String> props = new Hashtable<>();
+//                    props.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_PATTERN, urlPattern);
+//                    CarbonUIServiceComponent.getBundleContext().registerService(Filter.class, associatedFilter, props);
+//                }
                 if (servletAttrs != null) {
                     for (Enumeration enm = servletAttrs.keys(); enm.hasMoreElements();) {
                         String key = (String) enm.nextElement();

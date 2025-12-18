@@ -36,6 +36,7 @@
             <plugin>
                 <groupId>org.wso2.maven</groupId>
                 <artifactId>carbon-p2-plugin</artifactId>
+                <extensions>true</extensions>
                 <executions>
                     <execution>
                         <id>4-p2-feature-generation</id>
@@ -54,6 +55,7 @@
                             </adviceFile>
                             <bundles>
                                 <bundleDef>org.eclipse.platform:org.eclipse.equinox.jsp.jasper:${version.equinox.jsp.jasper}</bundleDef>
+                                <bundleDef>org.glassfish:jakarta.el:3.0.4</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.ui:${carbon.kernel.version}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.core.commons.stub:${carbon.kernel.version}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.ui.menu.general:${carbon.kernel.version}</bundleDef>

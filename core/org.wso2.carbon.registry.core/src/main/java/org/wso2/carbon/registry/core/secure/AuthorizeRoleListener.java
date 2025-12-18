@@ -20,6 +20,7 @@ package org.wso2.carbon.registry.core.secure;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.annotation.bundle.Capability;
 import org.wso2.carbon.registry.core.ActionConstants;
 import org.wso2.carbon.registry.core.config.RegistryContext;
 import org.wso2.carbon.registry.core.utils.RegistryUtils;
@@ -37,6 +38,13 @@ import java.util.List;
  * permissions to registry resource permissions and thereby manage accessibility to various resource
  * paths based on the amount of permissions available to a given role.
  */
+@Capability(
+        namespace = "osgi.service",
+        attribute = {
+                "objectClass=org.wso2.carbon.user.core.listener.AuthorizationManagerListener",
+                "service.scope=singleton"
+        }
+)
 public class AuthorizeRoleListener extends AbstractAuthorizationManagerListener
         implements AuthorizationManagerListener {
 

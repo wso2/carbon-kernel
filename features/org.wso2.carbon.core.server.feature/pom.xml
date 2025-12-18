@@ -36,6 +36,7 @@
             <plugin>
                 <groupId>org.wso2.maven</groupId>
                 <artifactId>carbon-p2-plugin</artifactId>
+                <extensions>true</extensions>
                 <executions>
                     <execution>
                         <id>4-p2-feature-generation</id>
@@ -76,6 +77,11 @@
                                 </bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.poi:poi-ooxml:${orbit.version.poi.ooxml}
                                 </bundleDef>
+                                <bundleDef>javax.annotation:javax.annotation-api:${version.javax.annotation.annotation-api}</bundleDef>
+                                <!--<bundleDef>org.wso2.orbit.io.opentelemetry:opentelemetry-all</bundleDef>-->
+                                <bundleDef>com.google.guava:guava:</bundleDef>
+                                <bundleDef>com.google.guava:failureaccess:1.0.1</bundleDef>
+                                <!--<bundleDef>org.wso2.orbit.io.netty:netty-all</bundleDef>-->
                             </bundles>
                         </configuration>
                     </execution>

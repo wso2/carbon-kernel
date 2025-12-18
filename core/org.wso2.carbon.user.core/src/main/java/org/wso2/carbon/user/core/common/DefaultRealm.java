@@ -19,6 +19,7 @@ package org.wso2.carbon.user.core.common;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.annotation.bundle.Capability;
 import org.wso2.carbon.caching.impl.CachingConstants;
 import org.wso2.carbon.caching.impl.Util;
 import org.wso2.carbon.user.api.RealmConfiguration;
@@ -51,6 +52,13 @@ import java.util.Map;
 
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_ERROR_WHILE_ADDING_CLAIM_MAPPINGS;
 
+@Capability(
+        namespace = "osgi.service",
+        attribute = {
+                "objectClass=org.wso2.carbon.user.core.UserRealm",
+                "service.scope=singleton"
+        }
+)
 public class DefaultRealm implements UserRealm {
 
     private static Log log = LogFactory.getLog(DefaultRealm.class);

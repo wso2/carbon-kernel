@@ -16,9 +16,11 @@
 
 package org.wso2.carbon.registry.core.jdbc;
 
+import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.registry.core.config.RegistryContext;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.jdbc.realm.InMemoryRealmService;
+import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.service.RealmService;
 
@@ -28,6 +30,7 @@ import java.io.InputStream;
  * This is an extension to the {@link EmbeddedRegistryService} which is tailored to expose {@link
  * InMemoryEmbeddedRegistry} instances as OSGi services.
  */
+//@Component(service = RegistryService.class)
 public class InMemoryEmbeddedRegistryService extends EmbeddedRegistryService {
 
     private RealmService realmService;
