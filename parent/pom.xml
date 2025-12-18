@@ -451,7 +451,7 @@
         <version.spring>3.1.0.RELEASE</version.spring>
 
         <!-- Apache Axis2 -->
-        <version.axis2>1.6.1-wso2v116</version.axis2>
+        <version.axis2>1.6.1-wso2v117</version.axis2>
         <imp.pkg.version.axis2>[1.6.1, 1.7.0)</imp.pkg.version.axis2>
         <version.addressing>${version.axis2}</version.addressing>
         <orbit.version.axis2>${version.axis2}</orbit.version.axis2>
@@ -540,7 +540,7 @@
 
         <orbit.version.httpcore>4.4.14.wso2v1</orbit.version.httpcore>
         <orbit.version.wsdl4j>1.6.2.wso2v4</orbit.version.wsdl4j>
-        <orbit.version.commons.httpclient>3.1.0.wso2v6</orbit.version.commons.httpclient>
+        <orbit.version.commons.httpclient>3.1.0-wso2v7</orbit.version.commons.httpclient>
         <orbit.version.commons.pool>1.5.6.wso2v1</orbit.version.commons.pool>
 
         <orbit.version.encoder>1.2.0.wso2v1</orbit.version.encoder>
