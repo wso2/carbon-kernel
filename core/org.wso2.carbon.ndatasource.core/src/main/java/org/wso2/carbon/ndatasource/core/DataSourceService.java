@@ -18,11 +18,19 @@ package org.wso2.carbon.ndatasource.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.osgi.annotation.bundle.Capability;
 import org.wso2.carbon.ndatasource.common.DataSourceException;
 
 /**
  * This class represents the data source OSGi service.
  */
+@Capability(
+		namespace = "osgi.service",
+		attribute = {
+				"objectClass=org.wso2.carbon.ndatasource.core.DataSourceService",
+				"service.scope=singleton"
+		}
+)
 public class DataSourceService {
 	
 	public List<CarbonDataSource> getAllDataSources() throws DataSourceException {
