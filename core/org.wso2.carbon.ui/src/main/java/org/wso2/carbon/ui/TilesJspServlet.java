@@ -19,6 +19,10 @@ package org.wso2.carbon.ui;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.tiles.AttributeContext;
+import org.apache.tiles.request.reflect.ClassUtil;
+import org.apache.tiles.web.util.AttributeContextMutator;
+import org.apache.tiles.web.util.TilesDispatchServlet;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 import org.wso2.carbon.ui.action.ActionHelper;
@@ -35,16 +39,42 @@ public class TilesJspServlet extends JspServlet {
     private static final long serialVersionUID = 1L;
     private static Log log = LogFactory.getLog(TilesJspServlet.class);
 
+    public static final String CONTAINER_KEY_INIT_PARAMETER =
+            "org.apache.tiles.web.util.TilesDispatchServlet.CONTAINER_KEY";
+
+    private String containerKey;
+    private AttributeContextMutator mutator;
+
     public TilesJspServlet(Bundle bundle, UIResourceRegistry uiResourceRegistry) {
         super(bundle, uiResourceRegistry);
     }
 
+    //TODO check if this is needed
+    @Override
+    public void init() throws ServletException {
+        super.init();
+
+        containerKey = getServletConfig().getInitParameter(CONTAINER_KEY_INIT_PARAMETER);
+
+        String temp = getInitParameter("mutator");
+        if (temp != null) {
+            try {
+                mutator = (AttributeContextMutator) ClassUtil.instantiate(temp);
+            } catch (Exception e) {
+                throw new ServletException("Unable to instantiate specified context mutator.", e);
+            }
+        } else {
+            mutator = new DefaultMutator();
+        }
+    }
+
     public void service(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         String actionUrl = request.getRequestURI();
 
         //This is the layout page defined in
-        //"/org.wso2.carbon.component/src/main/resources/web/WEB-INF/tiles/main_defs.xml"
+        //"/org.wso2.carbon.component/src/main/resources/web/WEB-INF/tiles/tiles.xml"
         //Need to serve http requests other than to tiles body page,
         //using the normal OSGi way
 
@@ -73,10 +103,10 @@ public class TilesJspServlet extends JspServlet {
             }
         }
 
-
         if ((actionUrl.lastIndexOf("/admin/layout/template.jsp") > -1)
                 || actionUrl.lastIndexOf("ajaxprocessor.jsp") > -1
-                || actionUrl.indexOf("gadgets/js") > -1) {
+                || actionUrl.indexOf("gadgets/js") > -1
+                || "INCLUDE".equals(request.getDispatcherType().toString())) {
             super.service(request, response);
         } else if (actionUrl.startsWith("/carbon/registry/web/resources/foo/bar")) {
             //TODO : consider the renamed ROOT war scenario
@@ -103,5 +133,68 @@ public class TilesJspServlet extends JspServlet {
                 log.fatal("Fatal error occurred while rendering UI using Tiles.", e);
             }
         }
+    }
+
+    class DefaultMutator implements AttributeContextMutator {
+
+        /** {@inheritDoc} */
+        public void mutate(AttributeContext context, javax.servlet.ServletRequest request) {
+            // noop;
+        }
+    }
+
+    protected static final String canonicalURI(String s) {
+        if (s == null) {
+            return null;
+        } else {
+            StringBuilder result = new StringBuilder();
+            int len = s.length();
+            int pos = 0;
+
+            while(pos < len) {
+                char c = s.charAt(pos);
+                if (isPathSeparator(c)) {
+                    while(pos + 1 < len && isPathSeparator(s.charAt(pos + 1))) {
+                        ++pos;
+                    }
+
+                    if (pos + 1 < len && s.charAt(pos + 1) == '.') {
+                        if (pos + 2 >= len) {
+                            break;
+                        }
+
+                        switch (s.charAt(pos + 2)) {
+                            case '.':
+                                if (pos + 3 < len && isPathSeparator(s.charAt(pos + 3))) {
+                                    pos += 3;
+
+                                    int separatorPos;
+                                    for(separatorPos = result.length() - 1; separatorPos >= 0 && !isPathSeparator(result.charAt(separatorPos)); --separatorPos) {
+                                    }
+
+                                    if (separatorPos >= 0) {
+                                        result.setLength(separatorPos);
+                                    }
+                                    continue;
+                                }
+                                break;
+                            case '/':
+                            case '\\':
+                                pos += 2;
+                                continue;
+                        }
+                    }
+                }
+
+                result.append(c);
+                ++pos;
+            }
+
+            return result.toString();
+        }
+    }
+
+    protected static final boolean isPathSeparator(char c) {
+        return c == '/' || c == '\\';
     }
 }

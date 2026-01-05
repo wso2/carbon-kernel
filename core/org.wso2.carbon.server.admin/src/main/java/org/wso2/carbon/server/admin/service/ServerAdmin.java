@@ -24,6 +24,7 @@ import org.apache.axis2.description.TransportInDescription;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.annotation.bundle.Capability;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.base.api.ServerConfigurationService;
@@ -55,6 +56,13 @@ import java.util.Map;
 /**
  * Admin service to manage server related operations
  */
+@Capability(
+        namespace = "osgi.service",
+        attribute = {
+                "objectClass=org.wso2.carbon.server.admin.common.IServerAdmin",
+                "service.scope=singleton"
+        }
+)
 public class ServerAdmin extends AbstractAdmin implements ServerAdminMBean, IServerAdmin {
     private static final Log log = LogFactory.getLog(ServerAdmin.class);
     private static final int SECONDS_PER_DAY = 3600 * 24;

@@ -154,7 +154,7 @@
                 <include>ant-contrib:ant-contrib:jar</include>
                 <include>org.wso2.orbit.xerces:xercesImpl:jar</include>
                 <include>org.wso2.ciphertool:org.wso2.ciphertool:jar</include>
-                <include>javax.xml.bind:jaxb-api:jar</include>
+                <include>:jaxb-api:jar</include>
                 <include>com.sun.xml.bind:jaxb-impl:jar</include>
                 <include>com.sun.istack:istack-commons-runtime:jar</include>
                 <include>javax.activation:activation:jar</include>

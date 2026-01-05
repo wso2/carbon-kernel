@@ -19,6 +19,7 @@ package org.wso2.carbon.ui;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.annotation.bundle.Capability;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,6 +42,13 @@ import javax.servlet.http.HttpServletRequest;
  * This class maintains two maps to maintain valid sessions and invalid sessions. This class is
  * implemented as a singleton because there should be only one SSOSessionManager per instance.
  */
+@Capability(
+        namespace = "osgi.service",
+        attribute = {
+                "objectClass=org.wso2.carbon.ui.CarbonSSOSessionManager",
+                "service.scope=singleton"
+        }
+)
 public class CarbonSSOSessionManager {
 
     private static Log log = LogFactory.getLog(CarbonSSOSessionManager.class);

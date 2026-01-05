@@ -20,7 +20,9 @@ import org.apache.axis2.engine.ListenerManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.http.HttpService;
+import org.osgi.service.http.context.ServletContextHelper;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.crypto.api.CryptoService;
 import org.wso2.carbon.registry.core.service.RegistryService;
@@ -46,6 +48,8 @@ public class CarbonCoreDataHolder {
     private  ConfigurationContext mainServerConfigContext;
     private  ServerConfigurationService serverConfigurationService;
     private TenantRegistryLoader tenantRegistryLoader;
+
+    private List<ServiceRegistration<?>> serviceRegistrations = new ArrayList<>();
 
     private List<CoordinatedActivity> coordinatedActivities = new ArrayList<CoordinatedActivity>() ;
     private CryptoService cryptoService;
@@ -165,5 +169,17 @@ public class CarbonCoreDataHolder {
     public CryptoService getCryptoService() {
 
         return cryptoService;
+    }
+
+    public void addServiceRegistration(ServiceRegistration<?> serviceRegistration) {
+
+        serviceRegistrations.add(serviceRegistration);
+    }
+
+    public void unregisterServiceRegistrations() {
+
+        for (ServiceRegistration<?> serviceRegistration : serviceRegistrations) {
+            serviceRegistration.unregister();
+        }
     }
 }
