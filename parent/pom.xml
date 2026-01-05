@@ -642,6 +642,7 @@
         <version.ciphertool>1.1.0</version.ciphertool>
         <xml.unit.verions>2.6.2</xml.unit.verions>
         <version.org.apache.felix.scr.ds-annotations>1.2.10</version.org.apache.felix.scr.ds-annotations>
+        <version.org.apache.felix.scr>2.1.30</version.org.apache.felix.scr>
         <maven.felix.scr.plugin.version>1.25.0</maven.felix.scr.plugin.version>
         <import.package.version.commons.logging>[1.2.0,2.0.0)</import.package.version.commons.logging>
         <config.mapper.version>1.0.23</config.mapper.version>
@@ -679,7 +680,7 @@
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.scr</artifactId>
-                <version>2.2.10</version>
+                <version>${version.org.apache.felix.scr}</version>
             </dependency>
 
             <dependency>
