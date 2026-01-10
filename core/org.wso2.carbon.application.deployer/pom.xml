@@ -116,6 +116,9 @@
                             org.osgi.framework.*,
                             *;resolution:=optional
                         </Import-Package>
+                        <Provide-Capability>
+                            osgi.service;objectClass=org.wso2.carbon.application.deployer.service.ApplicationManagerService
+                        </Provide-Capability>
                         <Axis2Deployer>CappDeployer</Axis2Deployer>
                     </instructions>
                 </configuration>
