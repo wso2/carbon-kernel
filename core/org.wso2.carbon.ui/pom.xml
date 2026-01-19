@@ -248,6 +248,9 @@
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
                         <Bundle-ClassPath>.</Bundle-ClassPath>
+                        <Provide-Capability>
+                            osgi.service;objectClass=org.wso2.carbon.ui.CarbonUIAuthenticator
+                        </Provide-Capability>
                         <Carbon-Component>UIBundle</Carbon-Component>
                     </instructions>
                 </configuration>
