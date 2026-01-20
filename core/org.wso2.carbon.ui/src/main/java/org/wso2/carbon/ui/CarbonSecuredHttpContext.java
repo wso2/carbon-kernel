@@ -127,9 +127,9 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
             populatehttpUrlsToBeByPassed();
         }
 
-        if (requestedURI.equals(context) || requestedURI.equals(context + "/")) {
-            return handleRequestOnContext(request, response);
-        }
+//        if (requestedURI.equals(context) || requestedURI.equals(context + "/")) {
+//            return handleRequestOnContext(request, response);
+//        }
 
         // Storing intermediate value of requestedURI.
         // This is needed for OpenID authentication later.
@@ -184,6 +184,11 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
         // Reading home page set on product.xml
         // If the params in the servletcontext is null get them from the UTIL
         indexPageURL = updateIndexPageWithHomePage(indexPageURL);
+
+        if (indexPageURL == null) {
+            // Setting the index page url to default if null
+            indexPageURL = "/admin/index.jsp";
+        }
 
         if ((val = CarbonUILoginUtil.handleLoginPageRequest(requestedURI, request, response,
                 authenticated, context, indexPageURL)) != CarbonUILoginUtil.CONTINUE) {

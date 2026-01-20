@@ -70,7 +70,6 @@ public class TilesJspServlet extends JspServlet {
 
     public void service(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         String actionUrl = request.getRequestURI();
 
         //This is the layout page defined in
