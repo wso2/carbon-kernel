@@ -1,17 +1,17 @@
-/*                                                                             
- * Copyright 2004,2005 The Apache Software Foundation.                         
- *                                                                             
- * Licensed under the Apache License, Version 2.0 (the "License");             
- * you may not use this file except in compliance with the License.            
- * You may obtain a copy of the License at                                     
- *                                                                             
- *      http://www.apache.org/licenses/LICENSE-2.0                             
- *                                                                             
- * Unless required by applicable law or agreed to in writing, software         
- * distributed under the License is distributed on an "AS IS" BASIS,           
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.    
- * See the License for the specific language governing permissions and         
- * limitations under the License.                                              
+/*
+ * Copyright 2004,2005 The Apache Software Foundation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.wso2.carbon.core.internal;
 
@@ -38,10 +38,10 @@ public class CarbonCoreActivator implements BundleActivator {
 
     public void start(BundleContext context) throws Exception {
         // Need permissions in order to activate Carbon Core
-//        SecurityManager secMan = System.getSecurityManager();
-//        if (secMan != null) {
-//           secMan.checkPermission(new ManagementPermission("control"));
-//        }
+        //SecurityManager secMan = System.getSecurityManager();
+        //if (secMan != null) {
+        //    secMan.checkPermission(new ManagementPermission("control"));
+        //}
         // We assume it's super tenant during the deployment time
         PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext
                 .getThreadLocalCarbonContext();
@@ -51,13 +51,13 @@ public class CarbonCoreActivator implements BundleActivator {
         dataHolder.setBundleContext(context);
         log.info("Starting WSO2 Carbon...");
         log.info("Operating System : " + System.getProperty("os.name") + " " +
-                 System.getProperty("os.version") + ", " + System.getProperty("os.arch"));
+                System.getProperty("os.version") + ", " + System.getProperty("os.arch"));
         log.info("Java Home        : " + System.getProperty("java.home"));
         log.info("Java Version     : " + System.getProperty("java.version"));
         log.info("Java VM          : " + System.getProperty("java.vm.name") + " " +
-                 System.getProperty("java.vm.version") +
-                 "," +
-                 System.getProperty("java.vendor"));
+                System.getProperty("java.vm.version") +
+                "," +
+                System.getProperty("java.vendor"));
 
         String carbonHome;
         if ((carbonHome = System.getProperty("carbon.home")).equals(".")) {
@@ -67,35 +67,15 @@ public class CarbonCoreActivator implements BundleActivator {
         log.info("Carbon Home      : " + carbonHome);
         log.info("Java Temp Dir    : " + System.getProperty("java.io.tmpdir"));
         log.info("User             : " + System.getProperty("user.name") + ", " +
-                 System.getProperty("user.language") + "-" + System.getProperty("user.country") +
-                 ", " + System.getProperty("user.timezone"));
+                System.getProperty("user.language") + "-" + System.getProperty("user.country") +
+                ", " + System.getProperty("user.timezone"));
 
-//        String providerName = ServerConfiguration.getInstance().getFirstProperty(ServerConstants.JCE_PROVIDER);
-//        Provider provider;
-//        if (StringUtils.isBlank(providerName) || providerName.equals(ServerConstants.JCE_PROVIDER_BC)) {
-//            provider = (Provider) (Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider")).
-//                    getDeclaredConstructor().newInstance();
-//
-//            // Add BouncyCastle JSSE provider and preferred named groups for outbound communication.
-//            String jsseProviderName = ServerConfiguration.getInstance().getFirstProperty(ServerConstants.JSSE_PROVIDER);
-//            if (ServerConstants.JSSE_PROVIDER_BC.equals(jsseProviderName)) {
-//                Provider jsseProvider = (Provider)
-//                        (Class.forName("org.bouncycastle.jsse.provider.BouncyCastleJsseProvider")).
-//                        getDeclaredConstructor().newInstance();
-//                Security.insertProviderAt(jsseProvider, 1);
-//            }
-//
-//        } else if (providerName.equals(ServerConstants.JCE_PROVIDER_BCFIPS)) {
-//            provider = (Provider) (Class.forName("org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider")).
-//                    getDeclaredConstructor().newInstance();
-//
-//        } else {
-//            throw new NoSuchProviderException("Configured JCE provider is not supported.");
-//        }
-//        Security.addProvider(provider);
-//        if (log.isDebugEnabled()) {
-//            log.debug(providerName + " security provider is successfully registered in JVM.");
-//        }
+        String cryptoProviderIdentifier = getPreferredJceProviderIdentifier();
+        String cryptoProviderClass = getPreferredJceProviderClass(cryptoProviderIdentifier);
+        Security.addProvider((Provider) Class.forName(cryptoProviderClass).getDeclaredConstructor().newInstance());
+        if(log.isDebugEnabled()){
+            log.debug(cryptoProviderClass + " security provider is successfully registered in JVM.");
+        }
     }
 
     public void stop(BundleContext context) throws Exception {
