@@ -377,7 +377,7 @@ public final class CarbonUILoginUtil {
         rmeCookie.setHttpOnly(true);
         rmeCookie.setMaxAge(0);
         response.addCookie(rmeCookie);
-        response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath, indexPageURL, request));
+        response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL("", indexPageURL, request));
         return false;
     }
 
