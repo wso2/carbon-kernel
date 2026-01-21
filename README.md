@@ -9,6 +9,7 @@ WSO2 Carbon kernel, the lean, modular, OSGi-based platform, is the base of the W
 * Java SE Development Kit 11
 
 
+
 ## Key Features
 * Composable Server Architecture - Provides a modular, light-weight, OSGi-based server development framework.
 * Carbon Application(CApp) deployment support.
