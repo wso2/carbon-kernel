@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2026, WSO2 LLC. (http://www.wso2.com).
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.ui;
 
 import java.io.IOException;
@@ -140,8 +157,11 @@ public class ContextPathServletAdaptor implements Servlet {
         }
 
         public RequestDispatcher getRequestDispatcher(String path) {
-            return ContextPathServletAdaptor.this.contextPath.equals("/") ? ContextPathServletAdaptor.this.new RequestDispatcherAdaptor(this.delegate.getRequestDispatcher(path)) : ContextPathServletAdaptor.this.new RequestDispatcherAdaptor(this.delegate.getRequestDispatcher(
-                    ContextPathServletAdaptor.this.contextPath + path));
+            return ContextPathServletAdaptor.this.contextPath.equals("/") ?
+                    ContextPathServletAdaptor.this.new RequestDispatcherAdaptor(
+                            this.delegate.getRequestDispatcher(path)) :
+                    ContextPathServletAdaptor.this.new RequestDispatcherAdaptor(
+                            this.delegate.getRequestDispatcher(ContextPathServletAdaptor.this.contextPath + path));
         }
 
         public URL getResource(String name) throws MalformedURLException {
@@ -273,7 +293,8 @@ public class ContextPathServletAdaptor implements Servlet {
             return this.delegate.getSessionCookieConfig();
         }
 
-        public void setSessionTrackingModes(Set<SessionTrackingMode> sessionTrackingModes) throws IllegalStateException, IllegalArgumentException {
+        public void setSessionTrackingModes(Set<SessionTrackingMode> sessionTrackingModes)
+                throws IllegalStateException, IllegalArgumentException {
             this.delegate.setSessionTrackingModes(sessionTrackingModes);
         }
 

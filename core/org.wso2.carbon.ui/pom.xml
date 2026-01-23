@@ -59,10 +59,6 @@
             <groupId>org.wso2.orbit.org.apache.tiles</groupId>
             <artifactId>tiles-jsp</artifactId>
             <exclusions>
-<!--                <exclusion>-->
-<!--                    <groupId>org.apache.tiles</groupId>-->
-<!--                    <artifactId>tiles-jsp</artifactId>-->
-<!--                </exclusion>-->
                 <exclusion>
                     <groupId>commons-digester</groupId>
                     <artifactId>commons-digester</artifactId>
@@ -73,17 +69,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-<!--        &lt;!&ndash; Adding temporarily to compile &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.tiles</groupId>-->
-<!--            <artifactId>tiles-core</artifactId>-->
-<!--            <version>3.0.7</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.tiles</groupId>-->
-<!--            <artifactId>tiles-servlet</artifactId>-->
-<!--            <version>3.0.7</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>

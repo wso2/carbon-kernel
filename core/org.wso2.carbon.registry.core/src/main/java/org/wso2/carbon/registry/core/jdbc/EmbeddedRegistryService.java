@@ -18,7 +18,6 @@ package org.wso2.carbon.registry.core.jdbc;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.registry.core.clustering.NodeGroupLock;
@@ -70,7 +69,6 @@ import java.util.Iterator;
  * @see EmbeddedRegistry
  * @see UserRegistry
  */
-//@Component(service = RegistryService.class)
 public class EmbeddedRegistryService implements RegistryService {
 
     private static final Log log = LogFactory.getLog(EmbeddedRegistryService.class);

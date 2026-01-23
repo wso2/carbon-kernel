@@ -19,20 +19,17 @@ package org.wso2.carbon.registry.app;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.registry.core.config.RegistryContext;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
-import org.wso2.carbon.registry.core.internal.RegistryCoreServiceComponent;
 import org.wso2.carbon.registry.core.jdbc.EmbeddedRegistryService;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.registry.core.utils.RegistryUtils;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.service.RealmService;
-import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
@@ -43,7 +40,6 @@ import java.net.MalformedURLException;
  * to create remote registry instances for user sessions. The class acts in a manner that is similar
  * to an {@link EmbeddedRegistryService}.
  */
-//@Component(service = RegistryService.class)
 public class RemoteRegistryService implements RegistryService {
 
     private static final Log log = LogFactory.getLog(RemoteRegistryService.class);

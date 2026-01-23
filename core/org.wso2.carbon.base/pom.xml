@@ -127,7 +127,6 @@
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>javax.servlet</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.wso2.orbit.xerces</groupId>
             <artifactId>xercesImpl</artifactId>
