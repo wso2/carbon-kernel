@@ -8,24 +8,24 @@
     <!-- Master definition  									  -->
     <!-- =======================================================  -->
 
-    <definition name="main.layout" template="/admin/layout/template.jsp">
+    <definition name="main.layout" template="/carbon/admin/layout/template.jsp">
         <put-attribute name="title" value="WSO2 Management Console"/>
-        <put-attribute name="header" value="/admin/layout/header.jsp"/>
-        <put-attribute name="region1" value="/admin/layout/region1.jsp"/>
-        <put-attribute name="region2" value="/admin/layout/region2.jsp"/>
-        <put-attribute name="region3" value="/admin/layout/region3.jsp"/>                
-        <put-attribute name="region4" value="/admin/layout/region4.jsp"/>
-        <put-attribute name="region5" value="/admin/layout/region5.jsp"/>
-        <put-attribute name="body" value="/admin/layout/defaultBody.jsp"/>
-        <put-attribute name="breadcrumb" value="/admin/layout/breadcrumb.jsp"/>              
-        <put-attribute name="footer" value="/admin/layout/footer.jsp"/>
+        <put-attribute name="header" value="/carbon/admin/layout/header.jsp"/>
+        <put-attribute name="region1" value="/carbon/admin/layout/region1.jsp"/>
+        <put-attribute name="region2" value="/carbon/admin/layout/region2.jsp"/>
+        <put-attribute name="region3" value="/carbon/admin/layout/region3.jsp"/>                
+        <put-attribute name="region4" value="/carbon/admin/layout/region4.jsp"/>
+        <put-attribute name="region5" value="/carbon/admin/layout/region5.jsp"/>
+        <put-attribute name="body" value="/carbon/admin/layout/defaultBody.jsp"/>
+        <put-attribute name="breadcrumb" value="/carbon/admin/layout/breadcrumb.jsp"/>              
+        <put-attribute name="footer" value="/carbon/admin/layout/footer.jsp"/>
     </definition>
     
 
 
     <!-- 
     <definition name="main.welcome" extends="main.layout">
-        <put-attribute name="body" value="/admin/jsp/test.jsp"/>
+        <put-attribute name="body" value="/carbon/admin/jsp/test.jsp"/>
     </definition>
     -->
 </tiles-definitions>

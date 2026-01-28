@@ -54,7 +54,13 @@ public class SecuredComponentEntryHttpContext extends BundleEntryHttpContext {
             return url;
         }
 
-        url = uiResourceRegistry.getUIResource(resourceName);
+        // Strip /carbon prefix if present, as uiResourceRegistry expects paths without it
+        String lookupName = resourceName;
+        if (resourceName != null && resourceName.startsWith("/carbon")) {
+            lookupName = resourceName.substring("/carbon".length());
+        }
+
+        url = uiResourceRegistry.getUIResource(lookupName);
 
         if (url != null) {
             return url;

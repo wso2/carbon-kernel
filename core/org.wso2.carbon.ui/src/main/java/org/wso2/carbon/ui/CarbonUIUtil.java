@@ -189,10 +189,10 @@ public class CarbonUIUtil {
                 && "true".equalsIgnoreCase(enableHTTPAdminConsole.trim())) {
             int httpPort = CarbonUtils.getTransportPort(
                     CarbonUIServiceComponent.getConfigurationContextService(), "http");
-            adminConsoleURL = "http://" + hostName + ":" + httpPort + proxyContextPath + context + "/carbon/";
+            adminConsoleURL = "http://" + hostName + ":" + httpPort + proxyContextPath + context + "/";
         } else {
             adminConsoleURL = "https://" + hostName + ":"
-                    + (httpsProxyPort != -1 ? httpsProxyPort : httpsPort) + proxyContextPath + context + "/carbon/";
+                    + (httpsProxyPort != -1 ? httpsProxyPort : httpsPort) + proxyContextPath + context + "/";
         }
 
         if(log.isDebugEnabled()){
