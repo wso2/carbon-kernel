@@ -165,10 +165,10 @@ public final class CarbonUILoginUtil {
         } else {
             if (skipLoginPage) {
                 response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath,
-                        "/admin/login_action.jsp", request));
+                        "/carbon/admin/login_action.jsp", request));
             } else {
                 response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath,
-                        "/admin/login.jsp", request));
+                        "/carbon/admin/login.jsp", request));
 
             }
         }
@@ -468,7 +468,6 @@ public final class CarbonUILoginUtil {
                     response.addCookie(rmeCookie);
                 }
             } catch (Exception e) {
-                // TODO might need to remove contextPath
                 response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath, indexPageURL
                         + (indexPageURL.indexOf('?') == -1 ? "?" : "&") + "loginStatus=false", request));
 				if (log.isDebugEnabled()) {
@@ -489,7 +488,9 @@ public final class CarbonUILoginUtil {
                     indexPageURL = indexPageURL.substring(5);
                 }
 
-                // TODO might need to remove contextPath
+                if (indexPageURL.startsWith("/../carbon")) {
+                    indexPageURL = indexPageURL.substring(3);
+                }
                 response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath, indexPageURL
                         + (indexPageURL.indexOf('?') == -1 ? "?" : "&") + "loginStatus=true", request));
             }

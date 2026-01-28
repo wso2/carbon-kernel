@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2005-2026, WSO2 LLC. (http://www.wso2.com).
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.core.init;
 
 import org.apache.axis2.AxisFault;
@@ -42,8 +42,6 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.http.HttpContext;
-import org.osgi.service.http.HttpService;
 import org.osgi.service.http.context.ServletContextHelper;
 import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
 import org.wso2.carbon.CarbonConstants;
@@ -490,11 +488,7 @@ public final class CarbonServerManager implements Controllable {
                 new OSGiAxis2ServiceDeployer(serverConfigContext, bundleContext).registerBundleListener(); // This will register the OSGi bundle listener
             }
 
-            HttpService httpService = CarbonCoreDataHolder.getInstance().getHttpService();
-            // TODO might want to do this differently
-            HttpContext defaultHttpContext = httpService.createDefaultHttpContext();
-
-            registerCarbonServlet(defaultHttpContext);
+            registerCarbonServlet();
 
             RealmService realmService = CarbonCoreDataHolder.getInstance().getRealmService();
             UserRealm teannt0Realm = realmService.getBootstrapRealm();
@@ -544,7 +538,7 @@ public final class CarbonServerManager implements Controllable {
         }
     }
 
-    private void registerCarbonServlet(HttpContext defaultHttpContext) throws InvalidSyntaxException {
+    private void registerCarbonServlet() throws InvalidSyntaxException {
 
         if (!"false".equals(serverConfig.getFirstProperty("RequireCarbonServlet"))) {
             CarbonServlet carbonServlet = new CarbonServlet(serverConfigContext);
@@ -558,18 +552,12 @@ public final class CarbonServerManager implements Controllable {
             }
             ServiceReference filterServiceReference = bundleContext.getServiceReference(Filter.class.getName());
 
-            Dictionary<String, String> resourceProps = new Hashtable<>();
-            resourceProps.put("osgi.http.whiteboard.context.name", "serviceContext");
-            resourceProps.put("osgi.http.whiteboard.context.path", servicePath);
-            resourceProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_RESOURCE_PATTERN, servicePath + "/*");
-            ServiceRegistration<ServletContextHelper> servletContextHelperServiceRegistration =
-                    bundleContext.registerService(ServletContextHelper.class, (ServletContextHelper) defaultHttpContext,
-                            resourceProps);
-            CarbonCoreDataHolder.getInstance().addServiceRegistration(servletContextHelperServiceRegistration);
-
+            // Register CarbonServlet with carbonContext (unified context)
+            // The carbonContext is registered by CarbonUIServiceComponent with CarbonSecuredHttpContext
+            // which bypasses security for /services/* paths (they use Axis2 authentication)
             Dictionary<String, Object> carbonServletProperties = new Hashtable<>();
-            carbonServletProperties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/*");
-            carbonServletProperties.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=serviceContext)");
+            carbonServletProperties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, servicePath + "/*");
+            carbonServletProperties.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=carbonContext)");
             ServiceRegistration<Servlet> servletServiceRegistration =
                     bundleContext.registerService(Servlet.class, carbonServlet, carbonServletProperties);
             CarbonCoreDataHolder.getInstance().addServiceRegistration(servletServiceRegistration);
@@ -577,7 +565,8 @@ public final class CarbonServerManager implements Controllable {
             if (filterServiceReference != null) {
                 Filter filter = (Filter) bundleContext.getService(filterServiceReference);
                 Dictionary<String, String> props = new Hashtable<>();
-                props.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_PATTERN, servicePath);
+                props.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_PATTERN, servicePath + "/*");
+                props.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=carbonContext)");
                 ServiceRegistration<Filter> filterServiceRegistration =
                         bundleContext.registerService(Filter.class, filter, props);
                 CarbonCoreDataHolder.getInstance().addServiceRegistration(filterServiceRegistration);
@@ -586,7 +575,7 @@ public final class CarbonServerManager implements Controllable {
                     new HTTPGetProcessorListener(carbonServlet, bundleContext);
             // Check whether there are any services that expose HTTPGetRequestProcessors
             ServiceReference[] getRequestProcessors =
-                    bundleContext.getServiceReferences((String)null,
+                    bundleContext.getServiceReferences((String) null,
                             "(" + CarbonConstants.HTTP_GET_REQUEST_PROCESSOR_SERVICE + "=*)");
 
             // If there are any we need to register them explicitly

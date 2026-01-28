@@ -1,17 +1,19 @@
 /*
- * Copyright 2005-2007 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2005-2026, WSO2 LLC. (http://www.wso2.com).
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.carbon.ui.deployment;
 
@@ -20,9 +22,6 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceEvent;
-import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.SynchronousBundleListener;
 import org.osgi.service.http.HttpContext;
@@ -97,13 +96,6 @@ public class UIBundleDeployer implements SynchronousBundleListener {
                 }
             }
         }
-
-        try {
-            bundleContext.addServiceListener(new ServletServiceListener(),
-                    "(objectClass=" + Servlet.class.getName() + ")");
-        } catch (InvalidSyntaxException e) {
-            log.error(e);
-        }
     }
     /*
     INSTALLED = 1;
@@ -141,7 +133,6 @@ public class UIBundleDeployer implements SynchronousBundleListener {
             }
         } catch (Exception e) {
             log.error("Error occured when processing component xml in bundle " + bundle.getSymbolicName(), e);
-            e.printStackTrace();
         }
     }
 
@@ -405,118 +396,6 @@ public class UIBundleDeployer implements SynchronousBundleListener {
                     //TODO
 
                 }
-            }
-        }
-    }
-
-    public void registerServlet(Servlet servlet, String urlPattern, Dictionary params,
-                                Dictionary servletAttrs, int event, javax.servlet.Filter associatedFilter) throws CarbonException {
-
-        HttpService httpService;
-        try {
-            httpService = CarbonUIServiceComponent.getHttpService();
-        } catch (Exception e) {
-            throw new CarbonException("An instance of HttpService is not available");
-        }
-        try {
-            if (event == ServiceEvent.REGISTERED) {
-                Servlet adaptedJspServlet = new ContextPathServletAdaptor(servlet, urlPattern);
-                if (associatedFilter == null) {
-                    httpService.registerServlet(urlPattern, adaptedJspServlet, params, httpContext);
-                } else {
-                    httpService.registerServlet(urlPattern,
-                            new FilterServletAdaptor(associatedFilter, null, adaptedJspServlet), params, httpContext);
-                }
-//                Dictionary<String, Object> properties = new Hashtable<>();
-//                properties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, urlPattern);
-//                for (Enumeration enm = params.keys(); enm.hasMoreElements();) {
-//                    String key = (String) enm.nextElement();
-//                    properties.put("servlet.init." + key, params.get(key));
-//                }
-//                CarbonUIServiceComponent.getBundleContext().registerService(Servlet.class, servlet, properties);
-//                if (associatedFilter != null) {
-//                    Dictionary<String, String> props = new Hashtable<>();
-//                    props.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_PATTERN, urlPattern);
-//                    CarbonUIServiceComponent.getBundleContext().registerService(Filter.class, associatedFilter, props);
-//                }
-                if (servletAttrs != null) {
-                    for (Enumeration enm = servletAttrs.keys(); enm.hasMoreElements();) {
-                        String key = (String) enm.nextElement();
-                        adaptedJspServlet.getServletConfig().getServletContext().setAttribute(key, servletAttrs.get(key));
-                    }
-                }
-            } else if (event == ServiceEvent.UNREGISTERING) {
-                httpService.unregister(urlPattern);
-            }
-
-        } catch (Exception e) {
-            log.error("Error occurred while registering servlet",e);
-        }
-    }
-
-    public class ServletServiceListener implements ServiceListener {
-
-        public ServletServiceListener() {
-            try {
-                ServiceReference[] servletSRs = bundleContext.getServiceReferences((String)null,
-                        "(objectClass=" + Servlet.class.getName() + ")");
-
-                if (servletSRs != null) {
-                    for (ServiceReference sr : servletSRs) {
-                        registerServletFromSR(sr, ServiceEvent.REGISTERED);
-                    }
-                }
-            } catch (Exception e) {
-                log.error("Failed to obtain registerd services. Invalid filter Syntax.", e);
-            }
-        }
-
-        public void serviceChanged(ServiceEvent event) {
-            if (event.getType() == ServiceEvent.REGISTERED) {
-                registerServletFromSR(event.getServiceReference(), event.getType());
-            }
-        }
-
-        public void registerServletFromSR(ServiceReference sr, int event) {
-            Servlet servlet = (Servlet) bundleContext.getService(sr);
-            if (servlet == null) {
-                log.error("Servlet instance cannot be null");
-                return;
-            }
-
-            Object urlPatternObj = sr.getProperty(CarbonConstants.SERVLET_URL_PATTERN);
-            if (urlPatternObj == null || !(urlPatternObj instanceof String) || urlPatternObj.equals("")) {
-                log.error("URL pattern should not be null");
-                return;
-            }
-            String urlPattern = (String) urlPatternObj;
-
-            Object paramsObj = sr.getProperty(CarbonConstants.SERVLET_PARAMS);
-            if (paramsObj != null && !(paramsObj instanceof Dictionary)) {
-                log.error("Servlet params instances should be type of Dictionary");
-                return;
-            }
-            Dictionary params = (Dictionary) paramsObj;
-
-            Object attributesObj = sr.getProperty(CarbonConstants.SERVLET_ATTRIBUTES);
-            if (attributesObj != null && !(attributesObj instanceof Dictionary)) {
-                log.error("Servlet attributes instances should be type of Dictionary");
-                return;
-            }
-            Dictionary attributes = (Dictionary) attributesObj;
-
-            Object associatedFilterObj = sr.getProperty(CarbonConstants.ASSOCIATED_FILTER);
-
-            // use the qualified name for the Filter as it will by default conflicted with the OSGI class
-            javax.servlet.Filter associatedFilter = null;
-            if (associatedFilterObj != null) {
-                associatedFilter = (javax.servlet.Filter) associatedFilterObj;
-            }
-
-            try {
-                registerServlet(servlet, urlPattern, params, attributes, event, associatedFilter);
-            } catch (CarbonException e) {
-                log.error(e);
             }
         }
     }
