@@ -330,6 +330,10 @@ public class CarbonUIServiceComponent {
         listenerProps.put("osgi.http.whiteboard.listener", "true");
         context.registerService(ServletContextListener.class, contextInitializer, listenerProps);
 
+        Dictionary<String, String> listenerPropsForDefaultContext = new Hashtable<>();
+        listenerPropsForDefaultContext.put("osgi.http.whiteboard.listener", "true");
+        context.registerService(ServletContextListener.class, contextInitializer, listenerPropsForDefaultContext);
+
         //saving bundle context for future reference within CarbonUI Generation
         CarbonUIUtil.setBundleContext(context);
         UIAnnouncementDeployer.deployNotificationSources();

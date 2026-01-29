@@ -24,9 +24,8 @@
         <classes>
             <class name="org.wso2.carbon.base.CarbonApplicationContextHolderBaseTest" />
             <class name="org.wso2.carbon.base.CarbonBaseUtilsTest" />
-<!--            <class name="org.wso2.carbon.base.CarbonBaseUtilsWithIncorrectSecPolicy" />-->
             <class name="org.wso2.carbon.base.CarbonContextHolderBaseTest" />
-<!--            <class name="org.wso2.carbon.base.ServerConfigurationTest" />-->
+            <class name="org.wso2.carbon.base.ServerConfigurationTest" />
         </classes>
     </test>
 </suite>
