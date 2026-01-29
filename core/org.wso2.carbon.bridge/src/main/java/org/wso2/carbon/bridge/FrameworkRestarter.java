@@ -24,17 +24,11 @@ import java.lang.management.ManagementPermission;
 public class FrameworkRestarter implements Runnable {
 
     public void run() {
-        SecurityManager secMan = System.getSecurityManager();
-        if (secMan != null) {
-            secMan.checkPermission(new ManagementPermission("control"));
-        }
-
-          // Carbon is running within an AppServer
-            FrameworkLauncher frameworkLauncher = FrameworkLauncherFactory.getFrameworkLauncher();
-            frameworkLauncher.stop();  //TODO FIXME  There is an Equinox memory leak which causes ChildFirstURLClassloader to remain alive
-            System.setProperty(FrameworkLauncher.START_TIME, String.valueOf(System.currentTimeMillis()));
-            frameworkLauncher.deploy();
-            frameworkLauncher.start();
-
+        // Carbon is running within an AppServer
+        FrameworkLauncher frameworkLauncher = FrameworkLauncherFactory.getFrameworkLauncher();
+        frameworkLauncher.stop();  //TODO FIXME  There is an Equinox memory leak which causes ChildFirstURLClassloader to remain alive
+        System.setProperty(FrameworkLauncher.START_TIME, String.valueOf(System.currentTimeMillis()));
+        frameworkLauncher.deploy();
+        frameworkLauncher.start();
     }
 }

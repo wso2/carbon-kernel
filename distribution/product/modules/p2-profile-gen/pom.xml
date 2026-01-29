@@ -110,10 +110,6 @@
                                     <id>org.wso2.ciphertool.feature.group</id>
                                     <version>${version.ciphertool}</version>
                                 </feature>
-<!--                                <feature>-->
-<!--                                    <id>a.jre.javase</id>-->
-<!--                                    <version>21.0.0</version>-->
-<!--                                </feature>-->
                             </features>
                         </configuration>
                     </execution>

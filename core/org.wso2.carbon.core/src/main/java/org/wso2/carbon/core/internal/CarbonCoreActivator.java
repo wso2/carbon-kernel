@@ -37,11 +37,7 @@ public class CarbonCoreActivator implements BundleActivator {
     private CarbonCoreDataHolder dataHolder = CarbonCoreDataHolder.getInstance();
 
     public void start(BundleContext context) throws Exception {
-        // Need permissions in order to activate Carbon Core
-        //SecurityManager secMan = System.getSecurityManager();
-        //if (secMan != null) {
-        //    secMan.checkPermission(new ManagementPermission("control"));
-        //}
+
         // We assume it's super tenant during the deployment time
         PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext
                 .getThreadLocalCarbonContext();
