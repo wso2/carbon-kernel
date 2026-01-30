@@ -88,6 +88,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextListener;
@@ -329,6 +330,40 @@ public class CarbonUIServiceComponent {
         listenerProps.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=carbonContext)");
         listenerProps.put("osgi.http.whiteboard.listener", "true");
         context.registerService(ServletContextListener.class, contextInitializer, listenerProps);
+
+        // Register CSRFGuard listeners and filter using HTTP Whiteboard pattern
+        try {
+            // Register CsrfGuardHttpSessionListener - generates per-session CSRF tokens
+            Class<?> sessionListenerClass = Class.forName("org.owasp.csrfguard.CsrfGuardHttpSessionListener");
+            Object sessionListener = sessionListenerClass.newInstance();
+            
+            Dictionary<String, String> sessionListenerProps = new Hashtable<>();
+            sessionListenerProps.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=carbonContext)");
+            sessionListenerProps.put("osgi.http.whiteboard.listener", "true");
+            
+            // Register as javax.servlet.http.HttpSessionListener
+            context.registerService("javax.servlet.http.HttpSessionListener", sessionListener, sessionListenerProps);
+            
+            // Register CsrfGuardFilter
+            Class<?> csrfGuardFilterClass = Class.forName("org.owasp.csrfguard.CsrfGuardFilter");
+            Filter csrfGuardFilter = (Filter) csrfGuardFilterClass.newInstance();
+            
+            Dictionary<String, String> csrfFilterProps = new Hashtable<>();
+            csrfFilterProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_PATTERN, "/carbon/*");
+            csrfFilterProps.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=carbonContext)");
+            csrfFilterProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_NAME, "CsrfGuardFilter");
+            csrfFilterProps.put("service.ranking", "100");
+            
+            context.registerService(Filter.class, csrfGuardFilter, csrfFilterProps);
+            
+            if (log.isDebugEnabled()) {
+                log.debug("CSRFGuard components registered successfully using HTTP Whiteboard pattern");
+            }
+        } catch (ClassNotFoundException e) {
+            log.warn("CSRFGuard classes not found. CSRF protection will not be enabled.", e);
+        } catch (Exception e) {
+            log.error("Failed to register CSRFGuard components", e);
+        }
 
         //saving bundle context for future reference within CarbonUI Generation
         CarbonUIUtil.setBundleContext(context);
