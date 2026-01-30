@@ -331,6 +331,10 @@ public class CarbonUIServiceComponent {
         listenerProps.put("osgi.http.whiteboard.listener", "true");
         context.registerService(ServletContextListener.class, contextInitializer, listenerProps);
 
+        Dictionary<String, String> listenerPropsForDefaultContext = new Hashtable<>();
+        listenerPropsForDefaultContext.put("osgi.http.whiteboard.listener", "true");
+        context.registerService(ServletContextListener.class, contextInitializer, listenerPropsForDefaultContext);
+
         // Register CSRFGuard listeners and filter using HTTP Whiteboard pattern
         try {
             // Register CsrfGuardHttpSessionListener - generates per-session CSRF tokens
@@ -364,7 +368,6 @@ public class CarbonUIServiceComponent {
         } catch (Exception e) {
             log.error("Failed to register CSRFGuard components", e);
         }
-
         //saving bundle context for future reference within CarbonUI Generation
         CarbonUIUtil.setBundleContext(context);
         UIAnnouncementDeployer.deployNotificationSources();

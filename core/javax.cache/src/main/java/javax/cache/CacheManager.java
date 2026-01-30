@@ -125,15 +125,6 @@ public interface CacheManager {
      */
     boolean removeCache(String cacheName);
 
-    // TODO javax.transaction package is no longer available. Need to find a way to add this back
-//    /**
-//     * This method will return a UserTransaction.
-//     *
-//     * @return the UserTransaction.
-//     * @throws UnsupportedOperationException if JTA is not supported
-//     */
-//    UserTransaction getUserTransaction();
-
     /**
      * Indicates whether a optional feature is supported by this CacheManager.
      *

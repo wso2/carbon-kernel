@@ -26,11 +26,7 @@ public class FrameworkLauncherFactory {
     private static FrameworkLauncher frameworkLauncher;
 
     public static FrameworkLauncher getFrameworkLauncher(){
-        SecurityManager secMan = System.getSecurityManager();
-        if(secMan != null){
-           secMan.checkPermission(new ManagementPermission("control")); 
-        }
-        if(frameworkLauncher == null){
+        if (frameworkLauncher == null) {
             frameworkLauncher = new EquinoxFrameworkLauncher();
         }
         return frameworkLauncher;
