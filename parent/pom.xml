@@ -379,7 +379,7 @@
         <version.equinox.p2.transport.ecf>1.4.200</version.equinox.p2.transport.ecf>
         <version.ecf.provider.filetransfer.httpclient>4.0.200.v20120319-0616</version.ecf.provider.filetransfer.httpclient>
 
-        <carbon.p2.plugin.version>5.4.15-SNAPSHOT</carbon.p2.plugin.version>
+        <carbon.p2.plugin.version>5.5.1</carbon.p2.plugin.version>
 
         <carbon.crypto.version>1.1.13</carbon.crypto.version>
 
@@ -456,7 +456,7 @@
         <version.spring>3.1.0.RELEASE</version.spring>
 
         <!-- Apache Axis2 -->
-        <version.axis2>1.6.1-wso2v118-SNAPSHOT</version.axis2>
+        <version.axis2>1.6.1-wso2v119</version.axis2>
         <imp.pkg.version.axis2>[1.6.1, 1.7.0)</imp.pkg.version.axis2>
         <version.addressing>${version.axis2}</version.addressing>
         <orbit.version.axis2>${version.axis2}</orbit.version.axis2>
@@ -487,10 +487,10 @@
 
         <version.jakarta.taglib>1.1.2.wso2v1</version.jakarta.taglib>
 
-        <version.tomcat>9.0.85</version.tomcat>
-        <orbit.version.tomcat>${version.tomcat}.wso2v2</orbit.version.tomcat>
-        <orbit.version.tomcat.servlet.api>${version.tomcat}.wso2v2</orbit.version.tomcat.servlet.api>
-        <orbit.version.tomcat.jsp.api>${version.tomcat}.wso2v2</orbit.version.tomcat.jsp.api>
+        <version.tomcat>9.0.113</version.tomcat>
+        <orbit.version.tomcat>${version.tomcat}.wso2v1</orbit.version.tomcat>
+        <orbit.version.tomcat.servlet.api>${version.tomcat}.wso2v1</orbit.version.tomcat.servlet.api>
+        <orbit.version.tomcat.jsp.api>${version.tomcat}.wso2v1</orbit.version.tomcat.jsp.api>
         <orbit.version.tomcat.el.api>${version.tomcat}.wso2v1</orbit.version.tomcat.el.api>
         <orbit.version.tomcat.ha>${version.tomcat}.wso2v1</orbit.version.tomcat.ha>
 
@@ -607,7 +607,7 @@
         <maven.clean.plugin.version>2.4.1</maven.clean.plugin.version>
         <version.com.google.code.gson>2.11.0</version.com.google.code.gson>
 
-        <test.framework.version>4.4.16-SNAPSHOT</test.framework.version>
+        <test.framework.version>4.5.1</test.framework.version>
         <testng.verson>7.10.1</testng.verson>
         <org.apacheds.version>1.5.5</org.apacheds.version>
 
@@ -1054,7 +1054,7 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.orbit.org.apache.tomcat</groupId>
-                <artifactId>tomcat-servlet-api</artifactId>
+                <artifactId>tomcat-servlet-api-jdk21</artifactId>
                 <version>${orbit.version.tomcat.servlet.api}</version>
             </dependency>
             <dependency>
@@ -1324,7 +1324,7 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.orbit.org.apache.tomcat</groupId>
-                <artifactId>tomcat</artifactId>
+                <artifactId>tomcat-jdk21</artifactId>
                 <version>${orbit.version.tomcat}</version>
             </dependency>
             <dependency>

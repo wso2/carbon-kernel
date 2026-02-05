@@ -176,7 +176,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.orbit.org.apache.tomcat</groupId>
-            <artifactId>tomcat</artifactId>
+            <artifactId>tomcat-jdk21</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
