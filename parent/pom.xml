@@ -607,7 +607,7 @@
         <maven.clean.plugin.version>2.4.1</maven.clean.plugin.version>
         <version.com.google.code.gson>2.11.0</version.com.google.code.gson>
 
-        <test.framework.version>4.5.1-SNAPSHOT</test.framework.version>
+        <test.framework.version>4.5.1</test.framework.version>
         <testng.verson>7.10.1</testng.verson>
         <org.apacheds.version>1.5.5</org.apacheds.version>
 
