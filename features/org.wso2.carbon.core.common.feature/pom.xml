@@ -74,9 +74,9 @@
                                 <bundleDef>org.apache.axis2.wso2:axis2-json:${orbit.version.axis2}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.codehaus.jettison:jettison:${orbit.version.jettison}</bundleDef>
                                 <bundleDef>commons-pool.wso2:commons-pool:${orbit.version.commons.pool}</bundleDef>
-                                <bundleDef>org.apache.abdera.wso2:abdera:${orbit.version.abdera}</bundleDef>
+                                <bundleDef>org.apache.abdera.wso2:abdera-jdk21:${orbit.version.abdera}</bundleDef>
                                 <bundleDef>org.apache.axis2.wso2:axis2:${orbit.version.axis2}</bundleDef>
-                                <bundleDef>org.wso2.orbit.org.apache.tiles:tiles-jsp:${orbit.version.tiles}</bundleDef>
+                                <bundleDef>org.wso2.orbit.org.apache.tiles:tiles-jsp-jdk21:${orbit.version.tiles}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.xmlbeans:xmlbeans:${version.xmlbeans}</bundleDef>
                                 <bundleDef>org.apache.ws.commons.axiom.wso2:axiom:${orbit.version.axiom}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.neethi:neethi:${neethi.osgi.version}</bundleDef>
@@ -88,7 +88,7 @@
                                 <bundleDef>
                                     backport-util-concurrent.wso2:backport-util-concurrent:${version.backport.util.concurrent}
                                 </bundleDef>
-                                <bundleDef>org.wso2.orbit.commons-fileupload:commons-fileupload:${version.commons.fileupload}
+                                <bundleDef>org.wso2.orbit.commons-fileupload:commons-fileupload-jdk21:${version.commons.fileupload}
                                 </bundleDef>
                                 <bundleDef>
                                     org.wso2.orbit.commons-httpclient:commons-httpclient:${orbit.version.commons.httpclient}
