@@ -162,7 +162,6 @@
                         <Export-Package>
                             org.wso2.carbon.feature.mgt.core.*
                         </Export-Package>
-                        <!-- TODO this is wrong. Just trying out -->
                         <Provide-Capability>
                             osgi.service;objectClass=org.eclipse.equinox.p2.core.IProvisioningAgentProvider
                         </Provide-Capability>

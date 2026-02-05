@@ -470,7 +470,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.abdera.wso2</groupId>
-            <artifactId>abdera</artifactId>
+            <artifactId>abdera-jdk21</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.org.ops4j.pax.logging</groupId>

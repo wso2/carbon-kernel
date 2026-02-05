@@ -57,7 +57,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.orbit.org.apache.tiles</groupId>
-            <artifactId>tiles-jsp</artifactId>
+            <artifactId>tiles-jsp-jdk21</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>commons-digester</groupId>
@@ -159,7 +159,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.orbit.org.owasp.encoder</groupId>
-            <artifactId>encoder</artifactId>
+            <artifactId>encoder-jdk21</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.orbit.org.apache.tomcat</groupId>
