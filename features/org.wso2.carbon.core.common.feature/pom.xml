@@ -57,15 +57,15 @@
                                 <bundleDef>
                                     org.eclipse.platform:org.eclipse.equinox.http.servlet:${version.equinox.http.servlet}
                                 </bundleDef>
-                                <bundleDef>org.wso2.orbit.org.apache.tomcat:tomcat-jsp-api:${orbit.version.tomcat.jsp.api}
+                                <bundleDef>org.wso2.orbit.org.apache.tomcat:tomcat-jsp-api-jdk21:${orbit.version.tomcat.jsp.api}
                                 </bundleDef>
-                                <bundleDef>org.wso2.orbit.org.apache.tomcat:tomcat-el-api:${orbit.version.tomcat.el.api}
+                                <bundleDef>org.wso2.orbit.org.apache.tomcat:tomcat-el-api-jdk21:${orbit.version.tomcat.el.api}
                                 </bundleDef>
                                 <bundleDef>
-                                    org.wso2.orbit.org.apache.tomcat:tomcat-servlet-api:${orbit.version.tomcat.servlet.api}
+                                    org.wso2.orbit.org.apache.tomcat:tomcat-servlet-api-jdk21:${orbit.version.tomcat.servlet.api}
                                 </bundleDef>
                                 <bundleDef>antlr.wso2:antlr:${antlr.wso2.version}</bundleDef>
-                                <bundleDef>org.wso2.orbit.org.apache.tomcat:tomcat:${orbit.version.tomcat}</bundleDef>
+                                <bundleDef>org.wso2.orbit.org.apache.tomcat:tomcat-jdk21:${orbit.version.tomcat}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.tomcat:tomcat-catalina-ha:${orbit.version.tomcat.ha}
                                 </bundleDef>
                                 <bundleDef>au.com.bytecode.opencsv.wso2:opencsv:${version.opencsv}</bundleDef>
