@@ -510,6 +510,10 @@ public class JDBCPathCache extends PathCache {
                         cache.put(key, e);
                         return pathId;
                     }
+                } else {
+                    //not found . set -1 in the cache as well for the path
+                    RegistryCacheEntry e = new RegistryCacheEntry(-1);
+                    cache.put(key, e);
                 }
 
             } catch (SQLException e) {
