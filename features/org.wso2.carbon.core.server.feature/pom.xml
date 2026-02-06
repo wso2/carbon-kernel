@@ -75,6 +75,8 @@
                                 </bundleDef>
                                 <bundleDef>org.wso2.orbit.org.bouncycastle:bcpkix-jdk18on:${bouncycastle.version}
                                 </bundleDef>
+                                <bundleDef>org.wso2.orbit.org.bouncycastle:bcpg-jdk18on:${bouncycastle.version}
+                                </bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.poi:poi-ooxml:${orbit.version.poi.ooxml}
                                 </bundleDef>
                                 <bundleDef>javax.annotation:javax.annotation-api:${version.javax.annotation.annotation-api}</bundleDef>

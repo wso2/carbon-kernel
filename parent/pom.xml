@@ -539,7 +539,7 @@
         <version.commons.codec>1.16.0.wso2v1</version.commons.codec>
         <version.annogen>0.1.0.wso2v1</version.annogen>
         <version.backport.util.concurrent>3.1.0.wso2v1</version.backport.util.concurrent>
-        <version.commons.fileupload>1.5.0.wso2v2</version.commons.fileupload>
+        <version.commons.fileupload>1.6.0.wso2v1</version.commons.fileupload>
         <version.ehcache>1.5.0.wso2v2</version.ehcache>
         <version.opencsv>1.8.wso2v1</version.opencsv>
 
@@ -850,24 +850,6 @@
                 <artifactId>org.osgi.service.prefs</artifactId>
                 <version>1.1.2</version>
             </dependency>
-<!--            TODO check if this is correct-->
-            <dependency>
-                <groupId>org.bouncycastle</groupId>
-                <artifactId>bcpg-jdk18on</artifactId>
-                <version>1.82</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcutil-jdk18on -->
-            <dependency>
-                <groupId>org.bouncycastle</groupId>
-                <artifactId>bcutil-jdk18on</artifactId>
-                <version>1.82</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on -->
-            <dependency>
-                <groupId>org.bouncycastle</groupId>
-                <artifactId>bcprov-jdk18on</artifactId>
-                <version>${bcprov-jdk18on.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.eclipse.platform</groupId>
                 <artifactId>org.eclipse.equinox.registry</artifactId>
@@ -1030,6 +1012,11 @@
             <dependency>
                 <groupId>org.wso2.orbit.org.bouncycastle</groupId>
                 <artifactId>bcpkix-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.org.bouncycastle</groupId>
+                <artifactId>bcpg-jdk18on</artifactId>
                 <version>${bouncycastle.version}</version>
             </dependency>
             <dependency>
