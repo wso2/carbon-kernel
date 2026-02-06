@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2005-2026, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -72,6 +72,15 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
     public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         String requestedURI = request.getRequestURI();
+
+        // Bypass security for /services/* paths - they use Axis2 authentication
+        // This allows the unified context to handle both /carbon and /services paths
+        if (isServicesPath(requestedURI)) {
+            if (log.isDebugEnabled()) {
+                log.debug("Bypassing security for services path: " + requestedURI);
+            }
+            return true;
+        }
         // Get the matching CarbonUIAuthenticator. If no match found for the given request, this
         // will return null.
         CarbonUIAuthenticator authenticator = CarbonUILoginUtil.getAuthenticator(request);
@@ -274,10 +283,11 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
         }
         if (request.getSession().isNew()) {
             if (skipLoginPage) {
-                response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath, "/carbon/admin/login_action.jsp",
-                        request));
+                response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath,
+                        "/carbon/admin/login_action.jsp", request));
             } else {
-                response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath, "/carbon/admin/login.jsp", request));
+                response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath, "/carbon/admin/login.jsp",
+                        request));
 
             }
             return false;
@@ -510,6 +520,35 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
 
         if (requestURI.startsWith(pattern)) {
             return true;
+        }
+        return false;
+    }
+
+
+    /**
+     * Check if the requested URI is a services path that should bypass UI security.
+     * Services use Axis2 authentication, not UI authentication.
+     *
+     * @param requestedURI the requested URI
+     * @return true if the path is a services path
+     */
+    private boolean isServicesPath(String requestedURI) {
+        if (requestedURI == null) {
+            return false;
+        }
+        // Check for direct /services/* paths
+        if (requestedURI.startsWith("/services/") || requestedURI.equals("/services")) {
+            return true;
+        }
+        // Check for tenant services paths: /t/{tenant}/services/*
+        if (requestedURI.startsWith("/t/")) {
+            int thirdSlash = requestedURI.indexOf('/', 3);
+            if (thirdSlash > 0) {
+                String pathAfterTenant = requestedURI.substring(thirdSlash);
+                if (pathAfterTenant.startsWith("/services/") || pathAfterTenant.equals("/services")) {
+                    return true;
+                }
+            }
         }
         return false;
     }

@@ -83,15 +83,21 @@ public class CarbonServlet extends AxisServlet {
         configContext.setProperty("GETRequestProcessorMap", getRequestProcessors);
         initParams();
         String isMeteringEnabledStr = ServerConfiguration.getInstance().getFirstProperty("EnableMetering");
-        if(isMeteringEnabledStr!=null){
+        if (isMeteringEnabledStr != null) {
             isMeteringEnabled = Boolean.parseBoolean(isMeteringEnabledStr);
         }
-        if(isMeteringEnabled){
+        if (isMeteringEnabled) {
             requestDataPersister = new RequestDataPersisterTask();
             new Thread(requestDataPersister).start();
             requestDataPersisterScheduler.scheduleWithFixedDelay(requestDataPersister, 5,
                     5, TimeUnit.SECONDS);
         }
+        contextRoot = this.configContext.getContextRoot();
+    }
+
+    public ServletConfig getServletConfig() {
+
+        return servletConfig;
     }
 
     private void populateGetRequestProcessors() throws ServletException {

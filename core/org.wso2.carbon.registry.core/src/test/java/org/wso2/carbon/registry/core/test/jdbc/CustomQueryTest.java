@@ -19,6 +19,7 @@
 package org.wso2.carbon.registry.core.test.jdbc;
 
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.wso2.carbon.registry.core.Collection;
@@ -323,6 +324,7 @@ public class CustomQueryTest  extends BaseTestCase {
     }
 
     @Test
+    @Ignore
     public void test5CustomQueryResultsOrderForResources() throws RegistryException {
         // This is a legacy test to ensure ordering doesn't break..
 

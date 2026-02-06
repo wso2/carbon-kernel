@@ -1,17 +1,19 @@
 /*
- * Copyright 2005-2007 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2005-2026, WSO2 LLC. (http://www.wso2.com).
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.carbon.ui.internal;
 
@@ -25,7 +27,6 @@ import org.apache.catalina.core.StandardContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.InstanceManager;
-import org.eclipse.equinox.http.helper.ContextPathServletAdaptor;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -38,6 +39,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
+import org.osgi.service.http.context.ServletContextHelper;
+import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.url.URLConstants;
 import org.osgi.service.url.URLStreamHandlerService;
@@ -50,8 +53,10 @@ import org.wso2.carbon.ui.BasicAuthUIAuthenticator;
 import org.wso2.carbon.ui.CarbonProtocol;
 import org.wso2.carbon.ui.CarbonSSOSessionManager;
 import org.wso2.carbon.ui.CarbonSecuredHttpContext;
+import org.wso2.carbon.ui.CarbonServletContextInitializer;
 import org.wso2.carbon.ui.CarbonUIAuthenticator;
 import org.wso2.carbon.ui.CarbonUIUtil;
+import org.wso2.carbon.ui.ContextPathServletAdaptor;
 import org.wso2.carbon.ui.DefaultCarbonAuthenticator;
 import org.wso2.carbon.ui.TextJavascriptHandler;
 import org.wso2.carbon.ui.TilesJspServlet;
@@ -68,13 +73,6 @@ import org.wso2.carbon.ui.util.UIAnnouncementDeployer;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
-import javax.servlet.Servlet;
-import javax.servlet.ServletContext;
-import javax.xml.namespace.QName;
-import javax.xml.stream.FactoryConfigurationError;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ContentHandler;
@@ -89,6 +87,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+
+import javax.servlet.Filter;
+import javax.servlet.Servlet;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextListener;
+import javax.xml.namespace.QName;
+import javax.xml.stream.FactoryConfigurationError;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import static org.wso2.carbon.CarbonConstants.PRODUCT_XML;
 import static org.wso2.carbon.CarbonConstants.PRODUCT_XML_PROPERTIES;
@@ -108,8 +116,7 @@ public class CarbonUIServiceComponent {
     private static ServerConfigurationService serverConfiguration;
     private static RealmService realmService;
     private static CarbonTomcatService carbonTomcatService;
-    private static List<UIAuthenticationExtender> authenticationExtenders =
-            new LinkedList<UIAuthenticationExtender>();
+    private static List<UIAuthenticationExtender> authenticationExtenders = new LinkedList<>();
 
     private BundleContext bundleContext;
 
@@ -224,23 +231,12 @@ public class CarbonUIServiceComponent {
         Hashtable<String, String[]> properties1 = new Hashtable<String, String[]>();
         properties1.put(URLConstants.URL_HANDLER_PROTOCOL, new String[]{"carbon"});
         context.registerService(URLStreamHandlerService.class.getName(),
-                                new CarbonProtocol(context), properties1);
+                new CarbonProtocol(context), properties1);
 
         Hashtable<String, String[]> properties3 = new Hashtable<String, String[]>();
         properties3.put(URLConstants.URL_CONTENT_MIMETYPE, new String[]{"text/javascript"});
         context.registerService(ContentHandler.class.getName(), new TextJavascriptHandler(),
-                                properties3);
-
-        final HttpService httpService = getHttpService();
-
-        Dictionary<String, String> initparams = new Hashtable<String, String>();
-        initparams.put("servlet-name", "TilesServlet");
-        initparams.put("definitions-config", "/WEB-INF/tiles/main_defs.xml");
-        initparams.put("org.apache.tiles.context.TilesContextFactory",
-                       "org.apache.tiles.context.enhanced.EnhancedContextFactory");
-        initparams.put("org.apache.tiles.factory.TilesContainerFactory.MUTABLE", "true");
-        initparams.put("org.apache.tiles.definition.DefinitionsFactory",
-                       "org.wso2.carbon.tiles.CarbonUrlDefinitionsFactory");
+                properties3);
 
         String webContext = "carbon"; // The subcontext for the Carbon Mgt Console
 
@@ -257,82 +253,121 @@ public class CarbonUIServiceComponent {
         uiResourceRegistry.initialize(bundleContext);
         uiResourceRegistry.setDefaultUIResourceProvider(
                 uiBundleDeployer.getBundleBasedUIResourcePrvider());
-//        BundleResourcePathRegistry resourcePathRegistry = uiBundleDeployer.getBundleResourcePathRegistry();
 
         HttpContext commonContext =
                 new CarbonSecuredHttpContext(context.getBundle(), "/web", uiResourceRegistry, registry);
 
-        //Registering filedownload servlet
-        Servlet fileDownloadServlet = new ContextPathServletAdaptor(new FileDownloadServlet(
-                context, getConfigurationContextService()), "/filedownload");
-        httpService.registerServlet("/filedownload", fileDownloadServlet, null, commonContext);
-        fileDownloadServlet.getServletConfig().getServletContext().setAttribute(
-                CarbonConstants.SERVER_URL, serverURL);
-        fileDownloadServlet.getServletConfig().getServletContext().setAttribute(
-                CarbonConstants.INDEX_PAGE_URL, indexPageURL);
-
-        //Registering fileupload servlet
-        Servlet fileUploadServlet;
-        if (isLocalTransportMode) {
-            fileUploadServlet = new ContextPathServletAdaptor(new FileUploadServlet(
-                    context, serverConfigContext, webContext), "/fileupload");
-        } else {
-            fileUploadServlet = new ContextPathServletAdaptor(new FileUploadServlet(
-                    context, clientConfigContext, webContext), "/fileupload");
-        }
-
-        httpService.registerServlet("/fileupload", fileUploadServlet, null, commonContext);
-        fileUploadServlet.getServletConfig().getServletContext().setAttribute(
-                CarbonConstants.SERVER_URL, serverURL);
-        fileUploadServlet.getServletConfig().getServletContext().setAttribute(
-                CarbonConstants.INDEX_PAGE_URL, indexPageURL);
-
         uiBundleDeployer.deploy(bundleContext, commonContext);
         context.addBundleListener(uiBundleDeployer);
 
-        httpService.registerServlet("/", new org.apache.tiles.web.startup.TilesServlet(),
-                                    initparams,
-                                    commonContext);
-        httpService.registerResources("/" + webContext, "/", commonContext);
+        // Register ServletContextHelper at / path - all servlets/filters/resources use this single context
+        // This ensures forwarding works correctly between components
+        Dictionary<String, String> contextProps = new Hashtable<>();
+        contextProps.put("osgi.http.whiteboard.context.name", "carbonContext");
+        contextProps.put("osgi.http.whiteboard.context.path", "/");
+        context.registerService(ServletContextHelper.class, (ServletContextHelper) commonContext, contextProps);
 
-        adaptedJspServlet = new ContextPathServletAdaptor(
-                new TilesJspServlet(context.getBundle(), uiResourceRegistry), "/" + webContext);
+        // Register file download servlet using HTTP Whiteboard pattern
+        Servlet fileDownloadServlet = new FileDownloadServlet(context, getConfigurationContextService());
+        Dictionary<String, String> fileDownloadServletProperties = new Hashtable<>();
+        fileDownloadServletProperties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN,
+                "/carbon/filedownload/*");
+        fileDownloadServletProperties.put("osgi.http.whiteboard.context.select",
+                "(osgi.http.whiteboard.context.name=carbonContext)");
+        context.registerService(Servlet.class, fileDownloadServlet, fileDownloadServletProperties);
 
-        Dictionary<String, String> carbonInitparams = new Hashtable<String, String>();
-        carbonInitparams.put("strictQuoteEscaping", "false");
-        httpService.registerServlet("/" + webContext + "/*.jsp", adaptedJspServlet, carbonInitparams, commonContext);
-
-        ServletContext jspServletContext =
-                adaptedJspServlet.getServletConfig().getServletContext();
-
-        jspServletContext.setAttribute(
-                InstanceManager.class.getName(), getTomcatInstanceManager());
-
-        jspServletContext.setAttribute("registry", registryService);
-
-        jspServletContext.setAttribute(CarbonConstants.SERVER_CONFIGURATION, serverConfig);
-        jspServletContext.setAttribute(CarbonConstants.CLIENT_CONFIGURATION_CONTEXT, clientConfigContext);
-        //If the UI is running on local transport mode, then we use the server-side config context.
-        if(isLocalTransportMode) {
-            jspServletContext.setAttribute(CarbonConstants.CONFIGURATION_CONTEXT, serverConfigContext);
+        // Register file upload servlet using HTTP Whiteboard pattern
+        Servlet fileUploadServlet;
+        if (isLocalTransportMode) {
+            fileUploadServlet = new FileUploadServlet(context, serverConfigContext, webContext);
         } else {
-            jspServletContext.setAttribute(CarbonConstants.CONFIGURATION_CONTEXT, clientConfigContext);
+            fileUploadServlet = new FileUploadServlet(context, clientConfigContext, webContext);
         }
+        Dictionary<String, String> fileUploadServletProperties = new Hashtable<>();
+        fileUploadServletProperties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN,
+                "/carbon/fileupload/*");
+        fileUploadServletProperties.put("osgi.http.whiteboard.context.select",
+                "(osgi.http.whiteboard.context.name=carbonContext)");
+        context.registerService(Servlet.class, fileUploadServlet, fileUploadServletProperties);
 
-        jspServletContext.setAttribute(CarbonConstants.BUNDLE_CLASS_LOADER,
-                                       this.getClass().getClassLoader());
-        jspServletContext.setAttribute(CarbonConstants.SERVER_URL, serverURL);
-        jspServletContext.setAttribute(CarbonConstants.INDEX_PAGE_URL, indexPageURL);
-        jspServletContext.setAttribute(CarbonConstants.UI_BUNDLE_CONTEXT, bundleContext);
+        // Register static resources using HTTP Whiteboard with carbonContext
+        // Pattern /carbon/* will serve static files under /carbon/
+        Dictionary<String, Object> resourceProperties = new Hashtable<>();
+        resourceProperties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_RESOURCE_PATTERN, "/carbon/*");
+        resourceProperties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_RESOURCE_PREFIX, "/");
+        resourceProperties.put("osgi.http.whiteboard.context.select",
+                "(osgi.http.whiteboard.context.name=carbonContext)");
+        bundleContext.registerService(Object.class, new Object(), resourceProperties);
 
-        // set the CustomUIDefinitions object as an attribute of servlet context, so that the Registry UI bundle
-        // can access the custom UI details within JSPs.
-        jspServletContext
-                .setAttribute(CustomUIDefenitions.CUSTOM_UI_DEFENITIONS, customUIDefenitions);
+        adaptedJspServlet = new TilesJspServlet(context.getBundle(), uiResourceRegistry);
 
-        // Registering jspServletContext as a service so that UI components can use it
-        bundleContext.registerService(ServletContext.class.getName(), jspServletContext, null);
+        // Register TilesJspServlet with carbonContext for /carbon/*.jsp pattern
+        Dictionary<String, String> carbonInitparams = new Hashtable<>();
+        carbonInitparams.put("servlet.init.strictQuoteEscaping", "false");
+        carbonInitparams.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/carbon/*.jsp");
+        carbonInitparams.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=carbonContext)");
+        context.registerService(Servlet.class, adaptedJspServlet, carbonInitparams);
 
+        // Determine which configuration context to use based on transport mode
+        ConfigurationContext contextToUse = isLocalTransportMode ? serverConfigContext : clientConfigContext;
+
+        // Create and register ServletContextListener to initialize the ServletContext when it's created
+        CarbonServletContextInitializer contextInitializer = new CarbonServletContextInitializer(
+                getTomcatInstanceManager(),
+                registryService,
+                serverConfig,
+                contextToUse,
+                clientConfigContext,
+                bundleContext,
+                serverURL,
+                indexPageURL,
+                customUIDefenitions,
+                this.getClass().getClassLoader(),
+                uiBundleDeployer
+        );
+
+        Dictionary<String, String> listenerProps = new Hashtable<>();
+        listenerProps.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=carbonContext)");
+        listenerProps.put("osgi.http.whiteboard.listener", "true");
+        context.registerService(ServletContextListener.class, contextInitializer, listenerProps);
+
+        Dictionary<String, String> listenerPropsForDefaultContext = new Hashtable<>();
+        listenerPropsForDefaultContext.put("osgi.http.whiteboard.listener", "true");
+        context.registerService(ServletContextListener.class, contextInitializer, listenerPropsForDefaultContext);
+
+        // Register CSRFGuard listeners and filter using HTTP Whiteboard pattern
+        try {
+            // Register CsrfGuardHttpSessionListener - generates per-session CSRF tokens
+            Class<?> sessionListenerClass = Class.forName("org.owasp.csrfguard.CsrfGuardHttpSessionListener");
+            Object sessionListener = sessionListenerClass.newInstance();
+            
+            Dictionary<String, String> sessionListenerProps = new Hashtable<>();
+            sessionListenerProps.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=carbonContext)");
+            sessionListenerProps.put("osgi.http.whiteboard.listener", "true");
+            
+            // Register as javax.servlet.http.HttpSessionListener
+            context.registerService("javax.servlet.http.HttpSessionListener", sessionListener, sessionListenerProps);
+            
+            // Register CsrfGuardFilter
+            Class<?> csrfGuardFilterClass = Class.forName("org.owasp.csrfguard.CsrfGuardFilter");
+            Filter csrfGuardFilter = (Filter) csrfGuardFilterClass.newInstance();
+            
+            Dictionary<String, String> csrfFilterProps = new Hashtable<>();
+            csrfFilterProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_PATTERN, "/carbon/*");
+            csrfFilterProps.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=carbonContext)");
+            csrfFilterProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_NAME, "CsrfGuardFilter");
+            csrfFilterProps.put("service.ranking", "100");
+            
+            context.registerService(Filter.class, csrfGuardFilter, csrfFilterProps);
+            
+            if (log.isDebugEnabled()) {
+                log.debug("CSRFGuard components registered successfully using HTTP Whiteboard pattern");
+            }
+        } catch (ClassNotFoundException e) {
+            log.warn("CSRFGuard classes not found. CSRF protection will not be enabled.", e);
+        } catch (Exception e) {
+            log.error("Failed to register CSRFGuard components", e);
+        }
         //saving bundle context for future reference within CarbonUI Generation
         CarbonUIUtil.setBundleContext(context);
         UIAnnouncementDeployer.deployNotificationSources();
@@ -340,9 +375,6 @@ public class CarbonUIServiceComponent {
         if (log.isDebugEnabled()) {
             log.debug("Starting web console using context : " + webContext);
         }
-
-        //read product.xml
-        readProductXML(jspServletContext, uiBundleDeployer);
     }
 
     private InstanceManager getTomcatInstanceManager() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
@@ -364,78 +396,6 @@ public class CarbonUIServiceComponent {
         dummyCtx.setLoader((Loader) Class.forName("org.apache.catalina.loader.WebappLoader").newInstance());
 
         return new DefaultInstanceManager(context, injectionMap, dummyCtx, containerClassloader);
-    }
-
-    /**
-     * reads product.xml contained within styles bundle of a product.
-     * product.xml contains properties like userforum, mailing list,etc.. which are
-     * specific to the product.
-     *
-     * @param jspServletContext
-     * @throws IOException
-     * @throws XMLStreamException
-     * @throws FactoryConfigurationError
-     */
-    private void readProductXML(ServletContext jspServletContext, UIBundleDeployer uiBundleDeployer)
-            throws IOException, XMLStreamException {
-        Enumeration<URL> e = bundleContext.getBundle().findEntries("META-INF", PRODUCT_XML, true);
-        // it is possible to make the styles bundle a UIBundle. But in that case we have to get the
-        // product.xml file using BundleBasedUIResourceFinder. However product.xml file is not a UI
-        // resource. rather it is  a config file. Hence I'm making this a fragment bundle.
-        // actually styles bundle should be a fragment of carbon UI. -- Pradeep
-        /*Bundle stylesBundle = ((BundleBasedUIResourceProvider) uiBundleDeployer.getBundleBasedUIResourcePrvider()).getBundle(CarbonConstants.PRODUCT_STYLES_CONTEXT);
-        if (stylesBundle != null) {
-            e = stylesBundle.findEntries("META-INF", PRODUCT_XML, true);
-        }*/
-        if (e != null) {
-            URL url = (URL) e.nextElement();
-            InputStream inputStream = url.openStream();
-            XMLStreamReader streamReader =
-                    XMLInputFactory.newInstance().createXMLStreamReader(inputStream);
-            StAXOMBuilder builder = new StAXOMBuilder(streamReader);
-            OMElement document = builder.getDocumentElement();
-            OMElement propsEle =
-                    document.getFirstChildWithName(
-                            new QName(WSO2CARBON_NS, PRODUCT_XML_PROPERTIES));
-            if (propsEle != null) {
-                Iterator<OMElement> properties = propsEle.getChildrenWithName(
-                        new QName(WSO2CARBON_NS, PRODUCT_XML_PROPERTY));
-                while (properties.hasNext()) {
-                    OMElement property = properties.next();
-                    String propertyName = property.getAttributeValue(new QName("name"));
-                    String value = property.getText();
-                    if (log.isDebugEnabled()) {
-                        log.debug(PRODUCT_XML + ": " + propertyName + "=" + value);
-                    }
-                    //process collapsed menus in a different manner than other properties
-                    if ("collapsedmenus".equals(propertyName)) {
-                        ArrayList<String> collapsedMenuItems = new ArrayList<String>();
-                        if (value != null && value.indexOf(',') > -1) {
-                            //multiple menu items provided.Tokenize & add iteratively
-                            StringTokenizer st = new StringTokenizer(value, ",");
-                            while (st.hasMoreTokens()) {
-                                collapsedMenuItems.add(st.nextToken());
-                            }
-                        } else {
-                            //single menu item specified.add this
-                            collapsedMenuItems.add(value);
-                        }
-                        jspServletContext.setAttribute(PRODUCT_XML_WSO2CARBON + propertyName, collapsedMenuItems);
-
-                        /*
-                        Sometimes the values loaded to the jspServletContext is not available.
-                        i.e. when the request is sent to /carbon
-                        it works only if teh request takes the patern such as /carbon/admin/index.jsp
-                        in the case of /carbon the params are read from utils hashmap which is saved at this point.
-                         */
-                        CarbonUIUtil.setProductParam(PRODUCT_XML_WSO2CARBON + propertyName, collapsedMenuItems);
-                    } else {
-                        jspServletContext.setAttribute(PRODUCT_XML_WSO2CARBON + propertyName, value);
-                        CarbonUIUtil.setProductParam(PRODUCT_XML_WSO2CARBON + propertyName, value);
-                    }
-                }
-            }
-        }
     }
 
     public static synchronized Bundle getBundle(Class clazz) {

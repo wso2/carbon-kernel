@@ -20,7 +20,6 @@ import java.net.URL;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.equinox.http.helper.BundleEntryHttpContext;
 import org.osgi.framework.Bundle;
 import org.wso2.carbon.registry.core.Registry;
 
@@ -55,7 +54,13 @@ public class SecuredComponentEntryHttpContext extends BundleEntryHttpContext {
             return url;
         }
 
-        url = uiResourceRegistry.getUIResource(resourceName);
+        // Strip /carbon prefix if present, as uiResourceRegistry expects paths without it
+        String lookupName = resourceName;
+        if (resourceName != null && resourceName.startsWith("/carbon")) {
+            lookupName = resourceName.substring("/carbon".length());
+        }
+
+        url = uiResourceRegistry.getUIResource(lookupName);
 
         if (url != null) {
             return url;
