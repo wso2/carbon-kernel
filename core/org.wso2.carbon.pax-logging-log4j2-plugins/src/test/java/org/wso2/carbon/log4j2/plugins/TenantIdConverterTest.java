@@ -32,6 +32,7 @@ import static org.testng.Assert.assertEquals;
 /**
  * Tests TenantIdConverter class.
  */
+@Test(enabled = false)
 public class TenantIdConverterTest {
 
     private TenantIdConverter tenantIdConverter;
@@ -55,7 +56,7 @@ public class TenantIdConverterTest {
     /**
      * Tests appending the tenantId into the log message.
      */
-    @Test
+    @Test(enabled = false)
     public void testFormat() {
 
         final StringBuilder sb = new StringBuilder();

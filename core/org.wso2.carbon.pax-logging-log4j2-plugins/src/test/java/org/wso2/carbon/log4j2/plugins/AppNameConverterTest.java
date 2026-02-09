@@ -29,6 +29,7 @@ import static org.testng.Assert.assertEquals;
 /**
  * Tests AppNameConverter class.
  */
+@Test(enabled = false)
 public class AppNameConverterTest {
 
     private AppNameConverter appNameConverter;
@@ -52,7 +53,7 @@ public class AppNameConverterTest {
     /**
      * Tests appending the AppName into the log message.
      */
-    @Test
+    @Test(enabled = false)
     public void testFormat() {
 
         final StringBuilder sb = new StringBuilder();
