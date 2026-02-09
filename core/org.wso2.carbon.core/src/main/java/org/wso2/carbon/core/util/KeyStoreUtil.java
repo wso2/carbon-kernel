@@ -41,6 +41,7 @@ import java.util.Iterator;
 import javax.xml.namespace.QName;
 
 import static org.wso2.carbon.utils.multitenancy.MultitenantConstants.TENANT_EC_KEY_SUFFIX;
+import static org.wso2.carbon.utils.multitenancy.MultitenantConstants.TENANT_ED_KEY_SUFFIX;
 
 public class KeyStoreUtil {
 
@@ -55,7 +56,7 @@ public class KeyStoreUtil {
         Enumeration<String> enums = store.aliases();
         while (enums.hasMoreElements()) {
             String name = enums.nextElement();
-            if (store.isKeyEntry(name) && !name.endsWith(TENANT_EC_KEY_SUFFIX)) {
+            if (store.isKeyEntry(name) && !name.endsWith(TENANT_EC_KEY_SUFFIX) && !name.endsWith(TENANT_ED_KEY_SUFFIX)) {
                 alias = name;
                 break;
             }
@@ -269,6 +270,21 @@ public class KeyStoreUtil {
             throw new CarbonException("Tenant domain must not be empty.");
         } else {
             return tenantDomain +  TENANT_EC_KEY_SUFFIX;
+        }
+    }
+
+    /**
+     * Get tenant EdDSA Key Alias
+     *
+     * @return Tenant EdDSA Key Alias
+     * @throws CarbonException Exception Carbon Exception for tenants other than tenant -1234
+     */
+    public static String getTenantEdKeyAlias(String tenantDomain) throws CarbonException {
+
+        if (StringUtils.isBlank(tenantDomain)) {
+            throw new CarbonException("Tenant domain must not be empty.");
+        } else {
+            return tenantDomain +  TENANT_ED_KEY_SUFFIX;
         }
     }
 

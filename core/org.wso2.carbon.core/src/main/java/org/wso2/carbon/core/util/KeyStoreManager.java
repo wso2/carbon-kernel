@@ -857,6 +857,22 @@ public class KeyStoreManager {
     }
 
     /**
+     * Get the public key by alias, only allowed for tenant -1234
+     *
+     * @param alias The alias of the public key to retrieve
+     * @return Public Key
+     * @throws CarbonException Exception Carbon Exception for tenants other than tenant -1234
+     * @throws KeyStoreException Exception while retrieving public key from keystore
+     */
+    public PublicKey getDefaultPublicKey(String alias) throws CarbonException, KeyStoreException {
+        if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
+            return primaryKeyStore.getCertificate(alias).getPublicKey();
+        }
+        throw new CarbonException("Permission denied for accessing primary key store. The primary key store is " +
+                "available only for the super tenant.");
+    }
+
+    /**
      * Get the private key password
      *
      * @return private key password
