@@ -55,6 +55,9 @@
                         <Export-Package>
                             org.wso2.carbon.server.admin.common.*
                         </Export-Package>
+                        <Import-Package>
+                            !*
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

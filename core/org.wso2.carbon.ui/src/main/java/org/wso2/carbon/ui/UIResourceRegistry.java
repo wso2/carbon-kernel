@@ -63,7 +63,7 @@ public class UIResourceRegistry implements UIResourceProvider, ServiceListener {
     }
 
     public URL getUIResource(String path) {
-        URL url = defaultUIResourceProvider.getUIResource(path);
+        URL url = defaultUIResourceProvider.getUIResource(canonicalURI(path));
         if (url == null) {
             for (UIResourceProvider resourceProvider : resourceProviderSet) {
                 url = resourceProvider.getUIResource(path);
@@ -103,5 +103,60 @@ public class UIResourceRegistry implements UIResourceProvider, ServiceListener {
                     bundleContext.getService(serviceEvent.getServiceReference());
             resourceProviderSet.remove(uiResourceProvider);
         }
+    }
+
+    protected static final String canonicalURI(String s) {
+        if (s == null) {
+            return null;
+        } else {
+            StringBuilder result = new StringBuilder();
+            int len = s.length();
+            int pos = 0;
+
+            while(pos < len) {
+                char c = s.charAt(pos);
+                if (isPathSeparator(c)) {
+                    while(pos + 1 < len && isPathSeparator(s.charAt(pos + 1))) {
+                        ++pos;
+                    }
+
+                    if (pos + 1 < len && s.charAt(pos + 1) == '.') {
+                        if (pos + 2 >= len) {
+                            break;
+                        }
+
+                        switch (s.charAt(pos + 2)) {
+                            case '.':
+                                if (pos + 3 < len && isPathSeparator(s.charAt(pos + 3))) {
+                                    pos += 3;
+
+                                    int separatorPos;
+                                    for(separatorPos = result.length() - 1; separatorPos >= 0 && !isPathSeparator(result.charAt(separatorPos)); --separatorPos) {
+                                    }
+
+                                    if (separatorPos >= 0) {
+                                        result.setLength(separatorPos);
+                                    }
+                                    continue;
+                                }
+                                break;
+                            case '/':
+                            case '\\':
+                                pos += 2;
+                                continue;
+                        }
+                    }
+                }
+
+                result.append(c);
+                ++pos;
+            }
+
+            return result.toString();
+        }
+    }
+
+    protected static final boolean isPathSeparator(char c) {
+        return c == '/' || c == '\\';
     }
 }

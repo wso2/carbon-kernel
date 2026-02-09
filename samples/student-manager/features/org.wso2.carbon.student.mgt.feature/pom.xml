@@ -36,6 +36,7 @@
             <plugin>
                 <groupId>org.wso2.maven</groupId>
                 <artifactId>carbon-p2-plugin</artifactId>
+                <extensions>true</extensions>
                 <version>${carbon.p2.plugin.version}</version>
                 <executions>
                     <execution>
@@ -53,10 +54,8 @@
                                 </properties>
                             </adviceFile>
                             <includedFeatures>
-                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.student.mgt.server.feature
-                                </includedFeatureDef>
-                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.student.mgt.ui.feature
-                                </includedFeatureDef>
+                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.student.mgt.server.feature:${student.manager.version}</includedFeatureDef>
+                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.student.mgt.ui.feature:${student.manager.version}</includedFeatureDef>
                             </includedFeatures>
                         </configuration>
                     </execution>

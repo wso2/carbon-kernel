@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2005-2026, WSO2 LLC. (http://www.wso2.com).
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.core.init;
 
 import org.apache.axis2.AxisFault;
@@ -36,19 +36,19 @@ import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.core.runtime.adaptor.EclipseStarter;
-import org.eclipse.equinox.http.helper.FilterServletAdaptor;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.http.HttpContext;
-import org.osgi.service.http.HttpService;
-import org.osgi.service.http.NamespaceException;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.http.context.ServletContextHelper;
+import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.base.CarbonContextHolderBase;
 import org.wso2.carbon.base.api.ServerConfigurationService;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.CarbonAxisConfigurator;
 import org.wso2.carbon.core.CarbonConfigurationContextFactory;
 import org.wso2.carbon.core.CarbonThreadCleanup;
@@ -61,10 +61,9 @@ import org.wso2.carbon.core.deployment.OSGiAxis2ServiceDeployer;
 import org.wso2.carbon.core.deployment.RegistryBasedRepositoryUpdater;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.core.internal.CarbonCoreServiceComponent;
-import org.wso2.carbon.core.multitenancy.GenericArtifactUnloader;
 import org.wso2.carbon.core.internal.HTTPGetProcessorListener;
+import org.wso2.carbon.core.multitenancy.GenericArtifactUnloader;
 import org.wso2.carbon.core.multitenancy.MultitenantServerManager;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.multitenancy.utils.TenantAxisUtils;
 import org.wso2.carbon.core.security.CarbonJMXAuthenticator;
 import org.wso2.carbon.core.transports.CarbonServlet;
@@ -92,8 +91,6 @@ import org.wso2.carbon.utils.deployment.Axis2ServiceRegistry;
 import org.wso2.carbon.utils.deployment.GhostDeployerUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import javax.servlet.Filter;
-import javax.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -102,6 +99,7 @@ import java.net.SocketException;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -115,6 +113,10 @@ import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
+
+import javax.servlet.Filter;
+import javax.servlet.Servlet;
+import javax.servlet.ServletException;
 
 import static org.apache.axis2.transport.TransportListener.HOST_ADDRESS;
 
@@ -486,10 +488,7 @@ public final class CarbonServerManager implements Controllable {
                 new OSGiAxis2ServiceDeployer(serverConfigContext, bundleContext).registerBundleListener(); // This will register the OSGi bundle listener
             }
 
-            HttpService httpService = CarbonCoreDataHolder.getInstance().getHttpService();
-            HttpContext defaultHttpContext = httpService.createDefaultHttpContext();
-
-            registerCarbonServlet(httpService, defaultHttpContext);
+            registerCarbonServlet();
 
             RealmService realmService = CarbonCoreDataHolder.getInstance().getRealmService();
             UserRealm teannt0Realm = realmService.getBootstrapRealm();
@@ -539,8 +538,8 @@ public final class CarbonServerManager implements Controllable {
         }
     }
 
-    private void registerCarbonServlet(HttpService httpService, HttpContext defaultHttpContext)
-            throws ServletException, NamespaceException, InvalidSyntaxException {
+    private void registerCarbonServlet() throws InvalidSyntaxException {
+
         if (!"false".equals(serverConfig.getFirstProperty("RequireCarbonServlet"))) {
             CarbonServlet carbonServlet = new CarbonServlet(serverConfigContext);
             String servicePath = "/services";
@@ -552,17 +551,31 @@ public final class CarbonServerManager implements Controllable {
                 servicePath = "/" + servicePath;
             }
             ServiceReference filterServiceReference = bundleContext.getServiceReference(Filter.class.getName());
+
+            // Register CarbonServlet with carbonContext (unified context)
+            // The carbonContext is registered by CarbonUIServiceComponent with CarbonSecuredHttpContext
+            // which bypasses security for /services/* paths (they use Axis2 authentication)
+            Dictionary<String, Object> carbonServletProperties = new Hashtable<>();
+            carbonServletProperties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, servicePath + "/*");
+            carbonServletProperties.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=carbonContext)");
+            ServiceRegistration<Servlet> servletServiceRegistration =
+                    bundleContext.registerService(Servlet.class, carbonServlet, carbonServletProperties);
+            CarbonCoreDataHolder.getInstance().addServiceRegistration(servletServiceRegistration);
+
             if (filterServiceReference != null) {
                 Filter filter = (Filter) bundleContext.getService(filterServiceReference);
-                httpService.registerServlet(servicePath, new FilterServletAdaptor(filter, null, carbonServlet), null, defaultHttpContext);
-            } else {
-                httpService.registerServlet(servicePath, carbonServlet, null, defaultHttpContext);
+                Dictionary<String, String> props = new Hashtable<>();
+                props.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_PATTERN, servicePath + "/*");
+                props.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=carbonContext)");
+                ServiceRegistration<Filter> filterServiceRegistration =
+                        bundleContext.registerService(Filter.class, filter, props);
+                CarbonCoreDataHolder.getInstance().addServiceRegistration(filterServiceRegistration);
             }
             HTTPGetProcessorListener getProcessorListener =
                     new HTTPGetProcessorListener(carbonServlet, bundleContext);
             // Check whether there are any services that expose HTTPGetRequestProcessors
             ServiceReference[] getRequestProcessors =
-                    bundleContext.getServiceReferences((String)null,
+                    bundleContext.getServiceReferences((String) null,
                             "(" + CarbonConstants.HTTP_GET_REQUEST_PROCESSOR_SERVICE + "=*)");
 
             // If there are any we need to register them explicitly
@@ -941,17 +954,8 @@ public final class CarbonServerManager implements Controllable {
                 ((Map) property).clear();
             }
 
-            // un-registering the carbonServlet
-            String servicePath = "/services";   // default path
-            String path = serverConfigContext.getServicePath();
-            if (path != null) {
-                servicePath = path.trim();
-            }
-            if (!servicePath.startsWith("/")) {
-                servicePath = "/" + servicePath;
-            }
             try {
-                CarbonCoreDataHolder.getInstance().getHttpService().unregister(servicePath);
+                CarbonCoreDataHolder.getInstance().unregisterServiceRegistrations();
             } catch (Exception e) {
                 log.error("Failed to Un-register Servlets ", e);
             }

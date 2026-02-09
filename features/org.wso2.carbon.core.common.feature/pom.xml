@@ -36,6 +36,7 @@
             <plugin>
                 <groupId>org.wso2.maven</groupId>
                 <artifactId>carbon-p2-plugin</artifactId>
+                <extensions>true</extensions>
                 <executions>
                     <execution>
                         <id>4-p2-feature-generation</id>
@@ -54,20 +55,17 @@
                             </adviceFile>
                             <bundles>
                                 <bundleDef>
-                                    org.eclipse.equinox:org.eclipse.equinox.http.servlet:${version.equinox.http.servlet}
+                                    org.eclipse.platform:org.eclipse.equinox.http.servlet:${version.equinox.http.servlet}
+                                </bundleDef>
+                                <bundleDef>org.wso2.orbit.org.apache.tomcat:tomcat-jsp-api-jdk21:${orbit.version.tomcat.jsp.api}
+                                </bundleDef>
+                                <bundleDef>org.wso2.orbit.org.apache.tomcat:tomcat-el-api-jdk21:${orbit.version.tomcat.el.api}
                                 </bundleDef>
                                 <bundleDef>
-                                    org.eclipse.equinox:org.eclipse.equinox.http.helper:${version.equinox.http.helper}
-                                </bundleDef>
-                                <bundleDef>org.wso2.orbit.org.apache.tomcat:tomcat-jsp-api:${orbit.version.tomcat.jsp.api}
-                                </bundleDef>
-                                <bundleDef>org.wso2.orbit.org.apache.tomcat:tomcat-el-api:${orbit.version.tomcat.el.api}
-                                </bundleDef>
-                                <bundleDef>
-                                    org.wso2.orbit.org.apache.tomcat:tomcat-servlet-api:${orbit.version.tomcat.servlet.api}
+                                    org.wso2.orbit.org.apache.tomcat:tomcat-servlet-api-jdk21:${orbit.version.tomcat.servlet.api}
                                 </bundleDef>
                                 <bundleDef>antlr.wso2:antlr:${antlr.wso2.version}</bundleDef>
-                                <bundleDef>org.wso2.orbit.org.apache.tomcat:tomcat:${orbit.version.tomcat}</bundleDef>
+                                <bundleDef>org.wso2.orbit.org.apache.tomcat:tomcat-jdk21:${orbit.version.tomcat}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.tomcat:tomcat-catalina-ha:${orbit.version.tomcat.ha}
                                 </bundleDef>
                                 <bundleDef>au.com.bytecode.opencsv.wso2:opencsv:${version.opencsv}</bundleDef>
@@ -76,9 +74,9 @@
                                 <bundleDef>org.apache.axis2.wso2:axis2-json:${orbit.version.axis2}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.codehaus.jettison:jettison:${orbit.version.jettison}</bundleDef>
                                 <bundleDef>commons-pool.wso2:commons-pool:${orbit.version.commons.pool}</bundleDef>
-                                <bundleDef>org.apache.abdera.wso2:abdera:${orbit.version.abdera}</bundleDef>
+                                <bundleDef>org.apache.abdera.wso2:abdera-jdk21:${orbit.version.abdera}</bundleDef>
                                 <bundleDef>org.apache.axis2.wso2:axis2:${orbit.version.axis2}</bundleDef>
-                                <bundleDef>org.apache.tiles.wso2:tiles-jsp:${orbit.version.tiles}</bundleDef>
+                                <bundleDef>org.wso2.orbit.org.apache.tiles:tiles-jsp-jdk21:${orbit.version.tiles}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.xmlbeans:xmlbeans:${version.xmlbeans}</bundleDef>
                                 <bundleDef>org.apache.ws.commons.axiom.wso2:axiom:${orbit.version.axiom}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.neethi:neethi:${neethi.osgi.version}</bundleDef>
@@ -90,7 +88,7 @@
                                 <bundleDef>
                                     backport-util-concurrent.wso2:backport-util-concurrent:${version.backport.util.concurrent}
                                 </bundleDef>
-                                <bundleDef>org.wso2.orbit.commons-fileupload:commons-fileupload:${version.commons.fileupload}
+                                <bundleDef>org.wso2.orbit.commons-fileupload:commons-fileupload-jdk21:${version.commons.fileupload}
                                 </bundleDef>
                                 <bundleDef>
                                     org.wso2.orbit.commons-httpclient:commons-httpclient:${orbit.version.commons.httpclient}
@@ -172,6 +170,8 @@
                                     org.wso2.carbon.crypto:org.wso2.carbon.crypto.provider:${carbon.crypto.version}
                                 </bundleDef>
                                 <bundleDef>org.wso2.orbit.sun.xml.bind:jaxb:${version.org.wso2.orbit.javax.xml.bind.jaxb}</bundleDef>
+                                <bundleDef>org.wso2.orbit.javax.activation:activation:1.1.1.wso2v4</bundleDef>
+                                <bundleDef>javax.xml.soap:javax.xml.soap-api:1.4.0</bundleDef>
                             </bundles>
                         </configuration>
                     </execution>

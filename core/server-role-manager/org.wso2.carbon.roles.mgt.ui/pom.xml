@@ -60,7 +60,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.orbit.org.owasp.encoder</groupId>
-            <artifactId>encoder</artifactId>
+            <artifactId>encoder-jdk21</artifactId>
         </dependency>
     </dependencies>
 

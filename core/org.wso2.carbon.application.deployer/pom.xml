@@ -37,7 +37,7 @@
             <artifactId>org.eclipse.osgi</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.osgi</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.osgi.services</artifactId>
         </dependency>
         <dependency>
@@ -116,6 +116,9 @@
                             org.osgi.framework.*,
                             *;resolution:=optional
                         </Import-Package>
+                        <Provide-Capability>
+                            osgi.service;objectClass=org.wso2.carbon.application.deployer.service.ApplicationManagerService
+                        </Provide-Capability>
                         <Axis2Deployer>CappDeployer</Axis2Deployer>
                     </instructions>
                 </configuration>

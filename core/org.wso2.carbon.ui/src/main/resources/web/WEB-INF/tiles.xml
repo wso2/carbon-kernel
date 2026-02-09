@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+        "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+        "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+
+    <!-- =======================================================  -->
+    <!-- Master definition  									  -->
+    <!-- =======================================================  -->
+
+    <definition name="main.layout" template="/carbon/admin/layout/template.jsp">
+        <put-attribute name="title" value="WSO2 Management Console"/>
+        <put-attribute name="header" value="/carbon/admin/layout/header.jsp"/>
+        <put-attribute name="region1" value="/carbon/admin/layout/region1.jsp"/>
+        <put-attribute name="region2" value="/carbon/admin/layout/region2.jsp"/>
+        <put-attribute name="region3" value="/carbon/admin/layout/region3.jsp"/>                
+        <put-attribute name="region4" value="/carbon/admin/layout/region4.jsp"/>
+        <put-attribute name="region5" value="/carbon/admin/layout/region5.jsp"/>
+        <put-attribute name="body" value="/carbon/admin/layout/defaultBody.jsp"/>
+        <put-attribute name="breadcrumb" value="/carbon/admin/layout/breadcrumb.jsp"/>              
+        <put-attribute name="footer" value="/carbon/admin/layout/footer.jsp"/>
+    </definition>
+    
+
+
+    <!-- 
+    <definition name="main.welcome" extends="main.layout">
+        <put-attribute name="body" value="/carbon/admin/jsp/test.jsp"/>
+    </definition>
+    -->
+</tiles-definitions>
