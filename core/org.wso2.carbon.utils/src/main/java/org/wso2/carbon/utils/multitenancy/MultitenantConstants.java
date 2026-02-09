@@ -37,6 +37,8 @@ public class MultitenantConstants {
     public static final String TENANT_DOMAIN_HEADER_NAMESPACE = "http://cloud.wso2.com/";
     public static final String TENANT_DOMAIN_HEADER_NAME = "TenantDomain";
     public static final String SUPER_TENANT_DOMAIN_NAME = "carbon.super";
+    // Introduced for tenant ec key pair generation
+    public static final String TENANT_EC_KEY_SUFFIX = "_ec";
     public static final int INVALID_TENANT_ID = -1;
 
     public static final String REQUIRE_SUPER_TENANT = "require-super-tenant";

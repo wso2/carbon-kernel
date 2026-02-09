@@ -40,6 +40,8 @@ import java.util.Iterator;
 
 import javax.xml.namespace.QName;
 
+import static org.wso2.carbon.utils.multitenancy.MultitenantConstants.TENANT_EC_KEY_SUFFIX;
+
 public class KeyStoreUtil {
 
     /**
@@ -51,9 +53,9 @@ public class KeyStoreUtil {
     public static String getPrivateKeyAlias(KeyStore store) throws KeyStoreException {
         String alias = null;
         Enumeration<String> enums = store.aliases();
-        while(enums.hasMoreElements()){
+        while (enums.hasMoreElements()) {
             String name = enums.nextElement();
-            if(store.isKeyEntry(name)){
+            if (store.isKeyEntry(name) && !name.endsWith(TENANT_EC_KEY_SUFFIX)) {
                 alias = name;
                 break;
             }
@@ -253,5 +255,40 @@ public class KeyStoreUtil {
         if (!Arrays.asList(keyStoreProperties).contains(propertyName)) {
             throw new CarbonException("Requested key store configuration is invalid.");
         }
+    }
+
+    /**
+     * Get tenant EC Key Alias
+     *
+     * @return Tenant EC Key Alias
+     * @throws CarbonException Exception Carbon Exception for tenants other than tenant -1234
+     */
+    public static String getTenantECKeyAlias(String tenantDomain) throws CarbonException {
+
+        if (StringUtils.isBlank(tenantDomain)) {
+            throw new CarbonException("Tenant domain must not be empty.");
+        } else {
+            return tenantDomain +  TENANT_EC_KEY_SUFFIX;
+        }
+    }
+
+
+    /**
+     * Get the primary key alias, only allowed for tenant -1234
+     *
+     * @param keyStore Primary Key Store
+     * @return Primary Key Alias
+     * @throws KeyStoreException Exception for invalid primary key alias
+     */
+    public static String getPrimaryKeyAlias(KeyStore keyStore) throws KeyStoreException {
+
+        ServerConfigurationService config = CarbonCoreDataHolder.getInstance().getServerConfigurationService();
+        String alias = StringUtils.trim(config.getFirstProperty(RegistryResources.SecurityManagement
+                .SERVER_PRIMARY_KEYSTORE_KEY_ALIAS));
+        if (StringUtils.isBlank(alias) || !keyStore.isKeyEntry(alias)) {
+            throw new IllegalStateException("Configured primary keystore key alias is invalid " +
+                    "or does not exist as a key entry");
+        }
+        return alias;
     }
 }
