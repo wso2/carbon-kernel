@@ -145,6 +145,12 @@ public final class RegistryResources {
         public static final String SERVER_PRIVATE_KEY_PASSWORD = "Security.KeyStore.KeyPassword";
         public static final String SERVER_PRIMARY_KEYSTORE_TYPE = "Security.KeyStore.Type";
 
+        //HSM key store
+        public static final String SERVER_HSM_KEYSTORE_ENABLED = "Security.HSMKeyStore.Enabled";
+        public static final String SERVER_HSM_KEYSTORE_PROVIDER_CONFIG_FILE = "Security.HSMKeyStore.ProviderConfiguration";
+        public static final String SERVER_HSM_KEYSTORE_PASSWORD = "Security.HSMKeyStore.Password";
+        public static final String SERVER_HSM_KEYSTORE_KEY_ALIAS = "Security.HSMKeyStore.KeyAlias";
+
         public static final String DEFAULT_SECURITY_CERTIFICATE_ALIAS = "wso2carbon";
 
         //Registry store
