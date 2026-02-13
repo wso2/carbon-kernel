@@ -554,6 +554,7 @@ public class KeyStoreManager {
 
                 ServerConfigurationService config = this.getServerConfigService();
                 if (isHSMEnabled()) {
+                    log.info("HSM keystore is enabled. Loading HSM keystore.");
                     primaryKeyStore = getHSMKeyStore();
                 } else {
                     String file =
@@ -611,6 +612,7 @@ public class KeyStoreManager {
         KeyStore ks = KeyStore.getInstance(PKCS11, pkcs11);
         ks.load(null, this.getServerConfigService()
                 .getFirstProperty(RegistryResources.SecurityManagement.SERVER_HSM_KEYSTORE_PASSWORD).toCharArray());
+        log.info("HSM keystore loaded successfully.");
         return ks;
     }
 
