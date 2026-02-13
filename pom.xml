@@ -23,7 +23,7 @@
         <tag>HEAD</tag>
     </scm>
 
-    <!--Moved the modules out of default profile  and disabled all the profiles-->
+    <!--Moved the modules out of default profile  and disabled all the profiles.-->
 
     <build>
         <extensions>
