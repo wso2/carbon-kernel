@@ -591,6 +591,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 prepStmt.setInt(4, tenantId);
             }
             List<String> multiValuedProperties = null;
+            List<String> largeStorageRequiredAttributes = null;
             String multiAttributeSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
 
             rs = prepStmt.executeQuery();
@@ -603,11 +604,25 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
                 // Handle multi valued attributes.
                 if (map.containsKey(name)) {
+                    /* Handle attributes that require large storage. Append the new value to the existing value
+                       since the existing value may be truncated due to the length limit of the database column. */
+                    if (largeStorageRequiredAttributes == null) {
+                        largeStorageRequiredAttributes = findLargeStorageRequiredAttributes();
+                    }
+                    if (StringUtils.isNotEmpty(value) && largeStorageRequiredAttributes.contains(name)) {
+                        value = map.get(name) + value;
+                    }
+
+                    // Handle multivalued attributes. Append the new value to the existing value with a separator.
                     if (multiValuedProperties == null) {
                         multiValuedProperties = findMultiValuedAttributes();
                     }
                     if (multiValuedProperties.contains(name)) {
-                        value = map.get(name) + multiAttributeSeparator + value;
+                        if (!largeStorageRequiredAttributes.contains(name)) {
+                            value = map.get(name) + multiAttributeSeparator + value;
+                        } else if (StringUtils.isEmpty(value)){
+                            value = map.get(name) + multiAttributeSeparator;
+                        }
                     }
                 }
                 map.put(name, value);
@@ -2051,6 +2066,14 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             List<String> multiValuedAttributes = findMultiValuedAttributes();
             multiValuedAttributes = multiValuedAttributes.stream().filter(receivedProperties::contains)
                     .collect(Collectors.toList());
+
+            /* Large storage required attributes are also treated as multivalued attributes as they require special
+               handling in the user store. */
+            List<String> largeStorageRequiredAttributes = findLargeStorageRequiredAttributes();
+            largeStorageRequiredAttributes = largeStorageRequiredAttributes.stream()
+                    .filter(receivedProperties::contains).collect(Collectors.toList());
+            multiValuedAttributes.addAll(largeStorageRequiredAttributes);
+
             deleteMultiValuedAttributes(dbConnection, userId, multiValuedAttributes, profileName);
             multiValuedAttributes.forEach(alreadyAvailableProperties.keySet()::remove);
             addPropertiesWithID(dbConnection, userId, filterNewlyAddedProperties(processedClaimAttributes,
@@ -2867,6 +2890,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 prepStmt.setInt(index, tenantId);
             }
             List<String> multiValuedAttributes = null;
+            List<String> largeStorageRequiredAttributes = null;
             String multiAttributeSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
 
             rs = prepStmt.executeQuery();
@@ -2882,11 +2906,25 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     Map<String, String> map = usersPropertyValuesMap.get(userID);
                     // Handle multi valued attributes.
                     if (map.containsKey(name)) {
+                        /* Handle attributes that require large storage. Append the new value to the existing value
+                       since the existing value may be truncated due to the length limit of the database column. */
+                        if (largeStorageRequiredAttributes == null) {
+                            largeStorageRequiredAttributes = findLargeStorageRequiredAttributes();
+                        }
+                        if (largeStorageRequiredAttributes.contains(name)) {
+                            value = map.get(name) + value;
+                        }
+
+                        // Handle multivalued attributes. Append the new value to the existing value with a separator.
                         if (multiValuedAttributes == null) {
                             multiValuedAttributes = findMultiValuedAttributes();
                         }
                         if (multiValuedAttributes.contains(name)) {
-                            value = map.get(name) + multiAttributeSeparator + value;
+                            if (!largeStorageRequiredAttributes.contains(name)) {
+                                value = map.get(name) + multiAttributeSeparator + value;
+                            } else if (StringUtils.isEmpty(value)){
+                                value = map.get(name) + multiAttributeSeparator;
+                            }
                         }
                     }
                     map.put(name, value);
@@ -3065,6 +3103,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
 
         List<String> multiValuedAttributes = findMultiValuedAttributes();
+        List<String> largeStorageRequiredAttributes = findLargeStorageRequiredAttributes();
         String multiAttributeSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
 
         PreparedStatement prepStmt = null;
@@ -3090,7 +3129,13 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 List<String> propertyValues = new ArrayList<>();
                 if (multiValuedAttributes.contains(propertyName)) {
                     String[] values = entry.getValue().split(multiAttributeSeparator);
-                    propertyValues.addAll(Arrays.asList(values));
+                    if (largeStorageRequiredAttributes.contains(propertyName)) {
+                        propertyValues.addAll(chunkLargeAttributeValues(values, true));
+                    } else {
+                        propertyValues.addAll(Arrays.asList(values));
+                    }
+                } else if (largeStorageRequiredAttributes.contains(propertyName)) {
+                    propertyValues.addAll(chunkLargeAttributeValues(new String[] { entry.getValue() }, false));
                 } else {
                     propertyValues.add(entry.getValue());
                 }
@@ -3142,6 +3187,25 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
             DatabaseUtil.closeAllConnections(null, prepStmt);
         }
+    }
+
+    private List<String> chunkLargeAttributeValues(String[] values, boolean isMultiValuedAttribute) {
+
+        List<String> valueChunks = new ArrayList<>();
+        for (int i = 0; i < values.length; i++) {
+            int chunkSize = 800;
+            int startIndex = 0;
+            int valueLength = values[i].length();
+            while (startIndex < valueLength) {
+                int endIndex = Math.min(startIndex + chunkSize, valueLength);
+                valueChunks.add(values[i].substring(startIndex, endIndex));
+                startIndex = endIndex;
+            }
+            if (isMultiValuedAttribute && i < values.length -1) {
+                valueChunks.add("");
+            }
+        }
+        return valueChunks;
     }
 
     /**
