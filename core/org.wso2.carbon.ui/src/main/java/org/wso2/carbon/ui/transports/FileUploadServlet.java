@@ -50,19 +50,6 @@ public class FileUploadServlet extends javax.servlet.http.HttpServlet {
         this.webContext = webContext;
     }
 
-    /**
-     * Constructor that accepts a pre-created FileUploadExecutorManager.
-     * This is used when the manager needs to be registered as an OSGi service before
-     * bundle deployment occurs.
-     */
-    public FileUploadServlet(BundleContext context, ConfigurationContext configCtx, 
-                             String webContext, FileUploadExecutorManager executorManager) {
-        this.bundleContext = context;
-        this.configContext = configCtx;
-        this.webContext = webContext;
-        this.fileUploadExecutorManager = executorManager;
-    }
-
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException, IOException {
 
@@ -84,12 +71,9 @@ public class FileUploadServlet extends javax.servlet.http.HttpServlet {
     public void init(ServletConfig servletConfig) throws ServletException {
         this.servletConfig = servletConfig;
         try {
-            // Only create a new FileUploadExecutorManager if one wasn't provided via constructor
-            if (fileUploadExecutorManager == null) {
-                fileUploadExecutorManager = new FileUploadExecutorManager(bundleContext, configContext, webContext);
-                //Registering FileUploadExecutor Manager as an OSGi service
-                bundleContext.registerService(FileUploadExecutorManager.class.getName(), fileUploadExecutorManager, null);
-            }
+            fileUploadExecutorManager = new FileUploadExecutorManager(bundleContext, configContext, webContext);
+            //Registering FileUploadExecutor Manager as an OSGi service
+            bundleContext.registerService(FileUploadExecutorManager.class.getName(), fileUploadExecutorManager, null);
         } catch (CarbonException e) {
             log.error("Exception occurred while trying to initialize FileUploadServlet", e);
             throw new ServletException(e);
