@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
@@ -48,6 +49,7 @@ import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.common.UniqueIDPaginatedSearchResult;
 import org.wso2.carbon.user.core.common.UniqueIDPaginatedUsernameSearchResult;
 import org.wso2.carbon.user.core.common.User;
+import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
 import org.wso2.carbon.user.core.model.Condition;
 import org.wso2.carbon.user.core.model.ExpressionAttribute;
@@ -620,8 +622,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     if (multiValuedProperties.contains(name)) {
                         if (!largeStorageRequiredAttributes.contains(name)) {
                             value = map.get(name) + multiAttributeSeparator + value;
-                        } else if (StringUtils.isEmpty(value)){
-                            value = map.get(name) + multiAttributeSeparator;
                         }
                     }
                 }
@@ -2889,8 +2889,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 prepStmt.setInt(index++, tenantId);
                 prepStmt.setInt(index, tenantId);
             }
-            List<String> multiValuedAttributes = null;
-            List<String> largeStorageRequiredAttributes = null;
+            List<String> multiValuedAttributes = findMultiValuedAttributes();
+            List<String> largeStorageRequiredAttributes = findLargeStorageRequiredAttributes();
             String multiAttributeSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
 
             rs = prepStmt.executeQuery();
@@ -2908,17 +2908,11 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     if (map.containsKey(name)) {
                         /* Handle attributes that require large storage. Append the new value to the existing value
                        since the existing value may be truncated due to the length limit of the database column. */
-                        if (largeStorageRequiredAttributes == null) {
-                            largeStorageRequiredAttributes = findLargeStorageRequiredAttributes();
-                        }
                         if (largeStorageRequiredAttributes.contains(name)) {
                             value = map.get(name) + value;
                         }
 
                         // Handle multivalued attributes. Append the new value to the existing value with a separator.
-                        if (multiValuedAttributes == null) {
-                            multiValuedAttributes = findMultiValuedAttributes();
-                        }
                         if (multiValuedAttributes.contains(name)) {
                             if (!largeStorageRequiredAttributes.contains(name)) {
                                 value = map.get(name) + multiAttributeSeparator + value;
@@ -3124,18 +3118,16 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 userAttributes.put(attributeName, attributeValue);
             }
 
+            int chunkSize = getChunkSize();
+            int maxLength = getMaxAttributeValueLength();
             for (Map.Entry<String, String> entry : userAttributes.entrySet()) {
                 String propertyName = entry.getKey();
                 List<String> propertyValues = new ArrayList<>();
                 if (multiValuedAttributes.contains(propertyName)) {
                     String[] values = entry.getValue().split(multiAttributeSeparator);
-                    if (largeStorageRequiredAttributes.contains(propertyName)) {
-                        propertyValues.addAll(chunkLargeAttributeValues(values, true));
-                    } else {
-                        propertyValues.addAll(Arrays.asList(values));
-                    }
+                    propertyValues.addAll(Arrays.asList(values));
                 } else if (largeStorageRequiredAttributes.contains(propertyName)) {
-                    propertyValues.addAll(chunkLargeAttributeValues(new String[] { entry.getValue() }, false));
+                    propertyValues.addAll(chunkLargeAttributeValues(entry.getValue(), maxLength, chunkSize));
                 } else {
                     propertyValues.add(entry.getValue());
                 }
@@ -3189,21 +3181,50 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
     }
 
-    private List<String> chunkLargeAttributeValues(String[] values, boolean isMultiValuedAttribute) {
+    private int getChunkSize() {
+        int chunkSize = 800;
+        try {
+            ServerConfigurationService config =
+                    UserStoreMgtDSComponent.getServerConfigurationService();
+            String chunkSizeStr = config.getFirstProperty(JDBCRealmConstants.PROP_LARGE_ATTRIBUTE_VALUE_CHUNK_SIZE);
+            chunkSize = Integer.parseInt(chunkSizeStr);
+        } catch (NumberFormatException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Invalid chunk size configured for large attribute values. Defaulting to 800 characters.", e);
+            }
+        }
+        return chunkSize;
+    }
+
+    private int getMaxAttributeValueLength() {
+        int maxLength = 5000;
+        try {
+            ServerConfigurationService config =
+                    UserStoreMgtDSComponent.getServerConfigurationService();
+            String maxLengthStr = config.getFirstProperty(JDBCRealmConstants.PROP_LARGE_ATTRIBUTE_VALUE_MAX_LENGTH);
+            maxLength = Integer.parseInt(maxLengthStr);
+        } catch (NumberFormatException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Invalid maximum attribute value length configured. Defaulting to 4000 characters.", e);
+            }
+        }
+        return maxLength;
+    }
+
+    private List<String> chunkLargeAttributeValues(String value, int maxLength, int chunkSize)
+            throws UserStoreClientException {
 
         List<String> valueChunks = new ArrayList<>();
-        for (int i = 0; i < values.length; i++) {
-            int chunkSize = 800;
-            int startIndex = 0;
-            int valueLength = values[i].length();
-            while (startIndex < valueLength) {
-                int endIndex = Math.min(startIndex + chunkSize, valueLength);
-                valueChunks.add(values[i].substring(startIndex, endIndex));
-                startIndex = endIndex;
-            }
-            if (isMultiValuedAttribute && i < values.length -1) {
-                valueChunks.add("");
-            }
+        int startIndex = 0;
+        int valueLength = value.length();
+        if (valueLength <= maxLength) {
+            throw new UserStoreClientException("The value length is within the maximum length limit. " +
+                    "No need to chunk the value. Value: " + value);
+        }
+        while (startIndex < valueLength) {
+            int endIndex = Math.min(startIndex + chunkSize, valueLength);
+            valueChunks.add(value.substring(startIndex, endIndex));
+            startIndex = endIndex;
         }
         return valueChunks;
     }

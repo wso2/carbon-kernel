@@ -774,4 +774,10 @@
         </OpenTelemetry>
     </Tracing>
 
+    <JDBCUserStore>
+        <enableOptimizedJDBCSearch>true</enableOptimizedJDBCSearch>
+        <largeAttributeValueChunkSize>600</largeAttributeValueChunkSize>
+        <largeAttributeValueMaxLength>3000</largeAttributeValueMaxLength>
+    </JDBCUserStore>
+
 </Server>

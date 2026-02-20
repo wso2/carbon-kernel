@@ -238,6 +238,8 @@
   "remote_logging.encrypt_secrets": false,
   "legacy_authz_runtime.enable": true,
   "jdbc_user_store.enable_optimized_jdbc_search": true,
+  "jdbc_user_store.large_attribute_value_chunk_size": 600,
+  "jdbc_user_store.large_attribute_value_max_length": 3000,
   "user_store_commons.enable_circuit_breaker_for_user_stores": true,
   "user_store_commons.max_connection_retry_count": "5",
   "user_store_commons.min_connection_retry_delay_in_milli_seconds": "60000",

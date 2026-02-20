@@ -583,6 +583,8 @@ public final class JDBCRealmConstants {
     public static final String ALTERNATE_USERNAME_ALLOWED = "alternateUsernameAllowed";
     public static final String COMMIT_ON_RETURN = "commitOnReturn";
     public static final String ROLLBACK_ON_RETURN = "rollbackOnReturn";
+    public static final String PROP_LARGE_ATTRIBUTE_VALUE_CHUNK_SIZE = "JDBCUserStore.largeAttributeValueChunkSize";
+    public static final String PROP_LARGE_ATTRIBUTE_VALUE_MAX_LENGTH = "JDBCUserStore.largeAttributeValueMaxLength";
 
     public static final class TX_ISOLATION_LEVELS {
         public static final String NONE = "NONE";
