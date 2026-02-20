@@ -17,8 +17,6 @@
  */
 package org.wso2.carbon.ui.internal;
 
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.catalina.Loader;
 import org.apache.catalina.core.DefaultInstanceManager;
@@ -29,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.InstanceManager;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -56,8 +55,8 @@ import org.wso2.carbon.ui.CarbonSecuredHttpContext;
 import org.wso2.carbon.ui.CarbonServletContextInitializer;
 import org.wso2.carbon.ui.CarbonUIAuthenticator;
 import org.wso2.carbon.ui.CarbonUIUtil;
-import org.wso2.carbon.ui.ContextPathServletAdaptor;
 import org.wso2.carbon.ui.DefaultCarbonAuthenticator;
+import org.wso2.carbon.ui.TenantAwareCsrfJsFilter;
 import org.wso2.carbon.ui.TextJavascriptHandler;
 import org.wso2.carbon.ui.TilesJspServlet;
 import org.wso2.carbon.ui.UIAuthenticationExtender;
@@ -73,36 +72,17 @@ import org.wso2.carbon.ui.util.UIAnnouncementDeployer;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.ContentHandler;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletContextListener;
-import javax.xml.namespace.QName;
-import javax.xml.stream.FactoryConfigurationError;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-
-import static org.wso2.carbon.CarbonConstants.PRODUCT_XML;
-import static org.wso2.carbon.CarbonConstants.PRODUCT_XML_PROPERTIES;
-import static org.wso2.carbon.CarbonConstants.PRODUCT_XML_PROPERTY;
-import static org.wso2.carbon.CarbonConstants.PRODUCT_XML_WSO2CARBON;
-import static org.wso2.carbon.CarbonConstants.WSO2CARBON_NS;
 
 @Component(name = "core.ui.dscomponent", immediate = true)
 public class CarbonUIServiceComponent {
@@ -359,7 +339,16 @@ public class CarbonUIServiceComponent {
             csrfFilterProps.put("service.ranking", "100");
             
             context.registerService(Filter.class, csrfGuardFilter, csrfFilterProps);
-            
+
+            // Register TenantAwareCsrfJsFilter filter.
+            Filter csrfJsFilterCarbon = new TenantAwareCsrfJsFilter();
+            Dictionary<String, Object> csrfJsFilterCarbonProps = new Hashtable<>();
+            csrfJsFilterCarbonProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_PATTERN, "/t/*");
+            csrfJsFilterCarbonProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_NAME, "TenantAwareCsrfJsFilter");
+            csrfJsFilterCarbonProps.put(Constants.SERVICE_RANKING, Integer.valueOf(200));
+            csrfJsFilterCarbonProps.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=carbonContext)");
+            context.registerService("javax.servlet.Filter", csrfJsFilterCarbon, csrfJsFilterCarbonProps);
+
             if (log.isDebugEnabled()) {
                 log.debug("CSRFGuard components registered successfully using HTTP Whiteboard pattern");
             }
