@@ -600,7 +600,7 @@ public class KeyStoreManager {
      *
      */
     public KeyStore getHSMKeyStore() throws
-            KeyStoreException, CertificateException, IOException, NoSuchAlgorithmException {
+            KeyStoreException, CertificateException, IOException, NoSuchAlgorithmException, CarbonException {
 
         if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
             if (log.isDebugEnabled()) {
@@ -616,7 +616,7 @@ public class KeyStoreManager {
             log.info("HSM keystore loaded successfully.");
             return ks;
         }
-        return null;
+        throw new CarbonException(String.format(PERMISSION_DENIED_ERROR, "primary key store", "primary key store"));
     }
 
     /**
