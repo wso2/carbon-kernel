@@ -214,10 +214,10 @@ fi
 java_version=$("$JAVACMD" -version 2>&1 | awk -F '"' '/version/ {print $2}')
 java_version_formatted=$(echo "$java_version" | awk -F. '{printf("%02d%02d",$1,$2);}')
 
-if [ "$java_version_formatted" -ne 2100 ]; then
-   echo " [ERROR] WSO2 Identity Server requires JDK 21."
+if [ "$java_version_formatted" -lt 2100 ]; then
+   echo " [ERROR] WSO2 Identity Server requires JDK 21 or higher."
    echo " [ERROR] Current Java version detected: $java_version"
-   echo " [ERROR] Please set JAVA_HOME to a JDK 21 installation and try again."
+   echo " [ERROR] Please set JAVA_HOME to a JDK 21 or higher installation and try again."
    exit 1
 fi
 
