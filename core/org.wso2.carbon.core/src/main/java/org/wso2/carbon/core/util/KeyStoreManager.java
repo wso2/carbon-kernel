@@ -921,8 +921,10 @@ public class KeyStoreManager {
         }
         if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
             ServerConfigurationService config = this.getServerConfigService();
-            String alias = config
-                    .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_KEY_ALIAS);
+            String alias = isHSMEnabled() ?  config
+                    .getFirstProperty(RegistryResources.SecurityManagement.SERVER_HSM_KEYSTORE_KEY_ALIAS) :
+                    config.getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_KEY_ALIAS);
+            log.debug("Loading primary key store public certificate with alias: " + alias);
             return (X509Certificate) getPrimaryKeyStore().getCertificate(alias);
         }
         throw new CarbonException(String.format(PERMISSION_DENIED_ERROR, "primary key store", "primary key store"));
