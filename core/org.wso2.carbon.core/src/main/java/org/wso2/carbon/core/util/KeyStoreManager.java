@@ -602,18 +602,21 @@ public class KeyStoreManager {
     public KeyStore getHSMKeyStore() throws
             KeyStoreException, CertificateException, IOException, NoSuchAlgorithmException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("Loading HSM key store.");
+        if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
+            if (log.isDebugEnabled()) {
+                log.debug("Loading HSM key store.");
+            }
+            Provider pkcs11 = Security.getProvider(SUN_PKCS11);
+            pkcs11 = pkcs11.configure(this.getServerConfigService()
+                    .getFirstProperty(RegistryResources.SecurityManagement.SERVER_HSM_KEYSTORE_PROVIDER_CONFIG_FILE));
+            Security.addProvider(pkcs11);
+            KeyStore ks = KeyStore.getInstance(PKCS11, pkcs11);
+            ks.load(null, this.getServerConfigService()
+                    .getFirstProperty(RegistryResources.SecurityManagement.SERVER_HSM_KEYSTORE_PASSWORD).toCharArray());
+            log.info("HSM keystore loaded successfully.");
+            return ks;
         }
-        Provider pkcs11 = Security.getProvider(SUN_PKCS11);
-        pkcs11 = pkcs11.configure(this.getServerConfigService()
-                .getFirstProperty(RegistryResources.SecurityManagement.SERVER_HSM_KEYSTORE_PROVIDER_CONFIG_FILE));
-        Security.addProvider(pkcs11);
-        KeyStore ks = KeyStore.getInstance(PKCS11, pkcs11);
-        ks.load(null, this.getServerConfigService()
-                .getFirstProperty(RegistryResources.SecurityManagement.SERVER_HSM_KEYSTORE_PASSWORD).toCharArray());
-        log.info("HSM keystore loaded successfully.");
-        return ks;
+        return null;
     }
 
     /**
@@ -924,7 +927,9 @@ public class KeyStoreManager {
             String alias = isHSMEnabled() ?  config
                     .getFirstProperty(RegistryResources.SecurityManagement.SERVER_HSM_KEYSTORE_KEY_ALIAS) :
                     config.getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_KEY_ALIAS);
-            log.debug("Loading primary key store public certificate with alias: " + alias);
+            if (log.isDebugEnabled()) {
+                log.debug("Loading primary key store public certificate with alias: " + alias);
+            }
             return (X509Certificate) getPrimaryKeyStore().getCertificate(alias);
         }
         throw new CarbonException(String.format(PERMISSION_DENIED_ERROR, "primary key store", "primary key store"));
