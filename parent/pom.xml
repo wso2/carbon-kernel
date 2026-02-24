@@ -381,7 +381,7 @@
 
         <carbon.p2.plugin.version>5.5.1</carbon.p2.plugin.version>
 
-        <carbon.crypto.version>1.1.13</carbon.crypto.version>
+        <carbon.crypto.version>1.1.16</carbon.crypto.version>
 
         <neethi.osgi.version>2.0.4.wso2v5</neethi.osgi.version>
         <neethi.osgi.version.range>[2.0.4.wso2v4, 3.1.0)</neethi.osgi.version.range>
@@ -456,7 +456,7 @@
         <version.spring>3.1.0.RELEASE</version.spring>
 
         <!-- Apache Axis2 -->
-        <version.axis2>1.6.1-wso2v120</version.axis2>
+        <version.axis2>1.6.1-wso2v121</version.axis2>
         <imp.pkg.version.axis2>[1.6.1, 1.7.0)</imp.pkg.version.axis2>
         <version.addressing>${version.axis2}</version.addressing>
         <orbit.version.axis2>${version.axis2}</orbit.version.axis2>
@@ -598,7 +598,7 @@
         <orbit.version.qpid>0.12.wso2v1</orbit.version.qpid>
 
         <!--Wso2 Secure Vault -->
-        <securevault.version>1.1.7</securevault.version>
+        <securevault.version>1.1.17</securevault.version>
 
         <jdbc-pool.version>9.0.65.wso2v1</jdbc-pool.version>
 
@@ -639,7 +639,7 @@
         <version.checkstyle>7.8.2</version.checkstyle>
         <version.jackson>2.17.2</version.jackson>
         <version.guava>33.0.0-jre</version.guava>
-        <version.ciphertool>1.1.0</version.ciphertool>
+        <version.ciphertool>1.1.29</version.ciphertool>
         <xml.unit.verions>2.6.2</xml.unit.verions>
         <version.org.apache.felix.scr.ds-annotations>1.2.10</version.org.apache.felix.scr.ds-annotations>
         <maven.felix.scr.plugin.version>1.25.0</maven.felix.scr.plugin.version>

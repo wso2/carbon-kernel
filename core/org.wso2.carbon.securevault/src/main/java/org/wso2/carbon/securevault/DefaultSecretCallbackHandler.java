@@ -53,6 +53,8 @@ public class DefaultSecretCallbackHandler extends AbstractSecretCallbackHandler 
     private static final String KEY_PASSWORD = "key.password";
     private static final String CARBON_HOME = "carbon.home";
     private static final String PERSIST_PASSWORD = "persist.password";
+    public static final String ENCRYPTION_KEY_PASSWORD = "encryption.key.password";
+    public static final String IDENTITY_KEY_PASSWORD = "identity.key.password";
     private static String keyStorePassWord;
     private static String privateKeyPassWord;
     private static File keyDataFile;
@@ -133,29 +135,37 @@ public class DefaultSecretCallbackHandler extends AbstractSecretCallbackHandler 
                     } else{
                         Console console;
                         char[] password;
-                        if(sameKeyAndKeyStorePass){
+                        if (singleSecretCallback.getId().equals(ENCRYPTION_KEY_PASSWORD)) {
                             if ((console = System.console()) != null && (password = console.readPassword("[%s]",
-                                            "Enter KeyStore and Private Key Password :")) != null) {
-                                keyStorePassWord = String.valueOf(password);
-                                privateKeyPassWord= keyStorePassWord;
-                            }
-                        } else {
-                            if ((console = System.console()) != null &&
-                                (password = console.readPassword("[%s]",
-                                                            "Enter KeyStore Password :")) != null) {
-                                keyStorePassWord = String.valueOf(password);
-                            }
-                            if ((console = System.console()) != null &&
-                                (password = console.readPassword("[%s]",
-                                                            "Enter Private Key Password : ")) != null) {
+                                    "Enter Symmetric Encryption Key :")) != null) {
                                 privateKeyPassWord = String.valueOf(password);
+                            }
+                            singleSecretCallback.setSecret(privateKeyPassWord);
+                            return;
+                        } else {
+                            if (sameKeyAndKeyStorePass) {
+                                if ((console = System.console()) != null && (password = console.readPassword("[%s]",
+                                        "Enter KeyStore and Private Key Password :")) != null) {
+                                    keyStorePassWord = String.valueOf(password);
+                                    privateKeyPassWord = keyStorePassWord;
+                                }
+                            } else {
+                                if ((console = System.console()) != null && (password = console.readPassword("[%s]",
+                                        "Enter KeyStore Password :")) != null) {
+                                    keyStorePassWord = String.valueOf(password);
+                                }
+                                if ((console = System.console()) != null && (password = console.readPassword("[%s]",
+                                        "Enter Private Key Password : ")) != null) {
+                                    privateKeyPassWord = String.valueOf(password);
+                                }
                             }
                         }
                     }                    
                 }
             }
         }
-        if(singleSecretCallback.getId().equals("identity.key.password")){
+        if (singleSecretCallback.getId().equals(IDENTITY_KEY_PASSWORD) || singleSecretCallback.getId()
+                .equals(ENCRYPTION_KEY_PASSWORD)) {
             singleSecretCallback.setSecret(privateKeyPassWord);
         } else {
             singleSecretCallback.setSecret(keyStorePassWord);
