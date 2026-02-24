@@ -603,9 +603,7 @@ public class KeyStoreManager {
             KeyStoreException, CertificateException, IOException, NoSuchAlgorithmException, CarbonException {
 
         if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
-            if (log.isDebugEnabled()) {
-                log.debug("Loading HSM key store.");
-            }
+            log.debug("Loading HSM key store.");
             Provider pkcs11 = Security.getProvider(SUN_PKCS11);
             pkcs11 = pkcs11.configure(this.getServerConfigService()
                     .getFirstProperty(RegistryResources.SecurityManagement.SERVER_HSM_KEYSTORE_PROVIDER_CONFIG_FILE));
@@ -616,7 +614,7 @@ public class KeyStoreManager {
             log.info("HSM keystore loaded successfully.");
             return ks;
         }
-        throw new CarbonException(String.format(PERMISSION_DENIED_ERROR, "primary key store", "primary key store"));
+        throw new CarbonException(String.format(PERMISSION_DENIED_ERROR, "HSM key store", "HSM key store"));
     }
 
     /**
