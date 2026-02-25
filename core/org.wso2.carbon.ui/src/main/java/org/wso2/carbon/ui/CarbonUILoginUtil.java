@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.common.AuthenticationException;
 import org.wso2.carbon.ui.tracker.AuthenticatorRegistry;
 import org.wso2.carbon.utils.ServerConstants;
@@ -418,6 +419,9 @@ public final class CarbonUILoginUtil {
                 return false;
             }
 
+            // Destroy current context before authenticating. This is to prevent when context switching issue
+            // when switching between tenant and super tenant.
+            PrivilegedCarbonContext.destroyCurrentContext();
             authenticator.authenticate(request);
             session = request.getSession();
             session.setAttribute(CarbonSecuredHttpContext.CARBON_AUTHNETICATOR, authenticator);
