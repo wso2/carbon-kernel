@@ -834,7 +834,13 @@ public class KeyStoreManager {
             ServerConfigurationService config = this.getServerConfigService();
             String password = config
                     .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_PASSWORD);
-            return (PrivateKey) getPrimaryKeyStore().getKey(alias, password.toCharArray());
+            KeyStore primaryKeyStore;
+            try {
+                primaryKeyStore = getPrimaryKeyStore();
+            } catch (Exception e) {
+                throw new CarbonException("Error getting primary key store.", e);
+            }
+            return (PrivateKey) primaryKeyStore.getKey(alias, password.toCharArray());
         }
         throw new CarbonException("Permission denied for accessing primary key store. The primary key store is " +
                 "available only for the super tenant.");
