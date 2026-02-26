@@ -40,10 +40,9 @@ import java.util.Iterator;
 
 import javax.xml.namespace.QName;
 
-import static org.wso2.carbon.utils.multitenancy.MultitenantConstants.TENANT_ED_KEY_SUFFIX;
-
 public class KeyStoreUtil {
 
+    private static final String TENANT_EDDSA_KEY_SUFFIX = "_ed";
     /**
      * KeyStore name will be here.
      * 
@@ -55,7 +54,7 @@ public class KeyStoreUtil {
         Enumeration<String> enums = store.aliases();
         while (enums.hasMoreElements()) {
             String name = enums.nextElement();
-            if (store.isKeyEntry(name) && !name.endsWith(TENANT_ED_KEY_SUFFIX)) {
+            if (store.isKeyEntry(name) && !name.endsWith(TENANT_EDDSA_KEY_SUFFIX)) {
                 alias = name;
                 break;
             }
@@ -268,7 +267,7 @@ public class KeyStoreUtil {
         if (StringUtils.isBlank(tenantDomain)) {
             throw new CarbonException("Tenant domain must not be empty.");
         } else {
-            return tenantDomain +  TENANT_ED_KEY_SUFFIX;
+            return tenantDomain +  TENANT_EDDSA_KEY_SUFFIX;
         }
     }
 
