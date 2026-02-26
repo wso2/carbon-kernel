@@ -43,6 +43,7 @@ import javax.xml.namespace.QName;
 public class KeyStoreUtil {
 
     private static final String TENANT_EDDSA_KEY_SUFFIX = "_ed";
+
     /**
      * KeyStore name will be here.
      * 
@@ -269,25 +270,5 @@ public class KeyStoreUtil {
         } else {
             return tenantDomain +  TENANT_EDDSA_KEY_SUFFIX;
         }
-    }
-
-
-    /**
-     * Get the primary key alias, only allowed for tenant -1234
-     *
-     * @param keyStore Primary Key Store
-     * @return Primary Key Alias
-     * @throws KeyStoreException Exception for invalid primary key alias
-     */
-    public static String getPrimaryKeyAlias(KeyStore keyStore) throws KeyStoreException {
-
-        ServerConfigurationService config = CarbonCoreDataHolder.getInstance().getServerConfigurationService();
-        String alias = StringUtils.trim(config.getFirstProperty(RegistryResources.SecurityManagement
-                .SERVER_PRIMARY_KEYSTORE_KEY_ALIAS));
-        if (StringUtils.isBlank(alias) || !keyStore.isKeyEntry(alias)) {
-            throw new IllegalStateException("Configured primary keystore key alias is invalid " +
-                    "or does not exist as a key entry");
-        }
-        return alias;
     }
 }

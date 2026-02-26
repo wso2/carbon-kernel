@@ -865,6 +865,7 @@ public class KeyStoreManager {
      * @throws KeyStoreException Exception while retrieving public key from keystore
      */
     public PublicKey getDefaultPublicKey(String alias) throws CarbonException, KeyStoreException {
+
         if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
             try {
                 return getPrimaryKeyStore().getCertificate(alias).getPublicKey();
