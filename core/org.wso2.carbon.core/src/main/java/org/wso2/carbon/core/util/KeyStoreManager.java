@@ -851,7 +851,7 @@ public class KeyStoreManager {
             ServerConfigurationService config = this.getServerConfigService();
             String alias = config
                     .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_KEY_ALIAS);
-            return primaryKeyStore.getCertificate(alias).getPublicKey();
+            return getPrimaryKeyStore().getCertificate(alias).getPublicKey();
         }
         throw new CarbonException(String.format(PERMISSION_DENIED_ERROR, "primary key store", "primary key store"));
     }
@@ -866,7 +866,11 @@ public class KeyStoreManager {
      */
     public PublicKey getDefaultPublicKey(String alias) throws CarbonException, KeyStoreException {
         if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
-            return primaryKeyStore.getCertificate(alias).getPublicKey();
+            try {
+                return getPrimaryKeyStore().getCertificate(alias).getPublicKey();
+            } catch (Exception e) {
+                throw new CarbonException("Error getting primary key store.", e);
+            }
         }
         throw new CarbonException("Permission denied for accessing primary key store. The primary key store is " +
                 "available only for the super tenant.");
