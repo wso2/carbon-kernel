@@ -7,7 +7,7 @@ name: PR Builder
 
 on:
   pull_request:
-    branches: [4.10.x]
+    branches: [4.12.x]
   workflow_dispatch:
 
 # Cancel in-progress runs when a new run is triggered for the same PR

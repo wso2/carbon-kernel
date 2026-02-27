@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel-features</artifactId>
-        <version>4.12.0-SNAPSHOT</version>
+        <version>4.12.6-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -164,6 +164,8 @@
                                     org.wso2.carbon.crypto:org.wso2.carbon.crypto.provider:${carbon.crypto.version}
                                 </bundleDef>
                                 <bundleDef>org.wso2.orbit.sun.xml.bind:jaxb:${version.org.wso2.orbit.javax.xml.bind.jaxb}</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.framework.exporter:${carbon.kernel.version}
+                                </bundleDef>
                             </bundles>
                         </configuration>
                     </execution>

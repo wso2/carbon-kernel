@@ -3259,6 +3259,36 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         }
     }
 
+    private String resolveGroupDN(LdapContext ldapContext, String groupName) throws NamingException {
+
+        String groupSearchBase =
+                realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE);
+        String groupNameAttribute =
+                realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
+        String groupObjectClass =
+                realmConfig.getUserStoreProperty(LDAPConstants.GROUP_ENTRY_OBJECT_CLASS);
+
+        // Build LDAP filter using configured schema (AD / OpenLDAP / custom)
+        String searchFilter = "(&" +
+                "(objectClass=" + escapeSpecialCharactersForFilter(groupObjectClass) + ")" +
+                "(" + groupNameAttribute + "=" + escapeSpecialCharactersForFilter(groupName) + ")" +
+                ")";
+
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        searchControls.setReturningAttributes(new String[]{"distinguishedName"});
+
+        NamingEnumeration<SearchResult> results =
+                ldapContext.search(groupSearchBase, searchFilter, searchControls);
+
+        if (!results.hasMore()) {
+            throw new NamingException("Group DN not found for group: " + groupName);
+        }
+
+        SearchResult result = results.next();
+        return result.getNameInNamespace();
+    }
+
     /**
      * Do LDAP paginated search and return user objects as a list.
      *
@@ -3284,6 +3314,35 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         String searchBases = ldapSearchSpecification.getSearchBases();
         String[] searchBaseArray = searchBases.split("#");
         String searchFilter = ldapSearchSpecification.getSearchFilterQuery();
+
+        if (ldapSearchSpecification.isMemberOfPropertyFound()) {
+
+            for (ExpressionCondition condition : expressionConditions) {
+
+                if (ExpressionAttribute.ROLE.toString().equals(condition.getAttributeName())
+                        && ExpressionOperation.EQ.toString().equals(condition.getOperation())) {
+
+                    String groupName = condition.getAttributeValue();
+                    String groupDN;
+                    try {
+                        groupDN = resolveGroupDN(ldapContext, groupName);
+                    } catch (NamingException e) {
+                        throw new UserStoreException(
+                                "Error while resolving DN for group: " + groupName, e);
+                    }
+
+                    searchFilter = searchFilter.replaceFirst(
+                            "\\(memberOf=[^)]+\\)",
+                            "(memberOf=" + groupDN + ")"
+                    );
+
+                    if (log.isDebugEnabled()) {
+                        log.debug("Resolved group DN for memberOf filter: " + groupDN);
+                    }
+                }
+            }
+        }
+
         SearchControls searchControls = ldapSearchSpecification.getSearchControls();
         List<String> returnedAttributes = Arrays.asList(searchControls.getReturningAttributes());
         NamingEnumeration<SearchResult> answer = null;

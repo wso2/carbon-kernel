@@ -27,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.InstanceManager;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -55,6 +56,7 @@ import org.wso2.carbon.ui.CarbonServletContextInitializer;
 import org.wso2.carbon.ui.CarbonUIAuthenticator;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.ui.DefaultCarbonAuthenticator;
+import org.wso2.carbon.ui.TenantAwareCsrfJsFilter;
 import org.wso2.carbon.ui.TextJavascriptHandler;
 import org.wso2.carbon.ui.TilesJspServlet;
 import org.wso2.carbon.ui.UIAuthenticationExtender;
@@ -66,6 +68,7 @@ import org.wso2.carbon.ui.deployment.beans.CustomUIDefenitions;
 import org.wso2.carbon.ui.tracker.AuthenticatorRegistry;
 import org.wso2.carbon.ui.transports.FileDownloadServlet;
 import org.wso2.carbon.ui.transports.FileUploadServlet;
+import org.wso2.carbon.ui.transports.fileupload.FileUploadExecutorManager;
 import org.wso2.carbon.ui.util.UIAnnouncementDeployer;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
@@ -80,7 +83,7 @@ import java.util.Map;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletContextListener;
-
+import javax.servlet.Filter;
 @Component(name = "core.ui.dscomponent", immediate = true)
 public class CarbonUIServiceComponent {
 
@@ -228,6 +231,14 @@ public class CarbonUIServiceComponent {
         uiResourceRegistry.setDefaultUIResourceProvider(
                 uiBundleDeployer.getBundleBasedUIResourcePrvider());
 
+        // Create FileUploadExecutorManager early and register it as an OSGi service
+        // This must be done BEFORE uiBundleDeployer.deploy() so that bundles with 
+        // FileUploadExecutor configurations can be processed properly
+        ConfigurationContext contextForUpload = isLocalTransportMode ? serverConfigContext : clientConfigContext;
+        FileUploadExecutorManager fileUploadExecutorManager = 
+                new FileUploadExecutorManager(context, contextForUpload, webContext);
+        context.registerService(FileUploadExecutorManager.class.getName(), fileUploadExecutorManager, null);
+
         HttpContext commonContext =
                 new CarbonSecuredHttpContext(context.getBundle(), "/web", uiResourceRegistry, registry);
 
@@ -251,12 +262,8 @@ public class CarbonUIServiceComponent {
         context.registerService(Servlet.class, fileDownloadServlet, fileDownloadServletProperties);
 
         // Register file upload servlet using HTTP Whiteboard pattern
-        Servlet fileUploadServlet;
-        if (isLocalTransportMode) {
-            fileUploadServlet = new FileUploadServlet(context, serverConfigContext, webContext);
-        } else {
-            fileUploadServlet = new FileUploadServlet(context, clientConfigContext, webContext);
-        }
+        // Use the already-created fileUploadExecutorManager
+        Servlet fileUploadServlet = new FileUploadServlet(context, contextForUpload, webContext, fileUploadExecutorManager);
         Dictionary<String, String> fileUploadServletProperties = new Hashtable<>();
         fileUploadServletProperties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, 
                 "/carbon/fileupload/*");
@@ -309,6 +316,48 @@ public class CarbonUIServiceComponent {
         listenerPropsForDefaultContext.put("osgi.http.whiteboard.listener", "true");
         context.registerService(ServletContextListener.class, contextInitializer, listenerPropsForDefaultContext);
 
+        // Register CSRFGuard listeners and filter using HTTP Whiteboard pattern
+        try {
+            // Register CsrfGuardHttpSessionListener - generates per-session CSRF tokens
+            Class<?> sessionListenerClass = Class.forName("org.owasp.csrfguard.CsrfGuardHttpSessionListener");
+            Object sessionListener = sessionListenerClass.newInstance();
+            
+            Dictionary<String, String> sessionListenerProps = new Hashtable<>();
+            sessionListenerProps.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=carbonContext)");
+            sessionListenerProps.put("osgi.http.whiteboard.listener", "true");
+            
+            // Register as javax.servlet.http.HttpSessionListener
+            context.registerService("javax.servlet.http.HttpSessionListener", sessionListener, sessionListenerProps);
+            
+            // Register CsrfGuardFilter
+            Class<?> csrfGuardFilterClass = Class.forName("org.owasp.csrfguard.CsrfGuardFilter");
+            Filter csrfGuardFilter = (Filter) csrfGuardFilterClass.newInstance();
+            
+            Dictionary<String, String> csrfFilterProps = new Hashtable<>();
+            csrfFilterProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_PATTERN, "/carbon/*");
+            csrfFilterProps.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=carbonContext)");
+            csrfFilterProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_NAME, "CsrfGuardFilter");
+            csrfFilterProps.put("service.ranking", "100");
+            
+            context.registerService(Filter.class, csrfGuardFilter, csrfFilterProps);
+
+            // Register TenantAwareCsrfJsFilter filter.
+            Filter csrfJsFilterCarbon = new TenantAwareCsrfJsFilter();
+            Dictionary<String, Object> csrfJsFilterCarbonProps = new Hashtable<>();
+            csrfJsFilterCarbonProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_PATTERN, "/t/*");
+            csrfJsFilterCarbonProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_NAME, "TenantAwareCsrfJsFilter");
+            csrfJsFilterCarbonProps.put(Constants.SERVICE_RANKING, Integer.valueOf(200));
+            csrfJsFilterCarbonProps.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=carbonContext)");
+            context.registerService("javax.servlet.Filter", csrfJsFilterCarbon, csrfJsFilterCarbonProps);
+
+            if (log.isDebugEnabled()) {
+                log.debug("CSRFGuard components registered successfully using HTTP Whiteboard pattern");
+            }
+        } catch (ClassNotFoundException e) {
+            log.warn("CSRFGuard classes not found. CSRF protection will not be enabled.", e);
+        } catch (Exception e) {
+            log.error("Failed to register CSRFGuard components", e);
+        }
         //saving bundle context for future reference within CarbonUI Generation
         CarbonUIUtil.setBundleContext(context);
         UIAnnouncementDeployer.deployNotificationSources();

@@ -42,6 +42,8 @@ import javax.xml.namespace.QName;
 
 public class KeyStoreUtil {
 
+    private static final String TENANT_EDDSA_KEY_SUFFIX = "_ed";
+
     /**
      * KeyStore name will be here.
      * 
@@ -51,9 +53,9 @@ public class KeyStoreUtil {
     public static String getPrivateKeyAlias(KeyStore store) throws KeyStoreException {
         String alias = null;
         Enumeration<String> enums = store.aliases();
-        while(enums.hasMoreElements()){
+        while (enums.hasMoreElements()) {
             String name = enums.nextElement();
-            if(store.isKeyEntry(name)){
+            if (store.isKeyEntry(name) && !name.endsWith(TENANT_EDDSA_KEY_SUFFIX)) {
                 alias = name;
                 break;
             }
@@ -252,6 +254,21 @@ public class KeyStoreUtil {
 
         if (!Arrays.asList(keyStoreProperties).contains(propertyName)) {
             throw new CarbonException("Requested key store configuration is invalid.");
+        }
+    }
+
+    /**
+     * Get tenant EdDSA Key Alias
+     *
+     * @return Tenant EdDSA Key Alias
+     * @throws CarbonException Exception Carbon Exception for tenants other than tenant -1234
+     */
+    public static String getTenantEdKeyAlias(String tenantDomain) throws CarbonException {
+
+        if (StringUtils.isBlank(tenantDomain)) {
+            throw new CarbonException("Tenant domain must not be empty.");
+        } else {
+            return tenantDomain +  TENANT_EDDSA_KEY_SUFFIX;
         }
     }
 }
