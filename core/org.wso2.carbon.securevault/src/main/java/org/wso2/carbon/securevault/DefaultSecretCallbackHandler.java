@@ -57,11 +57,12 @@ public class DefaultSecretCallbackHandler extends AbstractSecretCallbackHandler 
     public static final String IDENTITY_KEY_PASSWORD = "identity.key.password";
     private static String keyStorePassWord;
     private static String privateKeyPassWord;
+    private static String encryptionKey;
     private static File keyDataFile;
 
     public void handleSingleSecretCallback(SingleSecretCallback singleSecretCallback) {
 
-        if(keyStorePassWord == null && privateKeyPassWord == null){
+        if(keyStorePassWord == null && privateKeyPassWord == null && encryptionKey == null){
 
             String textFileName;
             String textFileName_tmp;
@@ -97,6 +98,7 @@ public class DefaultSecretCallbackHandler extends AbstractSecretCallbackHandler 
             if(keyDataFile.exists()){
                 passwords = readPassword(keyDataFile, sameKeyAndKeyStorePass);
                 keyStorePassWord = passwords[0];
+                encryptionKey = passwords[0];
                 if(sameKeyAndKeyStorePass){
                     privateKeyPassWord = keyStorePassWord;
                 } else {
@@ -112,6 +114,7 @@ public class DefaultSecretCallbackHandler extends AbstractSecretCallbackHandler 
                 if(keyDataFile.exists()){
                     passwords = readPassword(keyDataFile, sameKeyAndKeyStorePass);
                     keyStorePassWord = passwords[0];
+                    encryptionKey = passwords[0];
                     if(sameKeyAndKeyStorePass){
                         privateKeyPassWord = keyStorePassWord;
                     } else {
@@ -127,6 +130,7 @@ public class DefaultSecretCallbackHandler extends AbstractSecretCallbackHandler 
                     if(keyDataFile.exists()){
                         passwords = readPassword(keyDataFile, sameKeyAndKeyStorePass);
                         keyStorePassWord = passwords[0];
+                        encryptionKey = passwords[0];
                         if(sameKeyAndKeyStorePass){
                             privateKeyPassWord = keyStorePassWord;
                         } else {
@@ -138,9 +142,9 @@ public class DefaultSecretCallbackHandler extends AbstractSecretCallbackHandler 
                         if (singleSecretCallback.getId().equals(ENCRYPTION_KEY_PASSWORD)) {
                             if ((console = System.console()) != null && (password = console.readPassword("[%s]",
                                     "Enter Symmetric Encryption Key :")) != null) {
-                                privateKeyPassWord = String.valueOf(password);
+                                encryptionKey = String.valueOf(password);
                             }
-                            singleSecretCallback.setSecret(privateKeyPassWord);
+                            singleSecretCallback.setSecret(encryptionKey);
                             return;
                         } else {
                             if (sameKeyAndKeyStorePass) {
@@ -164,11 +168,14 @@ public class DefaultSecretCallbackHandler extends AbstractSecretCallbackHandler 
                 }
             }
         }
-        if (singleSecretCallback.getId().equals(IDENTITY_KEY_PASSWORD) || singleSecretCallback.getId()
-                .equals(ENCRYPTION_KEY_PASSWORD)) {
-            singleSecretCallback.setSecret(privateKeyPassWord);
+        if (singleSecretCallback.getId().equals(ENCRYPTION_KEY_PASSWORD)){
+            singleSecretCallback.setSecret(encryptionKey);
         } else {
-            singleSecretCallback.setSecret(keyStorePassWord);
+            if (singleSecretCallback.getId().equals(IDENTITY_KEY_PASSWORD)) {
+                singleSecretCallback.setSecret(privateKeyPassWord);
+            } else {
+                singleSecretCallback.setSecret(keyStorePassWord);
+            }
         }
     }
 
