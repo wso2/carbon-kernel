@@ -53,16 +53,13 @@ public class DefaultSecretCallbackHandler extends AbstractSecretCallbackHandler 
     private static final String KEY_PASSWORD = "key.password";
     private static final String CARBON_HOME = "carbon.home";
     private static final String PERSIST_PASSWORD = "persist.password";
-    public static final String ENCRYPTION_KEY_PASSWORD = "encryption.key.password";
-    public static final String IDENTITY_KEY_PASSWORD = "identity.key.password";
     private static String keyStorePassWord;
     private static String privateKeyPassWord;
-    private static String encryptionKey;
     private static File keyDataFile;
 
     public void handleSingleSecretCallback(SingleSecretCallback singleSecretCallback) {
 
-        if(keyStorePassWord == null && privateKeyPassWord == null && encryptionKey == null){
+        if(keyStorePassWord == null && privateKeyPassWord == null){
 
             String textFileName;
             String textFileName_tmp;
@@ -88,7 +85,7 @@ public class DefaultSecretCallbackHandler extends AbstractSecretCallbackHandler 
             if(keyPassword != null && keyPassword.trim().equals("true")){
                 sameKeyAndKeyStorePass = false;
             }
-            String persistPasswordProperty = System.getProperty(PERSIST_PASSWORD);     
+            String persistPasswordProperty = System.getProperty(PERSIST_PASSWORD);
             if(persistPasswordProperty != null && persistPasswordProperty.trim().equals("true")){
                 persistPassword = true;
             }
@@ -98,7 +95,6 @@ public class DefaultSecretCallbackHandler extends AbstractSecretCallbackHandler 
             if(keyDataFile.exists()){
                 passwords = readPassword(keyDataFile, sameKeyAndKeyStorePass);
                 keyStorePassWord = passwords[0];
-                encryptionKey = passwords[0];
                 if(sameKeyAndKeyStorePass){
                     privateKeyPassWord = keyStorePassWord;
                 } else {
@@ -114,7 +110,6 @@ public class DefaultSecretCallbackHandler extends AbstractSecretCallbackHandler 
                 if(keyDataFile.exists()){
                     passwords = readPassword(keyDataFile, sameKeyAndKeyStorePass);
                     keyStorePassWord = passwords[0];
-                    encryptionKey = passwords[0];
                     if(sameKeyAndKeyStorePass){
                         privateKeyPassWord = keyStorePassWord;
                     } else {
@@ -130,7 +125,6 @@ public class DefaultSecretCallbackHandler extends AbstractSecretCallbackHandler 
                     if(keyDataFile.exists()){
                         passwords = readPassword(keyDataFile, sameKeyAndKeyStorePass);
                         keyStorePassWord = passwords[0];
-                        encryptionKey = passwords[0];
                         if(sameKeyAndKeyStorePass){
                             privateKeyPassWord = keyStorePassWord;
                         } else {
@@ -139,43 +133,32 @@ public class DefaultSecretCallbackHandler extends AbstractSecretCallbackHandler 
                     } else{
                         Console console;
                         char[] password;
-                        if (singleSecretCallback.getId().equals(ENCRYPTION_KEY_PASSWORD)) {
+                        if(sameKeyAndKeyStorePass){
                             if ((console = System.console()) != null && (password = console.readPassword("[%s]",
-                                    "Enter Symmetric Encryption Key :")) != null) {
-                                encryptionKey = String.valueOf(password);
+                                    "Enter KeyStore and Private Key Password :")) != null) {
+                                keyStorePassWord = String.valueOf(password);
+                                privateKeyPassWord= keyStorePassWord;
                             }
-                            singleSecretCallback.setSecret(encryptionKey);
-                            return;
                         } else {
-                            if (sameKeyAndKeyStorePass) {
-                                if ((console = System.console()) != null && (password = console.readPassword("[%s]",
-                                        "Enter KeyStore and Private Key Password :")) != null) {
-                                    keyStorePassWord = String.valueOf(password);
-                                    privateKeyPassWord = keyStorePassWord;
-                                }
-                            } else {
-                                if ((console = System.console()) != null && (password = console.readPassword("[%s]",
-                                        "Enter KeyStore Password :")) != null) {
-                                    keyStorePassWord = String.valueOf(password);
-                                }
-                                if ((console = System.console()) != null && (password = console.readPassword("[%s]",
-                                        "Enter Private Key Password : ")) != null) {
-                                    privateKeyPassWord = String.valueOf(password);
-                                }
+                            if ((console = System.console()) != null &&
+                                    (password = console.readPassword("[%s]",
+                                            "Enter KeyStore Password :")) != null) {
+                                keyStorePassWord = String.valueOf(password);
+                            }
+                            if ((console = System.console()) != null &&
+                                    (password = console.readPassword("[%s]",
+                                            "Enter Private Key Password : ")) != null) {
+                                privateKeyPassWord = String.valueOf(password);
                             }
                         }
-                    }                    
+                    }
                 }
             }
         }
-        if (singleSecretCallback.getId().equals(ENCRYPTION_KEY_PASSWORD)){
-            singleSecretCallback.setSecret(encryptionKey);
+        if(singleSecretCallback.getId().equals("identity.key.password")){
+            singleSecretCallback.setSecret(privateKeyPassWord);
         } else {
-            if (singleSecretCallback.getId().equals(IDENTITY_KEY_PASSWORD)) {
-                singleSecretCallback.setSecret(privateKeyPassWord);
-            } else {
-                singleSecretCallback.setSecret(keyStorePassWord);
-            }
+            singleSecretCallback.setSecret(keyStorePassWord);
         }
     }
 
