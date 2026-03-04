@@ -135,19 +135,19 @@ public class DefaultSecretCallbackHandler extends AbstractSecretCallbackHandler 
                         char[] password;
                         if(sameKeyAndKeyStorePass){
                             if ((console = System.console()) != null && (password = console.readPassword("[%s]",
-                                    "Enter KeyStore and Private Key Password :")) != null) {
+                                            "Enter KeyStore and Private Key Password :")) != null) {
                                 keyStorePassWord = String.valueOf(password);
                                 privateKeyPassWord= keyStorePassWord;
                             }
                         } else {
                             if ((console = System.console()) != null &&
                                     (password = console.readPassword("[%s]",
-                                            "Enter KeyStore Password :")) != null) {
+                                                            "Enter KeyStore Password :")) != null) {
                                 keyStorePassWord = String.valueOf(password);
                             }
                             if ((console = System.console()) != null &&
                                     (password = console.readPassword("[%s]",
-                                            "Enter Private Key Password : ")) != null) {
+                                                            "Enter Private Key Password : ")) != null) {
                                 privateKeyPassWord = String.valueOf(password);
                             }
                         }
