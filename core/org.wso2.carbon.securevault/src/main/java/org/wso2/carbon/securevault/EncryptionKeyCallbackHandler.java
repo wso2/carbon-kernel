@@ -65,7 +65,6 @@ public class EncryptionKeyCallbackHandler extends AbstractSecretCallbackHandler 
     private static final String CONSOLE_PROMPT = "Enter Symmetric Encryption Key :";
     private static final String OVERWRITE_TOKEN = "!@#$%^&*()SDFGHJZXCVBNM!@#$%^&*";
 
-    public static final String ENCRYPTION_KEY_PASSWORD = "encryption.key.password";
     private static volatile String encryptionKey;
 
     @Override
