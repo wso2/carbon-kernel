@@ -72,6 +72,7 @@ public class EncryptionKeyCallbackHandler extends AbstractSecretCallbackHandler 
     public void handleSingleSecretCallback(SingleSecretCallback singleSecretCallback) {
 
         if (encryptionKey == null) {
+            LOG.debug("Resolving encryption key for secure vault");
             synchronized (EncryptionKeyCallbackHandler.class) {
                 if (encryptionKey == null) {
                     encryptionKey = resolveEncryptionKey();
