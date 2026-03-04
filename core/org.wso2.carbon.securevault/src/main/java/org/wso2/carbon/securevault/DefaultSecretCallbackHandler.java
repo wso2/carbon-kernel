@@ -141,12 +141,12 @@ public class DefaultSecretCallbackHandler extends AbstractSecretCallbackHandler 
                             }
                         } else {
                             if ((console = System.console()) != null &&
-                                    (password = console.readPassword("[%s]",
+                                (password = console.readPassword("[%s]",
                                                             "Enter KeyStore Password :")) != null) {
                                 keyStorePassWord = String.valueOf(password);
                             }
                             if ((console = System.console()) != null &&
-                                    (password = console.readPassword("[%s]",
+                                (password = console.readPassword("[%s]",
                                                             "Enter Private Key Password : ")) != null) {
                                 privateKeyPassWord = String.valueOf(password);
                             }
