@@ -71,6 +71,10 @@ public class EncryptionKeyCallbackHandler extends AbstractSecretCallbackHandler 
     @Override
     public void handleSingleSecretCallback(SingleSecretCallback singleSecretCallback) {
 
+        if (singleSecretCallback == null) {
+            return;
+        }
+
         if (encryptionKey == null) {
             synchronized (EncryptionKeyCallbackHandler.class) {
                 if (encryptionKey == null) {
@@ -80,9 +84,7 @@ public class EncryptionKeyCallbackHandler extends AbstractSecretCallbackHandler 
             }
         }
 
-        if (singleSecretCallback != null && ENCRYPTION_KEY_PASSWORD.equals(singleSecretCallback.getId())) {
-            singleSecretCallback.setSecret(encryptionKey);
-        }
+        singleSecretCallback.setSecret(encryptionKey);
     }
 
     private String resolveEncryptionKey() {
