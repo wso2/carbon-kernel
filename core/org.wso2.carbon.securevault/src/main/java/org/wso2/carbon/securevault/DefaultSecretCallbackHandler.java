@@ -85,7 +85,7 @@ public class DefaultSecretCallbackHandler extends AbstractSecretCallbackHandler 
             if(keyPassword != null && keyPassword.trim().equals("true")){
                 sameKeyAndKeyStorePass = false;
             }
-            String persistPasswordProperty = System.getProperty(PERSIST_PASSWORD);    
+            String persistPasswordProperty = System.getProperty(PERSIST_PASSWORD);     
             if(persistPasswordProperty != null && persistPasswordProperty.trim().equals("true")){
                 persistPassword = true;
             }
