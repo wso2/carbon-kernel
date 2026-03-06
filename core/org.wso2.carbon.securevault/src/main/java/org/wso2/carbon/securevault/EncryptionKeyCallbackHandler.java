@@ -158,7 +158,6 @@ public class EncryptionKeyCallbackHandler extends AbstractSecretCallbackHandler 
         } catch (IOException e) {
             handleException("Error writing values to text file " + file.getAbsolutePath(), e);
         }
-
         return file.exists() && file.delete();
     }
 
