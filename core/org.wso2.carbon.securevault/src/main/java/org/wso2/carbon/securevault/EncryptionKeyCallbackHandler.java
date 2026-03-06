@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.securevault;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.securevault.secret.AbstractSecretCallbackHandler;
@@ -52,19 +54,6 @@ public class EncryptionKeyCallbackHandler extends AbstractSecretCallbackHandler 
 
     private static final Log LOG = LogFactory.getLog(EncryptionKeyCallbackHandler.class);
 
-    private static final String CARBON_HOME = "carbon.home";
-    private static final String PERSIST_PASSWORD = "persist.password";
-    private static final String OS_NAME = "os.name";
-    private static final String WINDOWS_OS_TOKEN = "win";
-
-    private static final String ENCRYPTION_KEY_FILE = "encryption-key";
-    private static final String ENCRYPTION_KEY_FILE_TMP = "encryption-key-tmp";
-    private static final String ENCRYPTION_KEY_FILE_PERSIST = "encryption-key-persist";
-    private static final String FILE_EXTENSION_TXT = ".txt";
-
-    private static final String CONSOLE_PROMPT = "Enter Symmetric Encryption Key :";
-    private static final String OVERWRITE_TOKEN = "!@#$%^&*()SDFGHJZXCVBNM!@#$%^&*";
-
     private static volatile String encryptionKey;
 
     @Override
@@ -83,6 +72,9 @@ public class EncryptionKeyCallbackHandler extends AbstractSecretCallbackHandler 
             }
         }
 
+        if (StringUtils.isBlank(encryptionKey)) {
+            handleException("Encryption key is not available");
+        }
         singleSecretCallback.setSecret(encryptionKey);
     }
 
@@ -93,23 +85,26 @@ public class EncryptionKeyCallbackHandler extends AbstractSecretCallbackHandler 
         String encryptionKeyFilePersist;
         String keyValue;
 
-        String carbonHome = System.getProperty(CARBON_HOME);
-        if (carbonHome == null || carbonHome.trim().isEmpty()) {
-            handleException("System property '" + CARBON_HOME + "' is not set");
+        String carbonHome = System.getProperty(SecureVaultConstants.CARBON_HOME);
+        if (StringUtils.isBlank(carbonHome)) {
+            handleException("System property '" + SecureVaultConstants.CARBON_HOME + "' is not set");
         }
 
-        String osName = System.getProperty(OS_NAME, "").toLowerCase(Locale.ENGLISH);
-        if (osName.contains(WINDOWS_OS_TOKEN)) {
-            encryptionKeyFileName = ENCRYPTION_KEY_FILE + FILE_EXTENSION_TXT;
-            encryptionKeyFileNameTmp = ENCRYPTION_KEY_FILE_TMP + FILE_EXTENSION_TXT;
-            encryptionKeyFilePersist = ENCRYPTION_KEY_FILE_PERSIST + FILE_EXTENSION_TXT;
+        String osName = System.getProperty(SecureVaultConstants.OS_NAME, StringUtils.EMPTY).toLowerCase(Locale.ENGLISH);
+        if (osName.contains(SecureVaultConstants.WINDOWS_OS_TOKEN)) {
+            encryptionKeyFileName = SecureVaultConstants.ENCRYPTION_KEY_FILE + SecureVaultConstants.FILE_EXTENSION_TXT;
+            encryptionKeyFileNameTmp = SecureVaultConstants.ENCRYPTION_KEY_FILE_TMP +
+                    SecureVaultConstants.FILE_EXTENSION_TXT;
+            encryptionKeyFilePersist = SecureVaultConstants.ENCRYPTION_KEY_FILE_PERSIST +
+                    SecureVaultConstants.FILE_EXTENSION_TXT;
         } else {
-            encryptionKeyFileName = ENCRYPTION_KEY_FILE;
-            encryptionKeyFileNameTmp = ENCRYPTION_KEY_FILE_TMP;
-            encryptionKeyFilePersist = ENCRYPTION_KEY_FILE_PERSIST;
+            encryptionKeyFileName = SecureVaultConstants.ENCRYPTION_KEY_FILE;
+            encryptionKeyFileNameTmp = SecureVaultConstants.ENCRYPTION_KEY_FILE_TMP;
+            encryptionKeyFilePersist = SecureVaultConstants.ENCRYPTION_KEY_FILE_PERSIST;
         }
 
-        boolean persistPassword = Boolean.parseBoolean(System.getProperty(PERSIST_PASSWORD, "").trim());
+        boolean persistPassword = Boolean.parseBoolean(
+                System.getProperty(SecureVaultConstants.PERSIST_PASSWORD, StringUtils.EMPTY).trim());
         File file = new File(carbonHome, encryptionKeyFileName);
 
         if (file.exists()) {
@@ -136,8 +131,8 @@ public class EncryptionKeyCallbackHandler extends AbstractSecretCallbackHandler 
 
         Console console = System.console();
         if (console != null) {
-            char[] password = console.readPassword("[%s]", CONSOLE_PROMPT);
-            if (password != null) {
+            char[] password = console.readPassword("[%s]", SecureVaultConstants.CONSOLE_PROMPT);
+            if (ArrayUtils.isNotEmpty(password)) {
                 return String.valueOf(password);
             }
         }
@@ -152,7 +147,7 @@ public class EncryptionKeyCallbackHandler extends AbstractSecretCallbackHandler 
              BufferedReader bufferedReader =
                      new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
             String line = bufferedReader.readLine();
-            if (line == null || line.isEmpty()) {
+            if (StringUtils.isBlank(line)) {
                 handleException("Encryption key file is empty: " + file.getAbsolutePath());
             }
             return line;
@@ -166,7 +161,9 @@ public class EncryptionKeyCallbackHandler extends AbstractSecretCallbackHandler 
         try (FileOutputStream outputStream = new FileOutputStream(file);
              BufferedWriter bufferedWriter =
                      new BufferedWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8))) {
-            bufferedWriter.write(OVERWRITE_TOKEN);
+            bufferedWriter.write(SecureVaultConstants.OVERWRITE_TOKEN);
+            bufferedWriter.flush();
+            outputStream.getFD().sync();
         } catch (IOException e) {
             handleException("Error writing values to text file " + file.getAbsolutePath(), e);
         }
