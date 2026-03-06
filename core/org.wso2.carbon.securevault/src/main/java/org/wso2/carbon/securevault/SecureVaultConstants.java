@@ -39,7 +39,7 @@ public final class SecureVaultConstants {
     public static final String ENCRYPTION_KEY_FILE = "encryption-key";
     public static final String ENCRYPTION_KEY_FILE_TMP = "encryption-key-tmp";
     public static final String ENCRYPTION_KEY_FILE_PERSIST = "encryption-key-persist";
-    
+
     // File extensions
     public static final String FILE_EXTENSION_TXT = ".txt";
 

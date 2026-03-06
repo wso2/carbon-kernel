@@ -62,7 +62,6 @@ public class EncryptionKeyCallbackHandler extends AbstractSecretCallbackHandler 
         if (singleSecretCallback == null) {
             return;
         }
-
         if (encryptionKey == null) {
             synchronized (EncryptionKeyCallbackHandler.class) {
                 if (encryptionKey == null) {
@@ -71,7 +70,6 @@ public class EncryptionKeyCallbackHandler extends AbstractSecretCallbackHandler 
                 }
             }
         }
-
         if (StringUtils.isBlank(encryptionKey)) {
             handleException("Encryption key is not available");
         }
@@ -84,12 +82,10 @@ public class EncryptionKeyCallbackHandler extends AbstractSecretCallbackHandler 
         String encryptionKeyFileNameTmp;
         String encryptionKeyFilePersist;
         String keyValue;
-
         String carbonHome = System.getProperty(SecureVaultConstants.CARBON_HOME);
         if (StringUtils.isBlank(carbonHome)) {
             handleException("System property '" + SecureVaultConstants.CARBON_HOME + "' is not set");
         }
-
         String osName = System.getProperty(SecureVaultConstants.OS_NAME, StringUtils.EMPTY).toLowerCase(Locale.ENGLISH);
         if (osName.contains(SecureVaultConstants.WINDOWS_OS_TOKEN)) {
             encryptionKeyFileName = SecureVaultConstants.ENCRYPTION_KEY_FILE + SecureVaultConstants.FILE_EXTENSION_TXT;
@@ -102,11 +98,9 @@ public class EncryptionKeyCallbackHandler extends AbstractSecretCallbackHandler 
             encryptionKeyFileNameTmp = SecureVaultConstants.ENCRYPTION_KEY_FILE_TMP;
             encryptionKeyFilePersist = SecureVaultConstants.ENCRYPTION_KEY_FILE_PERSIST;
         }
-
         boolean persistPassword = Boolean.parseBoolean(
                 System.getProperty(SecureVaultConstants.PERSIST_PASSWORD, StringUtils.EMPTY).trim());
         File file = new File(carbonHome, encryptionKeyFileName);
-
         if (file.exists()) {
             keyValue = readPassword(file);
             if (!persistPassword && !renameConfigFile(file, encryptionKeyFileNameTmp)) {
@@ -114,7 +108,6 @@ public class EncryptionKeyCallbackHandler extends AbstractSecretCallbackHandler 
             }
             return keyValue;
         }
-
         file = new File(carbonHome, encryptionKeyFileNameTmp);
         if (file.exists()) {
             keyValue = readPassword(file);
@@ -123,12 +116,10 @@ public class EncryptionKeyCallbackHandler extends AbstractSecretCallbackHandler 
             }
             return keyValue;
         }
-
         file = new File(carbonHome, encryptionKeyFilePersist);
         if (file.exists()) {
             return readPassword(file);
         }
-
         Console console = System.console();
         if (console != null) {
             char[] password = console.readPassword("[%s]", SecureVaultConstants.CONSOLE_PROMPT);
@@ -136,7 +127,6 @@ public class EncryptionKeyCallbackHandler extends AbstractSecretCallbackHandler 
                 return String.valueOf(password);
             }
         }
-
         handleException("Unable to read the encryption key from file or console");
         return null;
     }
@@ -144,8 +134,8 @@ public class EncryptionKeyCallbackHandler extends AbstractSecretCallbackHandler 
     private String readPassword(File file) {
 
         try (FileInputStream inputStream = new FileInputStream(file);
-             BufferedReader bufferedReader =
-                     new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+                BufferedReader bufferedReader = new BufferedReader(
+                        new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
             String line = bufferedReader.readLine();
             if (StringUtils.isBlank(line)) {
                 handleException("Encryption key file is empty: " + file.getAbsolutePath());
@@ -158,9 +148,10 @@ public class EncryptionKeyCallbackHandler extends AbstractSecretCallbackHandler 
     }
 
     private boolean deleteConfigFile(File file) {
+
         try (FileOutputStream outputStream = new FileOutputStream(file);
-             BufferedWriter bufferedWriter =
-                     new BufferedWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8))) {
+                BufferedWriter bufferedWriter = new BufferedWriter(
+                        new OutputStreamWriter(outputStream, StandardCharsets.UTF_8))) {
             bufferedWriter.write(SecureVaultConstants.OVERWRITE_TOKEN);
             bufferedWriter.flush();
             outputStream.getFD().sync();
@@ -172,6 +163,7 @@ public class EncryptionKeyCallbackHandler extends AbstractSecretCallbackHandler 
     }
 
     private boolean renameConfigFile(File file, String fileName) {
+
         if (file.exists()) {
             File newConfigFile = new File(file.getParentFile(), fileName);
             if (newConfigFile.exists() && !newConfigFile.delete()) {
@@ -185,11 +177,13 @@ public class EncryptionKeyCallbackHandler extends AbstractSecretCallbackHandler 
     }
 
     private static void handleException(String msg, Exception e) {
+
         LOG.error(msg, e);
         throw new SecretCallbackHandlerException(msg, e);
     }
 
     private static void handleException(String msg) {
+
         LOG.error(msg);
         throw new SecretCallbackHandlerException(msg);
     }
