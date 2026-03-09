@@ -475,9 +475,9 @@
         <orbit.version.jettison>1.5.4.wso2v1</orbit.version.jettison>
 
         <orbit.version.hsqldb>1.8.0.7wso2v1</orbit.version.hsqldb>
-        <orbit.version.poi>5.2.5.wso2v1</orbit.version.poi>
-        <orbit.version.poi.scratchpad>5.2.5.wso2v1</orbit.version.poi.scratchpad>
-        <orbit.version.poi.ooxml>5.2.5.wso2v1</orbit.version.poi.ooxml>
+        <orbit.version.poi>5.4.1.wso2v2</orbit.version.poi>
+        <orbit.version.poi.scratchpad>5.4.1.wso2v2</orbit.version.poi.scratchpad>
+        <orbit.version.poi.ooxml>5.4.1.wso2v2</orbit.version.poi.ooxml>
         <orbit.version.commons.lang>2.6.0.wso2v1</orbit.version.commons.lang>
         <orbit.version.commons.collection>3.2.2.wso2v1</orbit.version.commons.collection>
         <orbit.version.commons.io>2.17.0.wso2v1</orbit.version.commons.io>
