@@ -99,6 +99,11 @@
  <url-pattern>*</url-pattern>
  </filter-mapping>
 
+<filter-mapping>
+ <filter-name>CharsetFilter</filter-name>
+ <url-pattern>/*</url-pattern>
+ </filter-mapping>
+
  <filter-mapping>
  <filter-name>HttpHeaderSecurityFilter_EnableAntiClickJacking</filter-name>
  {% for url in http_header_security_filter.anti_click_jacking.urls %}
@@ -106,10 +111,6 @@
  {% endfor %}
  </filter-mapping>
 
- <filter-mapping>
- <filter-name>CSRFGuard</filter-name>
- <url-pattern>/*</url-pattern>
- </filter-mapping>
 
     <!-- OWASP CSRFGuard context listener used to read CSRF configuration -->
     <listener>
