@@ -69,6 +69,7 @@ import org.wso2.carbon.ui.deployment.beans.CustomUIDefenitions;
 import org.wso2.carbon.ui.tracker.AuthenticatorRegistry;
 import org.wso2.carbon.ui.transports.FileDownloadServlet;
 import org.wso2.carbon.ui.transports.FileUploadServlet;
+import org.wso2.carbon.ui.transports.fileupload.FileUploadExecutorManager;
 import org.wso2.carbon.ui.util.UIAnnouncementDeployer;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
@@ -236,6 +237,14 @@ public class CarbonUIServiceComponent {
         uiResourceRegistry.setDefaultUIResourceProvider(
                 uiBundleDeployer.getBundleBasedUIResourcePrvider());
 
+        // Create FileUploadExecutorManager early and register it as an OSGi service
+        // This must be done BEFORE uiBundleDeployer.deploy() so that bundles with 
+        // FileUploadExecutor configurations can be processed properly
+        ConfigurationContext contextForUpload = isLocalTransportMode ? serverConfigContext : clientConfigContext;
+        FileUploadExecutorManager fileUploadExecutorManager = 
+                new FileUploadExecutorManager(context, contextForUpload, webContext);
+        context.registerService(FileUploadExecutorManager.class.getName(), fileUploadExecutorManager, null);
+
         HttpContext commonContext =
                 new CarbonSecuredHttpContext(context.getBundle(), "/web", uiResourceRegistry, registry);
 
@@ -259,12 +268,8 @@ public class CarbonUIServiceComponent {
         context.registerService(Servlet.class, fileDownloadServlet, fileDownloadServletProperties);
 
         // Register file upload servlet using HTTP Whiteboard pattern
-        Servlet fileUploadServlet;
-        if (isLocalTransportMode) {
-            fileUploadServlet = new FileUploadServlet(context, serverConfigContext, webContext);
-        } else {
-            fileUploadServlet = new FileUploadServlet(context, clientConfigContext, webContext);
-        }
+        // Use the already-created fileUploadExecutorManager
+        Servlet fileUploadServlet = new FileUploadServlet(context, contextForUpload, webContext, fileUploadExecutorManager);
         Dictionary<String, String> fileUploadServletProperties = new Hashtable<>();
         fileUploadServletProperties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN,
                 "/carbon/fileupload/*");
