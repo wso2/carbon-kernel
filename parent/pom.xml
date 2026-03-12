@@ -554,8 +554,8 @@
         <version.drools>5.1.1</version.drools>
         <version.jsr94>1.1</version.jsr94>
 
-        <version.log4j.core>2.24.3</version.log4j.core>
-        <version.log4j.jul>2.24.3</version.log4j.jul>
+        <version.log4j.core>2.25.3</version.log4j.core>
+        <version.log4j.jul>2.25.3</version.log4j.jul>
         <version.xmlunit>1.1</version.xmlunit>
         <version.jaxen>1.1.1</version.jaxen>
         <version.junit>4.11</version.junit>
