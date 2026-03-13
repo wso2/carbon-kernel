@@ -1,7 +1,5 @@
 # WSO2 Carbon Kernel
 
-WSO2 Carbon redefines middleware by providing an integrated and componentized middleware platform that adapts to the specific needs of any enterprise IT project - on premise or in the cloud. 100% open source and standards-based, WSO2 Carbon enables developers to rapidly orchestrate business processes, compose applications and develop services using WSO2 Developer Studio and a broad range of business and technical services that integrate with legacy, packaged and SaaS applications.
-
 WSO2 Carbon kernel, the lean, modular, OSGi-based platform, is the base of the WSO2 Carbon platform. It is a composable server architecture which inherits modularity and dynamism from OSGi framework. WSO2 Carbon kernel can be considered as a framework for server development. All the WSO2 products are composed as a collection reusable components running on this kernel. These products/components inherits all the core services provided by Carbon kernel such as Registry/repository, User management, Transports, Caching, Clustering, Logging, Deployment related features.
 
 ## System Requirements
