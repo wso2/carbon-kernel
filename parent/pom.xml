@@ -324,7 +324,7 @@
         <version.equinox.frameworkadmin.equinox>1.3.100</version.equinox.frameworkadmin.equinox>
         <version.equinox.preferences>3.11.0</version.equinox.preferences>
         <version.equinox.registry>3.12.0</version.equinox.registry>
-        <version.equinox.security>1.4.200</version.equinox.security>
+        <version.equinox.security>1.4.600</version.equinox.security>
         <version.equinox.simpleconfigurator.manipulator>2.3.100</version.equinox.simpleconfigurator.manipulator>
         <version.equinox.launcher.gtk.linux.x86>1.1.800</version.equinox.launcher.gtk.linux.x86>
         <version.equinox.core.runtime>3.31.0</version.equinox.core.runtime>
@@ -368,14 +368,14 @@
         <version.equinox.p2.repository>2.8.100</version.equinox.p2.repository>
         <version.equinox.p2.touchpoint.eclipse>2.4.200</version.equinox.p2.touchpoint.eclipse>
         <version.equinox.p2.touchpoint.natives>1.5.200</version.equinox.p2.touchpoint.natives>
-        <version.equinox.p2.updatechecker>1.4.200</version.equinox.p2.updatechecker>
+        <version.equinox.p2.updatechecker>1.4.600</version.equinox.p2.updatechecker>
         <version.equinox.p2.updatesite>1.3.200</version.equinox.p2.updatesite>
         <version.apache.felix.gogo.shell>1.1.4</version.apache.felix.gogo.shell>
         <version.apache.felix.gogo.runtime>1.1.6</version.apache.felix.gogo.runtime>
         <version.apache.felix.gogo.command>1.1.2</version.apache.felix.gogo.command>
         <version.equinox.p2.publisher.eclipse>1.6.0</version.equinox.p2.publisher.eclipse>
         <version.equinox.p2.publisher>1.9.100</version.equinox.p2.publisher>
-        <version.equinox.p2.transport.ecf>1.4.200</version.equinox.p2.transport.ecf>
+        <version.equinox.p2.transport.ecf>1.4.600</version.equinox.p2.transport.ecf>
         <version.ecf.provider.filetransfer.httpclient>4.0.200.v20120319-0616</version.ecf.provider.filetransfer.httpclient>
 
         <carbon.p2.plugin.version>5.5.1</carbon.p2.plugin.version>
