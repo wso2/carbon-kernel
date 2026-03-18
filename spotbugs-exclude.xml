@@ -32,6 +32,18 @@
         <Class name="org.wso2.carbon.launcher.config.CarbonLaunchConfig" />
         <Bug pattern="URLCONNECTION_SSRF_FD" />
     </Match>
+    <Match>
+        <Class name="org.wso2.carbon.launcher.CarbonServer" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+    <Match>
+        <Class name="org.wso2.carbon.launcher.CarbonServerEvent" />
+        <Bug pattern="EI_EXPOSE_REP" />
+    </Match>
+    <Match>
+        <Class name="org.wso2.carbon.launcher.CarbonServerEvent" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
 
     <!--  WSO2 Carbon Kernel - Launcher [END] -->
 
@@ -60,6 +72,51 @@
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE" />
     </Match>
 
+
+    <Match>
+        <Class name="org.wso2.carbon.kernel.config.model.CarbonConfiguration" />
+        <Bug pattern="EI_EXPOSE_REP" />
+    </Match>
+    <Match>
+        <Class name="org.wso2.carbon.kernel.internal.DataHolder" />
+        <Bug pattern="EI_EXPOSE_REP" />
+    </Match>
+    <Match>
+        <Class name="org.wso2.carbon.kernel.internal.DataHolder" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+    <Match>
+        <Class name="org.wso2.carbon.kernel.internal.DataHolder" />
+        <Bug pattern="MS_EXPOSE_REP" />
+    </Match>
+    <Match>
+        <Class name="org.wso2.carbon.kernel.internal.context.DefaultCarbonRuntime" />
+        <Bug pattern="EI_EXPOSE_REP" />
+    </Match>
+    <Match>
+        <Class name="org.wso2.carbon.kernel.internal.context.DefaultCarbonRuntime" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+    <Match>
+        <Class name="org.wso2.carbon.kernel.internal.context.CarbonContextHolder" />
+        <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" />
+    </Match>
+    <Match>
+        <Class name="org.wso2.carbon.kernel.internal.runtime.RuntimeManager" />
+        <Bug pattern="EI_EXPOSE_REP" />
+    </Match>
+    <Match>
+        <Class name="org.wso2.carbon.kernel.internal.startupresolver.beans.OSGiServiceCapability" />
+        <Bug pattern="EI_EXPOSE_REP" />
+    </Match>
+    <Match>
+        <Class name="org.wso2.carbon.kernel.internal.startupresolver.beans.StartupComponent" />
+        <Bug pattern="EI_EXPOSE_REP" />
+    </Match>
+    <Match>
+        <Class name="org.wso2.carbon.kernel.jmx.connection.SingleAddressRMIServerSocketFactory" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
 
     <!--  WSO2 Carbon Kernel - Core [END] -->
 
@@ -138,6 +195,11 @@
         <Bug pattern="COMMAND_INJECTION" />
     </Match>
 
+    <Match>
+        <Class name="org.wso2.carbon.tools.spi.ICFProviderTool" />
+        <Bug pattern="FORMAT_STRING_MANIPULATION" />
+    </Match>
+
     <!--  WSO2 Carbon Kernel - Tools - Core [END] -->
 
     <!--  WSO2 Carbon Kernel - Tools - Pax Exam Container [BEGIN] -->
@@ -160,5 +222,27 @@
         <Bug pattern="COMMAND_INJECTION" />
     </Match>
 
+    <Match>
+        <Class name="org.wso2.carbon.container.CarbonTestContainer" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+
     <!--  WSO2 Carbon Kernel - Tools - Pax Exam Container [END] -->
+
+    <!--  WSO2 Carbon Kernel - Test Artifacts [BEGIN] -->
+
+    <Match>
+        <Package name="~org\.wso2\.carbon\.sample.*" />
+        <Bug pattern="CRLF_INJECTION_LOGS" />
+    </Match>
+    <Match>
+        <Class name="~org\.wso2\.carbon\.sample\.(deployer|repository|runtime|transport).*Listener" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+    <Match>
+        <Class name="org.wso2.carbon.sample.startuporder.OrderResolverMonitor" />
+        <Bug pattern="MS_EXPOSE_REP" />
+    </Match>
+
+    <!--  WSO2 Carbon Kernel - Test Artifacts [END] -->
 </FindBugsFilter>

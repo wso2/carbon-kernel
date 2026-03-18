@@ -22,4 +22,8 @@
         <Package name="~org\.test\.component\.*" />
         <Bug pattern="CRLF_INJECTION_LOGS" />
     </Match>
+    <Match>
+        <Class name="~.*\.internal\.DataHolder" />
+        <Bug pattern="MS_EXPOSE_REP" />
+    </Match>
 </FindBugsFilter>

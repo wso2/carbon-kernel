@@ -128,7 +128,9 @@
                                 <goal>javadoc</goal>
                             </goals>
                             <configuration>
-                                <additionalparam>-Xdoclint:none</additionalparam>
+                                <additionalJOptions>
+                                    <additionalJOption>-Xdoclint:none</additionalJOption>
+                                </additionalJOptions>
                             </configuration>
                         </execution>
                     </executions>
@@ -180,8 +182,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>21</source>
+                    <target>21</target>
                 </configuration>
             </plugin>
         </plugins>
@@ -753,12 +755,13 @@
         <maven.wagon.ssh.version>2.1</maven.wagon.ssh.version>
         <maven.paxexam.plugin.version>1.2.4</maven.paxexam.plugin.version>
         <maven.archetype.version>3.0.0</maven.archetype.version>
-        <maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
+        <maven.surefire.plugin.version>3.2.5</maven.surefire.plugin.version>
         <maven-project.version>2.2.1</maven-project.version>
         <maven-plugin-api.version>3.3.9</maven-plugin-api.version>
         <maven-plugin-annotations.version>3.4</maven-plugin-annotations.version>
         <maven-core.version>3.3.9</maven-core.version>
         <maven-bundle-plugin.version>3.3.0</maven-bundle-plugin.version>
+        <maven.spotbugsplugin.version>4.7.3.4</maven.spotbugsplugin.version>
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
 
         <!--Pax Exam Versions-->
@@ -778,8 +781,8 @@
         <!--Other dependency versions -->
         <carbon.feature.plugin.version>3.1.5</carbon.feature.plugin.version>
         <testng.version>6.9.4</testng.version>
-        <jacoco.version>0.8.2</jacoco.version>
-        <org.jacoco.ant.version>0.7.5.201505241946</org.jacoco.ant.version>
+        <jacoco.version>0.8.11</jacoco.version>
+        <org.jacoco.ant.version>0.8.11</org.jacoco.ant.version>
         <commons.io.version>2.11.0.wso2v1</commons.io.version>
         <commons.compress.version>1.4.1</commons.compress.version>
         <org.kohsuke.metainf.services.version>1.9</org.kohsuke.metainf.services.version>

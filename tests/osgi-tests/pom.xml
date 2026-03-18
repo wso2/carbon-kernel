@@ -313,7 +313,7 @@
                                         </taskdef>
                                         <jacoco:report>
                                             <executiondata>
-                                                <file file="${project.build.directory}/jacoco.exec" />
+                                                <fileset dir="${project.build.directory}" includes="jacoco.exec"/>
                                             </executiondata>
                                             <structure name="Carbon Core OSGi Tests">
                                                 <classfiles>

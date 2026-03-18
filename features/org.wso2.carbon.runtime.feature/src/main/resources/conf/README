@@ -1,0 +1,26 @@
+CARBON_HOME/conf/{runtime} directory contains configuration files relates to runtime.
+Usage of the sub-directories of relevant configurations are as follows.
+
+1. etc <directory>
+
+     - pax-logging.properties
+     This file contains the configuration properties required for initializing the pax-logging framework.
+
+2. osgi <directory>
+
+	 - launch.properties
+	 This file contains the WSO2 Carbon osgi runtime configuration overrides. The properties defined here are loaded
+	 prior to starting the framework and can also be used to override System Properties.
+
+	 - osgi-debug.options
+         This file contains the debug options for WSO2 Carbon osgi runtime.
+
+3. log4j2.xml
+    The log4j2 configuration file used by WSO2 Carbon.
+
+
+4. README.txt
+    This file.
+
+
+

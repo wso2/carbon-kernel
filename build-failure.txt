@@ -1,0 +1,1836 @@
+mn%
+gayaldassanayake@gayald carbon-kernel % mvn clean install -DskipTests
+
+[INFO] Scanning for projects...
+[WARNING]
+[WARNING] Some problems were encountered while building the effective model for org.wso2.carbon:org.wso2.carbon.osgi.feature:carbon-feature:5.3.3-SNAPSHOT
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.wso2.orbit.javax.xml.bind:jaxb-api:jar -> duplicate declaration of version (?) @ line 136, column 21
+[WARNING]
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING]
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING]
+[WARNING] The project org.wso2.carbon:carbon-kernel-parent:pom:5.3.3-SNAPSHOT uses prerequisites which is only intended for maven-plugin projects but not for non maven-plugin projects. For such purposes you should use the maven-enforcer-plugin. See https://maven.apache.org/enforcer/enforcer-rules/requireMavenVersion.html
+[WARNING] The project org.wso2.carbon:carbon-kernel:pom:5.3.3-SNAPSHOT uses prerequisites which is only intended for maven-plugin projects but not for non maven-plugin projects. For such purposes you should use the maven-enforcer-plugin. See https://maven.apache.org/enforcer/enforcer-rules/requireMavenVersion.html
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO]
+[INFO] WSO2 Carbon Kernel - Parent Pom                                    [pom]
+[INFO] WSO2 Carbon Kernel - Launcher                                      [jar]
+[INFO] WSO2 Carbon Kernel - Core                                       [bundle]
+[INFO] WSO2 Carbon Kernel - Archetypes                                    [pom]
+[INFO] WSO2 Carbon Kernel - Bundle Archetype                  [maven-archetype]
+[INFO] WSO2 Carbon Kernel - Component Archetype               [maven-archetype]
+[INFO] WSO2 Carbon Kernel - Tools                                         [pom]
+[INFO] WSO2 Carbon Kernel - Tools - Test Artifacts                        [jar]
+[INFO] WSO2 Carbon Kernel - Tools - Core                                  [jar]
+[INFO] WSO2 Carbon Kernel - Pax Exam Container Parent                     [pom]
+[INFO] WSO2 Carbon Kernel - Pax Exam Container                            [jar]
+[INFO] WSO2 Carbon Kernel - Pax Exam Feature                   [carbon-feature]
+[INFO] WSO2 Carbon Kernel - Features Parent                               [pom]
+[INFO] WSO2 Carbon Kernel - Runtime Feature                    [carbon-feature]
+[INFO] WSO2 Carbon Kernel - Server Feature                     [carbon-feature]
+[INFO] WSO2 Carbon Kernel - OSGI Feature                       [carbon-feature]
+[INFO] WSO2 Carbon Kernel - Distribution                                  [pom]
+[INFO] WSO2 Carbon Kernel - Tests                                         [pom]
+[INFO] WSO2 Carbon Kernel - Test - Distribution                           [pom]
+[INFO] WSO2 Carbon Kernel - Sample Tests Artifacts                        [pom]
+[INFO] WSO2 Carbon Kernel - Startup Order Resolver Samples                [pom]
+[INFO] WSO2 Carbon Kernel - Sample Order Resolver                      [bundle]
+[INFO] WSO2 Carbon Kernel - Sample Transport Manager                   [bundle]
+[INFO] WSO2 Carbon Kernel - Sample Transport HTTP                      [bundle]
+[INFO] WSO2 Carbon Kernel - Sample Transport JMS                       [bundle]
+[INFO] WSO2 Carbon Kernel - Sample Transport Jetty                     [bundle]
+[INFO] WSO2 Carbon Kernel - Sample Transport Custom                    [bundle]
+[INFO] WSO2 Carbon Kernel - Sample Transport Custom2                   [bundle]
+[INFO] WSO2 Carbon Kernel - Sample Transport File                      [bundle]
+[INFO] WSO2 Carbon Kernel - Sample Transport FTP                       [bundle]
+[INFO] WSO2 Carbon Kernel - Sample Runtime Manager                     [bundle]
+[INFO] WSO2 Carbon Kernel - Sample Runtime MSS                         [bundle]
+[INFO] WSO2 Carbon Kernel - Sample Runtime Webapp                      [bundle]
+[INFO] WSO2 Carbon Kernel - Sample Runtime JAR                         [bundle]
+[INFO] WSO2 Carbon Kernel - Sample Runtime BPS                         [bundle]
+[INFO] WSO2 Carbon Kernel - Sample Runtime Custom                      [bundle]
+[INFO] WSO2 Carbon Kernel - Sample Deployer Manager                    [bundle]
+[INFO] WSO2 Carbon Kernel - Sample DataService Deployer                [bundle]
+[INFO] WSO2 Carbon Kernel - Sample Datasource Manager                  [bundle]
+[INFO] WSO2 Carbon Kernel - Sample Repository Manager                  [bundle]
+[INFO] WSO2 Carbon Kernel - Runtime Service                            [bundle]
+[INFO] WSO2 Carbon Kernel - Carbon Context Test Artifact               [bundle]
+[INFO] WSO2 Carbon Kernel - Sample Carbon Touchpoint Feature   [carbon-feature]
+[INFO] WSO2 Carbon Kernel - Test Carbon Touchpoint Distribution           [pom]
+[INFO] WSO2 Carbon Kernel - OSGi Tests                                    [jar]
+[INFO] WSO2 Carbon Kernel - Coverage Reports                              [jar]
+[INFO] WSO2 Carbon Kernel - Aggregate Pom                                 [pom]
+[INFO]
+[INFO] ----------------< org.wso2.carbon:carbon-kernel-parent >----------------
+[INFO] Building WSO2 Carbon Kernel - Parent Pom 5.3.3-SNAPSHOT           [1/47]
+[INFO]   from parent/pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO]
+[INFO] --- clean:3.0.0:clean (default-clean) @ carbon-kernel-parent ---
+[INFO] Deleting /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/parent/target
+[INFO]
+[INFO] --- checkstyle:2.17:check (validate) @ carbon-kernel-parent ---
+[INFO] Starting audit...
+Audit done.
+[INFO]
+[INFO] --- buildnumber:1.4:create (default) @ carbon-kernel-parent ---
+[INFO] Executing: /bin/sh -c cd '/Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/parent' && 'git' 'rev-parse' '--verify' 'HEAD'
+[INFO] Working directory: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/parent
+[INFO] Storing buildNumber: e22d2dc06bc2d268fbd37511e831a770d9547879 at timestamp: 1773227433369
+[INFO] Storing buildScmBranch: master
+[INFO]
+[INFO] --- remote-resources:1.5:process (default) @ carbon-kernel-parent ---
+[INFO]
+[INFO] >>> spotbugs:4.7.3.4:check (analyze-compile) > :spotbugs @ carbon-kernel-parent >>>
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:spotbugs (spotbugs) @ carbon-kernel-parent ---
+[INFO]
+[INFO] <<< spotbugs:4.7.3.4:check (analyze-compile) < :spotbugs @ carbon-kernel-parent <<<
+[INFO]
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:check (analyze-compile) @ carbon-kernel-parent ---
+[INFO]
+[INFO] --- install:2.5.2:install (default-install) @ carbon-kernel-parent ---
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/parent/pom.xml to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/carbon-kernel-parent/5.3.3-SNAPSHOT/carbon-kernel-parent-5.3.3-SNAPSHOT.pom
+[INFO]
+[INFO] --------------< org.wso2.carbon:org.wso2.carbon.launcher >--------------
+[INFO] Building WSO2 Carbon Kernel - Launcher 5.3.3-SNAPSHOT             [2/47]
+[INFO]   from launcher/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- clean:3.0.0:clean (default-clean) @ org.wso2.carbon.launcher ---
+[INFO] Deleting /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher/target
+[INFO]
+[INFO] --- checkstyle:2.17:check (validate) @ org.wso2.carbon.launcher ---
+[INFO] Starting audit...
+Audit done.
+[INFO]
+[INFO] --- buildnumber:1.4:create (default) @ org.wso2.carbon.launcher ---
+[INFO] Executing: /bin/sh -c cd '/Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher' && 'git' 'rev-parse' '--verify' 'HEAD'
+[INFO] Working directory: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher
+[INFO] Storing buildNumber: e22d2dc06bc2d268fbd37511e831a770d9547879 at timestamp: 1773227435161
+[INFO] Storing buildScmBranch: master
+[INFO]
+[INFO] --- remote-resources:1.5:process (default) @ org.wso2.carbon.launcher ---
+[INFO]
+[INFO] --- resources:2.7:resources (default-resources) @ org.wso2.carbon.launcher ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] Copying 3 resources
+[INFO]
+[INFO] --- compiler:3.5.1:compile (default-compile) @ org.wso2.carbon.launcher ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 15 source files to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher/target/classes
+[INFO] /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher/src/main/java/org/wso2/carbon/launcher/config/CarbonLaunchConfig.java: Some input files use or override a deprecated API.
+[INFO] /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher/src/main/java/org/wso2/carbon/launcher/config/CarbonLaunchConfig.java: Recompile with -Xlint:deprecation for details.
+[INFO] /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher/src/main/java/org/wso2/carbon/launcher/config/CarbonLaunchConfig.java: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher/src/main/java/org/wso2/carbon/launcher/config/CarbonLaunchConfig.java uses unchecked or unsafe operations.
+[INFO] /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher/src/main/java/org/wso2/carbon/launcher/config/CarbonLaunchConfig.java: Recompile with -Xlint:unchecked for details.
+[INFO]
+[INFO] >>> spotbugs:4.7.3.4:check (analyze-compile) > :spotbugs @ org.wso2.carbon.launcher >>>
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:spotbugs (spotbugs) @ org.wso2.carbon.launcher ---
+[INFO] Fork Value is true
+[INFO] Done SpotBugs Analysis....
+[INFO]
+[INFO] <<< spotbugs:4.7.3.4:check (analyze-compile) < :spotbugs @ org.wso2.carbon.launcher <<<
+[INFO]
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:check (analyze-compile) @ org.wso2.carbon.launcher ---
+[INFO] BugInstance size is 0
+[INFO] Error size is 0
+[INFO] No errors/warnings found
+[INFO]
+[INFO] --- jacoco:0.8.11:instrument (default-instrument) @ org.wso2.carbon.launcher ---
+[INFO]
+[INFO] --- resources:2.7:testResources (default-testResources) @ org.wso2.carbon.launcher ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 8 resources
+[INFO] Copying 3 resources
+[INFO]
+[INFO] --- compiler:3.5.1:testCompile (default-testCompile) @ org.wso2.carbon.launcher ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 13 source files to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher/target/test-classes
+[INFO] /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher/src/test/java/org/wso2/carbon/launcher/test/RunServerWithMainTest.java: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher/src/test/java/org/wso2/carbon/launcher/test/RunServerWithMainTest.java uses or overrides a deprecated API.
+[INFO] /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher/src/test/java/org/wso2/carbon/launcher/test/RunServerWithMainTest.java: Recompile with -Xlint:deprecation for details.
+[INFO]
+[INFO] --- dependency:2.10:copy (copy-plugins) @ org.wso2.carbon.launcher ---
+[INFO] Configured Artifact: org.eclipse.platform:org.eclipse.osgi:3.14.0:jar
+[INFO] Configured Artifact: org.wso2.eclipse.equinox:org.eclipse.equinox.simpleconfigurator:1.1.200.v20160504-1450:jar
+[INFO] Configured Artifact: org.eclipse.platform:org.eclipse.osgi:3.14.0:jar
+[INFO] Configured Artifact: org.wso2.eclipse.equinox:org.eclipse.equinox.simpleconfigurator:1.1.200.v20160504-1450:jar
+[INFO] Configured Artifact: org.wso2.eclipse.equinox:org.eclipse.equinox.util:1.0.500.v20130404-1337:jar
+[INFO] Configured Artifact: org.wso2.eclipse.equinox:org.eclipse.equinox.launcher:1.3.200.v20160318-1642:jar
+[INFO] Copying org.eclipse.osgi-3.14.0.jar to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher/target/carbon-home/wso2/lib/plugins/org.eclipse.osgi_3.14.0.jar
+[INFO] Copying org.eclipse.equinox.simpleconfigurator-1.1.200.v20160504-1450.jar to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher/target/carbon-home/wso2/lib/plugins/org.eclipse.equinox.simpleconfigurator_1.1.200.v20160504-1450.jar
+[INFO] Copying org.eclipse.osgi-3.14.0.jar to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher/target/carbon-home/lib/org.eclipse.osgi_3.14.0.jar
+[INFO] Copying org.eclipse.equinox.simpleconfigurator-1.1.200.v20160504-1450.jar to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher/target/carbon-home/lib/org.eclipse.equinox.simpleconfigurator_1.1.200.v20160504-1450.jar
+[INFO] Copying org.eclipse.equinox.util-1.0.500.v20130404-1337.jar to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher/target/carbon-home/lib/org.eclipse.equinox.util_1.0.500.v20130404-1337.jar
+[INFO] Copying org.eclipse.equinox.launcher-1.3.200.v20160318-1642.jar to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher/target/carbon-home/lib/org.eclipse.equinox.launcher_1.3.200.v20160318-1642.jar
+[INFO]
+[INFO] --- surefire:3.2.5:test (default-test) @ org.wso2.carbon.launcher ---
+[WARNING]  Parameter 'systemProperties' is deprecated: Use systemPropertyVariables instead.
+[INFO] Tests are skipped.
+[INFO]
+[INFO] --- jacoco:0.8.11:restore-instrumented-classes (default-restore-instrumented-classes) @ org.wso2.carbon.launcher ---
+[INFO]
+[INFO] --- jacoco:0.8.11:report (default-report) @ org.wso2.carbon.launcher ---
+[INFO] Skipping JaCoCo execution due to missing execution data file.
+[INFO]
+[INFO] --- jar:2.6:jar (default-jar) @ org.wso2.carbon.launcher ---
+[INFO] Building jar: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher/target/org.wso2.carbon.launcher-5.3.3-SNAPSHOT.jar
+[INFO]
+[INFO] --- jacoco:0.8.11:check (default-check) @ org.wso2.carbon.launcher ---
+[INFO] Skipping JaCoCo execution due to missing execution data file:/Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher/target/jacoco.exec
+[INFO]
+[INFO] --- source:3.0.0:jar-no-fork (attach-sources) @ org.wso2.carbon.launcher ---
+[INFO] Building jar: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher/target/org.wso2.carbon.launcher-5.3.3-SNAPSHOT-sources.jar
+[INFO]
+[INFO] --- install:2.5.2:install (default-install) @ org.wso2.carbon.launcher ---
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher/target/org.wso2.carbon.launcher-5.3.3-SNAPSHOT.jar to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.launcher/5.3.3-SNAPSHOT/org.wso2.carbon.launcher-5.3.3-SNAPSHOT.jar
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher/pom.xml to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.launcher/5.3.3-SNAPSHOT/org.wso2.carbon.launcher-5.3.3-SNAPSHOT.pom
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher/target/org.wso2.carbon.launcher-5.3.3-SNAPSHOT-sources.jar to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.launcher/5.3.3-SNAPSHOT/org.wso2.carbon.launcher-5.3.3-SNAPSHOT-sources.jar
+[INFO]
+[INFO] ----------------< org.wso2.carbon:org.wso2.carbon.core >----------------
+[INFO] Building WSO2 Carbon Kernel - Core 5.3.3-SNAPSHOT                 [3/47]
+[INFO]   from core/pom.xml
+[INFO] -------------------------------[ bundle ]-------------------------------
+[WARNING] 1 problem was encountered while building the effective model for org.javassist:javassist:jar:3.20.0-GA during dependency collection step for project (use -X to see details)
+[INFO]
+[INFO] --- clean:3.0.0:clean (default-clean) @ org.wso2.carbon.core ---
+[INFO] Deleting /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target
+[INFO]
+[INFO] --- checkstyle:2.17:check (validate) @ org.wso2.carbon.core ---
+[INFO] Starting audit...
+Audit done.
+[INFO]
+[INFO] --- buildnumber:1.4:create (default) @ org.wso2.carbon.core ---
+[INFO] Executing: /bin/sh -c cd '/Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core' && 'git' 'rev-parse' '--verify' 'HEAD'
+[INFO] Working directory: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core
+[INFO] Storing buildNumber: e22d2dc06bc2d268fbd37511e831a770d9547879 at timestamp: 1773227441140
+[INFO] Storing buildScmBranch: master
+[INFO]
+[INFO] --- remote-resources:1.5:process (default) @ org.wso2.carbon.core ---
+[INFO]
+[INFO] --- resources:2.7:resources (default-resources) @ org.wso2.carbon.core ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] Copying 3 resources
+[INFO]
+[INFO] --- compiler:3.5.1:compile (default-compile) @ org.wso2.carbon.core ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 55 source files to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/classes
+[INFO] /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/src/main/java/org/wso2/carbon/kernel/internal/startupresolver/StartupOrderResolverUtils.java: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/src/main/java/org/wso2/carbon/kernel/internal/startupresolver/StartupOrderResolverUtils.java uses or overrides a deprecated API that is marked for removal.
+[INFO] /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/src/main/java/org/wso2/carbon/kernel/internal/startupresolver/StartupOrderResolverUtils.java: Recompile with -Xlint:removal for details.
+[INFO]
+[INFO] >>> spotbugs:4.7.3.4:check (analyze-compile) > :spotbugs @ org.wso2.carbon.core >>>
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:spotbugs (spotbugs) @ org.wso2.carbon.core ---
+[INFO] Fork Value is true
+[INFO] Done SpotBugs Analysis....
+[INFO]
+[INFO] <<< spotbugs:4.7.3.4:check (analyze-compile) < :spotbugs @ org.wso2.carbon.core <<<
+[INFO]
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:check (analyze-compile) @ org.wso2.carbon.core ---
+[INFO] BugInstance size is 0
+[INFO] Error size is 0
+[INFO] No errors/warnings found
+[INFO]
+[INFO] >>> javadoc:2.10.3:javadoc (docs) > generate-sources @ org.wso2.carbon.core >>>
+[INFO]
+[INFO] --- checkstyle:2.17:check (validate) @ org.wso2.carbon.core ---
+[INFO] Starting audit...
+Audit done.
+[INFO]
+[INFO] --- buildnumber:1.4:create (default) @ org.wso2.carbon.core ---
+[INFO] Executing: /bin/sh -c cd '/Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core' && 'git' 'rev-parse' '--verify' 'HEAD'
+[INFO] Working directory: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core
+[INFO] Storing buildNumber: e22d2dc06bc2d268fbd37511e831a770d9547879 at timestamp: 1773227445700
+[INFO] Storing buildScmBranch: master
+[INFO]
+[INFO] <<< javadoc:2.10.3:javadoc (docs) < generate-sources @ org.wso2.carbon.core <<<
+[INFO]
+[INFO]
+[INFO] --- javadoc:2.10.3:javadoc (docs) @ org.wso2.carbon.core ---
+[WARNING] Javadoc Warnings
+[WARNING] Loading source files for package org.wso2.carbon.kernel.context...
+[WARNING] Loading source files for package org.wso2.carbon.kernel.config.model...
+[WARNING] Loading source files for package org.wso2.carbon.kernel.jmx.connection...
+[WARNING] Loading source files for package org.wso2.carbon.kernel.jmx.security...
+[WARNING] Loading source files for package org.wso2.carbon.kernel.jmx...
+[WARNING] Loading source files for package org.wso2.carbon.kernel...
+[WARNING] Loading source files for package org.wso2.carbon.kernel.runtime...
+[WARNING] Loading source files for package org.wso2.carbon.kernel.runtime.exception...
+[WARNING] Loading source files for package org.wso2.carbon.kernel.internal...
+[WARNING] Loading source files for package org.wso2.carbon.kernel.internal.context...
+[WARNING] Loading source files for package org.wso2.carbon.kernel.internal.config...
+[WARNING] Loading source files for package org.wso2.carbon.kernel.internal.jmx...
+[WARNING] Loading source files for package org.wso2.carbon.kernel.internal.runtime...
+[WARNING] Loading source files for package org.wso2.carbon.kernel.internal.startupresolver...
+[WARNING] Loading source files for package org.wso2.carbon.kernel.internal.startupresolver.beans...
+[WARNING] Loading source files for package org.wso2.carbon.kernel.internal.utils...
+[WARNING] Loading source files for package org.wso2.carbon.kernel.internal.command...
+[WARNING] Loading source files for package org.wso2.carbon.kernel.startupresolver...
+[WARNING] Loading source files for package org.wso2.carbon.kernel.startupresolver.manifest...
+[WARNING] Constructing Javadoc information...
+[WARNING] warning: The code being documented uses modules but the packages defined in http://docs.oracle.com/javase/8/docs/api/ are in the unnamed module.
+[WARNING] Building index for all the packages and classes...
+[WARNING] Standard Doclet version 21.0.2+13-jvmci-23.1-b30
+[WARNING] Building tree for all the packages and classes...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/beans/Capability.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/beans/Capability.CapabilityState.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/beans/Capability.CapabilityType.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/config/model/CapabilityListenerTimer.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/startupresolver/CapabilityProvider.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/beans/CapabilityProviderCapability.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/config/model/CarbonConfiguration.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/context/CarbonContext.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/context/CarbonContextHolder.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/CarbonCoreBundleActivator.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/CarbonCoreComponent.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/jmx/security/CarbonJMXAuthenticator.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/jmx/security/CarbonJMXCallbackHandler.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/jmx/CarbonJMXComponent.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/command/CarbonKernelCommandProvider.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/CarbonRuntime.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/context/CarbonRuntimeFactory.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/runtime/CarbonRuntimeService.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/runtime/CarbonRuntimeServiceMBean.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/CarbonServerInfo.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/CarbonStartupHandler.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/Constants.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/Constants.PlaceHolders.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/DataHolder.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/context/DefaultCarbonRuntime.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/config/model/DeploymentModeEnum.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/config/JMXConfiguration.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/config/JMXConfigurationException.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/startupresolver/manifest/ManifestElement.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/startupresolver/manifest/ManifestElementParserException.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/jmx/MBeanManagementFactory.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/jmx/MBeanRegistrator.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/MultiCounter.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/beans/OSGiServiceCapability.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/config/model/PendingCapabilityTimer.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/config/model/PortsConfig.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/context/PrivilegedCarbonContext.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/PrivilegedCarbonRuntime.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/startupresolver/RequiredCapabilityListener.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/runtime/Runtime.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/runtime/RuntimeManager.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/runtime/RuntimeService.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/runtime/exception/RuntimeServiceException.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/runtime/RuntimeServiceListenerComponent.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/runtime/RuntimeState.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/jmx/connection/SingleAddressRMIServerSocketFactory.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/StartOrderResolverException.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/beans/StartupComponent.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/StartupOrderResolver.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/config/model/StartupResolverConfig.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/StartupServiceCache.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/startupresolver/StartupServiceUtils.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/utils/Utils.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/config/model/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/config/model/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/context/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/context/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/command/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/command/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/config/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/config/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/context/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/context/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/jmx/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/jmx/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/runtime/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/runtime/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/beans/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/beans/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/utils/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/utils/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/jmx/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/jmx/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/jmx/connection/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/jmx/connection/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/jmx/security/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/jmx/security/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/runtime/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/runtime/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/runtime/exception/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/runtime/exception/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/startupresolver/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/startupresolver/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/startupresolver/manifest/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/startupresolver/manifest/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/constant-values.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/serialized-form.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/context/class-use/PrivilegedCarbonContext.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/context/class-use/CarbonContext.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/config/model/class-use/DeploymentModeEnum.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/config/model/class-use/PortsConfig.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/config/model/class-use/StartupResolverConfig.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/config/model/class-use/CarbonConfiguration.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/config/model/class-use/CapabilityListenerTimer.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/config/model/class-use/PendingCapabilityTimer.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/jmx/connection/class-use/SingleAddressRMIServerSocketFactory.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/jmx/security/class-use/CarbonJMXAuthenticator.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/jmx/security/class-use/CarbonJMXCallbackHandler.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/jmx/class-use/MBeanManagementFactory.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/jmx/class-use/MBeanRegistrator.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/class-use/CarbonRuntime.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/class-use/PrivilegedCarbonRuntime.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/class-use/CarbonServerInfo.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/class-use/Constants.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/class-use/Constants.PlaceHolders.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/runtime/class-use/RuntimeState.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/runtime/class-use/RuntimeService.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/runtime/class-use/Runtime.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/runtime/exception/class-use/RuntimeServiceException.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/class-use/DataHolder.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/class-use/CarbonCoreBundleActivator.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/class-use/CarbonStartupHandler.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/class-use/CarbonCoreComponent.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/context/class-use/DefaultCarbonRuntime.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/context/class-use/CarbonRuntimeFactory.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/context/class-use/CarbonContextHolder.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/config/class-use/JMXConfigurationException.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/config/class-use/JMXConfiguration.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/jmx/class-use/CarbonJMXComponent.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/runtime/class-use/RuntimeServiceListenerComponent.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/runtime/class-use/CarbonRuntimeService.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/runtime/class-use/CarbonRuntimeServiceMBean.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/runtime/class-use/RuntimeManager.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/class-use/StartupServiceCache.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/class-use/StartOrderResolverException.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/class-use/StartupOrderResolver.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/class-use/MultiCounter.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/beans/class-use/StartupComponent.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/beans/class-use/Capability.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/beans/class-use/Capability.CapabilityState.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/beans/class-use/Capability.CapabilityType.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/beans/class-use/CapabilityProviderCapability.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/beans/class-use/OSGiServiceCapability.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/utils/class-use/Utils.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/command/class-use/CarbonKernelCommandProvider.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/startupresolver/class-use/StartupServiceUtils.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/startupresolver/class-use/RequiredCapabilityListener.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/startupresolver/class-use/CapabilityProvider.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/startupresolver/manifest/class-use/ManifestElement.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/startupresolver/manifest/class-use/ManifestElementParserException.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/config/model/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/context/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/command/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/config/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/context/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/jmx/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/runtime/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/startupresolver/beans/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/internal/utils/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/jmx/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/jmx/connection/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/jmx/security/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/runtime/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/runtime/exception/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/startupresolver/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/org/wso2/carbon/kernel/startupresolver/manifest/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/overview-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/index.html...
+[WARNING] Building index for all classes...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/allclasses-index.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/allpackages-index.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/index-all.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/search.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/overview-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/site/apidocs/help-doc.html...
+[WARNING] 1 warning
+[INFO]
+[INFO] --- org.wso2.carbon.config..:2.1.0:create-doc (default) @ org.wso2.carbon.core ---
+[INFO]
+[INFO] --- jacoco:0.8.11:instrument (default-instrument) @ org.wso2.carbon.core ---
+[INFO]
+[INFO] --- resources:2.7:testResources (default-testResources) @ org.wso2.carbon.core ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 8 resources
+[INFO] Copying 3 resources
+[INFO]
+[INFO] --- compiler:3.5.1:testCompile (default-testCompile) @ org.wso2.carbon.core ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 20 source files to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/test-classes
+[INFO] /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/src/test/java/org/wso2/carbon/kernel/internal/context/CarbonConfigProviderImpl.java: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/src/test/java/org/wso2/carbon/kernel/internal/context/CarbonConfigProviderImpl.java uses or overrides a deprecated API.
+[INFO] /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/src/test/java/org/wso2/carbon/kernel/internal/context/CarbonConfigProviderImpl.java: Recompile with -Xlint:deprecation for details.
+[INFO] /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/src/test/java/org/wso2/carbon/kernel/utils/EnvironmentUtils.java: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/src/test/java/org/wso2/carbon/kernel/utils/EnvironmentUtils.java uses unchecked or unsafe operations.
+[INFO] /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/src/test/java/org/wso2/carbon/kernel/utils/EnvironmentUtils.java: Recompile with -Xlint:unchecked for details.
+[INFO]
+[INFO] --- surefire:3.2.5:test (default-test) @ org.wso2.carbon.core ---
+[INFO] Tests are skipped.
+[INFO]
+[INFO] --- jacoco:0.8.11:restore-instrumented-classes (default-restore-instrumented-classes) @ org.wso2.carbon.core ---
+[INFO]
+[INFO] --- jacoco:0.8.11:report (default-report) @ org.wso2.carbon.core ---
+[INFO] Skipping JaCoCo execution due to missing execution data file.
+[INFO]
+[INFO] --- bundle:3.3.0:bundle (default-bundle) @ org.wso2.carbon.core ---
+[WARNING] Bundle org.wso2.carbon:org.wso2.carbon.core:bundle:5.3.3-SNAPSHOT : Unused Import-Package instructions: [org.osgi.service.cm.*, org.w3c.*, org.xml.sax.*, javax.crypto.*]
+[WARNING] Bundle org.wso2.carbon:org.wso2.carbon.core:bundle:5.3.3-SNAPSHOT : Export org.wso2.carbon.kernel.config.model,  has 1,  private references [org.wso2.carbon.kernel.internal.config],
+[INFO]
+[INFO] --- javadoc:2.10.3:jar (attach-javadocs) @ org.wso2.carbon.core ---
+[WARNING] Javadoc Warnings
+[WARNING] Loading source files for package org.wso2.carbon.kernel.context...
+[WARNING] Loading source files for package org.wso2.carbon.kernel.config.model...
+[WARNING] Loading source files for package org.wso2.carbon.kernel.jmx.connection...
+[WARNING] Loading source files for package org.wso2.carbon.kernel.jmx.security...
+[WARNING] Loading source files for package org.wso2.carbon.kernel.jmx...
+[WARNING] Loading source files for package org.wso2.carbon.kernel...
+[WARNING] Loading source files for package org.wso2.carbon.kernel.runtime...
+[WARNING] Loading source files for package org.wso2.carbon.kernel.runtime.exception...
+[WARNING] Loading source files for package org.wso2.carbon.kernel.startupresolver...
+[WARNING] Loading source files for package org.wso2.carbon.kernel.startupresolver.manifest...
+[WARNING] Constructing Javadoc information...
+[WARNING] warning: The code being documented uses modules but the packages defined in http://docs.oracle.com/javase/8/docs/api/ are in the unnamed module.
+[WARNING] Building index for all the packages and classes...
+[WARNING] Standard Doclet version 21.0.2+13-jvmci-23.1-b30
+[WARNING] Building tree for all the packages and classes...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/config/model/CapabilityListenerTimer.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/startupresolver/CapabilityProvider.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/config/model/CarbonConfiguration.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/context/CarbonContext.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/jmx/security/CarbonJMXAuthenticator.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/jmx/security/CarbonJMXCallbackHandler.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/CarbonRuntime.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/CarbonServerInfo.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/Constants.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/Constants.PlaceHolders.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/config/model/DeploymentModeEnum.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/startupresolver/manifest/ManifestElement.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/startupresolver/manifest/ManifestElementParserException.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/jmx/MBeanManagementFactory.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/jmx/MBeanRegistrator.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/config/model/PendingCapabilityTimer.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/config/model/PortsConfig.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/context/PrivilegedCarbonContext.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/PrivilegedCarbonRuntime.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/startupresolver/RequiredCapabilityListener.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/runtime/Runtime.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/runtime/RuntimeService.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/runtime/exception/RuntimeServiceException.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/runtime/RuntimeState.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/jmx/connection/SingleAddressRMIServerSocketFactory.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/config/model/StartupResolverConfig.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/startupresolver/StartupServiceUtils.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/config/model/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/config/model/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/context/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/context/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/jmx/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/jmx/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/jmx/connection/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/jmx/connection/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/jmx/security/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/jmx/security/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/runtime/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/runtime/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/runtime/exception/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/runtime/exception/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/startupresolver/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/startupresolver/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/startupresolver/manifest/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/startupresolver/manifest/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/constant-values.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/serialized-form.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/context/class-use/PrivilegedCarbonContext.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/context/class-use/CarbonContext.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/config/model/class-use/DeploymentModeEnum.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/config/model/class-use/PortsConfig.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/config/model/class-use/StartupResolverConfig.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/config/model/class-use/CarbonConfiguration.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/config/model/class-use/CapabilityListenerTimer.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/config/model/class-use/PendingCapabilityTimer.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/jmx/connection/class-use/SingleAddressRMIServerSocketFactory.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/jmx/security/class-use/CarbonJMXAuthenticator.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/jmx/security/class-use/CarbonJMXCallbackHandler.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/jmx/class-use/MBeanManagementFactory.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/jmx/class-use/MBeanRegistrator.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/class-use/CarbonRuntime.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/class-use/PrivilegedCarbonRuntime.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/class-use/CarbonServerInfo.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/class-use/Constants.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/class-use/Constants.PlaceHolders.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/runtime/class-use/RuntimeState.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/runtime/class-use/RuntimeService.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/runtime/class-use/Runtime.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/runtime/exception/class-use/RuntimeServiceException.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/startupresolver/class-use/StartupServiceUtils.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/startupresolver/class-use/RequiredCapabilityListener.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/startupresolver/class-use/CapabilityProvider.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/startupresolver/manifest/class-use/ManifestElement.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/startupresolver/manifest/class-use/ManifestElementParserException.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/config/model/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/context/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/jmx/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/jmx/connection/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/jmx/security/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/runtime/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/runtime/exception/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/startupresolver/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/org/wso2/carbon/kernel/startupresolver/manifest/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/overview-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/index.html...
+[WARNING] Building index for all classes...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/allclasses-index.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/allpackages-index.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/index-all.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/search.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/apidocs/overview-summary.html...
+[WARNING] 1 warning
+[INFO] Building jar: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/org.wso2.carbon.core-5.3.3-SNAPSHOT-javadoc.jar
+[INFO]
+[INFO] --- source:3.0.0:jar-no-fork (attach-sources) @ org.wso2.carbon.core ---
+[INFO] Building jar: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/org.wso2.carbon.core-5.3.3-SNAPSHOT-sources.jar
+[INFO]
+[INFO] --- jacoco:0.8.11:check (default-check) @ org.wso2.carbon.core ---
+[INFO] Skipping JaCoCo execution due to missing execution data file:/Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/jacoco.exec
+[INFO]
+[INFO] --- install:2.5.2:install (default-install) @ org.wso2.carbon.core ---
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/org.wso2.carbon.core-5.3.3-SNAPSHOT.jar to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.core/5.3.3-SNAPSHOT/org.wso2.carbon.core-5.3.3-SNAPSHOT.jar
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/pom.xml to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.core/5.3.3-SNAPSHOT/org.wso2.carbon.core-5.3.3-SNAPSHOT.pom
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/org.wso2.carbon.core-5.3.3-SNAPSHOT-javadoc.jar to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.core/5.3.3-SNAPSHOT/org.wso2.carbon.core-5.3.3-SNAPSHOT-javadoc.jar
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/org.wso2.carbon.core-5.3.3-SNAPSHOT-sources.jar to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.core/5.3.3-SNAPSHOT/org.wso2.carbon.core-5.3.3-SNAPSHOT-sources.jar
+[INFO]
+[INFO] --- bundle:3.3.0:install (default-install) @ org.wso2.carbon.core ---
+[INFO] Local OBR update disabled (enable with -DobrRepository)
+[INFO]
+[INFO] -------------< org.wso2.carbon:org.wso2.carbon.archetypes >-------------
+[INFO] Building WSO2 Carbon Kernel - Archetypes 5.3.3-SNAPSHOT           [4/47]
+[INFO]   from archetypes/pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO]
+[INFO] --- clean:3.0.0:clean (default-clean) @ org.wso2.carbon.archetypes ---
+[INFO] Deleting /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/target
+[INFO]
+[INFO] --- checkstyle:2.17:check (validate) @ org.wso2.carbon.archetypes ---
+[INFO] Starting audit...
+Audit done.
+[INFO]
+[INFO] --- buildnumber:1.4:create (default) @ org.wso2.carbon.archetypes ---
+[INFO] Executing: /bin/sh -c cd '/Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes' && 'git' 'rev-parse' '--verify' 'HEAD'
+[INFO] Working directory: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes
+[INFO] Storing buildNumber: e22d2dc06bc2d268fbd37511e831a770d9547879 at timestamp: 1773227450674
+[INFO] Storing buildScmBranch: master
+[INFO]
+[INFO] --- remote-resources:1.5:process (default) @ org.wso2.carbon.archetypes ---
+[INFO]
+[INFO] >>> spotbugs:4.7.3.4:check (analyze-compile) > :spotbugs @ org.wso2.carbon.archetypes >>>
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:spotbugs (spotbugs) @ org.wso2.carbon.archetypes ---
+[INFO]
+[INFO] <<< spotbugs:4.7.3.4:check (analyze-compile) < :spotbugs @ org.wso2.carbon.archetypes <<<
+[INFO]
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:check (analyze-compile) @ org.wso2.carbon.archetypes ---
+[INFO]
+[INFO] --- install:2.5.2:install (default-install) @ org.wso2.carbon.archetypes ---
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/pom.xml to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.archetypes/5.3.3-SNAPSHOT/org.wso2.carbon.archetypes-5.3.3-SNAPSHOT.pom
+[INFO]
+[INFO] ---------< org.wso2.carbon:org.wso2.carbon.archetypes.bundle >----------
+[INFO] Building WSO2 Carbon Kernel - Bundle Archetype 5.3.3-SNAPSHOT     [5/47]
+[INFO]   from archetypes/carbon-bundle-archetype/pom.xml
+[INFO] --------------------------[ maven-archetype ]---------------------------
+[INFO]
+[INFO] --- clean:3.0.0:clean (default-clean) @ org.wso2.carbon.archetypes.bundle ---
+[INFO] Deleting /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-bundle-archetype/target
+[INFO]
+[INFO] --- checkstyle:2.17:check (validate) @ org.wso2.carbon.archetypes.bundle ---
+[INFO] Starting audit...
+Audit done.
+[INFO]
+[INFO] --- buildnumber:1.4:create (default) @ org.wso2.carbon.archetypes.bundle ---
+[INFO] Executing: /bin/sh -c cd '/Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-bundle-archetype' && 'git' 'rev-parse' '--verify' 'HEAD'
+[INFO] Working directory: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-bundle-archetype
+[INFO] Storing buildNumber: e22d2dc06bc2d268fbd37511e831a770d9547879 at timestamp: 1773227450977
+[INFO] Storing buildScmBranch: master
+[INFO]
+[INFO] --- remote-resources:1.5:process (default) @ org.wso2.carbon.archetypes.bundle ---
+[INFO]
+[INFO] --- resources:2.7:resources (default-resources) @ org.wso2.carbon.archetypes.bundle ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 5 resources
+[INFO] Copying 3 resources
+[INFO]
+[INFO] >>> spotbugs:4.7.3.4:check (analyze-compile) > :spotbugs @ org.wso2.carbon.archetypes.bundle >>>
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:spotbugs (spotbugs) @ org.wso2.carbon.archetypes.bundle ---
+[INFO]
+[INFO] <<< spotbugs:4.7.3.4:check (analyze-compile) < :spotbugs @ org.wso2.carbon.archetypes.bundle <<<
+[INFO]
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:check (analyze-compile) @ org.wso2.carbon.archetypes.bundle ---
+[INFO]
+[INFO] --- resources:2.7:testResources (default-testResources) @ org.wso2.carbon.archetypes.bundle ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 6 resources
+[INFO] Copying 3 resources
+[INFO]
+[INFO] --- archetype:3.0.0:jar (default-jar) @ org.wso2.carbon.archetypes.bundle ---
+[INFO] Building archetype jar: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-bundle-archetype/target/org.wso2.carbon.archetypes.bundle-5.3.3-SNAPSHOT
+[INFO]
+[INFO] --- archetype:3.0.0:integration-test (default-integration-test) @ org.wso2.carbon.archetypes.bundle ---
+[INFO] Processing Archetype IT project: bundle
+[INFO] ----------------------------------------------------------------------------
+[INFO] Using following parameters for creating project from Archetype: org.wso2.carbon.archetypes.bundle:5.3.3-SNAPSHOT
+[INFO] ----------------------------------------------------------------------------
+[INFO] Parameter: groupId, Value: org.test
+[INFO] Parameter: artifactId, Value: org.test.bundle
+[INFO] Parameter: version, Value: 1.0.0
+[INFO] Parameter: package, Value: org.test.bundle
+[INFO] Parameter: packageInPathFormat, Value: org/test/bundle
+[INFO] Parameter: package, Value: org.test.bundle
+[INFO] Parameter: groupId, Value: org.test
+[INFO] Parameter: artifactId, Value: org.test.bundle
+[INFO] Parameter: version, Value: 1.0.0
+[INFO] Project created from Archetype in dir: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-bundle-archetype/target/test-classes/projects/bundle/project/org.test.bundle
+[INFO] Comparing generated project with reference content: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-bundle-archetype/target/test-classes/projects/bundle/reference
+[INFO] Invoking post-archetype-generation goals: clean install verify
+[INFO] [INFO] Error stacktraces are turned on.
+[INFO] [INFO] Scanning for projects...
+[INFO] [INFO]
+[INFO] [INFO] ----------------------< org.test:org.test.bundle >----------------------
+[INFO] [INFO] Building WSO2 Carbon - Sample OSGi Bundle 1.0.0
+[INFO] [INFO]   from pom.xml
+[INFO] [INFO] -------------------------------[ bundle ]-------------------------------
+[INFO] [WARNING] Ignoring incompatible plugin version 4.0.0-beta-1: The plugin org.apache.maven.plugins:maven-resources-plugin:4.0.0-beta-1 requires Maven version 4.0.0-beta-3
+[INFO] [INFO] Latest version of plugin org.apache.maven.plugins:maven-resources-plugin failed compatibility check
+[INFO] [INFO] Looking for compatible RELEASE version of plugin org.apache.maven.plugins:maven-resources-plugin
+[INFO] [INFO] Selected plugin org.apache.maven.plugins:maven-resources-plugin:3.5.0
+[INFO] [WARNING] Ignoring incompatible plugin version 4.0.0-beta-4: The plugin org.apache.maven.plugins:maven-compiler-plugin:4.0.0-beta-4 requires Maven version 4.0.0-rc-4
+[INFO] [INFO] Latest version of plugin org.apache.maven.plugins:maven-compiler-plugin failed compatibility check
+[INFO] [INFO] Looking for compatible RELEASE version of plugin org.apache.maven.plugins:maven-compiler-plugin
+[INFO] [WARNING] Ignoring incompatible plugin version 4.0.0-beta-3: The plugin org.apache.maven.plugins:maven-compiler-plugin:4.0.0-beta-3 requires Maven version 4.0.0-rc-4
+[INFO] [WARNING] Ignoring incompatible plugin version 4.0.0-beta-2: The plugin org.apache.maven.plugins:maven-compiler-plugin:4.0.0-beta-2 requires Maven version 4.0.0-rc-2
+[INFO] [WARNING] Ignoring incompatible plugin version 4.0.0-beta-1: The plugin org.apache.maven.plugins:maven-compiler-plugin:4.0.0-beta-1 requires Maven version 4.0.0-beta-3
+[INFO] [INFO] Selected plugin org.apache.maven.plugins:maven-compiler-plugin:3.15.0
+[INFO] [WARNING] Ignoring incompatible plugin version 4.0.0-beta-2: The plugin org.apache.maven.plugins:maven-install-plugin:4.0.0-beta-2 requires Maven version 4.0.0-rc-2
+[INFO] [INFO] Latest version of plugin org.apache.maven.plugins:maven-install-plugin failed compatibility check
+[INFO] [INFO] Looking for compatible RELEASE version of plugin org.apache.maven.plugins:maven-install-plugin
+[INFO] [WARNING] Ignoring incompatible plugin version 4.0.0-beta-1: The plugin org.apache.maven.plugins:maven-install-plugin:4.0.0-beta-1 requires Maven version 4.0.0-beta-3
+[INFO] [INFO] Selected plugin org.apache.maven.plugins:maven-install-plugin:3.1.4
+[INFO] [WARNING] Ignoring incompatible plugin version 4.0.0-beta-2: The plugin org.apache.maven.plugins:maven-deploy-plugin:4.0.0-beta-2 requires Maven version 4.0.0-rc-2
+[INFO] [INFO] Latest version of plugin org.apache.maven.plugins:maven-deploy-plugin failed compatibility check
+[INFO] [INFO] Looking for compatible RELEASE version of plugin org.apache.maven.plugins:maven-deploy-plugin
+[INFO] [WARNING] Ignoring incompatible plugin version 4.0.0-beta-1: The plugin org.apache.maven.plugins:maven-deploy-plugin:4.0.0-beta-1 requires Maven version 4.0.0-beta-3
+[INFO] [INFO] Selected plugin org.apache.maven.plugins:maven-deploy-plugin:3.1.4
+[INFO] [INFO]
+[INFO] [INFO] --- clean:3.2.0:clean (default-clean) @ org.test.bundle ---
+[INFO] [INFO]
+[INFO] [INFO] --- resources:3.5.0:resources (default-resources) @ org.test.bundle ---
+[INFO] [WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!
+[INFO] [INFO] skip non existing resourceDirectory /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-bundle-archetype/target/test-classes/projects/bundle/project/org.test.bundle/src/main/resources
+[INFO] [INFO]
+[INFO] [INFO] --- compiler:3.15.0:compile (default-compile) @ org.test.bundle ---
+[INFO] [INFO] Recompiling the module because of changed source code.
+[INFO] [WARNING] File encoding has not been set, using platform encoding UTF-8, i.e. build is platform dependent!
+[INFO] [INFO] Compiling 2 source files with javac [debug target 1.8] to target/classes
+[INFO] [WARNING] bootstrap class path not set in conjunction with -source 8
+[INFO] [WARNING] source value 8 is obsolete and will be removed in a future release
+[INFO] [WARNING] target value 8 is obsolete and will be removed in a future release
+[INFO] [WARNING] To suppress warnings about obsolete options, use -Xlint:-options.
+[INFO] [INFO]
+[INFO] [INFO] --- resources:3.5.0:testResources (default-testResources) @ org.test.bundle ---
+[INFO] [WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!
+[INFO] [INFO] skip non existing resourceDirectory /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-bundle-archetype/target/test-classes/projects/bundle/project/org.test.bundle/src/test/resources
+[INFO] [INFO]
+[INFO] [INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ org.test.bundle ---
+[INFO] [INFO] Recompiling the module because of changed dependency.
+[INFO] [WARNING] File encoding has not been set, using platform encoding UTF-8, i.e. build is platform dependent!
+[INFO] [INFO] Compiling 1 source file with javac [debug target 1.8] to target/test-classes
+[INFO] [WARNING] bootstrap class path not set in conjunction with -source 8
+[INFO] [WARNING] source value 8 is obsolete and will be removed in a future release
+[INFO] [WARNING] target value 8 is obsolete and will be removed in a future release
+[INFO] [WARNING] To suppress warnings about obsolete options, use -Xlint:-options.
+[INFO] [INFO]
+[INFO] [INFO] --- surefire:3.5.5:test (default-test) @ org.test.bundle ---
+[INFO] [INFO] Surefire report directory: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-bundle-archetype/target/test-classes/projects/bundle/project/org.test.bundle/target/surefire-reports
+[INFO] [INFO] Using auto detected provider org.apache.maven.surefire.testng.TestNGProvider
+[INFO] [INFO]
+[INFO] [INFO] -------------------------------------------------------
+[INFO] [INFO]  T E S T S
+[INFO] [INFO] -------------------------------------------------------
+[INFO] [INFO] Running org.test.bundle.GreeterTest
+[INFO] Configuring TestNG with: TestNG60Configurator
+[INFO] [INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.208 s -- in org.test.bundle.GreeterTest
+[INFO] [INFO]
+[INFO] [INFO] Results:
+[INFO] [INFO]
+[INFO] [INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] [INFO]
+[INFO] [INFO]
+[INFO] [INFO] --- bundle:3.0.1:bundle (default-bundle) @ org.test.bundle ---
+[INFO] [INFO]
+[INFO] [INFO] --- install:3.1.4:install (default-install) @ org.test.bundle ---
+[INFO] [INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-bundle-archetype/target/test-classes/projects/bundle/project/org.test.bundle/pom.xml to /Users/gayaldassanayake/.m2/repository/org/test/org.test.bundle/1.0.0/org.test.bundle-1.0.0.pom
+[INFO] [INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-bundle-archetype/target/test-classes/projects/bundle/project/org.test.bundle/target/org.test.bundle-1.0.0.jar to /Users/gayaldassanayake/.m2/repository/org/test/org.test.bundle/1.0.0/org.test.bundle-1.0.0.jar
+[INFO] [INFO]
+[INFO] [INFO] --- bundle:3.0.1:install (default-install) @ org.test.bundle ---
+[INFO] [INFO] Installing org/test/org.test.bundle/1.0.0/org.test.bundle-1.0.0.jar
+[INFO] [INFO] Writing OBR metadata
+[INFO] [INFO]
+[INFO] [INFO] --- resources:3.5.0:resources (default-resources) @ org.test.bundle ---
+[INFO] [WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!
+[INFO] [INFO] skip non existing resourceDirectory /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-bundle-archetype/target/test-classes/projects/bundle/project/org.test.bundle/src/main/resources
+[INFO] [INFO]
+[INFO] [INFO] --- compiler:3.15.0:compile (default-compile) @ org.test.bundle ---
+[INFO] [INFO] Nothing to compile - all classes are up to date.
+[INFO] [WARNING] Overwriting artifact's file from /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-bundle-archetype/target/test-classes/projects/bundle/project/org.test.bundle/target/org.test.bundle-1.0.0.jar to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-bundle-archetype/target/test-classes/projects/bundle/project/org.test.bundle/target/classes
+[INFO] [INFO]
+[INFO] [INFO] --- resources:3.5.0:testResources (default-testResources) @ org.test.bundle ---
+[INFO] [WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!
+[INFO] [INFO] skip non existing resourceDirectory /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-bundle-archetype/target/test-classes/projects/bundle/project/org.test.bundle/src/test/resources
+[INFO] [INFO]
+[INFO] [INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ org.test.bundle ---
+[INFO] [INFO] Recompiling the module because of changed dependency.
+[INFO] [WARNING] File encoding has not been set, using platform encoding UTF-8, i.e. build is platform dependent!
+[INFO] [INFO] Compiling 1 source file with javac [debug target 1.8] to target/test-classes
+[INFO] [WARNING] bootstrap class path not set in conjunction with -source 8
+[INFO] [WARNING] source value 8 is obsolete and will be removed in a future release
+[INFO] [WARNING] target value 8 is obsolete and will be removed in a future release
+[INFO] [WARNING] To suppress warnings about obsolete options, use -Xlint:-options.
+[INFO] [INFO]
+[INFO] [INFO] --- surefire:3.5.5:test (default-test) @ org.test.bundle ---
+[INFO] [INFO] Skipping execution of surefire because it has already been run for this configuration
+[INFO] [INFO]
+[INFO] [INFO] --- bundle:3.0.1:bundle (default-bundle) @ org.test.bundle ---
+[INFO] [INFO] ------------------------------------------------------------------------
+[INFO] [INFO] BUILD SUCCESS
+[INFO] [INFO] ------------------------------------------------------------------------
+[INFO] [INFO] Total time:  3.007 s
+[INFO] [INFO] Finished at: 2026-03-11T16:40:55+05:30
+[INFO] [INFO] ------------------------------------------------------------------------
+[INFO] Post-archetype-generation invoker exit code: 0
+[INFO]
+[INFO] --- install:2.5.2:install (default-install) @ org.wso2.carbon.archetypes.bundle ---
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-bundle-archetype/target/org.wso2.carbon.archetypes.bundle-5.3.3-SNAPSHOT.jar to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.archetypes.bundle/5.3.3-SNAPSHOT/org.wso2.carbon.archetypes.bundle-5.3.3-SNAPSHOT.jar
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-bundle-archetype/pom.xml to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.archetypes.bundle/5.3.3-SNAPSHOT/org.wso2.carbon.archetypes.bundle-5.3.3-SNAPSHOT.pom
+[INFO]
+[INFO] --- archetype:3.0.0:update-local-catalog (default-update-local-catalog) @ org.wso2.carbon.archetypes.bundle ---
+[INFO]
+[INFO] --------< org.wso2.carbon:org.wso2.carbon.archetypes.component >--------
+[INFO] Building WSO2 Carbon Kernel - Component Archetype 5.3.3-SNAPSHOT  [6/47]
+[INFO]   from archetypes/carbon-component-archetype/pom.xml
+[INFO] --------------------------[ maven-archetype ]---------------------------
+[INFO]
+[INFO] --- clean:3.0.0:clean (default-clean) @ org.wso2.carbon.archetypes.component ---
+[INFO] Deleting /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-component-archetype/target
+[INFO]
+[INFO] --- checkstyle:2.17:check (validate) @ org.wso2.carbon.archetypes.component ---
+[INFO] Starting audit...
+Audit done.
+[INFO]
+[INFO] --- buildnumber:1.4:create (default) @ org.wso2.carbon.archetypes.component ---
+[INFO] Executing: /bin/sh -c cd '/Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-component-archetype' && 'git' 'rev-parse' '--verify' 'HEAD'
+[INFO] Working directory: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-component-archetype
+[INFO] Storing buildNumber: e22d2dc06bc2d268fbd37511e831a770d9547879 at timestamp: 1773227456269
+[INFO] Storing buildScmBranch: master
+[INFO]
+[INFO] --- remote-resources:1.5:process (default) @ org.wso2.carbon.archetypes.component ---
+[INFO]
+[INFO] --- resources:2.7:resources (default-resources) @ org.wso2.carbon.archetypes.component ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 7 resources
+[INFO] Copying 3 resources
+[INFO]
+[INFO] >>> spotbugs:4.7.3.4:check (analyze-compile) > :spotbugs @ org.wso2.carbon.archetypes.component >>>
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:spotbugs (spotbugs) @ org.wso2.carbon.archetypes.component ---
+[INFO]
+[INFO] <<< spotbugs:4.7.3.4:check (analyze-compile) < :spotbugs @ org.wso2.carbon.archetypes.component <<<
+[INFO]
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:check (analyze-compile) @ org.wso2.carbon.archetypes.component ---
+[INFO]
+[INFO] --- resources:2.7:testResources (default-testResources) @ org.wso2.carbon.archetypes.component ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 8 resources
+[INFO] Copying 3 resources
+[INFO]
+[INFO] --- archetype:3.0.0:jar (default-jar) @ org.wso2.carbon.archetypes.component ---
+[INFO] Building archetype jar: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-component-archetype/target/org.wso2.carbon.archetypes.component-5.3.3-SNAPSHOT
+[INFO]
+[INFO] --- archetype:3.0.0:integration-test (default-integration-test) @ org.wso2.carbon.archetypes.component ---
+[INFO] Processing Archetype IT project: component
+[INFO] ----------------------------------------------------------------------------
+[INFO] Using following parameters for creating project from Archetype: org.wso2.carbon.archetypes.component:5.3.3-SNAPSHOT
+[INFO] ----------------------------------------------------------------------------
+[INFO] Parameter: groupId, Value: org.test
+[INFO] Parameter: artifactId, Value: org.test.component
+[INFO] Parameter: version, Value: 1.0.0
+[INFO] Parameter: package, Value: org.test.component
+[INFO] Parameter: packageInPathFormat, Value: org/test/component
+[INFO] Parameter: package, Value: org.test.component
+[INFO] Parameter: groupId, Value: org.test
+[INFO] Parameter: artifactId, Value: org.test.component
+[INFO] Parameter: version, Value: 1.0.0
+[INFO] Project created from Archetype in dir: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-component-archetype/target/test-classes/projects/component/project/org.test.component
+[INFO] Comparing generated project with reference content: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-component-archetype/target/test-classes/projects/component/reference
+[INFO] Invoking post-archetype-generation goals: clean install verify
+[INFO] [INFO] Error stacktraces are turned on.
+[INFO] [INFO] Scanning for projects...
+[INFO] [INFO]
+[INFO] [INFO] --------------------< org.test:org.test.component >---------------------
+[INFO] [INFO] Building WSO2 Carbon - Sample Carbon Component 1.0.0
+[INFO] [INFO]   from pom.xml
+[INFO] [INFO] -------------------------------[ bundle ]-------------------------------
+[INFO] [INFO]
+[INFO] [INFO] --- clean:3.0.0:clean (default-clean) @ org.test.component ---
+[INFO] [INFO]
+[INFO] [INFO] --- checkstyle:2.17:check (validate) @ org.test.component ---
+[INFO] [INFO] Starting audit...
+[INFO] Audit done.
+[INFO] [INFO]
+[INFO] [INFO] --- buildnumber:1.4:create (default) @ org.test.component ---
+[INFO] [INFO] Executing: /bin/sh -c cd '/Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-component-archetype/target/test-classes/projects/component/project/org.test.component' && 'git' 'rev-parse' '--verify' 'HEAD'
+[INFO] [INFO] Working directory: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-component-archetype/target/test-classes/projects/component/project/org.test.component
+[INFO] [INFO] Storing buildNumber: e22d2dc06bc2d268fbd37511e831a770d9547879 at timestamp: 1773227461129
+[INFO] [INFO] Storing buildScmBranch: master
+[INFO] [INFO]
+[INFO] [INFO] --- remote-resources:1.5:process (default) @ org.test.component ---
+[INFO] [INFO]
+[INFO] [INFO] --- resources:2.7:resources (default-resources) @ org.test.component ---
+[INFO] [INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] [INFO] skip non existing resourceDirectory /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-component-archetype/target/test-classes/projects/component/project/org.test.component/src/main/resources
+[INFO] [INFO] Copying 3 resources
+[INFO] [INFO]
+[INFO] [INFO] --- compiler:3.5.1:compile (default-compile) @ org.test.component ---
+[INFO] [INFO] Changes detected - recompiling the module!
+[INFO] [INFO] Compiling 4 source files to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-component-archetype/target/test-classes/projects/component/project/org.test.component/target/classes
+[INFO] [INFO]
+[INFO] [INFO] >>> spotbugs:4.7.3.4:check (analyze-compile) > :spotbugs @ org.test.component >>>
+[INFO] [INFO]
+[INFO] [INFO] --- spotbugs:4.7.3.4:spotbugs (spotbugs) @ org.test.component ---
+[INFO] [INFO] Fork Value is true
+[INFO] [INFO] Done SpotBugs Analysis....
+[INFO] [INFO]
+[INFO] [INFO] <<< spotbugs:4.7.3.4:check (analyze-compile) < :spotbugs @ org.test.component <<<
+[INFO] [INFO]
+[INFO] [INFO]
+[INFO] [INFO] --- spotbugs:4.7.3.4:check (analyze-compile) @ org.test.component ---
+[INFO] [INFO] BugInstance size is 0
+[INFO] [INFO] Error size is 0
+[INFO] [INFO] No errors/warnings found
+[INFO] [INFO]
+[INFO] [INFO] --- resources:2.7:testResources (default-testResources) @ org.test.component ---
+[INFO] [INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] [INFO] skip non existing resourceDirectory /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-component-archetype/target/test-classes/projects/component/project/org.test.component/src/test/resources
+[INFO] [INFO] Copying 3 resources
+[INFO] [INFO]
+[INFO] [INFO] --- compiler:3.5.1:testCompile (default-testCompile) @ org.test.component ---
+[INFO] [INFO] No sources to compile
+[INFO] [INFO]
+[INFO] [INFO] --- surefire:3.2.5:test (default-test) @ org.test.component ---
+[INFO] [INFO]
+[INFO] [INFO] --- bundle:3.3.0:bundle (default-bundle) @ org.test.component ---
+[INFO] [INFO]
+[INFO] [INFO] --- install:2.5.2:install (default-install) @ org.test.component ---
+[INFO] [INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-component-archetype/target/test-classes/projects/component/project/org.test.component/target/org.test.component-1.0.0.jar to /Users/gayaldassanayake/.m2/repository/org/test/org.test.component/1.0.0/org.test.component-1.0.0.jar
+[INFO] [INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-component-archetype/target/test-classes/projects/component/project/org.test.component/pom.xml to /Users/gayaldassanayake/.m2/repository/org/test/org.test.component/1.0.0/org.test.component-1.0.0.pom
+[INFO] [INFO]
+[INFO] [INFO] --- bundle:3.3.0:install (default-install) @ org.test.component ---
+[INFO] [INFO] Local OBR update disabled (enable with -DobrRepository)
+[INFO] [INFO]
+[INFO] [INFO] --- checkstyle:2.17:check (validate) @ org.test.component ---
+[INFO] [INFO] Starting audit...
+[INFO] Audit done.
+[INFO] [INFO]
+[INFO] [INFO] --- buildnumber:1.4:create (default) @ org.test.component ---
+[INFO] [INFO] Executing: /bin/sh -c cd '/Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-component-archetype/target/test-classes/projects/component/project/org.test.component' && 'git' 'rev-parse' '--verify' 'HEAD'
+[INFO] [INFO] Working directory: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-component-archetype/target/test-classes/projects/component/project/org.test.component
+[INFO] [INFO] Storing buildNumber: e22d2dc06bc2d268fbd37511e831a770d9547879 at timestamp: 1773227465499
+[INFO] [INFO] Storing buildScmBranch: master
+[INFO] [INFO]
+[INFO] [INFO] --- remote-resources:1.5:process (default) @ org.test.component ---
+[INFO] [INFO]
+[INFO] [INFO] --- resources:2.7:resources (default-resources) @ org.test.component ---
+[INFO] [INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] [INFO] skip non existing resourceDirectory /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-component-archetype/target/test-classes/projects/component/project/org.test.component/src/main/resources
+[INFO] [INFO] Copying 3 resources
+[INFO] [INFO] Copying 3 resources
+[INFO] [INFO]
+[INFO] [INFO] --- compiler:3.5.1:compile (default-compile) @ org.test.component ---
+[INFO] [INFO] Nothing to compile - all classes are up to date
+[INFO] [INFO]
+[INFO] [INFO] >>> spotbugs:4.7.3.4:check (analyze-compile) > :spotbugs @ org.test.component >>>
+[INFO] [INFO]
+[INFO] [INFO] --- spotbugs:4.7.3.4:spotbugs (spotbugs) @ org.test.component ---
+[INFO] [INFO] Fork Value is true
+[INFO] [INFO] Done SpotBugs Analysis....
+[INFO] [INFO]
+[INFO] [INFO] <<< spotbugs:4.7.3.4:check (analyze-compile) < :spotbugs @ org.test.component <<<
+[INFO] [INFO]
+[INFO] [INFO]
+[INFO] [INFO] --- spotbugs:4.7.3.4:check (analyze-compile) @ org.test.component ---
+[INFO] [INFO] BugInstance size is 0
+[INFO] [INFO] Error size is 0
+[INFO] [INFO] No errors/warnings found
+[INFO] [INFO]
+[INFO] [INFO] --- resources:2.7:testResources (default-testResources) @ org.test.component ---
+[INFO] [INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] [INFO] skip non existing resourceDirectory /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-component-archetype/target/test-classes/projects/component/project/org.test.component/src/test/resources
+[INFO] [INFO] Copying 3 resources
+[INFO] [INFO] Copying 3 resources
+[INFO] [INFO]
+[INFO] [INFO] --- compiler:3.5.1:testCompile (default-testCompile) @ org.test.component ---
+[INFO] [INFO] No sources to compile
+[INFO] [INFO]
+[INFO] [INFO] --- surefire:3.2.5:test (default-test) @ org.test.component ---
+[INFO] [INFO] Skipping execution of surefire because it has already been run for this configuration
+[INFO] [INFO]
+[INFO] [INFO] --- bundle:3.3.0:bundle (default-bundle) @ org.test.component ---
+[INFO] [INFO] ------------------------------------------------------------------------
+[INFO] [INFO] BUILD SUCCESS
+[INFO] [INFO] ------------------------------------------------------------------------
+[INFO] [INFO] Total time:  9.839 s
+[INFO] [INFO] Finished at: 2026-03-11T16:41:07+05:30
+[INFO] [INFO] ------------------------------------------------------------------------
+[INFO] Post-archetype-generation invoker exit code: 0
+[INFO]
+[INFO] --- install:2.5.2:install (default-install) @ org.wso2.carbon.archetypes.component ---
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-component-archetype/target/org.wso2.carbon.archetypes.component-5.3.3-SNAPSHOT.jar to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.archetypes.component/5.3.3-SNAPSHOT/org.wso2.carbon.archetypes.component-5.3.3-SNAPSHOT.jar
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/archetypes/carbon-component-archetype/pom.xml to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.archetypes.component/5.3.3-SNAPSHOT/org.wso2.carbon.archetypes.component-5.3.3-SNAPSHOT.pom
+[INFO]
+[INFO] --- archetype:3.0.0:update-local-catalog (default-update-local-catalog) @ org.wso2.carbon.archetypes.component ---
+[INFO]
+[INFO] ---------------< org.wso2.carbon:org.wso2.carbon.tools >----------------
+[INFO] Building WSO2 Carbon Kernel - Tools 5.3.3-SNAPSHOT                [7/47]
+[INFO]   from tools/pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO]
+[INFO] --- clean:3.0.0:clean (default-clean) @ org.wso2.carbon.tools ---
+[INFO] Deleting /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/target
+[INFO]
+[INFO] --- checkstyle:2.17:check (validate) @ org.wso2.carbon.tools ---
+[INFO] Starting audit...
+Audit done.
+[INFO]
+[INFO] --- buildnumber:1.4:create (default) @ org.wso2.carbon.tools ---
+[INFO] Executing: /bin/sh -c cd '/Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools' && 'git' 'rev-parse' '--verify' 'HEAD'
+[INFO] Working directory: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools
+[INFO] Storing buildNumber: e22d2dc06bc2d268fbd37511e831a770d9547879 at timestamp: 1773227467817
+[INFO] Storing buildScmBranch: master
+[INFO]
+[INFO] --- remote-resources:1.5:process (default) @ org.wso2.carbon.tools ---
+[INFO]
+[INFO] >>> spotbugs:4.7.3.4:check (analyze-compile) > :spotbugs @ org.wso2.carbon.tools >>>
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:spotbugs (spotbugs) @ org.wso2.carbon.tools ---
+[INFO]
+[INFO] <<< spotbugs:4.7.3.4:check (analyze-compile) < :spotbugs @ org.wso2.carbon.tools <<<
+[INFO]
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:check (analyze-compile) @ org.wso2.carbon.tools ---
+[INFO]
+[INFO] --- install:2.5.2:install (default-install) @ org.wso2.carbon.tools ---
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/pom.xml to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.tools/5.3.3-SNAPSHOT/org.wso2.carbon.tools-5.3.3-SNAPSHOT.pom
+[INFO]
+[INFO] -----------------< org.wso2.carbon:tool-test-artifact >-----------------
+[INFO] Building WSO2 Carbon Kernel - Tools - Test Artifacts 5.3.3-SNAPSHOT [8/47]
+[INFO]   from tools/tool-test-artifact/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- clean:3.0.0:clean (default-clean) @ tool-test-artifact ---
+[INFO] Deleting /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tool-test-artifact/target
+[INFO]
+[INFO] --- checkstyle:2.17:check (validate) @ tool-test-artifact ---
+[INFO] Starting audit...
+Audit done.
+[INFO]
+[INFO] --- buildnumber:1.4:create (default) @ tool-test-artifact ---
+[INFO] Executing: /bin/sh -c cd '/Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tool-test-artifact' && 'git' 'rev-parse' '--verify' 'HEAD'
+[INFO] Working directory: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tool-test-artifact
+[INFO] Storing buildNumber: e22d2dc06bc2d268fbd37511e831a770d9547879 at timestamp: 1773227468185
+[INFO] Storing buildScmBranch: master
+[INFO]
+[INFO] --- remote-resources:1.5:process (default) @ tool-test-artifact ---
+[INFO]
+[INFO] --- resources:2.7:resources (default-resources) @ tool-test-artifact ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tool-test-artifact/src/main/resources
+[INFO] Copying 3 resources
+[INFO]
+[INFO] --- compiler:3.5.1:compile (default-compile) @ tool-test-artifact ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 2 source files to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tool-test-artifact/target/classes
+[INFO]
+[INFO] >>> spotbugs:4.7.3.4:check (analyze-compile) > :spotbugs @ tool-test-artifact >>>
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:spotbugs (spotbugs) @ tool-test-artifact ---
+[INFO] Fork Value is true
+[INFO] Done SpotBugs Analysis....
+[INFO]
+[INFO] <<< spotbugs:4.7.3.4:check (analyze-compile) < :spotbugs @ tool-test-artifact <<<
+[INFO]
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:check (analyze-compile) @ tool-test-artifact ---
+[INFO] BugInstance size is 0
+[INFO] Error size is 0
+[INFO] No errors/warnings found
+[INFO]
+[INFO] --- resources:2.7:testResources (default-testResources) @ tool-test-artifact ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tool-test-artifact/src/test/resources
+[INFO] Copying 3 resources
+[INFO]
+[INFO] --- compiler:3.5.1:testCompile (default-testCompile) @ tool-test-artifact ---
+[INFO] No sources to compile
+[INFO]
+[INFO] --- surefire:3.2.5:test (default-test) @ tool-test-artifact ---
+[INFO] Tests are skipped.
+[INFO]
+[INFO] --- jar:2.6:jar (default-jar) @ tool-test-artifact ---
+[INFO] Building jar: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tool-test-artifact/target/tool-test-artifact-5.3.3-SNAPSHOT.jar
+[INFO]
+[INFO] --- install:2.5.2:install (default-install) @ tool-test-artifact ---
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tool-test-artifact/target/tool-test-artifact-5.3.3-SNAPSHOT.jar to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/tool-test-artifact/5.3.3-SNAPSHOT/tool-test-artifact-5.3.3-SNAPSHOT.jar
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tool-test-artifact/pom.xml to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/tool-test-artifact/5.3.3-SNAPSHOT/tool-test-artifact-5.3.3-SNAPSHOT.pom
+[INFO]
+[INFO] -------------< org.wso2.carbon:org.wso2.carbon.tools.core >-------------
+[INFO] Building WSO2 Carbon Kernel - Tools - Core 5.3.3-SNAPSHOT         [9/47]
+[INFO]   from tools/tools-core/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- clean:3.0.0:clean (default-clean) @ org.wso2.carbon.tools.core ---
+[INFO] Deleting /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target
+[INFO]
+[INFO] --- checkstyle:2.17:check (validate) @ org.wso2.carbon.tools.core ---
+[INFO] Starting audit...
+Audit done.
+[INFO]
+[INFO] --- buildnumber:1.4:create (default) @ org.wso2.carbon.tools.core ---
+[INFO] Executing: /bin/sh -c cd '/Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core' && 'git' 'rev-parse' '--verify' 'HEAD'
+[INFO] Working directory: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core
+[INFO] Storing buildNumber: e22d2dc06bc2d268fbd37511e831a770d9547879 at timestamp: 1773227470562
+[INFO] Storing buildScmBranch: master
+[INFO]
+[INFO] --- remote-resources:1.5:process (default) @ org.wso2.carbon.tools.core ---
+[INFO]
+[INFO] --- resources:2.7:resources (default-resources) @ org.wso2.carbon.tools.core ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/src/main/resources
+[INFO] Copying 3 resources
+[INFO]
+[INFO] --- compiler:3.5.1:compile (default-compile) @ org.wso2.carbon.tools.core ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 12 source files to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/classes
+[INFO] /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/src/main/java/org/wso2/carbon/tools/spi/SPIProviderTool.java: Some input files use or override a deprecated API.
+[INFO] /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/src/main/java/org/wso2/carbon/tools/spi/SPIProviderTool.java: Recompile with -Xlint:deprecation for details.
+[INFO]
+[INFO] >>> spotbugs:4.7.3.4:check (analyze-compile) > :spotbugs @ org.wso2.carbon.tools.core >>>
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:spotbugs (spotbugs) @ org.wso2.carbon.tools.core ---
+[INFO] Fork Value is true
+[INFO] Done SpotBugs Analysis....
+[INFO]
+[INFO] <<< spotbugs:4.7.3.4:check (analyze-compile) < :spotbugs @ org.wso2.carbon.tools.core <<<
+[INFO]
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:check (analyze-compile) @ org.wso2.carbon.tools.core ---
+[INFO] BugInstance size is 0
+[INFO] Error size is 0
+[INFO] No errors/warnings found
+[INFO]
+[INFO] >>> javadoc:2.10.3:javadoc (docs) > generate-sources @ org.wso2.carbon.tools.core >>>
+[INFO]
+[INFO] --- checkstyle:2.17:check (validate) @ org.wso2.carbon.tools.core ---
+[INFO] Starting audit...
+Audit done.
+[INFO]
+[INFO] --- buildnumber:1.4:create (default) @ org.wso2.carbon.tools.core ---
+[INFO] Executing: /bin/sh -c cd '/Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core' && 'git' 'rev-parse' '--verify' 'HEAD'
+[INFO] Working directory: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core
+[INFO] Storing buildNumber: e22d2dc06bc2d268fbd37511e831a770d9547879 at timestamp: 1773227474342
+[INFO] Storing buildScmBranch: master
+[INFO]
+[INFO] <<< javadoc:2.10.3:javadoc (docs) < generate-sources @ org.wso2.carbon.tools.core <<<
+[INFO]
+[INFO]
+[INFO] --- javadoc:2.10.3:javadoc (docs) @ org.wso2.carbon.tools.core ---
+[INFO] The goal 'org.apache.maven.plugins:maven-javadoc-plugin:2.10.3:javadoc' has not been previously called for the module: 'org.wso2.carbon:org.wso2.carbon.launcher:jar:5.3.3-SNAPSHOT'. Trying to invoke it...
+[INFO] The goal 'org.apache.maven.plugins:maven-javadoc-plugin:2.10.3:javadoc' has not been previously called for the module: 'org.wso2.carbon:tool-test-artifact:jar:5.3.3-SNAPSHOT'. Trying to invoke it...
+[ERROR] Error fetching link: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/launcher/target/site/apidocs/package-list. Ignored it.
+[ERROR] Error fetching link: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tool-test-artifact/target/site/apidocs/package-list. Ignored it.
+[WARNING] Javadoc Warnings
+[WARNING] Loading source files for package org.wso2.carbon.tools.converter...
+[WARNING] Loading source files for package org.wso2.carbon.tools.converter.utils...
+[WARNING] Loading source files for package org.wso2.carbon.tools...
+[WARNING] Loading source files for package org.wso2.carbon.tools.osgilib...
+[WARNING] Loading source files for package org.wso2.carbon.tools.spi...
+[WARNING] Loading source files for package org.wso2.carbon.tools.exception...
+[WARNING] Constructing Javadoc information...
+[WARNING] warning: The code being documented uses modules but the packages defined in http://docs.oracle.com/javase/8/docs/api/ are in the unnamed module.
+[WARNING] Building index for all the packages and classes...
+[WARNING] Standard Doclet version 21.0.2+13-jvmci-23.1-b30
+[WARNING] Building tree for all the packages and classes...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/converter/BundleGeneratorTool.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/converter/utils/BundleGeneratorUtils.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/CarbonTool.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/exception/CarbonToolException.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/CarbonToolExecutor.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/Constants.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/spi/ICFProviderTool.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/InstallJarsTool.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/spi/NativeLibraryProvider.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/osgilib/OSGiLibDeployerTool.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/spi/SPIProviderTool.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/converter/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/converter/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/converter/utils/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/converter/utils/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/exception/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/exception/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/osgilib/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/osgilib/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/spi/package-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/spi/package-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/constant-values.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/serialized-form.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/converter/class-use/BundleGeneratorTool.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/converter/utils/class-use/BundleGeneratorUtils.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/class-use/CarbonTool.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/class-use/CarbonToolExecutor.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/class-use/Constants.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/class-use/InstallJarsTool.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/osgilib/class-use/OSGiLibDeployerTool.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/spi/class-use/ICFProviderTool.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/spi/class-use/SPIProviderTool.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/spi/class-use/NativeLibraryProvider.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/exception/class-use/CarbonToolException.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/converter/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/converter/utils/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/exception/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/osgilib/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/org/wso2/carbon/tools/spi/package-use.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/overview-tree.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/index.html...
+[WARNING] Building index for all classes...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/allclasses-index.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/allpackages-index.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/index-all.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/search.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/overview-summary.html...
+[WARNING] Generating /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/site/apidocs/help-doc.html...
+[WARNING] 1 warning
+[INFO]
+[INFO] --- jacoco:0.8.11:instrument (default-instrument) @ org.wso2.carbon.tools.core ---
+[INFO]
+[INFO] --- dependency:2.10:copy (copy) @ org.wso2.carbon.tools.core ---
+[INFO] Configured Artifact: org.wso2.carbon:tool-test-artifact:?:jar
+[INFO] Configured Artifact: org.eclipse.platform:org.eclipse.osgi:3.14.0:jar
+[INFO] Configured Artifact: org.wso2.carbon:tool-test-artifact:?:jar
+[INFO] Configured Artifact: org.eclipse.platform:org.eclipse.osgi:3.14.0:jar
+[INFO] Configured Artifact: org.wso2.eclipse.equinox:org.eclipse.equinox.simpleconfigurator:1.1.200.v20160504-1450:jar
+[INFO] Configured Artifact: org.wso2.eclipse.equinox:org.eclipse.equinox.util:1.0.500.v20130404-1337:jar
+[INFO] Configured Artifact: org.wso2.eclipse.equinox:org.eclipse.equinox.launcher:1.3.200.v20160318-1642:jar
+[INFO] Copying tool-test-artifact-5.3.3-SNAPSHOT.jar to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/test-resources/converter/tool-test-artifact-5.3.3-SNAPSHOT.jar
+[INFO] Copying org.eclipse.osgi-3.14.0.jar to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/test-resources/converter/org.eclipse.osgi_3.14.0.jar
+[INFO] Copying tool-test-artifact-5.3.3-SNAPSHOT.jar to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/test-resources/lib/tool-test-artifact-5.3.3-SNAPSHOT.jar
+[INFO] Copying org.eclipse.osgi-3.14.0.jar to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/test-resources/lib/org.eclipse.osgi_3.14.0.jar
+[INFO] Copying org.eclipse.equinox.simpleconfigurator-1.1.200.v20160504-1450.jar to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/test-resources/lib/org.eclipse.equinox.simpleconfigurator_1.1.200.v20160504-1450.jar
+[INFO] Copying org.eclipse.equinox.util-1.0.500.v20130404-1337.jar to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/test-resources/lib/org.eclipse.equinox.util_1.0.500.v20130404-1337.jar
+[INFO] Copying org.eclipse.equinox.launcher-1.3.200.v20160318-1642.jar to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/test-resources/lib/org.eclipse.equinox.launcher_1.3.200.v20160318-1642.jar
+[INFO]
+[INFO] --- resources:2.7:testResources (default-testResources) @ org.wso2.carbon.tools.core ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] Copying 3 resources
+[INFO]
+[INFO] --- compiler:3.5.1:testCompile (default-testCompile) @ org.wso2.carbon.tools.core ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 10 source files to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/test-classes
+[INFO]
+[INFO] --- surefire:3.2.5:test (default-test) @ org.wso2.carbon.tools.core ---
+[WARNING]  Parameter 'systemProperties' is deprecated: Use systemPropertyVariables instead.
+[INFO] Tests are skipped.
+[INFO]
+[INFO] --- jacoco:0.8.11:restore-instrumented-classes (default-restore-instrumented-classes) @ org.wso2.carbon.tools.core ---
+[INFO]
+[INFO] --- jacoco:0.8.11:report (default-report) @ org.wso2.carbon.tools.core ---
+[INFO] Skipping JaCoCo execution due to missing execution data file.
+[INFO]
+[INFO] --- jar:2.6:jar (default-jar) @ org.wso2.carbon.tools.core ---
+[INFO] Building jar: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/org.wso2.carbon.tools.core.5.3.3-SNAPSHOT.jar
+[INFO]
+[INFO] --- source:3.0.0:jar-no-fork (attach-sources) @ org.wso2.carbon.tools.core ---
+[INFO] Building jar: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/org.wso2.carbon.tools.core-5.3.3-SNAPSHOT-sources.jar
+[INFO]
+[INFO] --- jacoco:0.8.11:check (default-check) @ org.wso2.carbon.tools.core ---
+[INFO] Skipping JaCoCo execution due to missing execution data file:/Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/jacoco.exec
+[INFO]
+[INFO] --- install:2.5.2:install (default-install) @ org.wso2.carbon.tools.core ---
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/org.wso2.carbon.tools.core.5.3.3-SNAPSHOT.jar to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.tools.core/5.3.3-SNAPSHOT/org.wso2.carbon.tools.core-5.3.3-SNAPSHOT.jar
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/pom.xml to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.tools.core/5.3.3-SNAPSHOT/org.wso2.carbon.tools.core-5.3.3-SNAPSHOT.pom
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/tools/tools-core/target/org.wso2.carbon.tools.core-5.3.3-SNAPSHOT-sources.jar to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.tools.core/5.3.3-SNAPSHOT/org.wso2.carbon.tools.core-5.3.3-SNAPSHOT-sources.jar
+[INFO]
+[INFO] -------------< org.wso2.carbon:pax-exam-container-carbon >--------------
+[INFO] Building WSO2 Carbon Kernel - Pax Exam Container Parent 5.3.3-SNAPSHOT [10/47]
+[INFO]   from pax-exam-container-carbon/pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO]
+[INFO] --- clean:3.0.0:clean (default-clean) @ pax-exam-container-carbon ---
+[INFO] Deleting /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/pax-exam-container-carbon/target
+[INFO]
+[INFO] --- checkstyle:2.17:check (validate) @ pax-exam-container-carbon ---
+[INFO] Starting audit...
+Audit done.
+[INFO]
+[INFO] --- buildnumber:1.4:create (default) @ pax-exam-container-carbon ---
+[INFO] Executing: /bin/sh -c cd '/Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/pax-exam-container-carbon' && 'git' 'rev-parse' '--verify' 'HEAD'
+[INFO] Working directory: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/pax-exam-container-carbon
+[INFO] Storing buildNumber: e22d2dc06bc2d268fbd37511e831a770d9547879 at timestamp: 1773227485110
+[INFO] Storing buildScmBranch: master
+[INFO]
+[INFO] --- remote-resources:1.5:process (default) @ pax-exam-container-carbon ---
+[INFO]
+[INFO] >>> spotbugs:4.7.3.4:check (analyze-compile) > :spotbugs @ pax-exam-container-carbon >>>
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:spotbugs (spotbugs) @ pax-exam-container-carbon ---
+[INFO]
+[INFO] <<< spotbugs:4.7.3.4:check (analyze-compile) < :spotbugs @ pax-exam-container-carbon <<<
+[INFO]
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:check (analyze-compile) @ pax-exam-container-carbon ---
+[INFO]
+[INFO] --- install:2.5.2:install (default-install) @ pax-exam-container-carbon ---
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/pax-exam-container-carbon/pom.xml to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/pax-exam-container-carbon/5.3.3-SNAPSHOT/pax-exam-container-carbon-5.3.3-SNAPSHOT.pom
+[INFO]
+[INFO] -------------< org.wso2.carbon:org.wso2.carbon.container >--------------
+[INFO] Building WSO2 Carbon Kernel - Pax Exam Container 5.3.3-SNAPSHOT  [11/47]
+[INFO]   from pax-exam-container-carbon/org.wso2.carbon.container/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- clean:3.0.0:clean (default-clean) @ org.wso2.carbon.container ---
+[INFO] Deleting /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/pax-exam-container-carbon/org.wso2.carbon.container/target
+[INFO]
+[INFO] --- checkstyle:2.17:check (validate) @ org.wso2.carbon.container ---
+[INFO] Starting audit...
+Audit done.
+[INFO]
+[INFO] --- buildnumber:1.4:create (default) @ org.wso2.carbon.container ---
+[INFO] Executing: /bin/sh -c cd '/Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/pax-exam-container-carbon/org.wso2.carbon.container' && 'git' 'rev-parse' '--verify' 'HEAD'
+[INFO] Working directory: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/pax-exam-container-carbon/org.wso2.carbon.container
+[INFO] Storing buildNumber: e22d2dc06bc2d268fbd37511e831a770d9547879 at timestamp: 1773227485500
+[INFO] Storing buildScmBranch: master
+[INFO]
+[INFO] --- remote-resources:1.5:process (default) @ org.wso2.carbon.container ---
+[INFO]
+[INFO] --- resources:2.7:resources (default-resources) @ org.wso2.carbon.container ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/pax-exam-container-carbon/org.wso2.carbon.container/src/main/resources
+[INFO] Copying 3 resources
+[INFO]
+[INFO] --- compiler:3.5.1:compile (default-compile) @ org.wso2.carbon.container ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 14 source files to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/pax-exam-container-carbon/org.wso2.carbon.container/target/classes
+[INFO] /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/pax-exam-container-carbon/org.wso2.carbon.container/src/main/java/org/wso2/carbon/container/CarbonTestContainer.java: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/pax-exam-container-carbon/org.wso2.carbon.container/src/main/java/org/wso2/carbon/container/CarbonTestContainer.java uses or overrides a deprecated API.
+[INFO] /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/pax-exam-container-carbon/org.wso2.carbon.container/src/main/java/org/wso2/carbon/container/CarbonTestContainer.java: Recompile with -Xlint:deprecation for details.
+[INFO]
+[INFO] >>> spotbugs:4.7.3.4:check (analyze-compile) > :spotbugs @ org.wso2.carbon.container >>>
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:spotbugs (spotbugs) @ org.wso2.carbon.container ---
+[INFO] Fork Value is true
+[INFO] Done SpotBugs Analysis....
+[INFO]
+[INFO] <<< spotbugs:4.7.3.4:check (analyze-compile) < :spotbugs @ org.wso2.carbon.container <<<
+[INFO]
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:check (analyze-compile) @ org.wso2.carbon.container ---
+[INFO] BugInstance size is 0
+[INFO] Error size is 0
+[INFO] No errors/warnings found
+[INFO]
+[INFO] --- resources:2.7:testResources (default-testResources) @ org.wso2.carbon.container ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/pax-exam-container-carbon/org.wso2.carbon.container/src/test/resources
+[INFO] Copying 3 resources
+[INFO]
+[INFO] --- compiler:3.5.1:testCompile (default-testCompile) @ org.wso2.carbon.container ---
+[INFO] No sources to compile
+[INFO]
+[INFO] --- surefire:3.2.5:test (default-test) @ org.wso2.carbon.container ---
+[INFO] Tests are skipped.
+[INFO]
+[INFO] --- jar:2.6:jar (default-jar) @ org.wso2.carbon.container ---
+[INFO] Building jar: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/pax-exam-container-carbon/org.wso2.carbon.container/target/org.wso2.carbon.container-5.3.3-SNAPSHOT.jar
+[INFO]
+[INFO] --- install:2.5.2:install (default-install) @ org.wso2.carbon.container ---
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/pax-exam-container-carbon/org.wso2.carbon.container/target/org.wso2.carbon.container-5.3.3-SNAPSHOT.jar to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.container/5.3.3-SNAPSHOT/org.wso2.carbon.container-5.3.3-SNAPSHOT.jar
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/pax-exam-container-carbon/org.wso2.carbon.container/pom.xml to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.container/5.3.3-SNAPSHOT/org.wso2.carbon.container-5.3.3-SNAPSHOT.pom
+[INFO]
+[INFO] ----------< org.wso2.carbon:org.wso2.carbon.pax.exam.feature >----------
+[INFO] Building WSO2 Carbon Kernel - Pax Exam Feature 5.3.3-SNAPSHOT    [12/47]
+[INFO]   from pax-exam-container-carbon/org.wso2.carbon.pax.exam.feature/pom.xml
+[INFO] ---------------------------[ carbon-feature ]---------------------------
+[INFO]
+[INFO] --- clean:3.0.0:clean (default-clean) @ org.wso2.carbon.pax.exam.feature ---
+[INFO] Deleting /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/pax-exam-container-carbon/org.wso2.carbon.pax.exam.feature/target
+[INFO]
+[INFO] --- checkstyle:2.17:check (validate) @ org.wso2.carbon.pax.exam.feature ---
+[INFO] Starting audit...
+Audit done.
+[INFO]
+[INFO] --- buildnumber:1.4:create (default) @ org.wso2.carbon.pax.exam.feature ---
+[INFO] Executing: /bin/sh -c cd '/Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/pax-exam-container-carbon/org.wso2.carbon.pax.exam.feature' && 'git' 'rev-parse' '--verify' 'HEAD'
+[INFO] Working directory: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/pax-exam-container-carbon/org.wso2.carbon.pax.exam.feature
+[INFO] Storing buildNumber: e22d2dc06bc2d268fbd37511e831a770d9547879 at timestamp: 1773227489128
+[INFO] Storing buildScmBranch: master
+[INFO]
+[INFO] --- remote-resources:1.5:process (default) @ org.wso2.carbon.pax.exam.feature ---
+[INFO]
+[INFO] >>> spotbugs:4.7.3.4:check (analyze-compile) > :spotbugs @ org.wso2.carbon.pax.exam.feature >>>
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:spotbugs (spotbugs) @ org.wso2.carbon.pax.exam.feature ---
+[INFO]
+[INFO] <<< spotbugs:4.7.3.4:check (analyze-compile) < :spotbugs @ org.wso2.carbon.pax.exam.feature <<<
+[INFO]
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:check (analyze-compile) @ org.wso2.carbon.pax.exam.feature ---
+[INFO]
+[INFO] --- carbon-feature:3.1.5:generate (1-p2-feature-generation) @ org.wso2.carbon.pax.exam.feature ---
+[INFO] Inspecting maven dependencies.
+[INFO] Setting up folder structure
+[INFO]    /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/pax-exam-container-carbon/org.wso2.carbon.pax.exam.feature/target/maven-shared-archive-resources
+[INFO] Generating feature manifest
+[INFO] Generating feature properties
+[INFO] Generating MANIFEST.MF
+[INFO] Generating Advice file (p2.inf)
+[INFO] Copying bundle dependencies
+[INFO]    org.ops4j.base.lang:1.5.0
+[INFO]    org.ops4j.base.monitors:1.5.0
+[INFO]    org.ops4j.base.net:1.5.0
+[INFO]    org.ops4j.base.store:1.5.0
+[INFO]    org.ops4j.base.io:1.5.0
+[INFO]    org.ops4j.base.spi:1.5.0
+[INFO]    org.ops4j.base.util.property:1.5.0
+[INFO]    org.ops4j.pax.swissbox.core:1.8.2
+[INFO]    org.ops4j.pax.swissbox.extender:1.8.2
+[INFO]    org.ops4j.pax.swissbox.lifecycle:1.8.2
+[INFO]    org.ops4j.pax.swissbox.tracker:1.8.2
+[INFO]    org.ops4j.pax.swissbox.framework:1.8.2
+[INFO]    org.ops4j.pax.exam:4.9.1
+[INFO]    org.ops4j.pax.exam.extender.service:4.9.1
+[INFO]    org.ops4j.pax.exam.rbc:4.9.1
+[INFO]    org.ops4j.pax.exam.inject:4.9.1
+[INFO]    org.ops4j.pax.tipi.hamcrest.core:1.3.0.1
+[INFO]    org.apache.geronimo.specs.geronimo-atinject_1.0_spec:1.0
+[INFO]    org.testng:6.9.4
+[INFO] Generating feature archive: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/pax-exam-container-carbon/org.wso2.carbon.pax.exam.feature/target/org.wso2.carbon.pax.exam.feature-5.3.3-SNAPSHOT.zip
+[INFO]
+[INFO] --- install:2.5.2:install (default-install) @ org.wso2.carbon.pax.exam.feature ---
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/pax-exam-container-carbon/org.wso2.carbon.pax.exam.feature/target/org.wso2.carbon.pax.exam.feature-5.3.3-SNAPSHOT.zip to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.pax.exam.feature/5.3.3-SNAPSHOT/org.wso2.carbon.pax.exam.feature-5.3.3-SNAPSHOT.zip
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/pax-exam-container-carbon/org.wso2.carbon.pax.exam.feature/pom.xml to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.pax.exam.feature/5.3.3-SNAPSHOT/org.wso2.carbon.pax.exam.feature-5.3.3-SNAPSHOT.pom
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/pax-exam-container-carbon/org.wso2.carbon.pax.exam.feature/target/org.wso2.carbon.pax.exam.feature-5.3.3-SNAPSHOT.zip to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.pax.exam.feature/5.3.3-SNAPSHOT/org.wso2.carbon.pax.exam.feature-5.3.3-SNAPSHOT.zip
+[INFO]
+[INFO] ---------------< org.wso2.carbon:carbon-kernel-features >---------------
+[INFO] Building WSO2 Carbon Kernel - Features Parent 5.3.3-SNAPSHOT     [13/47]
+[INFO]   from features/pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO]
+[INFO] --- clean:3.0.0:clean (default-clean) @ carbon-kernel-features ---
+[INFO] Deleting /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/target
+[INFO]
+[INFO] --- checkstyle:2.17:check (validate) @ carbon-kernel-features ---
+[INFO] Starting audit...
+Audit done.
+[INFO]
+[INFO] --- buildnumber:1.4:create (default) @ carbon-kernel-features ---
+[INFO] Executing: /bin/sh -c cd '/Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features' && 'git' 'rev-parse' '--verify' 'HEAD'
+[INFO] Working directory: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features
+[INFO] Storing buildNumber: e22d2dc06bc2d268fbd37511e831a770d9547879 at timestamp: 1773227490081
+[INFO] Storing buildScmBranch: master
+[INFO]
+[INFO] --- remote-resources:1.5:process (default) @ carbon-kernel-features ---
+[INFO]
+[INFO] >>> spotbugs:4.7.3.4:check (analyze-compile) > :spotbugs @ carbon-kernel-features >>>
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:spotbugs (spotbugs) @ carbon-kernel-features ---
+[INFO]
+[INFO] <<< spotbugs:4.7.3.4:check (analyze-compile) < :spotbugs @ carbon-kernel-features <<<
+[INFO]
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:check (analyze-compile) @ carbon-kernel-features ---
+[INFO]
+[INFO] --- install:2.5.2:install (default-install) @ carbon-kernel-features ---
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/pom.xml to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/carbon-kernel-features/5.3.3-SNAPSHOT/carbon-kernel-features-5.3.3-SNAPSHOT.pom
+[INFO]
+[INFO] ----------< org.wso2.carbon:org.wso2.carbon.runtime.feature >-----------
+[INFO] Building WSO2 Carbon Kernel - Runtime Feature 5.3.3-SNAPSHOT     [14/47]
+[INFO]   from features/org.wso2.carbon.runtime.feature/pom.xml
+[INFO] ---------------------------[ carbon-feature ]---------------------------
+[INFO]
+[INFO] --- clean:3.0.0:clean (default-clean) @ org.wso2.carbon.runtime.feature ---
+[INFO] Deleting /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.runtime.feature/target
+[INFO]
+[INFO] --- checkstyle:2.17:check (validate) @ org.wso2.carbon.runtime.feature ---
+[INFO] Starting audit...
+Audit done.
+[INFO]
+[INFO] --- buildnumber:1.4:create (default) @ org.wso2.carbon.runtime.feature ---
+[INFO] Executing: /bin/sh -c cd '/Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.runtime.feature' && 'git' 'rev-parse' '--verify' 'HEAD'
+[INFO] Working directory: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.runtime.feature
+[INFO] Storing buildNumber: e22d2dc06bc2d268fbd37511e831a770d9547879 at timestamp: 1773227490392
+[INFO] Storing buildScmBranch: master
+[INFO]
+[INFO] --- remote-resources:1.5:process (default) @ org.wso2.carbon.runtime.feature ---
+[INFO]
+[INFO] --- resources:2.7:copy-resources (prefilter-resources) @ org.wso2.carbon.runtime.feature ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 16 resources
+[INFO]
+[INFO] >>> spotbugs:4.7.3.4:check (analyze-compile) > :spotbugs @ org.wso2.carbon.runtime.feature >>>
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:spotbugs (spotbugs) @ org.wso2.carbon.runtime.feature ---
+[INFO]
+[INFO] <<< spotbugs:4.7.3.4:check (analyze-compile) < :spotbugs @ org.wso2.carbon.runtime.feature <<<
+[INFO]
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:check (analyze-compile) @ org.wso2.carbon.runtime.feature ---
+[INFO]
+[INFO] --- dependency:2.10:unpack (unpack) @ org.wso2.carbon.runtime.feature ---
+[INFO] Configured Artifact: org.wso2.carbon:org.wso2.carbon.core:5.3.3-SNAPSHOT:jar
+[INFO] Unpacking /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/core/target/org.wso2.carbon.core-5.3.3-SNAPSHOT.jar to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.runtime.feature/target/docs with includes "config-docs/**" and excludes ""
+[INFO]
+[INFO] --- carbon-feature:3.1.5:generate (1-p2-feature-generation) @ org.wso2.carbon.runtime.feature ---
+[INFO] Inspecting maven dependencies.
+[INFO] Setting up folder structure
+[INFO]    /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.runtime.feature/target/docs
+[INFO]    /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.runtime.feature/src/main/resources
+[INFO]    /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.runtime.feature/target/maven-shared-archive-resources
+[INFO] Generating feature manifest
+[INFO] Generating feature properties
+[INFO] Generating MANIFEST.MF
+[INFO] Updating Advice file (p2.inf)
+[INFO] Copying bundle dependencies
+[INFO]    org.wso2.carbon.core:5.3.3.SNAPSHOT
+[INFO] Generating feature archive: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.runtime.feature/target/org.wso2.carbon.runtime.feature-5.3.3-SNAPSHOT.zip
+[INFO]
+[INFO] --- install:2.5.2:install (default-install) @ org.wso2.carbon.runtime.feature ---
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.runtime.feature/target/org.wso2.carbon.runtime.feature-5.3.3-SNAPSHOT.zip to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.runtime.feature/5.3.3-SNAPSHOT/org.wso2.carbon.runtime.feature-5.3.3-SNAPSHOT.zip
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.runtime.feature/pom.xml to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.runtime.feature/5.3.3-SNAPSHOT/org.wso2.carbon.runtime.feature-5.3.3-SNAPSHOT.pom
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.runtime.feature/target/org.wso2.carbon.runtime.feature-5.3.3-SNAPSHOT.zip to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.runtime.feature/5.3.3-SNAPSHOT/org.wso2.carbon.runtime.feature-5.3.3-SNAPSHOT.zip
+[INFO]
+[INFO] --- antrun:1.8:run (clean_target) @ org.wso2.carbon.runtime.feature ---
+[INFO] Executing tasks
+
+main:
+   [delete] Deleting directory /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.runtime.feature/src/main/resources
+   [delete] Deleting directory /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.runtime.feature/src/main
+   [delete] Deleting directory /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.runtime.feature/src
+[INFO] Executed tasks
+[INFO]
+[INFO] -----------< org.wso2.carbon:org.wso2.carbon.server.feature >-----------
+[INFO] Building WSO2 Carbon Kernel - Server Feature 5.3.3-SNAPSHOT      [15/47]
+[INFO]   from features/org.wso2.carbon.server.feature/pom.xml
+[INFO] ---------------------------[ carbon-feature ]---------------------------
+[INFO]
+[INFO] --- clean:3.0.0:clean (default-clean) @ org.wso2.carbon.server.feature ---
+[INFO] Deleting /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.server.feature/target
+[INFO]
+[INFO] --- checkstyle:2.17:check (validate) @ org.wso2.carbon.server.feature ---
+[INFO] Starting audit...
+Audit done.
+[INFO]
+[INFO] --- buildnumber:1.4:create (default) @ org.wso2.carbon.server.feature ---
+[INFO] Executing: /bin/sh -c cd '/Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.server.feature' && 'git' 'rev-parse' '--verify' 'HEAD'
+[INFO] Working directory: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.server.feature
+[INFO] Storing buildNumber: e22d2dc06bc2d268fbd37511e831a770d9547879 at timestamp: 1773227491047
+[INFO] Storing buildScmBranch: master
+[INFO]
+[INFO] --- remote-resources:1.5:process (default) @ org.wso2.carbon.server.feature ---
+[INFO]
+[INFO] --- resources:2.7:copy-resources (prefilter-resources) @ org.wso2.carbon.server.feature ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 18 resources
+[INFO]
+[INFO] >>> spotbugs:4.7.3.4:check (analyze-compile) > :spotbugs @ org.wso2.carbon.server.feature >>>
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:spotbugs (spotbugs) @ org.wso2.carbon.server.feature ---
+[INFO]
+[INFO] <<< spotbugs:4.7.3.4:check (analyze-compile) < :spotbugs @ org.wso2.carbon.server.feature <<<
+[INFO]
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:check (analyze-compile) @ org.wso2.carbon.server.feature ---
+[INFO]
+[INFO] --- dependency:2.10:copy (copy) @ org.wso2.carbon.server.feature ---
+[INFO] Configured Artifact: org.wso2.carbon:org.wso2.carbon.launcher:5.3.3-SNAPSHOT:jar
+[INFO] Configured Artifact: org.osgi:org.osgi.core:6.0.0:jar
+[INFO] Configured Artifact: org.wso2.carbon:org.wso2.carbon.tools.core:5.3.3-SNAPSHOT:jar
+[INFO] Copying org.wso2.carbon.launcher-5.3.3-SNAPSHOT.jar to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.server.feature/target/lib/launcher/org.wso2.carbon.launcher-5.3.3-SNAPSHOT.jar
+[INFO] Copying org.osgi.core-6.0.0.jar to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.server.feature/target/lib/launcher/org.osgi.core-6.0.0.jar
+[INFO] Copying org.wso2.carbon.tools.core.5.3.3-SNAPSHOT.jar to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.server.feature/target/lib/tools/org.wso2.carbon.tools.core-5.3.3-SNAPSHOT.jar
+[INFO]
+[INFO] --- carbon-feature:3.1.5:generate (1-p2-feature-generation) @ org.wso2.carbon.server.feature ---
+[INFO] Inspecting maven dependencies.
+[INFO] Setting up folder structure
+[INFO]    /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.server.feature/target/lib
+[INFO]    /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.server.feature/src/main/resources
+[INFO]    /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.server.feature/target/maven-shared-archive-resources
+[INFO] Generating feature manifest
+[INFO] Generating feature properties
+[INFO] Generating MANIFEST.MF
+[INFO] Updating Advice file (p2.inf)
+[INFO] Generating feature archive: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.server.feature/target/org.wso2.carbon.server.feature-5.3.3-SNAPSHOT.zip
+[INFO]
+[INFO] --- install:2.5.2:install (default-install) @ org.wso2.carbon.server.feature ---
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.server.feature/target/org.wso2.carbon.server.feature-5.3.3-SNAPSHOT.zip to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.server.feature/5.3.3-SNAPSHOT/org.wso2.carbon.server.feature-5.3.3-SNAPSHOT.zip
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.server.feature/pom.xml to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.server.feature/5.3.3-SNAPSHOT/org.wso2.carbon.server.feature-5.3.3-SNAPSHOT.pom
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.server.feature/target/org.wso2.carbon.server.feature-5.3.3-SNAPSHOT.zip to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.server.feature/5.3.3-SNAPSHOT/org.wso2.carbon.server.feature-5.3.3-SNAPSHOT.zip
+[INFO]
+[INFO] --- antrun:1.8:run (clean_target) @ org.wso2.carbon.server.feature ---
+[INFO] Executing tasks
+
+main:
+   [delete] Deleting directory /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.server.feature/src/main/resources
+   [delete] Deleting directory /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.server.feature/src/main
+   [delete] Deleting directory /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.server.feature/src
+[INFO] Executed tasks
+[INFO]
+[INFO] ------------< org.wso2.carbon:org.wso2.carbon.osgi.feature >------------
+[INFO] Building WSO2 Carbon Kernel - OSGI Feature 5.3.3-SNAPSHOT        [16/47]
+[INFO]   from features/org.wso2.carbon.osgi.feature/pom.xml
+[INFO] ---------------------------[ carbon-feature ]---------------------------
+[INFO]
+[INFO] --- clean:3.0.0:clean (default-clean) @ org.wso2.carbon.osgi.feature ---
+[INFO] Deleting /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.osgi.feature/target
+[INFO]
+[INFO] --- checkstyle:2.17:check (validate) @ org.wso2.carbon.osgi.feature ---
+[INFO] Starting audit...
+Audit done.
+[INFO]
+[INFO] --- buildnumber:1.4:create (default) @ org.wso2.carbon.osgi.feature ---
+[INFO] Executing: /bin/sh -c cd '/Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.osgi.feature' && 'git' 'rev-parse' '--verify' 'HEAD'
+[INFO] Working directory: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.osgi.feature
+[INFO] Storing buildNumber: e22d2dc06bc2d268fbd37511e831a770d9547879 at timestamp: 1773227491919
+[INFO] Storing buildScmBranch: master
+[INFO]
+[INFO] --- remote-resources:1.5:process (default) @ org.wso2.carbon.osgi.feature ---
+[INFO]
+[INFO] >>> spotbugs:4.7.3.4:check (analyze-compile) > :spotbugs @ org.wso2.carbon.osgi.feature >>>
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:spotbugs (spotbugs) @ org.wso2.carbon.osgi.feature ---
+[INFO]
+[INFO] <<< spotbugs:4.7.3.4:check (analyze-compile) < :spotbugs @ org.wso2.carbon.osgi.feature <<<
+[INFO]
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:check (analyze-compile) @ org.wso2.carbon.osgi.feature ---
+[INFO]
+[INFO] --- carbon-feature:3.1.5:generate (1-p2-feature-generation) @ org.wso2.carbon.osgi.feature ---
+[INFO] Inspecting maven dependencies.
+[INFO] Setting up folder structure
+[INFO]    /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.osgi.feature/target/maven-shared-archive-resources
+[INFO] Generating feature manifest
+[INFO] Generating feature properties
+[INFO] Generating MANIFEST.MF
+[INFO] Generating Advice file (p2.inf)
+[INFO] Copying bundle dependencies
+[INFO]    org.eclipse.equinox.common:3.8.0.v20160509-1230
+[INFO]    org.eclipse.equinox.simpleconfigurator:1.1.200.v20160504-1450
+[INFO]    org.eclipse.equinox.ds:1.4.400.v20160226-2036
+[INFO]    org.eclipse.equinox.launcher:1.3.200.v20160318-1642
+[INFO]    org.eclipse.equinox.util:1.0.500.v20130404-1337
+[INFO]    org.eclipse.osgi.services:3.5.100.v20160504-1419
+[INFO]    org.eclipse.osgi:3.14.0.v20190517-1309
+[INFO]    org.eclipse.equinox.concurrent:1.1.0.v20130327-1442
+[INFO]    org.eclipse.equinox.frameworkadmin:2.0.300.v20160504-1450
+[INFO]    org.eclipse.equinox.frameworkadmin.equinox:1.0.700.v20160102-2223
+[INFO]    org.eclipse.equinox.preferences:3.6.0.v20160120-1756
+[INFO]    org.eclipse.equinox.simpleconfigurator.manipulator:2.0.200.v20160504-1450
+[INFO]    org.eclipse.equinox.console:1.3.300.v20190516-1504
+[INFO]    org.apache.felix.gogo.command:0.10.0.v201209301215
+[INFO]    org.apache.felix.gogo.runtime:0.10.0.v201209301036
+[INFO]    org.apache.felix.gogo.shell:0.10.0.v201212101605
+[INFO]    org.ops4j.pax.logging.pax-logging-api:2.2.2.wso2v1
+[INFO]    org.ops4j.pax.logging.pax-logging-log4j2:2.2.2.wso2v1
+[INFO]    org.eclipse.equinox.cm:1.1.200.v20160324-1850
+[INFO]    org.eclipse.equinox.launcher.gtk.linux.x86:1.1.400.v20160518-1444
+[INFO]    org.eclipse.osgi.compatibility.state:1.0.200.v20160504-1419
+[INFO]    org.wso2.orbit.sun.xml.bind.jaxb:2.3.2.wso2v1
+[INFO]    org.wso2.orbit.javax.xml.bind.jaxb-api:2.3.1.wso2v1
+[INFO]    org.wso2.orbit.xml-apis.xml-apis:1.4.01.wso2v1
+[INFO]    javax.annotation-api:1.3.2
+[INFO]    javax.annotation-api:1.3.2
+[INFO]    org.wso2.orbit.javax.xml.bind.jaxb-api:2.3.1.wso2v1
+[INFO]    com.sun.xml.bind.jaxb-impl:2.3.0
+[INFO] Generating feature archive: /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.osgi.feature/target/org.wso2.carbon.osgi.feature-5.3.3-SNAPSHOT.zip
+[INFO]
+[INFO] --- install:2.5.2:install (default-install) @ org.wso2.carbon.osgi.feature ---
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.osgi.feature/target/org.wso2.carbon.osgi.feature-5.3.3-SNAPSHOT.zip to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.osgi.feature/5.3.3-SNAPSHOT/org.wso2.carbon.osgi.feature-5.3.3-SNAPSHOT.zip
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.osgi.feature/pom.xml to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.osgi.feature/5.3.3-SNAPSHOT/org.wso2.carbon.osgi.feature-5.3.3-SNAPSHOT.pom
+[INFO] Installing /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/features/org.wso2.carbon.osgi.feature/target/org.wso2.carbon.osgi.feature-5.3.3-SNAPSHOT.zip to /Users/gayaldassanayake/.m2/repository/org/wso2/carbon/org.wso2.carbon.osgi.feature/5.3.3-SNAPSHOT/org.wso2.carbon.osgi.feature-5.3.3-SNAPSHOT.zip
+[INFO]
+[INFO] -----------------< org.wso2.carbon:wso2carbon-kernel >------------------
+[INFO] Building WSO2 Carbon Kernel - Distribution 5.3.3-SNAPSHOT        [17/47]
+[INFO]   from distribution/pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO]
+[INFO] --- clean:3.0.0:clean (default-clean) @ wso2carbon-kernel ---
+[INFO] Deleting /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/distribution/target
+[INFO]
+[INFO] --- checkstyle:2.17:check (validate) @ wso2carbon-kernel ---
+[INFO] Starting audit...
+Audit done.
+[INFO]
+[INFO] --- buildnumber:1.4:create (default) @ wso2carbon-kernel ---
+[INFO] Storing buildNumber: 11 Mar 2026 at timestamp: 1773227492850
+[INFO] Storing buildScmBranch: master
+[INFO]
+[INFO] --- remote-resources:1.5:process (default) @ wso2carbon-kernel ---
+[INFO]
+[INFO] >>> spotbugs:4.7.3.4:check (analyze-compile) > :spotbugs @ wso2carbon-kernel >>>
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:spotbugs (spotbugs) @ wso2carbon-kernel ---
+[INFO]
+[INFO] <<< spotbugs:4.7.3.4:check (analyze-compile) < :spotbugs @ wso2carbon-kernel <<<
+[INFO]
+[INFO]
+[INFO] --- spotbugs:4.7.3.4:check (analyze-compile) @ wso2carbon-kernel ---
+[INFO]
+[INFO] --- dependency:2.10:unpack (unpack-equinox-executable) @ wso2carbon-kernel ---
+[INFO] Configured Artifact: org.eclipse.equinox:org.eclipse.equinox.executable:3.5.0.v20110530-7P7NFUFFLWUl76mart:zip
+[INFO] Unpacking /Users/gayaldassanayake/.m2/repository/org/eclipse/equinox/org.eclipse.equinox.executable/3.5.0.v20110530-7P7NFUFFLWUl76mart/org.eclipse.equinox.executable-3.5.0.v20110530-7P7NFUFFLWUl76mart.zip to /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/distribution/target with includes "" and excludes ""
+[INFO]
+[INFO] --- carbon-feature:3.1.5:generate-repo (p2-repo-generation) @ wso2carbon-kernel ---
+[INFO] Inspecting maven dependencies.
+[INFO] Extracting feature org.wso2.carbon.touchpoint:org.wso2.carbon.touchpoint.feature
+[INFO] Extracting feature org.wso2.carbon:org.wso2.carbon.server.feature
+[INFO] Extracting feature org.wso2.carbon:org.wso2.carbon.runtime.feature
+[INFO] Extracting feature org.wso2.carbon:org.wso2.carbon.osgi.feature
+[INFO] Extracting feature org.wso2.carbon.config:org.wso2.carbon.config.feature
+[INFO] Extracting feature org.wso2.carbon.secvault:org.wso2.carbon.secvault.feature
+[INFO] Extracting feature org.wso2.carbon.secvault:org.wso2.carbon.secvault.tools.feature
+[INFO] Extracting feature org.wso2.carbon.utils:org.wso2.carbon.utils.feature
+[INFO] Copying resources
+[INFO]    /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/distribution/target/maven-shared-archive-resources
+[INFO] Running Equinox P2 Publisher Application for Repository Generation
+[INFO] Command line:
+        [/Users/gayaldassanayake/.sdkman/candidates/java/21.0.2-graalce/bin/java, -jar, /Users/gayaldassanayake/.m2/repository/org/eclipse/tycho/tycho-bundles-external/0.26.0/eclipse/plugins/org.eclipse.equinox.launcher_1.3.200.v20160318-1642.jar, -configuration, /var/folders/wf/qyy7ymt968bdjr28gntxqs3c0000gn/T/tycho-p2-runtime6004416286706067879.tmp/configuration, -nosplash, -application, org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher, -source, /Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/distribution/target/tmp.1773227493874/featureExtract, -metadataRepository, file:/Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/distribution/target/p2-repo, -metadataRepositoryName, wso2carbon-kernel, -artifactRepository, file:/Users/gayaldassanayake/Documents/si/si-4.3.2-release/carbon-kernel/distribution/target/p2-repo, -artifactRepositoryName, wso2carbon-kernel, -publishArtifacts, -publishArtifactRepository, -compress, -append]
+java.lang.ExceptionInInitializerError
+        at org.eclipse.osgi.storage.Storage.<init>(Storage.java:100)
+        at org.eclipse.osgi.storage.Storage.createStorage(Storage.java:87)
+        at org.eclipse.osgi.internal.framework.EquinoxContainer.<init>(EquinoxContainer.java:66)
+        at org.eclipse.osgi.launch.Equinox.<init>(Equinox.java:31)
+        at org.eclipse.core.runtime.adaptor.EclipseStarter.startup(EclipseStarter.java:303)
+        at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:239)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+        at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:673)
+        at org.eclipse.equinox.launcher.Main.basicRun(Main.java:610)
+        at org.eclipse.equinox.launcher.Main.run(Main.java:1519)
+        at org.eclipse.equinox.launcher.Main.main(Main.java:1492)
+Caused by: java.lang.reflect.InaccessibleObjectException: Unable to make protected void java.net.URLClassLoader.addURL(java.net.URL) accessible: module java.base does not "opens java.net" to unnamed module @737996a0
+        at java.base/java.lang.reflect.AccessibleObject.throwInaccessibleObjectException(AccessibleObject.java:391)
+        at java.base/java.lang.reflect.AccessibleObject.checkCanSetAccessible(AccessibleObject.java:367)
+        at java.base/java.lang.reflect.AccessibleObject.checkCanSetAccessible(AccessibleObject.java:315)
+        at java.base/java.lang.reflect.Method.checkCanSetAccessible(Method.java:203)
+        at java.base/java.lang.reflect.Method.setAccessible(Method.java:197)
+        at org.eclipse.osgi.storage.FrameworkExtensionInstaller.findMethod(FrameworkExtensionInstaller.java:51)
+        at org.eclipse.osgi.storage.FrameworkExtensionInstaller.findMethod(FrameworkExtensionInstaller.java:58)
+        at org.eclipse.osgi.storage.FrameworkExtensionInstaller.findAddURLMethod(FrameworkExtensionInstaller.java:42)
+        at org.eclipse.osgi.storage.FrameworkExtensionInstaller.<clinit>(FrameworkExtensionInstaller.java:36)
+        ... 12 more
+An error has occurred. See the log file
+null.
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for WSO2 Carbon Kernel - Aggregate Pom 5.3.3-SNAPSHOT:
+[INFO]
+[INFO] WSO2 Carbon Kernel - Parent Pom .................... SUCCESS [  2.940 s]
+[INFO] WSO2 Carbon Kernel - Launcher ...................... SUCCESS [  5.983 s]
+[INFO] WSO2 Carbon Kernel - Core .......................... SUCCESS [  9.951 s]
+[INFO] WSO2 Carbon Kernel - Archetypes .................... SUCCESS [  0.319 s]
+[INFO] WSO2 Carbon Kernel - Bundle Archetype .............. SUCCESS [  5.163 s]
+[INFO] WSO2 Carbon Kernel - Component Archetype ........... SUCCESS [ 11.517 s]
+[INFO] WSO2 Carbon Kernel - Tools ......................... SUCCESS [  0.467 s]
+[INFO] WSO2 Carbon Kernel - Tools - Test Artifacts ........ SUCCESS [  2.272 s]
+[INFO] WSO2 Carbon Kernel - Tools - Core .................. SUCCESS [ 14.600 s]
+[INFO] WSO2 Carbon Kernel - Pax Exam Container Parent ..... SUCCESS [  0.408 s]
+[INFO] WSO2 Carbon Kernel - Pax Exam Container ............ SUCCESS [  3.434 s]
+[INFO] WSO2 Carbon Kernel - Pax Exam Feature .............. SUCCESS [  1.246 s]
+[INFO] WSO2 Carbon Kernel - Features Parent ............... SUCCESS [  0.285 s]
+[INFO] WSO2 Carbon Kernel - Runtime Feature ............... SUCCESS [  0.622 s]
+[INFO] WSO2 Carbon Kernel - Server Feature ................ SUCCESS [  0.840 s]
+[INFO] WSO2 Carbon Kernel - OSGI Feature .................. SUCCESS [  0.889 s]
+[INFO] WSO2 Carbon Kernel - Distribution .................. FAILURE [  2.009 s]
+[INFO] WSO2 Carbon Kernel - Tests ......................... SKIPPED
+[INFO] WSO2 Carbon Kernel - Test - Distribution ........... SKIPPED
+[INFO] WSO2 Carbon Kernel - Sample Tests Artifacts ........ SKIPPED
+[INFO] WSO2 Carbon Kernel - Startup Order Resolver Samples  SKIPPED
+[INFO] WSO2 Carbon Kernel - Sample Order Resolver ......... SKIPPED
+[INFO] WSO2 Carbon Kernel - Sample Transport Manager ...... SKIPPED
+[INFO] WSO2 Carbon Kernel - Sample Transport HTTP ......... SKIPPED
+[INFO] WSO2 Carbon Kernel - Sample Transport JMS .......... SKIPPED
+[INFO] WSO2 Carbon Kernel - Sample Transport Jetty ........ SKIPPED
+[INFO] WSO2 Carbon Kernel - Sample Transport Custom ....... SKIPPED
+[INFO] WSO2 Carbon Kernel - Sample Transport Custom2 ...... SKIPPED
+[INFO] WSO2 Carbon Kernel - Sample Transport File ......... SKIPPED
+[INFO] WSO2 Carbon Kernel - Sample Transport FTP .......... SKIPPED
+[INFO] WSO2 Carbon Kernel - Sample Runtime Manager ........ SKIPPED
+[INFO] WSO2 Carbon Kernel - Sample Runtime MSS ............ SKIPPED
+[INFO] WSO2 Carbon Kernel - Sample Runtime Webapp ......... SKIPPED
+[INFO] WSO2 Carbon Kernel - Sample Runtime JAR ............ SKIPPED
+[INFO] WSO2 Carbon Kernel - Sample Runtime BPS ............ SKIPPED
+[INFO] WSO2 Carbon Kernel - Sample Runtime Custom ......... SKIPPED
+[INFO] WSO2 Carbon Kernel - Sample Deployer Manager ....... SKIPPED
+[INFO] WSO2 Carbon Kernel - Sample DataService Deployer ... SKIPPED
+[INFO] WSO2 Carbon Kernel - Sample Datasource Manager ..... SKIPPED
+[INFO] WSO2 Carbon Kernel - Sample Repository Manager ..... SKIPPED
+[INFO] WSO2 Carbon Kernel - Runtime Service ............... SKIPPED
+[INFO] WSO2 Carbon Kernel - Carbon Context Test Artifact .. SKIPPED
+[INFO] WSO2 Carbon Kernel - Sample Carbon Touchpoint Feature SKIPPED
+[INFO] WSO2 Carbon Kernel - Test Carbon Touchpoint Distribution SKIPPED
+[INFO] WSO2 Carbon Kernel - OSGi Tests .................... SKIPPED
+[INFO] WSO2 Carbon Kernel - Coverage Reports .............. SKIPPED
+[INFO] WSO2 Carbon Kernel - Aggregate Pom ................. SKIPPED
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:04 min
+[INFO] Finished at: 2026-03-11T16:41:34+05:30
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.wso2.carbon.maven:carbon-feature-plugin:3.1.5:generate-repo (p2-repo-generation) on project wso2carbon-kernel: P2 publisher return code was 13 -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+[ERROR]
+[ERROR] After correcting the problems, you can resume the build with the command
+[ERROR]   mvn <args> -rf :wso2carbon-kernel
+gayaldassanayake@gayald carbon-kernel %
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

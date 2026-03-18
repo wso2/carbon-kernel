@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 public class DataHolder {
     Logger logger = Logger.getLogger(DataHolder.class.getName());
 
-    private static DataHolder instance = new DataHolder();
+    private static final DataHolder instance = new DataHolder();
     private CarbonRuntime carbonRuntime;
 
     private DataHolder() {
