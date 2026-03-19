@@ -296,6 +296,9 @@ if [ $java_version_formatted -ge 1700 ]; then
     JAVA_VER_BASED_OPTS=$JAVA_VER_BASED_OPTS" --add-opens=java.naming/com.sun.jndi.ldap=ALL-UNNAMED"
 fi
 
+if [ $java_version_formatted -ge 2300 ]; then
+    JAVA_VER_BASED_OPTS=$JAVA_VER_BASED_OPTS" --sun-misc-unsafe-memory-access=allow --enable-native-access=ALL-UNNAMED"
+fi
 
 while [ "$status" = "$START_EXIT_STATUS" ]
 do
