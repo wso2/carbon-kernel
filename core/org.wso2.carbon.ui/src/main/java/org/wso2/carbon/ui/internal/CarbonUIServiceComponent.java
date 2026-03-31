@@ -56,6 +56,7 @@ import org.wso2.carbon.ui.CarbonServletContextInitializer;
 import org.wso2.carbon.ui.CarbonUIAuthenticator;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.ui.DefaultCarbonAuthenticator;
+import org.wso2.carbon.ui.CsrfJavaScriptServletProxy;
 import org.wso2.carbon.ui.TenantAwareCsrfJsFilter;
 import org.wso2.carbon.ui.TextJavascriptHandler;
 import org.wso2.carbon.ui.TilesJspServlet;
@@ -84,6 +85,8 @@ import java.util.Map;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContextListener;
 import javax.servlet.Filter;
+import javax.servlet.http.HttpServlet;
+
 @Component(name = "core.ui.dscomponent", immediate = true)
 public class CarbonUIServiceComponent {
 
@@ -318,7 +321,12 @@ public class CarbonUIServiceComponent {
 
         // Register CSRFGuard listeners and filter using HTTP Whiteboard pattern
         try {
-            // Register CsrfGuardHttpSessionListener - generates per-session CSRF tokens
+            // Register CsrfGuardHttpSessionListener - generates per-session CSRF tokens.
+            // Must be registered via OSGi (not web.xml) so that the token is stored in the
+            // HttpSessionAdaptor-wrapped (namespaced) session. JSP tags and CsrfGuardFilter
+            // both access the session through the Equinox-wrapped request, so the token must
+            // be at the namespaced key. The Tomcat-level CsrfGuardFilter in web.xml has been
+            // removed to avoid a dual-session token conflict.
             Class<?> sessionListenerClass = Class.forName("org.owasp.csrfguard.CsrfGuardHttpSessionListener");
             Object sessionListener = sessionListenerClass.newInstance();
             
@@ -333,15 +341,31 @@ public class CarbonUIServiceComponent {
             Class<?> csrfGuardFilterClass = Class.forName("org.owasp.csrfguard.CsrfGuardFilter");
             Filter csrfGuardFilter = (Filter) csrfGuardFilterClass.newInstance();
             
-            Dictionary<String, String> csrfFilterProps = new Hashtable<>();
-            csrfFilterProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_PATTERN, "/carbon/*");
+            Dictionary<String, Object> csrfFilterProps = new Hashtable<>();
+            csrfFilterProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_PATTERN, "/*");
             csrfFilterProps.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=carbonContext)");
             csrfFilterProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_NAME, "CsrfGuardFilter");
-            csrfFilterProps.put("service.ranking", "100");
+            csrfFilterProps.put(Constants.SERVICE_RANKING, Integer.valueOf(100));
             
             context.registerService(Filter.class, csrfGuardFilter, csrfFilterProps);
 
-            // Register TenantAwareCsrfJsFilter filter.
+            // Register JavaScriptServlet directly as an OSGi HTTP Whiteboard servlet for the
+            // super-tenant path. This ensures the token is read from the Equinox-namespaced
+            // (adapted) session, consistent with how CsrfGuardHttpSessionListener stores it.
+            Class<?> jsServletClass = Class.forName("org.owasp.csrfguard.servlet.JavaScriptServlet");
+            HttpServlet jsServlet = (HttpServlet) jsServletClass.newInstance();
+            // Wrap with CsrfJavaScriptServletProxy so that the OSGi-registered servlet calls
+            // super.init(config), ensuring getServletConfig() is never null in Equinox's
+            // HttpServletRequestWrapperImpl.getSession() without modifying the third-party library.
+            Servlet jsServletProxy = new CsrfJavaScriptServletProxy(jsServlet);
+            Dictionary<String, String> jsServletProps = new Hashtable<>();
+            jsServletProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/carbon/admin/js/csrfPrevention.js");
+            jsServletProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_NAME, "JavaScriptServlet");
+            jsServletProps.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=carbonContext)");
+            context.registerService(Servlet.class, jsServletProxy, jsServletProps);
+
+            // Register TenantAwareCsrfJsFilter for tenant paths only (/t/*).
+            // It rewrites contextPath/servletPath for tenant URLs and delegates to JavaScriptServlet.
             Filter csrfJsFilterCarbon = new TenantAwareCsrfJsFilter();
             Dictionary<String, Object> csrfJsFilterCarbonProps = new Hashtable<>();
             csrfJsFilterCarbonProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_FILTER_PATTERN, "/t/*");
