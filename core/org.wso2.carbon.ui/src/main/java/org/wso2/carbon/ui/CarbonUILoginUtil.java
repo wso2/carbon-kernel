@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.common.AuthenticationException;
 import org.wso2.carbon.ui.tracker.AuthenticatorRegistry;
 import org.wso2.carbon.utils.ServerConstants;
@@ -418,6 +419,9 @@ public final class CarbonUILoginUtil {
                 return false;
             }
 
+            // Destroy current context before authenticating. This is to prevent when context switching issue
+            // when switching between tenant and super tenant.
+            PrivilegedCarbonContext.destroyCurrentContext();
             authenticator.authenticate(request);
             session = request.getSession();
             session.setAttribute(CarbonSecuredHttpContext.CARBON_AUTHNETICATOR, authenticator);
@@ -510,16 +514,16 @@ public final class CarbonUILoginUtil {
                     if (e.getCause().getMessage().contains(ACCOUNT_LOCK_ERROR_CODE) || e.getCause().getMessage()
                             .contains(ACCOUNT_LOCK_ERROR_MESSAGE)) {
                         response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath,
-                                "/admin/login.jsp?loginStatus=false&errorCode=error" +
+                                "/carbon/admin/login.jsp?loginStatus=false&errorCode=error" +
                                 ".code.17003", request));
                         return false;
                     } else if (e.getCause().getMessage().contains(USER_NOT_FOUND_ERROR_CODE)) {
                         response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath,
-                                "/admin/login.jsp?loginStatus=false&errorCode=error.code.17001", request));
+                                "/carbon/admin/login.jsp?loginStatus=false&errorCode=error.code.17001", request));
                         return false;
                     } else if (e.getCause().getMessage().contains(INVALID_CREDENTIALS_ERROR_CODE)) {
                         response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath,
-                                "/admin/login.jsp?loginStatus=false&errorCode=error.code.17002", request));
+                                "/carbon/admin/login.jsp?loginStatus=false&errorCode=error.code.17002", request));
                         return false;
                     }
                 }
@@ -528,7 +532,7 @@ public final class CarbonUILoginUtil {
                     return false;
                 } else {
                     response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath,
-                            "/admin/login.jsp?loginStatus=false", request));
+                            "/carbon/admin/login.jsp?loginStatus=false", request));
                     return false;
                 }
             } catch (Exception e1) {
@@ -538,7 +542,7 @@ public final class CarbonUILoginUtil {
         } catch (Exception e) {
             log.error("error occurred while login", e);
             response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL("",
-                    "carbon/admin/login.jsp?loginStatus=failed", request));
+                    "/carbon/admin/login.jsp?loginStatus=failed", request));
         }
 
         return false;

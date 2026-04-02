@@ -419,6 +419,14 @@
         {% if encryption.key is defined %}
         <Secret>{{encryption.key}}</Secret>
         {% endif %}
+
+        {% if encryption.enable_key_id is defined %}
+        <EnableKeyId>{{encryption.enable_key_id}}</EnableKeyId>
+        {% endif %}
+
+        {% if encryption.old_key is defined %}
+        <OldSecret>{{encryption.old_key}}</OldSecret>
+        {% endif %}
         <!--
             The crypto provider which is used for the crypto needs which come when communicating with external parties.
             e.g. Signing, Decrypting.
