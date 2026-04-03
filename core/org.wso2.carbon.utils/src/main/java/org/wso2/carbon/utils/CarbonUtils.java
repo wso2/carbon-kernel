@@ -839,6 +839,17 @@ public class CarbonUtils {
         String carbonMgtParam = "${carbon.management.port}";
         String mgtTransport = getManagementTransport();
         String returnUrl = url;
+        if (returnUrl == null) {
+            String httpsPort =
+                    CarbonUtils.getTransportPort(configCtx, mgtTransport) + "";
+            String host = System.getProperty(ServerConstants.LOCAL_IP_ADDRESS, "localhost");
+            String context = ServerConfiguration.getInstance().getFirstProperty("WebContextRoot");
+            if (context == null || context.equals("/")) {
+                context = "";
+            }
+            returnUrl = mgtTransport + "://" + host + ":" + httpsPort + context + "/services/";
+            return returnUrl;
+        }
 		if (returnUrl.indexOf(carbonMgtParam) != -1) {
             String httpsPort =
                     CarbonUtils.getTransportPort(configCtx, mgtTransport) + "";

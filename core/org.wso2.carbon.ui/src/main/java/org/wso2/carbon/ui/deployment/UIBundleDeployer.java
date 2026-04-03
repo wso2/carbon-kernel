@@ -48,9 +48,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
@@ -67,6 +69,7 @@ public class UIBundleDeployer implements SynchronousBundleListener {
             new BundleBasedUIResourceProvider(bundleResourcePath);
     //Used to hide the menus in the management console.
     private List<String> hideMenuIds = new ArrayList<>();
+    private Map<String, org.osgi.framework.ServiceRegistration<?>> servletRegistrations = new HashMap<>();
 
     public UIResourceProvider getBundleBasedUIResourcePrvider() {
         return bundleBasedUIResourceProvider;
@@ -290,34 +293,31 @@ public class UIBundleDeployer implements SynchronousBundleListener {
         if (component != null
                 && component.getServlets() != null
                 && component.getServlets().length > 0) {
-            HttpService httpService;
-            try {
-                httpService = CarbonUIServiceComponent.getHttpService();
-            } catch (Exception e) {
-                throw new CarbonException("An instance of HttpService is not available");
-            }
             org.wso2.carbon.ui.deployment.beans.Servlet[] servletDefinitions = component.getServlets();
             for (int a = 0; a < servletDefinitions.length; a++) {
                 org.wso2.carbon.ui.deployment.beans.Servlet servlet = servletDefinitions[a];
                 if (CarbonConstants.ADD_UI_COMPONENT.equals(action)) {
                     if (log.isTraceEnabled()) {
-                        log.trace("Registering sevlet : " + servlet);
+                        log.trace("Registering servlet : " + servlet);
                     }
                     try {
                         Class clazz = Class.forName(servlet.getServletClass());
-                        //TODO : allow servlet parameters to be passed
-                        Dictionary params = new Hashtable();
-                        httpService.registerServlet(servlet.getUrlPatten(),
-                                (Servlet) clazz.newInstance(), params,
-                                httpContext);
+                        Servlet servletInstance = (Servlet) clazz.newInstance();
+                        Dictionary<String, String> props = new Hashtable<>();
+                        props.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN,
+                                servlet.getUrlPatten());
+                        props.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_SELECT,
+                                "(" + HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_NAME
+                                        + "=carbonContext)");
+                        props.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_NAME,
+                                servlet.getName() != null ? servlet.getName()
+                                        : servlet.getServletClass());
+                        org.osgi.framework.ServiceRegistration<?> reg =
+                                bundleContext.registerService(
+                                        Servlet.class.getName(), servletInstance, props);
+                        servletRegistrations.put(servlet.getUrlPatten(), reg);
                     } catch (ClassNotFoundException e) {
                         log.error("Servlet class : " + servlet.getServletClass() + " not found.", e);
-                    } catch (ServletException e) {
-                        log.error("Problem registering Servlet class : " +
-                                servlet.getServletClass() + ".", e);
-                    } catch (NamespaceException e) {
-                        log.error("Problem registering Servlet class : " +
-                                servlet.getServletClass() + ".", e);
                     } catch (InstantiationException e) {
                         log.error("Problem registering Servlet class : " +
                                 servlet.getServletClass() + ".", e);
@@ -327,15 +327,16 @@ public class UIBundleDeployer implements SynchronousBundleListener {
                     }
                 } else if (CarbonConstants.REMOVE_UI_COMPONENT.equals(action)) {
                     if (log.isTraceEnabled()) {
-                        log.trace("Unregistering sevlet : " + servlet);
+                        log.trace("Unregistering servlet : " + servlet);
                     }
-                    httpService.unregister(servlet.getUrlPatten());
+                    org.osgi.framework.ServiceRegistration<?> reg =
+                            servletRegistrations.remove(servlet.getUrlPatten());
+                    if (reg != null) {
+                        reg.unregister();
+                    }
                 }
             }
-
         }
-
-
     }
 
     private void processCustomRegistryDefinitions(Component component, String action) throws
