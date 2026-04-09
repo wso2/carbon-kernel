@@ -77,7 +77,6 @@
                                 <bundleDef>org.apache.abdera.wso2:abdera-jdk21:${orbit.version.abdera}</bundleDef>
                                 <bundleDef>org.apache.axis2.wso2:axis2:${orbit.version.axis2}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.tiles:tiles-jsp-jdk21:${orbit.version.tiles}</bundleDef>
-                                <bundleDef>org.wso2.orbit.org.apache.xmlbeans:xmlbeans:${version.xmlbeans}</bundleDef>
                                 <bundleDef>org.apache.ws.commons.axiom.wso2:axiom:${orbit.version.axiom}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.neethi:neethi:${neethi.osgi.version}</bundleDef>
                                 <bundleDef>org.apache.woden.wso2:woden:${version.woden}</bundleDef>
@@ -96,6 +95,9 @@
                                 <bundleDef>commons-io.wso2:commons-io:${orbit.version.commons.io}</bundleDef>
                                 <bundleDef>
                                     org.wso2.orbit.commons-collections:commons-collections:${orbit.version.commons.collection}
+                                </bundleDef>
+                                <bundleDef>
+                                    org.wso2.orbit.org.apache.commons:commons-collections4:${apache.common.collections4.version}
                                 </bundleDef>
                                 <bundleDef>org.apache.httpcomponents.wso2:httpcore:${orbit.version.httpcore}</bundleDef>
                                 <bundleDef>org.compass-project.wso2:compass:${version.compass}</bundleDef>
