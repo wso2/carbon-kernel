@@ -5093,10 +5093,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // If the username claim is present, the value should be equal to the username attribute.
         // Both sides are stripped of domain prefix to handle cases where either or both contain a
         // userstore domain (e.g. "PRIMARY/user1" vs "user1", or "SECONDARY/John" vs "SECONDARY/John").
-        if (claims != null && claims.containsKey(USERNAME_CLAIM_URI) &&
-                !UserCoreUtil.removeDomainFromName(claims.get(USERNAME_CLAIM_URI)).equals(userNameWithoutDomain)) {
-            // If not we cannot continue.
-            throw new UserStoreException("Username and the username claim value should be same.");
+        if (claims != null && claims.containsKey(USERNAME_CLAIM_URI)) {
+            String usernameClaimValue = claims.get(USERNAME_CLAIM_URI);
+            if (usernameClaimValue == null ||
+                    !UserCoreUtil.removeDomainFromName(usernameClaimValue).equals(userNameWithoutDomain)) {
+                // If not we cannot continue.
+                throw new UserStoreException("Username and the username claim value should be same.");
+            }
         }
 
         // Get the user store that this user should be added from the domain name that is appended to the username.
@@ -15818,10 +15821,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         String userNameWithoutDomain = UserCoreUtil.removeDomainFromName(userName);
-        if (claims != null && claims.containsKey(USERNAME_CLAIM_URI) &&
-                !UserCoreUtil.removeDomainFromName(claims.get(USERNAME_CLAIM_URI)).equals(userNameWithoutDomain)) {
-            // If not we cannot continue.
-            throw new UserStoreException("Username and the username claim value should be same.");
+        if (claims != null && claims.containsKey(USERNAME_CLAIM_URI)) {
+            String usernameClaimValue = claims.get(USERNAME_CLAIM_URI);
+            if (usernameClaimValue == null ||
+                    !UserCoreUtil.removeDomainFromName(usernameClaimValue).equals(userNameWithoutDomain)) {
+                // If not we cannot continue.
+                throw new UserStoreException("Username and the username claim value should be same.");
+            }
         }
 
         UserStore userStore = getUserStore(userName);
