@@ -82,7 +82,7 @@
                                 <bundleDef>javax.annotation:javax.annotation-api:${version.javax.annotation.annotation-api}</bundleDef>
                                 <!--<bundleDef>org.wso2.orbit.io.opentelemetry:opentelemetry-all</bundleDef>-->
                                 <bundleDef>com.google.guava:guava:</bundleDef>
-                                <bundleDef>com.google.guava:failureaccess:1.0.1</bundleDef>
+                                <bundleDef>com.google.guava:failureaccess:1.0.3</bundleDef>
                                 <!--<bundleDef>org.wso2.orbit.io.netty:netty-all</bundleDef>-->
                             </bundles>
                         </configuration>
