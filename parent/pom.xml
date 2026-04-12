@@ -639,12 +639,12 @@
         <version.jackson>2.21.2</version.jackson>
         <version.jackson.annotations>2.21</version.jackson.annotations>
         <version.guava>33.0.0-jre</version.guava>
-        <version.ciphertool>1.1.29</version.ciphertool>
+        <version.ciphertool>1.1.30</version.ciphertool>
         <xml.unit.verions>2.6.2</xml.unit.verions>
         <version.org.apache.felix.scr.ds-annotations>1.2.10</version.org.apache.felix.scr.ds-annotations>
         <maven.felix.scr.plugin.version>1.25.0</maven.felix.scr.plugin.version>
         <import.package.version.commons.logging>[1.2.0,2.0.0)</import.package.version.commons.logging>
-        <config.mapper.version>1.0.23</config.mapper.version>
+        <config.mapper.version>1.0.26</config.mapper.version>
         <version.stax.ex>1.8.3</version.stax.ex>
         <version.saaj.impl>1.5.0</version.saaj.impl>
         <httpcomponents-httpclient.wso2.version>4.3.6.wso2v2</httpcomponents-httpclient.wso2.version>
