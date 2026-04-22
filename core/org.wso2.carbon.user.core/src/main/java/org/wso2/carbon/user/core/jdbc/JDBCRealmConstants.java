@@ -43,6 +43,7 @@ public final class JDBCRealmConstants {
     public static final String GET_USER_FILTER_PAGINATED_WITH_ID_MSSQL = "UserFilterPaginatedWithIDSQL-mssql";
     public static final String GET_USER_FILTER_PAGINATED_DB2 = "UserFilterPaginatedSQL-db2";
     public static final String GET_USER_FILTER_PAGINATED_ORACLE = "UserFilterPaginatedSQL-oracle";
+    public static final String GET_USER_FILTER_PAGINATED_WITH_ID_ORACLE = "UserFilterPaginatedWithIDSQL-oracle";
     public static final String GET_USER_FILTER_PAGINATED_COUNT = "UserFilterPaginatedCountSQL";
     public static final String GET_USER_FILTER_PAGINATED_COUNT_WITH_ID = "UserFilterPaginatedCountWithIDSQL";
     public static final String GET_USER_ROLE = "UserRoleSQL";
@@ -227,6 +228,10 @@ public final class JDBCRealmConstants {
     public static final String GET_USER_FILTER_PAGINATED_SQL_ORACLE = "SELECT UM_USER_NAME FROM (SELECT UM_USER_NAME," +
             " UM_TENANT_ID, rownum AS rnum FROM (SELECT UM_USER_NAME, UM_TENANT_ID FROM UM_USER ORDER BY " +
             "UM_USER_NAME) WHERE UM_USER_NAME LIKE ? AND UM_TENANT_ID=? AND rownum <= ?) WHERE  rnum > ?";
+    public static final String GET_USER_FILTER_PAGINATED_WITH_USER_ID_SQL_ORACLE =
+            "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, UM_TENANT_ID, rownum AS rnum "
+                    + "FROM (SELECT UM_USER_ID, UM_USER_NAME, UM_TENANT_ID FROM UM_USER ORDER BY UM_USER_NAME) "
+                    + "WHERE UM_USER_NAME LIKE ? AND UM_TENANT_ID=? AND rownum <= ?) WHERE rnum > ?";
     public static final String GET_USER_FILTER_PAGINATED_WITH_ID_SQL_ORACLE =
             "SELECT UM_USER.UM_USER_ID, UM_USER_ATTRIBUTE.UM_ATTR_VALUE FROM (SELECT UM_USER.UM_USER_ID, rownum AS "
                     + "rnum FROM (SELECT DISTINCT UM_USER.UM_USER_ID FROM UM_USER, UM_USER_ATTRIBUTE WHERE UM_USER_ATTRIBUTE"

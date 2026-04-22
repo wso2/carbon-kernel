@@ -39,6 +39,8 @@ public class JDBCCaseInsensitiveConstants {
             "UserFilterPaginatedWithIDSQLCaseInsensitive-mssql";
     public static final String GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_DB2 = "UserFilterPaginatedSQLCaseInsensitive-db2";
     public static final String GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_ORACLE = "UserFilterPaginatedSQLCaseInsensitive-oracle";
+    public static final String GET_USER_FILTER_WITH_ID_CASE_INSENSITIVE_PAGINATED_ORACLE =
+            "UserFilterPaginatedWithIDSQLCaseInsensitive-oracle";
     public static final String GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_COUNT =
             "UserFilterPaginatedSQLCaseInsensitiveCount";
     public static final String GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_COUNT_WITH_ID =
@@ -132,6 +134,10 @@ public class JDBCCaseInsensitiveConstants {
     public static final String GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_SQL_ORACLE = "SELECT UM_USER_NAME FROM " +
             "(SELECT UM_USER_NAME,UM_TENANT_ID, rownum AS rnum FROM (SELECT UM_USER_NAME, UM_TENANT_ID FROM UM_USER " +
             "ORDER BY  UM_USER_NAME) WHERE UM_USER_NAME LIKE LOWER(?) AND UM_TENANT_ID=? AND rownum <= ?) WHERE  rnum > ?";
+    public static final String GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_WITH_ID_SQL_ORACLE =
+            "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, UM_TENANT_ID, rownum AS rnum "
+                    + "FROM (SELECT UM_USER_ID, UM_USER_NAME, UM_TENANT_ID FROM UM_USER ORDER BY UM_USER_NAME) "
+                    + "WHERE LOWER(UM_USER_NAME) LIKE LOWER(?) AND UM_TENANT_ID=? AND rownum <= ?) WHERE rnum > ?";
 
     public static final String GET_USER_FILTER_CASE_INSENSITIVE_PAGINATED_COUNT_SQL = "SELECT COUNT (UM_USER_NAME) " +
             "FROM UM_USER WHERE LOWER(UM_USER_NAME) LIKE LOWER(?) AND UM_TENANT_ID=?";
