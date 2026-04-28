@@ -307,6 +307,7 @@ public class UserCoreConstants {
         public static final String USER_IS_LOCKED = "17003";
         public static final String USER_DELETION_WORKFLOW_CREATED = "17004";
         public static final String USER_CLAIMS_UPDATE_WORKFLOW_CREATED = "17005";
+        public static final String UPDATE_GROUP_USERS_WORKFLOW_CREATED = "17006";
 
     }
 }
