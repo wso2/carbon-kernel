@@ -839,13 +839,15 @@ public class HybridRoleManager {
                 while (resultSet.next()) {
                     String dbUserName = resultSet.getString(1);
                     String matchedUserName;
-                    if (caseSensitive) {
-                        matchedUserName = userNames.contains(dbUserName) ? dbUserName : null;
-                    } else {
+                    if (userNames.contains(dbUserName)) {
+                        matchedUserName = dbUserName;
+                    } else if (!caseSensitive) {
                         matchedUserName = userNames.stream()
                                 .filter(name -> name != null && name.equalsIgnoreCase(dbUserName))
                                 .findFirst()
                                 .orElse(null);
+                    } else {
+                        matchedUserName = null;
                     }
                     if (matchedUserName == null) {
                         continue;
