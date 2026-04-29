@@ -805,8 +805,9 @@ public class HybridRoleManager {
         String sqlStmt = realmConfig.getRealmProperty(isRoleV2Using() ? HybridJDBCConstants.GET_ROLE_V2_LIST_OF_USERS :
                 HybridJDBCConstants.GET_ROLE_LIST_OF_USERS);
         String dynamicString;
-        
-        if (isCaseSensitiveUsername()) {
+        boolean caseSensitive = isCaseSensitiveUsername();
+
+        if (caseSensitive) {
             if (StringUtils.isEmpty(sqlStmt)) {
                 sqlStmt = isRoleV2Using() ? HybridJDBCConstants.GET_INTERNAL_ROLE_V2_LIST_OF_USERS_SQL
                         : HybridJDBCConstants.GET_INTERNAL_ROLE_LIST_OF_USERS_SQL;
@@ -836,16 +837,25 @@ public class HybridRoleManager {
             prepStmt.setString(index, domainName);
             try (ResultSet resultSet = prepStmt.executeQuery()) {
                 while (resultSet.next()) {
-                    String userName = resultSet.getString(1);
-                    if (!userNames.contains(userName)) {
+                    String dbUserName = resultSet.getString(1);
+                    String matchedUserName;
+                    if (caseSensitive) {
+                        matchedUserName = userNames.contains(dbUserName) ? dbUserName : null;
+                    } else {
+                        matchedUserName = userNames.stream()
+                                .filter(name -> name != null && name.equalsIgnoreCase(dbUserName))
+                                .findFirst()
+                                .orElse(null);
+                    }
+                    if (matchedUserName == null) {
                         continue;
                     }
 
                     String roleName = resultSet.getString(2);
-                    List<String> userRoles = hybridRoleListOfUsers.get(userName);
+                    List<String> userRoles = hybridRoleListOfUsers.get(matchedUserName);
                     if (userRoles == null) {
                         userRoles = new ArrayList<>();
-                        hybridRoleListOfUsers.put(userName, userRoles);
+                        hybridRoleListOfUsers.put(matchedUserName, userRoles);
                     }
 
                     if (!roleName.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
