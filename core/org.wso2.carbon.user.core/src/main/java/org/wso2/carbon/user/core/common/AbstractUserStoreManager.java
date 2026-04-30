@@ -2132,21 +2132,21 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
-     * Whether usernames are case-sensitive in the given user store, based on the
-     * CaseInsensitiveUsername property. Defaults to true.
+     * Whether usernames are case-insensitive in the given user store, based on the
+     * CaseInsensitiveUsername property. Defaults to false.
      *
      * @param userStore user store to inspect.
-     * @return {@code true} if usernames are case-sensitive, {@code false} otherwise.
+     * @return {@code true} if usernames are case-insensitive, {@code false} otherwise.
      */
-    private boolean isCaseSensitiveUsernameForStore(UserStore userStore) {
+    private boolean isCaseInsensitiveUsernameForStore(UserStore userStore) {
 
         UserStoreManager userStoreManager = userStore.getUserStoreManager();
         if (userStoreManager == null) {
-            return true;
+            return false;
         }
         String isCaseInsensitive = userStoreManager.getRealmConfiguration()
                 .getUserStoreProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME);
-        return !Boolean.parseBoolean(isCaseInsensitive);
+        return Boolean.parseBoolean(isCaseInsensitive);
     }
 
     /**
@@ -13928,7 +13928,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         log.debug("User is not available in cache or database.");
                         return null;
                     }
-                    if (!isCaseSensitiveUsernameForStore(userStore)) {
+                    if (isCaseInsensitiveUsernameForStore(userStore)) {
                         try {
                             String resolvedUserName = doGetUserNameFromUserID(userID);
                             if (StringUtils.isNotEmpty(resolvedUserName)) {
@@ -13951,7 +13951,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         userStore.getDomainName(), null);
                 if (claims != null && claims.size() == 1) {
                     userID = claims.get(USER_ID_CLAIM_URI);
-                    if (!isCaseSensitiveUsernameForStore(userStore)) {
+                    if (isCaseInsensitiveUsernameForStore(userStore)) {
                         try {
                             String resolvedUserName = doGetUserNameFromUserID(userID);
                             if (StringUtils.isNotEmpty(resolvedUserName)) {
