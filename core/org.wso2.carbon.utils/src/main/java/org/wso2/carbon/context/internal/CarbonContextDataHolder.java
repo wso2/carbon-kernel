@@ -429,10 +429,6 @@ public final class CarbonContextDataHolder {
     private static class CarbonInitialJNDIContextFactoryBuilder implements
                                                                 InitialContextFactoryBuilder {
 
-        private static final String defaultInitialContextFactory =
-                CarbonUtils.getServerConfiguration().getFirstProperty(
-                        "JNDI.DefaultInitialContextFactory");
-
         public InitialContextFactory createInitialContextFactory(Hashtable<?, ?> h)
                 throws NamingException {
             try {
@@ -441,7 +437,7 @@ public final class CarbonContextDataHolder {
                 // if the factory class has not been provided use the default initial context
                 // factory defined in carbon.xml.
                 if (factoryClassName == null) {
-                    factoryClassName = defaultInitialContextFactory;
+                    factoryClassName = getDefaultInitialContextFactory();
                 }else{
                     Class<?> factoryClass = classForName(factoryClassName);
                     return (InitialContextFactory)factoryClass.newInstance();
@@ -496,6 +492,11 @@ public final class CarbonContextDataHolder {
                 throw nex;
             }
         }
+    }
+
+    private static String getDefaultInitialContextFactory() {
+        return CarbonUtils.getServerConfiguration()
+                .getFirstProperty("JNDI.DefaultInitialContextFactory");
     }
 
     // A tenant-aware JNDI Initial Context Factory implementation.
