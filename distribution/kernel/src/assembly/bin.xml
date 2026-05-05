@@ -141,6 +141,7 @@
                 <include>com.google.code.gson:gson:jar</include>
                 <include>com.hubspot.jinjava:jinjava:jar</include>
                 <include>com.hubspot.immutables:immutables-exceptions:jar</include>
+                <include>com.hubspot:algebra:jar</include>
                 <include>com.fasterxml.jackson.datatype:jackson-datatype-jdk8:jar</include>
                 <include>com.google.guava:guava:jar</include>
                 <include>org.slf4j:slf4j-api:jar</include>

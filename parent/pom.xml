@@ -632,8 +632,9 @@
         <maven.spotbugsplugin.version>3.1.10</maven.spotbugsplugin.version>
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <maven.spotbugs.dependency.version>3.1.11</maven.spotbugs.dependency.version>
-        <version.jinjava>2.7.6</version.jinjava>
+        <version.jinjava>2.8.3</version.jinjava>
         <version.immutables-exceptions>1.11.2</version.immutables-exceptions>
+        <version.hubspot-algebra>1.5</version.hubspot-algebra>
         <version.cava-toml>0.5.0</version.cava-toml>
         <version.checkstyle>7.8.2</version.checkstyle>
         <version.jackson>2.21.2</version.jackson>
@@ -1833,6 +1834,11 @@
                 <groupId>com.hubspot.immutables</groupId>
                 <artifactId>immutables-exceptions</artifactId>
                 <version>${version.immutables-exceptions}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hubspot</groupId>
+                <artifactId>algebra</artifactId>
+                <version>${version.hubspot-algebra}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
