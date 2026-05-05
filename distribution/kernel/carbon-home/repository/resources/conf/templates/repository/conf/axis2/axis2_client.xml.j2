@@ -23,9 +23,9 @@
     <parameter name="enableMTOM">false</parameter>
 
     <!-- commons-http-client defaultMaxConnPerHost -->
-    <parameter name="defaultMaxConnPerHost">500</parameter>
+    <parameter name="defaultMaxConnPerHost">{{axis2_client.default_max_connections_per_host}}</parameter>
     <!-- commons-http-client maxTotalConnections -->
-    <parameter name="maxTotalConnections">15000</parameter>
+    <parameter name="maxTotalConnections">{{axis2_client.max_total_connections}}</parameter>
 
     <!--If turned on with use the Accept header of the request to determine the contentType of the
     response-->
