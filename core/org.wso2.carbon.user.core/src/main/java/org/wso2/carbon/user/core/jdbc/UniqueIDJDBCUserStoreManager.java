@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2019-2026, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -4649,8 +4649,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             String roleUserJoinClause =  isGroupFilteringWithNEOperator ? RIGHT_JOIN : INNER_JOIN;
 
             if (DB2.equals(dbType)) {
-                sqlStatement = new StringBuilder("SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT "
-                        + "ROW_NUMBER() OVER (ORDER BY UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_NAME  "
+                sqlStatement = new StringBuilder("SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT "
+                        + "ROW_NUMBER() OVER (ORDER BY UM_USER_NAME) AS rn, UM_USER_ID, UM_USER_NAME "
+                        + "FROM (SELECT DISTINCT U.UM_USER_ID, U.UM_USER_NAME "
                         + "FROM UM_ROLE R INNER JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID"
                         + roleUserJoinClause + "UM_USER U "
                         + "ON UR.UM_USER_ID =U.UM_ID INNER JOIN UM_USER_ATTRIBUTE UA ON U.UM_ID = UA.UM_USER_ID");
@@ -4690,8 +4691,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
             if (DB2.equals(dbType)) {
                 sqlStatement = new StringBuilder(
-                        "SELECT U.UM_USER_ID, U.UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
-                                + "UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_NAME  FROM UM_ROLE R INNER"
+                        "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
+                                + "UM_USER_NAME) AS rn, UM_USER_ID, UM_USER_NAME FROM (SELECT DISTINCT "
+                                + "U.UM_USER_ID, U.UM_USER_NAME FROM UM_ROLE R INNER"
                                 + " JOIN UM_USER_ROLE UR ON R.UM_ID = UR.UM_ROLE_ID" + roleUserJoinClause
                                 + "UM_USER U ON UR.UM_USER_ID = U.UM_ID ");
             } else if (H2.equals(dbType)) {
