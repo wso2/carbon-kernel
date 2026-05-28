@@ -177,19 +177,6 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     // Regex pattern to match bracketed segments without nested brackets.
     private static final Pattern TIMESTAMP_FORMAT_PATTERN = Pattern.compile("\\[[^\\[\\]]+\\]");
 
-    // Regex patterns for LDAP timestamp formats.
-    private static final Pattern NO_FRACTION_TIMESTAMP_PATTERN = Pattern.compile("^\\d{14}([-+]\\d{4}|Z)$");
-    private static final Pattern THREE_DIGIT_FRACTION_TIMESTAMP_PATTERN =
-            Pattern.compile("^\\d{14}[,\\.]\\d{3}([-+]\\d{4}|Z)$");
-    private static final Pattern TWO_DIGIT_FRACTION_TIMESTAMP_PATTERN =
-            Pattern.compile("^\\d{14}[,\\.]\\d{2}([-+]\\d{4}|Z)$");
-    private static final Pattern ONE_DIGIT_FRACTION_TIMESTAMP_PATTERN =
-            Pattern.compile("^\\d{12}[,\\.]\\d{1}([-+]\\d{4}|Z)$");
-    private static final Pattern ONE_DIGIT_FRACTION_WITH_SECONDS_TIMESTAMP_PATTERN =
-            Pattern.compile("^\\d{14}[,\\.]\\d{1}([-+]\\d{4}|Z)$");
-    private static final Pattern ONE_DIGIT_FRACTION_WITH_MINUTES_TIMESTAMP_PATTERN =
-            Pattern.compile("^\\d{12}[,\\.]\\d{1}([-+]\\d{4}|Z)$");
-
     static {
         setAdvancedProperties();
     }
@@ -3225,8 +3212,24 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         return true;
     }
 
-    protected void processAttributesAfterRetrievalWithID(String userID, Map<String, String> userStorePropertyValues,
-                                                         String profileName) {
+    protected void processAttributesAfterRetrievalWithID(String userID, Map<String,
+            String> userStorePropertyValues, String profileName) {
+
+        try {
+            processAttributesAfterRetrievalWithID(userStorePropertyValues);
+        } catch (UserStoreException e) {
+            logger.error("Error while processing attributes after retrieval with ID for userID: " + userID, e);
+        }
+    }
+
+    protected void processAttributesAfterRetrievalWithIDWithException(String userID, Map<String,
+            String> userStorePropertyValues, String profileName) throws UserStoreException {
+
+        processAttributesAfterRetrievalWithID(userStorePropertyValues);
+    }
+
+    private void processAttributesAfterRetrievalWithID(Map<String,
+            String> userStorePropertyValues) throws UserStoreException {
 
         String timestampAttributesProperty = Optional.ofNullable(realmConfig
                 .getUserStoreProperty(UserStoreConfigConstants.timestampAttributes)).orElse(StringUtils.EMPTY);
@@ -3242,10 +3245,13 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 logger.debug("Retrieved user store properties before type conversions: " + userStorePropertyValues);
             }
 
-            Map<String, String> convertedTimestampAttributeValues = Arrays.stream(timestampAttributes)
-                    .filter(attribute -> userStorePropertyValues.get(attribute) != null)
-                    .collect(Collectors.toMap(Function.identity(),
-                            attribute -> convertDateFormatFromLDAP(userStorePropertyValues.get(attribute))));
+            Map<String, String> convertedTimestampAttributeValues = new HashMap<>();
+            for (String attribute : timestampAttributes) {
+                if (userStorePropertyValues.get(attribute) != null) {
+                    convertedTimestampAttributeValues.put(attribute,
+                            LDAPUtil.convertToStandardTimeFormat(realmConfig, userStorePropertyValues.get(attribute)));
+                }
+            }
 
             if (logger.isDebugEnabled()) {
                 logger.debug("Converted timestamp attribute values: " + convertedTimestampAttributeValues);
@@ -4086,9 +4092,9 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                     }
                     group.setGroupName(groupName);
                 } else if (realmConfig.getUserStoreProperty(GROUP_CREATED_DATE_ATTRIBUTE).equals(attributeId)) {
-                    group.setCreatedDate(this.convertToStandardTimeFormat(value));
+                    group.setCreatedDate(LDAPUtil.convertToStandardTimeFormat(realmConfig, value));
                 } else if (realmConfig.getUserStoreProperty(GROUP_LAST_MODIFIED_DATE_ATTRIBUTE).equals(attributeId)) {
-                    group.setLastModifiedDate(this.convertToStandardTimeFormat(value));
+                    group.setLastModifiedDate(LDAPUtil.convertToStandardTimeFormat(realmConfig, value));
                 } else {
                     log.error("Unsupported group attribute: when building the group response object" + attributeId);
                 }
@@ -4104,45 +4110,6 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             group.setLastModifiedDate(group.getCreatedDate());
         }
         return group;
-    }
-
-    /**
-     * Covert the LDAP timestamp format (Zulutime) to the generic timestamp supported by the identity server.
-     * Refer to the "Generalized Time" section in the spec: https://www.ietf.org/rfc/rfc4517.txt.
-     *
-     * @param dateTimestamp Ldap timestamp.
-     * @return Given timestamp in the standard format.
-     * @throws UserStoreException If an error occurred while converting timestamp or if unsupported timestamp
-     *                            configured in the userstore.
-     */
-    private String convertToStandardTimeFormat(String dateTimestamp) throws UserStoreException {
-
-        if (StringUtils.isBlank(dateTimestamp)) {
-            return dateTimestamp;
-        }
-        String userstoreTimestampFormat = realmConfig.getUserStoreProperty(dateAndTimePattern);
-        if (StringUtils.isNotBlank(userstoreTimestampFormat) &&
-                !StringUtils.equals(userstoreTimestampFormat, DEFAULT_LDAP_TIME_FORMATS_PATTERN)) {
-            try {
-                return OffsetDateTime.parse(dateTimestamp, DateTimeFormatter.ofPattern(userstoreTimestampFormat))
-                        .toInstant()
-                        .toString();
-            } catch (DateTimeParseException e) {
-                throw new UserStoreException("Invalid timestamp format for pattern: " + userstoreTimestampFormat, e);
-            }
-        }
-
-        String derivedTimeStampPattern = deriveTimestampFormat(dateTimestamp);
-        if (StringUtils.isNotBlank(derivedTimeStampPattern)) {
-            try {
-                return OffsetDateTime.parse(dateTimestamp, DateTimeFormatter.ofPattern(derivedTimeStampPattern))
-                        .toInstant()
-                        .toString();
-            } catch (DateTimeParseException e) {
-                throw new UserStoreException("Invalid timestamp format for pattern: " + derivedTimeStampPattern, e);
-            }
-        }
-        throw new UserStoreException("Unsupported LDAP timestamp format: " + dateTimestamp);
     }
 
     /**
@@ -4474,47 +4441,9 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
             Attribute attr = sr.getAttributes().get(timestampAttributeName);
             if (attr != null) {
                 String sampleTimestamp = (String) attr.get();
-                return deriveTimestampFormat(sampleTimestamp);
+                return LDAPUtil.deriveTimestampFormat(sampleTimestamp);
             }
         }
-        return null;
-    }
-
-    /**
-     * Derives the timestamp format based on the provided timestamp string.
-     * The patterns checked here correspond to formats defined in DEFAULT_LDAP_TIME_FORMATS_PATTERN
-     * ("[uuuuMMddHHmmss[,SSS][.SSS]X][uuuuMMddHHmmss[,SS][.SS]X][uuuuMMddHHmm[,S][.S]X]").
-     *
-     * @param timestamp The timestamp string to analyze.
-     * @return The derived timestamp format, or null if no matching format is found.
-     */
-    private static String deriveTimestampFormat(String timestamp) {
-
-        if (StringUtils.isBlank(timestamp)) {
-            return null;
-        }
-
-        // Case 1: 14 digits with no fractional seconds.
-        if (NO_FRACTION_TIMESTAMP_PATTERN.matcher(timestamp).matches()) {
-            return "uuuuMMddHHmmssX";
-        }
-        // Case 2: 14 digits with 3-digit fraction.
-        else if (THREE_DIGIT_FRACTION_TIMESTAMP_PATTERN.matcher(timestamp).matches()) {
-            return timestamp.contains(",") ? "uuuuMMddHHmmss,SSSX" : "uuuuMMddHHmmss.SSSX";
-        }
-        // Case 3: 14 digits with 2-digit fraction.
-        else if (TWO_DIGIT_FRACTION_TIMESTAMP_PATTERN.matcher(timestamp).matches()) {
-            return timestamp.contains(",") ? "uuuuMMddHHmmss,SSX" : "uuuuMMddHHmmss.SSX";
-        }
-        // Case 4: 14 digits with 1-digit fraction (seconds precision).
-        else if (ONE_DIGIT_FRACTION_WITH_SECONDS_TIMESTAMP_PATTERN.matcher(timestamp).matches()) {
-            return timestamp.contains(",") ? "uuuuMMddHHmmss,SX" : "uuuuMMddHHmmss.SX";
-        }
-        // Case 5: 12 digits with 1-digit fraction (minutes precision).
-        else if (ONE_DIGIT_FRACTION_WITH_MINUTES_TIMESTAMP_PATTERN.matcher(timestamp).matches()) {
-            return timestamp.contains(",") ? "uuuuMMddHHmm,SX" : "uuuuMMddHHmm.SX";
-        }
-
         return null;
     }
 }

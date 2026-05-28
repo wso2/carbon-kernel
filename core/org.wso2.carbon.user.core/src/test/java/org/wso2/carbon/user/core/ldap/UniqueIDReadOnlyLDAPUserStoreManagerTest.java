@@ -24,10 +24,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserStoreException;
-import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import org.wso2.carbon.user.core.util.LDAPUtil;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
@@ -43,23 +40,13 @@ public class UniqueIDReadOnlyLDAPUserStoreManagerTest {
     @Mock
     private RealmConfiguration realmConfig;
 
-    private UniqueIDReadOnlyLDAPUserStoreManager userStoreManager;
-
     /**
      * Sets up the test environment before each test.
      */
     @BeforeMethod
-    public void setUp() throws Exception {
+    public void setUp() {
 
         MockitoAnnotations.openMocks(this);
-
-        // Create the user store manager instance under test.
-        userStoreManager = new UniqueIDReadOnlyLDAPUserStoreManager();
-
-        // Use reflection to set the realm configuration - it's in AbstractUserStoreManager.
-        Field realmConfigField = AbstractUserStoreManager.class.getDeclaredField("realmConfig");
-        realmConfigField.setAccessible(true);
-        realmConfigField.set(userStoreManager, realmConfig);
     }
 
     /**
@@ -68,74 +55,69 @@ public class UniqueIDReadOnlyLDAPUserStoreManagerTest {
     @Test
     public void testConvertToStandardTimeFormat() throws Exception {
 
-        // Get access to the private method using reflection.
-        Method convertMethod = userStoreManager.getClass().getDeclaredMethod(
-                "convertToStandardTimeFormat", String.class);
-        convertMethod.setAccessible(true);
-
         // Configure realm config for testing - no custom pattern.
         when(realmConfig.getUserStoreProperty(dateAndTimePattern)).thenReturn(null);
 
         // Test all supported LDAP timestamp formats:
         // "uuuuMMddHHmmss,SSSX" - 14 digits + ,3digits + timezone.
         assertEquals("2025-08-13T14:56:07.123Z",
-                convertMethod.invoke(userStoreManager, "20250813145607,123Z"));
+                LDAPUtil.convertToStandardTimeFormat(realmConfig, "20250813145607,123Z"));
         assertEquals("2025-08-13T14:56:07.123Z",
-                convertMethod.invoke(userStoreManager, "20250813145607,123+0000"));
+                LDAPUtil.convertToStandardTimeFormat(realmConfig, "20250813145607,123+0000"));
         assertEquals("2025-08-13T12:56:07.123Z",
-                convertMethod.invoke(userStoreManager, "20250813145607,123+0200"));
+                LDAPUtil.convertToStandardTimeFormat(realmConfig, "20250813145607,123+0200"));
 
         // "uuuuMMddHHmmss.SSSX" - 14 digits + .3digits + timezone.
         assertEquals("2025-08-13T14:56:07.456Z",
-                convertMethod.invoke(userStoreManager, "20250813145607.456Z"));
+                LDAPUtil.convertToStandardTimeFormat(realmConfig, "20250813145607.456Z"));
         assertEquals("2025-08-13T14:56:07.456Z",
-                convertMethod.invoke(userStoreManager, "20250813145607.456+0000"));
+                LDAPUtil.convertToStandardTimeFormat(realmConfig, "20250813145607.456+0000"));
         assertEquals("2025-08-13T12:56:07.456Z",
-                convertMethod.invoke(userStoreManager, "20250813145607.456+0200"));
+                LDAPUtil.convertToStandardTimeFormat(realmConfig, "20250813145607.456+0200"));
 
         // "uuuuMMddHHmmss,SSX" - 14 digits + ,2digits + timezone.
         assertEquals("2025-08-13T14:56:07.120Z",
-                convertMethod.invoke(userStoreManager, "20250813145607,12Z"));
+                LDAPUtil.convertToStandardTimeFormat(realmConfig, "20250813145607,12Z"));
         assertEquals("2025-08-13T14:56:07.120Z",
-                convertMethod.invoke(userStoreManager, "20250813145607,12+0000"));
+                LDAPUtil.convertToStandardTimeFormat(realmConfig, "20250813145607,12+0000"));
         assertEquals("2025-08-13T12:56:07.120Z",
-                convertMethod.invoke(userStoreManager, "20250813145607,12+0200"));
+                LDAPUtil.convertToStandardTimeFormat(realmConfig, "20250813145607,12+0200"));
 
         // "uuuuMMddHHmmss.SSX" - 14 digits + .2digits + timezone.
         assertEquals("2025-08-13T14:56:07.780Z",
-                convertMethod.invoke(userStoreManager, "20250813145607.78Z"));
+                LDAPUtil.convertToStandardTimeFormat(realmConfig, "20250813145607.78Z"));
         assertEquals("2025-08-13T14:56:07.780Z",
-                convertMethod.invoke(userStoreManager, "20250813145607.78+0000"));
+                LDAPUtil.convertToStandardTimeFormat(realmConfig, "20250813145607.78+0000"));
         assertEquals("2025-08-13T12:56:07.780Z",
-                convertMethod.invoke(userStoreManager, "20250813145607.78+0200"));
+                LDAPUtil.convertToStandardTimeFormat(realmConfig, "20250813145607.78+0200"));
 
         // "uuuuMMddHHmmss,SX" - 14 digits + ,1digit + timezone.
         assertEquals("2025-08-13T14:56:07.900Z",
-                convertMethod.invoke(userStoreManager, "20250813145607,9Z"));
+                LDAPUtil.convertToStandardTimeFormat(realmConfig, "20250813145607,9Z"));
         assertEquals("2025-08-13T14:56:07.900Z",
-                convertMethod.invoke(userStoreManager, "20250813145607,9+0000"));
+                LDAPUtil.convertToStandardTimeFormat(realmConfig, "20250813145607,9+0000"));
         assertEquals("2025-08-13T12:56:07.900Z",
-                convertMethod.invoke(userStoreManager, "20250813145607,9+0200"));
+                LDAPUtil.convertToStandardTimeFormat(realmConfig, "20250813145607,9+0200"));
 
         // "uuuuMMddHHmmss.SX" - 14 digits + .1digit + timezone.
         assertEquals("2025-08-13T14:56:07.800Z",
-                convertMethod.invoke(userStoreManager, "20250813145607.8Z"));
+                LDAPUtil.convertToStandardTimeFormat(realmConfig, "20250813145607.8Z"));
         assertEquals("2025-08-13T14:56:07.800Z",
-                convertMethod.invoke(userStoreManager, "20250813145607.8+0000"));
+                LDAPUtil.convertToStandardTimeFormat(realmConfig, "20250813145607.8+0000"));
         assertEquals("2025-08-13T12:56:07.800Z",
-                convertMethod.invoke(userStoreManager, "20250813145607.8+0200"));
+                LDAPUtil.convertToStandardTimeFormat(realmConfig, "20250813145607.8+0200"));
 
         // Test null and empty.
-        assertNull(convertMethod.invoke(userStoreManager, (Object) null));
-        assertEquals("", convertMethod.invoke(userStoreManager, ""));
+        assertNull(LDAPUtil.convertToStandardTimeFormat(realmConfig, null));
+        assertEquals("", LDAPUtil.convertToStandardTimeFormat(realmConfig, ""));
 
         // Test basic format without fractional seconds.
         assertEquals("2025-08-13T14:56:07Z",
-                convertMethod.invoke(userStoreManager, "20250813145607Z"));
+                LDAPUtil.convertToStandardTimeFormat(realmConfig, "20250813145607Z"));
         assertEquals("2025-08-13T14:56:07Z",
-                convertMethod.invoke(userStoreManager, "20250813145607+0000"));
+                LDAPUtil.convertToStandardTimeFormat(realmConfig, "20250813145607+0000"));
         assertEquals("2025-08-13T12:56:07Z",
-                convertMethod.invoke(userStoreManager, "20250813145607+0200"));
+                LDAPUtil.convertToStandardTimeFormat(realmConfig, "20250813145607+0200"));
     }
 
     /**
@@ -144,17 +126,12 @@ public class UniqueIDReadOnlyLDAPUserStoreManagerTest {
     @Test
     public void testConvertToStandardTimeFormat_WithCustomPattern() throws Exception {
 
-        // Get access to the private method using reflection.
-        Method convertMethod = userStoreManager.getClass().getDeclaredMethod(
-                "convertToStandardTimeFormat", String.class);
-        convertMethod.setAccessible(true);
-
         // Configure realm config with custom pattern.
         when(realmConfig.getUserStoreProperty(dateAndTimePattern)).thenReturn("uuuuMMddHHmmssX");
 
         // Test with custom pattern - should use configured pattern instead of inference.
         assertEquals("2025-08-13T14:56:07Z",
-                convertMethod.invoke(userStoreManager, "20250813145607Z"));
+                LDAPUtil.convertToStandardTimeFormat(realmConfig, "20250813145607Z"));
     }
 
     /**
@@ -163,22 +140,16 @@ public class UniqueIDReadOnlyLDAPUserStoreManagerTest {
     @Test
     public void testConvertToStandardTimeFormat_TimezoneEdgeCases() throws Exception {
 
-        // Get access to the private method using reflection.
-        Method convertMethod = userStoreManager.getClass().getDeclaredMethod(
-                "convertToStandardTimeFormat", String.class);
-        convertMethod.setAccessible(true);
-
         // Configure realm config for testing - no custom pattern.
         when(realmConfig.getUserStoreProperty(dateAndTimePattern)).thenReturn(null);
 
         // Test edge case: 2-digit timezone (might not be supported by current regex).
         try {
-            convertMethod.invoke(userStoreManager, "20250813145607+05");
+            LDAPUtil.convertToStandardTimeFormat(realmConfig, "20250813145607+05");
             // If this doesn't throw an exception, it's supported.
-        } catch (Exception e) {
+        } catch (UserStoreException e) {
             // Expected - 2-digit timezone not supported by current regex.
-            Throwable cause = e.getCause();
-            assertTrue(cause instanceof UserStoreException,
+            assertTrue(e instanceof UserStoreException,
                     "Should throw UserStoreException for 2-digit timezone");
         }
     }
@@ -189,25 +160,16 @@ public class UniqueIDReadOnlyLDAPUserStoreManagerTest {
     @Test
     public void testConvertToStandardTimeFormat_UnsupportedFormat() throws Exception {
 
-        // Get access to the private method using reflection.
-        Method convertMethod = userStoreManager.getClass().getDeclaredMethod(
-                "convertToStandardTimeFormat", String.class);
-        convertMethod.setAccessible(true);
-
         // Configure realm config for testing - no custom pattern.
         when(realmConfig.getUserStoreProperty(dateAndTimePattern)).thenReturn(null);
 
         try {
             // Test with unsupported format - should throw UserStoreException.
-            convertMethod.invoke(userStoreManager, "invalid-date-format");
+            LDAPUtil.convertToStandardTimeFormat(realmConfig, "invalid-date-format");
             // Should not reach here.
             throw new AssertionError("Expected UserStoreException was not thrown");
-        } catch (Exception e) {
-            // Check if the root cause is UserStoreException.
-            Throwable cause = e.getCause();
-            assertTrue(cause instanceof UserStoreException,
-                    "Should throw UserStoreException for unsupported format");
-            assertTrue(cause.getMessage().contains("Unsupported LDAP timestamp format"),
+        } catch (UserStoreException e) {
+            assertTrue(e.getMessage().contains("Unsupported LDAP timestamp format"),
                     "Error message should mention unsupported timestamp format");
         }
     }
@@ -218,25 +180,16 @@ public class UniqueIDReadOnlyLDAPUserStoreManagerTest {
     @Test
     public void testConvertToStandardTimeFormat_InvalidCustomPatternFormat() throws Exception {
 
-        // Get access to the private method using reflection.
-        Method convertMethod = userStoreManager.getClass().getDeclaredMethod(
-                "convertToStandardTimeFormat", String.class);
-        convertMethod.setAccessible(true);
-
         // Configure realm config with custom pattern.
         when(realmConfig.getUserStoreProperty(dateAndTimePattern)).thenReturn("uuuuMMddHHmmssX");
 
         try {
             // Test with invalid format for the custom pattern - should throw UserStoreException.
-            convertMethod.invoke(userStoreManager, "invalid-format-for-custom-pattern");
+            LDAPUtil.convertToStandardTimeFormat(realmConfig, "invalid-format-for-custom-pattern");
             // Should not reach here.
             throw new AssertionError("Expected UserStoreException was not thrown");
-        } catch (Exception e) {
-            // Check if the root cause is UserStoreException.
-            Throwable cause = e.getCause();
-            assertTrue(cause instanceof UserStoreException,
-                    "Should throw UserStoreException for invalid custom pattern format");
-            assertTrue(cause.getMessage().contains("Invalid timestamp format"),
+        } catch (UserStoreException e) {
+            assertTrue(e.getMessage().contains("Invalid timestamp format"),
                     "Error message should mention invalid timestamp format");
         }
     }

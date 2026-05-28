@@ -4857,6 +4857,23 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     protected void processAttributesAfterRetrieval(String userName, Map<String, String> userStorePropertyValues,
                                                    String profileName) {
 
+        try {
+            processAttributesAfterRetrieval(userStorePropertyValues);
+        } catch (UserStoreException e) {
+            logger.error("Error while processing attributes after retrieval with ID for userID: " + userName, e);
+        }
+    }
+
+    @Override
+    protected void processAttributesAfterRetrievalWithException(String userName, Map<String,
+            String> userStorePropertyValues, String profileName) throws UserStoreException {
+
+        processAttributesAfterRetrieval(userStorePropertyValues);
+    }
+
+    private void processAttributesAfterRetrieval(Map<String, String> userStorePropertyValues)
+            throws UserStoreException {
+
         String timestampAttributesProperty = Optional.ofNullable(realmConfig
                 .getUserStoreProperty(UserStoreConfigConstants.timestampAttributes)).orElse(StringUtils.EMPTY);
 
@@ -4871,11 +4888,13 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 logger.debug("Retrieved user store properties before type conversions: " + userStorePropertyValues);
             }
 
-            Map<String, String> convertedTimestampAttributeValues = Arrays.stream(timestampAttributes)
-                    .map(StringUtils::trim)
-                    .filter(attribute -> userStorePropertyValues.get(attribute) != null)
-                    .collect(Collectors.toMap(Function.identity(),
-                            attribute -> convertDateFormatFromLDAP(userStorePropertyValues.get(attribute))));
+            Map<String, String> convertedTimestampAttributeValues = new HashMap<>();
+            for (String attribute : timestampAttributes) {
+                if (userStorePropertyValues.get(attribute) != null) {
+                    convertedTimestampAttributeValues.put(attribute,
+                            LDAPUtil.convertToStandardTimeFormat(realmConfig, userStorePropertyValues.get(attribute)));
+                }
+            }
 
             if (logger.isDebugEnabled()) {
                 logger.debug("Converted timestamp attribute values: " + convertedTimestampAttributeValues);
@@ -4897,7 +4916,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      */
     protected String convertDateFormatFromLDAP(String date) {
 
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(GENARALIZE_DATE_TIME_FORMAT);
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(date);
         OffsetDateTime offsetDateTime = OffsetDateTime.parse(date, dateTimeFormatter);
         Instant instant = offsetDateTime.toInstant();
         return instant.toString();
