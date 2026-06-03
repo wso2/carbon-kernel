@@ -296,10 +296,17 @@ if [ $java_version_formatted -ge 1700 ]; then
     JAVA_VER_BASED_OPTS=$JAVA_VER_BASED_OPTS" --add-opens=java.naming/com.sun.jndi.ldap=ALL-UNNAMED"
 fi
 
+JAVA_LAUNCH_PREFIX=""
+if [ $$ -eq 1 ]; then
+  if [ -f "/.dockerenv" ] || [ -f "/run/.containerenv" ] || grep -qE '/(docker|kubepods|containerd|crio)/' /proc/1/cgroup 2>/dev/null; then
+    JAVA_LAUNCH_PREFIX="exec"
+  fi
+fi
+
 
 while [ "$status" = "$START_EXIT_STATUS" ]
 do
-    $JAVACMD \
+    $JAVA_LAUNCH_PREFIX $JAVACMD \
     -Xbootclasspath/a:"$CARBON_XBOOTCLASSPATH" \
     $JVM_MEM_OPTS \
     -XX:+HeapDumpOnOutOfMemoryError \
