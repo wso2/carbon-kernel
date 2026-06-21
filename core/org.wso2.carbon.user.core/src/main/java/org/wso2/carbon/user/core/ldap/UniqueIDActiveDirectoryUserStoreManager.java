@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019-2026, WSO2 LLC. (http://www.wso2.com).
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,12 +31,14 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.common.User;
+import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.util.JNDIUtil;
 import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 
 import javax.naming.Name;
+import javax.naming.NameAlreadyBoundException;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -269,6 +271,16 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
                 }
                 errorMessage = "Error while enabling the user account. Please check password policy at DC for user : "
                         + userName;
+            } else if (e instanceof NameAlreadyBoundException) {
+                // If concurrent requests with the same username bypass the existing user validation check, it can throw
+                // a NameAlreadyBoundException. It should be caught and rethrown with the appropriate error code.
+                errorMessage = UserCoreErrorConstants.ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getCode() + " - " +
+                        UserCoreErrorConstants.ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getMessage();
+                if (logger.isDebugEnabled()) {
+                    logger.debug(errorMessage, e);
+                }
+                throw new UserStoreException(errorMessage,
+                        UserCoreErrorConstants.ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getCode(), e);
             }
             if (logger.isDebugEnabled()) {
                 logger.debug(errorMessage, e);
