@@ -31,7 +31,6 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.common.User;
-import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.util.JNDIUtil;
 import org.wso2.carbon.utils.Secret;
@@ -69,6 +68,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataCategory.CONNECTION;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataCategory.GROUP;
 import static org.wso2.carbon.user.core.constants.UserStoreUIConstants.DataCategory.USER;
@@ -274,13 +274,12 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
             } else if (e instanceof NameAlreadyBoundException) {
                 // If concurrent requests with the same username bypass the existing user validation check, it can throw
                 // a NameAlreadyBoundException. It should be caught and rethrown with the appropriate error code.
-                errorMessage = UserCoreErrorConstants.ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getCode() + " - " +
-                        UserCoreErrorConstants.ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getMessage();
+                errorMessage = ERROR_CODE_USER_ALREADY_EXISTS.getCode() + " - " +
+                        String.format(ERROR_CODE_USER_ALREADY_EXISTS.getMessage(), userName);
                 if (logger.isDebugEnabled()) {
                     logger.debug(errorMessage, e);
                 }
-                throw new UserStoreException(errorMessage,
-                        UserCoreErrorConstants.ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getCode(), e);
+                throw new UserStoreException(errorMessage, ERROR_CODE_USER_ALREADY_EXISTS.getCode(), e);
             }
             if (logger.isDebugEnabled()) {
                 logger.debug(errorMessage, e);

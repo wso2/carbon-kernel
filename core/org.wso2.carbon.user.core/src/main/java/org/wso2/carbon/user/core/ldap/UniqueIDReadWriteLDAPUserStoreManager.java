@@ -84,6 +84,7 @@ import javax.sql.DataSource;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_COUNT;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_ID_ATTRIBUTE;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_ID;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_NAME;
 import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_NO_GROUP_FOUND_WITH_ID;
@@ -356,13 +357,12 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
             if (e instanceof NameAlreadyBoundException) {
                 // If concurrent requests with the same username bypass the existing user validation check, it can throw
                 // a NameAlreadyBoundException. It should be caught and rethrown with the appropriate error code.
-                errorMessage = UserCoreErrorConstants.ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getCode() + " - " +
-                        UserCoreErrorConstants.ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getMessage();
+                errorMessage = ERROR_CODE_USER_ALREADY_EXISTS.getCode() + " - " +
+                        String.format(ERROR_CODE_USER_ALREADY_EXISTS.getMessage(), userName);
                 if (log.isDebugEnabled()) {
                     log.debug(errorMessage, e);
                 }
-                throw new UserStoreException(errorMessage,
-                        UserCoreErrorConstants.ErrorMessages.ERROR_CODE_USER_ALREADY_EXISTS.getCode(), e);
+                throw new UserStoreException(errorMessage, ERROR_CODE_USER_ALREADY_EXISTS.getCode(), e);
             } else {
                 log.error("Failed to persist user: " + userName + ". Error: " + e.getMessage());
                 throw new UserStoreException(errorMessage, e);
