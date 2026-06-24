@@ -275,10 +275,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
                 // If concurrent requests with the same username bypass the existing user validation check, it can throw
                 // a NameAlreadyBoundException. It should be caught and rethrown with the appropriate error code.
                 errorMessage = ERROR_CODE_USER_ALREADY_EXISTS.getCode() + " - " +
-                        String.format(ERROR_CODE_USER_ALREADY_EXISTS.getMessage(), userName);
-                if (logger.isDebugEnabled()) {
-                    logger.debug(errorMessage, e);
-                }
+                        String.format(ERROR_CODE_USER_ALREADY_EXISTS.getMessage(), "");
                 throw new UserStoreException(errorMessage, ERROR_CODE_USER_ALREADY_EXISTS.getCode(), e);
             }
             if (logger.isDebugEnabled()) {
