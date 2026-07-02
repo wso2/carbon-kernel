@@ -341,7 +341,11 @@ org.owasp.csrfguard.PRNG={{owasp.csrfguard.random_number_generator_algo}}
 # org.owasp.csrfguard.PRNG.Provider=SUN
 # WSO2 - Pseudo-random number generator provider should be configured based on
 # environment (SUN/IBMJCE)
+{% if owasp.csrfguard.environment is defined %}
+org.owasp.csrfguard.PRNG.Provider={{owasp.csrfguard.environment}}
+{% else %}
 org.owasp.csrfguard.PRNG.Provider=SUN
+{% endif %}
 
 # If not specifying the print config option in the web.xml, you can specify it here, to print the config
 # on startup
