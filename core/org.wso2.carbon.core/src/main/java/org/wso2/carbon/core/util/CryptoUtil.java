@@ -55,10 +55,11 @@ public class CryptoUtil {
     private static final String INTERNAL_CRYPTO_PROVIDER_CONFIG = "CryptoService.InternalCryptoProviderClassName";
     // Class-name suffix of the symmetric (AES-GCM) internal provider, which has no block-size limit.
     private static final String SYMMETRIC_PROVIDER_SUFFIX = "SymmetricKeyInternalCryptoProvider";
-    // Plaintext bytes per RSA block: the smallest realistic RSA-2048 single-shot limit (OAEP-SHA256 = 190;
-    // OAEP-SHA1 = 214; PKCS1 = 245), so a block always fits regardless of the configured padding. Assumes a
-    // >= 2048-bit internal keystore (the WSO2 default).
-    private static final int MAX_RSA_PLAINTEXT_CHUNK_SIZE = 190;
+    // Plaintext bytes per RSA block. Set to the smallest single-shot limit across the RSA-2048 paddings the
+    // internal provider may be configured with, so a block always fits regardless of the transformation:
+    // OAEP-SHA-512 = 126 (the minimum), OAEP-SHA-256 = 190, OAEP-SHA-1 = 214, PKCS#1 v1.5 = 245. Assumes a
+    // >= 2048-bit internal keystore (the WSO2 default); a larger key only yields more headroom.
+    private static final int MAX_RSA_PLAINTEXT_CHUNK_SIZE = 126;
     private RegistryService registryService;
     private String cryptoProviderIdentifier;
     private Gson gson = new Gson();
@@ -551,16 +552,20 @@ public class CryptoUtil {
         if (!isChunkedCipherText(cipherText)) {
             return base64DecodeAndDecrypt(cipherText);
         }
-        String[] encodedChunks = cipherText.substring(CHUNK_MARKER.length()).split(CHUNK_DELIMITER);
+        // Keep empty entries (split with limit -1 preserves trailing ones) and reject any empty chunk, so a
+        // malformed value fails loudly instead of silently reassembling to incomplete plaintext.
+        String[] encodedChunks = cipherText.substring(CHUNK_MARKER.length()).split(CHUNK_DELIMITER, -1);
         ByteArrayOutputStream plainTextStream = new ByteArrayOutputStream();
         try {
             for (String encodedChunk : encodedChunks) {
                 if (encodedChunk.isEmpty()) {
-                    continue;
+                    throw new CryptoException("Malformed chunked ciphertext: contains an empty chunk.");
                 }
                 byte[] decrypted = base64DecodeAndDecrypt(encodedChunk);
                 plainTextStream.write(decrypted, 0, decrypted.length);
             }
+        } catch (CryptoException e) {
+            throw e;
         } catch (Exception e) {
             throw new CryptoException("Error occurred while reassembling chunked plaintext.", e);
         }
