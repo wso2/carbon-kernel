@@ -48,18 +48,21 @@ public class CryptoUtil {
     private ServerConfigurationService serverConfigService;
 
     // ---- Any-size (large-secret) encryption support ------------------------------------------------------
-    // Self-describing marker for the chunked format: rsachunk:v1:<b64(block0)>;<b64(block1)>;...
-    private static final String CHUNK_MARKER = "rsachunk:v1:";
+    // Encrypts data of any size independently of the configured internal crypto algorithm. The plaintext is
+    // always split into blocks small enough to fit the most constrained supported cipher, each encrypted
+    // independently and joined behind a self-describing marker: chunk:v1:<b64(block0)>;<b64(block1)>;...
+    // This keeps the code decoupled from any specific algorithm (RSA, AES or anything else): a block cipher
+    // that caps the plaintext per operation is satisfied by the block size, and a cipher with no limit simply
+    // encrypts each block.
+    private static final String CHUNK_MARKER = "chunk:v1:";
+    // Legacy marker (algorithm-specific name) written by earlier versions. Still read for backward
+    // compatibility so existing values decrypt without migration; never written by this version.
+    private static final String LEGACY_CHUNK_MARKER = "rsachunk:v1:";
     private static final String CHUNK_DELIMITER = ";";
-    // ServerConfiguration key naming the internal crypto provider (carbon.xml CryptoService element).
-    private static final String INTERNAL_CRYPTO_PROVIDER_CONFIG = "CryptoService.InternalCryptoProviderClassName";
-    // Class-name suffix of the symmetric (AES-GCM) internal provider, which has no block-size limit.
-    private static final String SYMMETRIC_PROVIDER_SUFFIX = "SymmetricKeyInternalCryptoProvider";
-    // Plaintext bytes per RSA block. Set to the smallest single-shot limit across the RSA-2048 paddings the
-    // internal provider may be configured with, so a block always fits regardless of the transformation:
-    // OAEP-SHA-512 = 126 (the minimum), OAEP-SHA-256 = 190, OAEP-SHA-1 = 214, PKCS#1 v1.5 = 245. Assumes a
-    // >= 2048-bit internal keystore (the WSO2 default); a larger key only yields more headroom.
-    private static final int MAX_RSA_PLAINTEXT_CHUNK_SIZE = 126;
+    // Plaintext bytes per block. Sized to fit the most constrained realistic provider: RSA-2048 with
+    // OAEP-SHA-512 accepts 126 bytes (OAEP-SHA-256 = 190, OAEP-SHA-1 = 214, PKCS#1 v1.5 = 245), so a block
+    // always fits any algorithm. Assumes a >= 2048-bit internal keystore (the WSO2 default).
+    private static final int MAX_PLAINTEXT_CHUNK_SIZE = 126;
     private RegistryService registryService;
     private String cryptoProviderIdentifier;
     private Gson gson = new Gson();
@@ -503,16 +506,13 @@ public class CryptoUtil {
     }
 
     /**
-     * Encrypts and base64-encodes a secret of any size using the configured internal crypto provider.
-     * <p>
-     * A symmetric (AES) provider has no block-size limit, so the value is encrypted in a single shot and stored
-     * exactly like {@link #encryptAndBase64Encode(byte[])}. An asymmetric (RSA) provider is block-limited, so the
-     * plaintext is split into {@value #MAX_RSA_PLAINTEXT_CHUNK_SIZE}-byte blocks, each encrypted independently and
-     * joined with {@code ';'} behind a self-describing {@code rsachunk:v1:} marker. Reverse with
-     * {@link #base64DecodeAndDecryptLargeData(String)}.
+     * Encrypts and base64-encodes a secret of any size using the configured internal crypto provider,
+     * independently of the algorithm. The plaintext is split into {@value #MAX_PLAINTEXT_CHUNK_SIZE}-byte
+     * blocks, each encrypted with {@link #encryptAndBase64Encode(byte[])} and joined with {@code ';'} behind a
+     * self-describing {@code chunk:v1:} marker. Reverse with {@link #base64DecodeAndDecryptLargeData(String)}.
      *
      * @param plainText the plaintext bytes to encrypt (may be null/empty)
-     * @return a single-shot ciphertext (symmetric provider) or a {@code rsachunk:v1:} value (RSA provider)
+     * @return a {@code chunk:v1:} chunked ciphertext (empty/null input is encrypted as-is)
      * @throws CryptoException on error during encryption
      */
     public String encryptAndBase64EncodeLargeData(byte[] plainText) throws CryptoException {
@@ -520,14 +520,11 @@ public class CryptoUtil {
         if (plainText == null || plainText.length == 0) {
             return encryptAndBase64Encode(plainText);
         }
-        if (isSymmetricInternalProvider()) {
-            // No block-size limit: single shot, stored like any other secret.
-            return encryptAndBase64Encode(plainText);
-        }
-        // RSA (block-limited): encrypt in blocks and mark the value as chunked.
+        // Encrypt in blocks regardless of the configured algorithm: a block cipher (e.g. RSA) is satisfied by
+        // the block size, a cipher with no size limit simply encrypts each block. No algorithm detection needed.
         List<String> encodedChunks = new ArrayList<>();
-        for (int offset = 0; offset < plainText.length; offset += MAX_RSA_PLAINTEXT_CHUNK_SIZE) {
-            int length = Math.min(MAX_RSA_PLAINTEXT_CHUNK_SIZE, plainText.length - offset);
+        for (int offset = 0; offset < plainText.length; offset += MAX_PLAINTEXT_CHUNK_SIZE) {
+            int length = Math.min(MAX_PLAINTEXT_CHUNK_SIZE, plainText.length - offset);
             byte[] chunk = new byte[length];
             System.arraycopy(plainText, offset, chunk, 0, length);
             encodedChunks.add(encryptAndBase64Encode(chunk));
@@ -537,10 +534,10 @@ public class CryptoUtil {
 
     /**
      * Base64-decodes and decrypts a value produced by {@link #encryptAndBase64EncodeLargeData(byte[])}. Routes on
-     * the {@code rsachunk:v1:} marker, so the provider need not be detected on read: a marked value is decoded
-     * block-by-block, anything else is decrypted single-shot.
+     * the {@code chunk:v1:} marker (or the legacy {@code rsachunk:v1:} marker): a marked value is decoded
+     * block-by-block; a value without a marker (e.g. a legacy single-shot ciphertext) is decrypted directly.
      *
-     * @param cipherText the stored ciphertext (single-shot or {@code rsachunk:v1:} chunked)
+     * @param cipherText the stored ciphertext
      * @return the decrypted plaintext bytes
      * @throws CryptoException on error during decryption
      */
@@ -552,9 +549,11 @@ public class CryptoUtil {
         if (!isChunkedCipherText(cipherText)) {
             return base64DecodeAndDecrypt(cipherText);
         }
+        // Strip whichever chunk marker is present (current or legacy) before splitting into blocks.
+        String marker = cipherText.startsWith(CHUNK_MARKER) ? CHUNK_MARKER : LEGACY_CHUNK_MARKER;
         // Keep empty entries (split with limit -1 preserves trailing ones) and reject any empty chunk, so a
         // malformed value fails loudly instead of silently reassembling to incomplete plaintext.
-        String[] encodedChunks = cipherText.substring(CHUNK_MARKER.length()).split(CHUNK_DELIMITER, -1);
+        String[] encodedChunks = cipherText.substring(marker.length()).split(CHUNK_DELIMITER, -1);
         ByteArrayOutputStream plainTextStream = new ByteArrayOutputStream();
         try {
             for (String encodedChunk : encodedChunks) {
@@ -574,29 +573,12 @@ public class CryptoUtil {
 
     /**
      * @param value a stored ciphertext value
-     * @return {@code true} if the value is in the chunked ({@code rsachunk:v1:}) format
+     * @return {@code true} if the value is in the chunked format ({@code chunk:v1:} or legacy
+     * {@code rsachunk:v1:})
      */
     public boolean isChunkedCipherText(String value) {
 
-        return value != null && value.startsWith(CHUNK_MARKER);
-    }
-
-    /**
-     * Positively identifies the symmetric (AES) internal crypto provider from ServerConfiguration. Anything else -
-     * the RSA keystore provider, or an unset/unreadable value - returns {@code false}, so the caller uses the
-     * size-safe chunked path.
-     */
-    private boolean isSymmetricInternalProvider() {
-
-        try {
-            String providerClass = (serverConfigService == null) ? null
-                    : serverConfigService.getFirstProperty(INTERNAL_CRYPTO_PROVIDER_CONFIG);
-            return providerClass != null && providerClass.trim().endsWith(SYMMETRIC_PROVIDER_SUFFIX);
-        } catch (Exception e) {
-            log.warn("Unable to determine the internal crypto provider; using the size-safe (chunked) "
-                    + "encryption path.", e);
-            return false;
-        }
+        return value != null && (value.startsWith(CHUNK_MARKER) || value.startsWith(LEGACY_CHUNK_MARKER));
     }
 
     /**
