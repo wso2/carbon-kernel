@@ -511,13 +511,16 @@ public class CryptoUtil {
      * blocks, each encrypted with {@link #encryptAndBase64Encode(byte[])} and joined with {@code ';'} behind a
      * self-describing {@code chunk:v1:} marker. Reverse with {@link #base64DecodeAndDecryptLargeData(String)}.
      *
-     * @param plainText the plaintext bytes to encrypt (may be null/empty)
-     * @return a {@code chunk:v1:} chunked ciphertext (empty/null input is encrypted as-is)
-     * @throws CryptoException on error during encryption
+     * @param plainText the plaintext bytes to encrypt (must not be null; an empty array is encrypted as-is)
+     * @return a {@code chunk:v1:} chunked ciphertext (an empty array is encrypted single-shot, as-is)
+     * @throws CryptoException on error during encryption, or if {@code plainText} is null
      */
     public String encryptAndBase64EncodeLargeData(byte[] plainText) throws CryptoException {
 
-        if (plainText == null || plainText.length == 0) {
+        if (plainText == null) {
+            throw new CryptoException("Plaintext to encrypt can't be null.");
+        }
+        if (plainText.length == 0) {
             return encryptAndBase64Encode(plainText);
         }
         // Encrypt in blocks regardless of the configured algorithm: a block cipher (e.g. RSA) is satisfied by
