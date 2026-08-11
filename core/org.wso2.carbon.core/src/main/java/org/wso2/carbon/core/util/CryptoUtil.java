@@ -509,13 +509,13 @@ public class CryptoUtil {
      * Encrypts and base64-encodes a secret of any size using the configured internal crypto provider,
      * independently of the algorithm. The plaintext is split into {@value #MAX_PLAINTEXT_CHUNK_SIZE}-byte
      * blocks, each encrypted with {@link #encryptAndBase64Encode(byte[])} and joined with {@code ';'} behind a
-     * self-describing {@code chunk:v1:} marker. Reverse with {@link #base64DecodeAndDecryptLargeData(String)}.
+     * self-describing {@code chunk:v1:} marker. Reverse with {@link #base64DecodeAndDecryptAnySize(String)}.
      *
      * @param plainText the plaintext bytes to encrypt (must not be null; an empty array is encrypted as-is)
      * @return a {@code chunk:v1:} chunked ciphertext (an empty array is encrypted single-shot, as-is)
      * @throws CryptoException on error during encryption, or if {@code plainText} is null
      */
-    public String encryptAndBase64EncodeLargeData(byte[] plainText) throws CryptoException {
+    public String encryptAndBase64EncodeAnySize(byte[] plainText) throws CryptoException {
 
         if (plainText == null) {
             throw new CryptoException("Plaintext to encrypt can't be null.");
@@ -536,7 +536,7 @@ public class CryptoUtil {
     }
 
     /**
-     * Base64-decodes and decrypts a value produced by {@link #encryptAndBase64EncodeLargeData(byte[])}. Routes on
+     * Base64-decodes and decrypts a value produced by {@link #encryptAndBase64EncodeAnySize(byte[])}. Routes on
      * the {@code chunk:v1:} marker (or the legacy {@code rsachunk:v1:} marker): a marked value is decoded
      * block-by-block; a value without a marker (e.g. a legacy single-shot ciphertext) is decrypted directly.
      *
@@ -544,7 +544,7 @@ public class CryptoUtil {
      * @return the decrypted plaintext bytes
      * @throws CryptoException on error during decryption
      */
-    public byte[] base64DecodeAndDecryptLargeData(String cipherText) throws CryptoException {
+    public byte[] base64DecodeAndDecryptAnySize(String cipherText) throws CryptoException {
 
         if (cipherText == null) {
             throw new CryptoException("Ciphertext can't be null.");
