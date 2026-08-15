@@ -47,7 +47,6 @@ import static org.testng.Assert.fail;
 public class CryptoUtilAnySizeEncryptionTest {
 
     private static final String CHUNK_MARKER = "chunk:v1:";
-    private static final String LEGACY_CHUNK_MARKER = "rsachunk:v1:";
     private static final String CHUNK_DELIMITER = ";";
     // Must match CryptoUtil.MAX_PLAINTEXT_CHUNK_SIZE.
     private static final int BLOCK_SIZE = 126;
@@ -137,18 +136,6 @@ public class CryptoUtilAnySizeEncryptionTest {
     }
 
     @Test
-    public void testLegacyRsaChunkMarkerIsDecrypted() throws Exception {
-
-        byte[] original = deterministicBytes(300);
-        // A value written by an earlier version carried the legacy "rsachunk:v1:" marker. Simulate one and
-        // verify it still decrypts (backward compatibility - the legacy marker is read but never written).
-        String current = cryptoUtil.encryptAndBase64EncodeAnySize(original);
-        String legacy = LEGACY_CHUNK_MARKER + current.substring(CHUNK_MARKER.length());
-        assertTrue(cryptoUtil.isChunkedCipherText(legacy));
-        assertEquals(cryptoUtil.base64DecodeAndDecryptAnySize(legacy), original);
-    }
-
-    @Test
     public void testNullPlaintextIsRejected() {
 
         try {
@@ -203,7 +190,6 @@ public class CryptoUtilAnySizeEncryptionTest {
         assertFalse(cryptoUtil.isChunkedCipherText(""));
         assertFalse(cryptoUtil.isChunkedCipherText("SGVsbG8="));
         assertTrue(cryptoUtil.isChunkedCipherText(CHUNK_MARKER + "SGVsbG8="));
-        assertTrue(cryptoUtil.isChunkedCipherText(LEGACY_CHUNK_MARKER + "SGVsbG8="));
     }
 
     private static byte[] deterministicBytes(int size) {

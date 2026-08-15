@@ -55,9 +55,6 @@ public class CryptoUtil {
     // that caps the plaintext per operation is satisfied by the block size, and a cipher with no limit simply
     // encrypts each block.
     private static final String CHUNK_MARKER = "chunk:v1:";
-    // Legacy marker (algorithm-specific name) written by earlier versions. Still read for backward
-    // compatibility so existing values decrypt without migration; never written by this version.
-    private static final String LEGACY_CHUNK_MARKER = "rsachunk:v1:";
     private static final String CHUNK_DELIMITER = ";";
     // Plaintext bytes per block. Sized to fit the most constrained realistic provider: RSA-2048 with
     // OAEP-SHA-512 accepts 126 bytes (OAEP-SHA-256 = 190, OAEP-SHA-1 = 214, PKCS#1 v1.5 = 245), so a block
@@ -537,8 +534,8 @@ public class CryptoUtil {
 
     /**
      * Base64-decodes and decrypts a value produced by {@link #encryptAndBase64EncodeAnySize(byte[])}. Routes on
-     * the {@code chunk:v1:} marker (or the legacy {@code rsachunk:v1:} marker): a marked value is decoded
-     * block-by-block; a value without a marker (e.g. a legacy single-shot ciphertext) is decrypted directly.
+     * the {@code chunk:v1:} marker: a marked value is decoded block-by-block; a value without a marker
+     * (e.g. a legacy single-shot ciphertext) is decrypted directly.
      *
      * @param cipherText the stored ciphertext
      * @return the decrypted plaintext bytes
@@ -552,11 +549,9 @@ public class CryptoUtil {
         if (!isChunkedCipherText(cipherText)) {
             return base64DecodeAndDecrypt(cipherText);
         }
-        // Strip whichever chunk marker is present (current or legacy) before splitting into blocks.
-        String marker = cipherText.startsWith(CHUNK_MARKER) ? CHUNK_MARKER : LEGACY_CHUNK_MARKER;
         // Keep empty entries (split with limit -1 preserves trailing ones) and reject any empty chunk, so a
         // malformed value fails loudly instead of silently reassembling to incomplete plaintext.
-        String[] encodedChunks = cipherText.substring(marker.length()).split(CHUNK_DELIMITER, -1);
+        String[] encodedChunks = cipherText.substring(CHUNK_MARKER.length()).split(CHUNK_DELIMITER, -1);
         ByteArrayOutputStream plainTextStream = new ByteArrayOutputStream();
         try {
             for (String encodedChunk : encodedChunks) {
@@ -576,12 +571,11 @@ public class CryptoUtil {
 
     /**
      * @param value a stored ciphertext value
-     * @return {@code true} if the value is in the chunked format ({@code chunk:v1:} or legacy
-     * {@code rsachunk:v1:})
+     * @return {@code true} if the value is in the chunked format ({@code chunk:v1:})
      */
     public boolean isChunkedCipherText(String value) {
 
-        return value != null && (value.startsWith(CHUNK_MARKER) || value.startsWith(LEGACY_CHUNK_MARKER));
+        return value != null && value.startsWith(CHUNK_MARKER);
     }
 
     /**
