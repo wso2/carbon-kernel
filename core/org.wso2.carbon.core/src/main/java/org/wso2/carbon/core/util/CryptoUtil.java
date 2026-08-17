@@ -561,9 +561,9 @@ public class CryptoUtil {
                 byte[] decrypted = base64DecodeAndDecrypt(encodedChunk);
                 plainTextStream.write(decrypted, 0, decrypted.length);
             }
-        } catch (CryptoException e) {
-            throw e;
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
+            // CryptoException (checked) propagates unchanged; only unchecked failures (e.g. a base64 decode
+            // error on a corrupt chunk) reach here and are normalized into a CryptoException.
             throw new CryptoException("Error occurred while reassembling chunked plaintext.", e);
         }
         return plainTextStream.toByteArray();
