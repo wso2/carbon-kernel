@@ -33,7 +33,6 @@ import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.io.File;
-import java.lang.management.ManagementPermission;
 import java.util.Collection;
 
 /**
@@ -46,9 +45,6 @@ public class Activator extends BundleCheckActivator {
     private static final Log log = LogFactory.getLog(Activator.class);
 
     public void startDeploy(BundleContext bundleContext) throws Exception {
-        // Need permissions in order to instantiate user core
-        SecurityManager secMan = System.getSecurityManager();
-
 		/*
          * Read the SSL trust store configurations from the Security.TrustStore
 		 * element of the Carbon.xml
@@ -63,9 +59,6 @@ public class Activator extends BundleCheckActivator {
         System.setProperty("javax.net.ssl.trustStoreType", type);
         System.setProperty("javax.net.ssl.trustStorePassword", password);
 
-        if (secMan != null) {
-            secMan.checkPermission(new ManagementPermission("control"));
-        }
         try {
             if (Boolean.parseBoolean(System.getProperty("NonUserCoreMode"))) {
                 log.debug("UserCore component activated in NonUserCoreMode Mode");

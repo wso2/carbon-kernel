@@ -50,9 +50,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.nio.file.Paths;
-import java.security.AccessController;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
@@ -146,19 +143,10 @@ public class DefaultRealmService implements RealmService {
     }
 
     @Override
-    public org.wso2.carbon.user.api.UserRealm getTenantUserRealm(final int tenantId)
+    public org.wso2.carbon.user.api.UserRealm getTenantUserRealm(int tenantId)
             throws org.wso2.carbon.user.api.UserStoreException {
 
-        try {
-            return AccessController.doPrivileged(new PrivilegedExceptionAction<org.wso2.carbon.user.api.UserRealm>() {
-                @Override
-                public org.wso2.carbon.user.api.UserRealm run() throws Exception {
-                    return getTenantUserRealmInternal(tenantId);
-                }
-            });
-        } catch (PrivilegedActionException e) {
-            throw (org.wso2.carbon.user.api.UserStoreException) e.getException();
-        }
+        return getTenantUserRealmInternal(tenantId);
     }
 
     private org.wso2.carbon.user.api.UserRealm getTenantUserRealmInternal(int tenantId)
@@ -215,18 +203,9 @@ public class DefaultRealmService implements RealmService {
     }
 
     @Override
-    public UserRealm getUserRealm(final RealmConfiguration tenantRealmConfig) throws UserStoreException {
+    public UserRealm getUserRealm(RealmConfiguration tenantRealmConfig) throws UserStoreException {
 
-        try {
-            return AccessController.doPrivileged(new PrivilegedExceptionAction<UserRealm>() {
-                @Override
-                public UserRealm run() throws Exception {
-                    return getUserRealmInternal(tenantRealmConfig);
-                }
-            });
-        } catch (PrivilegedActionException e) {
-            throw (UserStoreException) e.getException();
-        }
+        return getUserRealmInternal(tenantRealmConfig);
     }
 
     private UserRealm getUserRealmInternal(RealmConfiguration tenantRealmConfig) throws UserStoreException {
