@@ -82,6 +82,7 @@ public class CarbonCoreActivator implements BundleActivator {
                         (Class.forName("org.bouncycastle.jsse.provider.BouncyCastleJsseProvider")).
                         getDeclaredConstructor().newInstance();
                 Security.insertProviderAt(jsseProvider, 1);
+                System.setProperty("org.bouncycastle.jsse.client.earlyKeyShares", "X25519,X25519MLKEM768");
             }
 
         } else if (providerName.equals(ServerConstants.JCE_PROVIDER_BCFIPS)) {
