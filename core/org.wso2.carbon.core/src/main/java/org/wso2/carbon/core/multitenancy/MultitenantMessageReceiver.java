@@ -76,6 +76,8 @@ public class MultitenantMessageReceiver implements MessageReceiver {
     private static final String FORCE_SC_ACCEPTED = "FORCE_SC_ACCEPTED";
     private static final String SYNAPSE_IS_RESPONSE = "synapse.isresponse";
     private static final String FORCE_POST_PUT_NOBODY = "FORCE_POST_PUT_NOBODY";
+    private static final String HTTP_SC = "HTTP_SC";
+    private static final int SC_NOT_FOUND = 404;
 
     private MultitenantMsgContextDataHolder dataHolder = MultitenantMsgContextDataHolder.getInstance();
 
@@ -223,6 +225,15 @@ public class MultitenantMessageReceiver implements MessageReceiver {
         if (tenantDomain == null) {
             // Throw an AxisFault: Tenant not specified
             handleException(mainInMsgContext, new AxisFault("Tenant not specified"));
+            return;
+        }
+
+        if (tenantDomain.matches(TenantAxisUtils.ILLEGAL_CHARACTERS_FOR_TENANT_DOMAIN)) {
+            if (log.isDebugEnabled()) {
+                log.debug("The tenant domain '" + tenantDomain + "' received in the request contains one or more " +
+                          "illegal characters.");
+            }
+            handleTenantNotFound(mainInMsgContext, "The requested resource is not available");
             return;
         }
 
@@ -757,6 +768,23 @@ public class MultitenantMessageReceiver implements MessageReceiver {
                 tenantMsgCtx.setProperty(property, mainMsgCtx.getProperty(property));
             }
         }
+    }
+
+    /**
+     * Respond with a not found, without dispatching the message to any tenant.
+     *
+     * @param mainInMsgContext super tenant's MessageContext
+     * @param message          The message to be sent as the fault reason
+     * @throws AxisFault if an error occurs while sending the fault
+     */
+    private void handleTenantNotFound(MessageContext mainInMsgContext, String message) throws AxisFault {
+        MessageContext mainOutMsgContext =
+                MessageContextBuilder.createFaultMessageContext(mainInMsgContext, new AxisFault(message));
+        mainOutMsgContext.setProperty(HTTP_SC, SC_NOT_FOUND);
+        OperationContext mainOpContext = mainInMsgContext.getOperationContext();
+        mainOpContext.addMessageContext(mainOutMsgContext);
+        mainOutMsgContext.setOperationContext(mainOpContext);
+        AxisEngine.sendFault(mainOutMsgContext);
     }
 
     private void handleException(MessageContext mainInMsgContext, AxisFault fault)
