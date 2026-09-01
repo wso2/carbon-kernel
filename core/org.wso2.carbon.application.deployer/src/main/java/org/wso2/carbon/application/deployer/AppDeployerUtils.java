@@ -42,6 +42,7 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.feature.mgt.core.util.ProvisioningUtils;
 import org.wso2.carbon.roles.mgt.ServerRoleConstants;
 import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.utils.ZipBombProtectionUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.xml.namespace.QName;
@@ -70,11 +71,26 @@ public final class AppDeployerUtils {
 	private static final Log log = LogFactory.getLog(AppDeployerUtils.class);
 	
 	private static final AppDeployerUtils INSTANCE = new AppDeployerUtils();
-	
 	private static String APP_UNZIP_DIR;
 	private static final String INTERNAL_ARTIFACTS_DIR = "internal-artifacts";
 	private static volatile boolean isAppDirCreated = false;
-	
+
+    // Zip bomb protection limits for CAR deployments, taken from the ZipBombProtection element of
+    // carbon.xml. Read on first use rather than at class load, so that ServerConfiguration is
+    // guaranteed to be initialised by the time it is queried.
+    private static volatile ZipBombProtectionUtils.ZipBombConfig carZipBombConfig;
+
+    private static ZipBombProtectionUtils.ZipBombConfig getCarZipBombConfig() {
+        if (carZipBombConfig == null) {
+            synchronized (AppDeployerUtils.class) {
+                if (carZipBombConfig == null) {
+                    carZipBombConfig = ZipBombProtectionUtils.createConfigFromServerConfiguration();
+                }
+            }
+        }
+        return carZipBombConfig;
+    }
+
 	private AppDeployerUtils() {
 		// hide utility class
 		
@@ -712,6 +728,14 @@ public final class AppDeployerUtils {
     private static void extract(String sourcePath, String destPath) throws IOException {
         Enumeration entries;
         ZipFile zipFile;
+
+        // Validate zip archive for zip bomb attacks using CAR-specific limits
+        try (FileInputStream fis = new FileInputStream(sourcePath)) {
+            ZipBombProtectionUtils.validateZipArchive(fis, getCarZipBombConfig());
+        } catch (ZipBombProtectionUtils.ZipBombException e) {
+            log.error("Zip bomb attack detected in CAR deployment: " + e.getMessage(), e);
+            throw new IOException("Invalid or malicious CAR archive: " + e.getMessage(), e);
+        }
 
         zipFile = new ZipFile(sourcePath);
         entries = zipFile.entries();

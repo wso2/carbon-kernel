@@ -890,4 +890,14 @@
         <maxConnectionRetryCount>{{user_store_commons.max_connection_retry_count}}</maxConnectionRetryCount>
         <minConnectionRetryDelayInMilliSeconds>{{user_store_commons.min_connection_retry_delay_in_milli_seconds}}</minConnectionRetryDelayInMilliSeconds>
     </UserStore>
+
+    <!-- Limits applied to zip archives (e.g. CApp/CAR files) before they are extracted, to guard against decompression
+    bombs. Sizes are in megabytes. -->
+    <ZipBombProtection>
+        <MaxUncompressedSizeInMB>{{server.zip_bomb_protection.max_uncompressed_size_in_mb}}</MaxUncompressedSizeInMB>
+        <MaxEntrySizeInMB>{{server.zip_bomb_protection.max_entry_size_in_mb}}</MaxEntrySizeInMB>
+        <MaxEntries>{{server.zip_bomb_protection.max_entries}}</MaxEntries>
+        <MaxCompressionRatio>{{server.zip_bomb_protection.max_compression_ratio}}</MaxCompressionRatio>
+        <MaxDepth>{{server.zip_bomb_protection.max_depth}}</MaxDepth>
+    </ZipBombProtection>
 </Server>
