@@ -56,6 +56,7 @@ import org.wso2.carbon.user.core.model.ExpressionAttribute;
 import org.wso2.carbon.user.core.model.ExpressionCondition;
 import org.wso2.carbon.user.core.model.ExpressionOperation;
 import org.wso2.carbon.user.core.model.OperationalCondition;
+import org.wso2.carbon.user.core.model.OperationalOperation;
 import org.wso2.carbon.user.core.model.SqlBuilder;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
@@ -87,6 +88,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -3805,11 +3807,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             OffsetLimit offsetLimit = new OffsetLimit(offset, limit);
             adjustOffsetForDatabase(type, offsetLimit);
 
-            SqlBuilder sqlBuilder =
-                    getQueryString(filterConfigs.isGroupFiltering(), filterConfigs.isUsernameFiltering(),
-                            filterConfigs.isClaimFiltering(), filterConfigs.getExpressionConditions(),
-                            offsetLimit.getLimit(), offsetLimit.getOffset(), sortBy, sortOrder, profileName, type,
-                            filterConfigs.getTotalMultiGroupFilters(), filterConfigs.getTotalMultiClaimFilters());
+            SqlBuilder sqlBuilder = buildFilterQuery(filterConfigs, offsetLimit, sortBy, sortOrder, profileName,
+                    type);
 
             users = executeQueryAndGetUsers(dbConnection, sqlBuilder, filterConfigs, type);
             result.setUsers(users);
@@ -3847,11 +3846,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             OffsetLimit offsetLimit = new OffsetLimit(offset, limit);
             adjustOffsetForDatabase(type, offsetLimit);
 
-            SqlBuilder sqlBuilder =
-                    getQueryString(filterConfigs.isGroupFiltering(), filterConfigs.isUsernameFiltering(),
-                            filterConfigs.isClaimFiltering(), filterConfigs.getExpressionConditions(),
-                            offsetLimit.getLimit(), offsetLimit.getOffset(), sortBy, sortOrder, profileName, type,
-                            filterConfigs.getTotalMultiGroupFilters(), filterConfigs.getTotalMultiClaimFilters());
+            SqlBuilder sqlBuilder = buildFilterQuery(filterConfigs, offsetLimit, sortBy, sortOrder, profileName,
+                    type);
 
             usernames = executeQueryAndGetUsernames(dbConnection, sqlBuilder, filterConfigs, type);
             result.setUsers(usernames);
@@ -3865,6 +3861,33 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
 
         return result;
+    }
+
+    /**
+     * Build the query for a conditional filter. An OR filter is built by a dedicated builder, since widening the
+     * result set needs a fundamentally different query shape than narrowing it.
+     *
+     * @param filterConfigs Filter configurations resolved from the condition.
+     * @param offsetLimit   Database adjusted offset and limit.
+     * @param sortBy        Sort by.
+     * @param sortOrder     Sort order.
+     * @param profileName   Profile name.
+     * @param dbType        Database type.
+     * @return SQL builder holding the query and its parameters.
+     * @throws UserStoreException If the filter cannot be translated into a query.
+     */
+    private SqlBuilder buildFilterQuery(FilterConfigs filterConfigs, OffsetLimit offsetLimit, String sortBy,
+                                        String sortOrder, String profileName, String dbType)
+            throws UserStoreException {
+
+        if (filterConfigs.isOrOperation()) {
+            return getQueryStringForOrOperation(filterConfigs.getExpressionConditions(), offsetLimit.getLimit(),
+                    offsetLimit.getOffset(), profileName, dbType);
+        }
+        return getQueryString(filterConfigs.isGroupFiltering(), filterConfigs.isUsernameFiltering(),
+                filterConfigs.isClaimFiltering(), filterConfigs.getExpressionConditions(), offsetLimit.getLimit(),
+                offsetLimit.getOffset(), sortBy, sortOrder, profileName, dbType,
+                filterConfigs.getTotalMultiGroupFilters(), filterConfigs.getTotalMultiClaimFilters());
     }
 
     private List<User> executeQueryAndGetUsers(Connection dbConnection, SqlBuilder sqlBuilder,
@@ -3917,6 +3940,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     private FilterConfigs initializeFilterConfigs(Condition condition) throws UserStoreException {
 
         FilterConfigs filterConfigs = new FilterConfigs(false, false, false, 0, 0);
+        filterConfigs.setOrOperation(isOrOperation(condition));
         getExpressionConditions(condition, filterConfigs.getExpressionConditions());
 
         for (ExpressionCondition expressionCondition : filterConfigs.getExpressionConditions()) {
@@ -3952,6 +3976,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     private boolean needsMultiFilterHandling(String type, FilterConfigs filterConfigs) {
 
+        if (filterConfigs.isOrOperation()) {
+            // An OR filter is always built as a single query, hence there is nothing to combine.
+            return false;
+        }
         return (MYSQL.equals(type) || MARIADB.equals(type)) && filterConfigs.getTotalMultiGroupFilters() > 1 &&
                 filterConfigs.getTotalMultiClaimFilters() > 1;
     }
@@ -4062,6 +4090,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         private boolean isClaimFiltering;
         private int totalMultiGroupFilters;
         private int totalMultiClaimFilters;
+        private boolean isOrOperation;
         private final List<ExpressionCondition> expressionConditions;
 
         public FilterConfigs(boolean isGroupFiltering, boolean isUsernameFiltering, boolean isClaimFiltering,
@@ -4123,6 +4152,16 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         public void setTotalMultiClaimFilters(int totalMultiClaimFilters) {
 
             this.totalMultiClaimFilters = totalMultiClaimFilters;
+        }
+
+        public boolean isOrOperation() {
+
+            return isOrOperation;
+        }
+
+        public void setOrOperation(boolean orOperation) {
+
+            isOrOperation = orOperation;
         }
 
         public List<ExpressionCondition> getExpressionConditions() {
@@ -4884,6 +4923,224 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         return sqlBuilder;
     }
 
+    /**
+     * Build the query for a filter whose expressions are combined only with the OR operation.
+     * <p>
+     * The AND path narrows the result set, and does so by intersecting one query per expression. An OR filter widens
+     * it instead, so each expression is rendered as an independent predicate against UM_USER and the predicates are
+     * combined with OR. Role and claim expressions become correlated (NOT) EXISTS sub queries, which keeps the result
+     * at one row per user - so no DISTINCT is needed and LIMIT/OFFSET pagination stays correct - and lets each sub
+     * query use its own index.
+     *
+     * @param expressionConditions Filter expressions.
+     * @param limit                Limit.
+     * @param offset               Offset.
+     * @param profileName          Profile name.
+     * @param dbType               Database type.
+     * @return SQL builder holding the query and its parameters.
+     * @throws UserStoreException If the filter holds no expression, or an expression that cannot be translated.
+     */
+    protected SqlBuilder getQueryStringForOrOperation(List<ExpressionCondition> expressionConditions, int limit,
+                                                      int offset, String profileName, String dbType)
+            throws UserStoreException {
+
+        if (expressionConditions.isEmpty()) {
+            throw new UserStoreException("Condition is not valid.");
+        }
+
+        StringBuilder sqlStatement;
+        if (DB2.equals(dbType)) {
+            sqlStatement = new StringBuilder(
+                    "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT ROW_NUMBER() OVER (ORDER BY "
+                            + "UM_USER_NAME) AS rn, p.*  FROM (SELECT DISTINCT UM_USER_ID, UM_USER_NAME  FROM "
+                            + "UM_USER U");
+        } else if (ORACLE.equals(dbType)) {
+            sqlStatement = new StringBuilder(
+                    "SELECT UM_USER_ID, UM_USER_NAME FROM (SELECT UM_USER_ID, UM_USER_NAME, rownum AS rnum "
+                            + "FROM (SELECT UM_USER_ID, UM_USER_NAME FROM UM_USER U");
+        } else {
+            sqlStatement = new StringBuilder("SELECT U.UM_USER_ID, U.UM_USER_NAME FROM UM_USER U");
+        }
+
+        SqlBuilder sqlBuilder = new SqlBuilder(sqlStatement).where("U.UM_TENANT_ID = ?", tenantId);
+
+        for (ExpressionCondition expressionCondition : expressionConditions) {
+            addOrPredicate(sqlBuilder, expressionCondition, profileName);
+        }
+
+        if (DB2.equals(dbType)) {
+            sqlBuilder.setTail(") AS p) WHERE rn BETWEEN ? AND ?", limit, offset);
+        } else if (MSSQL.equals(dbType)) {
+            sqlBuilder.setTail(" ORDER BY UM_USER_NAME ASC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY", offset, limit);
+        } else if (ORACLE.equals(dbType)) {
+            sqlBuilder.setTail(" ORDER BY UM_USER_NAME) where rownum <= ?) WHERE  rnum > ?", limit, offset);
+        } else {
+            sqlBuilder.setTail(" ORDER BY UM_USER_NAME ASC LIMIT ? OFFSET ?", limit, offset);
+        }
+        return sqlBuilder;
+    }
+
+    private void addOrPredicate(SqlBuilder sqlBuilder, ExpressionCondition expressionCondition, String profileName)
+            throws UserStoreException {
+
+        String attributeName = expressionCondition.getAttributeName();
+        String operation = expressionCondition.getOperation();
+        String attributeValue = expressionCondition.getAttributeValue();
+
+        if (ExpressionAttribute.ROLE.toString().equals(attributeName)) {
+            addGroupOrPredicate(sqlBuilder, operation, attributeValue);
+        } else if (ExpressionAttribute.USERNAME.toString().equals(attributeName)) {
+            addUsernameOrPredicate(sqlBuilder, operation, attributeValue);
+        } else {
+            addClaimOrPredicate(sqlBuilder, attributeName, operation, attributeValue, profileName);
+        }
+    }
+
+    private void addUsernameOrPredicate(SqlBuilder sqlBuilder, String operation, String attributeValue)
+            throws UserStoreException {
+
+        boolean caseSensitive = isCaseSensitiveUsername();
+        String column = caseSensitive ? "U.UM_USER_NAME" : "LOWER(U.UM_USER_NAME)";
+        String placeHolder = caseSensitive ? "?" : "LOWER(?)";
+
+        if (ExpressionOperation.EQ.toString().equals(operation)) {
+            sqlBuilder.orWhere(column + " = " + placeHolder, orParameters(attributeValue));
+        } else if (ExpressionOperation.CO.toString().equals(operation)) {
+            sqlBuilder.orWhere(column + " LIKE " + placeHolder, orParameters("%" + attributeValue + "%"));
+        } else if (ExpressionOperation.EW.toString().equals(operation)) {
+            sqlBuilder.orWhere(column + " LIKE " + placeHolder, orParameters("%" + attributeValue));
+        } else if (ExpressionOperation.SW.toString().equals(operation)) {
+            sqlBuilder.orWhere(column + " LIKE " + placeHolder, orParameters(attributeValue + "%"));
+        } else if (ExpressionOperation.NE.toString().equals(operation)) {
+            sqlBuilder.orWhere(column + " <> " + placeHolder, orParameters(attributeValue));
+        } else if (ExpressionOperation.GE.toString().equals(operation)) {
+            sqlBuilder.orWhere(column + " >= " + placeHolder, orParameters(attributeValue));
+        } else if (ExpressionOperation.LE.toString().equals(operation)) {
+            sqlBuilder.orWhere(column + " <= " + placeHolder, orParameters(attributeValue));
+        } else {
+            throw new UserStoreClientException("Unsupported expression operation: " + operation);
+        }
+    }
+
+    private void addClaimOrPredicate(SqlBuilder sqlBuilder, String attributeName, String operation,
+                                     String attributeValue, String profileName) throws UserStoreException {
+
+        /*
+         * NE has to match the users that do not carry the given value, including the ones that do not carry the
+         * attribute at all. Under OR that cannot be expressed as an inequality on a joined attribute row, so it is
+         * rendered as a NOT EXISTS over the equality match.
+         */
+        boolean isNotEqualOperation = ExpressionOperation.NE.toString().equals(operation);
+        String effectiveOperation = isNotEqualOperation ? ExpressionOperation.EQ.toString() : operation;
+
+        boolean caseSensitive = isCaseSensitiveUsername();
+        String column = caseSensitive ? "UA.UM_ATTR_VALUE" : "LOWER(UA.UM_ATTR_VALUE)";
+        String placeHolder = caseSensitive ? "?" : "LOWER(?)";
+        String comparison;
+        String value = attributeValue;
+
+        if (ExpressionOperation.EQ.toString().equals(effectiveOperation)) {
+            comparison = " = " + placeHolder;
+        } else if (ExpressionOperation.CO.toString().equals(effectiveOperation)) {
+            comparison = " LIKE " + placeHolder;
+            value = "%" + attributeValue + "%";
+        } else if (ExpressionOperation.EW.toString().equals(effectiveOperation)) {
+            comparison = " LIKE " + placeHolder;
+            value = "%" + attributeValue;
+        } else if (ExpressionOperation.SW.toString().equals(effectiveOperation)) {
+            comparison = " LIKE " + placeHolder;
+            value = attributeValue + "%";
+        } else if (ExpressionOperation.GE.toString().equals(effectiveOperation)) {
+            comparison = " >= " + placeHolder;
+        } else if (ExpressionOperation.LE.toString().equals(effectiveOperation)) {
+            comparison = " <= " + placeHolder;
+        } else {
+            throw new UserStoreClientException("Unsupported expression operation: " + operation);
+        }
+
+        String subQuery = "SELECT 1 FROM UM_USER_ATTRIBUTE UA WHERE UA.UM_USER_ID = U.UM_ID AND UA.UM_TENANT_ID = ? "
+                + "AND UA.UM_PROFILE_ID = ? AND UA.UM_ATTR_NAME = ? AND " + column + comparison;
+        sqlBuilder.orWhere(existsPredicate(subQuery, isNotEqualOperation),
+                orParameters(tenantId, profileName, attributeName, value));
+    }
+
+    private void addGroupOrPredicate(SqlBuilder sqlBuilder, String operation, String attributeValue)
+            throws UserStoreException {
+
+        /*
+         * As with claims, a group NE under OR has to match the users that are not in the group, including the ones
+         * with no group at all, which makes it a NOT EXISTS over the equality match.
+         */
+        boolean isNotEqualOperation = ExpressionOperation.NE.toString().equals(operation);
+        String effectiveOperation = isNotEqualOperation ? ExpressionOperation.EQ.toString() : operation;
+        String comparison;
+        String value = attributeValue;
+
+        if (ExpressionOperation.EQ.toString().equals(effectiveOperation)) {
+            comparison = "R.UM_ROLE_NAME = ?";
+        } else if (ExpressionOperation.CO.toString().equals(effectiveOperation)) {
+            comparison = "R.UM_ROLE_NAME LIKE ?";
+            value = "%" + attributeValue + "%";
+        } else if (ExpressionOperation.EW.toString().equals(effectiveOperation)) {
+            comparison = "R.UM_ROLE_NAME LIKE ?";
+            value = "%" + attributeValue;
+        } else if (ExpressionOperation.SW.toString().equals(effectiveOperation)) {
+            comparison = "R.UM_ROLE_NAME LIKE ?";
+            value = attributeValue + "%";
+        } else if (ExpressionOperation.GE.toString().equals(effectiveOperation)) {
+            comparison = "R.UM_ROLE_NAME >= ?";
+        } else if (ExpressionOperation.LE.toString().equals(effectiveOperation)) {
+            comparison = "R.UM_ROLE_NAME <= ?";
+        } else {
+            throw new UserStoreClientException("Unsupported expression operation: " + operation);
+        }
+
+        String subQuery = "SELECT 1 FROM UM_USER_ROLE UR INNER JOIN UM_ROLE R ON R.UM_ID = UR.UM_ROLE_ID "
+                + "WHERE UR.UM_USER_ID = U.UM_ID AND UR.UM_TENANT_ID = ? AND R.UM_TENANT_ID = ? AND " + comparison;
+        sqlBuilder.orWhere(existsPredicate(subQuery, isNotEqualOperation), orParameters(tenantId, tenantId, value));
+    }
+
+    private String existsPredicate(String subQuery, boolean negated) {
+
+        return (negated ? "NOT EXISTS (" : "EXISTS (") + subQuery + ")";
+    }
+
+    private List<Object> orParameters(Object... values) {
+
+        return Arrays.asList(values);
+    }
+
+    /**
+     * Check whether the expressions of the given condition are combined only with the OR operation.
+     *
+     * @param condition Condition tree.
+     * @return True if the tree holds at least one OR operation and no AND operation.
+     * @throws UserStoreException If the tree mixes AND and OR operations.
+     */
+    private boolean isOrOperation(Condition condition) throws UserStoreException {
+
+        Set<String> operations = new HashSet<>();
+        collectOperationalOperations(condition, operations);
+        if (operations.size() > 1) {
+            throw new UserStoreClientException("Filter conditions combining both " + OperationalOperation.AND
+                    + " and " + OperationalOperation.OR + " operations are not supported.");
+        }
+        return operations.contains(OperationalOperation.OR.toString());
+    }
+
+    private void collectOperationalOperations(Condition condition, Set<String> operations) {
+
+        if (!(condition instanceof OperationalCondition)) {
+            return;
+        }
+        String operation = condition.getOperation();
+        if (StringUtils.isNotBlank(operation)) {
+            operations.add(operation.toUpperCase());
+        }
+        collectOperationalOperations(((OperationalCondition) condition).getLeftCondition(), operations);
+        collectOperationalOperations(((OperationalCondition) condition).getRightCondition(), operations);
+    }
+
     private void multiGroupQueryBuilder(SqlBuilder sqlBuilder, SqlBuilder header, boolean hitFirstRound,
             ExpressionCondition expressionCondition) {
 
@@ -5049,6 +5306,12 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
     @Override
     public boolean isUniqueUserIdEnabled() {
+
+        return true;
+    }
+
+    @Override
+    protected boolean isOrConditionSupported() {
 
         return true;
     }
