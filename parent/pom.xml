@@ -643,11 +643,11 @@
         <version.hubspot.immutables>1.11.2</version.hubspot.immutables>
         <version.cava-toml>0.5.0</version.cava-toml>
         <version.checkstyle>7.8.2</version.checkstyle>
-        <version.jackson>2.21.2</version.jackson>
-        <version.jackson.annotations>2.21</version.jackson.annotations>
-        <version.jackson.databind>2.21.4</version.jackson.databind>
-        <version.jackson.dataformat>2.21.2</version.jackson.dataformat>
-        <version.jackson.datatype>2.21.2</version.jackson.datatype>
+        <version.jackson>2.22.2</version.jackson>
+        <version.jackson.annotations>2.22</version.jackson.annotations>
+        <version.jackson.databind>2.22.2</version.jackson.databind>
+        <version.jackson.dataformat>2.22.2</version.jackson.dataformat>
+        <version.jackson.datatype>2.22.2</version.jackson.datatype>
         <version.jsoup>1.15.3</version.jsoup>
         <!--Please make sure to update the Guava and Guava FailureAccess versions in the carbon-registry repository as
         well.-->
