@@ -18,6 +18,7 @@
  */
 package org.wso2.carbon.caching.impl;
 
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -63,14 +64,25 @@ public class CacheListenerTestCase {
 
         cacheEntryCreatedListener = new CacheEntryCreatedListenerImpl<String, Long>();
         cache.registerCacheEntryListener(cacheEntryCreatedListener);
+        DataHolder.getInstance().getCacheEntryListeners().add(cacheEntryCreatedListener);
         cacheEntryExpiredListener = new CacheEntryExpiredListenerImpl<String, Long>();
         cache.registerCacheEntryListener(cacheEntryExpiredListener);
+        DataHolder.getInstance().getCacheEntryListeners().add(cacheEntryExpiredListener);
         cacheEntryReadListener = new CacheEntryReadListenerImpl<String, Long>();
         cache.registerCacheEntryListener(cacheEntryReadListener);
+        DataHolder.getInstance().getCacheEntryListeners().add(cacheEntryReadListener);
         cacheEntryRemovedListener = new CacheEntryRemovedListenerImpl<String, Long>();
         cache.registerCacheEntryListener(cacheEntryRemovedListener);
+        DataHolder.getInstance().getCacheEntryListeners().add(cacheEntryRemovedListener);
         cacheEntryUpdatedListener = new CacheEntryUpdatedListenerImpl<String, Long>();
         cache.registerCacheEntryListener(cacheEntryUpdatedListener);
+        DataHolder.getInstance().getCacheEntryListeners().add(cacheEntryUpdatedListener);
+    }
+
+    @AfterClass
+    public void cleanUp() {
+        
+        DataHolder.getInstance().getCacheEntryListeners().clear();
     }
 
     @Test(groups = {"org.wso2.carbon.clustering.hazelcast.jsr107"},
