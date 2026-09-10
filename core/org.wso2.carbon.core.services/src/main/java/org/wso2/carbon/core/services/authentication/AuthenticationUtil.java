@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -52,11 +51,22 @@ public class AuthenticationUtil {
     public static final String HEADER_X_FORWARDED_FOR = "X-Forwarded-For";
 
 
-    private static final String IP_ADDRESS_PATTERN =
+    private static final String IPV4_ADDRESS_PATTERN =
             "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
                     "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
                     "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
                     "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
+
+    /**
+     * The characters an IPv6 literal can carry once brackets and any zone index have been removed:
+     * hexadecimal digits, ':' separators and '.' for an IPv4 mapped tail. Used as a cheap guard so that
+     * only literal looking candidates are handed to InetAddress.
+     */
+    private static final String IPV6_LITERAL_PATTERN = "^[0-9A-Fa-f:.]+$";
+
+    private static final Pattern IPV4_ADDRESS = Pattern.compile(IPV4_ADDRESS_PATTERN);
+
+    private static final Pattern IPV6_LITERAL = Pattern.compile(IPV6_LITERAL_PATTERN);
 
     private static final Log log = LogFactory.getLog(AuthenticationUtil.class);
 
@@ -191,13 +201,66 @@ public class AuthenticationUtil {
         return false;
     }
 
+    /**
+     * Checks whether the given value is a valid IP address. Both IPv4 and IPv6 addresses are accepted.
+     *
+     * @param ipAddress The address to validate.
+     * @return true if the address is a valid IPv4 or IPv6 address.
+     */
     private static boolean isValidIPAddress(String ipAddress) {
 
-      Pattern pattern = Pattern.compile(IP_ADDRESS_PATTERN);
-      Matcher matcher = pattern.matcher(ipAddress);
-      return matcher.matches();
+        if (ipAddress == null || ipAddress.isEmpty()) {
+            return false;
+        }
+
+        return IPV4_ADDRESS.matcher(ipAddress).matches() || isValidIPv6Address(ipAddress);
     }
 
+    /**
+     * Validates an IPv6 literal. Tolerates the zone/scope suffix (e.g. "%en0", "%14") that servlet
+     * containers append to link local addresses.
+     *
+     * @param address The address to validate.
+     * @return true if the given value is a valid IPv6 literal.
+     */
+    private static boolean isValidIPv6Address(String address) {
+
+        if (address.indexOf(':') < 0) {
+            // No colon, so this cannot be an IPv6 literal. Leave it to the IPv4 and DNS checks.
+            return false;
+        }
+
+        String candidate = stripZoneId(address);
+
+        if (candidate.isEmpty() || !IPV6_LITERAL.matcher(candidate).matches()) {
+            return false;
+        }
+
+        try {
+            // The brackets force InetAddress to parse the value strictly as an IPv6 literal, so this
+            // never falls back to a DNS lookup.
+            InetAddress.getByName("[" + candidate + "]");
+            return true;
+        } catch (UnknownHostException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Not a valid IPv6 address : " + address);
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Removes the zone/scope id from an IPv6 address, if present. For example
+     * "fe80:0:0:0:67:3a41:aeea:d8b7%14" becomes "fe80:0:0:0:67:3a41:aeea:d8b7".
+     *
+     * @param address The address, possibly carrying a zone id.
+     * @return The address without its zone id.
+     */
+    private static String stripZoneId(String address) {
+
+        int zoneIndex = address.indexOf('%');
+        return (zoneIndex < 0) ? address : address.substring(0, zoneIndex);
+    }
 
     /**
      * Gets the given header name from message context. It first checks in the HTTP servlet request.
