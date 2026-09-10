@@ -143,4 +143,56 @@ public class AuthenticationUtilTest extends TestCase {
         Assert.assertEquals("172.192.2.1", address);
     }
 
+    public void testIPv6RemoteAddress() throws Exception {
+
+        Map<String, String> map = new HashMap<String, String>();
+
+        MessageContext msgContext = getMessageContext(map);
+
+        msgContext.setProperty(MessageContext.REMOTE_ADDR, "fd00:0:0:0:0:0:0:3");
+
+        String address = AuthenticationUtil.getRemoteAddress(msgContext);
+
+        Assert.assertEquals("fd00:0:0:0:0:0:0:3", address);
+    }
+
+    public void testValidateIPv4Address() throws Exception {
+
+        AuthenticationUtil.validateRemoteAddress("192.168.1.10");
+        AuthenticationUtil.validateRemoteAddress("127.0.0.1");
+    }
+
+    public void testValidateIPv6Address() throws Exception {
+
+        // Fully expanded, as InetAddress hands it over from the socket.
+        AuthenticationUtil.validateRemoteAddress("fd00:0:0:0:0:0:0:3");
+        // Compressed.
+        AuthenticationUtil.validateRemoteAddress("fd00::3");
+        // Loopback.
+        AuthenticationUtil.validateRemoteAddress("::1");
+        // IPv4 mapped.
+        AuthenticationUtil.validateRemoteAddress("::ffff:192.168.1.1");
+        // Link local carrying a zone index.
+        AuthenticationUtil.validateRemoteAddress("fe80::1%eth0");
+        AuthenticationUtil.validateRemoteAddress("fe80:0:0:0:67:3a41:aeea:d8b7%14");
+    }
+
+    public void testValidateBracketedAddress() throws Exception {
+
+        // A bracketed literal is not treated as an IPv6 literal, but InetAddress resolves it, so the
+        // DNS check accepts it. Recorded here so the behaviour is not changed by accident.
+        AuthenticationUtil.validateRemoteAddress("[fd00::3]");
+    }
+
+    public void testValidateAddressNegative() {
+
+        try {
+            AuthenticationUtil.validateRemoteAddress("fd00::3::4");
+            Assert.fail("Not a valid IPv6 address, should fail");
+        } catch (AuthenticationException e) {
+
+        }
+    }
+
+
 }
