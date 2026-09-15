@@ -56,6 +56,7 @@ import org.wso2.carbon.ui.CarbonServletContextInitializer;
 import org.wso2.carbon.ui.CarbonUIAuthenticator;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.ui.DefaultCarbonAuthenticator;
+import org.wso2.carbon.ui.RootRedirectServlet;
 import org.wso2.carbon.ui.CsrfJavaScriptServletProxy;
 import org.wso2.carbon.ui.TenantAwareCsrfJsFilter;
 import org.wso2.carbon.ui.TextJavascriptHandler;
@@ -257,6 +258,17 @@ public class CarbonUIServiceComponent {
         contextProps.put("osgi.http.whiteboard.context.name", "carbonContext");
         contextProps.put("osgi.http.whiteboard.context.path", "/");
         context.registerService(ServletContextHelper.class, (ServletContextHelper) commonContext, contextProps);
+
+        // Register RootRedirectServlet to handle requests to "/" path
+        // This is necessary because without a servlet registered for "/", requests to the root path
+        // would result in a 404 error being forwarded to the error page instead of being handled
+        // by handleSecurity in CarbonSecuredHttpContext
+        Servlet rootRedirectServlet = new RootRedirectServlet(carbonUIDefinitions);
+        Dictionary<String, String> rootRedirectServletProps = new Hashtable<>();
+        rootRedirectServletProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/");
+        rootRedirectServletProps.put("osgi.http.whiteboard.context.select",
+                "(osgi.http.whiteboard.context.name=carbonContext)");
+        context.registerService(Servlet.class, rootRedirectServlet, rootRedirectServletProps);
 
         // Register file download servlet using HTTP Whiteboard pattern
         Servlet fileDownloadServlet = new FileDownloadServlet(context, getConfigurationContextService());
