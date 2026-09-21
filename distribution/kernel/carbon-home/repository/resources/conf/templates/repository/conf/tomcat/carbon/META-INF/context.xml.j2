@@ -36,4 +36,9 @@
     <Realm className="waffle.apache.WindowsRealm"/>
     {% endif %}
 
+    {% if admin_console.control_access.enable is sameas true %}
+    <Valve className="org.apache.catalina.valves.RemoteAddrValve"
+        allow="{% for ip in admin_console.control_access.allow %}{{ip}}{{ "|" if not loop.last}}{% endfor %}"/>
+    {% endif %}
+
 </Context>
