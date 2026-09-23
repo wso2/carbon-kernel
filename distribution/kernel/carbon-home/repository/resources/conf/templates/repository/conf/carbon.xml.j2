@@ -535,6 +535,16 @@
             <!-- Keystore type (JKS/PKCS12 etc.)-->
             <Type>{{keystore.tenant.type}}</Type>
         </TenantKeyStore>
+        <!-- KeyStore configurations for HSM.-->
+        <HSMKeyStore>
+            <Enabled>{{keystore.hsm.enabled}}</Enabled>
+            <!-- Provider Configuration file location-->
+            <ProviderConfiguration>${carbon.home}/repository/resources/security/{{keystore.hsm.provider_configuration}}</ProviderConfiguration>
+            <!-- Keystore password-->
+            <Password>{{keystore.hsm.pin}}</Password>
+            <!-- Private Key alias-->
+            <KeyAlias>{{keystore.hsm.alias}}</KeyAlias>
+        </HSMKeyStore>
 
         <!--
             The KeyStore which is used for encrypting/decrypting internal data.
