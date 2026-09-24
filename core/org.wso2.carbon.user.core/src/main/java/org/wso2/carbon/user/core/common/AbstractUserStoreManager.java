@@ -11522,19 +11522,92 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     private void validateCondition(Condition condition) throws UserStoreException {
 
+        validateCondition(condition, false);
+    }
+
+    /**
+     * Validate a filter condition against the user store manager that is going to evaluate it.
+     *
+     * @param condition            Condition tree.
+     * @param userStoreManager     User store manager resolved for the requested domain.
+     * @throws UserStoreException If the condition holds an operation that the user store manager cannot evaluate.
+     */
+    private void validateCondition(Condition condition, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        validateCondition(condition, isOrConditionSupported(userStoreManager));
+    }
+
+    private void validateCondition(Condition condition, boolean orOperationAllowed) throws UserStoreException {
+
         if (condition instanceof ExpressionCondition) {
             if (isNotSupportedExpressionOperation(condition)) {
                 throw new UserStoreException("Unsupported expression operation: " + condition.getOperation());
             }
         } else if (condition instanceof OperationalCondition) {
             Condition leftCondition = ((OperationalCondition) condition).getLeftCondition();
-            validateCondition(leftCondition);
+            validateCondition(leftCondition, orOperationAllowed);
             Condition rightCondition = ((OperationalCondition) condition).getRightCondition();
             String operation = condition.getOperation();
-            if (!OperationalOperation.AND.toString().equals(operation)) {
+            if (!OperationalOperation.AND.toString().equals(operation)
+                    && !(orOperationAllowed && OperationalOperation.OR.toString().equals(operation))) {
                 throw new UserStoreException("Unsupported Conditional operation: " + condition.getOperation());
             }
-            validateCondition(rightCondition);
+            validateCondition(rightCondition, orOperationAllowed);
+        }
+    }
+
+    private boolean isOrConditionSupported(UserStoreManager userStoreManager) {
+
+        return userStoreManager instanceof AbstractUserStoreManager
+                && ((AbstractUserStoreManager) userStoreManager).isOrConditionSupported();
+    }
+
+    /**
+     * Whether this user store manager can evaluate a filter condition whose expressions are combined with the OR
+     * operation. Mixing AND and OR in the same filter is not supported by any user store manager.
+     *
+     * @return True if the OR operation is supported.
+     */
+    protected boolean isOrConditionSupported() {
+
+        return false;
+    }
+
+    /**
+     * Check whether the given condition tree holds an OR operation.
+     *
+     * @param condition Condition tree.
+     * @return True if at least one operational node of the tree is an OR operation.
+     */
+    private boolean containsOrOperation(Condition condition) {
+
+        if (!(condition instanceof OperationalCondition)) {
+            return false;
+        }
+        if (OperationalOperation.OR.toString().equals(condition.getOperation())) {
+            return true;
+        }
+        return containsOrOperation(((OperationalCondition) condition).getLeftCondition())
+                || containsOrOperation(((OperationalCondition) condition).getRightCondition());
+    }
+
+    /**
+     * Identity claim filters are evaluated against the identity data store and then intersected with the user store
+     * results, which carries AND semantics. That merge cannot express an OR filter, so the combination is rejected
+     * instead of silently returning the intersection.
+     *
+     * @param condition            Condition tree.
+     * @param expressionConditions Expressions of the condition, with the identity claims already mapped.
+     * @throws UserStoreException If the condition combines the OR operation with an identity claim.
+     */
+    private void validateOrConditionWithIdentityClaims(Condition condition,
+                                                       List<ExpressionCondition> expressionConditions)
+            throws UserStoreException {
+
+        if (containsOrOperation(condition) && containsIdentityClaims(expressionConditions)) {
+            throw new UserStoreClientException("Filtering with the " + OperationalOperation.OR
+                    + " operation is not supported when the filter contains identity claims.");
         }
     }
 
@@ -16905,13 +16978,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public List<User> getUserListWithID(Condition condition, String domain, String profileName, int limit, int offset,
                                         String sortBy, String sortOrder) throws UserStoreException {
 
-        validateCondition(condition);
-        if (StringUtils.isNotEmpty(sortBy) && StringUtils.isNotEmpty(sortOrder)) {
-            throw new UserStoreException("Sorting is not supported.");
-        }
-
         if (StringUtils.isEmpty(domain)) {
             domain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+        }
+
+        validateCondition(condition, getSecondaryUserStoreManager(domain));
+        if (StringUtils.isNotEmpty(sortBy) && StringUtils.isNotEmpty(sortOrder)) {
+            throw new UserStoreException("Sorting is not supported.");
         }
 
         if (StringUtils.isEmpty(profileName)) {
@@ -16939,6 +17012,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // Check whether the request has IdentityClaims in filters.
         mapAttributesToLocalIdentityClaims(expressionConditions, domain, secondaryUserStoreManager);
+        validateOrConditionWithIdentityClaims(condition, expressionConditions);
         boolean identityClaimsExistsInInitialCondition = containsIdentityClaims(expressionConditions);
 
         if (identityClaimsExistsInInitialCondition) {
@@ -17071,13 +17145,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throws UserStoreException {
 
         PaginatedUserResponse paginatedUserResponse = new PaginatedUserResponse();
-        validateCondition(condition);
-        if (StringUtils.isNotEmpty(sortBy) && StringUtils.isNotEmpty(sortOrder)) {
-            throw new UserStoreException("Sorting is not supported.");
-        }
-
         if (StringUtils.isEmpty(domain)) {
             domain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+        }
+
+        validateCondition(condition, getSecondaryUserStoreManager(domain));
+        if (StringUtils.isNotEmpty(sortBy) && StringUtils.isNotEmpty(sortOrder)) {
+            throw new UserStoreException("Sorting is not supported.");
         }
 
         if (StringUtils.isEmpty(profileName)) {
@@ -17097,6 +17171,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         Condition duplicateCondition = getDuplicateCondition(condition);
         getExpressionConditions(duplicateCondition, expressionConditions);
         mapAttributesToLocalIdentityClaims(expressionConditions, domain, secondaryUserStoreManager);
+        validateOrConditionWithIdentityClaims(condition, expressionConditions);
 
         /* *****************************************************
          * Logic to Filter Users Based on Identity & Non Identity Claims
@@ -17192,11 +17267,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public int getUsersCount(Condition condition, String domain, String profileName, int limit, int offset,
                              boolean isRemoveDuplicateUsersEnabled) throws UserStoreException {
 
-        validateCondition(condition);
-
         if (StringUtils.isEmpty(domain)) {
             domain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
         }
+
+        validateCondition(condition, getSecondaryUserStoreManager(domain));
 
         if (StringUtils.isEmpty(profileName)) {
             profileName = UserCoreConstants.DEFAULT_PROFILE;
@@ -17217,6 +17292,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // Check whether the request has IdentityClaims in filters.
         mapAttributesToLocalIdentityClaims(expressionConditions, domain, secondaryUserStoreManager);
+        validateOrConditionWithIdentityClaims(condition, expressionConditions);
         boolean identityClaimsExistsInInitialCondition = countIdentityClaims(expressionConditions) > 0;
 
         if (identityClaimsExistsInInitialCondition) {
