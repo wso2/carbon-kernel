@@ -489,6 +489,11 @@ public class JDBCRealmUtil {
             properties.put(JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID,
                     JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID_SQL);
         }
+        if (!properties.containsKey(JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID_OPTIMIZED)
+                && !properties.containsKey(JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID_OPTIMIZED_MSSQL)) {
+            properties.put(JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID_OPTIMIZED_MSSQL,
+                    JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID_OPTIMIZED_MSSQL_SQL);
+        }
         if (!properties.containsKey(JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID_OPTIMIZED)) {
             properties.put(JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID_OPTIMIZED,
                     JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID_OPTIMIZED_SQL);
