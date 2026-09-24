@@ -28,11 +28,14 @@ import org.wso2.carbon.crypto.api.CryptoService;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.utils.ServerConstants;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The utility class to encrypt/decrypt passwords to be stored in the
@@ -43,6 +46,20 @@ public class CryptoUtil {
     private static final String CIPHER_TRANSFORMATION_SYSTEM_PROPERTY = "org.wso2.CipherTransformation";
     private static Log log = LogFactory.getLog(CryptoUtil.class);
     private ServerConfigurationService serverConfigService;
+
+    // ---- Any-size (large-secret) encryption support ------------------------------------------------------
+    // Encrypts data of any size independently of the configured internal crypto algorithm. The plaintext is
+    // always split into blocks small enough to fit the most constrained supported cipher, each encrypted
+    // independently and joined behind a self-describing marker: chunk:v1:<b64(block0)>;<b64(block1)>;...
+    // This keeps the code decoupled from any specific algorithm (RSA, AES or anything else): a block cipher
+    // that caps the plaintext per operation is satisfied by the block size, and a cipher with no limit simply
+    // encrypts each block.
+    private static final String CHUNK_MARKER = "chunk:v1:";
+    private static final String CHUNK_DELIMITER = ";";
+    // Plaintext bytes per block. Sized to fit the most constrained realistic provider: RSA-2048 with
+    // OAEP-SHA-512 accepts 126 bytes (OAEP-SHA-256 = 190, OAEP-SHA-1 = 214, PKCS#1 v1.5 = 245), so a block
+    // always fits any algorithm. Assumes a >= 2048-bit internal keystore (the WSO2 default).
+    private static final int MAX_PLAINTEXT_CHUNK_SIZE = 126;
     private RegistryService registryService;
     private String cryptoProviderIdentifier;
     private Gson gson = new Gson();
@@ -483,6 +500,82 @@ public class CryptoUtil {
     public boolean base64DecodeAndIsSelfContainedCipherText(String base64CipherText) throws
             CryptoException {
         return isSelfContainedCipherText(Base64.decode(base64CipherText));
+    }
+
+    /**
+     * Encrypts and base64-encodes a secret of any size using the configured internal crypto provider,
+     * independently of the algorithm. The plaintext is split into {@value #MAX_PLAINTEXT_CHUNK_SIZE}-byte
+     * blocks, each encrypted with {@link #encryptAndBase64Encode(byte[])} and joined with {@code ';'} behind a
+     * self-describing {@code chunk:v1:} marker. Reverse with {@link #base64DecodeAndDecryptAnySize(String)}.
+     *
+     * @param plainText the plaintext bytes to encrypt (must not be null; an empty array is encrypted as-is)
+     * @return a {@code chunk:v1:} chunked ciphertext (an empty array is encrypted single-shot, as-is)
+     * @throws CryptoException on error during encryption, or if {@code plainText} is null
+     */
+    public String encryptAndBase64EncodeAnySize(byte[] plainText) throws CryptoException {
+
+        if (plainText == null) {
+            throw new CryptoException("Plaintext to encrypt can't be null.");
+        }
+        if (plainText.length == 0) {
+            return encryptAndBase64Encode(plainText);
+        }
+        // Encrypt in blocks regardless of the configured algorithm: a block cipher (e.g. RSA) is satisfied by
+        // the block size, a cipher with no size limit simply encrypts each block. No algorithm detection needed.
+        List<String> encodedChunks = new ArrayList<>();
+        for (int offset = 0; offset < plainText.length; offset += MAX_PLAINTEXT_CHUNK_SIZE) {
+            int length = Math.min(MAX_PLAINTEXT_CHUNK_SIZE, plainText.length - offset);
+            byte[] chunk = new byte[length];
+            System.arraycopy(plainText, offset, chunk, 0, length);
+            encodedChunks.add(encryptAndBase64Encode(chunk));
+        }
+        return CHUNK_MARKER + String.join(CHUNK_DELIMITER, encodedChunks);
+    }
+
+    /**
+     * Base64-decodes and decrypts a value produced by {@link #encryptAndBase64EncodeAnySize(byte[])}. Routes on
+     * the {@code chunk:v1:} marker: a marked value is decoded block-by-block; a value without a marker
+     * (e.g. a legacy single-shot ciphertext) is decrypted directly.
+     *
+     * @param cipherText the stored ciphertext
+     * @return the decrypted plaintext bytes
+     * @throws CryptoException on error during decryption
+     */
+    public byte[] base64DecodeAndDecryptAnySize(String cipherText) throws CryptoException {
+
+        if (cipherText == null) {
+            throw new CryptoException("Ciphertext can't be null.");
+        }
+        if (!isChunkedCipherText(cipherText)) {
+            return base64DecodeAndDecrypt(cipherText);
+        }
+        // Keep empty entries (split with limit -1 preserves trailing ones) and reject any empty chunk, so a
+        // malformed value fails loudly instead of silently reassembling to incomplete plaintext.
+        String[] encodedChunks = cipherText.substring(CHUNK_MARKER.length()).split(CHUNK_DELIMITER, -1);
+        ByteArrayOutputStream plainTextStream = new ByteArrayOutputStream();
+        try {
+            for (String encodedChunk : encodedChunks) {
+                if (encodedChunk.isEmpty()) {
+                    throw new CryptoException("Malformed chunked ciphertext: contains an empty chunk.");
+                }
+                byte[] decrypted = base64DecodeAndDecrypt(encodedChunk);
+                plainTextStream.write(decrypted, 0, decrypted.length);
+            }
+        } catch (RuntimeException e) {
+            // CryptoException (checked) propagates unchanged; only unchecked failures (e.g. a base64 decode
+            // error on a corrupt chunk) reach here and are normalized into a CryptoException.
+            throw new CryptoException("Error occurred while reassembling chunked plaintext.", e);
+        }
+        return plainTextStream.toByteArray();
+    }
+
+    /**
+     * @param value a stored ciphertext value
+     * @return {@code true} if the value is in the chunked format ({@code chunk:v1:})
+     */
+    public boolean isChunkedCipherText(String value) {
+
+        return value != null && value.startsWith(CHUNK_MARKER);
     }
 
     /**
