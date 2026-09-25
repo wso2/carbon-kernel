@@ -137,10 +137,6 @@
             <groupId>org.wso2.orbit.javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
@@ -273,10 +269,6 @@
                                 <bundle>
                                     <symbolicName>org.wso2.orbit.javax.xml.bind.jaxb-api</symbolicName>
                                     <version>${org.wso2.orbit.javax.xml.bind.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>com.sun.xml.bind.jaxb-impl</symbolicName>
-                                    <version>${com.sun.xml.bind.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>
