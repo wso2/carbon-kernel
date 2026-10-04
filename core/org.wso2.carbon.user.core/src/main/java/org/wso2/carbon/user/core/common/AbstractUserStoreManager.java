@@ -2227,7 +2227,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
             String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
             handleGetUserClaimValuesFailure(errorCode, errorMessage, userName, null, profileName);
-            throw new UserStoreException(errorCode + " - " + errorMessage);
+            throw new UserStoreException(errorCode + " - " + errorMessage, errorCode);
         }
 
         if (profileName == null || profileName.trim().length() == 0) {
@@ -2286,7 +2286,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
             String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
             handleGetUserClaimValuesFailure(errorCode, errorMessage, userName, null, profileName);
-            throw new UserStoreException(errorCode + " - " + errorMessage);
+            throw new UserStoreException(errorCode + " - " + errorMessage, errorCode);
         }
         // check for null claim list
         if (claims == null) {
@@ -4174,7 +4174,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
                 String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
                 handleUpdateCredentialByAdminFailure(errorCode, errorMessage, userName, newCredential);
-                throw new UserStoreException(errorCode + "-" + errorMessage);
+                throw new UserStoreException(errorCode + "-" + errorMessage, errorCode);
             }
 
             try {
@@ -4409,7 +4409,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
             String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
             handleDeleteUserFailure(errorCode, errorMessage, userName);
-            throw new UserStoreException(errorCode + " - " + errorMessage);
+            throw new UserStoreException(errorCode + " - " + errorMessage, errorCode);
         }
 
         // Remove users from internal role mapping
@@ -4535,7 +4535,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
             String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
             handleSetUserClaimValueFailure(errorCode, errorMessage, userName, claimURI, claimValue, profileName);
-            throw new UserStoreException(errorCode + " - " + errorMessage);
+            throw new UserStoreException(errorCode + " - " + errorMessage, errorCode);
         }
 
         // #################### <Listeners> #####################################################
@@ -4679,7 +4679,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
             String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
             handleSetUserClaimValuesFailure(errorCode, errorMessage, userName, claims, profileName);
-            throw new UserStoreException(errorCode + " - " + errorMessage);
+            throw new UserStoreException(errorCode + " - " + errorMessage, errorCode);
         }
         if (claims == null) {
             claims = new HashMap<>();
@@ -4843,7 +4843,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
             String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
             handleDeleteUserClaimValueFailure(errorCode, errorMessage, userName, claimURI, profileName);
-            throw new UserStoreException(errorCode + " - " + errorMessage);
+            throw new UserStoreException(errorCode + " - " + errorMessage, errorCode);
         }
 
         // #################### <Listeners> #####################################################
@@ -4986,7 +4986,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
             String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
             handleDeleteUserClaimValuesFailure(errorCode, errorMessage, userName, claims, profileName);
-            throw new UserStoreException(errorCode + " - " + errorMessage);
+            throw new UserStoreException(errorCode + " - " + errorMessage, errorCode);
         }
 
         if (claims == null) {
@@ -13249,7 +13249,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userID,
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
             handleGetUserClaimValueFailureWithID(errorCode, errorMessage, userID, claim, profileName);
-            throw new UserStoreException(errorCode + " - " + errorMessage);
+            throw new UserStoreException(errorCode + " - " + errorMessage, errorCode);
         }
 
         Map<String, String> finalValues;
@@ -13350,7 +13350,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
             String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
             handleGetUserClaimValuesFailureWithID(errorCode, errorMessage, userID, claims, profileName);
-            throw new UserStoreException(errorCode + " - " + errorMessage);
+            throw new UserStoreException(errorCode + " - " + errorMessage, errorCode);
         }
 
         // check for null claim list
@@ -13430,7 +13430,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
             String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
             handleGetUserClaimValuesFailureWithID(errorCode, errorMessage, userID, null, profileName);
-            throw new UserStoreException(errorCode + " - " + errorMessage);
+            throw new UserStoreException(errorCode + " - " + errorMessage, errorCode);
         }
 
         // If unique id feature is not enabled, we have to call the legacy methods.
@@ -14462,7 +14462,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
             String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
             handleDeleteUserFailureWithID(errorCode, errorMessage, userID);
-            throw new UserStoreException(errorCode + " - " + errorMessage);
+            throw new UserStoreException(errorCode + " - " + errorMessage, errorCode);
         }
 
         try {
@@ -14533,7 +14533,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
             String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
             handleSetUserClaimValueFailureWithID(errorCode, errorMessage, userID, claimURI, claimValue, profileName);
-            throw new UserStoreException(errorCode + " - " + errorMessage);
+            throw new UserStoreException(errorCode + " - " + errorMessage, errorCode);
         }
 
         // #################### <Listeners> #####################################################
@@ -14632,7 +14632,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
             String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
             handleSetUserClaimValuesFailureWithID(errorCode, errorMessage, userID, claims, profileName);
-            throw new UserStoreException(errorCode + " - " + errorMessage);
+            throw new UserStoreException(errorCode + " - " + errorMessage, errorCode);
         }
         if (claims == null) {
             claims = new HashMap<>();
@@ -14751,7 +14751,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
             String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
             handleSetUserClaimValuesFailureWithID(errorCode, errorMessage, userID, claims, profileName);
-            throw new UserStoreException(errorCode + " - " + errorMessage);
+            throw new UserStoreException(errorCode + " - " + errorMessage, errorCode);
         }
 
         // #################### <Pre Listeners> #####################################################
@@ -14967,7 +14967,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                         realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
                 String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
                 handleUpdateCredentialByAdminFailureWithID(errorCode, errorMessage, userID, newCredential);
-                throw new UserStoreException(errorCode + "-" + errorMessage);
+                throw new UserStoreException(errorCode + "-" + errorMessage, errorCode);
             }
 
             try {
@@ -15061,7 +15061,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
             String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
             handleDeleteUserClaimValueFailureWithID(errorCode, errorMessage, userID, claimURI, profileName);
-            throw new UserStoreException(errorCode + " - " + errorMessage);
+            throw new UserStoreException(errorCode + " - " + errorMessage, errorCode);
         }
 
         // #################### <Listeners> #####################################################
@@ -15161,7 +15161,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
             String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
             handleDeleteUserClaimValuesFailureWithID(errorCode, errorMessage, userID, claims, profileName);
-            throw new UserStoreException(errorCode + " - " + errorMessage);
+            throw new UserStoreException(errorCode + " - " + errorMessage, errorCode);
         }
 
         if (claims == null) {
@@ -19440,7 +19440,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userName,
                 realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
         handleGetUserClaimValueFailure(errorCode, errorMessage, userName, claim, profileName);
-        throw new UserStoreException(errorCode + " - " + errorMessage);
+        throw new UserStoreException(errorCode + " - " + errorMessage, errorCode);
     }
 
     private boolean isNotARoleClaim(String claim) {
