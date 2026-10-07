@@ -129,6 +129,8 @@
   "keystore.primary.alias": "wso2carbon",
   "keystore.primary.key_password": "wso2carbon",
   "keystore.tenant.type": "PKCS12",
+  "keystore.tenant.key_algorithm": "RSA",
+  "keystore.tenant.key_size": "2048",
   "keystore.userstore_password_encryption": "InternalKeyStore",
   "keystore.internal.file_name": "$ref{keystore.primary.file_name}",
   "keystore.internal.type": "$ref{keystore.primary.type}",

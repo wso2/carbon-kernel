@@ -534,6 +534,14 @@
         <TenantKeyStore>
             <!-- Keystore type (JKS/PKCS12 etc.)-->
             <Type>{{keystore.tenant.type}}</Type>
+            {% if keystore.tenant.key_algorithm is defined %}
+            <!-- Key algorithm of the generated tenant key pair. Only RSA is supported. -->
+            <KeyAlgorithm>{{keystore.tenant.key_algorithm}}</KeyAlgorithm>
+            {% endif %}
+            {% if keystore.tenant.key_size is defined %}
+            <!-- Key size (bits) of the generated tenant key pair. A multiple of 1024 between 2048 and 8192. -->
+            <KeySize>{{keystore.tenant.key_size}}</KeySize>
+            {% endif %}
         </TenantKeyStore>
 
         <!--
