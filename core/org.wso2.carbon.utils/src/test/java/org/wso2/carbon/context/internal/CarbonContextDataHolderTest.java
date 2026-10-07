@@ -289,7 +289,7 @@ public class CarbonContextDataHolderTest extends BaseTest {
         Name jndiName = new CompositeName(jndiUrl);
         Name resourceName = new CompositeName(resource);
         InitialContext initialContext = getInitialContext();
-        initialContext.bind(jndiUrl, resource);
+        initialContext.createSubcontext(jndiUrl);
         NameParser nameParser1 = initialContext.getNameParser(jndiUrl);
         NameParser nameParser2 = initialContext.getNameParser(jndiName);
         Assert.assertEquals(nameParser1.parse(resource), resourceName);
