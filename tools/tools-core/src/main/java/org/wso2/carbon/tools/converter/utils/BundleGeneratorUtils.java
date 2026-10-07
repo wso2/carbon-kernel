@@ -286,7 +286,7 @@ public class BundleGeneratorUtils {
                     if (!path.endsWith("/") && path.endsWith(".class")) {
                         //  This is package that contains classes. Thus, exportedPackagesList
                         int index = path.lastIndexOf('/');
-                        if (index != -1) {
+                        if (index > 0 && !path.startsWith("/META-INF/")) {
                             path = path.substring(1, index);
                             path = path.replaceAll("/", ".");
                             if (!exportedPackagesList.contains(path)) {
