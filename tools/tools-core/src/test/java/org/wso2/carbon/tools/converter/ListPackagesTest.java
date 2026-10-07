@@ -15,16 +15,22 @@
  */
 package org.wso2.carbon.tools.converter;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.carbon.tools.TestConstants;
 import org.wso2.carbon.tools.converter.utils.BundleGeneratorUtils;
 import org.wso2.carbon.tools.exception.CarbonToolException;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
 
 /**
  * A Java class which tests the listPackages method of BundleGeneratorUtils.java class.
@@ -45,6 +51,26 @@ public class ListPackagesTest {
                 .forEach(expected::add);
 
         assert TestUtils.isMatching(expected, actual);
+    }
+
+    @Test(description = "Ignores root-level classes and META-INF entries when listing packages")
+    public void testListingPackagesSkipsRootLevelAndMetaInfClasses() throws IOException, CarbonToolException {
+        Path jarFile = Paths.get(TestConstants.TARGET_FOLDER, "modular-multi-release.jar");
+        String[] entries = {"module-info.class", "DefaultPackageClass.class",
+                "META-INF/versions/9/org/wso2/carbon/test/mr/Versioned.class",
+                "org/wso2/carbon/test/mr/Versioned.class"};
+        try (OutputStream file = Files.newOutputStream(jarFile);
+             JarOutputStream jar = new JarOutputStream(file)) {
+            for (String entry : entries) {
+                jar.putNextEntry(new JarEntry(entry));
+                jar.write(new byte[]{(byte) 0xCA, (byte) 0xFE});
+                jar.closeEntry();
+            }
+        }
+
+        List<String> actual = BundleGeneratorUtils.listPackages(jarFile);
+
+        Assert.assertEquals(actual, Collections.singletonList("org.wso2.carbon.test.mr"));
     }
 
     private List<String> expectedPackageList() {
