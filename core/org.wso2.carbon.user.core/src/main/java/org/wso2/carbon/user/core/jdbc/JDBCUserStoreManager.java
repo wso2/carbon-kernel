@@ -142,6 +142,14 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private static final String MYSQL = "mysql";
     private static final String MARIADB = "mariadb";
     private static final String POSTGRESQL = "postgresql";
+    private static final String[] SHIPPED_PAGINATED_ROLE_SQL = {
+            JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_SQL,
+            JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_SQL_H2,
+            JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_SQL_MSSQL,
+            JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_SQL_DB2,
+            JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_SQL_ORACLE,
+            JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_COUNT_SQL,
+            JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_COUNT_SQL_H2};
 
     private static final int MAX_ITEM_LIMIT_UNLIMITED = -1;
     public static final String PRIMARY_USER_STORE_DOMAIN = "PRIMARY";
@@ -771,6 +779,199 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         }
         return roles;
 
+    }
+
+    @Override
+    public String[] doGetRoleNames(String filter, int limit, int offset) throws UserStoreException {
+
+        if (limit <= 0) {
+            return new String[0];
+        }
+        offset = Math.max(offset, 0);
+        List<String> roles = new LinkedList<>();
+        try (Connection dbConnection = getDBConnection()) {
+            String type = DatabaseCreator.getDatabaseType(dbConnection);
+            // The default statement takes a row count and a row offset.
+            long firstWindowValue = limit;
+            long secondWindowValue = offset;
+            if (DB2.equalsIgnoreCase(type) || MSSQL.equalsIgnoreCase(type)) {
+                // First and last row number of the page, one based and inclusive.
+                firstWindowValue = offset + 1L;
+                secondWindowValue = (long) offset + limit;
+            } else if (ORACLE.equalsIgnoreCase(type)) {
+                // Last row number of the page; the second value stays the rows to skip.
+                firstWindowValue = (long) offset + limit;
+            }
+            validatePaginatedRoleSQL(type);
+            String sqlStmt = getPaginatedRoleSQL(type);
+            try (PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
+                int parameterIndex = 1;
+                prepStmt.setString(parameterIndex++, buildRoleNameFilter(filter));
+                if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                    prepStmt.setInt(parameterIndex++, tenantId);
+                }
+                prepStmt.setLong(parameterIndex++, firstWindowValue);
+                prepStmt.setLong(parameterIndex, secondWindowValue);
+                setSearchTime(prepStmt);
+                try (ResultSet rs = prepStmt.executeQuery()) {
+                    String domain = realmConfig
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+                    while (rs.next()) {
+                        roles.add(UserCoreUtil.addDomainToName(rs.getString(1), domain));
+                    }
+                }
+            }
+        } catch (NotImplementedException e) {
+            throw e;
+        } catch (SQLException e) {
+            String msg = "Error occurred while retrieving a page of role names for filter: " + filter;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } catch (Exception e) {
+            throw new UserStoreException("Error while retrieving the DB type. ", e);
+        }
+        return roles.toArray(new String[0]);
+    }
+
+    @Override
+    public long doCountRoleNames(String filter) throws UserStoreException {
+
+        try (Connection dbConnection = getDBConnection()) {
+            String type = DatabaseCreator.getDatabaseType(dbConnection);
+            validatePaginatedRoleSQL(type);
+            String sqlStmt = getPaginatedRoleCountSQL(type);
+            try (PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
+                int parameterIndex = 1;
+                prepStmt.setString(parameterIndex++, buildRoleNameFilter(filter));
+                if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                    prepStmt.setInt(parameterIndex, tenantId);
+                }
+                setSearchTime(prepStmt);
+                try (ResultSet rs = prepStmt.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getLong(1);
+                    }
+                }
+            }
+        } catch (NotImplementedException e) {
+            throw e;
+        } catch (SQLException e) {
+            String msg = "Error occurred while counting the role names for filter: " + filter;
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } catch (Exception e) {
+            throw new UserStoreException("Error while retrieving the DB type. ", e);
+        }
+        return 0;
+    }
+
+    /**
+     * Paginated role statement for the database type, falling back to the base statement.
+     */
+    private String getPaginatedRoleSQL(String type) {
+
+        if (H2.equalsIgnoreCase(type)) {
+            return realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_H2);
+        }
+        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED + "-" + type);
+        if (sqlStmt == null) {
+            sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED);
+        }
+        return sqlStmt;
+    }
+
+    /**
+     * Paginated role count statement for the database type.
+     */
+    private String getPaginatedRoleCountSQL(String type) {
+
+        return realmConfig.getUserStoreProperty(H2.equalsIgnoreCase(type) ?
+                JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_COUNT_H2 :
+                JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_COUNT);
+    }
+
+    /**
+     * Declines paging when the role list SQL is customised but the paginated role SQL in use is still the shipped one.
+     */
+    private void validatePaginatedRoleSQL(String type) {
+
+        boolean roleListSQLCustomised =
+                !isShippedSQL(JDBCRealmConstants.GET_ROLE_LIST, JDBCRealmConstants.GET_ROLE_LIST_SQL)
+                || !isShippedSQL(JDBCRealmConstants.GET_ROLE_LIST_H2, JDBCRealmConstants.GET_ROLE_LIST_SQL_H2)
+                || !isShippedSQL(JDBCRealmConstants.GET_ROLE_LIST_WITH_ESCAPE,
+                        JDBCRealmConstants.GET_ROLE_LIST_SQL_WITH_ESCAPE)
+                || !isShippedSQL(JDBCRealmConstants.GET_ROLE_LIST_WITH_ESCAPE_H2,
+                        JDBCRealmConstants.GET_ROLE_LIST_SQL_WITH_ESCAPE_H2);
+        if (roleListSQLCustomised && (isShippedPaginatedRoleSQL(getPaginatedRoleSQL(type))
+                || isShippedPaginatedRoleSQL(getPaginatedRoleCountSQL(type)))) {
+            throw new NotImplementedException("The role list SQL of the user store is customised, but its "
+                    + JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED + " and "
+                    + JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_COUNT + " are not.");
+        }
+    }
+
+    /**
+     * Whether the configured statement is missing or matches the shipped one, ignoring whitespace.
+     */
+    private boolean isShippedSQL(String property, String shippedSQL) {
+
+        String sqlStmt = realmConfig.getUserStoreProperty(property);
+        return sqlStmt == null || normalizeSQL(sqlStmt).equals(normalizeSQL(shippedSQL));
+    }
+
+    /**
+     * Whether the statement is missing or is one of the shipped paginated role statements.
+     */
+    private static boolean isShippedPaginatedRoleSQL(String sqlStmt) {
+
+        if (sqlStmt == null) {
+            return true;
+        }
+        String normalized = normalizeSQL(sqlStmt);
+        for (String shippedSQL : SHIPPED_PAGINATED_ROLE_SQL) {
+            if (normalized.equals(normalizeSQL(shippedSQL))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Collapses whitespace so formatting differences in configured SQL do not count as a change.
+     */
+    private static String normalizeSQL(String sqlStmt) {
+
+        return sqlStmt.trim().replaceAll("\\s+", " ");
+    }
+
+    /**
+     * Bounds the statement by MaxSearchTime, as setPSRestrictions does for the unpaged statements.
+     */
+    private void setSearchTime(PreparedStatement ps) throws SQLException {
+
+        int searchTime;
+        try {
+            searchTime = Integer.parseInt(
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
+        } catch (Exception e) {
+            searchTime = UserCoreConstants.MAX_SEARCH_TIME;
+        }
+        ps.setQueryTimeout(searchTime);
+    }
+
+    /**
+     * Maps the '*' and '?' wildcards of a role filter to SQL; other characters are bound as given.
+     */
+    private String buildRoleNameFilter(String filter) {
+
+        if (filter == null || filter.trim().length() == 0) {
+            return "%";
+        }
+        return filter.trim().replace("*", "%").replace("?", "_");
     }
 
     private void setPSRestrictions(PreparedStatement ps, int maxItemLimit) throws SQLException {
