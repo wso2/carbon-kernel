@@ -30,6 +30,13 @@ public final class JDBCRealmConstants {
     public static final String GET_ROLE_LIST_H2 = "GetRoleListSQLH2";
     public static final String GET_ROLE_LIST_WITH_ESCAPE = "GetRoleListSQLWithEscape";
     public static final String GET_ROLE_LIST_WITH_ESCAPE_H2 = "GetRoleListSQLWithEscapeH2";
+    public static final String GET_ROLE_FILTER_PAGINATED = "RoleFilterPaginatedSQL";
+    public static final String GET_ROLE_FILTER_PAGINATED_H2 = "RoleFilterPaginatedSQLH2";
+    public static final String GET_ROLE_FILTER_PAGINATED_MSSQL = "RoleFilterPaginatedSQL-mssql";
+    public static final String GET_ROLE_FILTER_PAGINATED_DB2 = "RoleFilterPaginatedSQL-db2";
+    public static final String GET_ROLE_FILTER_PAGINATED_ORACLE = "RoleFilterPaginatedSQL-oracle";
+    public static final String GET_ROLE_FILTER_PAGINATED_COUNT = "RoleFilterPaginatedCountSQL";
+    public static final String GET_ROLE_FILTER_PAGINATED_COUNT_H2 = "RoleFilterPaginatedCountSQLH2";
     public static final String GET_ROLE_ID_BY_NAME = "GetRoleIDByNameSQL";
     public static final String GET_SHARED_ROLE_LIST = "GetSharedRoleListSQL";
     public static final String GET_SHARED_ROLE_LIST_H2 = "GetSharedRoleListSQLH2";
@@ -184,6 +191,29 @@ public final class JDBCRealmConstants {
             + "UM_USER_ID=? AND UM_TENANT_ID=?";
     public static final String GET_ROLE_LIST_SQL = "SELECT UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE ='0' ORDER BY UM_ROLE_NAME";
     public static final String GET_ROLE_LIST_SQL_H2 = "SELECT UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE =FALSE ORDER BY UM_ROLE_NAME";
+
+    public static final String GET_ROLE_FILTER_PAGINATED_SQL = "SELECT UM_ROLE_NAME FROM UM_ROLE " +
+            "WHERE UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE ='0' " +
+            "ORDER BY UM_ROLE_NAME LIMIT ? OFFSET ?";
+    public static final String GET_ROLE_FILTER_PAGINATED_SQL_H2 = "SELECT UM_ROLE_NAME FROM UM_ROLE " +
+            "WHERE UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE =FALSE " +
+            "ORDER BY UM_ROLE_NAME LIMIT ? OFFSET ?";
+    public static final String GET_ROLE_FILTER_PAGINATED_SQL_MSSQL = "SELECT UM_ROLE_NAME FROM (SELECT " +
+            "UM_ROLE_NAME, ROW_NUMBER() OVER (ORDER BY UM_ROLE_NAME) AS RowNum FROM UM_ROLE " +
+            "WHERE UM_ROLE_NAME LIKE ? AND UM_TENANT_ID= ? AND UM_SHARED_ROLE ='0') AS P " +
+            "WHERE P.RowNum BETWEEN ? AND ?";
+    public static final String GET_ROLE_FILTER_PAGINATED_SQL_DB2 = "SELECT UM_ROLE_NAME FROM (SELECT " +
+            "ROW_NUMBER() OVER (ORDER BY UM_ROLE_NAME) AS rn, UM_ROLE_NAME FROM UM_ROLE " +
+            "WHERE UM_ROLE_NAME LIKE ? AND UM_TENANT_ID = ? AND UM_SHARED_ROLE = 0) AS R " +
+            "WHERE rn BETWEEN ? AND ?";
+    public static final String GET_ROLE_FILTER_PAGINATED_SQL_ORACLE = "SELECT UM_ROLE_NAME FROM (SELECT " +
+            "UM_ROLE_NAME, rownum AS rnum FROM (SELECT UM_ROLE_NAME FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? " +
+            "AND UM_TENANT_ID=? AND UM_SHARED_ROLE ='0' ORDER BY UM_ROLE_NAME) WHERE rownum <= ?) " +
+            "WHERE rnum > ?";
+    public static final String GET_ROLE_FILTER_PAGINATED_COUNT_SQL = "SELECT COUNT(UM_ROLE_NAME) FROM UM_ROLE " +
+            "WHERE UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE ='0'";
+    public static final String GET_ROLE_FILTER_PAGINATED_COUNT_SQL_H2 = "SELECT COUNT(UM_ROLE_NAME) FROM UM_ROLE " +
+            "WHERE UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE =FALSE";
     public static final String GET_ROLE_LIST_SQL_WITH_ESCAPE = "SELECT UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE " +
             "FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? ESCAPE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE ='0' ORDER BY " +
             "UM_ROLE_NAME";
