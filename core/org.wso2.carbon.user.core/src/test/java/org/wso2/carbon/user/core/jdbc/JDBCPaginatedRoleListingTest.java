@@ -26,6 +26,7 @@ import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.NotImplementedException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreClientException;
+import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.util.JDBCRealmUtil;
@@ -34,6 +35,7 @@ import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -98,6 +99,9 @@ public class JDBCPaginatedRoleListingTest {
         Map<String, String> customListSQL = new HashMap<>();
         customListSQL.put(JDBCRealmConstants.GET_ROLE_LIST_H2, CUSTOM_ROLE_LIST_SQL);
         userStoreManagerHolder.put("CUSTOM", buildJDBCUserStoreManager(customListSQL));
+        UniqueIDJDBCUserStoreManager noReadStore = buildJDBCUserStoreManager(new HashMap<>());
+        setField("readGroupsEnabled", noReadStore, false);
+        userStoreManagerHolder.put("NOREAD", noReadStore);
         userStoreManager = mock(AbstractUserStoreManager.class, CALLS_REAL_METHODS);
         setField("userStoreManagerHolder", userStoreManager, userStoreManagerHolder);
         setField("readGroupsEnabled", userStoreManager, true);
@@ -106,6 +110,10 @@ public class JDBCPaginatedRoleListingTest {
     @AfterClass
     public void tearDown() throws Exception {
 
+        // The database outlives its connections (DB_CLOSE_DELAY=-1), so drop it for the next run in this JVM.
+        try (Statement statement = keepAlive.createStatement()) {
+            statement.execute("DROP ALL OBJECTS");
+        }
         keepAlive.close();
     }
 
@@ -276,8 +284,54 @@ public class JDBCPaginatedRoleListingTest {
         assertEquals(storeManager.doCountRoleNames("*"), 10);
     }
 
+    @Test
+    public void testResolvedStoreGroupReadingDisabledDeclines() throws Exception {
+
+        assertNotImplemented(() -> userStoreManager.listRoleNames("NOREAD/*", 10, 0));
+        assertNotImplemented(() -> userStoreManager.countRoleNames("NOREAD/*"));
+    }
+
+    @Test
+    public void testRoleListingOverriddenInJavaDeclines() throws Exception {
+
+        UniqueIDJDBCUserStoreManager storeManager = buildJDBCUserStoreManager(new HashMap<>(), true);
+
+        assertNotImplemented(() -> storeManager.doGetRoleNames("*", 10, 0));
+        assertNotImplemented(() -> storeManager.doCountRoleNames("*"));
+    }
+
+    @Test
+    public void testRoleListingOverriddenInJavaWithPaginatedSQLPages() throws Exception {
+
+        Map<String, String> properties = new HashMap<>();
+        properties.put(JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_H2, CUSTOM_PAGINATED_SQL);
+        properties.put(JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_COUNT_H2, CUSTOM_PAGINATED_COUNT_SQL);
+        UniqueIDJDBCUserStoreManager storeManager = buildJDBCUserStoreManager(properties, true);
+
+        assertEquals(storeManager.doGetRoleNames("*", 4, 8),
+                new String[]{DOMAIN + "/group18", DOMAIN + "/group19"});
+        assertEquals(storeManager.doCountRoleNames("*"), 10);
+    }
+
+    @Test
+    public void testMissingPaginatedSQLDeclines() throws Exception {
+
+        UniqueIDJDBCUserStoreManager storeManager = buildJDBCUserStoreManager(new HashMap<>());
+        storeManager.getRealmConfiguration().getUserStoreProperties()
+                .remove(JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_H2);
+
+        assertNotImplemented(() -> storeManager.doGetRoleNames("*", 10, 0));
+        assertNotImplemented(() -> storeManager.doCountRoleNames("*"));
+    }
+
     private UniqueIDJDBCUserStoreManager buildJDBCUserStoreManager(Map<String, String> configuredProperties)
             throws Exception {
+
+        return buildJDBCUserStoreManager(configuredProperties, false);
+    }
+
+    private UniqueIDJDBCUserStoreManager buildJDBCUserStoreManager(Map<String, String> configuredProperties,
+                                                                   boolean overrideRoleListing) throws Exception {
 
         Map<String, String> properties = JDBCRealmUtil.getSQL(new HashMap<>(configuredProperties));
         properties.put(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME, DOMAIN);
@@ -285,11 +339,31 @@ public class JDBCPaginatedRoleListingTest {
         RealmConfiguration realmConfiguration = new RealmConfiguration();
         realmConfiguration.setUserStoreProperties(properties);
 
-        UniqueIDJDBCUserStoreManager storeManager = mock(UniqueIDJDBCUserStoreManager.class, CALLS_REAL_METHODS);
+        UniqueIDJDBCUserStoreManager storeManager = overrideRoleListing ? new OverridingStore() : new TestStore();
         setField("realmConfig", storeManager, realmConfiguration);
         setField("tenantId", storeManager, TENANT_ID);
-        doAnswer(invocation -> DriverManager.getConnection(DB_URL)).when(storeManager).getDBConnection();
+        setField("readGroupsEnabled", storeManager, true);
         return storeManager;
+    }
+
+    /** The shipped store on the test database. */
+    private static class TestStore extends UniqueIDJDBCUserStoreManager {
+
+        @Override
+        protected Connection getDBConnection() throws UserStoreException, SQLException {
+
+            return DriverManager.getConnection(DB_URL);
+        }
+    }
+
+    /** A custom store that lists its roles in Java rather than through the SQL properties. */
+    private static class OverridingStore extends TestStore {
+
+        @Override
+        public String[] doGetRoleNames(String filter, int maxItemLimit) {
+
+            return new String[0];
+        }
     }
 
     private void insertRole(String roleName, int tenantId, boolean shared) throws Exception {

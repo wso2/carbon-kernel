@@ -6914,9 +6914,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (!(userStoreManager instanceof AbstractUserStoreManager)) {
             throw new NotImplementedException("Paginated role listing is not supported for the domain: " + domain);
         }
-        // Same flag getRoleNames checks before reading a user store's roles.
-        if (!readGroupsEnabled) {
-            throw new NotImplementedException("Group reading is not enabled.");
+        // The flag getRoleNames checks before reading a user store's roles, on the caller and on the store itself.
+        if (!readGroupsEnabled || !((AbstractUserStoreManager) userStoreManager).readGroupsEnabled) {
+            throw new NotImplementedException("Group reading is not enabled for the domain: " + domain);
         }
         return (AbstractUserStoreManager) userStoreManager;
     }
@@ -6926,11 +6926,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     private String removeDomainFromRoleFilter(String filter) {
 
-        if (filter == null) {
-            return null;
-        }
-        int index = filter.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
-        return index >= 0 ? filter.substring(index + 1) : filter;
+        return filter == null ? null : UserCoreUtil.removeDomainFromName(filter);
     }
 
     /**

@@ -215,6 +215,18 @@ public class IterativeUserStoreManager extends AbstractUserStoreManager {
     }
 
     @Override
+    protected String[] doGetRoleNames(String filter, int limit, int offset) throws UserStoreException {
+
+        return this.abstractUserStoreManager.doGetRoleNames(filter, limit, offset);
+    }
+
+    @Override
+    protected long doCountRoleNames(String filter) throws UserStoreException {
+
+        return this.abstractUserStoreManager.doCountRoleNames(filter);
+    }
+
+    @Override
     protected String[] doListUsers(String filter, int maxItemLimit) throws UserStoreException {
 
         return this.abstractUserStoreManager.doListUsers(filter, maxItemLimit);
