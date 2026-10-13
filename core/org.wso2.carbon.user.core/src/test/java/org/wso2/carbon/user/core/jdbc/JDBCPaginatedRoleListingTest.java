@@ -121,9 +121,9 @@ public class JDBCPaginatedRoleListingTest {
     public void testPagesWalkEveryRoleInOrder() throws Exception {
 
         List<String> listed = new ArrayList<>();
-        for (int offset = 0; offset < GROUP_COUNT; offset += 10) {
-            String[] page = jdbcUserStoreManager.doGetRoleNames("group*", 10, offset);
-            assertEquals(page.length, Math.min(10, GROUP_COUNT - offset));
+        for (int startIndex = 1; startIndex <= GROUP_COUNT; startIndex += 10) {
+            String[] page = jdbcUserStoreManager.doGetRoleNames("group*", 10, startIndex);
+            assertEquals(page.length, Math.min(10, GROUP_COUNT - startIndex + 1));
             listed.addAll(Arrays.asList(page));
         }
         List<String> expected = new ArrayList<>();
@@ -131,13 +131,20 @@ public class JDBCPaginatedRoleListingTest {
             expected.add(String.format(DOMAIN + "/group%02d", i));
         }
         assertEquals(listed, expected);
-        assertEquals(jdbcUserStoreManager.doGetRoleNames("group*", 10, GROUP_COUNT).length, 0);
+        assertEquals(jdbcUserStoreManager.doGetRoleNames("group*", 10, GROUP_COUNT + 1).length, 0);
     }
 
     @Test
-    public void testPageIsNotCappedByMaxRoleNameListLength() throws Exception {
+    public void testLimitAboveMaxRoleNameListLengthIsReset() throws Exception {
 
-        assertEquals(jdbcUserStoreManager.doGetRoleNames("*", 100, 0).length, GROUP_COUNT + 1);
+        Map<String, String> properties = new HashMap<>();
+        properties.put(UserCoreConstants.RealmConfig.PROPERTY_MAX_ROLE_LIST, "5");
+        UniqueIDJDBCUserStoreManager storeManager = buildJDBCUserStoreManager(properties);
+
+        assertEquals(storeManager.doGetRoleNames("*", 100, 0).length, 5);
+        assertEquals(storeManager.doGetRoleNames("*", -1, 0).length, 5);
+        assertEquals(storeManager.doGetRoleNames("*", 100, GROUP_COUNT - 1),
+                new String[]{DOMAIN + "/group23", DOMAIN + "/group24", DOMAIN + "/group25"});
     }
 
     @DataProvider(name = "roleFilters")
@@ -164,18 +171,20 @@ public class JDBCPaginatedRoleListingTest {
     }
 
     @Test
-    public void testNonPositiveLimitAndNegativeOffset() throws Exception {
+    public void testLimitAndOffsetEdges() throws Exception {
 
         assertEquals(jdbcUserStoreManager.doGetRoleNames("*", 0, 0).length, 0);
-        assertEquals(jdbcUserStoreManager.doGetRoleNames("*", -1, 0).length, 0);
+        assertEquals(jdbcUserStoreManager.doGetRoleNames("*", -1, 0).length, GROUP_COUNT + 1);
         assertEquals(jdbcUserStoreManager.doGetRoleNames("group*", 2, -5),
+                new String[]{DOMAIN + "/group01", DOMAIN + "/group02"});
+        assertEquals(jdbcUserStoreManager.doGetRoleNames("group*", 2, 1),
                 new String[]{DOMAIN + "/group01", DOMAIN + "/group02"});
     }
 
     @Test
     public void testListAndCountThroughDomainQualifiedFilter() throws Exception {
 
-        assertEquals(userStoreManager.listRoleNames(DOMAIN + "/group*", 3, 22),
+        assertEquals(userStoreManager.listRoleNames(DOMAIN + "/group*", 3, 23),
                 new String[]{DOMAIN + "/group23", DOMAIN + "/group24", DOMAIN + "/group25"});
         assertEquals(userStoreManager.listRoleNames("secondary/group2*", 10, 0).length, 6);
         assertEquals(userStoreManager.countRoleNames(DOMAIN + "/group*"), GROUP_COUNT);
@@ -279,7 +288,7 @@ public class JDBCPaginatedRoleListingTest {
         properties.put(JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_COUNT_H2, CUSTOM_PAGINATED_COUNT_SQL);
         UniqueIDJDBCUserStoreManager storeManager = buildJDBCUserStoreManager(properties);
 
-        assertEquals(storeManager.doGetRoleNames("*", 4, 8),
+        assertEquals(storeManager.doGetRoleNames("*", 4, 9),
                 new String[]{DOMAIN + "/group18", DOMAIN + "/group19"});
         assertEquals(storeManager.doCountRoleNames("*"), 10);
     }
@@ -308,7 +317,7 @@ public class JDBCPaginatedRoleListingTest {
         properties.put(JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_COUNT_H2, CUSTOM_PAGINATED_COUNT_SQL);
         UniqueIDJDBCUserStoreManager storeManager = buildJDBCUserStoreManager(properties, true);
 
-        assertEquals(storeManager.doGetRoleNames("*", 4, 8),
+        assertEquals(storeManager.doGetRoleNames("*", 4, 9),
                 new String[]{DOMAIN + "/group18", DOMAIN + "/group19"});
         assertEquals(storeManager.doCountRoleNames("*"), 10);
     }
@@ -335,7 +344,7 @@ public class JDBCPaginatedRoleListingTest {
 
         Map<String, String> properties = JDBCRealmUtil.getSQL(new HashMap<>(configuredProperties));
         properties.put(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME, DOMAIN);
-        properties.put(UserCoreConstants.RealmConfig.PROPERTY_MAX_ROLE_LIST, "5");
+        properties.putIfAbsent(UserCoreConstants.RealmConfig.PROPERTY_MAX_ROLE_LIST, "30");
         RealmConfiguration realmConfiguration = new RealmConfiguration();
         realmConfiguration.setUserStoreProperties(properties);
 

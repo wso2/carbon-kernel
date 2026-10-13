@@ -6874,12 +6874,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     /**
      * Lists one page of a user store's role names, ordered by name; throws NotImplementedException if it cannot page.
-     * In the filter, '*' is the wildcard ('?' matches one character) and '_' and '%' are not escaped.
+     * The offset is a one based start index and a limit above MaxRoleNameListLength is reset to it. In the filter,
+     * '*' is the wildcard ('?' matches one character) and '_' and '%' are not escaped.
      */
     public String[] listRoleNames(String filter, int limit, int offset) throws UserStoreException {
 
         AbstractUserStoreManager userStoreManager = resolveUserStoreForRoleFilter(filter);
-        return userStoreManager.doGetRoleNames(removeDomainFromRoleFilter(filter), limit, offset);
+        return userStoreManager.doGetRoleNames(UserCoreUtil.removeDomainFromName(filter), limit, offset);
     }
 
     /**
@@ -6888,7 +6889,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public long countRoleNames(String filter) throws UserStoreException {
 
         AbstractUserStoreManager userStoreManager = resolveUserStoreForRoleFilter(filter);
-        return userStoreManager.doCountRoleNames(removeDomainFromRoleFilter(filter));
+        return userStoreManager.doCountRoleNames(UserCoreUtil.removeDomainFromName(filter));
     }
 
     /**
@@ -6902,8 +6903,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throw new NotImplementedException("Paginated role listing requires a domain qualified filter.");
         }
         String domain = filter.substring(0, index);
-        if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
-                || APPLICATION_DOMAIN.equalsIgnoreCase(domain) || WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
+        if (isAnInternalRole(filter)) {
             // Hybrid roles are not held in a user store.
             throw new NotImplementedException("Paginated role listing is not supported for the domain: " + domain);
         }
@@ -6919,14 +6919,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throw new NotImplementedException("Group reading is not enabled for the domain: " + domain);
         }
         return (AbstractUserStoreManager) userStoreManager;
-    }
-
-    /**
-     * Strips the user store domain from a role filter.
-     */
-    private String removeDomainFromRoleFilter(String filter) {
-
-        return filter == null ? null : UserCoreUtil.removeDomainFromName(filter);
     }
 
     /**

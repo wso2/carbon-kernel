@@ -192,6 +192,9 @@ public final class JDBCRealmConstants {
     public static final String GET_ROLE_LIST_SQL = "SELECT UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE ='0' ORDER BY UM_ROLE_NAME";
     public static final String GET_ROLE_LIST_SQL_H2 = "SELECT UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE FROM UM_ROLE WHERE UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE =FALSE ORDER BY UM_ROLE_NAME";
 
+    // The paginated role statements bind the name pattern, the tenant id, then the window: the row count and the rows
+    // to skip (default and H2), the first and last row number (SQL Server, DB2), or the last row number and the rows
+    // to skip (Oracle). A custom statement keeps the same placeholders.
     public static final String GET_ROLE_FILTER_PAGINATED_SQL = "SELECT UM_ROLE_NAME FROM UM_ROLE " +
             "WHERE UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE ='0' " +
             "ORDER BY UM_ROLE_NAME LIMIT ? OFFSET ?";
