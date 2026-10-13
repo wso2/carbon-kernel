@@ -59,6 +59,7 @@ public class JDBCLogsDAO implements LogsDAO {
     private String MSSQL_DATABASE_TYPE = "Microsoft";
     private Map<String, DataBaseConfiguration> dbConfigs = new HashMap<String, DataBaseConfiguration>();
     private Map<String, String> pathMap = new HashMap<String, String>();
+    private Set<String> readOnlyMountPaths = new HashSet<String>();
 
     public JDBCLogsDAO() {
         RegistryContext registryContext = RegistryContext.getBaseInstance();
@@ -69,6 +70,9 @@ public class JDBCLogsDAO implements LogsDAO {
                     dbConfigs.put(mount.getPath(),
                             registryContext.getDBConfig(configuration.getDbConfig()));
                     pathMap.put(mount.getPath(), mount.getTargetPath());
+                    if (Boolean.parseBoolean(configuration.getReadOnly())) {
+                        readOnlyMountPaths.add(mount.getPath());
+                    }
                 }
             }
         }
@@ -97,6 +101,12 @@ public class JDBCLogsDAO implements LogsDAO {
                 for (String sourcePath : dbConfigs.keySet()) {
                     if (resourcePath.startsWith(sourcePath)) {
                         // Add logs before mount translation.
+                        if (isUnderReadOnlyMount(resourcePath)) {
+                            // The mount this record routes to is read-only, so the record is
+                            // discarded instead of being inserted into REG_LOG of that database.
+                            pathAdded = true;
+                            break;
+                        }
                         if (!entryMap.containsKey(sourcePath)) {
                             entryMap.put(sourcePath, new LinkedList<LogRecord>());
                         }
@@ -106,6 +116,12 @@ public class JDBCLogsDAO implements LogsDAO {
                         break;
                     } else if (resourcePath.startsWith(pathMap.get(sourcePath))) {
                         // Add logs after mount translation.
+                        if (isUnderReadOnlyMount(resourcePath)) {
+                            // The mount this record routes to is read-only, so the record is
+                            // discarded instead of being inserted into REG_LOG of that database.
+                            pathAdded = true;
+                            break;
+                        }
                         if (!entryMap.containsKey(sourcePath)) {
                             entryMap.put(sourcePath, new LinkedList<LogRecord>());
                         }
@@ -130,6 +146,27 @@ public class JDBCLogsDAO implements LogsDAO {
         } else {
             addLogRecords(logRecords, (JDBCDataAccessManager) dataAccessManager);
         }
+    }
+
+    /**
+     * Returns whether the given resource path falls under a mount whose remote configuration is
+     * marked read-only. The path is matched by path segment rather than by exact mount path, so a
+     * record for a resource nested below the mount point is recognised as well, while an unrelated
+     * sibling path that merely shares a textual prefix is not.
+     *
+     * @param resourcePath the resource path carried by the log record.
+     * @return true if the path lies under a read-only mount.
+     */
+    private boolean isUnderReadOnlyMount(String resourcePath) {
+        for (String readOnlyMountPath : readOnlyMountPaths) {
+            if (resourcePath.equals(readOnlyMountPath) || resourcePath.startsWith(
+                    readOnlyMountPath.endsWith(RegistryConstants.PATH_SEPARATOR)
+                            ? readOnlyMountPath
+                            : readOnlyMountPath + RegistryConstants.PATH_SEPARATOR)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void addLogRecords(LogRecord[] logRecords, JDBCDataAccessManager dataAccessManager)
