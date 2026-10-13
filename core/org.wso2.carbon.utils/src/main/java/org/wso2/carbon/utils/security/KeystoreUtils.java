@@ -41,6 +41,22 @@ public class KeystoreUtils {
 
     private static Log LOG = LogFactory.getLog(KeystoreUtils.class);
     private static final String FALLBACK_TENANTED_KEYSTORE_FILE_TYPE = "JKS";
+
+    /**
+     * Key algorithm used for the keys of newly created tenant keystores when nothing is configured.
+     */
+    public static final String DEFAULT_TENANT_KEY_ALGORITHM = "RSA";
+
+    /**
+     * Key size (in bits) used for the keys of newly created tenant keystores when nothing is configured.
+     */
+    public static final int DEFAULT_TENANT_KEY_SIZE = 2048;
+
+    private static final String TENANT_KEY_ALGORITHM_CONFIG = "Security.TenantKeyStore.KeyAlgorithm";
+    private static final String TENANT_KEY_SIZE_CONFIG = "Security.TenantKeyStore.KeySize";
+    private static final int MIN_TENANT_KEY_SIZE = 2048;
+    private static final int MAX_TENANT_KEY_SIZE = 8192;
+    private static final int TENANT_KEY_SIZE_STEP = 1024;
     private static final KeyStorePersistenceManager keyStorePersistenceManager =
             KeyStorePersistenceManagerFactory.getKeyStorePersistenceManager();
 
@@ -253,6 +269,78 @@ public class KeystoreUtils {
     public static String getTrustStoreFileExtension() {
 
         return getExtensionByFileType(getTrustStoreFileType());
+    }
+
+    /**
+     * Returns the key algorithm to use when generating the key pair of a new tenant keystore.
+     * <p>
+     * The value is read from {@code Security.TenantKeyStore.KeyAlgorithm} in carbon.xml
+     * ({@code [keystore.tenant] key_algorithm} in deployment.toml). If it is not configured,
+     * {@value #DEFAULT_TENANT_KEY_ALGORITHM} is returned.
+     * <p>
+     * This setting applies only to tenants (and tenant context keystores) created after it is set.
+     * Keys of existing tenants are not changed.
+     * <p>
+     * Only {@code RSA} is supported. This method is the extension point for other algorithms.
+     *
+     * @return Key algorithm name, for example {@code RSA}.
+     * @throws CarbonException If the configured algorithm is not supported.
+     */
+    public static String getTenantKeyAlgorithm() throws CarbonException {
+
+        String keyAlgorithm = CarbonUtils.getServerConfiguration().getFirstProperty(TENANT_KEY_ALGORITHM_CONFIG);
+        if (StringUtils.isBlank(keyAlgorithm)) {
+            return DEFAULT_TENANT_KEY_ALGORITHM;
+        }
+        keyAlgorithm = keyAlgorithm.trim();
+        if (DEFAULT_TENANT_KEY_ALGORITHM.equalsIgnoreCase(keyAlgorithm)) {
+            return DEFAULT_TENANT_KEY_ALGORITHM;
+        }
+        throw new CarbonException("Unsupported key algorithm '" + keyAlgorithm + "' configured in "
+                + TENANT_KEY_ALGORITHM_CONFIG + " ([keystore.tenant] key_algorithm). Supported algorithms: "
+                + DEFAULT_TENANT_KEY_ALGORITHM + ".");
+    }
+
+    /**
+     * Returns the key size, in bits, to use when generating the key pair of a new tenant keystore.
+     * <p>
+     * The value is read from {@code Security.TenantKeyStore.KeySize} in carbon.xml
+     * ({@code [keystore.tenant] key_size} in deployment.toml). If it is not configured,
+     * {@value #DEFAULT_TENANT_KEY_SIZE} is returned.
+     * <p>
+     * A configured value must be a multiple of 1024 between 2048 and 8192 (inclusive). An invalid value causes an
+     * exception instead of a fallback, so a smaller key than the configured one is never generated.
+     * <p>
+     * This setting applies only to tenants (and tenant context keystores) created after it is set.
+     * Keys of existing tenants are not changed.
+     *
+     * @return Key size in bits.
+     * @throws CarbonException If the configured key size is not valid.
+     */
+    public static int getTenantKeySize() throws CarbonException {
+
+        String keySizeValue = CarbonUtils.getServerConfiguration().getFirstProperty(TENANT_KEY_SIZE_CONFIG);
+        if (StringUtils.isBlank(keySizeValue)) {
+            return DEFAULT_TENANT_KEY_SIZE;
+        }
+        keySizeValue = keySizeValue.trim();
+        int keySize;
+        try {
+            keySize = Integer.parseInt(keySizeValue);
+        } catch (NumberFormatException e) {
+            throw new CarbonException(buildInvalidKeySizeMessage(keySizeValue), e);
+        }
+        if (keySize < MIN_TENANT_KEY_SIZE || keySize > MAX_TENANT_KEY_SIZE || keySize % TENANT_KEY_SIZE_STEP != 0) {
+            throw new CarbonException(buildInvalidKeySizeMessage(keySizeValue));
+        }
+        return keySize;
+    }
+
+    private static String buildInvalidKeySizeMessage(String keySizeValue) {
+
+        return "Invalid key size '" + keySizeValue + "' configured in " + TENANT_KEY_SIZE_CONFIG
+                + " ([keystore.tenant] key_size). The key size must be a multiple of " + TENANT_KEY_SIZE_STEP
+                + " between " + MIN_TENANT_KEY_SIZE + " and " + MAX_TENANT_KEY_SIZE + ".";
     }
 
     private static boolean isKeyStoreExists(String keyStoreName) {
