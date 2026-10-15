@@ -3351,6 +3351,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
     /**
      * Validates a given password against a stored hashed password using a salt.
+     * <p>
+     * A stored hash selects the algorithm that verifies it, so it cannot be verified by recomputing
+     * the configured hash and comparing strings. Verification is therefore always delegated to the
+     * {@link PasswordHashProcessor}, which routes a stored hash to the provider its algorithm
+     * identifier names, and verifies a stored hash without an identifier with the configured legacy
+     * algorithm.
+     * </p>
      *
      * @param password The original password value, which can be a String or a character array.
      * @param storedPassword The stored password hash as a String.
@@ -3363,10 +3370,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         if (passwordHashProcessor == null) {
             throw new UserStoreException("PasswordHashProcessor is not initialized.");
-        }
-
-        if (!passwordHashProcessor.hasCustomValidator()) {
-            return storedPassword != null && storedPassword.equals(preparePassword(password, saltValue));
         }
 
         try {
