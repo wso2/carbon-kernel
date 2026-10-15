@@ -64,6 +64,35 @@ public class JDBCRealmUtil {
             properties.put(JDBCRealmConstants.GET_ROLE_LIST, JDBCRealmConstants.GET_ROLE_LIST_SQL);
         }
 
+        if (!properties.containsKey(JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED)) {
+            properties.put(JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED,
+                    JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_SQL);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_H2)) {
+            properties.put(JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_H2,
+                    JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_SQL_H2);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_MSSQL)) {
+            properties.put(JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_MSSQL,
+                    JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_SQL_MSSQL);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_DB2)) {
+            properties.put(JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_DB2,
+                    JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_SQL_DB2);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_ORACLE)) {
+            properties.put(JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_ORACLE,
+                    JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_SQL_ORACLE);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_COUNT)) {
+            properties.put(JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_COUNT,
+                    JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_COUNT_SQL);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_COUNT_H2)) {
+            properties.put(JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_COUNT_H2,
+                    JDBCRealmConstants.GET_ROLE_FILTER_PAGINATED_COUNT_SQL_H2);
+        }
+
         if (!properties.containsKey(JDBCRealmConstants.GET_ROLE_LIST_H2)) {
             properties.put(JDBCRealmConstants.GET_ROLE_LIST_H2, JDBCRealmConstants.GET_ROLE_LIST_SQL_H2);
         }

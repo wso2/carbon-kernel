@@ -6873,6 +6873,77 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     /**
+     * Lists one page of a user store's role names, ordered by name; throws NotImplementedException if it cannot page.
+     * The offset is a one based start index and a limit above MaxRoleNameListLength is reset to it. In the filter,
+     * '*' is the wildcard ('?' matches one character) and '_' and '%' are not escaped.
+     */
+    public String[] listRoleNames(String filter, int limit, int offset) throws UserStoreException {
+
+        AbstractUserStoreManager userStoreManager = resolveUserStoreForRoleFilter(filter);
+        return userStoreManager.doGetRoleNames(UserCoreUtil.removeDomainFromName(filter), limit, offset);
+    }
+
+    /**
+     * Counts the role names listRoleNames can return for the filter; throws NotImplementedException if it cannot.
+     */
+    public long countRoleNames(String filter) throws UserStoreException {
+
+        AbstractUserStoreManager userStoreManager = resolveUserStoreForRoleFilter(filter);
+        return userStoreManager.doCountRoleNames(UserCoreUtil.removeDomainFromName(filter));
+    }
+
+    /**
+     * Resolves the single user store a domain qualified role filter belongs to.
+     */
+    private AbstractUserStoreManager resolveUserStoreForRoleFilter(String filter) throws UserStoreException {
+
+        int index = filter == null ? -1 : filter.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+        if (index <= 0) {
+            // A filter without a domain spans every user store and the hybrid roles.
+            throw new NotImplementedException("Paginated role listing requires a domain qualified filter.");
+        }
+        String domain = filter.substring(0, index);
+        if (isAnInternalRole(filter)) {
+            // Hybrid roles are not held in a user store.
+            throw new NotImplementedException("Paginated role listing is not supported for the domain: " + domain);
+        }
+        UserStoreManager userStoreManager = getSecondaryUserStoreManager(domain);
+        if (userStoreManager == null) {
+            throw new UserStoreClientException("Invalid Domain Name.");
+        }
+        if (!(userStoreManager instanceof AbstractUserStoreManager)) {
+            throw new NotImplementedException("Paginated role listing is not supported for the domain: " + domain);
+        }
+        // The flag getRoleNames checks before reading a user store's roles, on the caller and on the store itself.
+        if (!readGroupsEnabled || !((AbstractUserStoreManager) userStoreManager).readGroupsEnabled) {
+            throw new NotImplementedException("Group reading is not enabled for the domain: " + domain);
+        }
+        return (AbstractUserStoreManager) userStoreManager;
+    }
+
+    /**
+     * Lists one page of this store's role names. Stores that can page their role listing override this.
+     */
+    protected String[] doGetRoleNames(String filter, int limit, int offset) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("Paginated doGetRoleNames is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException("Paginated doGetRoleNames is not implemented in: " + this.getClass());
+    }
+
+    /**
+     * Counts this store's role names matching the filter. Overridden together with the paginated doGetRoleNames.
+     */
+    protected long doCountRoleNames(String filter) throws UserStoreException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("doCountRoleNames is not implemented in: " + this.getClass());
+        }
+        throw new NotImplementedException("doCountRoleNames is not implemented in: " + this.getClass());
+    }
+
+    /**
      * Count roles in user stores
      *
      * @param filter The string to filter out roles
