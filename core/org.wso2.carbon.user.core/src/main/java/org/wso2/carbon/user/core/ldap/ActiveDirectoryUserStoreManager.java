@@ -666,6 +666,34 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         DirContext dirContext = null;
         NamingEnumeration<SearchResult> answer = null;
 
+        DirContext groupDirContext = this.connectionSource.getContext();
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        searchControls.setReturningAttributes(null);
+
+        String groupSearchFilter = realmConfig
+                .getUserStoreProperty(LDAPConstants.ROLE_NAME_FILTER);
+        groupSearchFilter = groupSearchFilter.replace("?", escapeSpecialCharactersForFilter(
+                context.getRoleName()));
+        NamingEnumeration<SearchResult> returnedResultList = null;
+        String returnedGroupEntry;
+
+        try {
+            returnedResultList = groupDirContext.search(escapeDNForSearch(groupSearchBase),
+                    groupSearchFilter, searchControls);
+            // Assume only one group is returned from the search.
+            returnedGroupEntry = returnedResultList.next().getName();
+        } catch (NamingException e) {
+            String errorMessage = "Results could not be retrieved from the directory context for user : " +
+                    context.getRoleName();
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            JNDIUtil.closeNamingEnumeration(returnedResultList);
+        }
+
         try {
             SearchControls searchCtls = new SearchControls();
             searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -675,10 +703,9 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             String groupSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE);
             String userListFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
             String memberOFAttribute = realmConfig.getUserStoreProperty(LDAPConstants.MEMBEROF_ATTRIBUTE);
-            String groupNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
             userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-            String searchFilter = "(&" + userListFilter + "(" + memberOFAttribute + "=" + groupNameAttribute + "="
-                    + escapeSpecialCharactersForFilter(context.getRoleName()) + "," + groupSearchBase + "))";
+            String searchFilter = "(&" + userListFilter + "(" + memberOFAttribute + "="
+                    + escapeSpecialCharactersForFilter(returnedGroupEntry) + "," + groupSearchBase + "))";
             String userNameProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
             String displayNameAttribute = realmConfig
                     .getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
