@@ -47,6 +47,7 @@ import org.wso2.carbon.user.core.exceptions.HashProviderException;
 import org.wso2.carbon.user.core.exceptions.PasswordHashingException;
 import org.wso2.carbon.user.core.hash.HashProviderFactory;
 import org.wso2.carbon.user.core.hash.PasswordHashProcessor;
+import org.wso2.carbon.user.core.hash.SelfDescribingHashParser;
 import org.wso2.carbon.user.core.hybrid.HybridJDBCConstants;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDataHolder;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
@@ -1869,6 +1870,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 } else {
                     if (this.validatePassword(credential, storedPassword, saltValue)) {
                         isAuthed = true;
+                        migrateLegacyPasswordHash(userName, credential, storedPassword, saltValue);
                     }
                 }
             }
@@ -3376,6 +3378,54 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             return passwordHashProcessor.validatePassword(password, storedPassword, saltValue);
         } catch (PasswordHashingException e) {
             throw new UserStoreException(e);
+        }
+    }
+
+    /**
+     * Rewrites a stored hash that carries no algorithm identifier, so that a credential verified
+     * against the legacy algorithm moves to the configured one. Call this only after the credential
+     * has been verified.
+     * <p>
+     * Only a stored value without an identifier is rewritten, and only while it is still the value
+     * that was verified, so a password changed in the meantime is never overwritten. The salt and
+     * the password lifecycle columns are left alone. A failure is logged and otherwise ignored: the
+     * user has already authenticated, and a failed rewrite must not turn that into a failed sign-in.
+     * </p>
+     *
+     * @param userName       The user whose stored hash is rewritten.
+     * @param credential     The credential that was just verified.
+     * @param storedPassword The stored hash that was verified.
+     * @param saltValue      The salt stored with it, reused so that only one column changes.
+     */
+    protected void migrateLegacyPasswordHash(String userName, Object credential, String storedPassword,
+                                             String saltValue) {
+
+        // Absent means the property was never configured, which carries the declared default of true.
+        String upgradeEnabled = realmConfig.getUserStoreProperty(JDBCRealmConstants.ENABLE_PASSWORD_HASH_UPGRADE);
+        if (upgradeEnabled != null && !Boolean.parseBoolean(upgradeEnabled)) {
+            return;
+        }
+        if (!SelfDescribingHashParser.parse(storedPassword).isLegacy()) {
+            return;
+        }
+
+        try {
+            String upgradedPassword = preparePassword(credential, saltValue);
+            if (SelfDescribingHashParser.parse(upgradedPassword).isLegacy()) {
+                // The configured algorithm produces no identifier either, so rewriting gains nothing.
+                return;
+            }
+
+            String sqlStmt = isCaseSensitiveUsername()
+                    ? realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_USER_PASSWORD_HASH)
+                    : realmConfig.getUserStoreProperty(
+                            JDBCCaseInsensitiveConstants.UPDATE_USER_PASSWORD_HASH_CASE_INSENSITIVE);
+            if (sqlStmt == null) {
+                return;
+            }
+            updateStringValuesToDatabase(null, sqlStmt, upgradedPassword, userName, tenantId, storedPassword);
+        } catch (UserStoreException e) {
+            log.error("Could not upgrade the stored password hash of user: " + userName, e);
         }
     }
 

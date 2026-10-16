@@ -26,11 +26,13 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.user.core.exceptions.HashProviderException;
 import org.wso2.carbon.user.core.exceptions.PasswordHashingException;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDataHolder;
+import org.wso2.carbon.utils.Secret;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,8 +54,10 @@ public class PasswordHashProcessorTest {
 
     private static final String LEGACY_ALGORITHM = "SHA-256";
     private static final String PLUGGABLE_ALGORITHM = "TESTALG";
+    private static final String NATIVE_ALGORITHM = "NATIVEVALIDATINGALG";
 
     private final TestHashProviderFactory factory = new TestHashProviderFactory();
+    private final NativeValidatingHashProviderFactory nativeFactory = new NativeValidatingHashProviderFactory();
 
     @BeforeClass
     public void setUp() {
@@ -63,12 +67,14 @@ public class PasswordHashProcessorTest {
                     new File("../../distribution/kernel/carbon-home").getAbsolutePath());
         }
         UserStoreMgtDataHolder.getInstance().setHashProviderFactory(factory);
+        UserStoreMgtDataHolder.getInstance().setHashProviderFactory(nativeFactory);
     }
 
     @AfterClass
     public void tearDown() {
 
         UserStoreMgtDataHolder.getInstance().unbindHashProviderFactory(factory);
+        UserStoreMgtDataHolder.getInstance().unbindHashProviderFactory(nativeFactory);
     }
 
     /**
@@ -174,6 +180,21 @@ public class PasswordHashProcessorTest {
     }
 
     @Test
+    public void testVerificationDoesNotMutateTheSuppliedCredential() throws Exception {
+
+        String storedHash = legacyStoredHash();
+        PasswordHashProcessor processor = processor(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, null);
+
+        // Callers hand in a Secret, and Secret.getSecret() returns it by reference rather than
+        // copying, so anything verification does to it is visible to the caller afterwards.
+        Secret credential = Secret.getSecret(PASSWORD);
+
+        Assert.assertTrue(processor.validatePassword(credential, storedHash, SALT));
+        Assert.assertEquals(new String(credential.getChars()), PASSWORD,
+                "Verification must leave the credential the caller passed in unchanged.");
+    }
+
+    @Test
     public void testMalformedStoredValueIsRejected() throws Exception {
 
         PasswordHashProcessor processor = processor(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, null);
@@ -181,6 +202,156 @@ public class PasswordHashProcessorTest {
         Assert.assertFalse(processor.validatePassword(PASSWORD, "{" + PLUGGABLE_ALGORITHM, SALT));
         Assert.assertFalse(processor.validatePassword(PASSWORD, "{}payload", SALT));
         Assert.assertFalse(processor.validatePassword(PASSWORD, null, SALT));
+    }
+
+    @Test
+    public void testNativeValidatingProviderProducesADifferentHashEachTime() throws Exception {
+
+        // BCrypt generates its own salt per call, so recomputing and comparing could never verify
+        // such a hash. This is why verification goes through validateHash rather than a comparison.
+        PasswordHashProcessor processor = processor(NATIVE_ALGORITHM, LEGACY_ALGORITHM, null);
+
+        Assert.assertNotEquals(processor.hashPassword(PASSWORD, SALT), processor.hashPassword(PASSWORD, SALT),
+                "A provider that salts internally must produce a different hash on each call.");
+    }
+
+    @Test
+    public void testNativeValidatingProviderHashIsSelfDescribingAndVerifies() throws Exception {
+
+        // The payload survives the Base64 round trip the stored format puts it through, and reaches
+        // the provider's own validateHash in one piece.
+        PasswordHashProcessor processor = processor(NATIVE_ALGORITHM, LEGACY_ALGORITHM, null);
+        String storedHash = processor.hashPassword(PASSWORD, SALT);
+
+        Assert.assertTrue(storedHash.startsWith("{" + NATIVE_ALGORITHM + "}"));
+        Assert.assertTrue(processor.validatePassword(PASSWORD, storedHash, SALT),
+                "A provider with native validation must verify its own stored hash.");
+        Assert.assertFalse(processor.validatePassword(WRONG_PASSWORD, storedHash, SALT));
+    }
+
+    @Test
+    public void testLegacyHashIsVerifiedWhileNativeValidatingProviderIsConfigured() throws Exception {
+
+        // The algorithm change this feature exists for, with a provider that validates natively.
+        String storedHash = legacyStoredHash();
+        PasswordHashProcessor processor = processor(NATIVE_ALGORITHM, LEGACY_ALGORITHM, null);
+
+        Assert.assertTrue(processor.validatePassword(PASSWORD, storedHash, SALT));
+        Assert.assertFalse(processor.validatePassword(WRONG_PASSWORD, storedHash, SALT));
+    }
+
+    @Test
+    public void testHashOfOneProviderIsNotVerifiedByAnother() throws Exception {
+
+        // The identifier, not the user store configuration, decides which provider verifies a value.
+        String nativeHash = processor(NATIVE_ALGORITHM, LEGACY_ALGORITHM, null).hashPassword(PASSWORD, SALT);
+        PasswordHashProcessor processor = processor(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, null);
+
+        Assert.assertTrue(processor.validatePassword(PASSWORD, nativeHash, SALT),
+                "A stored hash must be routed to the provider its identifier names, whatever is configured.");
+    }
+
+    /**
+     * A HashProvider that generates its own salt and carries it inside its output, the way BCrypt
+     * does, and therefore validates natively instead of by recomputing and comparing.
+     */
+    private static class NativeValidatingHashProvider implements HashProvider {
+
+        private static final char SEPARATOR = '$';
+        private static final SecureRandom RANDOM = new SecureRandom();
+
+        @Override
+        public void init() {
+
+        }
+
+        @Override
+        public void init(Map<String, Object> initProperties) {
+
+        }
+
+        @Override
+        public byte[] calculateHash(char[] plainText, String salt) throws HashProviderException {
+
+            String ownSalt = Long.toHexString(RANDOM.nextLong());
+            return (ownSalt + SEPARATOR + digest(plainText, ownSalt)).getBytes(StandardCharsets.UTF_8);
+        }
+
+        @Override
+        public boolean supportsValidateHash() {
+
+            return true;
+        }
+
+        @Override
+        public boolean validateHash(char[] plainText, byte[] hashedPassword, String salt)
+                throws HashProviderException {
+
+            if (plainText == null || hashedPassword == null) {
+                return false;
+            }
+            String stored = new String(hashedPassword, StandardCharsets.UTF_8);
+            int separator = stored.indexOf(SEPARATOR);
+            if (separator < 0) {
+                return false;
+            }
+            String ownSalt = stored.substring(0, separator);
+            return stored.substring(separator + 1).equals(digest(plainText, ownSalt));
+        }
+
+        private String digest(char[] plainText, String ownSalt) throws HashProviderException {
+
+            try {
+                byte[] value = MessageDigest.getInstance("SHA-256")
+                        .digest((new String(plainText) + ownSalt).getBytes(StandardCharsets.UTF_8));
+                StringBuilder hex = new StringBuilder();
+                for (byte b : value) {
+                    hex.append(String.format("%02x", b));
+                }
+                return hex.toString();
+            } catch (NoSuchAlgorithmException e) {
+                throw new HashProviderException("Could not calculate the test hash.", e);
+            }
+        }
+
+        @Override
+        public Map<String, Object> getParameters() {
+
+            return Collections.emptyMap();
+        }
+
+        @Override
+        public String getAlgorithm() {
+
+            return NATIVE_ALGORITHM;
+        }
+    }
+
+    private static class NativeValidatingHashProviderFactory implements HashProviderFactory {
+
+        @Override
+        public HashProvider getHashProvider() {
+
+            return new NativeValidatingHashProvider();
+        }
+
+        @Override
+        public HashProvider getHashProvider(Map<String, Object> initProperties) {
+
+            return new NativeValidatingHashProvider();
+        }
+
+        @Override
+        public Set<String> getHashProviderConfigProperties() {
+
+            return Collections.emptySet();
+        }
+
+        @Override
+        public String getAlgorithm() {
+
+            return NATIVE_ALGORITHM;
+        }
     }
 
     /**

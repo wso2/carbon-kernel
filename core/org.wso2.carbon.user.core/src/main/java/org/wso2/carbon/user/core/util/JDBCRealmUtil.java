@@ -490,6 +490,10 @@ public class JDBCRealmUtil {
             properties.put(JDBCRealmConstants.UPDATE_USER_PASSWORD_WITH_ID,
                     JDBCRealmConstants.UPDATE_USER_PASSWORD_WITH_ID_SQL);
         }
+        if (!properties.containsKey(JDBCRealmConstants.UPDATE_USER_PASSWORD_HASH)) {
+            properties.put(JDBCRealmConstants.UPDATE_USER_PASSWORD_HASH,
+                    JDBCRealmConstants.UPDATE_USER_PASSWORD_HASH_SQL);
+        }
         if (!properties.containsKey(JDBCRealmConstants.ADD_USER_PROPERTY)) {
             properties.put(JDBCRealmConstants.ADD_USER_PROPERTY,
                     JDBCRealmConstants.ADD_USER_PROPERTY_SQL);
@@ -832,6 +836,10 @@ public class JDBCRealmUtil {
         if (!properties.containsKey(JDBCCaseInsensitiveConstants.UPDATE_USER_PASSWORD_CASE_INSENSITIVE)) {
             properties.put(JDBCCaseInsensitiveConstants.UPDATE_USER_PASSWORD_CASE_INSENSITIVE,
                     JDBCCaseInsensitiveConstants.UPDATE_USER_PASSWORD_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.UPDATE_USER_PASSWORD_HASH_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.UPDATE_USER_PASSWORD_HASH_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.UPDATE_USER_PASSWORD_HASH_SQL_CASE_INSENSITIVE);
         }
         if (!properties.containsKey(JDBCCaseInsensitiveConstants.USER_NAME_UNIQUE_CASE_INSENSITIVE)) {
             properties.put(JDBCCaseInsensitiveConstants.USER_NAME_UNIQUE_CASE_INSENSITIVE,

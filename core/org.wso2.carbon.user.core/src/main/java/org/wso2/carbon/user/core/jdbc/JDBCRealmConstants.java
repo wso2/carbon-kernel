@@ -139,6 +139,7 @@ public final class JDBCRealmConstants {
     public static final String APPLICATION_DOMAIN = "Application";
     public static final String UPDATE_USER_PASSWORD = "UpdateUserPasswordSQL";
     public static final String UPDATE_USER_PASSWORD_WITH_ID = "UpdateUserPasswordWithIDSQL";
+    public static final String UPDATE_USER_PASSWORD_HASH = "UpdateUserPasswordHashSQL";
     public static final String UPDATE_ROLE_NAME = "UpdateRoleNameSQL";
     public static final String ADD_USER_PROPERTY = "AddUserPropertySQL";
     public static final String ADD_USER_PROPERTY_WITH_ID = "AddUserPropertyWithIDSQL";
@@ -511,6 +512,12 @@ public final class JDBCRealmConstants {
     public static final String UPDATE_USER_PASSWORD_SQL = "UPDATE UM_USER SET UM_USER_PASSWORD= ?, UM_SALT_VALUE=?, UM_REQUIRE_CHANGE=?, UM_CHANGED_TIME=? WHERE UM_USER_NAME= ? AND UM_TENANT_ID=?";
     public static final String UPDATE_USER_PASSWORD_WITH_ID_SQL = "UPDATE UM_USER SET UM_USER_PASSWORD= ?, "
             + "UM_SALT_VALUE=?, UM_REQUIRE_CHANGE=?, UM_CHANGED_TIME=? WHERE UM_USER_ID= ? AND UM_TENANT_ID=?";
+    /*
+     * Rewrites only the stored hash, leaving the salt and the password lifecycle columns alone, and
+     * applies only while the stored value is still the one that was verified.
+     */
+    public static final String UPDATE_USER_PASSWORD_HASH_SQL = "UPDATE UM_USER SET UM_USER_PASSWORD=? "
+            + "WHERE UM_USER_NAME=? AND UM_TENANT_ID=? AND UM_USER_PASSWORD=?";
     public static final String UPDATE_ROLE_NAME_SQL = "UPDATE UM_ROLE set UM_ROLE_NAME=? WHERE UM_ROLE_NAME = ? AND UM_TENANT_ID=?";
     public static final String ADD_USER_PROPERTY_SQL = "INSERT INTO UM_USER_ATTRIBUTE (UM_USER_ID, UM_ATTR_NAME, UM_ATTR_VALUE, UM_PROFILE_ID, UM_TENANT_ID) VALUES ((SELECT UM_ID FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?), ?, ?, ?, ?)";
     public static final String ADD_USER_PROPERTY_WITH_ID_SQL = "INSERT INTO UM_USER_ATTRIBUTE (UM_USER_ID, "

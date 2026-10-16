@@ -679,6 +679,13 @@ public class JDBCUserStoreConstants {
                 "Update User Password SQL With Case Insensitive Username",
                 JDBCCaseInsensitiveConstants.UPDATE_USER_PASSWORD_SQL_CASE_INSENSITIVE, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCRealmConstants.UPDATE_USER_PASSWORD_HASH, "Update User Password Hash SQL",
+                JDBCRealmConstants.UPDATE_USER_PASSWORD_HASH_SQL, "",
+                new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCCaseInsensitiveConstants.UPDATE_USER_PASSWORD_HASH_CASE_INSENSITIVE,
+                "Update User Password Hash SQL With Case Insensitive Username",
+                JDBCCaseInsensitiveConstants.UPDATE_USER_PASSWORD_HASH_SQL_CASE_INSENSITIVE, "",
+                new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCRealmConstants.UPDATE_ROLE_NAME, "Update Group Name SQL",
                 JDBCRealmConstants.UPDATE_ROLE_NAME_SQL, "",
                 new Property[] { GROUP.getProperty(), SQL.getProperty(), FALSE.getProperty() });
