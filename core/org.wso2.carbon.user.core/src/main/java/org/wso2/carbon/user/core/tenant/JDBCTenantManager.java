@@ -29,6 +29,7 @@ import org.wso2.carbon.caching.impl.CacheManagerFactoryImpl;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.authorization.DBConstants;
@@ -61,8 +62,10 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.cache.Caching;
 import javax.sql.DataSource;
 
@@ -1269,7 +1272,7 @@ public class JDBCTenantManager implements TenantManager {
                 }
             }
 
-            setSecondaryUserStoreConfigFromDatabase(lastRealm, tenantId);
+            setSecondaryUserStoreConfigFromDatabase(realmConfiguration, lastRealm, tenantId);
         }
 
     }
@@ -1282,11 +1285,13 @@ public class JDBCTenantManager implements TenantManager {
      * rows in {@code UM_SECONDARY_USER_STORE}, depending on the configured persistence type. Both are read, so
      * a deployment that moves to the database keeps whatever it already had on disk.
      *
-     * @param lastRealm The last realm configuration of the chain to append to.
-     * @param tenantId  Tenant whose configurations should be read.
+     * @param realmConfiguration The head of the realm configuration chain.
+     * @param lastRealm          The last realm configuration of the chain to append to.
+     * @param tenantId           Tenant whose configurations should be read.
      * @return The new last realm configuration of the chain.
      */
-    private RealmConfiguration setSecondaryUserStoreConfigFromDatabase(RealmConfiguration lastRealm, int tenantId) {
+    private RealmConfiguration setSecondaryUserStoreConfigFromDatabase(RealmConfiguration realmConfiguration,
+                                                                      RealmConfiguration lastRealm, int tenantId) {
 
         if (dataSource == null) {
             return lastRealm;
@@ -1299,8 +1304,21 @@ public class JDBCTenantManager implements TenantManager {
             prepStmt = dbConnection.prepareStatement(TenantConstants.GET_SECONDARY_USER_STORES_SQL);
             prepStmt.setInt(1, tenantId);
             resultSet = prepStmt.executeQuery();
+            Set<String> existingDomains = getDomainsInChain(realmConfiguration);
             while (resultSet.next()) {
                 String domainName = resultSet.getString(1);
+                if (domainName != null && existingDomains.contains(domainName.toUpperCase())) {
+                    /*
+                     The same domain is already on the chain from the file system. Appending it a second time
+                     has the realm reject the later configuration as a duplicate domain, which would discard
+                     this one silently; leave the chain as the file system built it.
+                    */
+                    if (log.isDebugEnabled()) {
+                        log.debug("Skipping the database held user store domain: " + domainName + " of tenant: " +
+                                tenantId + ". It is already on the realm configuration chain.");
+                    }
+                    continue;
+                }
                 try (InputStream configStream = resultSet.getBinaryStream(2)) {
                     if (configStream == null) {
                         continue;
@@ -1339,6 +1357,24 @@ public class JDBCTenantManager implements TenantManager {
             DatabaseUtil.closeAllConnections(dbConnection, resultSet, prepStmt);
         }
         return lastRealm;
+    }
+
+    /**
+     * Collect the user store domains already on a realm configuration chain.
+     *
+     * @param realmConfiguration The head of the chain.
+     * @return The domains on the chain, in upper case.
+     */
+    private Set<String> getDomainsInChain(RealmConfiguration realmConfiguration) {
+
+        Set<String> domains = new HashSet<>();
+        for (RealmConfiguration realm = realmConfiguration; realm != null; realm = realm.getSecondaryRealmConfig()) {
+            String domain = realm.getUserStoreProperty(UserStoreConfigConstants.DOMAIN_NAME);
+            if (domain != null) {
+                domains.add(domain.toUpperCase());
+            }
+        }
+        return domains;
     }
 
     /**
