@@ -19,6 +19,7 @@
 package org.wso2.carbon.user.core.tenant;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,12 +29,14 @@ import org.wso2.carbon.caching.impl.CacheManagerFactoryImpl;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.authorization.DBConstants;
 import org.wso2.carbon.user.core.common.RealmCache;
 import org.wso2.carbon.user.core.common.UserStoreDeploymentManager;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
+import org.wso2.carbon.user.core.config.UserStoreConfigXMLProcessor;
 import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.user.core.hybrid.HybridJDBCConstants;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
@@ -59,8 +62,10 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.cache.Caching;
 import javax.sql.DataSource;
 
@@ -486,7 +491,7 @@ public class JDBCTenantManager implements TenantManager {
                     tenant.setAssociatedOrganizationUUID(associatedOrgID);
                 }
                 tenant.setRealmConfig(realmConfig);
-                setSecondaryUserStoreConfig(realmConfig, tenantId);
+                setSecondaryUserStoreConfig(realmConfig, tenantId, dbConnection);
                 tenant.setAdminName(realmConfig.getAdminUserName());
                 tenant.setAdminUserId(realmConfig.getAdminUserId());
                 if (tenantUUIDColumnExists) {
@@ -822,7 +827,7 @@ public class JDBCTenantManager implements TenantManager {
                     tenant.setAssociatedOrganizationUUID(associatedOrgID);
                 }
                 tenant.setRealmConfig(realmConfig);
-                setSecondaryUserStoreConfig(realmConfig, id);
+                setSecondaryUserStoreConfig(realmConfig, id, dbConnection);
                 tenant.setAdminName(realmConfig.getAdminUserName());
                 setTenantAdminUserId(tenant, realmConfig);
                 if (log.isDebugEnabled()) {
@@ -1229,9 +1234,11 @@ public class JDBCTenantManager implements TenantManager {
      *
      * @param realmConfiguration <code>RealmConfiguration</code>
      * @param tenantId           tenant id
+     * @param dbConnection       the caller's open connection, reused for the database held configurations
      * @throws UserStoreException throws
      */
-    private void setSecondaryUserStoreConfig(RealmConfiguration realmConfiguration, int tenantId) {
+    private void setSecondaryUserStoreConfig(RealmConfiguration realmConfiguration, int tenantId,
+                                             Connection dbConnection) {
 
         // Get the last realm configuration.
         RealmConfiguration lastRealm = realmConfiguration;
@@ -1266,8 +1273,134 @@ public class JDBCTenantManager implements TenantManager {
                     }
                 }
             }
+
+            setSecondaryUserStoreConfigFromDatabase(realmConfiguration, lastRealm, tenantId, dbConnection);
         }
 
+    }
+
+    /**
+     * Read in the secondary user store configurations persisted in the database and append them to the end of
+     * the realm configuration chain.
+     * <p>
+     * Secondary user stores may be kept either as files under the tenant's {@code userstores} directory or as
+     * rows in {@code UM_SECONDARY_USER_STORE}, depending on the configured persistence type. Both are read, so
+     * a deployment that moves to the database keeps whatever it already had on disk.
+     *
+     * @param realmConfiguration The head of the realm configuration chain.
+     * @param lastRealm          The last realm configuration of the chain to append to.
+     * @param tenantId           Tenant whose configurations should be read.
+     * @param dbConnection       The caller's open connection. Taking a second one from the pool while the
+     *                           caller holds its own stalls tenant loading once the pool is saturated.
+     * @return The new last realm configuration of the chain.
+     */
+    private RealmConfiguration setSecondaryUserStoreConfigFromDatabase(RealmConfiguration realmConfiguration,
+                                                                      RealmConfiguration lastRealm, int tenantId,
+                                                                      Connection dbConnection) {
+
+        if (dbConnection == null) {
+            return lastRealm;
+        }
+        PreparedStatement prepStmt = null;
+        ResultSet resultSet = null;
+        try {
+            prepStmt = dbConnection.prepareStatement(TenantConstants.GET_SECONDARY_USER_STORES_SQL);
+            prepStmt.setInt(1, tenantId);
+            resultSet = prepStmt.executeQuery();
+            Set<String> existingDomains = getDomainsInChain(realmConfiguration);
+            while (resultSet.next()) {
+                String domainName = resultSet.getString(1);
+                if (domainName != null && existingDomains.contains(domainName.toUpperCase())) {
+                    /*
+                     The same domain is already on the chain from the file system. Appending it a second time
+                     has the realm reject the later configuration as a duplicate domain, which would discard
+                     this one silently; leave the chain as the file system built it.
+                    */
+                    if (log.isDebugEnabled()) {
+                        log.debug("Skipping the database held user store domain: " + domainName + " of tenant: " +
+                                tenantId + ". It is already on the realm configuration chain.");
+                    }
+                    continue;
+                }
+                try (InputStream configStream = resultSet.getBinaryStream(2)) {
+                    if (configStream == null) {
+                        continue;
+                    }
+                    RealmConfiguration newRealmConfig = buildUserStoreConfiguration(domainName, configStream);
+                    if (newRealmConfig == null) {
+                        log.error("Error while creating realm configuration for the user store domain: " +
+                                domainName + " of tenant: " + tenantId);
+                        continue;
+                    }
+                    /*
+                     A file based configuration is read from the tenant's own directory, so its tenant is
+                     implied by where it was found. A row carries no such context and has to be told.
+                    */
+                    newRealmConfig.setTenantId(tenantId);
+                    lastRealm.setSecondaryRealmConfig(newRealmConfig);
+                    lastRealm = lastRealm.getSecondaryRealmConfig();
+                } catch (Exception e) {
+                    log.error("Error while creating realm configuration for the user store domain: " +
+                            domainName + " of tenant: " + tenantId, e);
+                }
+            }
+        } catch (SQLException e) {
+            /*
+             UM_SECONDARY_USER_STORE only exists once the database has been brought up to date. A deployment
+             that still keeps every configuration on the file system has nothing to read here, and tenant
+             loading must not fail because of it. The caller owns the connection, so it is left to commit or
+             roll back as it sees fit.
+            */
+            if (log.isDebugEnabled()) {
+                log.debug("Could not read the database based secondary user store configurations of tenant: " +
+                        tenantId, e);
+            }
+        } finally {
+            DatabaseUtil.closeAllConnections(null, resultSet, prepStmt);
+        }
+        return lastRealm;
+    }
+
+    /**
+     * Collect the user store domains already on a realm configuration chain.
+     *
+     * @param realmConfiguration The head of the chain.
+     * @return The domains on the chain, in upper case.
+     */
+    private Set<String> getDomainsInChain(RealmConfiguration realmConfiguration) {
+
+        Set<String> domains = new HashSet<>();
+        for (RealmConfiguration realm = realmConfiguration; realm != null; realm = realm.getSecondaryRealmConfig()) {
+            String domain = realm.getUserStoreProperty(UserStoreConfigConstants.DOMAIN_NAME);
+            if (domain != null) {
+                domains.add(domain.toUpperCase());
+            }
+        }
+        return domains;
+    }
+
+    /**
+     * Build a realm configuration out of a persisted user store configuration.
+     *
+     * @param domainName   User store domain the configuration belongs to.
+     * @param configStream The persisted configuration.
+     * @return The realm configuration.
+     * @throws Exception if the configuration cannot be read.
+     */
+    private RealmConfiguration buildUserStoreConfiguration(String domainName, InputStream configStream)
+            throws Exception {
+
+        /*
+         UserStoreConfigXMLProcessor splits this path on the platform's file separator and requires the last
+         segment to match the domain, with underscores read back as dots. A hard coded slash leaves the path
+         unsplit on Windows and every database held store is then rejected.
+        */
+        UserStoreConfigXMLProcessor userStoreXMLProcessor = new UserStoreConfigXMLProcessor(
+                File.separator + domainName.replace(".", "_") + ".xml");
+        OMElement documentElement =
+                new StAXOMBuilder(CarbonUtils.replaceSystemVariablesInXml(configStream)).getDocumentElement();
+        userStoreXMLProcessor.setSecretResolver(documentElement);
+        return userStoreXMLProcessor.buildUserStoreConfiguration(documentElement);
     }
 
     /**
