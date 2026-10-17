@@ -19,6 +19,7 @@
 package org.wso2.carbon.user.core.tenant;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,6 +35,7 @@ import org.wso2.carbon.user.core.authorization.DBConstants;
 import org.wso2.carbon.user.core.common.RealmCache;
 import org.wso2.carbon.user.core.common.UserStoreDeploymentManager;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
+import org.wso2.carbon.user.core.config.UserStoreConfigXMLProcessor;
 import org.wso2.carbon.user.core.constants.UserCoreClaimConstants;
 import org.wso2.carbon.user.core.hybrid.HybridJDBCConstants;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
@@ -1266,8 +1268,90 @@ public class JDBCTenantManager implements TenantManager {
                     }
                 }
             }
+
+            setSecondaryUserStoreConfigFromDatabase(lastRealm, tenantId);
         }
 
+    }
+
+    /**
+     * Read in the secondary user store configurations persisted in the database and append them to the end of
+     * the realm configuration chain.
+     * <p>
+     * Secondary user stores may be kept either as files under the tenant's {@code userstores} directory or as
+     * rows in {@code UM_SECONDARY_USER_STORE}, depending on the configured persistence type. Both are read, so
+     * a deployment that moves to the database keeps whatever it already had on disk.
+     *
+     * @param lastRealm The last realm configuration of the chain to append to.
+     * @param tenantId  Tenant whose configurations should be read.
+     * @return The new last realm configuration of the chain.
+     */
+    private RealmConfiguration setSecondaryUserStoreConfigFromDatabase(RealmConfiguration lastRealm, int tenantId) {
+
+        if (dataSource == null) {
+            return lastRealm;
+        }
+        try (Connection dbConnection = dataSource.getConnection();
+             PreparedStatement prepStmt = dbConnection
+                     .prepareStatement(TenantConstants.GET_SECONDARY_USER_STORES_SQL)) {
+            prepStmt.setInt(1, tenantId);
+            try (ResultSet resultSet = prepStmt.executeQuery()) {
+                while (resultSet.next()) {
+                    String domainName = resultSet.getString(1);
+                    try (InputStream configStream = resultSet.getBinaryStream(2)) {
+                        if (configStream == null) {
+                            continue;
+                        }
+                        RealmConfiguration newRealmConfig = buildUserStoreConfiguration(domainName, configStream);
+                        if (newRealmConfig == null) {
+                            log.error("Error while creating realm configuration for the user store domain: " +
+                                    domainName + " of tenant: " + tenantId);
+                            continue;
+                        }
+                        /*
+                         A file based configuration is read from the tenant's own directory, so its tenant is
+                         implied by where it was found. A row carries no such context and has to be told.
+                        */
+                        newRealmConfig.setTenantId(tenantId);
+                        lastRealm.setSecondaryRealmConfig(newRealmConfig);
+                        lastRealm = lastRealm.getSecondaryRealmConfig();
+                    } catch (Exception e) {
+                        log.error("Error while creating realm configuration for the user store domain: " +
+                                domainName + " of tenant: " + tenantId, e);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            /*
+             UM_SECONDARY_USER_STORE only exists once the database has been brought up to date. A deployment
+             that still keeps every configuration on the file system has nothing to read here, and tenant
+             loading must not fail because of it.
+            */
+            if (log.isDebugEnabled()) {
+                log.debug("Could not read the database based secondary user store configurations of tenant: " +
+                        tenantId, e);
+            }
+        }
+        return lastRealm;
+    }
+
+    /**
+     * Build a realm configuration out of a persisted user store configuration.
+     *
+     * @param domainName   User store domain the configuration belongs to.
+     * @param configStream The persisted configuration.
+     * @return The realm configuration.
+     * @throws Exception if the configuration cannot be read.
+     */
+    private RealmConfiguration buildUserStoreConfiguration(String domainName, InputStream configStream)
+            throws Exception {
+
+        UserStoreConfigXMLProcessor userStoreXMLProcessor =
+                new UserStoreConfigXMLProcessor("/" + domainName + ".xml");
+        OMElement documentElement =
+                new StAXOMBuilder(CarbonUtils.replaceSystemVariablesInXml(configStream)).getDocumentElement();
+        userStoreXMLProcessor.setSecretResolver(documentElement);
+        return userStoreXMLProcessor.buildUserStoreConfiguration(documentElement);
     }
 
     /**
