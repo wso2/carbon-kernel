@@ -1291,37 +1291,41 @@ public class JDBCTenantManager implements TenantManager {
         if (dataSource == null) {
             return lastRealm;
         }
-        try (Connection dbConnection = dataSource.getConnection();
-             PreparedStatement prepStmt = dbConnection
-                     .prepareStatement(TenantConstants.GET_SECONDARY_USER_STORES_SQL)) {
+        Connection dbConnection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet resultSet = null;
+        try {
+            dbConnection = getDBConnection();
+            prepStmt = dbConnection.prepareStatement(TenantConstants.GET_SECONDARY_USER_STORES_SQL);
             prepStmt.setInt(1, tenantId);
-            try (ResultSet resultSet = prepStmt.executeQuery()) {
-                while (resultSet.next()) {
-                    String domainName = resultSet.getString(1);
-                    try (InputStream configStream = resultSet.getBinaryStream(2)) {
-                        if (configStream == null) {
-                            continue;
-                        }
-                        RealmConfiguration newRealmConfig = buildUserStoreConfiguration(domainName, configStream);
-                        if (newRealmConfig == null) {
-                            log.error("Error while creating realm configuration for the user store domain: " +
-                                    domainName + " of tenant: " + tenantId);
-                            continue;
-                        }
-                        /*
-                         A file based configuration is read from the tenant's own directory, so its tenant is
-                         implied by where it was found. A row carries no such context and has to be told.
-                        */
-                        newRealmConfig.setTenantId(tenantId);
-                        lastRealm.setSecondaryRealmConfig(newRealmConfig);
-                        lastRealm = lastRealm.getSecondaryRealmConfig();
-                    } catch (Exception e) {
-                        log.error("Error while creating realm configuration for the user store domain: " +
-                                domainName + " of tenant: " + tenantId, e);
+            resultSet = prepStmt.executeQuery();
+            while (resultSet.next()) {
+                String domainName = resultSet.getString(1);
+                try (InputStream configStream = resultSet.getBinaryStream(2)) {
+                    if (configStream == null) {
+                        continue;
                     }
+                    RealmConfiguration newRealmConfig = buildUserStoreConfiguration(domainName, configStream);
+                    if (newRealmConfig == null) {
+                        log.error("Error while creating realm configuration for the user store domain: " +
+                                domainName + " of tenant: " + tenantId);
+                        continue;
+                    }
+                    /*
+                     A file based configuration is read from the tenant's own directory, so its tenant is
+                     implied by where it was found. A row carries no such context and has to be told.
+                    */
+                    newRealmConfig.setTenantId(tenantId);
+                    lastRealm.setSecondaryRealmConfig(newRealmConfig);
+                    lastRealm = lastRealm.getSecondaryRealmConfig();
+                } catch (Exception e) {
+                    log.error("Error while creating realm configuration for the user store domain: " +
+                            domainName + " of tenant: " + tenantId, e);
                 }
             }
+            dbConnection.commit();
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             /*
              UM_SECONDARY_USER_STORE only exists once the database has been brought up to date. A deployment
              that still keeps every configuration on the file system has nothing to read here, and tenant
@@ -1331,6 +1335,8 @@ public class JDBCTenantManager implements TenantManager {
                 log.debug("Could not read the database based secondary user store configurations of tenant: " +
                         tenantId, e);
             }
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, resultSet, prepStmt);
         }
         return lastRealm;
     }
@@ -1346,8 +1352,13 @@ public class JDBCTenantManager implements TenantManager {
     private RealmConfiguration buildUserStoreConfiguration(String domainName, InputStream configStream)
             throws Exception {
 
-        UserStoreConfigXMLProcessor userStoreXMLProcessor =
-                new UserStoreConfigXMLProcessor("/" + domainName + ".xml");
+        /*
+         UserStoreConfigXMLProcessor splits this path on the platform's file separator and requires the last
+         segment to match the domain, with underscores read back as dots. A hard coded slash leaves the path
+         unsplit on Windows and every database held store is then rejected.
+        */
+        UserStoreConfigXMLProcessor userStoreXMLProcessor = new UserStoreConfigXMLProcessor(
+                File.separator + domainName.replace(".", "_") + ".xml");
         OMElement documentElement =
                 new StAXOMBuilder(CarbonUtils.replaceSystemVariablesInXml(configStream)).getDocumentElement();
         userStoreXMLProcessor.setSecretResolver(documentElement);
