@@ -491,7 +491,7 @@ public class JDBCTenantManager implements TenantManager {
                     tenant.setAssociatedOrganizationUUID(associatedOrgID);
                 }
                 tenant.setRealmConfig(realmConfig);
-                setSecondaryUserStoreConfig(realmConfig, tenantId);
+                setSecondaryUserStoreConfig(realmConfig, tenantId, dbConnection);
                 tenant.setAdminName(realmConfig.getAdminUserName());
                 tenant.setAdminUserId(realmConfig.getAdminUserId());
                 if (tenantUUIDColumnExists) {
@@ -827,7 +827,7 @@ public class JDBCTenantManager implements TenantManager {
                     tenant.setAssociatedOrganizationUUID(associatedOrgID);
                 }
                 tenant.setRealmConfig(realmConfig);
-                setSecondaryUserStoreConfig(realmConfig, id);
+                setSecondaryUserStoreConfig(realmConfig, id, dbConnection);
                 tenant.setAdminName(realmConfig.getAdminUserName());
                 setTenantAdminUserId(tenant, realmConfig);
                 if (log.isDebugEnabled()) {
@@ -1234,9 +1234,11 @@ public class JDBCTenantManager implements TenantManager {
      *
      * @param realmConfiguration <code>RealmConfiguration</code>
      * @param tenantId           tenant id
+     * @param dbConnection       the caller's open connection, reused for the database held configurations
      * @throws UserStoreException throws
      */
-    private void setSecondaryUserStoreConfig(RealmConfiguration realmConfiguration, int tenantId) {
+    private void setSecondaryUserStoreConfig(RealmConfiguration realmConfiguration, int tenantId,
+                                             Connection dbConnection) {
 
         // Get the last realm configuration.
         RealmConfiguration lastRealm = realmConfiguration;
@@ -1272,7 +1274,7 @@ public class JDBCTenantManager implements TenantManager {
                 }
             }
 
-            setSecondaryUserStoreConfigFromDatabase(realmConfiguration, lastRealm, tenantId);
+            setSecondaryUserStoreConfigFromDatabase(realmConfiguration, lastRealm, tenantId, dbConnection);
         }
 
     }
@@ -1288,19 +1290,20 @@ public class JDBCTenantManager implements TenantManager {
      * @param realmConfiguration The head of the realm configuration chain.
      * @param lastRealm          The last realm configuration of the chain to append to.
      * @param tenantId           Tenant whose configurations should be read.
+     * @param dbConnection       The caller's open connection. Taking a second one from the pool while the
+     *                           caller holds its own stalls tenant loading once the pool is saturated.
      * @return The new last realm configuration of the chain.
      */
     private RealmConfiguration setSecondaryUserStoreConfigFromDatabase(RealmConfiguration realmConfiguration,
-                                                                      RealmConfiguration lastRealm, int tenantId) {
+                                                                      RealmConfiguration lastRealm, int tenantId,
+                                                                      Connection dbConnection) {
 
-        if (dataSource == null) {
+        if (dbConnection == null) {
             return lastRealm;
         }
-        Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet = null;
         try {
-            dbConnection = getDBConnection();
             prepStmt = dbConnection.prepareStatement(TenantConstants.GET_SECONDARY_USER_STORES_SQL);
             prepStmt.setInt(1, tenantId);
             resultSet = prepStmt.executeQuery();
@@ -1341,20 +1344,19 @@ public class JDBCTenantManager implements TenantManager {
                             domainName + " of tenant: " + tenantId, e);
                 }
             }
-            dbConnection.commit();
         } catch (SQLException e) {
-            DatabaseUtil.rollBack(dbConnection);
             /*
              UM_SECONDARY_USER_STORE only exists once the database has been brought up to date. A deployment
              that still keeps every configuration on the file system has nothing to read here, and tenant
-             loading must not fail because of it.
+             loading must not fail because of it. The caller owns the connection, so it is left to commit or
+             roll back as it sees fit.
             */
             if (log.isDebugEnabled()) {
                 log.debug("Could not read the database based secondary user store configurations of tenant: " +
                         tenantId, e);
             }
         } finally {
-            DatabaseUtil.closeAllConnections(dbConnection, resultSet, prepStmt);
+            DatabaseUtil.closeAllConnections(null, resultSet, prepStmt);
         }
         return lastRealm;
     }
