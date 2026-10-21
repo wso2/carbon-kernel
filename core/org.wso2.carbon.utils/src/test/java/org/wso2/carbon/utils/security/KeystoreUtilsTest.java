@@ -27,15 +27,20 @@ import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.utils.CarbonUtils;
 
+import java.security.KeyStore;
+import java.security.NoSuchProviderException;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.expectThrows;
 
 /**
- * Tests for the tenant key algorithm and key size configuration in {@link KeystoreUtils}.
+ * Tests for the tenant key algorithm and key size configuration and the PKCS11 store type helpers in
+ * {@link KeystoreUtils}.
  */
 public class KeystoreUtilsTest {
 
@@ -139,5 +144,29 @@ public class KeystoreUtilsTest {
         CarbonException e = expectThrows(CarbonException.class, KeystoreUtils::getTenantKeySize);
         assertTrue(e.getMessage().contains("Invalid key size '" + configuredValue + "'"), e.getMessage());
         assertTrue(e.getMessage().contains("multiple of 1024 between 2048 and 8192"), e.getMessage());
+    }
+
+    @Test
+    public void testPKCS11StoreType() throws Exception {
+
+        assertTrue(KeystoreUtils.isPKCS11StoreType("PKCS11"));
+        assertTrue(KeystoreUtils.isPKCS11StoreType(" pkcs11 "));
+        assertFalse(KeystoreUtils.isPKCS11StoreType("PKCS12"));
+        assertFalse(KeystoreUtils.isPKCS11StoreType(null));
+        assertEquals(KeystoreUtils.getExtensionByFileType("PKCS11"), ".p11");
+        assertEquals(KeystoreUtils.getFileTypeByExtension(".p11"), "PKCS11");
+        // The primary key store type PKCS11 is now a supported store type.
+        KeystoreUtils.StoreFileType.validateFileType("PKCS11");
+    }
+
+    @Test
+    public void testGetKeystoreInstanceWithProvider() throws Exception {
+
+        KeyStore keyStore = KeystoreUtils.getKeystoreInstance("PKCS12", "SUN");
+        assertEquals(keyStore.getProvider().getName(), "SUN");
+        // A blank provider falls back to the provider selection of getKeystoreInstance(String).
+        assertEquals(KeystoreUtils.getKeystoreInstance("JKS", " ").getType(), "JKS");
+        expectThrows(NoSuchProviderException.class,
+                () -> KeystoreUtils.getKeystoreInstance("PKCS11", "NoSuchProvider"));
     }
 }

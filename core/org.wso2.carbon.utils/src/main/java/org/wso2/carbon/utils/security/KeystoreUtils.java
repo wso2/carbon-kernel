@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2024-2026, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -65,7 +65,12 @@ public class KeystoreUtils {
      */
     public enum StoreFileType {
         JKS(".jks"),
-        PKCS12(".p12");
+        PKCS12(".p12"),
+        /**
+         * Key store held in a PKCS#11 token (HSM). It is not file based; the extension only names the key store
+         * record (for example a tenant key store record that refers to keys on the token).
+         */
+        PKCS11(".p11");
 
         private final String extension;
 
@@ -110,6 +115,17 @@ public class KeystoreUtils {
                 throw new CarbonException("Unsupported store file type:" + fileType);
             }
         }
+    }
+
+    /**
+     * Check whether the given store type is held in a PKCS#11 token rather than in a file.
+     *
+     * @param storeType Store type (ex: PKCS11, PKCS12).
+     * @return True if the store type is PKCS11.
+     */
+    public static boolean isPKCS11StoreType(String storeType) {
+
+        return StoreFileType.PKCS11.name().equalsIgnoreCase(StringUtils.trim(storeType));
     }
 
     /**
@@ -181,6 +197,9 @@ public class KeystoreUtils {
         } else {
             keystoreType = StoreFileType.defaultFileType();
             String ksName = tenantDomain.trim().replace(".", "-");
+            if (isPKCS11StoreType(keystoreType)) {
+                return resolveTenantKeyStoreTypeForPKCS11(ksName);
+            }
             String ksExtension = getExtensionByFileType(keystoreType);
             if (StoreFileType.PKCS12.name().equals(keystoreType) && isKeyStoreExists(ksName + ksExtension)) {
                 return keystoreType;
@@ -207,6 +226,9 @@ public class KeystoreUtils {
             }
         } else {
             keystoreType = StoreFileType.defaultFileType();
+            if (isPKCS11StoreType(keystoreType)) {
+                return resolveTenantKeyStoreTypeForPKCS11(ksName);
+            }
         }
         String ksExtension = getExtensionByFileType(keystoreType);
         if (StoreFileType.PKCS12.name().equals(keystoreType) && isKeyStoreExists(ksName + ksExtension)) {
@@ -343,6 +365,24 @@ public class KeystoreUtils {
                 + " between " + MIN_TENANT_KEY_SIZE + " and " + MAX_TENANT_KEY_SIZE + ".";
     }
 
+    /**
+     * Resolve the type of an existing tenant key store when new tenant key stores are created as PKCS11.
+     * Tenants created before that keep their file based (PKCS12 or JKS) key stores.
+     *
+     * @param ksName Key store name without the extension.
+     * @return PKCS11 if a PKCS11 key store record exists, else PKCS12 if a PKCS12 key store exists, else JKS.
+     */
+    private static String resolveTenantKeyStoreTypeForPKCS11(String ksName) {
+
+        if (isKeyStoreExists(ksName + StoreFileType.PKCS11.extension)) {
+            return StoreFileType.PKCS11.name();
+        }
+        if (isKeyStoreExists(ksName + StoreFileType.PKCS12.extension)) {
+            return StoreFileType.PKCS12.name();
+        }
+        return FALLBACK_TENANTED_KEYSTORE_FILE_TYPE;
+    }
+
     private static boolean isKeyStoreExists(String keyStoreName) {
 
         return keyStorePersistenceManager.isKeyStoreExists(keyStoreName,
@@ -365,6 +405,26 @@ public class KeystoreUtils {
         } else {
             return KeyStore.getInstance(keyStoreType);
         }
+    }
+
+    /**
+     * Get a key store instance of the given type from the given JCA provider. For example, a PKCS11 key store from
+     * the SunPKCS11 provider instance that is configured for a specific token. If no provider is given, the
+     * provider is selected as in {@link #getKeystoreInstance(String)}.
+     *
+     * @param keyStoreType Key store type.
+     * @param provider     Name of a registered JCA provider. Can be blank.
+     * @return Key store instance.
+     * @throws KeyStoreException       If the provider does not support the key store type.
+     * @throws NoSuchProviderException If the provider is not registered.
+     */
+    public static KeyStore getKeystoreInstance(String keyStoreType, String provider)
+            throws KeyStoreException, NoSuchProviderException {
+
+        if (StringUtils.isBlank(provider)) {
+            return getKeystoreInstance(keyStoreType);
+        }
+        return KeyStore.getInstance(keyStoreType, provider.trim());
     }
 
     private static String getJCEProvider() {
