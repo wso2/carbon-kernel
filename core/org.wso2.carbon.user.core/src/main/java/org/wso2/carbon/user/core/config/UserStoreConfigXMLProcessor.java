@@ -64,6 +64,8 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
+import java.security.Provider;
+import java.security.interfaces.RSAPrivateKey;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -80,6 +82,8 @@ public class UserStoreConfigXMLProcessor {
     private static final Log log = LogFactory.getLog(UserStoreConfigXMLProcessor.class);
     private static BundleContext bundleContext;
     private static final String CIPHER_TRANSFORMATION_SYSTEM_PROPERTY = "org.wso2.CipherTransformation";
+    // Provider of the primary key store. Set by getPrivateKey(); declared first so the static initializer keeps it.
+    private static Provider privateKeyProvider;
     private static PrivateKey privateKey = getPrivateKey();
     private SecretResolver secretResolver;
     private String filePath = null;
@@ -391,16 +395,25 @@ public class UserStoreConfigXMLProcessor {
         String keyAliasXPath = "Security.KeyStore.KeyAlias";
         String locationXPath = "Security.KeyStore.Location";
         String typeXPath = "Security.KeyStore.Type";
+        String providerXPath = "Security.KeyStore.Provider";
 
         String password = serverConfigurationService.getFirstProperty(passwordXPath);
         String keyPass = serverConfigurationService.getFirstProperty(keypassXPath);
         String keyAlias = serverConfigurationService.getFirstProperty(keyAliasXPath);
 
         try {
-            KeyStore store = KeystoreUtils.getKeystoreInstance(serverConfigurationService.getFirstProperty(typeXPath));
-            String file = new File(serverConfigurationService.getFirstProperty(locationXPath)).getAbsolutePath();
-            in = new FileInputStream(file);
-            store.load(in, password.toCharArray());
+            String type = serverConfigurationService.getFirstProperty(typeXPath);
+            KeyStore store = KeystoreUtils.getKeystoreInstance(type,
+                    serverConfigurationService.getFirstProperty(providerXPath));
+            if (KeystoreUtils.isPKCS11StoreType(type)) {
+                // The key store is the PKCS11 token itself; there is no file to read.
+                store.load(null, password.toCharArray());
+            } else {
+                String file = new File(serverConfigurationService.getFirstProperty(locationXPath)).getAbsolutePath();
+                in = new FileInputStream(file);
+                store.load(in, password.toCharArray());
+            }
+            privateKeyProvider = store.getProvider();
             return (PrivateKey) store.getKey(keyAlias, keyPass.toCharArray());
         } catch (FileNotFoundException e) {
             String errorMsg = "Keystore File Not Found in configured location";
@@ -526,14 +539,14 @@ public class UserStoreConfigXMLProcessor {
                         log.debug("Cipher transformation for decryption : " + cipherHolder.getTransformation());
                     }
 
-                    keyStoreCipher = Cipher.getInstance(cipherHolder.getTransformation(), getJCEProvider());
+                    keyStoreCipher = getPrimaryKeyCipher(cipherHolder.getTransformation());
 
                     cipherTextBytes = cipherHolder.getCipherBase64Decoded();
                 } else {
                     // If the ciphertext is not a self-contained, directly decrypt using transformation configured in
                     // carbon.properties file
 
-                    keyStoreCipher = Cipher.getInstance(cipherTransformation, getJCEProvider());
+                    keyStoreCipher = getPrimaryKeyCipher(cipherTransformation);
 
                 }
             } else {
@@ -543,7 +556,7 @@ public class UserStoreConfigXMLProcessor {
                     log.debug("Cipher transformation property is not available.Hence RSA is considered as default " +
                             "cipher transformation.");
                 }
-                keyStoreCipher = Cipher.getInstance("RSA", getJCEProvider());
+                keyStoreCipher = getPrimaryKeyCipher("RSA");
 
             }
 
@@ -576,6 +589,22 @@ public class UserStoreConfigXMLProcessor {
             }
             return null;
         }
+    }
+
+    /**
+     * Get a cipher for the primary key store private key. A key held in an HSM has no key material in the JVM, so
+     * only the key store provider can use it. Other keys keep the configured JCE provider.
+     *
+     * @param transformation Cipher transformation.
+     * @return Cipher for decrypting with the primary key store private key.
+     * @throws GeneralSecurityException If the cipher is not available.
+     */
+    private Cipher getPrimaryKeyCipher(String transformation) throws GeneralSecurityException {
+
+        if (privateKeyProvider != null && (!(privateKey instanceof RSAPrivateKey) || privateKey.getEncoded() == null)) {
+            return Cipher.getInstance(transformation, privateKeyProvider);
+        }
+        return Cipher.getInstance(transformation, getJCEProvider());
     }
 
     private String getJCEProvider() {
