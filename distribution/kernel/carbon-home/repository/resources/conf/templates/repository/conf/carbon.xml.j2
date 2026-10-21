@@ -542,6 +542,14 @@
             <!-- Key size (bits) of the generated tenant key pair. A multiple of 1024 between 2048 and 8192. -->
             <KeySize>{{keystore.tenant.key_size}}</KeySize>
             {% endif %}
+            {% if keystore.tenant.provider is defined %}
+            <!-- JCA provider of the PKCS11 token that holds tenant keys (Type PKCS11 only). -->
+            <Provider>{{keystore.tenant.provider}}</Provider>
+            {% endif %}
+            {% if keystore.tenant.password is defined %}
+            <!-- User PIN of the PKCS11 token that holds tenant keys (Type PKCS11 only). -->
+            <Password>{{keystore.tenant.password}}</Password>
+            {% endif %}
         </TenantKeyStore>
 
         <!--

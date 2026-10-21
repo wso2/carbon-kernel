@@ -26,6 +26,7 @@
             <class name="org.wso2.carbon.core.multitenancy.transports.TenantTransportSender"/>
             <class name="org.wso2.carbon.core.util.KeyStoreUtilTest"/>
             <class name="org.wso2.carbon.core.util.KeyStoreManagerTest"/>
+            <class name="org.wso2.carbon.core.util.TenantPKCS11KeyStoreTest"/>
         </classes>
     </test>
 </suite>

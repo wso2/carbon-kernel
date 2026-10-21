@@ -50,6 +50,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.expectThrows;
 
 /**
  * KeyStoreManager test class.
@@ -169,6 +171,22 @@ public class KeyStoreManagerTest {
 
             this.keyStoreManager.addKeyStore(keyStoreContent, "new_keystore.jks",
                     KEYSTORE_PASSWORD.toCharArray(), " ", KEYSTORE_TYPE, KEYSTORE_PASSWORD.toCharArray());
+        }
+    }
+
+    @Test(description = "A PKCS11 key store is accepted only as the tenant primary key store")
+    public void testAddPKCS11KeyStoreRejectedForNonTenantPrimaryStore() throws Exception {
+
+        try (MockedStatic<KeyStoreUtil> keyStoreUtil = mockStatic(KeyStoreUtil.class)) {
+            keyStoreUtil.when(() -> KeyStoreUtil.isPrimaryStore(any())).thenReturn(false);
+            keyStoreUtil.when(() -> KeyStoreUtil.isTrustStore(any())).thenReturn(false);
+            when(registry.resourceExists(anyString())).thenReturn(false);
+
+            // The super tenant has no tenant primary key store, so a PKCS11 key store is rejected.
+            SecurityException e = expectThrows(SecurityException.class, () -> this.keyStoreManager.addKeyStore(
+                    "label=wso2-tenant-1\n".getBytes(), "some-store.p11", "1234".toCharArray(),
+                    "SunPKCS11-is-tenants", "PKCS11", "1234".toCharArray()));
+            assertTrue(e.getMessage().contains("PKCS11 key stores are supported only as the tenant primary"));
         }
     }
 
