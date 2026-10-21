@@ -211,6 +211,25 @@ public class KeyStoreUtil {
      * @return Configuration value as String.
      * @throws CarbonException      If failed to retrieve the requested configuration.
      */
+    /**
+     * Returns an optional key store property value from the configuration, or null if it is not configured.
+     *
+     * @param config       OMElement object of configuration.
+     * @param propertyName Property name.
+     * @return Configuration value, or null if the property is not configured.
+     * @throws CarbonException If the property name is invalid or the value cannot be resolved.
+     */
+    public static String getOptionalCustomKeyStoreConfig(OMElement config, String propertyName)
+            throws CarbonException {
+
+        validateKeyStoreConfigName(propertyName);
+        OMElement element = config.getFirstChildWithName(getQNameWithCarbonNS(propertyName));
+        if (element == null || StringUtils.isBlank(element.getText())) {
+            return null;
+        }
+        return getCustomKeyStoreConfig(config, propertyName);
+    }
+
     public static String getCustomKeyStoreConfig(OMElement config, String propertyName) throws CarbonException {
 
         validateKeyStoreConfigName(propertyName);
@@ -253,7 +272,8 @@ public class KeyStoreUtil {
                 RegistryResources.SecurityManagement.CustomKeyStore.PROP_TYPE,
                 RegistryResources.SecurityManagement.CustomKeyStore.PROP_PASSWORD,
                 RegistryResources.SecurityManagement.CustomKeyStore.PROP_KEY_ALIAS,
-                RegistryResources.SecurityManagement.CustomKeyStore.PROP_KEY_PASSWORD
+                RegistryResources.SecurityManagement.CustomKeyStore.PROP_KEY_PASSWORD,
+                RegistryResources.SecurityManagement.CustomKeyStore.PROP_PROVIDER
         };
 
         if (!Arrays.asList(keyStoreProperties).contains(propertyName)) {

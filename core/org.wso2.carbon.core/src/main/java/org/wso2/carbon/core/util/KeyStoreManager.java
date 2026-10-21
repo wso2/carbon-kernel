@@ -568,14 +568,13 @@ public class KeyStoreManager {
                         new File(config
                                 .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_FILE))
                                 .getAbsolutePath();
-                KeyStore store = KeystoreUtils.getKeystoreInstance(config
-                                .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_TYPE));
                 String password = config
                         .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_PASSWORD);
-                try (FileInputStream in = new FileInputStream(file)) {
-                    store.load(in, password.toCharArray());
-                    primaryKeyStore = store;
-                }
+                primaryKeyStore = loadServerKeyStore(
+                        config.getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_TYPE),
+                        config.getFirstProperty(
+                                RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_PROVIDER),
+                        file, password.toCharArray());
             }
             return primaryKeyStore;
         } else {
@@ -758,8 +757,10 @@ public class KeyStoreManager {
                 config, RegistryResources.SecurityManagement.CustomKeyStore.PROP_TYPE);
         String password = KeyStoreUtil.getCustomKeyStoreConfig(
                 config, RegistryResources.SecurityManagement.CustomKeyStore.PROP_PASSWORD);
+        String provider = KeyStoreUtil.getOptionalCustomKeyStoreConfig(
+                config, RegistryResources.SecurityManagement.CustomKeyStore.PROP_PROVIDER);
 
-        KeyStore keyStore = loadKeyStoreFromFileSystem(location, password, type);
+        KeyStore keyStore = loadKeyStoreFromFileSystem(location, password, type, provider);
         customKeyStores.put(keyStoreName, keyStore);
 
         return keyStore;
@@ -985,11 +986,36 @@ public class KeyStoreManager {
 
     public KeyStore loadKeyStoreFromFileSystem(String keyStorePath, String password, String type) {
 
+        return loadKeyStoreFromFileSystem(keyStorePath, password, type, null);
+    }
+
+    /**
+     * Load a key store from the file system, or from a PKCS#11 token when the type is PKCS11. A PKCS11 key store is
+     * loaded through the given provider (for example the SunPKCS11 instance of the token) and no file is read.
+     *
+     * @param keyStorePath Key store file path. Not used for PKCS11 key stores.
+     * @param password     Key store password (the token PIN for PKCS11 key stores).
+     * @param type         Key store type.
+     * @param provider     Name of a registered JCA provider. Can be null to use the default provider selection.
+     * @return Loaded key store.
+     */
+    public KeyStore loadKeyStoreFromFileSystem(String keyStorePath, String password, String type, String provider) {
+
         CarbonUtils.checkSecurity();
+        if (KeystoreUtils.isPKCS11StoreType(type)) {
+            try {
+                return loadServerKeyStore(type, provider, keyStorePath, password.toCharArray());
+            } catch (Exception e) {
+                String errorMsg = "Error loading the PKCS11 key store.";
+                log.error(errorMsg);
+                throw new SecurityException(errorMsg, e);
+            }
+        }
         String absolutePath = new File(keyStorePath).getAbsolutePath();
         FileInputStream inputStream = null;
         try {
-            KeyStore store = KeystoreUtils.getKeystoreInstance(type);
+            KeyStore store = StringUtils.isBlank(provider) ? KeystoreUtils.getKeystoreInstance(type) :
+                    KeystoreUtils.getKeystoreInstance(type, provider);
             inputStream = new FileInputStream(absolutePath);
             store.load(inputStream, password.toCharArray());
             return store;
@@ -1035,6 +1061,35 @@ public class KeyStoreManager {
             }
         }
         return metadata;
+    }
+
+    /**
+     * Load a server key store (primary or custom). A PKCS11 key store is held in a token: it is loaded
+     * through the given provider with {@code load(null, password)} and no file is read, so no placeholder file is
+     * needed. Other key stores are loaded from the file as before.
+     *
+     * @param type     Key store type.
+     * @param provider Name of a registered JCA provider, or null for the default provider selection. For PKCS11, the
+     *                 SunPKCS11 instance of the token; without it, the first registered PKCS11 provider is used.
+     * @param file     Key store file path. Not used for PKCS11 key stores.
+     * @param password Key store password (the token PIN for PKCS11 key stores).
+     * @return Loaded key store.
+     */
+    private KeyStore loadServerKeyStore(String type, String provider, String file, char[] password)
+            throws KeyStoreException, NoSuchProviderException, IOException, CertificateException,
+            NoSuchAlgorithmException {
+
+        // Without a configured provider, the key store is created exactly as before.
+        KeyStore store = StringUtils.isBlank(provider) ? KeystoreUtils.getKeystoreInstance(type) :
+                KeystoreUtils.getKeystoreInstance(type, provider);
+        if (KeystoreUtils.isPKCS11StoreType(type)) {
+            store.load(null, password);
+            return store;
+        }
+        try (FileInputStream in = new FileInputStream(file)) {
+            store.load(in, password);
+        }
+        return store;
     }
 
     /**

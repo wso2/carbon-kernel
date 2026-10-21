@@ -190,6 +190,32 @@ public class KeyStoreManagerTest {
         }
     }
 
+    @Test(description = "A PKCS11 key store is loaded from its token through the given provider, without a file")
+    public void testLoadPKCS11KeyStoreWithoutFile() throws Exception {
+
+        String providerName = "KeyStoreManagerTestToken";
+        char[] tokenPassword = "tokenpin".toCharArray();
+        KeyStore tokenContents;
+        try (java.io.InputStream in = new java.io.FileInputStream(createPath("pkcs11-token-test.p12").toFile())) {
+            tokenContents = InMemoryTokenProvider.loadPKCS12(in, tokenPassword);
+        }
+        InMemoryTokenProvider provider = new InMemoryTokenProvider(providerName, tokenContents, tokenPassword,
+                "1234".toCharArray());
+        java.security.Security.addProvider(provider);
+        try {
+            KeyStore keyStore = this.keyStoreManager.loadKeyStoreFromFileSystem("/no/such/file.p11", "1234",
+                    "PKCS11", providerName);
+            assertSame(keyStore.getProvider(), provider);
+            assertTrue(keyStore.isKeyEntry("wso2-tenant-1"));
+
+            // A wrong PIN fails the token login.
+            expectThrows(SecurityException.class, () -> this.keyStoreManager.loadKeyStoreFromFileSystem(
+                    "/no/such/file.p11", "0000", "PKCS11", providerName));
+        } finally {
+            java.security.Security.removeProvider(providerName);
+        }
+    }
+
     @Test(description = "Delete KeyStore test")
     public void testDeleteKeyStore() throws Exception {
 

@@ -144,6 +144,8 @@ public final class RegistryResources {
         public static final String SERVER_PRIMARY_KEYSTORE_KEY_ALIAS = "Security.KeyStore.KeyAlias";
         public static final String SERVER_PRIVATE_KEY_PASSWORD = "Security.KeyStore.KeyPassword";
         public static final String SERVER_PRIMARY_KEYSTORE_TYPE = "Security.KeyStore.Type";
+        // Optional JCA provider of the primary key store, for example the SunPKCS11 instance of a token.
+        public static final String SERVER_PRIMARY_KEYSTORE_PROVIDER = "Security.KeyStore.Provider";
 
         public static final String DEFAULT_SECURITY_CERTIFICATE_ALIAS = "wso2carbon";
 
@@ -179,6 +181,8 @@ public final class RegistryResources {
             public static final String PROP_PASSWORD = "Password";
             public static final String PROP_KEY_ALIAS = "KeyAlias";
             public static final String PROP_KEY_PASSWORD = "KeyPassword";
+            // Optional JCA provider of a custom key store, for example the SunPKCS11 instance of a token.
+            public static final String PROP_PROVIDER = "Provider";
         }
 
         // carbon.home location placeholder.

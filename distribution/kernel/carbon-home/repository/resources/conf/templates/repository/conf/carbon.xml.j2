@@ -523,6 +523,10 @@
             <Location>${carbon.home}/repository/resources/security/{{keystore.primary.file_name}}</Location>
             <!-- Keystore type (JKS/PKCS12 etc.)-->
             <Type>{{keystore.primary.type}}</Type>
+            {% if keystore.primary.provider is defined %}
+            <!-- JCA provider of the key store, for example the SunPKCS11 instance of a token (PKCS11) -->
+            <Provider>{{keystore.primary.provider}}</Provider>
+            {% endif %}
             <!-- Keystore password-->
             <Password>{{keystore.primary.password}}</Password>
             <!-- Private Key alias-->
@@ -593,6 +597,10 @@
                 <Location>${carbon.home}/repository/resources/security/{{keystore.file_name}}</Location>
                 <!-- Keystore type (JKS/PKCS12 etc.)-->
                 <Type>{{keystore.type}}</Type>
+                {% if keystore.provider is defined %}
+                <!-- JCA provider of the key store, for example the SunPKCS11 instance of a token (PKCS11) -->
+                <Provider>{{keystore.provider}}</Provider>
+                {% endif %}
                 <!-- Keystore password-->
                 <Password>{{keystore.password}}</Password>
                 <!-- Private Key alias-->
