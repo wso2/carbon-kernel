@@ -47,11 +47,22 @@
                     {% for property_name,property_value in transport.https.sslHostConfig.properties.items() %}
                                        {{property_name}}="{{property_value}}"
                                        {% endfor %}
+                                       {% if keystore.tls.type == "PKCS11" and transport.https.sslHostConfig.properties.truststoreProvider is not defined and truststore.type in ["PKCS12", "JKS"] %}
+                                       truststoreProvider="SUN"
+                                       {% endif %}
                                        >
                 <Certificate
                 {% for property_name,property_value in transport.https.sslHostConfig.certificate.properties.items() %}
+                                                       {% if not (keystore.tls.type == "PKCS11" and property_name == "certificateKeystoreFile") %}
                                                        {{property_name}}="{{property_value}}"
+                                                       {% endif %}
                                                        {% endfor %}
+                                                       {% if keystore.tls.type == "PKCS11" %}
+                                                       certificateKeystoreFile="NONE"
+                                                       {% if keystore.tls.provider is defined and transport.https.sslHostConfig.certificate.properties.certificateKeystoreProvider is not defined %}
+                                                       certificateKeystoreProvider="{{keystore.tls.provider}}"
+                                                       {% endif %}
+                                                       {% endif %}
                              />
             </SSLHostConfig>
         </Connector>
