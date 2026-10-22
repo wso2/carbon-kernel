@@ -513,6 +513,21 @@
       Security configurations
     -->
     <Security>
+        {% if security.pkcs11_provider is defined %}
+        <!--
+            SunPKCS11 providers, one per PKCS11 token. The launcher adds them to the JVM after the JDK providers,
+            before the server starts. Key stores refer to them as SunPKCS11-<Name>.
+        -->
+        <PKCS11Providers>
+            {% for provider in security.pkcs11_provider %}
+            <Provider>
+                <!-- Same value as the 'name' in the SunPKCS11 configuration file -->
+                <Name>{{provider.name}}</Name>
+                <ConfigFile>{{provider.config_file}}</ConfigFile>
+            </Provider>
+            {% endfor %}
+        </PKCS11Providers>
+        {% endif %}
         <!--
             KeyStore which will be used for encrypting/decrypting passwords
             and other sensitive information.
