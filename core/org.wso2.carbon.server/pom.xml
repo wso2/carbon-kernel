@@ -50,6 +50,23 @@
         </dependency>
     </dependencies>
 
+    <properties>
+        <hsm.it.excluded.groups>hsm-it</hsm.it.excluded.groups>
+        <hsm.it.groups/>
+    </properties>
+
+    <profiles>
+        <profile>
+            <!-- SoftHSM integration tests: needs SOFTHSM2_CONF in the environment and -Dhsm.it.cfg (SunPKCS11 config
+                 file), -Dhsm.it.pin and -Dhsm.it.alias (RSA key pair on that token). -->
+            <id>hsm-it</id>
+            <properties>
+                <hsm.it.excluded.groups/>
+                <hsm.it.groups>hsm-it</hsm.it.groups>
+            </properties>
+        </profile>
+    </profiles>
+
     <build>
         <resources>
             <resource>
@@ -89,6 +106,11 @@
                             <value>false</value>
                         </property>
                     </systemProperties>
+                    <!-- Same module access as the start scripts give the server (PKCS11OAEPProvider). -->
+                    <argLine>--add-opens=jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED --add-opens=jdk.crypto.cryptoki/sun.security.pkcs11.wrapper=ALL-UNNAMED</argLine>
+                    <!-- Tests that need a SoftHSM token run only with -Phsm-it. -->
+                    <excludedGroups>${hsm.it.excluded.groups}</excludedGroups>
+                    <groups>${hsm.it.groups}</groups>
                 </configuration>
             </plugin>
         </plugins>
