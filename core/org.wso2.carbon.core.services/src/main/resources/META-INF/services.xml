@@ -39,8 +39,8 @@
         <parameter name="ServiceClass" locked="true">
             org.wso2.carbon.core.services.authentication.AuthenticationAdmin
         </parameter>
-        <parameter name="DoAuthentication" locked="true">false</parameter>
-        <parameter name="DoAuthorization" locked="true">false</parameter>
+        <parameter name="DoAuthentication" locked="true">true</parameter>
+        <parameter name="AuthorizationAction" locked="true">/permission/admin/manage</parameter>
         <excludeOperations>
             <operation>isAuthenticated</operation>
             <operation>isHandle</operation>

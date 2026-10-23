@@ -390,7 +390,9 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
                     || requestedURI.endsWith(".JPG") || requestedURI.endsWith(".png")
                     || requestedURI.endsWith(".PNG") || requestedURI.endsWith(".xsl")
                     || requestedURI.endsWith(".xslt") || requestedURI.endsWith(".js")
-                    || requestedURI.endsWith(".ico") || requestedURI.endsWith("/filedownload")
+                    // filedownload removed from the HTTP non-secured carve-out so FileDownloadServlet requires
+                    // authentication on every transport
+                    || requestedURI.endsWith(".ico")
                     || requestedURI.endsWith("/fileupload")
                     || requestedURI.contains("/fileupload/")
                     || requestedURI.contains("registry/atom")
