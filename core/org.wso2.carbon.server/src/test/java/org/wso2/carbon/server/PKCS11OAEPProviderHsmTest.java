@@ -20,6 +20,7 @@ package org.wso2.carbon.server;
 import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -44,7 +45,8 @@ import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.expectThrows;
 
 /**
- * RSA-OAEP decryption with a key held in a SoftHSM token. Runs only with -Phsm-it; see the profile in the pom.
+ * RSA-OAEP decryption with a key held in a PKCS11 token (SoftHSM, or NSS softoken for OAEP with SHA-2). Runs only with
+ * -Phsm-it; see the profile in the pom.
  */
 @Test(groups = "hsm-it")
 public class PKCS11OAEPProviderHsmTest {
@@ -134,24 +136,33 @@ public class PKCS11OAEPProviderHsmTest {
         expectThrows(BadPaddingException.class, () -> cipher.doFinal(ciphertext));
     }
 
-    @Test(groups = "hsm-it")
-    public void testUnwrapOAEPSha256() throws Exception {
+    @DataProvider(name = "sha2Digests")
+    public Object[][] sha2Digests() {
 
-        // As Nimbus RSA-OAEP-256 decrypts: SHA-256 and MGF1-SHA-256 passed as parameters.
-        OAEPParameterSpec spec = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256,
-                PSource.PSpecified.DEFAULT);
+        return new Object[][]{{"SHA-256", MGF1ParameterSpec.SHA256}, {"SHA-384", MGF1ParameterSpec.SHA384},
+                {"SHA-512", MGF1ParameterSpec.SHA512}};
+    }
+
+    @Test(groups = "hsm-it", dataProvider = "sha2Digests")
+    public void testUnwrapOAEPSha2(String digest, MGF1ParameterSpec mgf1) throws Exception {
+
+        // As Nimbus RSA-OAEP-256/384/512 decrypts: the digest and MGF1 with the same digest passed as parameters.
+        OAEPParameterSpec spec = new OAEPParameterSpec(digest, "MGF1", mgf1, PSource.PSpecified.DEFAULT);
+        String transformation = "RSA/ECB/OAEPWith" + digest + "AndMGF1Padding";
         SecretKey contentKey = aesKey();
-        byte[] wrapped = encrypt("RSA/ECB/OAEPWithSHA-256AndMGF1Padding", spec, contentKey.getEncoded());
+        byte[] wrapped = encrypt(transformation, spec, contentKey.getEncoded());
 
-        Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
+        Cipher cipher = Cipher.getInstance(transformation);
         cipher.init(Cipher.UNWRAP_MODE, tokenKey, spec);
         try {
             assertEquals(cipher.unwrap(wrapped, "AES", Cipher.SECRET_KEY).getEncoded(), contentKey.getEncoded());
+            assertEquals(cipher.getProvider().getName(), PKCS11OAEPProvider.NAME);
         } catch (ProviderException e) {
-            // SoftHSM 2.x supports OAEP with SHA-1 only and answers CKR_ARGUMENTS_BAD.
+            // SoftHSM 2.x supports OAEP with SHA-1 only and answers CKR_ARGUMENTS_BAD. NSS softoken supports SHA-2.
             if (String.valueOf(e.getMessage()).contains("CKR_ARGUMENTS_BAD") ||
                     String.valueOf(e.getMessage()).contains("CKR_MECHANISM_PARAM_INVALID")) {
-                throw new SkipException("The token does not support RSA-OAEP with SHA-256: " + e.getMessage());
+                throw new SkipException("The token does not support RSA-OAEP with " + digest + ": " +
+                        e.getMessage());
             }
             throw e;
         }
