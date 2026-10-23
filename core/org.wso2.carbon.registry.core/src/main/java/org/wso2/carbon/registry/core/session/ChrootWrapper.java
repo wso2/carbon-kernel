@@ -92,8 +92,10 @@ public class ChrootWrapper {
         }
 
         if (path.startsWith("//")) {
-            // This is an absolute path, so just strip the doubled slash
-            return path.substring(1);
+            // E16-008/009/010/050/055: the //-absolute form must stay confined to the chroot.
+            // Previously returned path.substring(1) WITHOUT basePrefix, escaping the tenant chroot.
+            // Strip the doubled slash but still prepend basePrefix like any other absolute path.
+            return basePrefix + path.substring(1);
         }
         if (!path.startsWith(RegistryConstants.ROOT_PATH)) {
             path = RegistryConstants.ROOT_PATH + path;
