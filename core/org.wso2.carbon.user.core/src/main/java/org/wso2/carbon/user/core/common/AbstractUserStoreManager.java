@@ -85,11 +85,7 @@ import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.nio.CharBuffer;
-import java.security.AccessController;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -201,12 +197,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private Map<String, Integer> maxUserListCount = null;
     private Map<String, Integer> maxRoleListCount = null;
     private List<UserStoreManagerConfigurationListener> listener = new ArrayList<UserStoreManagerConfigurationListener>();
-    private static final ThreadLocal<Boolean> isSecureCall = new ThreadLocal<Boolean>() {
-        @Override
-        protected Boolean initialValue() {
-            return Boolean.FALSE;
-        }
-    };
 
     private UserUniqueIDManger userUniqueIDManger = new UserUniqueIDManger();
     protected UserUniqueIDDomainResolver userUniqueIDDomainResolver;
@@ -220,69 +210,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
-    /**
-     * This method is used by the APIs' in the AbstractUserStoreManager
-     * to make compatible with Java Security Manager.
-     */
-    private Object callSecure(final String methodName, final Object[] objects, final Class[] argTypes)
-            throws UserStoreException {
-
-        final AbstractUserStoreManager instance = this;
-
-        isSecureCall.set(Boolean.TRUE);
-        final Method method;
-        try {
-            Class clazz = Class.forName("org.wso2.carbon.user.core.common.AbstractUserStoreManager");
-            method = clazz.getDeclaredMethod(methodName, argTypes);
-
-        } catch (NoSuchMethodException e) {
-            log.error("Error occurred when calling method " + methodName, e);
-            throw new UserStoreException(e);
-        } catch (ClassNotFoundException e) {
-            log.error("Error occurred when calling class " + methodName, e);
-            throw new UserStoreException(e);
-        }
-
-        try {
-            return AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
-                @Override
-                public Object run() throws Exception {
-                    return method.invoke(instance, objects);
-                }
-            });
-        } catch (PrivilegedActionException e) {
-            if (e.getCause() != null && e.getCause().getCause() != null && e.getCause().getCause() instanceof
-                    UserStoreException) {
-                boolean isClientException = e.getCause().getCause() instanceof UserStoreClientException;
-                String errorCode = ((UserStoreException) e.getCause().getCause()).getErrorCode();
-                String errorMessage = e.getCause().getCause().getMessage();
-                if (isClientException) {
-                    if (StringUtils.isBlank(errorCode)) {
-                        throw new UserStoreClientException(errorMessage, e);
-                    }
-                    throw new UserStoreClientException(errorMessage, errorCode, e);
-                } else {
-                    if (StringUtils.isBlank(errorCode)) {
-                        throw new UserStoreException(errorMessage, e);
-                    }
-                    throw new UserStoreException(errorMessage, errorCode, e);
-                }
-            } else {
-                String msg;
-                if (objects != null && argTypes != null) {
-                    msg = "Error occurred while accessing Java Security Manager Privilege Block when called by " +
-                            "method " + methodName + " with " + objects.length + " length of Objects and argTypes " +
-                            Arrays.toString(argTypes);
-                } else {
-                    msg = "Error occurred while accessing Java Security Manager Privilege Block";
-                }
-                log.error(msg, e);
-                throw new UserStoreException(msg, e);
-            }
-        } finally {
-            isSecureCall.set(Boolean.FALSE);
-        }
-    }
 
     /**
      * This method is used by the support system to read properties
@@ -1620,35 +1547,18 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     public final boolean authenticate(final String userName, final Object credential) throws UserStoreException {
 
-        try {
-            return AccessController.doPrivileged((PrivilegedExceptionAction<Boolean>)
-                    () -> {
-                        if (!validateUserNameAndCredential(userName, credential)) {
-                            return false;
-                        }
-                        int index = userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
-                        boolean domainProvided = index > 0;
-                        return authenticate(userName, credential, domainProvided);
-                    });
-        } catch (PrivilegedActionException e) {
-            if (!(e.getException() instanceof UserStoreException)) {
-                handleOnAuthenticateFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
-                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(), e.getMessage()),
-                        userName, credential);
-            }
-            throw (UserStoreException) e.getException();
+        if (!validateUserNameAndCredential(userName, credential)) {
+            return false;
         }
+        int index = userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+        boolean domainProvided = index > 0;
+        return authenticate(userName, credential, domainProvided);
     }
 
     protected boolean authenticate(final String userName, final Object credential, final boolean domainProvided)
             throws UserStoreException {
 
-        try {
-            return AccessController.doPrivileged((PrivilegedExceptionAction<Boolean>)
-                    () -> authenticateInternalIteration(userName, credential, domainProvided));
-        } catch (PrivilegedActionException e) {
-            throw (UserStoreException) e.getException();
-        }
+        return authenticateInternalIteration(userName, credential, domainProvided);
     }
 
     private boolean authenticateInternalIteration(String userName, Object credential, boolean domainProvided)
@@ -2040,12 +1950,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public final String getUserClaimValue(String userName, String claim, String profileName)
             throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{String.class, String.class, String.class};
-            Object object = callSecure("getUserClaimValue", new Object[]{userName, claim, profileName}, argTypes);
-            return (String) object;
-        }
-
         UserStore userStore = getUserStore(userName);
         if (userStore.isRecurssive()) {
             return userStore.getUserStoreManager().getUserClaimValue(userStore.getDomainFreeName(),
@@ -2194,12 +2098,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public final Claim[] getUserClaimValues(String userName, String profileName)
             throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String.class};
-            Object object = callSecure("getUserClaimValues", new Object[]{userName, profileName}, argTypes);
-            return (Claim[]) object;
-        }
-
         UserStore userStore = getUserStore(userName);
         if (userStore.isRecurssive()) {
             return userStore.getUserStoreManager().getUserClaimValues(
@@ -2256,12 +2154,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     public final Map<String, String> getUserClaimValues(String userName, String[] claims,
                                                         String profileName) throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String[].class, String.class};
-            Object object = callSecure("getUserClaimValues", new Object[]{userName, claims, profileName}, argTypes);
-            return (Map<String, String>) object;
-        }
 
         UserStore userStore = getUserStore(userName);
         if (userStore.isRecurssive()) {
@@ -2999,12 +2891,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public final String[] getUserList(String claim, String claimValue, String profileName) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class, String.class, String.class };
-            Object object = callSecure("getUserList", new Object[] { claim, claimValue, profileName }, argTypes);
-            return (String[]) object;
-        }
-
         if (claim == null) {
             String errorCode = ErrorMessages.ERROR_CODE_INVALID_CLAIM_URI.getCode();
             String errorMessage = String.format(ErrorMessages.ERROR_CODE_INVALID_CLAIM_URI.getMessage(), "");
@@ -3296,12 +3182,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public final List<User> getUserListWithID(String claim, String claimValue, String profileName)
             throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class, String.class, String.class };
-            Object object = callSecure("getUserListWithID", new Object[] { claim, claimValue, profileName }, argTypes);
-            return (List<User>) object;
-        }
 
         if (claim == null) {
             String errorCode = ErrorMessages.ERROR_CODE_INVALID_CLAIM_URI.getCode();
@@ -3782,12 +3662,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public final void updateCredential(String userName, Object newCredential, Object oldCredential)
             throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, Object.class, Object.class};
-            callSecure("updateCredential", new Object[]{userName, newCredential, oldCredential}, argTypes);
-            return;
-        }
-
         UserStore userStore = getUserStore(userName);
         if (userStore.isRecurssive()) {
             userStore.getUserStoreManager().updateCredential(userStore.getDomainFreeName(),
@@ -4023,12 +3897,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     public final void updateCredentialByAdmin(String userName, Object newCredential)
             throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, Object.class};
-            callSecure("updateCredentialByAdmin", new Object[]{userName, newCredential}, argTypes);
-            return;
-        }
 
         UserStore userStore = getUserStore(userName);
         if (userStore.isRecurssive()) {
@@ -4311,12 +4179,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * {@inheritDoc}
      */
     public final void deleteUser(String userName) throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class};
-            callSecure("deleteUser", new Object[]{userName}, argTypes);
-            return;
-        }
 
         String loggedInUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
         if (loggedInUser != null) {
@@ -4808,12 +4670,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public final void deleteUserClaimValue(String userName, String claimURI, String profileName)
             throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String.class, String.class};
-            callSecure("deleteUserClaimValue", new Object[]{userName, claimURI, profileName}, argTypes);
-            return;
-        }
-
         UserStore userStore = getUserStore(userName);
         if (userStore.isRecurssive()) {
             userStore.getUserStoreManager().deleteUserClaimValue(userStore.getDomainFreeName(),
@@ -4952,12 +4808,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public final void deleteUserClaimValues(String userName, String[] claims, String profileName)
             throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class, String[].class, String.class };
-            callSecure("deleteUserClaimValues", new Object[] { userName, claims, profileName }, argTypes);
-            return;
-        }
-
         UserStore userStore = getUserStore(userName);
         if (userStore.isRecurssive()) {
             userStore.getUserStoreManager().deleteUserClaimValues(userStore.getDomainFreeName(), claims, profileName);
@@ -5066,14 +4916,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             throws UserStoreException {
 
         // We have to make sure this call is going through the Java Security Manager.
-        if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{String.class, Object.class, String[].class, Map.class, String.class,
-                    boolean.class};
-            callSecure("addUser", new Object[]{userName, credential, roleList, claims, profileName,
-                    requirePasswordChange}, argTypes);
-            return;
-        }
-
         User user = null;
         // If we don't have a username, we cannot proceed.
         if (StringUtils.isEmpty(userName)) {
@@ -5484,19 +5326,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     public final void updateUserListOfRole(final String roleName, final String[] deletedUsers, final String[] newUsers)
             throws UserStoreException {
-        try {
-            AccessController.doPrivileged((PrivilegedExceptionAction<String>) () -> {
-                updateUserListOfRoleInternal(roleName, deletedUsers, newUsers);
-                return null;
-            });
-        } catch (PrivilegedActionException e) {
-            if (!(e.getException() instanceof UserStoreException)) {
-                handleUpdateUserListOfRoleFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_ROLE_OF_USER.getCode(),
-                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_ROLE_OF_USER.getMessage(),
-                                e.getMessage()), roleName, deletedUsers, newUsers);
-            }
-            throw (UserStoreException) e.getException();
-        }
+        updateUserListOfRoleInternal(roleName, deletedUsers, newUsers);
     }
 
     /**
@@ -5753,19 +5583,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     public final void updateRoleListOfUser(final String username, final String[] deletedRoles, final String[] newRoles)
             throws UserStoreException {
-        try {
-            AccessController.doPrivileged((PrivilegedExceptionAction<String>) () -> {
-                updateRoleListOfUserInternal(username, deletedRoles, newRoles);
-                return null;
-            });
-        } catch (PrivilegedActionException e) {
-            if (!(e.getException() instanceof UserStoreException)) {
-                handleUpdateRoleListOfUserFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_UPDATE_USERS_OF_ROLE.getCode(),
-                        String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_UPDATE_USERS_OF_ROLE.getMessage(),
-                                e.getMessage()), username, deletedRoles, newRoles);
-            }
-            throw (UserStoreException) e.getException();
-        }
+        updateRoleListOfUserInternal(username, deletedRoles, newRoles);
     }
 
     /**
@@ -6141,12 +5959,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     public final void updateRoleName(String roleName, String newRoleName) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String.class};
-            callSecure("updateRoleName", new Object[]{roleName, newRoleName}, argTypes);
-            return;
-        }
-
         if (UserCoreUtil.isPrimaryAdminRole(newRoleName, realmConfig)) {
             handleUpdateRoleNameFailure(ErrorMessages.ERROR_CODE_CANNOT_UPDATE_ADMIN_ROLE.getCode(),
                     ErrorMessages.ERROR_CODE_CANNOT_UPDATE_ADMIN_ROLE.getMessage(), roleName, newRoleName);
@@ -6269,12 +6081,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     public boolean isExistingRole(String roleName) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class};
-            Object object = callSecure("isExistingRole", new Object[]{roleName}, argTypes);
-            return (Boolean) object;
-        }
-
         UserStore userStore = getUserStoreOfRoles(roleName);
 
         if (userStore.isRecurssive()) {
@@ -6332,12 +6138,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @throws UserStoreException
      */
     public boolean isExistingShareRole(String roleName) throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class};
-            Object object = callSecure("isExistingShareRole", new Object[]{roleName}, argTypes);
-            return (Boolean) object;
-        }
 
         UserStoreManager manager = getUserStoreWithSharedRoles();
 
@@ -6482,12 +6282,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     private UserStoreManager getUserStoreWithSharedRoles() throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{};
-            Object object = callSecure("getUserStoreWithSharedRoles", new Object[]{}, argTypes);
-            return (UserStoreManager) object;
-        }
-
         UserStoreManager sharedRoleManager = null;
 
         if (isSharedGroupEnabled()) {
@@ -6517,12 +6311,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @throws UserStoreException
      */
     public boolean isUserInRole(String userName, String roleName) throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String.class};
-            Object object = callSecure("isUserInRole", new Object[]{userName, roleName}, argTypes);
-            return (Boolean) object;
-        }
 
         if (roleName == null || roleName.trim().length() == 0 || userName == null ||
                 userName.trim().length() == 0) {
@@ -6703,12 +6491,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     public boolean isExistingUser(String userName) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{String.class};
-            Object object = callSecure("isExistingUser", new Object[]{userName}, argTypes);
-            return (Boolean) object;
-        }
-
         if (UserCoreUtil.isRegistrySystemUser(userName)) {
             return true;
         }
@@ -6744,12 +6526,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * {@inheritDoc}
      */
     public final String[] listUsers(String filter, int maxItemLimit) throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{String.class, int.class};
-            Object object = callSecure("listUsers", new Object[]{filter, maxItemLimit}, argTypes);
-            return (String[]) object;
-        }
 
         int index;
         index = filter.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
@@ -6952,12 +6728,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     public long countRoles(String filter) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{String.class};
-            Object object = callSecure("countRoles", new Object[]{filter}, argTypes);
-            return (long) object;
-        }
-
         int index;
         index = filter.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
 
@@ -7043,12 +6813,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     public final String[] getUserListOfRole(String roleName) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class};
-            Object object = callSecure("getUserListOfRole", new Object[]{roleName}, argTypes);
-            return (String[]) object;
-        }
-
         return getUserListOfRole(roleName, QUERY_FILTER_STRING_ANY, QUERY_MAX_ITEM_LIMIT_ANY);
     }
 
@@ -7062,12 +6826,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @throws UserStoreException
      */
     public final String[] getUserListOfRole(String roleName, String filter, int maxItemLimit) throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String.class, int.class};
-            Object object = callSecure("getUserListOfRole", new Object[]{roleName, filter, maxItemLimit}, argTypes);
-            return (String[]) object;
-        }
 
         String[] userNames = new String[0];
 
@@ -7177,12 +6935,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     }
 
     public String[] getRoleListOfUser(String userName) throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class};
-            Object object = callSecure("getRoleListOfUser", new Object[]{userName}, argTypes);
-            return (String[]) object;
-        }
 
         String[] roleNames;
         String userID;
@@ -8146,11 +7898,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     public final void deleteRole(String roleName) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class};
-            callSecure("deleteRole", new Object[]{roleName}, argTypes);
-            return;
-        }
         if (UserCoreUtil.isPrimaryAdminRole(roleName, realmConfig)
                 && !StringUtils.equals(getTenantDomain(tenantId), realmConfig.getAssociatedOrganizationUUID())) {
             handleDeleteRoleFailure(ErrorMessages.ERROR_CODE_CANNOT_DELETE_ADMIN_ROLE.getCode(),
@@ -8280,42 +8027,22 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     private UserStore getUserStore(final String user) throws UserStoreException {
 
-        try {
-            return AccessController
-                    .doPrivileged((PrivilegedExceptionAction<UserStore>) () -> getUserStoreInternal(user));
-        } catch (PrivilegedActionException e) {
-            throw (UserStoreException) e.getException();
-        }
+        return getUserStoreInternal(user);
     }
 
     protected UserStore getUserStoreWithID(final String userID) throws UserStoreException {
 
-        try {
-            return AccessController
-                    .doPrivileged((PrivilegedExceptionAction<UserStore>) () -> getUserStoreInternalWithId(userID));
-        } catch (PrivilegedActionException e) {
-            throw (UserStoreException) e.getException();
-        }
+        return getUserStoreInternalWithId(userID);
     }
 
     protected UserStore getUserStoreWithGroupId(final String groupId) throws UserStoreException {
 
-        try {
-            return AccessController.doPrivileged((PrivilegedExceptionAction<UserStore>)
-                    () -> getUserStoreInternalWithGroupId(groupId));
-        } catch (PrivilegedActionException e) {
-            throw (UserStoreException) e.getException();
-        }
+        return getUserStoreInternalWithGroupId(groupId);
     }
 
     protected UserStore getUserStoreWithGroupName(final String groupName) throws UserStoreException {
 
-        try {
-            return AccessController.doPrivileged((PrivilegedExceptionAction<UserStore>) () ->
-                            getUserStoreInternalWithGroupName(groupName));
-        } catch (PrivilegedActionException e) {
-            throw (UserStoreException) e.getException();
-        }
+        return getUserStoreInternalWithGroupName(groupName);
     }
 
     private UserStore getUserStoreOfRoles(final String role) throws UserStoreException {
@@ -8811,12 +8538,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     public final String[] getAllSecondaryRoles() throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{};
-            Object object = callSecure("getAllSecondaryRoles", new Object[]{}, argTypes);
-            return (String[]) object;
-        }
-
         UserStoreManager secondary = this.getSecondaryUserStoreManager();
         List<String> roleList = new ArrayList<String>();
         while (secondary != null) {
@@ -8952,13 +8673,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public final String[] getRoleNames(String filter, int maxItemLimit, boolean noInternalRoles,
                                        boolean noSystemRole, boolean noSharedRoles)
             throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, int.class, boolean.class, boolean.class, boolean.class};
-            Object object = callSecure("getRoleNames", new Object[]{filter, maxItemLimit, noInternalRoles,
-                    noSystemRole, noSharedRoles}, argTypes);
-            return (String[]) object;
-        }
 
         String[] roleList = new String[0];
 
@@ -9364,12 +9078,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (UserCoreUtil.getSkipPasswordPatternValidationThreadLocal()) {
             return true;
         }
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{Object.class};
-            Object object = callSecure("checkUserPasswordValid", new Object[]{credential}, argTypes);
-            return (Boolean) object;
-        }
-
         if (credential == null) {
             return false;
         }
@@ -9413,12 +9121,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @throws UserStoreException
      */
     protected boolean isValidCredentials(Object credential) throws UserStoreException {
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { Object.class };
-            Object object = callSecure("isValidCredentials", new Object[] { credential }, argTypes);
-            return (Boolean) object;
-        }
-
         if (credential == null) {
             return false;
         }
@@ -9502,12 +9204,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @throws UserStoreException when checking the call is secure or not
      */
     protected boolean isValidUserName(String userName) throws UserStoreException {
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class };
-            Object object = callSecure("isValidUserName", new Object[] { userName }, argTypes);
-            return (Boolean) object;
-        }
-
         if (userName == null || CarbonConstants.REGISTRY_SYSTEM_USERNAME.equals(userName)) {
             return false;
         }
@@ -9739,12 +9435,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     public RoleDTO[] getAllSecondaryRoleDTOs() throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{};
-            Object object = callSecure("getAllSecondaryRoleDTOs", new Object[]{}, argTypes);
-            return (RoleDTO[]) object;
-        }
-
         UserStoreManager secondary = this.getSecondaryUserStoreManager();
         List<RoleDTO> roleList = new ArrayList<RoleDTO>();
         while (secondary != null) {
@@ -9890,12 +9580,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     public List<String> doGetRoleListOfUserWithID(String userID, String filter) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class, String.class };
-            Object object = callSecure("doGetRoleListOfUserWithID", new Object[] { userID, filter }, argTypes);
-            return (List<String>) object;
-        }
-
         String username = getUserNameFromUserID(userID);
         if (username != null) {
             String[] roleListOfUserFromCache = getRoleListOfUserFromCache(this.tenantId, username);
@@ -9965,12 +9649,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     public final String[] doGetRoleListOfUser(String userName, String filter) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class, String.class };
-            Object object = callSecure("doGetRoleListOfUser", new Object[] { userName, filter }, argTypes);
-            return (String[]) object;
-        }
-
         String[] roleList = getRoleListOfUserFromCache(this.tenantId, userName);
         if (roleList != null && roleList.length > 0) {
             return roleList;
@@ -10028,12 +9706,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     public final String[] getRoleListOfUserFromDatabase(String username, String filter)
             throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String.class};
-            Object object = callSecure("getRoleListOfUserFromDatabase", new Object[]{username, filter}, argTypes);
-            return (String[]) object;
-        }
 
         if (isUniqueUserIdEnabledInUserStore(getUserStore(username))) {
             String userID = getUserIDFromUserName(username);
@@ -10645,12 +10317,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private UserStoreManager createSecondaryUserStoreManager(RealmConfiguration realmConfig,
                                                              UserRealm realm) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{RealmConfiguration.class, UserRealm.class};
-            Object object = callSecure("createSecondaryUserStoreManager", new Object[]{realmConfig, realm}, argTypes);
-            return (UserStoreManager) object;
-        }
-
         // setting global realm configurations such as everyone role, admin role and admin user
         realmConfig.setEveryOneRoleName(this.realmConfig.getEveryOneRoleName());
         realmConfig.setAdminUserName(this.realmConfig.getAdminUserName());
@@ -10748,12 +10414,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public void addSecondaryUserStoreManager(RealmConfiguration userStoreRealmConfig,
                                              UserRealm realm) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{RealmConfiguration.class, UserRealm.class};
-            callSecure("addSecondaryUserStoreManager", new Object[]{userStoreRealmConfig, realm}, argTypes);
-            return;
-        }
-
         boolean isDisabled = Boolean.parseBoolean(userStoreRealmConfig
                 .getUserStoreProperty(UserCoreConstants.RealmConfig.USER_STORE_DISABLED));
 
@@ -10800,12 +10460,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     @Override
     public Map<String, List<String>> getRoleListOfUsers(String[] userNames) throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String[].class };
-            Object object = callSecure("getRoleListOfUsers", new Object[] { userNames }, argTypes);
-            return (Map<String, List<String>>) object;
-        }
 
         Map<String, List<String>> allRoleNames = new HashMap<>();
         Map<String, List<String>> domainFreeUsers = getDomainFreeUsers(userNames);
@@ -10854,12 +10508,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     public Map<String, List<String>> doGetRoleListOfUsers(List<String> userNames, String domainName)
             throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { List.class, String.class };
-            Object object = callSecure("doGetRoleListOfUsers", new Object[] { userNames, domainName }, argTypes);
-            return (Map<String, List<String>>) object;
-        }
 
         Map<String, List<String>> internalRoles = doGetInternalRoleListOfUsers(userNames, domainName);
 
@@ -10919,13 +10567,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public UserClaimSearchEntry[] getUsersClaimValues(String[] userNames, String[] claims, String profileName) throws
             UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String[].class, String[].class, String.class};
-            Object object = callSecure("getUsersClaimValues", new Object[]{userNames, claims, profileName},
-                    argTypes);
-            return (UserClaimSearchEntry[]) object;
-        }
 
         if (StringUtils.isEmpty(profileName)) {
             profileName = UserCoreConstants.DEFAULT_PROFILE;
@@ -11099,12 +10740,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      */
     public void removeSecondaryUserStoreManager(String userStoreDomainName) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class};
-            callSecure("removeSecondaryUserStoreManager", new Object[]{userStoreDomainName}, argTypes);
-            return;
-        }
-
         if (userStoreDomainName == null) {
             throw new UserStoreException("Cannot remove user store. User store domain name is null");
         }
@@ -11154,13 +10789,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public String[] getUserList(String claim, String claimValue, String profileName, int limit, int offset) throws
             UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String.class, String.class, int.class, int.class};
-            Object object = callSecure("getUserList", new Object[]{claim, claimValue, profileName, limit, offset},
-                    argTypes);
-            return (String[]) object;
-        }
 
         if (claim == null) {
             String errorCode = ErrorMessages.ERROR_CODE_INVALID_CLAIM_URI.getCode();
@@ -11296,12 +10924,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @throws UserStoreException UserStoreException
      */
     public long getUserCountWithClaims(String claimUri, String filter) throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String.class};
-            Object object = callSecure("getUserCountWithClaims", new Object[]{claimUri,filter}, argTypes);
-            return (long) object;
-        }
 
         if (claimUri == null) {
             String errorCode = ErrorMessages.ERROR_CODE_NULL_CLAIM_URI.getCode();
@@ -11439,12 +11061,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     @Override
     public String[] listUsers(String filter, int limit, int offset) throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, int.class, int.class};
-            Object object = callSecure("listUsers", new Object[]{filter, limit, offset}, argTypes);
-            return (String[]) object;
-        }
 
         int index = filter.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
         PaginatedSearchResult userList;
@@ -11807,36 +11423,24 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public final AuthenticationResult authenticateWithID(final List<LoginIdentifier> loginIdentifiers,
             final String domain, final Object credential) throws UserStoreException {
 
-        try {
-            return AccessController.doPrivileged((PrivilegedExceptionAction<AuthenticationResult>) () -> {
-                if (!validateUserNameAndCredentials(loginIdentifiers, credential)) {
-                    AuthenticationResult authenticationResult = new AuthenticationResult(
-                            AuthenticationResult.AuthenticationStatus.FAIL);
-                    authenticationResult.setFailureReason(new FailureReason("Invalid Credentials"));
-                    return authenticationResult;
-                }
+        if (!validateUserNameAndCredentials(loginIdentifiers, credential)) {
+            AuthenticationResult authenticationResult = new AuthenticationResult(
+                    AuthenticationResult.AuthenticationStatus.FAIL);
+            authenticationResult.setFailureReason(new FailureReason("Invalid Credentials"));
+            return authenticationResult;
+        }
 
-                List<String> userStorePreferenceOrder = new ArrayList<>();
-                // Check whether user store chain needs to be generated or not.
-                if (isUserStoreChainNeeded(userStorePreferenceOrder)) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("User store chain generation is needed hence generating the user store chain using "
-                                + "the user" + " store preference order: " + userStorePreferenceOrder);
-                    }
-                    return generateUserStoreChainWithID(loginIdentifiers, domain, credential, userStorePreferenceOrder);
-                } else {
-                    // Authenticate the user.
-                    return authenticateInternalWithID(loginIdentifiers, domain, credential);
-                }
-
-            });
-        } catch (PrivilegedActionException e) {
-            if (!(e.getException() instanceof UserStoreException)) {
-                handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
-                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(), e.getMessage()),
-                        loginIdentifiers, credential);
+        List<String> userStorePreferenceOrder = new ArrayList<>();
+        // Check whether user store chain needs to be generated or not.
+        if (isUserStoreChainNeeded(userStorePreferenceOrder)) {
+            if (log.isDebugEnabled()) {
+                log.debug("User store chain generation is needed hence generating the user store chain using "
+                        + "the user" + " store preference order: " + userStorePreferenceOrder);
             }
-            throw (UserStoreException) e.getException();
+            return generateUserStoreChainWithID(loginIdentifiers, domain, credential, userStorePreferenceOrder);
+        } else {
+            // Authenticate the user.
+            return authenticateInternalWithID(loginIdentifiers, domain, credential);
         }
     }
 
@@ -12185,27 +11789,16 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             final String preferredUserNameValue, final Object credential, final String profileName)
             throws UserStoreException {
 
-        try {
-            return AccessController.doPrivileged((PrivilegedExceptionAction<AuthenticationResult>) () -> {
-                if (!validateUserNameAndCredential(preferredUserNameClaim, preferredUserNameValue, credential)) {
-                    AuthenticationResult authenticationResult = new AuthenticationResult(
-                            AuthenticationResult.AuthenticationStatus.FAIL);
-                    authenticationResult.setFailureReason(new FailureReason("Invalid Credentials"));
-                    return authenticationResult;
-                }
-                int index = preferredUserNameValue.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
-                boolean domainProvided = index > 0;
-                return authenticateWithID(preferredUserNameClaim, preferredUserNameValue, credential, profileName,
-                        domainProvided);
-            });
-        } catch (PrivilegedActionException e) {
-            if (!(e.getException() instanceof UserStoreException)) {
-                handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
-                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(), e.getMessage()),
-                        preferredUserNameClaim, preferredUserNameValue, credential);
-            }
-            throw (UserStoreException) e.getException();
+        if (!validateUserNameAndCredential(preferredUserNameClaim, preferredUserNameValue, credential)) {
+            AuthenticationResult authenticationResult = new AuthenticationResult(
+                    AuthenticationResult.AuthenticationStatus.FAIL);
+            authenticationResult.setFailureReason(new FailureReason("Invalid Credentials"));
+            return authenticationResult;
         }
+        int index = preferredUserNameValue.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+        boolean domainProvided = index > 0;
+        return authenticateWithID(preferredUserNameClaim, preferredUserNameValue, credential, profileName,
+                domainProvided);
     }
 
     /**
@@ -12225,15 +11818,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                                       final Object credential, final String profileName,
                                                       final boolean domainProvided) throws UserStoreException {
 
-        try {
-            return AccessController.doPrivileged(
-                    (PrivilegedExceptionAction<AuthenticationResult>) ()
-                            -> authenticateInternalIterationWithID(preferredUserNameClaim,
-                            preferredUserNameValue, credential, profileName, domainProvided));
-        } catch (PrivilegedActionException e) {
-            throw (UserStoreException) e.getException();
-        }
-
+        return authenticateInternalIterationWithID(preferredUserNameClaim,
+                preferredUserNameValue, credential, profileName, domainProvided);
     }
 
     private AuthenticationResult authenticateInternalIterationWithID(String preferredUserNameClaim,
@@ -12582,38 +12168,26 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public final AuthenticationResult authenticateWithID(final String userID, final Object credential)
             throws UserStoreException {
 
-        try {
-            return AccessController.doPrivileged((PrivilegedExceptionAction<AuthenticationResult>) () -> {
-                if (!validateUserIDAndCredential(userID, credential)) {
-                    AuthenticationResult authenticationResult = new AuthenticationResult(
-                            AuthenticationResult.AuthenticationStatus.FAIL);
-                    authenticationResult.setFailureReason(new FailureReason("Invalid Credentials"));
-                    return authenticationResult;
-                }
+        if (!validateUserIDAndCredential(userID, credential)) {
+            AuthenticationResult authenticationResult = new AuthenticationResult(
+                    AuthenticationResult.AuthenticationStatus.FAIL);
+            authenticationResult.setFailureReason(new FailureReason("Invalid Credentials"));
+            return authenticationResult;
+        }
 
-                List<String> userStorePreferenceOrder = new ArrayList<>();
-                // Check whether user store chain needs to be generated or not.
-                if (isUserStoreChainNeeded(userStorePreferenceOrder)) {
-                    if (log.isDebugEnabled()) {
-                        log.debug(
-                                "User store chain generation is needed hence generating the user store chain using "
-                                        + "the user"
-                                        + " store preference order: " + userStorePreferenceOrder);
-                    }
-                    return generateUserStoreChainWithID(userID, credential, userStorePreferenceOrder);
-                } else {
-                    // Authenticate the user.
-                    return authenticateInternalWithID(userID, credential);
-                }
-
-            });
-        } catch (PrivilegedActionException e) {
-            if (!(e.getException() instanceof UserStoreException)) {
-                handleOnAuthenticateFailureWithID(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getCode(),
-                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_AUTHENTICATION.getMessage(), e.getMessage()),
-                        userID, credential);
+        List<String> userStorePreferenceOrder = new ArrayList<>();
+        // Check whether user store chain needs to be generated or not.
+        if (isUserStoreChainNeeded(userStorePreferenceOrder)) {
+            if (log.isDebugEnabled()) {
+                log.debug(
+                        "User store chain generation is needed hence generating the user store chain using "
+                                + "the user"
+                                + " store preference order: " + userStorePreferenceOrder);
             }
-            throw (UserStoreException) e.getException();
+            return generateUserStoreChainWithID(userID, credential, userStorePreferenceOrder);
+        } else {
+            // Authenticate the user.
+            return authenticateInternalWithID(userID, credential);
         }
     }
 
@@ -12806,12 +12380,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public final List<User> listUsersWithID(String filter, int maxItemLimit) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class, int.class };
-            Object object = callSecure("listUsersWithID", new Object[] { filter, maxItemLimit }, argTypes);
-            return (List<User>) object;
-        }
-
         int index;
         index = filter.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
         List<User> userList;
@@ -12912,13 +12480,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public User getUserWithID(String userID, String[] requestedClaims, String profileName) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[] { String.class, String[].class, String.class };
-            Object object = callSecure("getUserWithID", new Object[] { userID, requestedClaims, profileName },
-                    argTypes);
-            return (User) object;
-        }
-
         UserStore userStore = getUserStoreWithID(userID);
         if (userStore.isRecurssive()) {
             return ((AbstractUserStoreManager) userStore.getUserStoreManager())
@@ -12992,12 +12553,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public boolean isExistingUserWithID(String userID) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class };
-            Object object = callSecure("isExistingUserWithID", new Object[] { userID }, argTypes);
-            return (Boolean) object;
-        }
-
         if (UserCoreUtil.isRegistrySystemUser(userID)) {
             return true;
         }
@@ -13028,12 +12583,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     @Override
     public List<String> getRoleListOfUserWithID(String userID) throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class };
-            Object object = callSecure("getRoleListOfUserWithID", new Object[] { userID }, argTypes);
-            return (List<String>) object;
-        }
 
         List<String> roleNames;
 
@@ -13093,25 +12642,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public final List<User> getUserListOfRoleWithID(String roleName) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class };
-            Object object = callSecure("getUserListOfRoleWithID", new Object[] { roleName }, argTypes);
-            return (List<User>) object;
-        }
-
         return getUserListOfRoleWithID(roleName, QUERY_FILTER_STRING_ANY, QUERY_MAX_ITEM_LIMIT_ANY);
     }
 
     @Override
     public final List<User> getUserListOfRoleWithID(String roleName, String filter, int maxItemLimit)
             throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class, String.class, int.class };
-            Object object = callSecure("getUserListOfRoleWithID", new Object[] { roleName, filter, maxItemLimit },
-                    argTypes);
-            return (List<User>) object;
-        }
 
         List<User> users = new ArrayList<>();
 
@@ -13223,25 +12759,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public final List<User> getUserListOfGroupWithID(String groupName) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class};
-            Object object = callSecure("getUserListOfGroupWithID", new Object[]{groupName}, argTypes);
-            return (List<User>) object;
-        }
-
         return getUserListOfGroupWithID(groupName, QUERY_FILTER_STRING_ANY, QUERY_MAX_ITEM_LIMIT_ANY);
     }
 
     @Override
     public final List<User> getUserListOfGroupWithID(String groupName, String filter, int maxItemLimit)
             throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String.class, int.class};
-            Object object = callSecure("getUserListOfGroupWithID", new Object[]{groupName, filter, maxItemLimit},
-                    argTypes);
-            return (List<User>) object;
-        }
 
         List<User> users = new ArrayList<>();
 
@@ -13290,13 +12813,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public final String getUserClaimValueWithID(String userID, String claim, String profileName)
             throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class, String.class, String.class };
-            Object object = callSecure("getUserClaimValueWithID", new Object[] { userID, claim, profileName },
-                    argTypes);
-            return (String) object;
-        }
 
         UserStore userStore = getUserStoreWithID(userID);
         if (userStore.isRecurssive()) {
@@ -13388,13 +12904,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public final Map<String, String> getUserClaimValuesWithID(String userID, String[] claims, String profileName)
             throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class, String[].class, String.class };
-            Object object = callSecure("getUserClaimValuesWithID", new Object[] { userID, claims, profileName },
-                    argTypes);
-            return (Map<String, String>) object;
-        }
-
         UserStore userStore = getUserStoreWithID(userID);
         if (userStore.isRecurssive()) {
             return ((AbstractUserStoreManager) userStore.getUserStoreManager())
@@ -13475,12 +12984,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public final List<Claim> getUserClaimValuesWithID(String userID, String profileName) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class, String.class };
-            Object object = callSecure("getUserClaimValuesWithID", new Object[] { userID, profileName }, argTypes);
-            return (List<Claim>) object;
-        }
-
         UserStore userStore = getUserStoreWithID(userID);
         if (userStore.isRecurssive()) {
             return ((AbstractUserStoreManager) userStore.getUserStoreManager())
@@ -13533,14 +13036,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     protected Map<String, String> doGetUserClaimValuesWithID(String userID, String[] claims, String domainName,
             String profileName) throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class, String[].class, String.class, String.class };
-            Object object = callSecure("doGetUserClaimValuesWithID", new Object[] {
-                    userID, claims, domainName, profileName
-            }, argTypes);
-            return (Map<String, String>) object;
-        }
 
         if (ArrayUtils.isEmpty(claims)) {
             return new HashMap<>();
@@ -13744,12 +13239,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public final void updateCredentialWithID(String userID, Object newCredential, Object oldCredential)
             throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{String.class, Object.class, Object.class};
-            callSecure("updateCredentialWithID", new Object[] { userID, newCredential, oldCredential }, argTypes);
-            return;
-        }
 
         UserStore userStore = getUserStoreWithID(userID);
         if (userStore.isRecurssive()) {
@@ -14434,12 +13923,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public final void deleteUserWithID(String userID) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{String.class};
-            callSecure("deleteUserWithID", new Object[] { userID }, argTypes);
-            return;
-        }
-
         String loggedInUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
         if (loggedInUser != null) {
             loggedInUser = UserCoreUtil.addDomainToName(loggedInUser, UserCoreUtil.getDomainFromThreadLocal());
@@ -14890,12 +14373,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public final void updateCredentialByAdminWithID(String userID, Object newCredential) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class, Object.class };
-            callSecure("updateCredentialByAdminWithID", new Object[] { userID, newCredential }, argTypes);
-            return;
-        }
-
         UserStore userStore = getUserStoreWithID(userID);
         if (userStore.isRecurssive()) {
             ((AbstractUserStoreManager) userStore.getUserStoreManager())
@@ -15099,12 +14576,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public final void deleteUserClaimValueWithID(String userID, String claimURI, String profileName)
             throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class, String.class, String.class };
-            callSecure("deleteUserClaimValueWithID", new Object[] { userID, claimURI, profileName }, argTypes);
-            return;
-        }
-
         UserStore userStore = getUserStoreWithID(userID);
         if (userStore.isRecurssive()) {
             ((AbstractUserStoreManager) userStore.getUserStoreManager())
@@ -15198,12 +14669,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public final void deleteUserClaimValuesWithID(String userID, String[] claims, String profileName)
             throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class, String[].class, String.class };
-            callSecure("deleteUserClaimValuesWithID", new Object[] { userID, claims, profileName }, argTypes);
-            return;
-        }
 
         UserStore userStore = getUserStoreWithID(userID);
         if (userStore.isRecurssive()) {
@@ -15312,29 +14777,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public final void updateRoleListOfUserWithID(final String userID, final String[] deletedRoles,
             final String[] newRoles) throws UserStoreException {
 
-        try {
-            AccessController.doPrivileged((PrivilegedExceptionAction<String>) () -> {
-                // If unique id feature is not enabled, we have to call the legacy methods.
-                if (!isUniqueUserIdEnabled()) {
-                    User user = userUniqueIDManger.getUser(userID, this);
-                    if (user == null) {
-                        throw new UserStoreException("User cannot be found.");
-                    }
-                    updateRoleListOfUserInternal(user.getDomainQualifiedUsername(), deletedRoles, newRoles);
-                    return null;
-                } else {
-                    updateRoleListOfUserInternalWithID(userID, deletedRoles, newRoles);
-                    return null;
-                }
-            });
-        } catch (PrivilegedActionException e) {
-            if (!(e.getException() instanceof UserStoreException)) {
-                handleUpdateRoleListOfUserFailureWithID(
-                        ErrorMessages.ERROR_CODE_ERROR_DURING_UPDATE_USERS_OF_ROLE.getCode(),
-                        String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_UPDATE_USERS_OF_ROLE.getMessage(),
-                                e.getMessage()), userID, deletedRoles, newRoles);
+        // If unique id feature is not enabled, we have to call the legacy methods.
+        if (!isUniqueUserIdEnabled()) {
+            User user = userUniqueIDManger.getUser(userID, this);
+            if (user == null) {
+                throw new UserStoreException("User cannot be found.");
             }
-            throw (UserStoreException) e.getException();
+            updateRoleListOfUserInternal(user.getDomainQualifiedUsername(), deletedRoles, newRoles);
+        } else {
+            updateRoleListOfUserInternalWithID(userID, deletedRoles, newRoles);
         }
     }
 
@@ -15735,36 +15186,23 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public final void updateUserListOfRoleWithID(final String roleName,  String[] deletedUserIDs,
              String[] newUserIDs) throws UserStoreException {
 
-        try {
-            AccessController.doPrivileged((PrivilegedExceptionAction<String>) () -> {
-                // If unique id feature is not enabled, we have to call the legacy methods.
-                UserStore userStore = getUserStore(roleName);
-                if (!isUniqueUserIdEnabledInUserStore(userStore)) {
-                    List<User> deletedUsers = new ArrayList<>();
-                    List<User> newUsers = new ArrayList<>();
-                    if (deletedUserIDs != null) {
-                        deletedUsers = userUniqueIDManger.getUsers(Arrays.asList(deletedUserIDs), this);
-                    }
-                    if (newUserIDs != null) {
-                        newUsers = userUniqueIDManger.getUsers(Arrays.asList(newUserIDs), this);
-                    }
-                    // If we don't have a record for this user, let's try to call directly using the user id.
-                    updateUserListOfRoleInternal(roleName, deletedUsers.stream().map(User::getDomainQualifiedUsername)
-                            .toArray(String[]::new), newUsers.stream().map(User::getDomainQualifiedUsername).toArray(String[]::new));
-                    return null;
-                }
-                updateUserListOfRoleInternalWithID(roleName, deletedUserIDs, newUserIDs);
-                return null;
-            });
-        } catch (PrivilegedActionException e) {
-            if (!(e.getException() instanceof UserStoreException)) {
-                handleUpdateRoleListOfUserFailureWithID(
-                        ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_ROLE_OF_USER.getCode(),
-                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_UPDATING_ROLE_OF_USER.getMessage(),
-                                e.getMessage()), roleName, deletedUserIDs, newUserIDs);
+        // If unique id feature is not enabled, we have to call the legacy methods.
+        UserStore userStore = getUserStore(roleName);
+        if (!isUniqueUserIdEnabledInUserStore(userStore)) {
+            List<User> deletedUsers = new ArrayList<>();
+            List<User> newUsers = new ArrayList<>();
+            if (deletedUserIDs != null) {
+                deletedUsers = userUniqueIDManger.getUsers(Arrays.asList(deletedUserIDs), this);
             }
-            throw (UserStoreException) e.getException();
+            if (newUserIDs != null) {
+                newUsers = userUniqueIDManger.getUsers(Arrays.asList(newUserIDs), this);
+            }
+            // If we don't have a record for this user, let's try to call directly using the user id.
+            updateUserListOfRoleInternal(roleName, deletedUsers.stream().map(User::getDomainQualifiedUsername)
+                    .toArray(String[]::new), newUsers.stream().map(User::getDomainQualifiedUsername).toArray(String[]::new));
+            return;
         }
+        updateUserListOfRoleInternalWithID(roleName, deletedUserIDs, newUserIDs);
     }
 
     /**
@@ -15912,15 +15350,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             String profileName) throws UserStoreException {
 
         // We have to make sure this call is going through the Java Security Manager.
-        if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[] {
-                    String.class, Object.class, String[].class, Map.class, String.class
-            };
-            Object object = callSecure("addUserWithID",
-                    new Object[] { userName, credential, roleList, claims, profileName }, argTypes);
-            return (User) object;
-        }
-
         // If we don't have a username, we cannot proceed.
         if (StringUtils.isEmpty(userName)) {
             String message = ErrorMessages.ERROR_CODE_USERNAME_CANNOT_BE_EMPTY.getMessage();
@@ -16627,12 +16056,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public boolean isUserInRoleWithID(String userID, String roleName) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{String.class, String.class};
-            Object object = callSecure("isUserInRoleWithID", new Object[] { userID, roleName }, argTypes);
-            return (Boolean) object;
-        }
-
         UserStore userStore = getUserStoreWithID(userID);
 
         if (userStore.isRecurssive() && (userStore.getUserStoreManager() instanceof AbstractUserStoreManager)) {
@@ -16739,12 +16162,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     @Override
     public List<User> listUsersWithID(String filter, int limit, int offset) throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{String.class, int.class, int.class};
-            Object object = callSecure("listUsersWithID", new Object[] { filter, limit, offset }, argTypes);
-            return (List<User>) object;
-        }
 
         int index = filter.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
         UniqueIDPaginatedSearchResult userList;
@@ -16856,13 +16273,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public List<User> getUserListWithID(String claim, String claimValue, String profileName, int limit, int offset)
             throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[] { String.class, String.class, String.class, int.class, int.class };
-            Object object = callSecure("getUserListWithID",
-                    new Object[] { claim, claimValue, profileName, limit, offset }, argTypes);
-            return (List<User>) object;
-        }
 
         if (claim == null) {
             String errorCode = ErrorMessages.ERROR_CODE_INVALID_CLAIM_URI.getCode();
@@ -17864,13 +17274,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public List<UniqueIDUserClaimSearchEntry> getUsersClaimValuesWithID(List<String> userIDs, List<String> claims,
             String profileName) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[] { List.class, List.class, String.class };
-            Object object = callSecure("getUsersClaimValuesWithID", new Object[] { userIDs, claims, profileName },
-                    argTypes);
-            return (List<UniqueIDUserClaimSearchEntry>) object;
-        }
-
         if (StringUtils.isEmpty(profileName)) {
             profileName = UserCoreConstants.DEFAULT_PROFILE;
         }
@@ -18057,12 +17460,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public Map<String, List<String>> getRoleListOfUsersWithID(List<String> userIDs) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[] { List.class };
-            Object object = callSecure("getRoleListOfUsersWithID", new Object[] { userIDs }, argTypes);
-            return (Map<String, List<String>>) object;
-        }
-
         Map<String, List<String>> allRoleNames = new HashMap<>();
         Map<String, List<String>> domainFreeUsers = getDomainFreeUsersWithID(userIDs);
 
@@ -18101,12 +17498,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     public Map<String, List<String>> doGetRoleListOfUsersWithID(List<String> userIDs, String domainName)
             throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[] { List.class, String.class };
-            Object object = callSecure("doGetRoleListOfUsersWithID", new Object[] { userIDs, domainName }, argTypes);
-            return (Map<String, List<String>>) object;
-        }
 
         Map<String, List<String>> internalRoles = doGetInternalRoleListOfUsersWithID(userIDs, domainName);
 
@@ -18436,12 +17827,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public List<Group> getGroupListOfUser(String userId, int limit, int offset, String sortBy, String sortOrder)
             throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{String.class, int.class, int.class, String.class, String.class};
-            Object object = callSecure("getGroupListOfUser",
-                    new Object[]{userId, limit, offset, sortBy, sortOrder}, argTypes);
-            return (List<Group>) object;
-        }
         if (StringUtils.isBlank(userId)) {
             throw new UserStoreClientException(ERROR_EMPTY_USER_ID.getMessage(), ERROR_EMPTY_USER_ID.getCode());
         }
@@ -18581,12 +17966,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public List<User> getUserListOfGroup(String groupID, int limit, int offset, String sortBy, String sortOrder)
             throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{String.class, int.class, int.class, String.class, String.class};
-            Object object = callSecure("getUserListOfGroup",
-                    new Object[]{groupID, limit, offset, sortBy, sortOrder}, argTypes);
-            return (List<User>) object;
-        }
         if (StringUtils.isBlank(groupID)) {
             throw new UserStoreClientException(ERROR_EMPTY_GROUP_ID.getMessage(), ERROR_EMPTY_GROUP_ID.getCode());
         }
@@ -18662,27 +18041,14 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             handleUpdateUserListOfGroupFailure(errorCode, errorMessage, groupID, deletedUserIds, newUserIds);
             throw new UserStoreClientException(errorMessage, errorCode);
         }
-        try {
-            AccessController.doPrivileged((PrivilegedExceptionAction<String>) () -> {
-                // If group Id feature is not enabled, we need to call the legacy method.
-                if (isUniqueGroupIdEnabled()) {
-                    updateUserListOfGroupByGroupId(groupID, UserCoreUtil.removeDomainFromName(groupName),
-                            deletedUserIds, newUserIds);
-                } else {
-                    // Need to attach the user store domain name to the group name.
-                    updateUserListOfRoleWithID(UserCoreUtil.addDomainToName(groupName, getMyDomainName()),
-                            deletedUserIds.toArray(new String[0]), newUserIds.toArray(new String[0]));
-                }
-                return null;
-            });
-        } catch (PrivilegedActionException e) {
-            if (!(e.getException() instanceof UserStoreException)) {
-                handleUpdateUserListOfGroupFailure(
-                        ErrorMessages.ERROR_WHILE_UPDATE_USER_LIST_OF_GROUP.getCode(),
-                        String.format(ErrorMessages.ERROR_WHILE_UPDATE_USER_LIST_OF_GROUP.getMessage(),
-                                e.getMessage()), groupID, deletedUserIds, newUserIds);
-            }
-            throw (UserStoreException) e.getException();
+        // If group Id feature is not enabled, we need to call the legacy method.
+        if (isUniqueGroupIdEnabled()) {
+            updateUserListOfGroupByGroupId(groupID, UserCoreUtil.removeDomainFromName(groupName),
+                    deletedUserIds, newUserIds);
+        } else {
+            // Need to attach the user store domain name to the group name.
+            updateUserListOfRoleWithID(UserCoreUtil.addDomainToName(groupName, getMyDomainName()),
+                    deletedUserIds.toArray(new String[0]), newUserIds.toArray(new String[0]));
         }
     }
 
@@ -18762,11 +18128,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public boolean isUserInGroup(String userID, String groupID) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{String.class, String.class};
-            Object object = callSecure("isUserInGroup", new Object[]{userID, groupID}, argTypes);
-            return (boolean) object;
-        }
         if (StringUtils.isBlank(groupID)) {
             throw new UserStoreClientException(ERROR_EMPTY_GROUP_ID.getMessage(), ERROR_EMPTY_GROUP_ID.getCode());
         }
@@ -18784,11 +18145,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public Map<String, List<Group>> getGroupListOfUsers(List<String> userIDs) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{List.class};
-            Object object = callSecure("getGroupListOfUsers", new Object[]{userIDs}, argTypes);
-            return (Map<String, List<Group>>) object;
-        }
         if (CollectionUtils.isEmpty(userIDs)) {
             return new HashMap<>();
         }
@@ -18802,12 +18158,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     @Override
     public boolean isGroupExist(String groupID) throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{String.class};
-            Object object = callSecure("isGroupExist", new Object[]{groupID}, argTypes);
-            return (boolean) object;
-        }
 
         if (StringUtils.isBlank(groupID)) {
             throw new UserStoreClientException(ERROR_EMPTY_GROUP_ID.getMessage(), ERROR_EMPTY_GROUP_ID.getCode());
@@ -18824,11 +18174,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public boolean isGroupExistWithName(String groupName) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{String.class};
-            Object object = callSecure("isGroupExistWithName", new Object[]{groupName}, argTypes);
-            return (boolean) object;
-        }
         if (StringUtils.isBlank(groupName)) {
             throw new UserStoreClientException(ERROR_EMPTY_GROUP_NAME.getMessage(), ERROR_EMPTY_GROUP_NAME.getCode());
         }
@@ -18844,11 +18189,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public void deleteGroup(String groupID) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class};
-            callSecure("deleteGroup", new Object[]{groupID}, argTypes);
-            return;
-        }
         UserStore userStore = getUserStoreWithGroupId(groupID);
         if (userStore.isRecurssive()) {
             ((AbstractUserStoreManager) userStore.getUserStoreManager()).deleteGroup(userStore.getDomainFreeGroupId());
@@ -18910,11 +18250,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public Group renameGroup(String groupID, String newGroupName) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, String.class};
-            Object object = callSecure("renameGroup", new Object[]{groupID, newGroupName}, argTypes);
-            return (Group) object;
-        }
         UserStore userStore = getUserStoreWithGroupId(groupID);
         UserStore newUserStore = getUserStoreWithGroupName(newGroupName);
         if (userStore.isRecurssive()) {
@@ -19022,11 +18357,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public String getGroupNameByGroupId(String groupId) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{String.class};
-            Object object = callSecure("getGroupNameByGroupId", new Object[]{groupId}, argTypes);
-            return (String) object;
-        }
         if (StringUtils.isBlank(groupId)) {
             throw new UserStoreClientException(ERROR_EMPTY_GROUP_ID.getMessage(), ERROR_EMPTY_GROUP_ID.getCode());
         }
@@ -19113,11 +18443,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public String getGroupIdByGroupName(String groupName) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{String.class};
-            Object object = callSecure("getGroupIdByGroupName", new Object[]{groupName}, argTypes);
-            return (String) object;
-        }
         if (StringUtils.isBlank(groupName)) {
             throw new UserStoreClientException(ERROR_EMPTY_GROUP_NAME.getMessage(), ERROR_EMPTY_GROUP_NAME.getCode());
         }
@@ -19191,12 +18516,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     @Override
     public Group getGroupByGroupName(String groupName, List<String> requiredAttributes) throws UserStoreException {
 
-        if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{String.class, List.class};
-            Object object = callSecure("getGroupByGroupName",
-                    new Object[]{groupName, requiredAttributes}, argTypes);
-            return (Group) object;
-        }
         if (StringUtils.isBlank(groupName)) {
             throw new UserStoreClientException(ERROR_EMPTY_GROUP_NAME.getMessage(), ERROR_EMPTY_GROUP_NAME.getCode());
         }
@@ -19271,12 +18590,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
     @Override
     public Group getGroup(String groupID, List<String> requiredAttributes) throws UserStoreException {
-
-        if (!isSecureCall.get()) {
-            Class[] argTypes = new Class[]{String.class, List.class};
-            Object object = callSecure("getGroup", new Object[]{groupID, requiredAttributes}, argTypes);
-            return (Group) object;
-        }
 
         if (StringUtils.isBlank(groupID)) {
             throw new UserStoreClientException(ERROR_EMPTY_GROUP_ID.getMessage(), ERROR_EMPTY_GROUP_ID.getCode());
@@ -20268,12 +19581,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public int getUserCountForGroup(String groupName) throws UserStoreException {
 
         int count = 0;
-        if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class};
-            Object object = callSecure("getUserCountForGroup", new Object[]{groupName}, argTypes);
-            return (int) object;
-        }
-
         // If group does not exit, just return.
         if (!isExistingRole(groupName)) {
             return count;
