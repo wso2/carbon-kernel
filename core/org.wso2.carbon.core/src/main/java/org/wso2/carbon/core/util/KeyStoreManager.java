@@ -1099,8 +1099,15 @@ public class KeyStoreManager {
                 metadata.setPublicCert(keyStoreModel.getPublicCert());
             } else {
                 try {
-                    KeyStore keyStore = loadPersistedKeyStore(keyStoreModel.getContent(), keyStoreModel.getType(),
-                            decryptPassword(keyStoreModel.getEncryptedPassword()));
+                    KeyStore keyStore;
+                    if (KeystoreUtils.isPKCS11StoreType(keyStoreModel.getType())) {
+                        keyStore = loadTenantPKCS11KeyStore(keyStoreModel.getContent());
+                    } else {
+                        keyStore = KeyStore.getInstance(keyStoreModel.getType());
+                        try (InputStream inputStream = new ByteArrayInputStream(keyStoreModel.getContent())) {
+                            keyStore.load(inputStream, decryptPassword(keyStoreModel.getEncryptedPassword()));
+                        }
+                    }
                     X509Certificate publicCert =
                             (X509Certificate) keyStore.getCertificate(keyStoreModel.getPrivateKeyAlias());
                     metadata.setPublicCert(publicCert.getEncoded());

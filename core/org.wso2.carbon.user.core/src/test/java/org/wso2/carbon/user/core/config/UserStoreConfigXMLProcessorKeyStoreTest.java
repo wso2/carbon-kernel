@@ -37,7 +37,6 @@ import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
-import java.security.Provider;
 import java.security.Security;
 import java.security.interfaces.RSAPrivateKey;
 import java.util.Base64;
@@ -47,7 +46,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -62,10 +60,10 @@ public class UserStoreConfigXMLProcessorKeyStoreTest {
     private static final String TOKEN_ALIAS = "wso2-tenant-1";
     private static final String CIPHER_TRANSFORMATION_PROPERTY = "org.wso2.CipherTransformation";
     private static final String PKCS1_TRANSFORMATION = "RSA/ECB/PKCS1Padding";
+    private static final String OPAQUE_PROVIDER_NAME = "OpaqueRSATest";
 
     private ServerConfigurationService originalConfigurationService;
     private PrivateKey originalPrivateKey;
-    private Provider originalPrivateKeyProvider;
 
     @BeforeClass
     public void setUpCarbonHome() {
@@ -82,7 +80,6 @@ public class UserStoreConfigXMLProcessorKeyStoreTest {
 
         originalConfigurationService = UserStoreMgtDSComponent.getServerConfigurationService();
         originalPrivateKey = (PrivateKey) staticField("privateKey").get(null);
-        originalPrivateKeyProvider = (Provider) staticField("privateKeyProvider").get(null);
     }
 
     @AfterMethod
@@ -90,8 +87,8 @@ public class UserStoreConfigXMLProcessorKeyStoreTest {
 
         setServerConfigurationService(originalConfigurationService);
         staticField("privateKey").set(null, originalPrivateKey);
-        staticField("privateKeyProvider").set(null, originalPrivateKeyProvider);
         Security.removeProvider(TOKEN_PROVIDER_NAME);
+        Security.removeProvider(OPAQUE_PROVIDER_NAME);
         System.clearProperty(CIPHER_TRANSFORMATION_PROPERTY);
     }
 
@@ -118,17 +115,29 @@ public class UserStoreConfigXMLProcessorKeyStoreTest {
 
         assertNotNull(key, "The private key should be loaded from the token without a key store file.");
         assertEquals(key, tokenProvider.getToken().getKey(TOKEN_ALIAS, TOKEN_PASSWORD));
-        assertSame(staticField("privateKeyProvider").get(null), tokenProvider);
     }
 
     @Test
     public void testDecryptWithOpaqueKeyUsesKeyStoreProvider() throws Exception {
 
+        assertDecryptsWithOpaqueKey(PKCS1_TRANSFORMATION);
+    }
+
+    @Test
+    public void testDecryptWithOpaqueKeyUsingOAEP() throws Exception {
+
+        // Legacy ciphertexts may use an OAEP transformation. No provider is named for an HSM key, so a provider
+        // that offers RSA-OAEP for the key is selected.
+        assertDecryptsWithOpaqueKey(OpaqueRSAKeyTestProvider.RSA_OAEP_CIPHER);
+    }
+
+    private void assertDecryptsWithOpaqueKey(String transformation) throws Exception {
+
         OpaqueRSAKeyTestProvider hsmProvider = new OpaqueRSAKeyTestProvider(2048);
+        Security.addProvider(hsmProvider);
         staticField("privateKey").set(null, hsmProvider.getPrivateKey());
-        staticField("privateKeyProvider").set(null, hsmProvider);
-        System.setProperty(CIPHER_TRANSFORMATION_PROPERTY, PKCS1_TRANSFORMATION);
-        Cipher encrypter = Cipher.getInstance(PKCS1_TRANSFORMATION, "SunJCE");
+        System.setProperty(CIPHER_TRANSFORMATION_PROPERTY, transformation);
+        Cipher encrypter = Cipher.getInstance(transformation, "SunJCE");
         encrypter.init(Cipher.ENCRYPT_MODE, hsmProvider.getPublicKey());
         String cipherText = Base64.getEncoder().encodeToString(
                 encrypter.doFinal("userstore-secret".getBytes(StandardCharsets.UTF_8)));
@@ -149,7 +158,7 @@ public class UserStoreConfigXMLProcessorKeyStoreTest {
         KeyPair keyPair = generator.generateKeyPair();
         assertTrue(keyPair.getPrivate() instanceof RSAPrivateKey);
         staticField("privateKey").set(null, keyPair.getPrivate());
-        staticField("privateKeyProvider").set(null, new OpaqueRSAKeyTestProvider(2048));
+        Security.addProvider(new OpaqueRSAKeyTestProvider(2048));
 
         Method method = UserStoreConfigXMLProcessor.class.getDeclaredMethod("getPrimaryKeyCipher", String.class);
         method.setAccessible(true);

@@ -51,6 +51,10 @@ public class OpaqueRSAKeyTestProvider extends Provider {
 
     private static final long serialVersionUID = 1L;
     private static final String RSA_PKCS1_CIPHER = "RSA/ECB/PKCS1Padding";
+    /**
+     * RSA-OAEP transformation that this provider also offers for its key.
+     */
+    public static final String RSA_OAEP_CIPHER = "RSA/ECB/OAEPWithSHA-256AndMGF1Padding";
     private static final String[] SIGNATURE_ALGORITHMS =
             {"SHA256withRSA", "SHA384withRSA", "SHA512withRSA", "RSASSA-PSS"};
 
@@ -66,13 +70,21 @@ public class OpaqueRSAKeyTestProvider extends Provider {
         for (String algorithm : SIGNATURE_ALGORITHMS) {
             putService(new SignatureService(this, algorithm));
         }
-        putService(new Service(this, "Cipher", RSA_PKCS1_CIPHER, OpaqueKeyCipherSpi.class.getName(), null, null) {
-            @Override
-            public Object newInstance(Object constructorParameter) {
+        for (String transformation : new String[]{RSA_PKCS1_CIPHER, RSA_OAEP_CIPHER}) {
+            putService(new Service(this, "Cipher", transformation, OpaqueKeyCipherSpi.class.getName(), null, null) {
+                @Override
+                public Object newInstance(Object constructorParameter) {
 
-                return new OpaqueKeyCipherSpi((OpaqueRSAKeyTestProvider) getProvider());
-            }
-        });
+                    return new OpaqueKeyCipherSpi((OpaqueRSAKeyTestProvider) getProvider(), transformation);
+                }
+
+                @Override
+                public boolean supportsParameter(Object parameter) {
+
+                    return parameter == ((OpaqueRSAKeyTestProvider) getProvider()).handle;
+                }
+            });
+        }
     }
 
     /**
@@ -137,11 +149,13 @@ public class OpaqueRSAKeyTestProvider extends Provider {
     private static final class OpaqueKeyCipherSpi extends CipherSpi {
 
         private final OpaqueRSAKeyTestProvider provider;
+        private final String transformation;
         private Cipher delegate;
 
-        OpaqueKeyCipherSpi(OpaqueRSAKeyTestProvider provider) {
+        OpaqueKeyCipherSpi(OpaqueRSAKeyTestProvider provider, String transformation) {
 
             this.provider = provider;
+            this.transformation = transformation;
         }
 
         private void init(int opmode, java.security.Key key, SecureRandom random) throws InvalidKeyException {
@@ -150,7 +164,7 @@ public class OpaqueRSAKeyTestProvider extends Provider {
                 throw new InvalidKeyException("Only keys held by this provider are supported.");
             }
             try {
-                delegate = Cipher.getInstance(RSA_PKCS1_CIPHER, "SunJCE");
+                delegate = Cipher.getInstance(transformation, "SunJCE");
                 delegate.init(opmode, provider.keyPair.getPrivate(), random);
             } catch (Exception e) {
                 throw new InvalidKeyException("Error while initializing the delegate cipher.", e);

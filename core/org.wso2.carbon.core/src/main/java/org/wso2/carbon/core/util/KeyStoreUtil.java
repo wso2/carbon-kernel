@@ -204,14 +204,6 @@ public class KeyStoreUtil {
     }
 
     /**
-     * This method returns the requested key store property value from the configuration.
-     *
-     * @param config                OMElement object of configuration.
-     * @param propertyName                  Property name.
-     * @return Configuration value as String.
-     * @throws CarbonException      If failed to retrieve the requested configuration.
-     */
-    /**
      * Returns an optional key store property value from the configuration, or null if it is not configured.
      *
      * @param config       OMElement object of configuration.
@@ -230,6 +222,14 @@ public class KeyStoreUtil {
         return getCustomKeyStoreConfig(config, propertyName);
     }
 
+    /**
+     * This method returns the requested key store property value from the configuration.
+     *
+     * @param config                OMElement object of configuration.
+     * @param propertyName                  Property name.
+     * @return Configuration value as String.
+     * @throws CarbonException      If failed to retrieve the requested configuration.
+     */
     public static String getCustomKeyStoreConfig(OMElement config, String propertyName) throws CarbonException {
 
         validateKeyStoreConfigName(propertyName);

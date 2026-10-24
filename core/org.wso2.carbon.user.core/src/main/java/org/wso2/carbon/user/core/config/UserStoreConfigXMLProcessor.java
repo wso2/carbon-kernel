@@ -64,7 +64,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
-import java.security.Provider;
 import java.security.interfaces.RSAPrivateKey;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -82,8 +81,6 @@ public class UserStoreConfigXMLProcessor {
     private static final Log log = LogFactory.getLog(UserStoreConfigXMLProcessor.class);
     private static BundleContext bundleContext;
     private static final String CIPHER_TRANSFORMATION_SYSTEM_PROPERTY = "org.wso2.CipherTransformation";
-    // Provider of the primary key store. Set by getPrivateKey(); declared first so the static initializer keeps it.
-    private static Provider privateKeyProvider;
     private static PrivateKey privateKey = getPrivateKey();
     private SecretResolver secretResolver;
     private String filePath = null;
@@ -413,7 +410,6 @@ public class UserStoreConfigXMLProcessor {
                 in = new FileInputStream(file);
                 store.load(in, password.toCharArray());
             }
-            privateKeyProvider = store.getProvider();
             return (PrivateKey) store.getKey(keyAlias, keyPass.toCharArray());
         } catch (FileNotFoundException e) {
             String errorMsg = "Keystore File Not Found in configured location";
@@ -592,8 +588,10 @@ public class UserStoreConfigXMLProcessor {
     }
 
     /**
-     * Get a cipher for the primary key store private key. A key held in an HSM has no key material in the JVM, so
-     * only the key store provider can use it. Other keys keep the configured JCE provider.
+     * Get a cipher for the primary key store private key. A key held in an HSM has no key material in the JVM, so no
+     * provider is named: JCA then selects the provider that accepts the key when the cipher is initialized, for
+     * example the token's provider for PKCS#1 v1.5, or a provider that offers RSA-OAEP for token keys. Other keys keep
+     * the configured JCE provider.
      *
      * @param transformation Cipher transformation.
      * @return Cipher for decrypting with the primary key store private key.
@@ -601,8 +599,8 @@ public class UserStoreConfigXMLProcessor {
      */
     private Cipher getPrimaryKeyCipher(String transformation) throws GeneralSecurityException {
 
-        if (privateKeyProvider != null && (!(privateKey instanceof RSAPrivateKey) || privateKey.getEncoded() == null)) {
-            return Cipher.getInstance(transformation, privateKeyProvider);
+        if (privateKey != null && (!(privateKey instanceof RSAPrivateKey) || privateKey.getEncoded() == null)) {
+            return Cipher.getInstance(transformation);
         }
         return Cipher.getInstance(transformation, getJCEProvider());
     }
