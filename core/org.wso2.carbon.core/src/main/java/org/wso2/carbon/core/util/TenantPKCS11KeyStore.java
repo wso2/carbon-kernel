@@ -32,13 +32,16 @@ import java.security.KeyStoreException;
 import java.security.KeyStoreSpi;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.security.Security;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 /**
@@ -56,6 +59,11 @@ import java.util.regex.Pattern;
  * alias used for tenant keys (the tenant domain). Without the view, the token key store would list the keys of all
  * tenants. The view's provider is the token's provider, so callers that bind signers to the key store provider sign
  * on the token.
+ * <p>
+ * Loading a SunPKCS11 key store lists every key and certificate on the token, so its cost grows with the number of
+ * tenants on the token. One loaded token key store is therefore kept per provider and shared by all tenant views. It
+ * lists the entries that existed when it was loaded, so it is loaded again when a tenant's label is not found, for
+ * example for a tenant whose key pair was generated after the load.
  */
 public final class TenantPKCS11KeyStore {
 
@@ -74,6 +82,9 @@ public final class TenantPKCS11KeyStore {
 
     // SunPKCS11 separates the parts of the alias it gives an entry whose certificate label is not unique.
     private static final String SHARED_LABEL_ALIAS_SEPARATOR = "/";
+
+    // Loaded token key store per provider name, shared by all tenant views of that token.
+    private static final Map<String, KeyStore> TOKENS = new ConcurrentHashMap<>();
 
     private TenantPKCS11KeyStore() {
 
@@ -151,11 +162,15 @@ public final class TenantPKCS11KeyStore {
             throw new KeyStoreException("Alias of the tenant key can't be empty.");
         }
         String label = getTenantLabel(descriptor, tenantId);
-        KeyStore token = loadToken(provider, pin);
+        KeyStore token = getToken(provider, pin);
         if (!token.isKeyEntry(label)) {
-            checkLabelNotShared(token, label, provider);
-            throw new KeyStoreException("No key entry with label '" + label + "' in the PKCS11 token of provider: " +
-                    provider);
+            // The entry may have been added after the shared token key store was loaded.
+            token = reloadToken(provider, pin);
+            if (!token.isKeyEntry(label)) {
+                checkLabelNotShared(token, label, provider);
+                throw new KeyStoreException("No key entry with label '" + label + "' in the PKCS11 token of " +
+                        "provider: " + provider);
+            }
         }
         KeyStore view = new View(new SingleEntrySpi(token, alias, label), token);
         try {
@@ -182,13 +197,22 @@ public final class TenantPKCS11KeyStore {
             throws KeyStoreException, NoSuchProviderException {
 
         String label = getTenantLabel(descriptor, tenantId);
-        KeyStore token = loadToken(provider, pin);
+        KeyStore token = getToken(provider, pin);
         if (!token.containsAlias(label)) {
-            checkLabelNotShared(token, label, provider);
-            return false;
+            token = reloadToken(provider, pin);
+            if (!token.containsAlias(label)) {
+                checkLabelNotShared(token, label, provider);
+                return false;
+            }
         }
         try {
-            token.deleteEntry(label);
+            try {
+                token.deleteEntry(label);
+            } catch (KeyStoreException e) {
+                // The shared token key store refuses changes if a certificate label was not unique when it was
+                // loaded. Load it again in case the duplicate has been removed since then.
+                reloadToken(provider, pin).deleteEntry(label);
+            }
         } catch (KeyStoreException e) {
             // SunPKCS11 refuses all changes to a token key store in which certificate labels are not unique.
             throw new KeyStoreException("Error while deleting the entry with label '" + label + "' from the " +
@@ -222,6 +246,34 @@ public final class TenantPKCS11KeyStore {
                         " has the label '" + label + "'. Token entry labels must be unique.");
             }
         }
+    }
+
+    /**
+     * Get the shared token key store of the provider, loading it if it is not loaded yet or if the provider has been
+     * registered again since it was loaded.
+     */
+    private static KeyStore getToken(String provider, char[] pin) throws KeyStoreException, NoSuchProviderException {
+
+        if (StringUtils.isBlank(provider)) {
+            throw new KeyStoreException("A JCA provider is required for a PKCS11 key store.");
+        }
+        KeyStore token = TOKENS.get(provider);
+        if (token != null && token.getProvider() == Security.getProvider(provider)) {
+            return token;
+        }
+        return reloadToken(provider, pin);
+    }
+
+    /**
+     * Load the token key store of the provider again and share the new instance. Views created before keep the
+     * instance they were created with.
+     */
+    private static synchronized KeyStore reloadToken(String provider, char[] pin)
+            throws KeyStoreException, NoSuchProviderException {
+
+        KeyStore token = loadToken(provider, pin);
+        TOKENS.put(provider, token);
+        return token;
     }
 
     private static KeyStore loadToken(String provider, char[] pin) throws KeyStoreException, NoSuchProviderException {

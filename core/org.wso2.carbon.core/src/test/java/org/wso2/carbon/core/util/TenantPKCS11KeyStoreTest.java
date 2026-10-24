@@ -161,7 +161,7 @@ public class TenantPKCS11KeyStoreTest {
     public void testPinIsCheckedOnlyAtLogin() throws Exception {
 
         // Like SunPKCS11, a wrong PIN fails only while the token is not logged in. The PIN is therefore no access
-        // check between tenants.
+        // check between tenants. (After the first load, the shared token key store is used without a new login.)
         byte[] descriptor = TenantPKCS11KeyStore.createDescriptor(TENANT_A_LABEL);
         expectThrows(KeyStoreException.class, () -> TenantPKCS11KeyStore.load(PROVIDER_NAME, WRONG_PIN,
                 descriptor, TENANT_A_ID, TENANT_A_DOMAIN));
@@ -212,6 +212,43 @@ public class TenantPKCS11KeyStoreTest {
                         TenantPKCS11KeyStore.createDescriptor(TENANT_A_LABEL), TENANT_A_ID));
         assertTrue(deleteError.getMessage().contains("not unique"));
         assertTrue(containsTokenAlias(TENANT_A_LABEL));
+    }
+
+    @Test
+    public void testTokenIsLoadedOncePerProvider() throws Exception {
+
+        loadTenantAView();
+        KeyStore tenantBView = TenantPKCS11KeyStore.load(PROVIDER_NAME, PIN,
+                TenantPKCS11KeyStore.createDescriptor(TENANT_B_LABEL), TENANT_B_ID, "b.com");
+        loadTenantAView();
+
+        // All tenant views share one loaded token key store, so the token is listed once.
+        assertEquals(provider.getLoadCount(), 1);
+        assertTrue(tenantBView.isKeyEntry("b.com"));
+        assertEquals(Collections.list(tenantBView.aliases()), Collections.singletonList("b.com"));
+    }
+
+    @Test
+    public void testEntryAddedAfterLoadIsFound() throws Exception {
+
+        loadTenantAView();
+        // A new tenant's key pair is added through another key store instance, after the shared one was loaded.
+        int newTenantId = 3;
+        String newLabel = TenantPKCS11KeyStore.labelFor(newTenantId);
+        KeyStore token = provider.getToken();
+        token.setKeyEntry(newLabel, token.getKey(TENANT_B_LABEL, TOKEN_PASSWORD), TOKEN_PASSWORD,
+                token.getCertificateChain(TENANT_B_LABEL));
+        byte[] descriptor = TenantPKCS11KeyStore.createDescriptor(newLabel);
+
+        KeyStore view = TenantPKCS11KeyStore.load(PROVIDER_NAME, PIN, descriptor, newTenantId, "c.com");
+        assertTrue(view.isKeyEntry("c.com"));
+        assertEquals(provider.getLoadCount(), 2);
+        // Views created before the reload still work.
+        assertTrue(loadTenantAView().isKeyEntry(TENANT_A_DOMAIN));
+        assertEquals(provider.getLoadCount(), 2);
+
+        assertTrue(TenantPKCS11KeyStore.deleteEntry(PROVIDER_NAME, PIN, descriptor, newTenantId));
+        assertFalse(containsTokenAlias(newLabel));
     }
 
     @Test
