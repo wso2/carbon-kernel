@@ -329,16 +329,17 @@ public class KeyStoreManager {
         if (KeyStoreUtil.isTrustStore(keyStoreName)) {
             throw new SecurityException("Not allowed to delete the trust store : " + keyStoreName);
         }
+        Optional<KeyStoreModel> pkcs11KeyStoreModel = Optional.empty();
         if (keyStoreName.endsWith(KeystoreUtils.getExtensionByFileType(
                 KeystoreUtils.StoreFileType.PKCS11.name()))) {
-            // A PKCS11 tenant key store refers to keys in a token; remove them from the token too.
-            Optional<KeyStoreModel> keyStoreModel = keyStorePersistenceManager.getKeyStore(keyStoreName, tenantId);
-            if (keyStoreModel.isPresent() && KeystoreUtils.isPKCS11StoreType(keyStoreModel.get().getType())) {
-                deletePKCS11TokenEntry(keyStoreName, keyStoreModel.get());
-            }
+            pkcs11KeyStoreModel = keyStorePersistenceManager.getKeyStore(keyStoreName, tenantId)
+                    .filter(model -> KeystoreUtils.isPKCS11StoreType(model.getType()));
         }
         keyStorePersistenceManager.deleteKeyStore(keyStoreName, tenantId);
         deleteKeyStoreFromCache(keyStoreName);
+        // A PKCS11 tenant key store refers to keys in a token; remove them from the token too. This runs after the
+        // record is deleted, so a failure leaves an unused key in the token rather than a record without a key.
+        pkcs11KeyStoreModel.ifPresent(model -> deletePKCS11TokenEntry(keyStoreName, model));
     }
 
     /**
@@ -1064,8 +1065,7 @@ public class KeyStoreManager {
         String absolutePath = new File(keyStorePath).getAbsolutePath();
         FileInputStream inputStream = null;
         try {
-            KeyStore store = StringUtils.isBlank(provider) ? KeystoreUtils.getKeystoreInstance(type) :
-                    KeystoreUtils.getKeystoreInstance(type, provider);
+            KeyStore store = KeystoreUtils.getKeystoreInstance(type, provider);
             inputStream = new FileInputStream(absolutePath);
             store.load(inputStream, password.toCharArray());
             return store;
@@ -1129,9 +1129,9 @@ public class KeyStoreManager {
             throws KeyStoreException, NoSuchProviderException, IOException, CertificateException,
             NoSuchAlgorithmException {
 
-        // Without a configured provider, the key store is created exactly as before.
-        KeyStore store = StringUtils.isBlank(provider) ? KeystoreUtils.getKeystoreInstance(type) :
-                KeystoreUtils.getKeystoreInstance(type, provider);
+        // Without a configured provider, the key store is created as before. For PKCS11, that is refused when more
+        // than one token is registered.
+        KeyStore store = KeystoreUtils.getKeystoreInstance(type, provider);
         if (KeystoreUtils.isPKCS11StoreType(type)) {
             store.load(null, password);
             return store;
@@ -1185,6 +1185,10 @@ public class KeyStoreManager {
         }
     }
 
+    /**
+     * Delete the token entry of a deleted PKCS11 tenant key store. A failure is logged and not thrown: the key store
+     * record is already deleted, and the entry left in the token is no longer used.
+     */
     private void deletePKCS11TokenEntry(String keyStoreName, KeyStoreModel keyStoreModel) {
 
         char[] pin = new char[0];
@@ -1196,8 +1200,10 @@ public class KeyStoreManager {
                 log.debug("Token entry of PKCS11 key store " + keyStoreName + (deleted ? " deleted." :
                         " was not found in the token."));
             }
-        } catch (KeyStoreException | NoSuchProviderException e) {
-            throw new SecurityException("Error deleting the token entry of PKCS11 key store: " + keyStoreName, e);
+        } catch (KeyStoreException | NoSuchProviderException | RuntimeException e) {
+            log.warn("Deleted PKCS11 key store " + keyStoreName + " of tenant: " + tenantId + ", but its entry " +
+                    "could not be deleted from the token. Remove the entry with label '" +
+                    TenantPKCS11KeyStore.labelFor(tenantId) + "' from the token.", e);
         } finally {
             clearPasswordCharArray(pin);
         }

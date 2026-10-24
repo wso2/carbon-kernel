@@ -104,6 +104,7 @@ public class KeyStoreManagerTest {
              MockedStatic<KeystoreUtils> keystoreUtils = mockStatic(KeystoreUtils.class)) {
 
             keystoreUtils.when(() -> KeystoreUtils.getKeystoreInstance(anyString())).thenReturn(this.keyStore);
+            keystoreUtils.when(() -> KeystoreUtils.getKeystoreInstance(anyString(), any())).thenReturn(this.keyStore);
 
             serverConfiguration.when(ServerConfiguration::getInstance).thenReturn(this.serverConfiguration);
             when(this.serverConfiguration.getFirstProperty(
@@ -244,6 +245,33 @@ public class KeyStoreManagerTest {
             when(registry.resourceExists(anyString())).thenReturn(true);
 
             this.keyStoreManager.deleteStore("new_keystore.jks");
+        }
+    }
+
+    @Test(description = "A PKCS11 key store record is deleted even when its token entry can't be deleted")
+    public void testDeletePKCS11KeyStoreDeletesRecordFirst() throws Exception {
+
+        Resource pkcs11Resource = org.mockito.Mockito.mock(Resource.class);
+        when(pkcs11Resource.getProperty(anyString())).thenReturn("PKCS11");
+        when(pkcs11Resource.getContent()).thenReturn(TenantPKCS11KeyStore.createDescriptor(
+                TenantPKCS11KeyStore.labelFor(MultitenantConstants.SUPER_TENANT_ID)));
+        try (MockedStatic<KeyStoreUtil> keyStoreUtil = mockStatic(KeyStoreUtil.class);
+             MockedStatic<ServerConfiguration> serverConfiguration = mockStatic(ServerConfiguration.class)) {
+
+            keyStoreUtil.when(() -> KeyStoreUtil.isPrimaryStore(anyString())).thenReturn(false);
+            keyStoreUtil.when(() -> KeyStoreUtil.isTrustStore(anyString())).thenReturn(false);
+            serverConfiguration.when(ServerConfiguration::getInstance).thenReturn(this.serverConfiguration);
+            // The token can't be reached: its provider is not registered.
+            when(this.serverConfiguration.getFirstProperty(
+                    RegistryResources.SecurityManagement.TENANT_KEYSTORE_PROVIDER)).thenReturn("NoSuchToken");
+            when(this.serverConfiguration.getFirstProperty(
+                    RegistryResources.SecurityManagement.TENANT_KEYSTORE_PASSWORD)).thenReturn("1234");
+            when(registry.resourceExists(anyString())).thenReturn(true);
+            when(registry.get(org.mockito.ArgumentMatchers.contains("hsm-tenant.p11"))).thenReturn(pkcs11Resource);
+            when(registry.getAllAssociations(anyString())).thenReturn(new Association[]{});
+
+            this.keyStoreManager.deleteStore("hsm-tenant.p11");
+            org.mockito.Mockito.verify(registry).delete(org.mockito.ArgumentMatchers.contains("hsm-tenant.p11"));
         }
     }
 

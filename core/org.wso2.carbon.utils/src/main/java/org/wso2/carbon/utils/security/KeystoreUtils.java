@@ -33,6 +33,10 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchProviderException;
+import java.security.Provider;
+import java.security.Security;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A collection of key store and trust store related utility methods.
@@ -41,6 +45,7 @@ public class KeystoreUtils {
 
     private static Log LOG = LogFactory.getLog(KeystoreUtils.class);
     private static final String FALLBACK_TENANTED_KEYSTORE_FILE_TYPE = "JKS";
+    private static final String KEY_STORE_SERVICE = "KeyStore";
 
     /**
      * Key algorithm used for the keys of newly created tenant keystores when nothing is configured.
@@ -410,21 +415,36 @@ public class KeystoreUtils {
     /**
      * Get a key store instance of the given type from the given JCA provider. For example, a PKCS11 key store from
      * the SunPKCS11 provider instance that is configured for a specific token. If no provider is given, the
-     * provider is selected as in {@link #getKeystoreInstance(String)}.
+     * provider is selected as in {@link #getKeystoreInstance(String)}. A PKCS11 key store without a provider is
+     * refused when more than one provider offers PKCS11 key stores, because the first registered token would be used
+     * silently.
      *
      * @param keyStoreType Key store type.
      * @param provider     Name of a registered JCA provider. Can be blank.
      * @return Key store instance.
-     * @throws KeyStoreException       If the provider does not support the key store type.
+     * @throws KeyStoreException       If the provider does not support the key store type, or no provider is given
+     *                                 for a PKCS11 key store while more than one token is registered.
      * @throws NoSuchProviderException If the provider is not registered.
      */
     public static KeyStore getKeystoreInstance(String keyStoreType, String provider)
             throws KeyStoreException, NoSuchProviderException {
 
-        if (StringUtils.isBlank(provider)) {
-            return getKeystoreInstance(keyStoreType);
+        if (StringUtils.isNotBlank(provider)) {
+            return KeyStore.getInstance(keyStoreType, provider.trim());
         }
-        return KeyStore.getInstance(keyStoreType, provider.trim());
+        if (isPKCS11StoreType(keyStoreType)) {
+            List<String> tokenProviders = new ArrayList<>();
+            for (Provider registered : Security.getProviders()) {
+                if (registered.getService(KEY_STORE_SERVICE, StoreFileType.PKCS11.name()) != null) {
+                    tokenProviders.add(registered.getName());
+                }
+            }
+            if (tokenProviders.size() > 1) {
+                throw new KeyStoreException("A provider is required for a PKCS11 key store when more than one " +
+                        "PKCS11 provider is registered. Registered PKCS11 providers: " + tokenProviders);
+            }
+        }
+        return getKeystoreInstance(keyStoreType);
     }
 
     private static String getJCEProvider() {
