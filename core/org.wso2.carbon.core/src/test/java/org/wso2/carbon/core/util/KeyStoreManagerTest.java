@@ -174,20 +174,28 @@ public class KeyStoreManagerTest {
         }
     }
 
-    @Test(description = "A PKCS11 key store is accepted only as the tenant primary key store")
-    public void testAddPKCS11KeyStoreRejectedForNonTenantPrimaryStore() throws Exception {
+    @Test(description = "A PKCS11 key store can't be added with the generic addKeyStore")
+    public void testAddPKCS11KeyStoreRejected() throws Exception {
 
         try (MockedStatic<KeyStoreUtil> keyStoreUtil = mockStatic(KeyStoreUtil.class)) {
             keyStoreUtil.when(() -> KeyStoreUtil.isPrimaryStore(any())).thenReturn(false);
             keyStoreUtil.when(() -> KeyStoreUtil.isTrustStore(any())).thenReturn(false);
             when(registry.resourceExists(anyString())).thenReturn(false);
 
-            // The super tenant has no tenant primary key store, so a PKCS11 key store is rejected.
+            // The caller can't choose the token entry, provider or PIN of a PKCS11 key store.
             SecurityException e = expectThrows(SecurityException.class, () -> this.keyStoreManager.addKeyStore(
                     "label=wso2-tenant-1\n".getBytes(), "some-store.p11", "1234".toCharArray(),
                     "SunPKCS11-is-tenants", "PKCS11", "1234".toCharArray()));
-            assertTrue(e.getMessage().contains("PKCS11 key stores are supported only as the tenant primary"));
+            assertTrue(e.getMessage().contains("PKCS11 key stores can't be added with addKeyStore"));
         }
+    }
+
+    @Test(description = "The super tenant has no PKCS11 tenant key store")
+    public void testAddTenantPKCS11KeyStoreRejectedForSuperTenant() {
+
+        SecurityException e = expectThrows(SecurityException.class,
+                () -> this.keyStoreManager.addTenantPKCS11KeyStore());
+        assertTrue(e.getMessage().contains("super tenant"));
     }
 
     @Test(description = "A PKCS11 key store is loaded from its token through the given provider, without a file")
@@ -203,14 +211,19 @@ public class KeyStoreManagerTest {
                 "1234".toCharArray());
         java.security.Security.addProvider(provider);
         try {
+            // A wrong PIN fails the token login.
+            expectThrows(SecurityException.class, () -> this.keyStoreManager.loadKeyStoreFromFileSystem(
+                    "/no/such/file.p11", "0000", "PKCS11", providerName));
+
             KeyStore keyStore = this.keyStoreManager.loadKeyStoreFromFileSystem("/no/such/file.p11", "1234",
                     "PKCS11", providerName);
             assertSame(keyStore.getProvider(), provider);
             assertTrue(keyStore.isKeyEntry("wso2-tenant-1"));
 
-            // A wrong PIN fails the token login.
-            expectThrows(SecurityException.class, () -> this.keyStoreManager.loadKeyStoreFromFileSystem(
-                    "/no/such/file.p11", "0000", "PKCS11", providerName));
+            // Like SunPKCS11, the PIN is not checked again once the token is logged in.
+            assertTrue(provider.isLoggedIn());
+            assertTrue(this.keyStoreManager.loadKeyStoreFromFileSystem("/no/such/file.p11", "0000", "PKCS11",
+                    providerName).isKeyEntry("wso2-tenant-1"));
         } finally {
             java.security.Security.removeProvider(providerName);
         }

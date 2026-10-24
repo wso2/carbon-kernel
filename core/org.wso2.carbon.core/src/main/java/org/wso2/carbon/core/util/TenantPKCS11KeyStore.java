@@ -39,17 +39,23 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 /**
  * Tenant key store whose key pair is held in a PKCS#11 token (HSM) shared by many tenants.
  * <p>
  * The persisted key store record does not contain key material. Its content is a small descriptor in
- * {@link Properties} format that names the token entry of the tenant: {@code label=<token entry label>}.
+ * {@link Properties} format that names the token entry of the tenant: {@code label=<token entry label>}. The label is
+ * derived from the tenant ID ({@link #labelFor(int)}), and {@link #load} and {@link #deleteEntry} refuse a descriptor
+ * whose label does not belong to the tenant. Token entry labels must be unique on the token.
  * <p>
- * {@link #load(String, char[], byte[], String)} returns a read-only view over the token key store that exposes only
- * the tenant's entry, under the alias used for tenant keys (the tenant domain). Without the view, the token key store
- * would list the keys of all tenants. The view's provider is the token's provider, so callers that bind signers to
- * the key store provider sign on the token.
+ * The token PIN is not a per-tenant secret: once the token is logged in, SunPKCS11 accepts any PIN. Callers pass the
+ * PIN and provider of the tenant key store token from the server configuration, not from the tenant's record.
+ * <p>
+ * {@link #load} returns a read-only view over the token key store that exposes only the tenant's entry, under the
+ * alias used for tenant keys (the tenant domain). Without the view, the token key store would list the keys of all
+ * tenants. The view's provider is the token's provider, so callers that bind signers to the key store provider sign
+ * on the token.
  */
 public final class TenantPKCS11KeyStore {
 
@@ -58,8 +64,31 @@ public final class TenantPKCS11KeyStore {
      */
     public static final String LABEL_PROPERTY = "label";
 
+    /**
+     * Prefix of the token entry label of a tenant key pair. The tenant ID follows it.
+     */
+    public static final String LABEL_PREFIX = "wso2-tenant-";
+
+    // Labels are written to the descriptor as is, so only characters that need no escaping are allowed.
+    private static final Pattern LABEL_PATTERN = Pattern.compile("[A-Za-z0-9._-]+");
+
+    // SunPKCS11 separates the parts of the alias it gives an entry whose certificate label is not unique.
+    private static final String SHARED_LABEL_ALIAS_SEPARATOR = "/";
+
     private TenantPKCS11KeyStore() {
 
+    }
+
+    /**
+     * Get the token entry label of a tenant key pair. It is based on the tenant ID, so it does not change on a tenant
+     * rename, and it is unique per tenant.
+     *
+     * @param tenantId Tenant ID.
+     * @return Token entry label.
+     */
+    public static String labelFor(int tenantId) {
+
+        return LABEL_PREFIX + tenantId;
     }
 
     /**
@@ -70,10 +99,11 @@ public final class TenantPKCS11KeyStore {
      */
     public static byte[] createDescriptor(String label) {
 
-        if (StringUtils.isBlank(label)) {
-            throw new IllegalArgumentException("Token entry label can't be empty.");
+        if (label == null || !LABEL_PATTERN.matcher(label).matches()) {
+            throw new IllegalArgumentException("Invalid token entry label: " + label + ". Allowed characters: " +
+                    "letters, digits, '.', '_' and '-'.");
         }
-        return (LABEL_PROPERTY + "=" + label.trim() + "\n").getBytes(StandardCharsets.ISO_8859_1);
+        return (LABEL_PROPERTY + "=" + label + "\n").getBytes(StandardCharsets.ISO_8859_1);
     }
 
     /**
@@ -107,20 +137,23 @@ public final class TenantPKCS11KeyStore {
      * @param provider   Name of the registered JCA provider of the token (for example a SunPKCS11 instance).
      * @param pin        Token user PIN.
      * @param descriptor Persisted descriptor of the tenant key store.
+     * @param tenantId   ID of the tenant that owns the key store. The descriptor must name this tenant's label.
      * @param alias      Alias under which the view exposes the tenant's entry.
      * @return Read-only key store view.
-     * @throws KeyStoreException        If the token cannot be loaded or the tenant's entry does not exist.
-     * @throws NoSuchProviderException  If the provider is not registered.
+     * @throws KeyStoreException       If the descriptor does not belong to the tenant, the token cannot be loaded,
+     *                                 or the tenant's entry does not exist or its label is not unique.
+     * @throws NoSuchProviderException If the provider is not registered.
      */
-    public static KeyStore load(String provider, char[] pin, byte[] descriptor, String alias)
+    public static KeyStore load(String provider, char[] pin, byte[] descriptor, int tenantId, String alias)
             throws KeyStoreException, NoSuchProviderException {
 
         if (StringUtils.isBlank(alias)) {
             throw new KeyStoreException("Alias of the tenant key can't be empty.");
         }
-        String label = getLabel(descriptor);
+        String label = getTenantLabel(descriptor, tenantId);
         KeyStore token = loadToken(provider, pin);
         if (!token.isKeyEntry(label)) {
+            checkLabelNotShared(token, label, provider);
             throw new KeyStoreException("No key entry with label '" + label + "' in the PKCS11 token of provider: " +
                     provider);
         }
@@ -139,20 +172,56 @@ public final class TenantPKCS11KeyStore {
      * @param provider   Name of the registered JCA provider of the token.
      * @param pin        Token user PIN.
      * @param descriptor Persisted descriptor of the tenant key store.
+     * @param tenantId   ID of the tenant that owns the key store. The descriptor must name this tenant's label.
      * @return True if an entry was deleted, false if it did not exist.
-     * @throws KeyStoreException       If the entry cannot be deleted.
+     * @throws KeyStoreException       If the descriptor does not belong to the tenant, the label is not unique, or
+     *                                 the entry cannot be deleted.
      * @throws NoSuchProviderException If the provider is not registered.
      */
-    public static boolean deleteEntry(String provider, char[] pin, byte[] descriptor)
+    public static boolean deleteEntry(String provider, char[] pin, byte[] descriptor, int tenantId)
             throws KeyStoreException, NoSuchProviderException {
 
-        String label = getLabel(descriptor);
+        String label = getTenantLabel(descriptor, tenantId);
         KeyStore token = loadToken(provider, pin);
         if (!token.containsAlias(label)) {
+            checkLabelNotShared(token, label, provider);
             return false;
         }
-        token.deleteEntry(label);
+        try {
+            token.deleteEntry(label);
+        } catch (KeyStoreException e) {
+            // SunPKCS11 refuses all changes to a token key store in which certificate labels are not unique.
+            throw new KeyStoreException("Error while deleting the entry with label '" + label + "' from the " +
+                    "PKCS11 token of provider: " + provider + ". The token refuses changes when certificate labels " +
+                    "on it are not unique.", e);
+        }
         return true;
+    }
+
+    private static String getTenantLabel(byte[] descriptor, int tenantId) throws KeyStoreException {
+
+        String label = getLabel(descriptor);
+        if (!labelFor(tenantId).equals(label)) {
+            throw new KeyStoreException("The PKCS11 key store descriptor of tenant: " + tenantId + " names the " +
+                    "token entry '" + label + "', which does not belong to the tenant.");
+        }
+        return label;
+    }
+
+    /**
+     * SunPKCS11 does not use a certificate label as the alias when more than one certificate on the token has it.
+     * It uses {@code <label>/<issuer>/<serial number>} instead, so the tenant's entry is not found by its label.
+     */
+    private static void checkLabelNotShared(KeyStore token, String label, String provider)
+            throws KeyStoreException {
+
+        String sharedLabelPrefix = label + SHARED_LABEL_ALIAS_SEPARATOR;
+        for (String tokenAlias : Collections.list(token.aliases())) {
+            if (tokenAlias.startsWith(sharedLabelPrefix)) {
+                throw new KeyStoreException("More than one certificate in the PKCS11 token of provider: " + provider +
+                        " has the label '" + label + "'. Token entry labels must be unique.");
+            }
+        }
     }
 
     private static KeyStore loadToken(String provider, char[] pin) throws KeyStoreException, NoSuchProviderException {

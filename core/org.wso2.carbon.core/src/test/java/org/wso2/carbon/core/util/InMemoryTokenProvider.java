@@ -31,13 +31,20 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 
 /**
  * Test JCA provider that offers a "PKCS11" key store backed by an in-memory key store, to simulate a PKCS#11 token
- * shared by many tenants. Like SunPKCS11: {@code load(null, pin)} logs in (wrong PIN fails), key passwords are
- * ignored, and changes apply to the token immediately.
+ * shared by many tenants. It behaves like SunPKCS11:
+ * <ul>
+ * <li>The first {@code load(null, pin)} logs in to the token and fails with a wrong PIN. Once the token is logged in,
+ * {@code load} accepts any PIN, because SunPKCS11 does not log in again.</li>
+ * <li>Key passwords are ignored, and changes apply to the token immediately.</li>
+ * <li>An alias that contains {@code /} stands for an entry whose certificate label is not unique (SunPKCS11 names it
+ * {@code <label>/<issuer>/<serial number>}). While the token has one, it refuses all changes.</li>
+ * </ul>
  */
 public class InMemoryTokenProvider extends Provider {
 
@@ -46,6 +53,7 @@ public class InMemoryTokenProvider extends Provider {
     private final transient KeyStore token;
     private final transient char[] tokenPassword;
     private final char[] pin;
+    private volatile boolean loggedIn;
 
     /**
      * @param token         In-memory key store that acts as the token contents.
@@ -75,6 +83,14 @@ public class InMemoryTokenProvider extends Provider {
         return token;
     }
 
+    /**
+     * @return True if a {@code load} with the right PIN has logged in to the token.
+     */
+    public boolean isLoggedIn() {
+
+        return loggedIn;
+    }
+
     private static final class TokenSpi extends KeyStoreSpi {
 
         private final InMemoryTokenProvider provider;
@@ -87,6 +103,15 @@ public class InMemoryTokenProvider extends Provider {
         private KeyStore token() {
 
             return provider.token;
+        }
+
+        private void checkWrite() throws KeyStoreException {
+
+            for (String alias : Collections.list(token().aliases())) {
+                if (alias.contains("/")) {
+                    throw new KeyStoreException("This PKCS11KeyStore does not support write capabilities");
+                }
+            }
         }
 
         @Override
@@ -134,6 +159,7 @@ public class InMemoryTokenProvider extends Provider {
         public void engineSetKeyEntry(String alias, Key key, char[] password, Certificate[] chain)
                 throws KeyStoreException {
 
+            checkWrite();
             token().setKeyEntry(alias, key, provider.tokenPassword, chain);
         }
 
@@ -146,12 +172,14 @@ public class InMemoryTokenProvider extends Provider {
         @Override
         public void engineSetCertificateEntry(String alias, Certificate cert) throws KeyStoreException {
 
+            checkWrite();
             token().setCertificateEntry(alias, cert);
         }
 
         @Override
         public void engineDeleteEntry(String alias) throws KeyStoreException {
 
+            checkWrite();
             token().deleteEntry(alias);
         }
 
@@ -224,9 +252,14 @@ public class InMemoryTokenProvider extends Provider {
         @Override
         public void engineLoad(InputStream stream, char[] password) throws IOException {
 
+            // Like SunPKCS11, the PIN is checked only when the token is not logged in yet.
+            if (provider.loggedIn) {
+                return;
+            }
             if (password == null || !Arrays.equals(password, provider.pin)) {
                 throw new IOException("Token login failed: wrong PIN.");
             }
+            provider.loggedIn = true;
         }
     }
 

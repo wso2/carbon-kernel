@@ -146,6 +146,9 @@ public final class RegistryResources {
         public static final String SERVER_PRIMARY_KEYSTORE_TYPE = "Security.KeyStore.Type";
         // Optional JCA provider of the primary key store, for example the SunPKCS11 instance of a token.
         public static final String SERVER_PRIMARY_KEYSTORE_PROVIDER = "Security.KeyStore.Provider";
+        // JCA provider and user PIN of the PKCS11 token that holds tenant key pairs ([keystore.tenant] type PKCS11).
+        public static final String TENANT_KEYSTORE_PROVIDER = "Security.TenantKeyStore.Provider";
+        public static final String TENANT_KEYSTORE_PASSWORD = "Security.TenantKeyStore.Password";
 
         public static final String DEFAULT_SECURITY_CERTIFICATE_ALIAS = "wso2carbon";
 

@@ -44,14 +44,17 @@ import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.expectThrows;
 
 /**
- * Tests for {@link TenantPKCS11KeyStore}: the descriptor, the read-only single-entry view over a shared token and
- * deleting a tenant's token entry.
+ * Tests for {@link TenantPKCS11KeyStore}: the descriptor, the binding of the descriptor to the tenant, the read-only
+ * single-entry view over a shared token and deleting a tenant's token entry.
  */
 public class TenantPKCS11KeyStoreTest {
 
     private static final String PROVIDER_NAME = "TenantPKCS11Test";
     private static final char[] TOKEN_PASSWORD = "tokenpin".toCharArray();
     private static final char[] PIN = "1234".toCharArray();
+    private static final char[] WRONG_PIN = "0000".toCharArray();
+    private static final int TENANT_A_ID = 1;
+    private static final int TENANT_B_ID = 2;
     private static final String TENANT_A_LABEL = "wso2-tenant-1";
     private static final String TENANT_B_LABEL = "wso2-tenant-2";
     private static final String TENANT_A_DOMAIN = "a.com";
@@ -79,9 +82,14 @@ public class TenantPKCS11KeyStoreTest {
     @Test
     public void testDescriptorRoundTrip() throws Exception {
 
+        assertEquals(TenantPKCS11KeyStore.labelFor(TENANT_A_ID), TENANT_A_LABEL);
         byte[] descriptor = TenantPKCS11KeyStore.createDescriptor(TENANT_A_LABEL);
         assertEquals(TenantPKCS11KeyStore.getLabel(descriptor), TENANT_A_LABEL);
         expectThrows(IllegalArgumentException.class, () -> TenantPKCS11KeyStore.createDescriptor(" "));
+        expectThrows(IllegalArgumentException.class, () -> TenantPKCS11KeyStore.createDescriptor(null));
+        expectThrows(IllegalArgumentException.class, () -> TenantPKCS11KeyStore.createDescriptor("a\\b"));
+        expectThrows(IllegalArgumentException.class, () -> TenantPKCS11KeyStore.createDescriptor("a=b"));
+        expectThrows(IllegalArgumentException.class, () -> TenantPKCS11KeyStore.createDescriptor("t\u00e4"));
         expectThrows(KeyStoreException.class, () -> TenantPKCS11KeyStore.getLabel(new byte[0]));
         expectThrows(KeyStoreException.class, () -> TenantPKCS11KeyStore.getLabel("other=x".getBytes()));
     }
@@ -133,19 +141,77 @@ public class TenantPKCS11KeyStoreTest {
     }
 
     @Test
+    public void testDescriptorOfAnotherTenantIsRefused() {
+
+        // A record of tenant A that names tenant B's entry can neither load nor delete it.
+        byte[] tenantBDescriptor = TenantPKCS11KeyStore.createDescriptor(TENANT_B_LABEL);
+        KeyStoreException loadError = expectThrows(KeyStoreException.class, () -> TenantPKCS11KeyStore.load(
+                PROVIDER_NAME, PIN, tenantBDescriptor, TENANT_A_ID, TENANT_A_DOMAIN));
+        assertTrue(loadError.getMessage().contains("does not belong to the tenant"));
+        expectThrows(KeyStoreException.class, () -> TenantPKCS11KeyStore.deleteEntry(PROVIDER_NAME, PIN,
+                tenantBDescriptor, TENANT_A_ID));
+        assertTrue(containsTokenAlias(TENANT_B_LABEL));
+
+        byte[] otherLabel = TenantPKCS11KeyStore.createDescriptor("my-key");
+        expectThrows(KeyStoreException.class, () -> TenantPKCS11KeyStore.load(PROVIDER_NAME, PIN, otherLabel,
+                TENANT_A_ID, TENANT_A_DOMAIN));
+    }
+
+    @Test
+    public void testPinIsCheckedOnlyAtLogin() throws Exception {
+
+        // Like SunPKCS11, a wrong PIN fails only while the token is not logged in. The PIN is therefore no access
+        // check between tenants.
+        byte[] descriptor = TenantPKCS11KeyStore.createDescriptor(TENANT_A_LABEL);
+        expectThrows(KeyStoreException.class, () -> TenantPKCS11KeyStore.load(PROVIDER_NAME, WRONG_PIN,
+                descriptor, TENANT_A_ID, TENANT_A_DOMAIN));
+        assertFalse(provider.isLoggedIn());
+        loadTenantAView();
+        assertTrue(provider.isLoggedIn());
+        assertTrue(TenantPKCS11KeyStore.load(PROVIDER_NAME, WRONG_PIN, descriptor, TENANT_A_ID, TENANT_A_DOMAIN)
+                .isKeyEntry(TENANT_A_DOMAIN));
+    }
+
+    @Test
     public void testLoadFailures() {
 
-        byte[] missing = TenantPKCS11KeyStore.createDescriptor("wso2-tenant-404");
-        expectThrows(KeyStoreException.class, () -> TenantPKCS11KeyStore.load(PROVIDER_NAME, PIN, missing,
-                TENANT_A_DOMAIN));
+        int missingTenantId = 404;
+        byte[] missing = TenantPKCS11KeyStore.createDescriptor(TenantPKCS11KeyStore.labelFor(missingTenantId));
+        KeyStoreException e = expectThrows(KeyStoreException.class, () -> TenantPKCS11KeyStore.load(PROVIDER_NAME,
+                PIN, missing, missingTenantId, TENANT_A_DOMAIN));
+        assertTrue(e.getMessage().contains("No key entry with label 'wso2-tenant-404'"));
         byte[] descriptor = TenantPKCS11KeyStore.createDescriptor(TENANT_A_LABEL);
-        expectThrows(KeyStoreException.class, () -> TenantPKCS11KeyStore.load(PROVIDER_NAME, "0000".toCharArray(),
-                descriptor, TENANT_A_DOMAIN));
-        expectThrows(KeyStoreException.class, () -> TenantPKCS11KeyStore.load(" ", PIN, descriptor,
+        expectThrows(KeyStoreException.class, () -> TenantPKCS11KeyStore.load(" ", PIN, descriptor, TENANT_A_ID,
                 TENANT_A_DOMAIN));
         expectThrows(NoSuchProviderException.class, () -> TenantPKCS11KeyStore.load("NoSuchProvider", PIN,
-                descriptor, TENANT_A_DOMAIN));
-        expectThrows(KeyStoreException.class, () -> TenantPKCS11KeyStore.load(PROVIDER_NAME, PIN, descriptor, ""));
+                descriptor, TENANT_A_ID, TENANT_A_DOMAIN));
+        expectThrows(KeyStoreException.class, () -> TenantPKCS11KeyStore.load(PROVIDER_NAME, PIN, descriptor,
+                TENANT_A_ID, ""));
+    }
+
+    @Test
+    public void testSharedLabelIsReported() throws Exception {
+
+        // A label that more than one certificate on the token has: SunPKCS11 names that entry
+        // <label>/<issuer>/<serial number> and refuses all changes to the token key store.
+        int sharedTenantId = 3;
+        String sharedLabel = TenantPKCS11KeyStore.labelFor(sharedTenantId);
+        KeyStore token = provider.getToken();
+        token.setKeyEntry(sharedLabel + "/cn=shared/1", token.getKey(TENANT_B_LABEL, TOKEN_PASSWORD), TOKEN_PASSWORD,
+                token.getCertificateChain(TENANT_B_LABEL));
+
+        KeyStoreException loadError = expectThrows(KeyStoreException.class, () -> TenantPKCS11KeyStore.load(
+                PROVIDER_NAME, PIN, TenantPKCS11KeyStore.createDescriptor(sharedLabel), sharedTenantId,
+                "c.com"));
+        assertTrue(loadError.getMessage().contains("labels must be unique"));
+
+        // Other tenants still load, but no entry can be deleted until the duplicate label is removed.
+        assertTrue(loadTenantAView().isKeyEntry(TENANT_A_DOMAIN));
+        KeyStoreException deleteError = expectThrows(KeyStoreException.class, () ->
+                TenantPKCS11KeyStore.deleteEntry(PROVIDER_NAME, PIN,
+                        TenantPKCS11KeyStore.createDescriptor(TENANT_A_LABEL), TENANT_A_ID));
+        assertTrue(deleteError.getMessage().contains("not unique"));
+        assertTrue(containsTokenAlias(TENANT_A_LABEL));
     }
 
     @Test
@@ -153,16 +219,25 @@ public class TenantPKCS11KeyStoreTest {
 
         byte[] descriptor = TenantPKCS11KeyStore.createDescriptor(TENANT_B_LABEL);
 
-        assertTrue(TenantPKCS11KeyStore.deleteEntry(PROVIDER_NAME, PIN, descriptor));
-        assertFalse(provider.getToken().containsAlias(TENANT_B_LABEL));
+        assertTrue(TenantPKCS11KeyStore.deleteEntry(PROVIDER_NAME, PIN, descriptor, TENANT_B_ID));
+        assertFalse(containsTokenAlias(TENANT_B_LABEL));
         // The other tenant's entry stays.
-        assertTrue(provider.getToken().containsAlias(TENANT_A_LABEL));
-        assertFalse(TenantPKCS11KeyStore.deleteEntry(PROVIDER_NAME, PIN, descriptor));
+        assertTrue(containsTokenAlias(TENANT_A_LABEL));
+        assertFalse(TenantPKCS11KeyStore.deleteEntry(PROVIDER_NAME, PIN, descriptor, TENANT_B_ID));
+    }
+
+    private boolean containsTokenAlias(String alias) {
+
+        try {
+            return provider.getToken().containsAlias(alias);
+        } catch (KeyStoreException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private KeyStore loadTenantAView() throws Exception {
 
         return TenantPKCS11KeyStore.load(PROVIDER_NAME, PIN, TenantPKCS11KeyStore.createDescriptor(TENANT_A_LABEL),
-                TENANT_A_DOMAIN);
+                TENANT_A_ID, TENANT_A_DOMAIN);
     }
 }
