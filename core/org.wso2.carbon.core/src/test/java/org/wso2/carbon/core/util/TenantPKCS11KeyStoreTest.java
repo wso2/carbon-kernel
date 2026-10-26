@@ -116,6 +116,8 @@ public class TenantPKCS11KeyStoreTest {
         assertEquals(certificate, token.getCertificate(TENANT_A_LABEL));
         assertEquals(view.getCertificateChain(TENANT_A_DOMAIN).length, 1);
         assertEquals(view.getCertificateAlias(certificate), TENANT_A_DOMAIN);
+        // Like SunPKCS11, the token has no creation date; the view returns none instead of failing.
+        assertNull(view.getCreationDate(TENANT_A_DOMAIN));
 
         // Nothing of the other tenant is reachable through the view.
         assertFalse(view.containsAlias(TENANT_B_LABEL));

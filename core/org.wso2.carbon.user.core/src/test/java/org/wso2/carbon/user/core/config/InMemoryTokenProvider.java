@@ -28,6 +28,7 @@ import java.security.KeyStoreException;
 import java.security.KeyStoreSpi;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
+import java.security.ProviderException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <ul>
  * <li>The first {@code load(null, pin)} logs in to the token and fails with a wrong PIN. Once the token is logged in,
  * {@code load} accepts any PIN, because SunPKCS11 does not log in again.</li>
- * <li>Key passwords are ignored, and changes apply to the token immediately.</li>
+ * <li>Key passwords are ignored, changes apply to the token immediately, and entries have no creation date.</li>
  * <li>A loaded key store lists the entries that existed when it was loaded, and those it added itself.</li>
  * <li>An alias that contains {@code /} stands for an entry whose certificate label is not unique (SunPKCS11 names it
  * {@code <label>/<issuer>/<serial number>}). While the token has one, it refuses all changes.</li>
@@ -168,7 +169,8 @@ public class InMemoryTokenProvider extends Provider {
         @Override
         public Date engineGetCreationDate(String alias) {
 
-            return read(alias, token -> token.getCreationDate(alias));
+            // Like SunPKCS11: tokens don't record a creation date.
+            throw new ProviderException(new UnsupportedOperationException());
         }
 
         @Override

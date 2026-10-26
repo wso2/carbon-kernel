@@ -200,7 +200,7 @@ public final class TenantPKCS11KeyStore {
             throw new KeyStoreException("The entry with label '" + label + "' in the PKCS11 token of provider: " +
                     provider + " has no key or certificate.");
         }
-        KeyStore view = new View(new SingleEntrySpi(alias, key, chain, token.getCreationDate(label)), token);
+        KeyStore view = new View(new SingleEntrySpi(alias, key, chain, getCreationDate(token, label)), token);
         try {
             view.load(null, null);
         } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
@@ -258,6 +258,18 @@ public final class TenantPKCS11KeyStore {
 
         TOKENS.clear();
         MISSING_LABEL_RELOADS.clear();
+    }
+
+    /**
+     * PKCS#11 tokens don't record when an entry was created; SunPKCS11 throws for it. Other providers may support it.
+     */
+    private static Date getCreationDate(KeyStore token, String label) {
+
+        try {
+            return token.getCreationDate(label);
+        } catch (KeyStoreException | RuntimeException e) {
+            return null;
+        }
     }
 
     private static String getTenantLabel(byte[] descriptor, String tenantUniqueId) throws KeyStoreException {
