@@ -197,6 +197,7 @@ public class KeyStoreManagerTest {
         SecurityException e = expectThrows(SecurityException.class,
                 () -> this.keyStoreManager.addTenantPKCS11KeyStore());
         assertTrue(e.getMessage().contains("super tenant"));
+        expectThrows(SecurityException.class, () -> this.keyStoreManager.getTenantPKCS11KeyLabel());
     }
 
     @Test(description = "A PKCS11 key store is loaded from its token through the given provider, without a file")
@@ -219,12 +220,12 @@ public class KeyStoreManagerTest {
             KeyStore keyStore = this.keyStoreManager.loadKeyStoreFromFileSystem("/no/such/file.p11", "1234",
                     "PKCS11", providerName);
             assertSame(keyStore.getProvider(), provider);
-            assertTrue(keyStore.isKeyEntry("wso2-tenant-1"));
+            assertTrue(keyStore.isKeyEntry("wso2-tenant-6f1d2c8e-4b7a-4e19-9c3d-2a5b8e0f7c41"));
 
             // Like SunPKCS11, the PIN is not checked again once the token is logged in.
             assertTrue(provider.isLoggedIn());
             assertTrue(this.keyStoreManager.loadKeyStoreFromFileSystem("/no/such/file.p11", "0000", "PKCS11",
-                    providerName).isKeyEntry("wso2-tenant-1"));
+                    providerName).isKeyEntry("wso2-tenant-6f1d2c8e-4b7a-4e19-9c3d-2a5b8e0f7c41"));
         } finally {
             java.security.Security.removeProvider(providerName);
         }
@@ -254,7 +255,7 @@ public class KeyStoreManagerTest {
         Resource pkcs11Resource = org.mockito.Mockito.mock(Resource.class);
         when(pkcs11Resource.getProperty(anyString())).thenReturn("PKCS11");
         when(pkcs11Resource.getContent()).thenReturn(TenantPKCS11KeyStore.createDescriptor(
-                TenantPKCS11KeyStore.labelFor(MultitenantConstants.SUPER_TENANT_ID)));
+                TenantPKCS11KeyStore.labelFor("6f1d2c8e-4b7a-4e19-9c3d-2a5b8e0f7c41")));
         try (MockedStatic<KeyStoreUtil> keyStoreUtil = mockStatic(KeyStoreUtil.class);
              MockedStatic<ServerConfiguration> serverConfiguration = mockStatic(ServerConfiguration.class)) {
 

@@ -267,10 +267,26 @@ public class KeyStoreManager {
     }
 
     /**
+     * Get the label under which this tenant's key pair is held in the PKCS#11 token of {@code [keystore.tenant]}. It is
+     * built from the tenant's unique ID, which is never given to another tenant. The key pair must be generated in the
+     * token under this label before {@link #addTenantPKCS11KeyStore()} is called.
+     *
+     * @return Token entry label of this tenant's key pair.
+     * @throws SecurityException If this is the super tenant, or the tenant's unique ID can't be read.
+     */
+    public String getTenantPKCS11KeyLabel() throws SecurityException {
+
+        if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
+            throw new SecurityException("The super tenant has no tenant key store.");
+        }
+        return TenantPKCS11KeyStore.labelFor(getTenantUniqueId());
+    }
+
+    /**
      * Add the tenant primary key store for a key pair held in the PKCS#11 token of {@code [keystore.tenant]}.
      * <p>
-     * The key pair must already exist in the token under the label {@link TenantPKCS11KeyStore#labelFor(int)} of
-     * this tenant. The key store record holds only a descriptor that names that label. No PIN is stored with it: the
+     * The key pair must already exist in the token under the label {@link #getTenantPKCS11KeyLabel()} of this
+     * tenant. The key store record holds only a descriptor that names that label. No PIN is stored with it: the
      * token's provider and PIN are read from the {@code [keystore.tenant]} configuration whenever the key store is
      * used.
      *
@@ -291,7 +307,7 @@ public class KeyStoreManager {
             throw new SecurityException("Key store " + keyStoreName + " already available");
         }
 
-        byte[] descriptor = TenantPKCS11KeyStore.createDescriptor(TenantPKCS11KeyStore.labelFor(tenantId));
+        byte[] descriptor = TenantPKCS11KeyStore.createDescriptor(getTenantPKCS11KeyLabel());
         KeyStoreModel keyStoreModel = new KeyStoreModel();
         keyStoreModel.setName(keyStoreName);
         keyStoreModel.setContent(descriptor);
@@ -1185,7 +1201,7 @@ public class KeyStoreManager {
 
         char[] pin = getTenantPKCS11Pin();
         try {
-            return TenantPKCS11KeyStore.load(getTenantPKCS11Provider(), pin, descriptor, tenantId,
+            return TenantPKCS11KeyStore.load(getTenantPKCS11Provider(), pin, descriptor, getTenantUniqueId(),
                     getTenantDomainName());
         } finally {
             clearPasswordCharArray(pin);
@@ -1202,15 +1218,21 @@ public class KeyStoreManager {
         try {
             pin = getTenantPKCS11Pin();
             boolean deleted = TenantPKCS11KeyStore.deleteEntry(getTenantPKCS11Provider(), pin,
-                    keyStoreModel.getContent(), tenantId);
+                    keyStoreModel.getContent(), getTenantUniqueId());
             if (log.isDebugEnabled()) {
                 log.debug("Token entry of PKCS11 key store " + keyStoreName + (deleted ? " deleted." :
                         " was not found in the token."));
             }
         } catch (KeyStoreException | NoSuchProviderException | RuntimeException e) {
+            String label;
+            try {
+                label = TenantPKCS11KeyStore.getLabel(keyStoreModel.getContent());
+            } catch (KeyStoreException descriptorError) {
+                label = "<unknown>";
+            }
             log.warn("Deleted PKCS11 key store " + keyStoreName + " of tenant: " + tenantId + ", but its entry " +
-                    "could not be deleted from the token. Remove the entry with label '" +
-                    TenantPKCS11KeyStore.labelFor(tenantId) + "' from the token.", e);
+                    "could not be deleted from the token. Remove the entry with label '" + label + "' from the " +
+                    "token.", e);
         } finally {
             clearPasswordCharArray(pin);
         }
@@ -1300,6 +1322,26 @@ public class KeyStoreManager {
 
         String ksName = getTenantDomainName().trim().replace(".", "-");
         return (ksName + KeystoreUtils.getExtensionByFileType(KeystoreUtils.StoreFileType.defaultFileType()));
+    }
+
+    private String getTenantUniqueId() throws SecurityException {
+
+        String tenantUniqueId;
+        try {
+            RealmService realmService = CarbonCoreDataHolder.getInstance().getRealmService();
+            if (realmService == null) {
+                throw new SecurityException("Error in getting the tenant unique ID, realm service is null.");
+            }
+            tenantUniqueId = realmService.getTenantManager().getTenant(tenantId).getTenantUniqueID();
+        } catch (SecurityException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new SecurityException("Error in getting the unique ID of the tenant id: " + tenantId, e);
+        }
+        if (StringUtils.isBlank(tenantUniqueId)) {
+            throw new SecurityException("The tenant id: " + tenantId + " has no unique ID.");
+        }
+        return tenantUniqueId;
     }
 
     private String getTenantDomainName() throws SecurityException {

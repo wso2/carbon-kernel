@@ -53,10 +53,10 @@ public class TenantPKCS11KeyStoreTest {
     private static final char[] TOKEN_PASSWORD = "tokenpin".toCharArray();
     private static final char[] PIN = "1234".toCharArray();
     private static final char[] WRONG_PIN = "0000".toCharArray();
-    private static final int TENANT_A_ID = 1;
-    private static final int TENANT_B_ID = 2;
-    private static final String TENANT_A_LABEL = "wso2-tenant-1";
-    private static final String TENANT_B_LABEL = "wso2-tenant-2";
+    private static final String TENANT_A_ID = "6f1d2c8e-4b7a-4e19-9c3d-2a5b8e0f7c41";
+    private static final String TENANT_B_ID = "b3e94a17-0d6c-4f28-a5e2-7c1f9d3b6e58";
+    private static final String TENANT_A_LABEL = "wso2-tenant-" + TENANT_A_ID;
+    private static final String TENANT_B_LABEL = "wso2-tenant-" + TENANT_B_ID;
     private static final String TENANT_A_DOMAIN = "a.com";
 
     private InMemoryTokenProvider provider;
@@ -71,6 +71,7 @@ public class TenantPKCS11KeyStoreTest {
                     TOKEN_PASSWORD, PIN);
         }
         Security.addProvider(provider);
+        TenantPKCS11KeyStore.clearLoadedTokens();
     }
 
     @AfterMethod
@@ -83,6 +84,7 @@ public class TenantPKCS11KeyStoreTest {
     public void testDescriptorRoundTrip() throws Exception {
 
         assertEquals(TenantPKCS11KeyStore.labelFor(TENANT_A_ID), TENANT_A_LABEL);
+        expectThrows(IllegalArgumentException.class, () -> TenantPKCS11KeyStore.labelFor(" "));
         byte[] descriptor = TenantPKCS11KeyStore.createDescriptor(TENANT_A_LABEL);
         assertEquals(TenantPKCS11KeyStore.getLabel(descriptor), TENANT_A_LABEL);
         expectThrows(IllegalArgumentException.class, () -> TenantPKCS11KeyStore.createDescriptor(" "));
@@ -153,6 +155,7 @@ public class TenantPKCS11KeyStoreTest {
         assertTrue(containsTokenAlias(TENANT_B_LABEL));
 
         byte[] otherLabel = TenantPKCS11KeyStore.createDescriptor("my-key");
+        // The descriptor of a tenant that later gets the same tenant ID, with another unique ID, is refused too.
         expectThrows(KeyStoreException.class, () -> TenantPKCS11KeyStore.load(PROVIDER_NAME, PIN, otherLabel,
                 TENANT_A_ID, TENANT_A_DOMAIN));
     }
@@ -175,11 +178,11 @@ public class TenantPKCS11KeyStoreTest {
     @Test
     public void testLoadFailures() {
 
-        int missingTenantId = 404;
+        String missingTenantId = "00000000-0000-4000-8000-000000000404";
         byte[] missing = TenantPKCS11KeyStore.createDescriptor(TenantPKCS11KeyStore.labelFor(missingTenantId));
         KeyStoreException e = expectThrows(KeyStoreException.class, () -> TenantPKCS11KeyStore.load(PROVIDER_NAME,
                 PIN, missing, missingTenantId, TENANT_A_DOMAIN));
-        assertTrue(e.getMessage().contains("No key entry with label 'wso2-tenant-404'"));
+        assertTrue(e.getMessage().contains("No key entry with label 'wso2-tenant-" + missingTenantId + "'"));
         byte[] descriptor = TenantPKCS11KeyStore.createDescriptor(TENANT_A_LABEL);
         expectThrows(KeyStoreException.class, () -> TenantPKCS11KeyStore.load(" ", PIN, descriptor, TENANT_A_ID,
                 TENANT_A_DOMAIN));
@@ -194,7 +197,7 @@ public class TenantPKCS11KeyStoreTest {
 
         // A label that more than one certificate on the token has: SunPKCS11 names that entry
         // <label>/<issuer>/<serial number> and refuses all changes to the token key store.
-        int sharedTenantId = 3;
+        String sharedTenantId = "00000000-0000-4000-8000-000000000003";
         String sharedLabel = TenantPKCS11KeyStore.labelFor(sharedTenantId);
         KeyStore token = provider.getToken();
         token.setKeyEntry(sharedLabel + "/cn=shared/1", token.getKey(TENANT_B_LABEL, TOKEN_PASSWORD), TOKEN_PASSWORD,
@@ -233,7 +236,7 @@ public class TenantPKCS11KeyStoreTest {
 
         loadTenantAView();
         // A new tenant's key pair is added through another key store instance, after the shared one was loaded.
-        int newTenantId = 3;
+        String newTenantId = "00000000-0000-4000-8000-000000000033";
         String newLabel = TenantPKCS11KeyStore.labelFor(newTenantId);
         KeyStore token = provider.getToken();
         token.setKeyEntry(newLabel, token.getKey(TENANT_B_LABEL, TOKEN_PASSWORD), TOKEN_PASSWORD,
@@ -249,6 +252,39 @@ public class TenantPKCS11KeyStoreTest {
 
         assertTrue(TenantPKCS11KeyStore.deleteEntry(PROVIDER_NAME, PIN, descriptor, newTenantId));
         assertFalse(containsTokenAlias(newLabel));
+    }
+
+    @Test
+    public void testViewDoesNotUseTheTokenKeyStoreAfterLoad() throws Exception {
+
+        KeyStore view = loadTenantAView();
+        Key key = view.getKey(TENANT_A_DOMAIN, null);
+        Certificate certificate = view.getCertificate(TENANT_A_DOMAIN);
+
+        // The key handle and certificate chain are read when the view is created. Reading them again does not go to
+        // the token, so views of different tenants do not wait on the shared token key store.
+        provider.getToken().deleteEntry(TENANT_A_LABEL);
+        assertSame(view.getKey(TENANT_A_DOMAIN, null), key);
+        assertEquals(view.getCertificate(TENANT_A_DOMAIN), certificate);
+        assertEquals(view.getCertificateChain(TENANT_A_DOMAIN).length, 1);
+        assertNull(view.getKey("other", null));
+    }
+
+    @Test
+    public void testMissingLabelReloadsAtMostOncePerInterval() throws Exception {
+
+        loadTenantAView();
+        String missingTenantId = "00000000-0000-4000-8000-000000000505";
+        byte[] missing = TenantPKCS11KeyStore.createDescriptor(TenantPKCS11KeyStore.labelFor(missingTenantId));
+        for (int i = 0; i < 5; i++) {
+            expectThrows(KeyStoreException.class, () -> TenantPKCS11KeyStore.load(PROVIDER_NAME, PIN, missing,
+                    missingTenantId, "missing.com"));
+        }
+        // One load for tenant A, and one reload for the first miss. Later misses within the interval do not reload.
+        assertEquals(provider.getLoadCount(), 2);
+        // Other tenants are not affected.
+        loadTenantAView();
+        assertEquals(provider.getLoadCount(), 2);
     }
 
     @Test

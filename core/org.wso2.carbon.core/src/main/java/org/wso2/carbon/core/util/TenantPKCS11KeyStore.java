@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -33,7 +34,6 @@ import java.security.KeyStoreSpi;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Security;
-import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.Collections;
@@ -49,21 +49,23 @@ import java.util.regex.Pattern;
  * <p>
  * The persisted key store record does not contain key material. Its content is a small descriptor in
  * {@link Properties} format that names the token entry of the tenant: {@code label=<token entry label>}. The label is
- * derived from the tenant ID ({@link #labelFor(int)}), and {@link #load} and {@link #deleteEntry} refuse a descriptor
- * whose label does not belong to the tenant. Token entry labels must be unique on the token.
+ * derived from the tenant's unique ID ({@link #labelFor(String)}), which is never reused, so a new tenant can't get the
+ * entry of a deleted tenant. {@link #load} and {@link #deleteEntry} refuse a descriptor whose label does not belong to
+ * the tenant. Token entry labels must be unique on the token.
  * <p>
  * The token PIN is not a per-tenant secret: once the token is logged in, SunPKCS11 accepts any PIN. Callers pass the
  * PIN and provider of the tenant key store token from the server configuration, not from the tenant's record.
  * <p>
- * {@link #load} returns a read-only view over the token key store that exposes only the tenant's entry, under the
- * alias used for tenant keys (the tenant domain). Without the view, the token key store would list the keys of all
- * tenants. The view's provider is the token's provider, so callers that bind signers to the key store provider sign
- * on the token.
+ * {@link #load} returns a read-only view that exposes only the tenant's entry, under the alias used for tenant keys
+ * (the tenant domain). The view's provider is the token's provider, so callers that bind signers to the key store
+ * provider sign on the token. The view holds the tenant's key handle and certificate chain, read once when it is
+ * created, and no reference to the token key store.
  * <p>
  * Loading a SunPKCS11 key store lists every key and certificate on the token, so its cost grows with the number of
- * tenants on the token. One loaded token key store is therefore kept per provider and shared by all tenant views. It
- * lists the entries that existed when it was loaded, so it is loaded again when a tenant's label is not found, for
- * example for a tenant whose key pair was generated after the load.
+ * tenants on the token. One loaded token key store is therefore kept per provider and used to create all tenant views.
+ * It lists the entries that existed when it was loaded, so it is loaded again when a tenant's label is not found, for
+ * example for a tenant whose key pair was generated after the load. A label that stays missing causes at most one
+ * reload per {@link #MISSING_LABEL_RELOAD_INTERVAL_MILLIS}.
  */
 public final class TenantPKCS11KeyStore {
 
@@ -73,9 +75,14 @@ public final class TenantPKCS11KeyStore {
     public static final String LABEL_PROPERTY = "label";
 
     /**
-     * Prefix of the token entry label of a tenant key pair. The tenant ID follows it.
+     * Prefix of the token entry label of a tenant key pair. The tenant's unique ID follows it.
      */
     public static final String LABEL_PREFIX = "wso2-tenant-";
+
+    /**
+     * Minimum time between two reloads of the token key store for the same missing label.
+     */
+    public static final long MISSING_LABEL_RELOAD_INTERVAL_MILLIS = 10_000L;
 
     // Labels are written to the descriptor as is, so only characters that need no escaping are allowed.
     private static final Pattern LABEL_PATTERN = Pattern.compile("[A-Za-z0-9._-]+");
@@ -83,23 +90,29 @@ public final class TenantPKCS11KeyStore {
     // SunPKCS11 separates the parts of the alias it gives an entry whose certificate label is not unique.
     private static final String SHARED_LABEL_ALIAS_SEPARATOR = "/";
 
-    // Loaded token key store per provider name, shared by all tenant views of that token.
+    // Loaded token key store per provider name, used to create the tenant views of that token.
     private static final Map<String, KeyStore> TOKENS = new ConcurrentHashMap<>();
+
+    // Time of the last reload caused by a missing label, per provider and label.
+    private static final Map<String, Long> MISSING_LABEL_RELOADS = new ConcurrentHashMap<>();
 
     private TenantPKCS11KeyStore() {
 
     }
 
     /**
-     * Get the token entry label of a tenant key pair. It is based on the tenant ID, so it does not change on a tenant
-     * rename, and it is unique per tenant.
+     * Get the token entry label of a tenant key pair. It is based on the tenant's unique ID, so it does not change on
+     * a tenant rename, it is unique per tenant, and it is not given to a later tenant that gets the same tenant ID.
      *
-     * @param tenantId Tenant ID.
+     * @param tenantUniqueId Unique ID (UUID) of the tenant.
      * @return Token entry label.
      */
-    public static String labelFor(int tenantId) {
+    public static String labelFor(String tenantUniqueId) {
 
-        return LABEL_PREFIX + tenantId;
+        if (StringUtils.isBlank(tenantUniqueId)) {
+            throw new IllegalArgumentException("The tenant unique ID can't be empty.");
+        }
+        return LABEL_PREFIX + tenantUniqueId.trim();
     }
 
     /**
@@ -143,36 +156,51 @@ public final class TenantPKCS11KeyStore {
     }
 
     /**
-     * Load the token through the given provider and return a read-only view that exposes only the tenant's entry.
+     * Read the tenant's entry from the token through the given provider and return a read-only view that exposes only
+     * that entry.
      *
-     * @param provider   Name of the registered JCA provider of the token (for example a SunPKCS11 instance).
-     * @param pin        Token user PIN.
-     * @param descriptor Persisted descriptor of the tenant key store.
-     * @param tenantId   ID of the tenant that owns the key store. The descriptor must name this tenant's label.
-     * @param alias      Alias under which the view exposes the tenant's entry.
+     * @param provider       Name of the registered JCA provider of the token (for example a SunPKCS11 instance).
+     * @param pin            Token user PIN.
+     * @param descriptor     Persisted descriptor of the tenant key store.
+     * @param tenantUniqueId Unique ID of the tenant that owns the key store. The descriptor must name its label.
+     * @param alias          Alias under which the view exposes the tenant's entry.
      * @return Read-only key store view.
      * @throws KeyStoreException       If the descriptor does not belong to the tenant, the token cannot be loaded,
      *                                 or the tenant's entry does not exist or its label is not unique.
      * @throws NoSuchProviderException If the provider is not registered.
      */
-    public static KeyStore load(String provider, char[] pin, byte[] descriptor, int tenantId, String alias)
+    public static KeyStore load(String provider, char[] pin, byte[] descriptor, String tenantUniqueId, String alias)
             throws KeyStoreException, NoSuchProviderException {
 
         if (StringUtils.isBlank(alias)) {
             throw new KeyStoreException("Alias of the tenant key can't be empty.");
         }
-        String label = getTenantLabel(descriptor, tenantId);
+        String label = getTenantLabel(descriptor, tenantUniqueId);
         KeyStore token = getToken(provider, pin);
         if (!token.isKeyEntry(label)) {
             // The entry may have been added after the shared token key store was loaded.
-            token = reloadToken(provider, pin);
+            token = reloadForMissingLabel(provider, pin, token, label);
             if (!token.isKeyEntry(label)) {
                 checkLabelNotShared(token, label, provider);
                 throw new KeyStoreException("No key entry with label '" + label + "' in the PKCS11 token of " +
                         "provider: " + provider);
             }
         }
-        KeyStore view = new View(new SingleEntrySpi(token, alias, label), token);
+        MISSING_LABEL_RELOADS.remove(missingLabelKey(provider, label));
+
+        Key key;
+        try {
+            key = token.getKey(label, null);
+        } catch (GeneralSecurityException e) {
+            throw new KeyStoreException("Error while reading the key with label '" + label + "' from the PKCS11 " +
+                    "token of provider: " + provider, e);
+        }
+        Certificate[] chain = token.getCertificateChain(label);
+        if (key == null || chain == null || chain.length == 0) {
+            throw new KeyStoreException("The entry with label '" + label + "' in the PKCS11 token of provider: " +
+                    provider + " has no key or certificate.");
+        }
+        KeyStore view = new View(new SingleEntrySpi(alias, key, chain, token.getCreationDate(label)), token);
         try {
             view.load(null, null);
         } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
@@ -184,22 +212,22 @@ public final class TenantPKCS11KeyStore {
     /**
      * Delete the tenant's entry (private key and certificate) from the token.
      *
-     * @param provider   Name of the registered JCA provider of the token.
-     * @param pin        Token user PIN.
-     * @param descriptor Persisted descriptor of the tenant key store.
-     * @param tenantId   ID of the tenant that owns the key store. The descriptor must name this tenant's label.
+     * @param provider       Name of the registered JCA provider of the token.
+     * @param pin            Token user PIN.
+     * @param descriptor     Persisted descriptor of the tenant key store.
+     * @param tenantUniqueId Unique ID of the tenant that owns the key store. The descriptor must name its label.
      * @return True if an entry was deleted, false if it did not exist.
      * @throws KeyStoreException       If the descriptor does not belong to the tenant, the label is not unique, or
      *                                 the entry cannot be deleted.
      * @throws NoSuchProviderException If the provider is not registered.
      */
-    public static boolean deleteEntry(String provider, char[] pin, byte[] descriptor, int tenantId)
+    public static boolean deleteEntry(String provider, char[] pin, byte[] descriptor, String tenantUniqueId)
             throws KeyStoreException, NoSuchProviderException {
 
-        String label = getTenantLabel(descriptor, tenantId);
+        String label = getTenantLabel(descriptor, tenantUniqueId);
         KeyStore token = getToken(provider, pin);
         if (!token.containsAlias(label)) {
-            token = reloadToken(provider, pin);
+            token = reloadToken(provider, pin, token);
             if (!token.containsAlias(label)) {
                 checkLabelNotShared(token, label, provider);
                 return false;
@@ -211,7 +239,7 @@ public final class TenantPKCS11KeyStore {
             } catch (KeyStoreException e) {
                 // The shared token key store refuses changes if a certificate label was not unique when it was
                 // loaded. Load it again in case the duplicate has been removed since then.
-                reloadToken(provider, pin).deleteEntry(label);
+                reloadToken(provider, pin, token).deleteEntry(label);
             }
         } catch (KeyStoreException e) {
             // SunPKCS11 refuses all changes to a token key store in which certificate labels are not unique.
@@ -219,15 +247,25 @@ public final class TenantPKCS11KeyStore {
                     "PKCS11 token of provider: " + provider + ". The token refuses changes when certificate labels " +
                     "on it are not unique.", e);
         }
+        MISSING_LABEL_RELOADS.remove(missingLabelKey(provider, label));
         return true;
     }
 
-    private static String getTenantLabel(byte[] descriptor, int tenantId) throws KeyStoreException {
+    /**
+     * Forget the loaded token key stores. For tests.
+     */
+    static void clearLoadedTokens() {
+
+        TOKENS.clear();
+        MISSING_LABEL_RELOADS.clear();
+    }
+
+    private static String getTenantLabel(byte[] descriptor, String tenantUniqueId) throws KeyStoreException {
 
         String label = getLabel(descriptor);
-        if (!labelFor(tenantId).equals(label)) {
-            throw new KeyStoreException("The PKCS11 key store descriptor of tenant: " + tenantId + " names the " +
-                    "token entry '" + label + "', which does not belong to the tenant.");
+        if (StringUtils.isBlank(tenantUniqueId) || !labelFor(tenantUniqueId).equals(label)) {
+            throw new KeyStoreException("The PKCS11 key store descriptor of tenant: " + tenantUniqueId + " names " +
+                    "the token entry '" + label + "', which does not belong to the tenant.");
         }
         return label;
     }
@@ -258,22 +296,56 @@ public final class TenantPKCS11KeyStore {
             throw new KeyStoreException("A JCA provider is required for a PKCS11 key store.");
         }
         KeyStore token = TOKENS.get(provider);
-        if (token != null && token.getProvider() == Security.getProvider(provider)) {
+        if (isCurrent(token, provider)) {
             return token;
         }
-        return reloadToken(provider, pin);
+        return reloadToken(provider, pin, token);
     }
 
     /**
-     * Load the token key store of the provider again and share the new instance. Views created before keep the
-     * instance they were created with.
+     * Reload the token key store for a missing label, unless a reload for the same label happened within
+     * {@link #MISSING_LABEL_RELOAD_INTERVAL_MILLIS}. Then the current shared token key store is returned as is.
      */
-    private static synchronized KeyStore reloadToken(String provider, char[] pin)
+    private static KeyStore reloadForMissingLabel(String provider, char[] pin, KeyStore seen, String label)
             throws KeyStoreException, NoSuchProviderException {
 
+        String key = missingLabelKey(provider, label);
+        long now = System.currentTimeMillis();
+        Long lastReload = MISSING_LABEL_RELOADS.get(key);
+        if (lastReload != null && now - lastReload < MISSING_LABEL_RELOAD_INTERVAL_MILLIS) {
+            KeyStore current = TOKENS.get(provider);
+            return isCurrent(current, provider) ? current : seen;
+        }
+        MISSING_LABEL_RELOADS.put(key, now);
+        return reloadToken(provider, pin, seen);
+    }
+
+    /**
+     * Load the token key store of the provider again and share the new instance, unless another caller has already
+     * replaced the instance this caller saw. Views created before are not affected.
+     *
+     * @param seen The shared token key store the caller used, or null.
+     */
+    private static synchronized KeyStore reloadToken(String provider, char[] pin, KeyStore seen)
+            throws KeyStoreException, NoSuchProviderException {
+
+        KeyStore current = TOKENS.get(provider);
+        if (current != null && current != seen && isCurrent(current, provider)) {
+            return current;
+        }
         KeyStore token = loadToken(provider, pin);
         TOKENS.put(provider, token);
         return token;
+    }
+
+    private static boolean isCurrent(KeyStore token, String provider) {
+
+        return token != null && token.getProvider() == Security.getProvider(provider);
+    }
+
+    private static String missingLabelKey(String provider, String label) {
+
+        return provider + SHARED_LABEL_ALIAS_SEPARATOR + label;
     }
 
     private static KeyStore loadToken(String provider, char[] pin) throws KeyStoreException, NoSuchProviderException {
@@ -302,21 +374,24 @@ public final class TenantPKCS11KeyStore {
     }
 
     /**
-     * Read-only key store SPI that exposes one entry of the token under a fixed alias.
+     * Read-only key store SPI that exposes one token entry under a fixed alias. It holds the entry's key handle and
+     * certificate chain, so reading them does not call the token or lock the shared token key store.
      */
     private static final class SingleEntrySpi extends KeyStoreSpi {
 
         private static final String READ_ONLY = "The tenant PKCS11 key store view is read-only.";
 
-        private final KeyStore token;
         private final String alias;
-        private final String label;
+        private final Key key;
+        private final Certificate[] chain;
+        private final Date creationDate;
 
-        SingleEntrySpi(KeyStore token, String alias, String label) {
+        SingleEntrySpi(String alias, Key key, Certificate[] chain, Date creationDate) {
 
-            this.token = token;
             this.alias = alias;
-            this.label = label;
+            this.key = key;
+            this.chain = chain.clone();
+            this.creationDate = creationDate == null ? null : new Date(creationDate.getTime());
         }
 
         private boolean isTenantAlias(String requestedAlias) {
@@ -325,35 +400,27 @@ public final class TenantPKCS11KeyStore {
         }
 
         @Override
-        public Key engineGetKey(String requestedAlias, char[] password)
-                throws NoSuchAlgorithmException, UnrecoverableKeyException {
+        public Key engineGetKey(String requestedAlias, char[] password) {
 
-            if (!isTenantAlias(requestedAlias)) {
-                return null;
-            }
-            try {
-                return token.getKey(label, password);
-            } catch (KeyStoreException e) {
-                throw new IllegalStateException("Error while reading the tenant key from the PKCS11 token.", e);
-            }
+            return isTenantAlias(requestedAlias) ? key : null;
         }
 
         @Override
         public Certificate[] engineGetCertificateChain(String requestedAlias) {
 
-            return isTenantAlias(requestedAlias) ? call(() -> token.getCertificateChain(label)) : null;
+            return isTenantAlias(requestedAlias) ? chain.clone() : null;
         }
 
         @Override
         public Certificate engineGetCertificate(String requestedAlias) {
 
-            return isTenantAlias(requestedAlias) ? call(() -> token.getCertificate(label)) : null;
+            return isTenantAlias(requestedAlias) ? chain[0] : null;
         }
 
         @Override
         public Date engineGetCreationDate(String requestedAlias) {
 
-            return isTenantAlias(requestedAlias) ? call(() -> token.getCreationDate(label)) : null;
+            return isTenantAlias(requestedAlias) && creationDate != null ? new Date(creationDate.getTime()) : null;
         }
 
         @Override
@@ -415,8 +482,7 @@ public final class TenantPKCS11KeyStore {
         @Override
         public String engineGetCertificateAlias(Certificate cert) {
 
-            Certificate tenantCertificate = engineGetCertificate(alias);
-            return tenantCertificate != null && tenantCertificate.equals(cert) ? alias : null;
+            return chain[0].equals(cert) ? alias : null;
         }
 
         @Override
@@ -428,22 +494,7 @@ public final class TenantPKCS11KeyStore {
         @Override
         public void engineLoad(InputStream stream, char[] password) {
 
-            // The view wraps an already loaded token key store.
-        }
-
-        private static <T> T call(TokenCall<T> tokenCall) {
-
-            try {
-                return tokenCall.call();
-            } catch (KeyStoreException e) {
-                throw new IllegalStateException("Error while reading the tenant entry from the PKCS11 token.", e);
-            }
-        }
-
-        @FunctionalInterface
-        private interface TokenCall<T> {
-
-            T call() throws KeyStoreException;
+            // The view is created with the entry already read from the token.
         }
     }
 }
