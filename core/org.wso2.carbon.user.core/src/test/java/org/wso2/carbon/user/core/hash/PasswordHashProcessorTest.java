@@ -40,7 +40,7 @@ import java.util.Set;
 
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PASSWORD_HASH_ALGORITHM_PROPERTIES;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PASSWORD_HASH_DIGEST_FUNCTION;
-import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PREVIOUS_PASSWORD_HASH_DIGEST_FUNCTION;
+import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.LEGACY_PASSWORD_HASH_DIGEST_FUNCTION;
 
 /**
  * Tests how {@link PasswordHashProcessor} routes verification between legacy hashes, which carry no
@@ -55,6 +55,7 @@ public class PasswordHashProcessorTest {
     private static final String LEGACY_ALGORITHM = "SHA-256";
     private static final String PLUGGABLE_ALGORITHM = "TESTALG";
     private static final String NATIVE_ALGORITHM = "NATIVEVALIDATINGALG";
+    private static final String PLAIN_TEXT_ALGORITHM = "PLAIN_TEXT";
 
     private final TestHashProviderFactory factory = new TestHashProviderFactory();
     private final NativeValidatingHashProviderFactory nativeFactory = new NativeValidatingHashProviderFactory();
@@ -91,13 +92,13 @@ public class PasswordHashProcessorTest {
         return storedHash;
     }
 
-    private PasswordHashProcessor processor(String digestFunction, String previousDigestFunction,
+    private PasswordHashProcessor processor(String digestFunction, String legacyDigestFunction,
                                             String algorithmProperties) throws PasswordHashingException {
 
         Map<String, String> config = new HashMap<>();
         config.put(PASSWORD_HASH_DIGEST_FUNCTION, digestFunction);
-        if (previousDigestFunction != null) {
-            config.put(PREVIOUS_PASSWORD_HASH_DIGEST_FUNCTION, previousDigestFunction);
+        if (legacyDigestFunction != null) {
+            config.put(LEGACY_PASSWORD_HASH_DIGEST_FUNCTION, legacyDigestFunction);
         }
         if (algorithmProperties != null) {
             config.put(PASSWORD_HASH_ALGORITHM_PROPERTIES, algorithmProperties);
@@ -129,7 +130,7 @@ public class PasswordHashProcessorTest {
     }
 
     @Test
-    public void testLegacyHashIsVerifiedWhenPreviousAlgorithmIsNotConfigured() throws Exception {
+    public void testLegacyHashIsVerifiedWhenLegacyAlgorithmIsNotConfigured() throws Exception {
 
         String storedHash = legacyStoredHash();
 
@@ -148,7 +149,7 @@ public class PasswordHashProcessorTest {
         PasswordHashProcessor processor = processor(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, null);
         String storedHash = processor.hashPassword(PASSWORD, SALT);
 
-        Assert.assertTrue(storedHash.startsWith("{" + PLUGGABLE_ALGORITHM + "}"),
+        Assert.assertTrue(storedHash.startsWith("{\"algorithm\":\"" + PLUGGABLE_ALGORITHM + "\""),
                 "A new credential must carry the algorithm identifier of the provider that produced it.");
         Assert.assertTrue(processor.validatePassword(PASSWORD, storedHash, SALT));
         Assert.assertFalse(processor.validatePassword(WRONG_PASSWORD, storedHash, SALT));
@@ -195,6 +196,116 @@ public class PasswordHashProcessorTest {
     }
 
     @Test
+    public void testPlainTextCredentialBeginningWithAnIdentifierStillVerifies() throws Exception {
+
+        // A plaintext store holds the credential itself, so a password such as {curly}Password1 is
+        // stored verbatim and must not be mistaken for a value carrying an algorithm identifier.
+        String password = "{curly}Password1";
+        PasswordHashProcessor processor = processor(PLAIN_TEXT_ALGORITHM, null, null);
+        String storedHash = processor.hashPassword(password, null);
+
+        Assert.assertEquals(storedHash, password, "A plaintext store holds the credential unchanged.");
+        Assert.assertTrue(processor.validatePassword(password, storedHash, null),
+                "A plaintext credential that begins like an identifier must still verify.");
+        Assert.assertFalse(processor.validatePassword(WRONG_PASSWORD, storedHash, null));
+    }
+
+    @Test
+    public void testPlainTextCredentialThatOpensAnObjectWithoutBeingOneStillVerifies() throws Exception {
+
+        // A password such as {hello opens a JSON object without being one, so it parses as a
+        // damaged value rather than a self-describing one. In a plaintext store it is still only a
+        // password, and must be compared literally before the stored value is judged well formed.
+        String password = "{hello";
+        PasswordHashProcessor processor = processor(PLAIN_TEXT_ALGORITHM, null, null);
+        String storedHash = processor.hashPassword(password, null);
+
+        Assert.assertEquals(storedHash, password, "A plaintext store holds the credential unchanged.");
+        Assert.assertTrue(processor.validatePassword(password, storedHash, null),
+                "A plaintext credential that is not well formed JSON must still verify.");
+        Assert.assertFalse(processor.validatePassword(WRONG_PASSWORD, storedHash, null));
+    }
+
+    @Test
+    public void testStoredHashRecordsTheParametersThatProducedIt() throws Exception {
+
+        PasswordHashProcessor processor = processor(PLUGGABLE_ALGORITHM, null, "{\"rounds\":\"3\"}");
+
+        String storedHash = processor.hashPassword(PASSWORD, SALT);
+
+        SelfDescribingHashParser.ParseResult result = SelfDescribingHashParser.parse(storedHash);
+        Assert.assertEquals(result.getProperties().get("rounds"), "3",
+                "A new credential must record the parameters the provider actually used.");
+    }
+
+    @Test
+    public void testStoredHashRecordsProviderDefaultsWhenNothingIsConfigured() throws Exception {
+
+        // Recording the defaults is what keeps a credential verifiable if a later release raises
+        // them: the stored value names the parameters it was made with, not the ones in force now.
+        PasswordHashProcessor processor = processor(PLUGGABLE_ALGORITHM, null, null);
+
+        String storedHash = processor.hashPassword(PASSWORD, SALT);
+
+        SelfDescribingHashParser.ParseResult result = SelfDescribingHashParser.parse(storedHash);
+        Assert.assertEquals(result.getProperties().get("rounds"), "1",
+                "A store that configures nothing must still record the provider's own defaults.");
+    }
+
+    @Test
+    public void testCredentialStillVerifiesAfterTheConfiguredParametersChange() throws Exception {
+
+        // The point of recording parameters: a credential written at three rounds must keep
+        // verifying once the store is reconfigured to five, without any action from the user.
+        PasswordHashProcessor atThreeRounds = processor(PLUGGABLE_ALGORITHM, null, "{\"rounds\":\"3\"}");
+        String storedHash = atThreeRounds.hashPassword(PASSWORD, SALT);
+
+        PasswordHashProcessor atFiveRounds = processor(PLUGGABLE_ALGORITHM, null, "{\"rounds\":\"5\"}");
+
+        Assert.assertTrue(atFiveRounds.validatePassword(PASSWORD, storedHash, SALT),
+                "A credential must stay verifiable after the configured parameters change.");
+        Assert.assertFalse(atFiveRounds.validatePassword(WRONG_PASSWORD, storedHash, SALT),
+                "Verifying against the recorded parameters must not weaken the comparison.");
+    }
+
+    @Test
+    public void testCredentialWrittenAtTheNewParametersAlsoVerifies() throws Exception {
+
+        // The reconfigured store keeps writing at its own parameters, so both generations coexist.
+        PasswordHashProcessor atFiveRounds = processor(PLUGGABLE_ALGORITHM, null, "{\"rounds\":\"5\"}");
+
+        String storedHash = atFiveRounds.hashPassword(PASSWORD, SALT);
+
+        Assert.assertEquals(SelfDescribingHashParser.parse(storedHash).getProperties().get("rounds"), "5");
+        Assert.assertTrue(atFiveRounds.validatePassword(PASSWORD, storedHash, SALT));
+    }
+
+    @Test
+    public void testDamagedStoredValueFailsVerificationWhenHashingIsConfigured() throws Exception {
+
+        // Outside a plaintext store the same shape is a damaged record, and failing closed is the
+        // only safe reading of it: there is no identifier to route verification to.
+        PasswordHashProcessor processor = processor(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, null);
+
+        Assert.assertFalse(processor.validatePassword(PASSWORD, "{hello", SALT),
+                "A damaged stored value must not verify any credential.");
+    }
+
+    @Test
+    public void testSelfDescribingHashStillRoutesWhileLegacyValuesArePlainText() throws Exception {
+
+        // Migrating away from plaintext: new credentials carry an identifier and must still be
+        // routed by it, even though legacy values in the same store are plaintext.
+        PasswordHashProcessor processor = processor(PLUGGABLE_ALGORITHM, PLAIN_TEXT_ALGORITHM, null);
+        String storedHash = processor.hashPassword(PASSWORD, SALT);
+
+        Assert.assertTrue(storedHash.startsWith("{\"algorithm\":\"" + PLUGGABLE_ALGORITHM + "\""));
+        Assert.assertTrue(processor.validatePassword(PASSWORD, storedHash, SALT),
+                "A self-describing value must still reach its provider in a plaintext legacy store.");
+        Assert.assertFalse(processor.validatePassword(WRONG_PASSWORD, storedHash, SALT));
+    }
+
+    @Test
     public void testMalformedStoredValueIsRejected() throws Exception {
 
         PasswordHashProcessor processor = processor(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, null);
@@ -223,7 +334,7 @@ public class PasswordHashProcessorTest {
         PasswordHashProcessor processor = processor(NATIVE_ALGORITHM, LEGACY_ALGORITHM, null);
         String storedHash = processor.hashPassword(PASSWORD, SALT);
 
-        Assert.assertTrue(storedHash.startsWith("{" + NATIVE_ALGORITHM + "}"));
+        Assert.assertTrue(storedHash.startsWith("{\"algorithm\":\"" + NATIVE_ALGORITHM + "\""));
         Assert.assertTrue(processor.validatePassword(PASSWORD, storedHash, SALT),
                 "A provider with native validation must verify its own stored hash.");
         Assert.assertFalse(processor.validatePassword(WRONG_PASSWORD, storedHash, SALT));
@@ -372,9 +483,13 @@ public class PasswordHashProcessorTest {
         @Override
         public void init(Map<String, Object> initProperties) {
 
+            // Shipped providers accept a parameter only when it arrives as a string and otherwise
+            // keep their default silently, so this fake does the same. A stored value that recorded
+            // its parameters as anything else would therefore verify against the wrong ones, which
+            // is the failure these tests exist to catch.
             Object configuredRounds = initProperties.get(ROUNDS);
-            if (configuredRounds != null) {
-                rounds = Integer.parseInt(configuredRounds.toString());
+            if (configuredRounds instanceof String) {
+                rounds = Integer.parseInt((String) configuredRounds);
             }
         }
 

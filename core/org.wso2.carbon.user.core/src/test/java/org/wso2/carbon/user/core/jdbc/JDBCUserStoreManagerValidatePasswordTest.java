@@ -41,7 +41,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PASSWORD_HASH_DIGEST_FUNCTION;
-import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PREVIOUS_PASSWORD_HASH_DIGEST_FUNCTION;
+import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.LEGACY_PASSWORD_HASH_DIGEST_FUNCTION;
 
 /**
  * Tests that {@link JDBCUserStoreManager#validatePassword(Object, String, String)} delegates every
@@ -81,22 +81,22 @@ public class JDBCUserStoreManagerValidatePasswordTest {
      * no-argument constructor leaves the processor unset, so it is injected directly; nothing in the
      * code under test touches the database.
      */
-    private JDBCUserStoreManager managerFor(String digestFunction, String previousDigestFunction)
+    private JDBCUserStoreManager managerFor(String digestFunction, String legacyDigestFunction)
             throws Exception {
 
         JDBCUserStoreManager userStoreManager = new JDBCUserStoreManager();
         Field processorField = JDBCUserStoreManager.class.getDeclaredField("passwordHashProcessor");
         processorField.setAccessible(true);
-        processorField.set(userStoreManager, new PasswordHashProcessor(config(digestFunction, previousDigestFunction)));
+        processorField.set(userStoreManager, new PasswordHashProcessor(config(digestFunction, legacyDigestFunction)));
         return userStoreManager;
     }
 
-    private Map<String, String> config(String digestFunction, String previousDigestFunction) {
+    private Map<String, String> config(String digestFunction, String legacyDigestFunction) {
 
         Map<String, String> config = new HashMap<>();
         config.put(PASSWORD_HASH_DIGEST_FUNCTION, digestFunction);
-        if (previousDigestFunction != null) {
-            config.put(PREVIOUS_PASSWORD_HASH_DIGEST_FUNCTION, previousDigestFunction);
+        if (legacyDigestFunction != null) {
+            config.put(LEGACY_PASSWORD_HASH_DIGEST_FUNCTION, legacyDigestFunction);
         }
         return config;
     }
@@ -144,14 +144,14 @@ public class JDBCUserStoreManagerValidatePasswordTest {
         String storedHash = new PasswordHashProcessor(config(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM))
                 .hashPassword(PASSWORD, SALT);
 
-        Assert.assertTrue(storedHash.startsWith("{" + PLUGGABLE_ALGORITHM + "}"),
+        Assert.assertTrue(storedHash.startsWith("{\"algorithm\":\"" + PLUGGABLE_ALGORITHM + "\""),
                 "A new credential must be stored with the algorithm identifier of its provider.");
         Assert.assertTrue(userStoreManager.validatePassword(PASSWORD, storedHash, SALT));
         Assert.assertFalse(userStoreManager.validatePassword(WRONG_PASSWORD, storedHash, SALT));
     }
 
     @Test
-    public void testLegacyHashIsVerifiedWhenPreviousAlgorithmIsNotConfigured() throws Exception {
+    public void testLegacyHashIsVerifiedWhenLegacyAlgorithmIsNotConfigured() throws Exception {
 
         // Deployments that never set the new property keep verifying against the configured algorithm.
         String storedHash = legacyStoredHash();

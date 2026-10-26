@@ -130,16 +130,17 @@ public class JDBCUserStoreConstants {
                 "UserStore Hashing Configurations", "{}",
                 "Configurations for UserStore Hashing in JSON format",
                 new Property[]{USER.getProperty(), STRING.getProperty(), FALSE.getProperty()});
-        setAdvancedProperty(JDBCRealmConstants.PREVIOUS_DIGEST_FUNCTION,
-                "Previous Password Hashing Algorithm", "SHA-256",
+        setAdvancedProperty(JDBCRealmConstants.LEGACY_DIGEST_FUNCTION,
+                "Legacy Password Hashing Algorithm", "",
                 "The hashing algorithm used to verify stored password hashes that carry no algorithm "
                         + "identifier. Set this to the algorithm currently in use before changing the "
-                        + "Password Hashing Algorithm.",
+                        + "Password Hashing Algorithm. Falls back to the Password Hashing Algorithm "
+                        + "when left blank.",
                 new Property[] { USER.getProperty(), STRING.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCRealmConstants.ENABLE_PASSWORD_HASH_UPGRADE,
                 "Enable Password Hash Upgrade", "true",
-                "Rewrite a legacy password hash in the self-describing format after it is successfully "
-                        + "verified.",
+                "Rewrite a successfully verified password hash that was not produced by the configured "
+                        + "Password Hashing Algorithm, so that it moves to that algorithm.",
                 new Property[] { USER.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",",
                 MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION,

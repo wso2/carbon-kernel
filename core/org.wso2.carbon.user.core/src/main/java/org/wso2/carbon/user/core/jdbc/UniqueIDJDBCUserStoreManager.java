@@ -881,7 +881,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 } else {
                     if (validatePassword(credential, storedPassword, saltValue)) {
                         isAuthed = true;
-                        migrateLegacyPasswordHash(userName, credential, storedPassword, saltValue);
+                        migratePasswordHash(userName, credential, storedPassword, saltValue);
                         user = new User(userID, userName, userName, null, null, null, null);
                         try {
                             user.setTenantDomain(getTenantDomain(tenantId));
@@ -1029,7 +1029,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 } else {
                     if (validatePassword(credential, storedPassword, saltValue)) {
                         isAuthed = true;
-                        migrateLegacyPasswordHash(userName, credential, storedPassword, saltValue);
+                        migratePasswordHash(userName, credential, storedPassword, saltValue);
                         user = getUser(userID, userName);
                         user.setPreferredUsername(preferredUserNameProperty);
                         authenticationResult = new AuthenticationResult(
@@ -1116,7 +1116,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 } else {
                     if (validatePassword(credential, storedPassword, saltValue)) {
                         isAuthed = true;
-                        migrateLegacyPasswordHash(userName, credential, storedPassword, saltValue);
+                        migratePasswordHash(userName, credential, storedPassword, saltValue);
                         user = getUser(userID, userName);
                         authenticationResult = new AuthenticationResult(
                                 AuthenticationResult.AuthenticationStatus.SUCCESS);
@@ -1221,7 +1221,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 } else {
                     if (validatePassword(credential, storedPassword, saltValue)) {
                         isAuthed = true;
-                        migrateLegacyPasswordHash(userName, credential, storedPassword, saltValue);
+                        migratePasswordHash(userName, credential, storedPassword, saltValue);
                         user = getUser(userID, userName);
                         authenticationResult = new AuthenticationResult(
                                 AuthenticationResult.AuthenticationStatus.SUCCESS);

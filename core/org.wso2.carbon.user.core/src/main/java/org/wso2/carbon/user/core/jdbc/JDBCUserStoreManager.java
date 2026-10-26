@@ -1870,7 +1870,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 } else {
                     if (this.validatePassword(credential, storedPassword, saltValue)) {
                         isAuthed = true;
-                        migrateLegacyPasswordHash(userName, credential, storedPassword, saltValue);
+                        migratePasswordHash(userName, credential, storedPassword, saltValue);
                     }
                 }
             }
@@ -3382,14 +3382,16 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Rewrites a stored hash that carries no algorithm identifier, so that a credential verified
-     * against the legacy algorithm moves to the configured one. Call this only after the credential
-     * has been verified.
+     * Rewrites a stored hash that was not produced by the configured algorithm, so that a credential
+     * verified against a superseded algorithm moves to the configured one. Call this only after the
+     * credential has been verified.
      * <p>
-     * Only a stored value without an identifier is rewritten, and only while it is still the value
-     * that was verified, so a password changed in the meantime is never overwritten. The salt and
-     * the password lifecycle columns are left alone. A failure is logged and otherwise ignored: the
-     * user has already authenticated, and a failed rewrite must not turn that into a failed sign-in.
+     * This covers a value carrying no identifier as well as one naming an algorithm other than the
+     * configured one; a value the configured algorithm already produced is left alone. The rewrite
+     * applies only while the stored value is still the one that was verified, so a password changed
+     * in the meantime is never overwritten. The salt and the password lifecycle columns are left
+     * alone. A failure is logged and otherwise ignored: the user has already authenticated, and a
+     * failed rewrite must not turn that into a failed sign-in.
      * </p>
      *
      * @param userName       The user whose stored hash is rewritten.
@@ -3397,15 +3399,22 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      * @param storedPassword The stored hash that was verified.
      * @param saltValue      The salt stored with it, reused so that only one column changes.
      */
-    protected void migrateLegacyPasswordHash(String userName, Object credential, String storedPassword,
-                                             String saltValue) {
+    protected void migratePasswordHash(String userName, Object credential, String storedPassword,
+                                       String saltValue) {
 
         // Absent means the property was never configured, which carries the declared default of true.
         String upgradeEnabled = realmConfig.getUserStoreProperty(JDBCRealmConstants.ENABLE_PASSWORD_HASH_UPGRADE);
         if (upgradeEnabled != null && !Boolean.parseBoolean(upgradeEnabled)) {
             return;
         }
-        if (!SelfDescribingHashParser.parse(storedPassword).isLegacy()) {
+        // The identifier is compared against the configured digest function rather than against a
+        // freshly computed hash, because the hashing itself is deliberately expensive and a value
+        // already in the configured algorithm must not pay that cost on every sign-in. The registry
+        // keys providers by the identifier they report, so a configured digest function that
+        // resolves to a provider carries exactly the identifier that provider writes.
+        SelfDescribingHashParser.ParseResult storedResult = SelfDescribingHashParser.parse(storedPassword);
+        if (!storedResult.isLegacy() && StringUtils.equals(storedResult.getAlgorithm(),
+                realmConfig.getUserStoreProperty(JDBCRealmConstants.DIGEST_FUNCTION))) {
             return;
         }
 

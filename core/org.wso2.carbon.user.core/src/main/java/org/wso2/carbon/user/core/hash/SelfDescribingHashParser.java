@@ -18,16 +18,36 @@
 
 package org.wso2.carbon.user.core.hash;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
- * Parses the algorithm identifier prefix from a stored password hash.
+ * Reads and writes the self-describing form of a stored password hash.
  *
- * The expected format is {@code {algorithm}<provider-produced-payload>}.
- * The provider payload is returned unchanged; its internal format is not parsed.
+ * The stored value is a JSON object carrying the identifier of the algorithm that produced the
+ * hash alongside the hash itself, as {@code {"algorithm":"<algorithm>","hash":"<payload>"}}. The
+ * payload is treated as opaque: it is stored and returned unchanged, and its internal structure
+ * remains the concern of the provider that produced it.
  */
 public final class SelfDescribingHashParser {
 
-    private static final char PREFIX_START = '{';
-    private static final char PREFIX_END = '}';
+    public static final String ALGORITHM = "algorithm";
+    public static final String HASH = "hash";
+    public static final String PROPERTIES = "properties";
+
+    private static final char OBJECT_START = '{';
+
+    // Gson escapes characters such as '=' by default, which would mangle the base64 padding that
+    // ends most provider payloads. The stored value is never rendered as HTML, so escaping is off.
+    private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
 
     private SelfDescribingHashParser() {
 
@@ -38,18 +58,60 @@ public final class SelfDescribingHashParser {
      *
      * @param algorithm The algorithm identifier of the {@link HashProvider} which produced the payload.
      * @param payload   The provider-produced payload, used unchanged.
-     * @return The stored hash in {@code {algorithm}<payload>} format.
+     * @return The stored hash as a self-describing JSON object.
      */
     public static String format(String algorithm, String payload) {
 
-        return PREFIX_START + algorithm + PREFIX_END + payload;
+        return format(algorithm, payload, null);
+    }
+
+    /**
+     * Builds a self-describing stored hash, recording the parameters the hash was produced with.
+     * <p>
+     * Parameter values are written as strings, which is the form
+     * {@link HashProviderFactory#getHashProvider(Map)} accepts: a provider handed a value of any
+     * other type silently keeps its own default, which would verify the credential against
+     * parameters other than the ones that produced it. The member is omitted entirely when the
+     * provider reports no parameters.
+     * </p>
+     *
+     * @param algorithm  The algorithm identifier of the {@link HashProvider} which produced the payload.
+     * @param payload    The provider-produced payload, used unchanged.
+     * @param properties The provider parameters in effect when the payload was produced.
+     * @return The stored hash as a self-describing JSON object.
+     */
+    public static String format(String algorithm, String payload, Map<String, Object> properties) {
+
+        JsonObject storedValue = new JsonObject();
+        storedValue.addProperty(ALGORITHM, algorithm);
+        storedValue.addProperty(HASH, payload);
+
+        if (properties != null && !properties.isEmpty()) {
+            JsonObject storedProperties = new JsonObject();
+            for (Map.Entry<String, Object> property : properties.entrySet()) {
+                if (property.getValue() != null) {
+                    storedProperties.addProperty(property.getKey(), String.valueOf(property.getValue()));
+                }
+            }
+            if (storedProperties.size() > 0) {
+                storedValue.add(PROPERTIES, storedProperties);
+            }
+        }
+
+        return GSON.toJson(storedValue);
     }
 
     /**
      * Parses a stored password hash.
+     * <p>
+     * A value that does not open as a JSON object was written before this format was introduced
+     * and is reported as legacy. One that opens as an object but does not carry both members is
+     * reported as malformed, so that a damaged record fails verification rather than being
+     * mistaken for a credential in the older form.
+     * </p>
      *
      * @param storedHash The stored password hash.
-     * @return The parse result, identifying a legacy, prefixed, or malformed value.
+     * @return The parse result, identifying a legacy, self-describing, or malformed value.
      */
     public static ParseResult parse(String storedHash) {
 
@@ -57,23 +119,71 @@ public final class SelfDescribingHashParser {
             return ParseResult.malformed();
         }
 
-        if (!storedHash.startsWith(String.valueOf(PREFIX_START))) {
+        // A legacy value is base64 and can never open a JSON object, so this check keeps the
+        // common path off the JSON parser entirely.
+        if (storedHash.isEmpty() || storedHash.charAt(0) != OBJECT_START) {
             return ParseResult.legacy(storedHash);
         }
 
-        int prefixEnd = storedHash.indexOf(PREFIX_END);
-        if (prefixEnd <= 1) {
+        JsonObject storedValue;
+        try {
+            JsonElement parsed = JsonParser.parseString(storedHash);
+            if (!parsed.isJsonObject()) {
+                return ParseResult.malformed();
+            }
+            storedValue = parsed.getAsJsonObject();
+        } catch (RuntimeException e) {
             return ParseResult.malformed();
         }
 
-        String algorithm = storedHash.substring(1, prefixEnd);
-        String payload = storedHash.substring(prefixEnd + 1);
-
-        if (algorithm.indexOf(PREFIX_START) >= 0 || algorithm.indexOf(PREFIX_END) >= 0) {
+        String algorithm = readMember(storedValue, ALGORITHM);
+        String payload = readMember(storedValue, HASH);
+        if (StringUtils.isBlank(algorithm) || payload == null) {
             return ParseResult.malformed();
         }
 
-        return ParseResult.prefixed(algorithm, payload);
+        return ParseResult.prefixed(algorithm, payload, readProperties(storedValue));
+    }
+
+    /**
+     * Reads the recorded provider parameters, if the stored value carries any.
+     *
+     * @param storedValue The parsed stored value.
+     * @return The parameters, as strings, or an empty map when none were recorded.
+     */
+    private static Map<String, Object> readProperties(JsonObject storedValue) {
+
+        JsonElement properties = storedValue.get(PROPERTIES);
+        if (properties == null || !properties.isJsonObject()) {
+            return Collections.emptyMap();
+        }
+
+        Map<String, Object> parameters = new LinkedHashMap<>();
+        for (Map.Entry<String, JsonElement> property : properties.getAsJsonObject().entrySet()) {
+            JsonElement value = property.getValue();
+            if (value.isJsonPrimitive()) {
+                // getAsString also renders a bare number, so a hand-edited record still reads back
+                // in the form a provider accepts.
+                parameters.put(property.getKey(), value.getAsString());
+            }
+        }
+        return parameters;
+    }
+
+    /**
+     * Reads a member of the stored value as a string.
+     *
+     * @param storedValue The parsed stored value.
+     * @param member      The member to read.
+     * @return The member as a string, or null when it is absent or not a string.
+     */
+    private static String readMember(JsonObject storedValue, String member) {
+
+        JsonElement element = storedValue.get(member);
+        if (element == null || !element.isJsonPrimitive() || !element.getAsJsonPrimitive().isString()) {
+            return null;
+        }
+        return element.getAsString();
     }
 
     /**
@@ -85,28 +195,31 @@ public final class SelfDescribingHashParser {
         private final boolean valid;
         private final String algorithm;
         private final String payload;
+        private final Map<String, Object> properties;
 
-        private ParseResult(boolean legacy, boolean valid, String algorithm, String payload) {
+        private ParseResult(boolean legacy, boolean valid, String algorithm, String payload,
+                            Map<String, Object> properties) {
 
             this.legacy = legacy;
             this.valid = valid;
             this.algorithm = algorithm;
             this.payload = payload;
+            this.properties = properties;
         }
 
         private static ParseResult legacy(String storedHash) {
 
-            return new ParseResult(true, true, null, storedHash);
+            return new ParseResult(true, true, null, storedHash, Collections.emptyMap());
         }
 
-        private static ParseResult prefixed(String algorithm, String payload) {
+        private static ParseResult prefixed(String algorithm, String payload, Map<String, Object> properties) {
 
-            return new ParseResult(false, true, algorithm, payload);
+            return new ParseResult(false, true, algorithm, payload, properties);
         }
 
         private static ParseResult malformed() {
 
-            return new ParseResult(false, false, null, null);
+            return new ParseResult(false, false, null, null, Collections.emptyMap());
         }
 
         public boolean isLegacy() {
@@ -127,6 +240,16 @@ public final class SelfDescribingHashParser {
         public String getPayload() {
 
             return payload;
+        }
+
+        /**
+         * The provider parameters recorded with the hash, as strings.
+         *
+         * @return The recorded parameters, empty when the stored value carries none.
+         */
+        public Map<String, Object> getProperties() {
+
+            return properties;
         }
     }
 }

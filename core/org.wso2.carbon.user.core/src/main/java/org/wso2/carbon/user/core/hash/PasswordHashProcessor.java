@@ -44,7 +44,7 @@ import java.util.Set;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PASSWORD_HASH_ALGORITHM_PROPERTIES;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PASSWORD_HASH_DIGEST_FUNCTION;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PASSWORD_HASH_METHOD_PLAIN_TEXT;
-import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PREVIOUS_PASSWORD_HASH_DIGEST_FUNCTION;
+import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.LEGACY_PASSWORD_HASH_DIGEST_FUNCTION;
 
 /**
  * Class responsible for hashing passwords based on the configured algorithm.
@@ -93,8 +93,8 @@ public class PasswordHashProcessor {
      */
     private String resolveLegacyDigestFunction(String digestFunction) {
 
-        String previousDigestFunction = hashConfigProperties.get(PREVIOUS_PASSWORD_HASH_DIGEST_FUNCTION);
-        return StringUtils.isNotBlank(previousDigestFunction) ? previousDigestFunction : digestFunction;
+        String legacyDigestFunction = hashConfigProperties.get(LEGACY_PASSWORD_HASH_DIGEST_FUNCTION);
+        return StringUtils.isNotBlank(legacyDigestFunction) ? legacyDigestFunction : digestFunction;
     }
 
     /**
@@ -215,7 +215,12 @@ public class PasswordHashProcessor {
 
         try {
             byte[] hashByteArray = hashProvider.calculateHash(credentialObj.getChars(), saltValue);
-            return SelfDescribingHashParser.format(hashProvider.getAlgorithm(), Base64.encode(hashByteArray));
+            // The parameters are read from the provider rather than from configuration, so that a
+            // credential records what actually produced it. A store that configures nothing still
+            // gets the provider's own defaults recorded, which keeps the credential verifiable if
+            // a later release changes them.
+            return SelfDescribingHashParser.format(hashProvider.getAlgorithm(), Base64.encode(hashByteArray),
+                    hashProvider.getParameters());
         } catch (HashProviderException e) {
             throw new PasswordHashingServerException("Error occurred while preparing password.", e);
         }
@@ -256,12 +261,20 @@ public class PasswordHashProcessor {
             throws PasswordHashingException {
 
         SelfDescribingHashParser.ParseResult parseResult = SelfDescribingHashParser.parse(hashedPassword);
-        if (!parseResult.isValid()) {
-            return false;
-        }
 
         Secret credentialObj = getSecret(password);
         try {
+            // A plaintext store holds the credential itself rather than a hash, so a password that
+            // happens to look like a stored value is still only a password and is compared
+            // literally. This is checked before the value is judged well formed, because a password
+            // such as {hello opens an object without being one and would otherwise be rejected.
+            if (isPlainTextConfigured() && hashedPassword != null
+                    && hashedPassword.equals(new String(credentialObj.getChars()))) {
+                return true;
+            }
+            if (!parseResult.isValid()) {
+                return false;
+            }
             if (parseResult.isLegacy()) {
                 return validateLegacyPassword(credentialObj, parseResult.getPayload(), saltValue);
             }
@@ -269,6 +282,19 @@ public class PasswordHashProcessor {
         } finally {
             credentialObj.clear();
         }
+    }
+
+    /**
+     * Indicates whether stored values in this user store may be credentials held as plaintext, which
+     * is the case when the algorithm used for values without an identifier stores them unhashed.
+     *
+     * @return True if stored legacy values are plaintext credentials.
+     */
+    private boolean isPlainTextConfigured() {
+
+        String legacyDigestFunction =
+                resolveLegacyDigestFunction(hashConfigProperties.get(PASSWORD_HASH_DIGEST_FUNCTION));
+        return legacyDigestFunction == null || legacyDigestFunction.equals(PASSWORD_HASH_METHOD_PLAIN_TEXT);
     }
 
     /**
@@ -317,7 +343,7 @@ public class PasswordHashProcessor {
                                                    SelfDescribingHashParser.ParseResult parseResult,
                                                    String saltValue) throws PasswordHashingServerException {
 
-        HashProvider provider = resolveProviderForAlgorithm(parseResult.getAlgorithm());
+        HashProvider provider = resolveProviderForAlgorithm(parseResult.getAlgorithm(), parseResult.getProperties());
         if (provider == null) {
             return false;
         }
@@ -335,13 +361,35 @@ public class PasswordHashProcessor {
      * @param algorithm The algorithm identifier read from the stored hash.
      * @return The matching HashProvider, or null if no provider is registered for the algorithm.
      */
-    private HashProvider resolveProviderForAlgorithm(String algorithm) {
+    private HashProvider resolveProviderForAlgorithm(String algorithm, Map<String, Object> properties)
+            throws PasswordHashingServerException {
 
-        if (hashProvider != null && algorithm.equals(hashProvider.getAlgorithm())) {
-            return hashProvider;
+        // A credential that recorded its parameters is verified against those rather than against
+        // whatever is configured now, so raising an iteration count does not strand the credentials
+        // written before the change. The configured provider is only reused when the stored value
+        // carries no parameters of its own.
+        if (properties == null || properties.isEmpty()) {
+            if (hashProvider != null && algorithm.equals(hashProvider.getAlgorithm())) {
+                return hashProvider;
+            }
+            HashProviderFactory hashProviderFactory = getHashProviderFactory(algorithm);
+            return hashProviderFactory == null ? null : hashProviderFactory.getHashProvider();
         }
+
         HashProviderFactory hashProviderFactory = getHashProviderFactory(algorithm);
-        return hashProviderFactory == null ? null : hashProviderFactory.getHashProvider();
+        if (hashProviderFactory == null) {
+            return null;
+        }
+        try {
+            // A provider is built per verification rather than cached by parameter set. Building
+            // one measures at roughly 400ns against the several milliseconds of the hash it then
+            // computes, so a cache would trade an unmeasurable saving for a keyed structure that
+            // has to be bounded against the parameter sets a user store happens to hold.
+            return hashProviderFactory.getHashProvider(properties);
+        } catch (HashProviderException e) {
+            throw new PasswordHashingServerException(
+                    "Error occurred while initializing the hashProvider for algorithm: " + algorithm, e);
+        }
     }
 
     /**
