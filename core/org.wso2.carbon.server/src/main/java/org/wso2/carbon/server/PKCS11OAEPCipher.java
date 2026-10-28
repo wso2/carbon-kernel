@@ -301,11 +301,18 @@ public final class PKCS11OAEPCipher extends CipherSpi {
         if (key == null) {
             throw new IllegalStateException("Cipher not initialized.");
         }
-        // The ciphertext length is public, so it is checked here; the token is not asked (RFC 8017, 7.1.2 step 1).
+        // The ciphertext length is public, so it is checked here; the token is not asked. As SunJCE, a longer
+        // ciphertext is rejected and a shorter one is read as an unsigned integer: it is left-padded with zeros to the
+        // modulus length. Some JWE encoders drop leading zero bytes of the encrypted key; RFC 8017 (7.1.2 step 1)
+        // requires exactly the modulus length, but software keys accept such JWEs, so token keys do too.
         int modulusLength = (jdk.keySize(key) + 7) / 8;
-        if (ciphertext.length != modulusLength) {
-            throw new IllegalBlockSizeException("The ciphertext must be " + modulusLength + " bytes long for this " +
-                    "key, not " + ciphertext.length + ".");
+        if (ciphertext.length > modulusLength) {
+            throw new IllegalBlockSizeException("Data must not be longer than " + modulusLength + " bytes");
+        }
+        if (ciphertext.length < modulusLength) {
+            byte[] padded = new byte[modulusLength];
+            System.arraycopy(ciphertext, 0, padded, modulusLength - ciphertext.length, ciphertext.length);
+            ciphertext = padded;
         }
         long[] hash = HASHES[hashIndex(spec.getDigestAlgorithm())];
         long[] mgf = HASHES[hashIndex(((MGF1ParameterSpec) spec.getMGFParameters()).getDigestAlgorithm())];

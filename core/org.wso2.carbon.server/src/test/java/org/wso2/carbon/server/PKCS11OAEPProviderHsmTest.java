@@ -70,7 +70,7 @@ public class PKCS11OAEPProviderHsmTest {
         }
         token = Security.getProvider("SunPKCS11").configure(cfg);
         Security.addProvider(token);
-        assertTrue(PKCS11OAEPProvider.register() || Security.getProvider(PKCS11OAEPProvider.NAME) != null);
+        PKCS11OAEPProviderTest.registerOrSkip();
         KeyStore keyStore = KeyStore.getInstance("PKCS11", token);
         keyStore.load(null, pin.toCharArray());
         tokenKey = (PrivateKey) keyStore.getKey(alias, null);
@@ -145,6 +145,8 @@ public class PKCS11OAEPProviderHsmTest {
 
         // Manger's attack needs different answers for "first byte of the decoded block is not zero" and "lHash does
         // not match". Build both blocks with raw RSA and the public key; the token must answer the same for both.
+        // The cipher reports device, token, session and login errors with detail, so this fails if a token answers
+        // one of the two cases with such a code. It must pass on every HSM used with this provider.
         int length = (((RSAPublicKey) publicKey).getModulus().bitLength() + 7) / 8;
         SecureRandom random = new SecureRandom();
         byte[] nonZeroFirstByte = new byte[length];
@@ -168,16 +170,38 @@ public class PKCS11OAEPProviderHsmTest {
     }
 
     @Test(groups = "hsm-it")
-    public void testWrongCiphertextLengthRejectedBeforeToken() throws Exception {
+    public void testLongCiphertextRejectedBeforeToken() throws Exception {
 
         byte[] ciphertext = encrypt("RSA/ECB/OAEPWithSHA-1AndMGF1Padding", null, new byte[16]);
         Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
         cipher.init(Cipher.DECRYPT_MODE, tokenKey);
 
         expectThrows(IllegalBlockSizeException.class, () -> cipher.doFinal(Arrays.copyOf(ciphertext,
-                ciphertext.length - 1)));
+                ciphertext.length + 1)));
         // The cipher is still usable.
         assertEquals(cipher.doFinal(ciphertext), new byte[16]);
+    }
+
+    @Test(groups = "hsm-it")
+    public void testCiphertextWithoutLeadingZeroAccepted() throws Exception {
+
+        // As SunJCE: a ciphertext whose leading zero byte was dropped (some JWE encoders do this) still decrypts.
+        byte[] plaintext = "short".getBytes(StandardCharsets.UTF_8);
+        byte[] ciphertext = null;
+        for (int i = 0; i < 20_000 && ciphertext == null; i++) {
+            byte[] candidate = encrypt("RSA/ECB/OAEPWithSHA-1AndMGF1Padding", null, plaintext);
+            if (candidate[0] == 0) {
+                ciphertext = candidate;
+            }
+        }
+        assertTrue(ciphertext != null, "No ciphertext with a leading zero byte was produced.");
+        byte[] stripped = Arrays.copyOfRange(ciphertext, 1, ciphertext.length);
+
+        Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
+        cipher.init(Cipher.DECRYPT_MODE, tokenKey);
+
+        assertEquals(cipher.doFinal(stripped), plaintext);
+        assertEquals(cipher.getProvider().getName(), PKCS11OAEPProvider.NAME);
     }
 
     @Test(groups = "hsm-it")
@@ -192,7 +216,9 @@ public class PKCS11OAEPProviderHsmTest {
     @Test(groups = "hsm-it")
     public void testSessionsReusableAfterFailures() throws Exception {
 
-        // Each failed decryption must end the token operation and return the session to the pool.
+        // Each failed decryption must end the token operation and return the session to the pool. A C_Decrypt error
+        // already ends the operation, so this checks the release path, not finishing an operation that is still
+        // active (that needs a token that fails on purpose).
         byte[] ciphertext = encrypt("RSA/ECB/OAEPWithSHA-1AndMGF1Padding", null, "after".getBytes(
                 StandardCharsets.UTF_8));
         byte[] tampered = ciphertext.clone();

@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.server;
 
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -57,8 +58,7 @@ public class PKCS11OAEPProviderTest {
     public void setUp() throws Exception {
 
         addTokenProvider();
-        // The surefire configuration opens the SunPKCS11 packages, as the start scripts do for the server.
-        assertTrue(PKCS11OAEPProvider.register() || Security.getProvider(PKCS11OAEPProvider.NAME) != null);
+        registerOrSkip();
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(2048);
         softwareKeyPair = generator.generateKeyPair();
@@ -217,6 +217,21 @@ public class PKCS11OAEPProviderTest {
         assertEquals(PKCS11OAEPCipher.pkcs11Values("SHA-384"), new long[]{0x260L, 0x3L});
         assertEquals(PKCS11OAEPCipher.pkcs11Values("SHA-512"), new long[]{0x270L, 0x4L});
         assertNull(PKCS11OAEPCipher.pkcs11Values("MD5"));
+    }
+
+    /**
+     * Register the provider, or skip the tests on a JVM that does not accept it as a Cipher provider (Oracle JDK
+     * requires signed JCE providers; target/classes is not a signed JAR). A token provider must be registered.
+     */
+    static void registerOrSkip() throws Exception {
+
+        // Fails the tests if the SunPKCS11 packages are not open (the surefire configuration opens them, as the start
+        // scripts do for the server).
+        JdkPKCS11.load();
+        if (!PKCS11OAEPProvider.register() && Security.getProvider(PKCS11OAEPProvider.NAME) == null) {
+            throw new SkipException("This JVM does not accept " + PKCS11OAEPProvider.NAME + " as a Cipher provider " +
+                    "(JVMs that require signed JCE providers, such as Oracle JDK).");
+        }
     }
 
     private static JdkPKCS11.TokenException failure(JdkPKCS11.TokenException.Phase phase, long code) {
