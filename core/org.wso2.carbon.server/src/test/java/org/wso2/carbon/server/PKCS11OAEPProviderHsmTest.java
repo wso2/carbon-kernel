@@ -30,10 +30,14 @@ import java.security.PrivateKey;
 import java.security.Provider;
 import java.security.ProviderException;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.Security;
+import java.security.interfaces.RSAPublicKey;
 import java.security.spec.MGF1ParameterSpec;
+import java.util.Arrays;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.OAEPParameterSpec;
@@ -134,6 +138,72 @@ public class PKCS11OAEPProviderHsmTest {
         cipher.init(Cipher.DECRYPT_MODE, tokenKey);
 
         expectThrows(BadPaddingException.class, () -> cipher.doFinal(ciphertext));
+    }
+
+    @Test(groups = "hsm-it")
+    public void testOAEPDecodingFailuresLookTheSame() throws Exception {
+
+        // Manger's attack needs different answers for "first byte of the decoded block is not zero" and "lHash does
+        // not match". Build both blocks with raw RSA and the public key; the token must answer the same for both.
+        int length = (((RSAPublicKey) publicKey).getModulus().bitLength() + 7) / 8;
+        SecureRandom random = new SecureRandom();
+        byte[] nonZeroFirstByte = new byte[length];
+        random.nextBytes(nonZeroFirstByte);
+        nonZeroFirstByte[0] = 0x01;
+        byte[] wrongLabelHash = new byte[length];
+        random.nextBytes(wrongLabelHash);
+        wrongLabelHash[0] = 0x00;
+        Cipher raw = Cipher.getInstance("RSA/ECB/NoPadding", "SunJCE");
+        raw.init(Cipher.ENCRYPT_MODE, publicKey);
+
+        for (byte[] block : new byte[][]{nonZeroFirstByte, wrongLabelHash}) {
+            byte[] ciphertext = raw.doFinal(block);
+            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
+            cipher.init(Cipher.DECRYPT_MODE, tokenKey);
+            BadPaddingException e = expectThrows(BadPaddingException.class, () -> cipher.doFinal(ciphertext));
+            assertEquals(e.getMessage(), "Decryption error");
+            assertNull(e.getCause());
+            assertEquals(cipher.getProvider().getName(), PKCS11OAEPProvider.NAME);
+        }
+    }
+
+    @Test(groups = "hsm-it")
+    public void testWrongCiphertextLengthRejectedBeforeToken() throws Exception {
+
+        byte[] ciphertext = encrypt("RSA/ECB/OAEPWithSHA-1AndMGF1Padding", null, new byte[16]);
+        Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
+        cipher.init(Cipher.DECRYPT_MODE, tokenKey);
+
+        expectThrows(IllegalBlockSizeException.class, () -> cipher.doFinal(Arrays.copyOf(ciphertext,
+                ciphertext.length - 1)));
+        // The cipher is still usable.
+        assertEquals(cipher.doFinal(ciphertext), new byte[16]);
+    }
+
+    @Test(groups = "hsm-it")
+    public void testDoFinalInUnwrapModeRejected() throws Exception {
+
+        Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
+        cipher.init(Cipher.UNWRAP_MODE, tokenKey);
+
+        expectThrows(IllegalStateException.class, () -> cipher.doFinal(new byte[0]));
+    }
+
+    @Test(groups = "hsm-it")
+    public void testSessionsReusableAfterFailures() throws Exception {
+
+        // Each failed decryption must end the token operation and return the session to the pool.
+        byte[] ciphertext = encrypt("RSA/ECB/OAEPWithSHA-1AndMGF1Padding", null, "after".getBytes(
+                StandardCharsets.UTF_8));
+        byte[] tampered = ciphertext.clone();
+        tampered[tampered.length - 1] ^= 1;
+        Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
+        cipher.init(Cipher.DECRYPT_MODE, tokenKey);
+        for (int i = 0; i < 64; i++) {
+            expectThrows(BadPaddingException.class, () -> cipher.doFinal(tampered));
+        }
+
+        assertEquals(new String(cipher.doFinal(ciphertext), StandardCharsets.UTF_8), "after");
     }
 
     @DataProvider(name = "sha2Digests")

@@ -57,7 +57,6 @@ final class JdkPKCS11 {
     private final Field tokenP11;
     private final Method getOpSession;
     private final Method releaseSession;
-    private final Method killSession;
     private final Method sessionId;
     private final Method decryptInit;
     private final Method decrypt;
@@ -69,6 +68,7 @@ final class JdkPKCS11 {
     private final Field oaepSource;
     private final Field oaepSourceData;
     private final Class<?> pkcs11ExceptionClass;
+    private final Method errorCode;
 
     private JdkPKCS11() throws ReflectiveOperationException {
 
@@ -88,7 +88,6 @@ final class JdkPKCS11 {
         tokenP11 = accessible(tokenClass.getDeclaredField("p11"));
         getOpSession = accessible(tokenClass.getDeclaredMethod("getOpSession"));
         releaseSession = accessible(tokenClass.getDeclaredMethod("releaseSession", sessionClass));
-        killSession = accessible(tokenClass.getDeclaredMethod("killSession", sessionClass));
         sessionId = accessible(sessionClass.getDeclaredMethod("id"));
         decryptInit = accessible(pkcs11Class.getMethod("C_DecryptInit", long.class, mechanismClass, long.class));
         decrypt = accessible(pkcs11Class.getMethod("C_Decrypt", long.class, long.class, byte[].class, int.class,
@@ -100,6 +99,7 @@ final class JdkPKCS11 {
         oaepMgf = accessible(oaepParamsClass.getField("mgf"));
         oaepSource = accessible(oaepParamsClass.getField("source"));
         oaepSourceData = accessible(oaepParamsClass.getField("pSourceData"));
+        errorCode = accessible(pkcs11ExceptionClass.getMethod("getErrorCode"));
     }
 
     /**
@@ -174,52 +174,78 @@ final class JdkPKCS11 {
             p11 = tokenP11.get(token);
             session = getOpSession.invoke(token);
         } catch (InvocationTargetException e) {
-            throw tokenException(e);
+            throw tokenException(e, TokenException.Phase.INIT);
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("Unable to get a PKCS11 session.", e);
         }
-        // A PKCS#11 error from C_DecryptInit leaves no active operation, and one from C_Decrypt ends the operation
-        // (PKCS#11 v2.40, 5.2), so the session goes back to the pool. Any other failure leaves the session in an
-        // unknown state; it is closed instead.
-        boolean closeSession = false;
+        long id = 0L;
+        boolean active = false;
         try {
-            long id = (long) sessionId.invoke(session);
+            id = (long) sessionId.invoke(session);
             long keyId = (long) getKeyID.invoke(key);
             try {
                 decryptInit.invoke(p11, id, mechanism, keyId);
+                active = true;
                 byte[] out = new byte[ciphertext.length];
-                int length = (int) decrypt.invoke(p11, id, 0L, ciphertext, 0, ciphertext.length, 0L, out, 0,
-                        out.length);
-                return Arrays.copyOf(out, length);
+                try {
+                    int length = (int) decrypt.invoke(p11, id, 0L, ciphertext, 0, ciphertext.length, 0L, out, 0,
+                            out.length);
+                    active = false;
+                    return Arrays.copyOf(out, length);
+                } finally {
+                    // The output is the plaintext, for example a JWE content encryption key.
+                    Arrays.fill(out, (byte) 0);
+                }
             } finally {
                 releaseKeyID.invoke(key);
             }
         } catch (InvocationTargetException e) {
-            closeSession = !pkcs11ExceptionClass.isInstance(e.getCause());
-            throw tokenException(e);
+            throw tokenException(e, active ? TokenException.Phase.DECRYPT : TokenException.Phase.INIT);
         } catch (ReflectiveOperationException e) {
-            closeSession = true;
             throw new IllegalStateException("Unable to run the PKCS11 decryption.", e);
         } finally {
+            if (active) {
+                finishOperation(p11, id, ciphertext.length);
+            }
             try {
-                if (closeSession) {
-                    killSession.invoke(token, session);
-                } else {
-                    releaseSession.invoke(token, session);
-                }
+                releaseSession.invoke(token, session);
             } catch (ReflectiveOperationException e) {
                 // Nothing else can be done with the session here.
             }
         }
     }
 
-    private TokenException tokenException(InvocationTargetException e) {
+    /**
+     * End a decryption that may still be active, so the session can go back to the pool. Like SunPKCS11's own
+     * ciphers, this finishes the operation instead of closing the session, because some tokens need a new login
+     * after a session is closed. A PKCS#11 error from C_Decrypt ends the operation (PKCS#11 v2.40, 5.2), and
+     * CKR_OPERATION_NOT_INITIALIZED means none was active, so the result is ignored.
+     */
+    private void finishOperation(Object p11, long id, int length) {
+
+        byte[] buffer = new byte[length];
+        try {
+            decrypt.invoke(p11, id, 0L, buffer, 0, length, 0L, buffer, 0, length);
+        } catch (ReflectiveOperationException e) {
+            // Ignored, see above.
+        } finally {
+            Arrays.fill(buffer, (byte) 0);
+        }
+    }
+
+    private TokenException tokenException(InvocationTargetException e, TokenException.Phase phase) {
 
         Throwable cause = e.getCause();
         if (pkcs11ExceptionClass.isInstance(cause)) {
-            return new TokenException(cause.getMessage(), cause);
+            long code;
+            try {
+                code = (long) errorCode.invoke(cause);
+            } catch (ReflectiveOperationException | RuntimeException codeError) {
+                code = TokenException.NO_ERROR_CODE;
+            }
+            return new TokenException(phase, code, cause.getMessage(), cause);
         }
-        return new TokenException("PKCS11 operation failed: " + cause, cause);
+        return new TokenException(phase, TokenException.NO_ERROR_CODE, "PKCS11 operation failed: " + cause, cause);
     }
 
     private static <T extends java.lang.reflect.AccessibleObject> T accessible(T member) {
@@ -229,16 +255,55 @@ final class JdkPKCS11 {
     }
 
     /**
-     * The token rejected an operation. The message is the PKCS#11 return value name, for example
-     * CKR_ENCRYPTED_DATA_INVALID.
+     * The token rejected an operation, or the PKCS#11 call failed.
      */
     static final class TokenException extends Exception {
 
+        /**
+         * Error code when the failure is not a PKCS#11 return value.
+         */
+        static final long NO_ERROR_CODE = -1L;
+
         private static final long serialVersionUID = 1L;
 
-        TokenException(String message, Throwable cause) {
+        /**
+         * Phase of the operation that failed.
+         */
+        enum Phase {
+            /**
+             * Getting the session or the key handle, or C_DecryptInit: does not depend on the ciphertext.
+             */
+            INIT,
+            /**
+             * C_Decrypt: can depend on the ciphertext.
+             */
+            DECRYPT
+        }
+
+        private final Phase phase;
+        private final long errorCode;
+
+        /**
+         * @param phase     Phase that failed.
+         * @param errorCode PKCS#11 return value (CKR_), or {@link #NO_ERROR_CODE}.
+         * @param message   Message; for PKCS#11 errors, the return value name.
+         * @param cause     Cause.
+         */
+        TokenException(Phase phase, long errorCode, String message, Throwable cause) {
 
             super(message, cause);
+            this.phase = phase;
+            this.errorCode = errorCode;
+        }
+
+        Phase getPhase() {
+
+            return phase;
+        }
+
+        long getErrorCode() {
+
+            return errorCode;
         }
     }
 }

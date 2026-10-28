@@ -57,8 +57,10 @@
 
     <profiles>
         <profile>
-            <!-- SoftHSM integration tests: needs SOFTHSM2_CONF in the environment and -Dhsm.it.cfg (SunPKCS11 config
-                 file), -Dhsm.it.pin and -Dhsm.it.alias (RSA key pair on that token). -->
+            <!-- Token integration tests: -Dhsm.it.cfg (SunPKCS11 config file), -Dhsm.it.pin and -Dhsm.it.alias (RSA key
+                 pair on that token, not extractable). SoftHSM 2.x (set SOFTHSM2_CONF) supports RSA-OAEP with SHA-1
+                 only, so the SHA-2 cases are skipped there; NSS softoken (nssLibraryDirectory and nssSecmodDirectory
+                 in the config) covers them. -->
             <id>hsm-it</id>
             <properties>
                 <hsm.it.excluded.groups/>
