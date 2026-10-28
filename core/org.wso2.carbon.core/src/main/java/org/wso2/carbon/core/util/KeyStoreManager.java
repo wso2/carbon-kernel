@@ -228,15 +228,19 @@ public class KeyStoreManager {
             throw new SecurityException("Key store " + filename + " already available");
         }
 
+        if (KeystoreUtils.isPKCS11StoreType(type)) {
+            throw new SecurityException("PKCS11 key stores can't be added with addKeyStore. A tenant key store held " +
+                    "in a PKCS11 token is added with addTenantPKCS11KeyStore. Key store: " + filename);
+        }
+
         KeyStoreModel keyStoreModel = new KeyStoreModel();
         keyStoreModel.setName(filename);
         keyStoreModel.setContent(keystoreContent);
         keyStoreModel.setType(type);
         keyStoreModel.setProvider(provider);
 
-        try (InputStream inputStream = new ByteArrayInputStream(keystoreContent)) {
-            KeyStore keyStore = KeystoreUtils.getKeystoreInstance(type);
-            keyStore.load(inputStream, passwordChar);
+        try {
+            KeyStore keyStore = loadPersistedKeyStore(keystoreContent, type, passwordChar);
             String pvtKeyAlias = KeyStoreUtil.getPrivateKeyAlias(keyStore);
             if (StringUtils.isNotBlank(pvtKeyAlias)) {
                 keyStoreModel.setPrivateKeyAlias(pvtKeyAlias);
@@ -263,6 +267,68 @@ public class KeyStoreManager {
     }
 
     /**
+     * Get the label under which this tenant's key pair is held in the PKCS#11 token of {@code [keystore.tenant]}. It is
+     * built from the tenant's unique ID, which is never given to another tenant. The key pair must be generated in the
+     * token under this label before {@link #addTenantPKCS11KeyStore()} is called.
+     *
+     * @return Token entry label of this tenant's key pair.
+     * @throws SecurityException If this is the super tenant, or the tenant's unique ID can't be read.
+     */
+    public String getTenantPKCS11KeyLabel() throws SecurityException {
+
+        if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
+            throw new SecurityException("The super tenant has no tenant key store.");
+        }
+        return TenantPKCS11KeyStore.labelFor(getTenantUniqueId());
+    }
+
+    /**
+     * Add the tenant primary key store for a key pair held in the PKCS#11 token of {@code [keystore.tenant]}.
+     * <p>
+     * The key pair must already exist in the token under the label {@link #getTenantPKCS11KeyLabel()} of this
+     * tenant. The key store record holds only a descriptor that names that label. No PIN is stored with it: the
+     * token's provider and PIN are read from the {@code [keystore.tenant]} configuration whenever the key store is
+     * used.
+     *
+     * @throws SecurityException If the tenant key store type is not PKCS11, the key store already exists, or the
+     *                           tenant's entry can't be read from the token.
+     */
+    public void addTenantPKCS11KeyStore() throws SecurityException {
+
+        if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
+            throw new SecurityException("The super tenant has no tenant key store.");
+        }
+        if (!KeystoreUtils.isPKCS11StoreType(KeystoreUtils.StoreFileType.defaultFileType())) {
+            throw new SecurityException("The tenant key store type is not " +
+                    KeystoreUtils.StoreFileType.PKCS11.name() + ".");
+        }
+        String keyStoreName = generateTenantPrimaryKeyStoreName();
+        if (keyStorePersistenceManager.isKeyStoreExists(keyStoreName, tenantId)) {
+            throw new SecurityException("Key store " + keyStoreName + " already available");
+        }
+
+        byte[] descriptor = TenantPKCS11KeyStore.createDescriptor(getTenantPKCS11KeyLabel());
+        KeyStoreModel keyStoreModel = new KeyStoreModel();
+        keyStoreModel.setName(keyStoreName);
+        keyStoreModel.setContent(descriptor);
+        keyStoreModel.setType(KeystoreUtils.StoreFileType.PKCS11.name());
+        try {
+            KeyStore keyStore = loadTenantPKCS11KeyStore(descriptor);
+            // Stored for information only. The provider in the configuration is used to load the key store.
+            keyStoreModel.setProvider(keyStore.getProvider().getName());
+            String pvtKeyAlias = KeyStoreUtil.getPrivateKeyAlias(keyStore);
+            keyStoreModel.setPrivateKeyAlias(pvtKeyAlias);
+            keyStoreModel.setPublicCert(keyStore.getCertificate(pvtKeyAlias).getEncoded());
+            keyStoreModel.setPublicCertId(generatePublicCertId());
+        } catch (KeyStoreException | NoSuchProviderException | CertificateException e) {
+            throw new SecurityException("Error adding key store " + keyStoreName, e);
+        }
+        // The token PIN is not stored with the record. The password field is required, so an empty one is stored.
+        keyStoreModel.setEncryptedPassword(encryptPassword(new char[0]));
+        keyStorePersistenceManager.addKeystore(keyStoreModel, tenantId);
+    }
+
+    /**
      * Delete the given key store.
      *
      * @param keyStoreName  Name of the key store.
@@ -279,8 +345,17 @@ public class KeyStoreManager {
         if (KeyStoreUtil.isTrustStore(keyStoreName)) {
             throw new SecurityException("Not allowed to delete the trust store : " + keyStoreName);
         }
+        Optional<KeyStoreModel> pkcs11KeyStoreModel = Optional.empty();
+        if (keyStoreName.endsWith(KeystoreUtils.getExtensionByFileType(
+                KeystoreUtils.StoreFileType.PKCS11.name()))) {
+            pkcs11KeyStoreModel = keyStorePersistenceManager.getKeyStore(keyStoreName, tenantId)
+                    .filter(model -> KeystoreUtils.isPKCS11StoreType(model.getType()));
+        }
         keyStorePersistenceManager.deleteKeyStore(keyStoreName, tenantId);
         deleteKeyStoreFromCache(keyStoreName);
+        // A PKCS11 tenant key store refers to keys in a token; remove them from the token too. This runs after the
+        // record is deleted, so a failure leaves an unused key in the token rather than a record without a key.
+        pkcs11KeyStoreModel.ifPresent(model -> deletePKCS11TokenEntry(keyStoreName, model));
     }
 
     /**
@@ -515,6 +590,10 @@ public class KeyStoreManager {
 
     private void updateTenantKeyStore(String keyStoreName, KeyStore keyStore) {
 
+        if (KeystoreUtils.isPKCS11StoreType(keyStore.getType())) {
+            throw new SecurityException("Key store " + keyStoreName + " is held in a PKCS11 token and can't be " +
+                    "updated.");
+        }
         char[] passwordChar = new char[0];
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             KeyStoreModel keyStoreModel = new KeyStoreModel();
@@ -552,14 +631,13 @@ public class KeyStoreManager {
                         new File(config
                                 .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_FILE))
                                 .getAbsolutePath();
-                KeyStore store = KeystoreUtils.getKeystoreInstance(config
-                                .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_TYPE));
                 String password = config
                         .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_PASSWORD);
-                try (FileInputStream in = new FileInputStream(file)) {
-                    store.load(in, password.toCharArray());
-                    primaryKeyStore = store;
-                }
+                primaryKeyStore = loadServerKeyStore(
+                        config.getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_TYPE),
+                        config.getFirstProperty(
+                                RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_PROVIDER),
+                        file, password.toCharArray());
             }
             return primaryKeyStore;
         } else {
@@ -593,11 +671,9 @@ public class KeyStoreManager {
 
         char[] passwordChar = new char[0];
         try {
-            byte[] bytes = keyStoreModel.getContent();
-            KeyStore keyStore = KeystoreUtils.getKeystoreInstance(keyStoreModel.getType());
             passwordChar = decryptPassword(keyStoreModel.getEncryptedPassword());
-            ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
-            keyStore.load(stream, passwordChar);
+            KeyStore keyStore = loadPersistedKeyStore(keyStoreModel.getContent(), keyStoreModel.getType(),
+                    passwordChar);
             KeyStoreBean keyStoreBean = new KeyStoreBean(keyStore,
                     keyStorePersistenceManager.getKeyStoreLastModifiedDate(keyStoreName, tenantId));
             updateTenantKeyStoreCache(keyStoreName, keyStoreBean);
@@ -744,8 +820,10 @@ public class KeyStoreManager {
                 config, RegistryResources.SecurityManagement.CustomKeyStore.PROP_TYPE);
         String password = KeyStoreUtil.getCustomKeyStoreConfig(
                 config, RegistryResources.SecurityManagement.CustomKeyStore.PROP_PASSWORD);
+        String provider = KeyStoreUtil.getOptionalCustomKeyStoreConfig(
+                config, RegistryResources.SecurityManagement.CustomKeyStore.PROP_PROVIDER);
 
-        KeyStore keyStore = loadKeyStoreFromFileSystem(location, password, type);
+        KeyStore keyStore = loadKeyStoreFromFileSystem(location, password, type, provider);
         customKeyStores.put(keyStoreName, keyStore);
 
         return keyStore;
@@ -789,6 +867,10 @@ public class KeyStoreManager {
         char[] privateKeyPasswordChar = new char[0];
         try {
             KeyStore keyStore = getTenantKeyStore(keyStoreName);
+            if (KeystoreUtils.isPKCS11StoreType(keyStore.getType())) {
+                // Keys in a token have no password.
+                return (PrivateKey) keyStore.getKey(alias, null);
+            }
             String encryptedPrivateKeyPassword =
                     keyStorePersistenceManager.getEncryptedPrivateKeyPassword(keyStoreName, tenantId);
             privateKeyPasswordChar = decryptPassword(encryptedPrivateKeyPassword);
@@ -971,11 +1053,35 @@ public class KeyStoreManager {
 
     public KeyStore loadKeyStoreFromFileSystem(String keyStorePath, String password, String type) {
 
+        return loadKeyStoreFromFileSystem(keyStorePath, password, type, null);
+    }
+
+    /**
+     * Load a key store from the file system, or from a PKCS#11 token when the type is PKCS11. A PKCS11 key store is
+     * loaded through the given provider (for example the SunPKCS11 instance of the token) and no file is read.
+     *
+     * @param keyStorePath Key store file path. Not used for PKCS11 key stores.
+     * @param password     Key store password (the token PIN for PKCS11 key stores).
+     * @param type         Key store type.
+     * @param provider     Name of a registered JCA provider. Can be null to use the default provider selection.
+     * @return Loaded key store.
+     */
+    public KeyStore loadKeyStoreFromFileSystem(String keyStorePath, String password, String type, String provider) {
+
         CarbonUtils.checkSecurity();
+        if (KeystoreUtils.isPKCS11StoreType(type)) {
+            try {
+                return loadServerKeyStore(type, provider, keyStorePath, password.toCharArray());
+            } catch (Exception e) {
+                String errorMsg = "Error loading the PKCS11 key store.";
+                log.error(errorMsg);
+                throw new SecurityException(errorMsg, e);
+            }
+        }
         String absolutePath = new File(keyStorePath).getAbsolutePath();
         FileInputStream inputStream = null;
         try {
-            KeyStore store = KeystoreUtils.getKeystoreInstance(type);
+            KeyStore store = KeystoreUtils.getKeystoreInstance(type, provider);
             inputStream = new FileInputStream(absolutePath);
             store.load(inputStream, password.toCharArray());
             return store;
@@ -1008,19 +1114,148 @@ public class KeyStoreManager {
             if (keyStoreModel.getPublicCert() != null) {
                 metadata.setPublicCert(keyStoreModel.getPublicCert());
             } else {
-                byte[] keystoreContent = keyStoreModel.getContent();
-                try (InputStream inputStream = new ByteArrayInputStream(keystoreContent)) {
-                    KeyStore keyStore = KeyStore.getInstance(keyStoreModel.getType());
-                    keyStore.load(inputStream, decryptPassword(keyStoreModel.getEncryptedPassword()));
+                try {
+                    KeyStore keyStore;
+                    if (KeystoreUtils.isPKCS11StoreType(keyStoreModel.getType())) {
+                        keyStore = loadTenantPKCS11KeyStore(keyStoreModel.getContent());
+                    } else {
+                        keyStore = KeyStore.getInstance(keyStoreModel.getType());
+                        try (InputStream inputStream = new ByteArrayInputStream(keyStoreModel.getContent())) {
+                            keyStore.load(inputStream, decryptPassword(keyStoreModel.getEncryptedPassword()));
+                        }
+                    }
                     X509Certificate publicCert =
                             (X509Certificate) keyStore.getCertificate(keyStoreModel.getPrivateKeyAlias());
                     metadata.setPublicCert(publicCert.getEncoded());
-                } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {
+                } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException |
+                         NoSuchProviderException e) {
                     throw new SecurityException("Error getting public cert from keystore", e);
                 }
             }
         }
         return metadata;
+    }
+
+    /**
+     * Load a server key store (primary or custom). A PKCS11 key store is held in a token: it is loaded
+     * through the given provider with {@code load(null, password)} and no file is read, so no placeholder file is
+     * needed. Other key stores are loaded from the file as before.
+     *
+     * @param type     Key store type.
+     * @param provider Name of a registered JCA provider, or null for the default provider selection. For PKCS11, the
+     *                 SunPKCS11 instance of the token; without it, the first registered PKCS11 provider is used.
+     * @param file     Key store file path. Not used for PKCS11 key stores.
+     * @param password Key store password (the token PIN for PKCS11 key stores).
+     * @return Loaded key store.
+     */
+    private KeyStore loadServerKeyStore(String type, String provider, String file, char[] password)
+            throws KeyStoreException, NoSuchProviderException, IOException, CertificateException,
+            NoSuchAlgorithmException {
+
+        // Without a configured provider, the key store is created as before. For PKCS11, that is refused when more
+        // than one token is registered.
+        KeyStore store = KeystoreUtils.getKeystoreInstance(type, provider);
+        if (KeystoreUtils.isPKCS11StoreType(type)) {
+            store.load(null, password);
+            return store;
+        }
+        try (FileInputStream in = new FileInputStream(file)) {
+            store.load(in, password);
+        }
+        return store;
+    }
+
+    /**
+     * Load a persisted key store from its content. A PKCS11 key store record is loaded as a read-only view over the
+     * token entry that its content refers to (see {@link #loadTenantPKCS11KeyStore(byte[])}). Other key stores are
+     * loaded from their content as before.
+     *
+     * @param content  Persisted key store content (a descriptor for PKCS11 key stores).
+     * @param type     Key store type.
+     * @param password Key store password. Not used for PKCS11 key stores.
+     * @return Loaded key store.
+     */
+    private KeyStore loadPersistedKeyStore(byte[] content, String type, char[] password)
+            throws KeyStoreException, NoSuchProviderException, IOException, CertificateException,
+            NoSuchAlgorithmException {
+
+        if (KeystoreUtils.isPKCS11StoreType(type)) {
+            return loadTenantPKCS11KeyStore(content);
+        }
+        KeyStore keyStore = KeystoreUtils.getKeystoreInstance(type);
+        try (InputStream inputStream = new ByteArrayInputStream(content)) {
+            keyStore.load(inputStream, password);
+        }
+        return keyStore;
+    }
+
+    /**
+     * Load this tenant's PKCS11 key store from the token of {@code [keystore.tenant]}, exposed under the tenant domain
+     * (the alias used for tenant keys). The provider and PIN come from the configuration, and the descriptor must
+     * name this tenant's token entry.
+     *
+     * @param descriptor Persisted descriptor of the tenant key store.
+     * @return Read-only view of the tenant's entry.
+     */
+    private KeyStore loadTenantPKCS11KeyStore(byte[] descriptor) throws KeyStoreException, NoSuchProviderException {
+
+        char[] pin = getTenantPKCS11Pin();
+        try {
+            return TenantPKCS11KeyStore.load(getTenantPKCS11Provider(), pin, descriptor, getTenantUniqueId(),
+                    getTenantDomainName());
+        } finally {
+            clearPasswordCharArray(pin);
+        }
+    }
+
+    /**
+     * Delete the token entry of a deleted PKCS11 tenant key store. A failure is logged and not thrown: the key store
+     * record is already deleted, and the entry left in the token is no longer used.
+     */
+    private void deletePKCS11TokenEntry(String keyStoreName, KeyStoreModel keyStoreModel) {
+
+        char[] pin = new char[0];
+        try {
+            pin = getTenantPKCS11Pin();
+            boolean deleted = TenantPKCS11KeyStore.deleteEntry(getTenantPKCS11Provider(), pin,
+                    keyStoreModel.getContent(), getTenantUniqueId());
+            if (log.isDebugEnabled()) {
+                log.debug("Token entry of PKCS11 key store " + keyStoreName + (deleted ? " deleted." :
+                        " was not found in the token."));
+            }
+        } catch (KeyStoreException | NoSuchProviderException | RuntimeException e) {
+            String label;
+            try {
+                label = TenantPKCS11KeyStore.getLabel(keyStoreModel.getContent());
+            } catch (KeyStoreException descriptorError) {
+                label = "<unknown>";
+            }
+            log.warn("Deleted PKCS11 key store " + keyStoreName + " of tenant: " + tenantId + ", but its entry " +
+                    "could not be deleted from the token. Remove the entry with label '" + label + "' from the " +
+                    "token.", e);
+        } finally {
+            clearPasswordCharArray(pin);
+        }
+    }
+
+    private static String getTenantPKCS11Provider() throws KeyStoreException {
+
+        String provider = ServerConfiguration.getInstance().getFirstProperty(
+                RegistryResources.SecurityManagement.TENANT_KEYSTORE_PROVIDER);
+        if (StringUtils.isBlank(provider)) {
+            throw new KeyStoreException("[keystore.tenant] provider is required for PKCS11 tenant key stores.");
+        }
+        return provider.trim();
+    }
+
+    private static char[] getTenantPKCS11Pin() throws KeyStoreException {
+
+        String pin = ServerConfiguration.getInstance().getFirstProperty(
+                RegistryResources.SecurityManagement.TENANT_KEYSTORE_PASSWORD);
+        if (StringUtils.isEmpty(pin)) {
+            throw new KeyStoreException("[keystore.tenant] password is required for PKCS11 tenant key stores.");
+        }
+        return pin.toCharArray();
     }
 
     /**
@@ -1087,6 +1322,26 @@ public class KeyStoreManager {
 
         String ksName = getTenantDomainName().trim().replace(".", "-");
         return (ksName + KeystoreUtils.getExtensionByFileType(KeystoreUtils.StoreFileType.defaultFileType()));
+    }
+
+    private String getTenantUniqueId() throws SecurityException {
+
+        String tenantUniqueId;
+        try {
+            RealmService realmService = CarbonCoreDataHolder.getInstance().getRealmService();
+            if (realmService == null) {
+                throw new SecurityException("Error in getting the tenant unique ID, realm service is null.");
+            }
+            tenantUniqueId = realmService.getTenantManager().getTenant(tenantId).getTenantUniqueID();
+        } catch (SecurityException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new SecurityException("Error in getting the unique ID of the tenant id: " + tenantId, e);
+        }
+        if (StringUtils.isBlank(tenantUniqueId)) {
+            throw new SecurityException("The tenant id: " + tenantId + " has no unique ID.");
+        }
+        return tenantUniqueId;
     }
 
     private String getTenantDomainName() throws SecurityException {

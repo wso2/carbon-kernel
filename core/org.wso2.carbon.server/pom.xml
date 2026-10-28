@@ -43,6 +43,11 @@
             <groupId>org.wso2.config.mapper</groupId>
             <artifactId>config-mapper</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -70,7 +75,6 @@
                     <!--<forkMode>pertest</forkMode>-->
                     <!--<argLine>-enableassertions</argLine>
                     <testFailureIgnore>false</testFailureIgnore>-->
-                    <skip>true</skip>
                     <excludes>
                         <exclude>**/*Abstract*.java</exclude>
                         <exclude>**/*CryptoUtilTest*.java</exclude>

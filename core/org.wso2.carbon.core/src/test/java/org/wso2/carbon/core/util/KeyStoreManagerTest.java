@@ -50,6 +50,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.expectThrows;
 
 /**
  * KeyStoreManager test class.
@@ -102,6 +104,7 @@ public class KeyStoreManagerTest {
              MockedStatic<KeystoreUtils> keystoreUtils = mockStatic(KeystoreUtils.class)) {
 
             keystoreUtils.when(() -> KeystoreUtils.getKeystoreInstance(anyString())).thenReturn(this.keyStore);
+            keystoreUtils.when(() -> KeystoreUtils.getKeystoreInstance(anyString(), any())).thenReturn(this.keyStore);
 
             serverConfiguration.when(ServerConfiguration::getInstance).thenReturn(this.serverConfiguration);
             when(this.serverConfiguration.getFirstProperty(
@@ -172,6 +175,62 @@ public class KeyStoreManagerTest {
         }
     }
 
+    @Test(description = "A PKCS11 key store can't be added with the generic addKeyStore")
+    public void testAddPKCS11KeyStoreRejected() throws Exception {
+
+        try (MockedStatic<KeyStoreUtil> keyStoreUtil = mockStatic(KeyStoreUtil.class)) {
+            keyStoreUtil.when(() -> KeyStoreUtil.isPrimaryStore(any())).thenReturn(false);
+            keyStoreUtil.when(() -> KeyStoreUtil.isTrustStore(any())).thenReturn(false);
+            when(registry.resourceExists(anyString())).thenReturn(false);
+
+            // The caller can't choose the token entry, provider or PIN of a PKCS11 key store.
+            SecurityException e = expectThrows(SecurityException.class, () -> this.keyStoreManager.addKeyStore(
+                    "label=wso2-tenant-1\n".getBytes(), "some-store.p11", "1234".toCharArray(),
+                    "SunPKCS11-is-tenants", "PKCS11", "1234".toCharArray()));
+            assertTrue(e.getMessage().contains("PKCS11 key stores can't be added with addKeyStore"));
+        }
+    }
+
+    @Test(description = "The super tenant has no PKCS11 tenant key store")
+    public void testAddTenantPKCS11KeyStoreRejectedForSuperTenant() {
+
+        SecurityException e = expectThrows(SecurityException.class,
+                () -> this.keyStoreManager.addTenantPKCS11KeyStore());
+        assertTrue(e.getMessage().contains("super tenant"));
+        expectThrows(SecurityException.class, () -> this.keyStoreManager.getTenantPKCS11KeyLabel());
+    }
+
+    @Test(description = "A PKCS11 key store is loaded from its token through the given provider, without a file")
+    public void testLoadPKCS11KeyStoreWithoutFile() throws Exception {
+
+        String providerName = "KeyStoreManagerTestToken";
+        char[] tokenPassword = "tokenpin".toCharArray();
+        KeyStore tokenContents;
+        try (java.io.InputStream in = new java.io.FileInputStream(createPath("pkcs11-token-test.p12").toFile())) {
+            tokenContents = InMemoryTokenProvider.loadPKCS12(in, tokenPassword);
+        }
+        InMemoryTokenProvider provider = new InMemoryTokenProvider(providerName, tokenContents, tokenPassword,
+                "1234".toCharArray());
+        java.security.Security.addProvider(provider);
+        try {
+            // A wrong PIN fails the token login.
+            expectThrows(SecurityException.class, () -> this.keyStoreManager.loadKeyStoreFromFileSystem(
+                    "/no/such/file.p11", "0000", "PKCS11", providerName));
+
+            KeyStore keyStore = this.keyStoreManager.loadKeyStoreFromFileSystem("/no/such/file.p11", "1234",
+                    "PKCS11", providerName);
+            assertSame(keyStore.getProvider(), provider);
+            assertTrue(keyStore.isKeyEntry("wso2-tenant-6f1d2c8e-4b7a-4e19-9c3d-2a5b8e0f7c41"));
+
+            // Like SunPKCS11, the PIN is not checked again once the token is logged in.
+            assertTrue(provider.isLoggedIn());
+            assertTrue(this.keyStoreManager.loadKeyStoreFromFileSystem("/no/such/file.p11", "0000", "PKCS11",
+                    providerName).isKeyEntry("wso2-tenant-6f1d2c8e-4b7a-4e19-9c3d-2a5b8e0f7c41"));
+        } finally {
+            java.security.Security.removeProvider(providerName);
+        }
+    }
+
     @Test(description = "Delete KeyStore test")
     public void testDeleteKeyStore() throws Exception {
 
@@ -187,6 +246,33 @@ public class KeyStoreManagerTest {
             when(registry.resourceExists(anyString())).thenReturn(true);
 
             this.keyStoreManager.deleteStore("new_keystore.jks");
+        }
+    }
+
+    @Test(description = "A PKCS11 key store record is deleted even when its token entry can't be deleted")
+    public void testDeletePKCS11KeyStoreDeletesRecordFirst() throws Exception {
+
+        Resource pkcs11Resource = org.mockito.Mockito.mock(Resource.class);
+        when(pkcs11Resource.getProperty(anyString())).thenReturn("PKCS11");
+        when(pkcs11Resource.getContent()).thenReturn(TenantPKCS11KeyStore.createDescriptor(
+                TenantPKCS11KeyStore.labelFor("6f1d2c8e-4b7a-4e19-9c3d-2a5b8e0f7c41")));
+        try (MockedStatic<KeyStoreUtil> keyStoreUtil = mockStatic(KeyStoreUtil.class);
+             MockedStatic<ServerConfiguration> serverConfiguration = mockStatic(ServerConfiguration.class)) {
+
+            keyStoreUtil.when(() -> KeyStoreUtil.isPrimaryStore(anyString())).thenReturn(false);
+            keyStoreUtil.when(() -> KeyStoreUtil.isTrustStore(anyString())).thenReturn(false);
+            serverConfiguration.when(ServerConfiguration::getInstance).thenReturn(this.serverConfiguration);
+            // The token can't be reached: its provider is not registered.
+            when(this.serverConfiguration.getFirstProperty(
+                    RegistryResources.SecurityManagement.TENANT_KEYSTORE_PROVIDER)).thenReturn("NoSuchToken");
+            when(this.serverConfiguration.getFirstProperty(
+                    RegistryResources.SecurityManagement.TENANT_KEYSTORE_PASSWORD)).thenReturn("1234");
+            when(registry.resourceExists(anyString())).thenReturn(true);
+            when(registry.get(org.mockito.ArgumentMatchers.contains("hsm-tenant.p11"))).thenReturn(pkcs11Resource);
+            when(registry.getAllAssociations(anyString())).thenReturn(new Association[]{});
+
+            this.keyStoreManager.deleteStore("hsm-tenant.p11");
+            org.mockito.Mockito.verify(registry).delete(org.mockito.ArgumentMatchers.contains("hsm-tenant.p11"));
         }
     }
 

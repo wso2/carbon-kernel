@@ -513,6 +513,21 @@
       Security configurations
     -->
     <Security>
+        {% if security.pkcs11_provider is defined %}
+        <!--
+            SunPKCS11 providers, one per PKCS11 token. The launcher adds them to the JVM after the JDK providers,
+            before the server starts. Key stores refer to them as SunPKCS11-<Name>.
+        -->
+        <PKCS11Providers>
+            {% for provider in security.pkcs11_provider %}
+            <Provider>
+                <!-- Same value as the 'name' in the SunPKCS11 configuration file -->
+                <Name>{{provider.name}}</Name>
+                <ConfigFile>{{provider.config_file}}</ConfigFile>
+            </Provider>
+            {% endfor %}
+        </PKCS11Providers>
+        {% endif %}
         <!--
             KeyStore which will be used for encrypting/decrypting passwords
             and other sensitive information.
@@ -523,6 +538,10 @@
             <Location>${carbon.home}/repository/resources/security/{{keystore.primary.file_name}}</Location>
             <!-- Keystore type (JKS/PKCS12 etc.)-->
             <Type>{{keystore.primary.type}}</Type>
+            {% if keystore.primary.provider is defined %}
+            <!-- JCA provider of the key store, for example the SunPKCS11 instance of a token (PKCS11) -->
+            <Provider>{{keystore.primary.provider}}</Provider>
+            {% endif %}
             <!-- Keystore password-->
             <Password>{{keystore.primary.password}}</Password>
             <!-- Private Key alias-->
@@ -541,6 +560,14 @@
             {% if keystore.tenant.key_size is defined %}
             <!-- Key size (bits) of the generated tenant key pair. A multiple of 1024 between 2048 and 8192. -->
             <KeySize>{{keystore.tenant.key_size}}</KeySize>
+            {% endif %}
+            {% if keystore.tenant.provider is defined %}
+            <!-- JCA provider of the PKCS11 token that holds tenant keys (Type PKCS11 only). -->
+            <Provider>{{keystore.tenant.provider}}</Provider>
+            {% endif %}
+            {% if keystore.tenant.password is defined %}
+            <!-- User PIN of the PKCS11 token that holds tenant keys (Type PKCS11 only). -->
+            <Password>{{keystore.tenant.password}}</Password>
             {% endif %}
         </TenantKeyStore>
 
@@ -585,6 +612,10 @@
                 <Location>${carbon.home}/repository/resources/security/{{keystore.file_name}}</Location>
                 <!-- Keystore type (JKS/PKCS12 etc.)-->
                 <Type>{{keystore.type}}</Type>
+                {% if keystore.provider is defined %}
+                <!-- JCA provider of the key store, for example the SunPKCS11 instance of a token (PKCS11) -->
+                <Provider>{{keystore.provider}}</Provider>
+                {% endif %}
                 <!-- Keystore password-->
                 <Password>{{keystore.password}}</Password>
                 <!-- Private Key alias-->

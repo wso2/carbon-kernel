@@ -104,6 +104,7 @@ public class Main {
             System.setProperty(LauncherConstants.PROFILE, LauncherConstants.DEFAULT_CARBON_PROFILE);
         }
         handleConfiguration();
+        registerPKCS11Providers();
         addSystemProperties();
         invokeExtensions();
         launchCarbon();
@@ -235,6 +236,20 @@ public class Main {
             ConfigParser.parse(configFilePath, resourcesDir, outputDir);
         } catch (ConfigParserException e) {
             logger.log(Level.SEVERE, "Error while performing configuration changes", e);
+            System.exit(1);
+        }
+    }
+
+    /**
+     * Add the PKCS11 providers configured in carbon.xml to the JVM, before OSGi starts.
+     */
+    private static void registerPKCS11Providers() {
+
+        File carbonXml = new File(System.getProperty(LauncherConstants.CARBON_CONFIG_DIR_PATH), "carbon.xml");
+        try {
+            new PKCS11ProviderRegistrar().register(carbonXml, System.getProperty(LauncherConstants.CARBON_HOME));
+        } catch (IllegalStateException e) {
+            logger.log(Level.SEVERE, "Error while registering the PKCS11 providers.", e);
             System.exit(1);
         }
     }
