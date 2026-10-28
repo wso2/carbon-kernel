@@ -92,6 +92,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
@@ -3239,6 +3240,20 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     }
 
     /**
+     * Orders the claims of a batch update deterministically.
+     * <p>
+     * Two concurrent updates that share a claim would otherwise be free to take the same row locks in opposite
+     * orders and deadlock, because the order is whatever the caller's map happens to iterate in.
+     *
+     * @param properties Claim URI to value, in the caller's order.
+     * @return The same entries, ordered by claim URI. Package private for testing.
+     */
+    static Set<Map.Entry<String, String>> orderClaimsForBatch(Map<String, String> properties) {
+
+        return new TreeMap<>(properties).entrySet();
+    }
+
+    /**
      * Update properties as a batch.
      *
      * @param dbConnection DB connection.
@@ -3268,6 +3283,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         String sqlStmt =
                 realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID + "-" + type);
         if (sqlStmt == null) {
+            sqlStmt = realmConfig
+                    .getUserStoreProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID_OPTIMIZED + "-" + type);
+        }
+        if (sqlStmt == null) {
             sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY_WITH_ID_OPTIMIZED);
         }
         if (sqlStmt == null) {
@@ -3285,7 +3304,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             boolean useNString = shouldUseNString(dbConnection);
             prepStmt = dbConnection.prepareStatement(sqlStmt);
 
-            for (Map.Entry<String, String> entry : properties.entrySet()) {
+            for (Map.Entry<String, String> entry : orderClaimsForBatch(properties)) {
                 String propertyName = entry.getKey();
                 String propertyValue = entry.getValue();
                 if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
@@ -3302,14 +3321,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 }
             }
 
-            /*
-             Lock all the user's attribute rows in one statement before writing any of them. Otherwise concurrent
-             batch updates of the same user can each hold a lock the other one still needs, and deadlock. The lock
-             hint is SQL Server syntax, and only SQL Server has been observed to deadlock here.
-            */
-            if (MSSQL.equalsIgnoreCase(type)) {
-                selectRowsForUpdate(dbConnection, userID);
-            }
             int[] counts = prepStmt.executeBatch();
             if (log.isDebugEnabled()) {
                 int totalUpdated = 0;
@@ -5051,45 +5062,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     public boolean isUniqueUserIdEnabled() {
 
         return true;
-    }
-
-    /**
-     * Select and update lock the user attribute rows before the update operation.
-     *
-     * @param dbConnection Database connection.
-     * @param userID       User id of the user.
-     * @throws UserStoreException If an error occurred while executing statement.
-     */
-    private void selectRowsForUpdate(Connection dbConnection, String userID) throws UserStoreException {
-
-        String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.SELECT_USER_PROPERTIES_WITH_ID_OPTIMIZED);
-        try (PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
-            prepStmt.setString(1, userID);
-            prepStmt.setInt(2, tenantId);
-            prepStmt.setInt(3, tenantId);
-            prepStmt.executeQuery();
-        } catch (SQLException e) {
-            String errorMessage = "Error while selecting rows for updating user attributes";
-            if (log.isDebugEnabled()) {
-                log.debug(errorMessage, e);
-            }
-            throw new UserStoreException(errorMessage, e);
-        }
-    }
-
-    /**
-     * Check if the DB is MSSQL.
-     *
-     * @return true if MSSQL, false otherwise.
-     * @throws UserStoreException if error occurred while getting database type.
-     */
-    private boolean isMSSQLDB(Connection dbConnection) throws UserStoreException {
-
-        try {
-            return MSSQL.equalsIgnoreCase(DatabaseCreator.getDatabaseType(dbConnection));
-        } catch (Exception e) {
-            throw new UserStoreException("Error while retrieving the DB type. ", e);
-        }
     }
 
     /**
