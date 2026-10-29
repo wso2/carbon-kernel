@@ -241,7 +241,8 @@ public class Main {
     }
 
     /**
-     * Add the PKCS11 providers configured in carbon.xml to the JVM, before OSGi starts.
+     * Add the PKCS11 providers configured in carbon.xml to the JVM, and the RSA-OAEP provider for keys held in PKCS11
+     * tokens, before OSGi starts.
      */
     private static void registerPKCS11Providers() {
 
@@ -252,6 +253,8 @@ public class Main {
             logger.log(Level.SEVERE, "Error while registering the PKCS11 providers.", e);
             System.exit(1);
         }
+        // RSA-OAEP decryption with token keys, which SunPKCS11 does not offer. Added after the token providers.
+        PKCS11OAEPProvider.register();
     }
 
     /**
