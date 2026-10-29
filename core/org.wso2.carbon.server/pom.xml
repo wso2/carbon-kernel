@@ -108,8 +108,9 @@
                             <value>false</value>
                         </property>
                     </systemProperties>
-                    <!-- Same module access as the start scripts give the server (PKCS11OAEPProvider). -->
-                    <argLine>--add-opens=jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED --add-opens=jdk.crypto.cryptoki/sun.security.pkcs11.wrapper=ALL-UNNAMED</argLine>
+                    <!-- Same module access as the start scripts give the server (PKCS11OAEPProvider). @{argLine} keeps
+                         the JaCoCo agent options set by the parent. -->
+                    <argLine>@{argLine} --add-opens=jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED --add-opens=jdk.crypto.cryptoki/sun.security.pkcs11.wrapper=ALL-UNNAMED</argLine>
                     <!-- Tests that need a SoftHSM token run only with -Phsm-it. -->
                     <excludedGroups>${hsm.it.excluded.groups}</excludedGroups>
                     <groups>${hsm.it.groups}</groups>

@@ -218,11 +218,14 @@ public final class PKCS11OAEPCipher extends CipherSpi {
     protected int engineDoFinal(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset)
             throws ShortBufferException, IllegalBlockSizeException, BadPaddingException {
 
+        // As SunJCE: check the space before decrypting, so the buffered ciphertext is kept for a retry with a larger
+        // buffer, and the token is not called.
+        int outputSize = engineGetOutputSize(inputLen);
+        if (output.length - outputOffset < outputSize) {
+            throw new ShortBufferException("Need " + outputSize + " bytes for output");
+        }
         byte[] plaintext = engineDoFinal(input, inputOffset, inputLen);
         try {
-            if (output.length - outputOffset < plaintext.length) {
-                throw new ShortBufferException("Output buffer too small: " + plaintext.length + " bytes needed.");
-            }
             System.arraycopy(plaintext, 0, output, outputOffset, plaintext.length);
             return plaintext.length;
         } finally {
@@ -262,7 +265,11 @@ public final class PKCS11OAEPCipher extends CipherSpi {
     @Override
     protected int engineGetOutputSize(int inputLen) {
 
-        return buffer.size() + inputLen;
+        // The plaintext is never longer than the modulus. As SunJCE, the modulus length is returned once initialized.
+        if (key == null) {
+            return buffer.size() + inputLen;
+        }
+        return (jdk.keySize(key) + 7) / 8;
     }
 
     @Override

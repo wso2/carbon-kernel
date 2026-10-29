@@ -40,6 +40,7 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.ShortBufferException;
 import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
 
@@ -202,6 +203,25 @@ public class PKCS11OAEPProviderHsmTest {
 
         assertEquals(cipher.doFinal(stripped), plaintext);
         assertEquals(cipher.getProvider().getName(), PKCS11OAEPProvider.NAME);
+    }
+
+    @Test(groups = "hsm-it")
+    public void testShortOutputBufferKeepsInput() throws Exception {
+
+        // As SunJCE: a too small output buffer is reported before decrypting, and the input given to update() is kept,
+        // so the call can be repeated with a larger buffer.
+        byte[] plaintext = "retry".getBytes(StandardCharsets.UTF_8);
+        byte[] ciphertext = encrypt("RSA/ECB/OAEPWithSHA-1AndMGF1Padding", null, plaintext);
+        Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
+        cipher.init(Cipher.DECRYPT_MODE, tokenKey);
+        cipher.update(ciphertext);
+
+        expectThrows(ShortBufferException.class, () -> cipher.doFinal(new byte[plaintext.length], 0));
+        byte[] output = new byte[cipher.getOutputSize(0)];
+        int length = cipher.doFinal(output, 0);
+
+        assertEquals(output.length, ciphertext.length);
+        assertEquals(Arrays.copyOf(output, length), plaintext);
     }
 
     @Test(groups = "hsm-it")
