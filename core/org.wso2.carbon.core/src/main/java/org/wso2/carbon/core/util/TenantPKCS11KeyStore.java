@@ -559,9 +559,6 @@ public final class TenantPKCS11KeyStore {
      */
     private static final class ServerEntriesSpi extends KeyStoreSpi {
 
-        private static final String TENANT_ENTRY = "Tenant key pairs in the PKCS11 token can't be changed through " +
-                "a server key store. Alias: ";
-
         private final KeyStore token;
         private boolean initialized;
 
@@ -647,12 +644,6 @@ public final class TenantPKCS11KeyStore {
         }
 
         @Override
-        public boolean engineEntryInstanceOf(String alias, Class<? extends KeyStore.Entry> entryClass) {
-
-            return !isTenantTokenAlias(alias) && read(() -> token.entryInstanceOf(alias, entryClass));
-        }
-
-        @Override
         public Enumeration<String> engineAliases() {
 
             return Collections.enumeration(serverAliases());
@@ -705,6 +696,17 @@ public final class TenantPKCS11KeyStore {
         }
 
         @Override
+        public void engineStore(KeyStore.LoadStoreParameter param) throws IOException, NoSuchAlgorithmException,
+                CertificateException {
+
+            try {
+                token.store(param);
+            } catch (KeyStoreException e) {
+                throw notLoaded(e);
+            }
+        }
+
+        @Override
         public void engineLoad(InputStream stream, char[] password) throws IOException, NoSuchAlgorithmException,
                 CertificateException {
 
@@ -729,7 +731,8 @@ public final class TenantPKCS11KeyStore {
         private static void checkNotTenantAlias(String alias) throws KeyStoreException {
 
             if (isTenantTokenAlias(alias)) {
-                throw new KeyStoreException(TENANT_ENTRY + alias);
+                throw new KeyStoreException("Tenant key pairs in the PKCS11 token can't be changed through a " +
+                        "server key store. Alias: " + alias);
             }
         }
 
