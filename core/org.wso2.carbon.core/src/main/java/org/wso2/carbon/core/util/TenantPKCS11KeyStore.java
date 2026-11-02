@@ -33,12 +33,17 @@ import java.security.KeyStoreException;
 import java.security.KeyStoreSpi;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.security.ProviderException;
 import java.security.Security;
+import java.security.UnrecoverableEntryException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -66,6 +71,10 @@ import java.util.regex.Pattern;
  * It lists the entries that existed when it was loaded, so it is loaded again when a tenant's label is not found, for
  * example for a tenant whose key pair was generated after the load. A label that stays missing causes at most one
  * reload per {@link #MISSING_LABEL_RELOAD_INTERVAL_MILLIS}.
+ * <p>
+ * A server key store (the primary key store or a custom key store) can be held in the same token as the tenant key
+ * pairs. {@link #excludeTenantEntries(KeyStore)} gives the server a view of such a token without the tenant entries,
+ * so that they are not used or published as server keys.
  */
 public final class TenantPKCS11KeyStore {
 
@@ -113,6 +122,40 @@ public final class TenantPKCS11KeyStore {
             throw new IllegalArgumentException("The tenant unique ID can't be empty.");
         }
         return LABEL_PREFIX + tenantUniqueId.trim();
+    }
+
+    /**
+     * Check whether a token alias belongs to a tenant key pair. This includes the alias SunPKCS11 gives an entry whose
+     * label is not unique ({@code <label>/<issuer>/<serial number>}), which also starts with the tenant label.
+     *
+     * @param alias Token alias.
+     * @return True if the alias starts with {@link #LABEL_PREFIX}.
+     */
+    public static boolean isTenantTokenAlias(String alias) {
+
+        return alias != null && alias.startsWith(LABEL_PREFIX);
+    }
+
+    /**
+     * Get a view of a server key store held in a PKCS#11 token that hides the tenant key pairs on the token. The
+     * token of {@code [keystore.tenant]} can be the token of the primary key store or of a custom key store. Without
+     * this view, code that lists the server key store (for example the super tenant's JWKS) would see every tenant's
+     * key pair. Tenant entries can't be read, added, replaced or deleted through the view. Other entries are read
+     * from and written to the token as before.
+     *
+     * @param token Loaded PKCS11 key store of the token.
+     * @return Key store with the provider and type of the token, without the tenant entries.
+     * @throws KeyStoreException If the view can't be created.
+     */
+    public static KeyStore excludeTenantEntries(KeyStore token) throws KeyStoreException {
+
+        KeyStore view = new View(new ServerEntriesSpi(token), token);
+        try {
+            view.load(null, null);
+        } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
+            throw new KeyStoreException("Error while initializing the server PKCS11 key store view.", e);
+        }
+        return view;
     }
 
     /**
@@ -375,7 +418,7 @@ public final class TenantPKCS11KeyStore {
     }
 
     /**
-     * Key store that uses the token's provider and type, backed by {@link SingleEntrySpi}.
+     * Key store that uses the token's provider and type, backed by {@link SingleEntrySpi} or {@link ServerEntriesSpi}.
      */
     private static final class View extends KeyStore {
 
@@ -507,6 +550,208 @@ public final class TenantPKCS11KeyStore {
         public void engineLoad(InputStream stream, char[] password) {
 
             // The view is created with the entry already read from the token.
+        }
+    }
+
+    /**
+     * Key store SPI over a server key store held in a token that hides the tenant entries
+     * ({@link #isTenantTokenAlias(String)}) and passes everything else to the token key store.
+     */
+    private static final class ServerEntriesSpi extends KeyStoreSpi {
+
+        private static final String TENANT_ENTRY = "Tenant key pairs in the PKCS11 token can't be changed through " +
+                "a server key store. Alias: ";
+
+        private final KeyStore token;
+        private boolean initialized;
+
+        ServerEntriesSpi(KeyStore token) {
+
+            this.token = token;
+        }
+
+        @Override
+        public Key engineGetKey(String alias, char[] password) throws NoSuchAlgorithmException,
+                UnrecoverableKeyException {
+
+            if (isTenantTokenAlias(alias)) {
+                return null;
+            }
+            try {
+                return token.getKey(alias, password);
+            } catch (KeyStoreException e) {
+                throw notLoaded(e);
+            }
+        }
+
+        @Override
+        public Certificate[] engineGetCertificateChain(String alias) {
+
+            return isTenantTokenAlias(alias) ? null : read(() -> token.getCertificateChain(alias));
+        }
+
+        @Override
+        public Certificate engineGetCertificate(String alias) {
+
+            return isTenantTokenAlias(alias) ? null : read(() -> token.getCertificate(alias));
+        }
+
+        @Override
+        public Date engineGetCreationDate(String alias) {
+
+            return isTenantTokenAlias(alias) ? null : read(() -> token.getCreationDate(alias));
+        }
+
+        @Override
+        public void engineSetKeyEntry(String alias, Key key, char[] password, Certificate[] chain)
+                throws KeyStoreException {
+
+            checkNotTenantAlias(alias);
+            token.setKeyEntry(alias, key, password, chain);
+        }
+
+        @Override
+        public void engineSetKeyEntry(String alias, byte[] key, Certificate[] chain) throws KeyStoreException {
+
+            checkNotTenantAlias(alias);
+            token.setKeyEntry(alias, key, chain);
+        }
+
+        @Override
+        public void engineSetCertificateEntry(String alias, Certificate cert) throws KeyStoreException {
+
+            checkNotTenantAlias(alias);
+            token.setCertificateEntry(alias, cert);
+        }
+
+        @Override
+        public void engineDeleteEntry(String alias) throws KeyStoreException {
+
+            checkNotTenantAlias(alias);
+            token.deleteEntry(alias);
+        }
+
+        @Override
+        public KeyStore.Entry engineGetEntry(String alias, KeyStore.ProtectionParameter protParam)
+                throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableEntryException {
+
+            return isTenantTokenAlias(alias) ? null : token.getEntry(alias, protParam);
+        }
+
+        @Override
+        public void engineSetEntry(String alias, KeyStore.Entry entry, KeyStore.ProtectionParameter protParam)
+                throws KeyStoreException {
+
+            checkNotTenantAlias(alias);
+            token.setEntry(alias, entry, protParam);
+        }
+
+        @Override
+        public boolean engineEntryInstanceOf(String alias, Class<? extends KeyStore.Entry> entryClass) {
+
+            return !isTenantTokenAlias(alias) && read(() -> token.entryInstanceOf(alias, entryClass));
+        }
+
+        @Override
+        public Enumeration<String> engineAliases() {
+
+            return Collections.enumeration(serverAliases());
+        }
+
+        @Override
+        public boolean engineContainsAlias(String alias) {
+
+            return !isTenantTokenAlias(alias) && read(() -> token.containsAlias(alias));
+        }
+
+        @Override
+        public int engineSize() {
+
+            return serverAliases().size();
+        }
+
+        @Override
+        public boolean engineIsKeyEntry(String alias) {
+
+            return !isTenantTokenAlias(alias) && read(() -> token.isKeyEntry(alias));
+        }
+
+        @Override
+        public boolean engineIsCertificateEntry(String alias) {
+
+            return !isTenantTokenAlias(alias) && read(() -> token.isCertificateEntry(alias));
+        }
+
+        @Override
+        public String engineGetCertificateAlias(Certificate cert) {
+
+            for (String alias : serverAliases()) {
+                if (cert != null && cert.equals(engineGetCertificate(alias))) {
+                    return alias;
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public void engineStore(OutputStream stream, char[] password) throws IOException, NoSuchAlgorithmException,
+                CertificateException {
+
+            try {
+                token.store(stream, password);
+            } catch (KeyStoreException e) {
+                throw notLoaded(e);
+            }
+        }
+
+        @Override
+        public void engineLoad(InputStream stream, char[] password) throws IOException, NoSuchAlgorithmException,
+                CertificateException {
+
+            // The view is created over a loaded token key store. A later load loads the token key store again.
+            if (initialized) {
+                token.load(stream, password);
+            }
+            initialized = true;
+        }
+
+        private List<String> serverAliases() {
+
+            List<String> aliases = new ArrayList<>();
+            for (String alias : Collections.list(read(token::aliases))) {
+                if (!isTenantTokenAlias(alias)) {
+                    aliases.add(alias);
+                }
+            }
+            return aliases;
+        }
+
+        private static void checkNotTenantAlias(String alias) throws KeyStoreException {
+
+            if (isTenantTokenAlias(alias)) {
+                throw new KeyStoreException(TENANT_ENTRY + alias);
+            }
+        }
+
+        private static <T> T read(TokenRead<T> tokenRead) {
+
+            try {
+                return tokenRead.read();
+            } catch (KeyStoreException e) {
+                throw notLoaded(e);
+            }
+        }
+
+        private static ProviderException notLoaded(KeyStoreException e) {
+
+            // The token key store is loaded before the view is created, so this is not expected.
+            return new ProviderException("The PKCS11 token key store is not loaded.", e);
+        }
+
+        @FunctionalInterface
+        private interface TokenRead<T> {
+
+            T read() throws KeyStoreException;
         }
     }
 }
