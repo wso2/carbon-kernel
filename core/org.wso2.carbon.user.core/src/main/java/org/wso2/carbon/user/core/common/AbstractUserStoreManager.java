@@ -5761,7 +5761,16 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         // Call the relevant listeners after updating the role list of user.
         try {
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
-                if (!listener.doPostUpdateRoleListOfUser(userName, deletedRoles, newRoles, this)) {
+                String[] listenerDeletedRoles = deletedRoles;
+                String[] listenerNewRoles = newRoles;
+                if (listener.getClass().getName().endsWith(UserCoreErrorConstants.AUDIT_LOGGER_CLASS_NAME)) {
+                    // Internal, Application and Workflow roles were split out of deletedRoles and newRoles above.
+                    // Pass them to audit loggers as well, so that the audit log lists every updated role.
+                    listenerDeletedRoles = (String[]) ArrayUtils.addAll(deletedRoles,
+                            deletedInternalRolesArrayWithDomain);
+                    listenerNewRoles = (String[]) ArrayUtils.addAll(newRoles, newInternalRolesArrayWithDomain);
+                }
+                if (!listener.doPostUpdateRoleListOfUser(userName, listenerDeletedRoles, listenerNewRoles, this)) {
                     handleUpdateRoleListOfUserFailure(
                             ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_ROLE_OF_USER.getCode(),
                             String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_ROLE_OF_USER.getMessage(),
