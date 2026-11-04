@@ -25,11 +25,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.caching.impl.CachingConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.api.Properties;
 import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.core.NotImplementedException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreClientException;
@@ -68,11 +70,13 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -89,6 +93,7 @@ import javax.naming.InvalidNameException;
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.OperationNotSupportedException;
 import javax.naming.PartialResultException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -99,6 +104,7 @@ import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.PagedResultsControl;
+import javax.naming.ldap.PagedResultsResponseControl;
 import javax.naming.ldap.Rdn;
 import javax.naming.ldap.SortControl;
 
@@ -2456,6 +2462,150 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     }
 
     /**
+     * Lists one page of this store's role names through LDAP paged results when the server-wide switch
+     * UserStore/enablePaginatedGroupListing (deployment.toml user_store_commons.enable_paginated_group_listing) is
+     * on: one based start index, a limit above MaxRoleNameListLength is reset to it, '*' a wildcard, a blank filter
+     * lists every role. Counting stays unsupported, so the caller receives the page without a total. With the
+     * switch on, a directory that does not page is an error.
+     */
+    @Override
+    protected String[] doGetRoleNames(String filter, int limit, int offset) throws UserStoreException {
+
+        if (!Boolean.parseBoolean(ServerConfiguration.getInstance()
+                .getFirstProperty(UserCoreConstants.PROP_ENABLE_PAGINATED_GROUP_LISTING))) {
+            // Off by default: the caller keeps the unpaginated listing it used before.
+            throw new NotImplementedException("Paginated group listing is not enabled for the LDAP user stores.");
+        }
+        if (limit == 0 || !readGroupsEnabled) {
+            return new String[0];
+        }
+        // Same window as the paged role listing of the JDBC user store.
+        int pageSize = resolveGroupListLimit(limit);
+        int resolvedOffset = resolveListOffset(offset);
+        int searchTime;
+        try {
+            searchTime = Integer.parseInt(
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
+        } catch (NumberFormatException e) {
+            searchTime = UserCoreConstants.MAX_SEARCH_TIME;
+        }
+        String roleNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
+        String searchFilter = "(&" + realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_LIST_FILTER) + "("
+                + roleNameAttribute + "=" + escapeSpecialCharactersForFilterWithStarAsRegex(
+                StringUtils.isBlank(filter) ? "*" : filter) + "))";
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        searchControls.setTimeLimit(searchTime);
+        searchControls.setReturningAttributes(new String[]{roleNameAttribute});
+        String domain = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+        String[] searchBases = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE).split("#");
+        if (log.isDebugEnabled()) {
+            log.debug("Listing a page of roles. Filter: " + searchFilter + ", page size: " + pageSize + ", offset: "
+                    + resolvedOffset);
+        }
+        List<String> page = new ArrayList<>();
+        // Names are carried across directory pages and search bases and cut into blocks of exactly pageSize names,
+        // as many as a directory page yields, so generatePaginatedList sees full blocks until the last one and the
+        // offset stays exact. A name present under two search bases is listed once.
+        List<String> carried = new ArrayList<>();
+        Set<String> seen = new HashSet<>();
+        int pageIndex = -1;
+        LdapContext ldapContext = (LdapContext) connectionSource.getContext();
+        NamingEnumeration<SearchResult> answer = null;
+        try {
+            Control[] firstPageControls = new Control[]{new PagedResultsControl(pageSize, Control.CRITICAL),
+                    new SortControl(roleNameAttribute, Control.NONCRITICAL)};
+            for (String searchBase : searchBases) {
+                ldapContext.setRequestControls(firstPageControls);
+                byte[] cookie;
+                try {
+                    do {
+                        JNDIUtil.closeNamingEnumeration(answer);
+                        answer = ldapContext.search(escapeDNForSearch(searchBase), searchFilter, searchControls);
+                        while (answer.hasMoreElements()) {
+                            Attributes attributes = answer.next().getAttributes();
+                            Attribute attribute = attributes == null ? null : attributes.get(roleNameAttribute);
+                            if (attribute != null) {
+                                String name = UserCoreUtil.addDomainToName((String) attribute.get(), domain);
+                                if (seen.add(name)) {
+                                    carried.add(name);
+                                }
+                            }
+                        }
+                        Control[] responseControls = ldapContext.getResponseControls();
+                        if (!hasPagedResultsResponseControl(responseControls)) {
+                            // No paged results response control: the directory refused the control (OpenLDAP answers
+                            // adminLimitExceeded, which hasMoreElements() swallows) or ignored it, so this is not a
+                            // page. Paging was switched on explicitly, so this is reported, not hidden.
+                            throw new UserStoreException("The directory of the user store domain " + domain
+                                    + " did not honour the paged results control.");
+                        }
+                        cookie = parseControls(responseControls);
+                        while (carried.size() >= pageSize && page.size() < pageSize) {
+                            List<String> block = new ArrayList<>(carried.subList(0, pageSize));
+                            carried.subList(0, pageSize).clear();
+                            pageIndex++;
+                            generatePaginatedList(pageIndex, resolvedOffset, pageSize, block, page);
+                        }
+                        if (page.size() >= pageSize) {
+                            releasePagedSearchSession(ldapContext, cookie, searchBase, searchFilter, searchControls,
+                                    roleNameAttribute);
+                            break;
+                        }
+                        ldapContext.setRequestControls(new Control[]{new PagedResultsControl(pageSize, cookie,
+                                Control.CRITICAL), new SortControl(roleNameAttribute, Control.NONCRITICAL)});
+                    } while (cookie != null && cookie.length != 0);
+                } catch (PartialResultException e) {
+                    // A referral the search itself reports ends this search base as in the unpaginated listing (one
+                    // returned alongside entries is deferred by JNDI and ignored, as there); what was read is kept
+                    // and the next search base is read.
+                    String message = "Error occurred while listing a page of role names. SearchBase: " + searchBase
+                            + " ConstructedFilter: " + searchFilter;
+                    if (!isIgnorePartialResultException()) {
+                        throw new UserStoreException(message, e);
+                    }
+                    if (log.isDebugEnabled()) {
+                        log.debug(message, e);
+                    }
+                }
+                if (page.size() >= pageSize) {
+                    break;
+                }
+            }
+            if (!carried.isEmpty() && page.size() < pageSize) {
+                pageIndex++;
+                generatePaginatedList(pageIndex, resolvedOffset, pageSize, carried, page);
+            }
+        } catch (OperationNotSupportedException e) {
+            // unavailableCriticalExtension or unwillingToPerform: the directory rejected the control up front.
+            throw new UserStoreException("Paged results are not supported by the directory of the user store "
+                    + "domain: " + domain, e);
+        } catch (NamingException | IOException e) {
+            throw new UserStoreException("Error occurred while listing a page of role names. ConstructedFilter: "
+                    + searchFilter, e);
+        } finally {
+            JNDIUtil.closeNamingEnumeration(answer);
+            JNDIUtil.closeContext(ldapContext);
+        }
+        return page.toArray(new String[0]);
+    }
+
+    /**
+     * Whether the directory answered with the paged results response control, i.e. honoured the request control.
+     */
+    private static boolean hasPagedResultsResponseControl(Control[] controls) {
+
+        if (controls != null) {
+            for (Control control : controls) {
+                if (control instanceof PagedResultsResponseControl) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Resolve the given group list limit with the max configs defined for the userstore.
      *
      * @param givenLimit Given user list limit.
@@ -2712,7 +2862,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 char currentChar = dnPartial.charAt(i);
                 switch (currentChar) {
                 case '\\':
-                    if (dnPartial.charAt(i + 1) == '*') {
+                    if (i + 1 < dnPartial.length() && dnPartial.charAt(i + 1) == '*') {
                         sb.append("\\2a");
                         i++;
                         break;
