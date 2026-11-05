@@ -50,6 +50,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -172,6 +173,8 @@ public class UniqueIDReadOnlyLDAPPagedRoleListingTest {
         switchOn();
         threeDirectoryPages();
         assertEquals(manager.doGetRoleNames("*", 3, 1), new String[]{"TEST/g1", "TEST/g2", "TEST/g3"});
+        // The page filled on the first directory page: one search for it and one to release the session, not two.
+        verify(ldapContext, times(2)).search(any(Name.class), anyString(), any(SearchControls.class));
     }
 
     @Test
@@ -216,6 +219,18 @@ public class UniqueIDReadOnlyLDAPPagedRoleListingTest {
         directoryPages.add(new DirectoryPage(LAST, "g1", "g2"));
         directoryPages.add(new DirectoryPage(LAST, "g2", "g3"));
         assertEquals(manager.doGetRoleNames("*", 3, 1), new String[]{"TEST/g1", "TEST/g2", "TEST/g3"});
+    }
+
+    @Test
+    public void testOutstandingSessionIsReleasedWhenTheListingFails() throws Exception {
+
+        switchOn();
+        directoryPages.add(new DirectoryPage(MORE, "g1", "g2", "g3"));
+        directoryPages.add(new DirectoryPage(null, "g4"));
+        expectThrows(UserStoreException.class, () -> manager.doGetRoleNames("*", 3, 4));
+        // Two page searches, then the release of the first page's session before the context is closed.
+        verify(ldapContext, times(3)).search(any(Name.class), anyString(), any(SearchControls.class));
+        verify(ldapContext).close();
     }
 
     @Test

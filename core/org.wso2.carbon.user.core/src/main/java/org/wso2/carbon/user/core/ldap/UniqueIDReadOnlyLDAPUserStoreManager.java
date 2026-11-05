@@ -2512,6 +2512,9 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         int pageIndex = -1;
         LdapContext ldapContext = (LdapContext) connectionSource.getContext();
         NamingEnumeration<SearchResult> answer = null;
+        // The paged session still open when the listing ends early, released before the context goes back to the pool.
+        byte[] outstandingCookie = null;
+        String outstandingSearchBase = null;
         try {
             Control[] firstPageControls = new Control[]{new PagedResultsControl(pageSize, Control.CRITICAL),
                     new SortControl(roleNameAttribute, Control.NONCRITICAL)};
@@ -2541,6 +2544,8 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                                     + " did not honour the paged results control.");
                         }
                         cookie = parseControls(responseControls);
+                        outstandingCookie = cookie;
+                        outstandingSearchBase = searchBase;
                         while (carried.size() >= pageSize && page.size() < pageSize) {
                             List<String> block = new ArrayList<>(carried.subList(0, pageSize));
                             carried.subList(0, pageSize).clear();
@@ -2550,6 +2555,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                         if (page.size() >= pageSize) {
                             releasePagedSearchSession(ldapContext, cookie, searchBase, searchFilter, searchControls,
                                     roleNameAttribute);
+                            outstandingCookie = null;
                             break;
                         }
                         ldapContext.setRequestControls(new Control[]{new PagedResultsControl(pageSize, cookie,
@@ -2585,6 +2591,8 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                     + searchFilter, e);
         } finally {
             JNDIUtil.closeNamingEnumeration(answer);
+            releasePagedSearchSession(ldapContext, outstandingCookie, outstandingSearchBase, searchFilter, searchControls,
+                    roleNameAttribute);
             JNDIUtil.closeContext(ldapContext);
         }
         return page.toArray(new String[0]);
