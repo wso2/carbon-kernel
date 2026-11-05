@@ -4322,7 +4322,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 char currentChar = dnPartial.charAt(i);
                 switch (currentChar) {
                     case '\\':
-                        if(dnPartial.charAt(i+1) == '*'){
+                        if (i + 1 < dnPartial.length() && dnPartial.charAt(i + 1) == '*') {
                             sb.append("\\2a");
                             i++;
                             break;

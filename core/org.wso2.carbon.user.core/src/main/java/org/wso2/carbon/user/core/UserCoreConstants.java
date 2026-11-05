@@ -125,6 +125,8 @@ public class UserCoreConstants {
     // Server level config introduced for backward compatibility with the CircuitBreaker.
     public static final String PROP_ENABLE_CIRCUIT_BREAKER_FOR_USERSTORE =
             "UserStore.enableCircuitBreakerForUserStores";
+    // Server level switch for the paged role listing of the LDAP and Active Directory user stores.
+    public static final String PROP_ENABLE_PAGINATED_GROUP_LISTING = "UserStore.enablePaginatedGroupListing";
 
     public static final class RealmConfig {
         public static final String LOCAL_NAME_USER_MANAGER = "UserManager";
