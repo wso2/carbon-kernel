@@ -28,7 +28,7 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastException;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
-import com.hazelcast.cp.lock.FencedLock;
+import com.hazelcast.map.IMap;
 import com.hazelcast.topic.ITopic;
 import com.hazelcast.cluster.Member;
 import com.hazelcast.cluster.MembershipEvent;
@@ -158,8 +158,9 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
             new HashMap<String, Map<String, GroupManagementAgent>>();
     private boolean clusterManagementMode;
     private String primaryDomain;
-    private boolean isCoordinator;
+    private volatile boolean isCoordinator;
     private static final String LOCAL_MEMBER_IDENTIFIER = "localMemberIdentifier";
+    private static final String CLUSTER_DOMAIN_SUFFIX = "hz57";
     private HazelcastDistributedMapProvider distributedMapProvider;
     private HazelcastCarbonClusterImpl hazelcastCarbonCluster;
     private ScheduledExecutorService msgCleanupScheduler;
@@ -169,10 +170,14 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         MemberUtils.init(parameters, configurationContext);
 
         primaryDomain = getClusterDomain();
-        log.info("Cluster domain: " + primaryDomain);
-
         int configMode = getConfigMode();
         primaryHazelcastConfig = loadHazelcastConfig(configMode);
+        if (isClusterDomainSuffixEnabled()) {
+            primaryHazelcastConfig.setClusterName(
+                    primaryHazelcastConfig.getClusterName() + "-" + CLUSTER_DOMAIN_SUFFIX);
+        }
+        log.info("Cluster domain: " + primaryDomain + ", Hazelcast cluster name: " +
+                primaryHazelcastConfig.getClusterName());
 
         Parameter localParameter = getParameter(LOCAL_MEMBER_IDENTIFIER);
         if (localParameter != null) {
@@ -185,8 +190,11 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
             for (Map.Entry<String, Map<String, GroupManagementAgent>> entry : groupManagementAgents.entrySet()) {
                 for (GroupManagementAgent agent : entry.getValue().values()) {
                     if (agent instanceof HazelcastGroupManagementAgent) {
-                        ((HazelcastGroupManagementAgent) agent).init(primaryHazelcastConfig,
-                                                                     configurationContext);
+                        HazelcastGroupManagementAgent hazelcastAgent = (HazelcastGroupManagementAgent) agent;
+                        if(isClusterDomainSuffixEnabled()){
+                            hazelcastAgent.setClusterDomainSuffix(CLUSTER_DOMAIN_SUFFIX);
+                        }
+                        hazelcastAgent.init(primaryHazelcastConfig, configurationContext);
                     }
                 }
             }
@@ -264,16 +272,16 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         // across the cluster and first member usually is the oldest member.  Therefore we can safely assume first
         // member as the coordinator node.
 
-        // Now this distributed lock is used to correctly identify the coordinator node during the member startup. The
-        // node which acquires the lock checks whether it is the oldest member in the cluster. If it is the oldest
-        // member then it elects itself as the coordinator node and then release the lock. If it is not the oldest
-        // member them simply release the lock. This distributed lock is used to avoid any race conditions.
-        FencedLock lock = primaryHazelcastInstance.getCPSubsystem().getLock(HazelcastConstants.CLUSTER_COORDINATOR_LOCK);
+        // The CP Subsystem FencedLock (used upstream to serialize this check) is an Enterprise-only feature from
+        // Hazelcast 5.5, so it is unavailable on the Community edition. Serialize the startup election with an IMap
+        // lock instead - cluster-wide but AP. CoordinatorElectionMembershipListener re-syncs on membership changes.
+        String coordinatorLockKey = HazelcastConstants.CLUSTER_COORDINATOR_LOCK;
+        IMap<String, Object> coordinatorLock = primaryHazelcastInstance.getMap(coordinatorLockKey);
 
         try {
             log.debug("Trying to get the CLUSTER_COORDINATOR_LOCK lock.");
 
-            lock.lock();
+            coordinatorLock.lock(coordinatorLockKey);
             log.debug("Acquired the CLUSTER_COORDINATOR_LOCK lock.");
 
             Member oldestMember = primaryHazelcastInstance.getCluster().getMembers().iterator().next();
@@ -281,7 +289,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
                 electCoordinatorNode();
             }
         } finally {
-            lock.unlock();
+            coordinatorLock.unlock(coordinatorLockKey);
             log.debug("Released the CLUSTER_COORDINATOR_LOCK lock.");
         }
 
@@ -566,6 +574,20 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
             domain = ClusteringConstants.DEFAULT_DOMAIN;
         }
         return domain;
+    }
+
+    /**
+     * Whether the cluster domain suffix is appended; enabled by default, disabled via the
+     *  enableClusterDomainSuffix clustering property.
+     *
+     */
+    private boolean isClusterDomainSuffixEnabled() {
+
+        Parameter enableSuffixParam = getParameter(HazelcastConstants.ENABLE_CLUSTER_DOMAIN_SUFFIX);
+        if (enableSuffixParam == null || enableSuffixParam.getValue() == null) {
+            return true;
+        }
+        return Boolean.parseBoolean(enableSuffixParam.getValue().toString().trim());
     }
 
     private void configureMembershipScheme(NetworkConfig nwConfig, Config primaryHazelcastConfig) throws ClusteringFault {
