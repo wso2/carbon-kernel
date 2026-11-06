@@ -148,4 +148,11 @@ public class TenantConstants {
             "UM_TENANT";
     public static final String IS_UM_ORG_UUID_COLUMN_EXISTS_ORACLE = "SELECT UM_ORG_UUID FROM UM_TENANT " +
             "WHERE ROWNUM < 2";
+
+    public static final String GET_SECONDARY_USER_STORES_SQL =
+            "SELECT UM_DOMAIN_NAME, UM_USER_STORE_CONFIG FROM UM_SECONDARY_USER_STORE WHERE UM_TENANT_ID = ?";
+
+    // Where the secondary user store configurations of a tenant are kept, from carbon.xml.
+    public static final String SECONDARY_USER_STORE_PERSISTENCE_TYPE = "SecondaryUserStorePersistenceType";
+    public static final String PERSISTENCE_TYPE_DATABASE = "database";
 }

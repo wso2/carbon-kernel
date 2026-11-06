@@ -231,6 +231,15 @@
         <Enabled>false</Enabled>
     </GhostDeployment>
 
+    <!--
+        Where the secondary user store configurations of a tenant are kept.
+
+        "file", the default, reads them from the userstores directory of the tenant. "database" reads them
+        from the UM_SECONDARY_USER_STORE table of the shared database instead, and the directory is not read
+        at all. The table has to exist before this is switched on.
+    -->
+    <!--<SecondaryUserStorePersistenceType>database</SecondaryUserStorePersistenceType>-->
+
 
     <!--
         Eager loading or lazy loading is a design pattern commonly used in computer programming which
