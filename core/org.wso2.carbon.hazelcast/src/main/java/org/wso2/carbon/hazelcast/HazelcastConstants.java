@@ -44,6 +44,9 @@ public final class HazelcastConstants {
     public static final String AWS_ECS_MEMBERSHIP_SCHEME = "aws-ecs";
     public static final String KUBERNETES_MEMBERSHIP_SCHEME = "kubernetes";
 
+    /** deployment.toml property ([clustering.properties] enableClusterDomainSuffix); defaults to true. */
+    public static final String ENABLE_CLUSTER_DOMAIN_SUFFIX = "enableClusterDomainSuffix";
+
     private HazelcastConstants() {
     }
 }

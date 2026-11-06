@@ -40,6 +40,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.hazelcast.aws.AWSConstants;
 import org.wso2.carbon.hazelcast.util.MemberUtils;
+import org.wso2.carbon.utils.xml.StringUtils;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -68,6 +69,12 @@ public class HazelcastGroupManagementAgent implements GroupManagementAgent {
     private int groupMgtPort;
     private TcpIpConfig tcpIpConfig;
     private List<Member> wkaMembers = new ArrayList<Member>();
+    private String clusterDomainSuffix;
+
+    public void setClusterDomainSuffix(String clusterDomainSuffix) {
+
+        this.clusterDomainSuffix = clusterDomainSuffix;
+    }
 
     public void init(Config primaryHazelcastConfig,
                      ConfigurationContext configurationContext) {
@@ -113,7 +120,7 @@ public class HazelcastGroupManagementAgent implements GroupManagementAgent {
             }
         }
 
-        config.setClusterName(domain);
+        config.setClusterName(StringUtils.isEmpty(clusterDomainSuffix) ? domain : domain + "-" + clusterDomainSuffix);
         config.setProperties(primaryHazelcastConfig.getProperties());
         HazelcastInstance hazelcastInstance = Hazelcast.getHazelcastInstanceByName(domain);
         if (hazelcastInstance == null) {
