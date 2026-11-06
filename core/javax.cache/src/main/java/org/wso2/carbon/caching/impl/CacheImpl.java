@@ -438,7 +438,11 @@ public class CacheImpl<K, V> implements Cache<K, V> {
 
     private void notifyCacheEntryCreated(K key, V value) {
         CacheEntryEvent event = createCacheEntryEvent(key, value);
-        for (CacheEntryListener cacheEntryListener : cacheEntryListeners) {
+
+        // Use DataHolder to fetch cache entry listeners to ensure all listeners registered
+        // during and after server startup are notified. The local cacheEntryListeners field
+        // may not include all listeners at early startup stages.
+        for (CacheEntryListener cacheEntryListener : DataHolder.getInstance().getCacheEntryListeners()) {
             if (cacheEntryListener instanceof CacheEntryCreatedListener) {
                 if (log.isDebugEnabled()) {
                     log.debug("Notification event trigger for cache entry create : " + cacheEntryListener.getClass());
@@ -450,7 +454,7 @@ public class CacheImpl<K, V> implements Cache<K, V> {
 
     private void notifyCacheEntryUpdated(K key, V value) {
         CacheEntryEvent event = createCacheEntryEvent(key, value);
-        for (CacheEntryListener cacheEntryListener : cacheEntryListeners) {
+        for (CacheEntryListener cacheEntryListener : DataHolder.getInstance().getCacheEntryListeners()) {
             if (cacheEntryListener instanceof CacheEntryUpdatedListener) {
                 if (log.isDebugEnabled()) {
                     log.debug("Notification event trigger for cache entry update : " + cacheEntryListener.getClass());
@@ -462,7 +466,7 @@ public class CacheImpl<K, V> implements Cache<K, V> {
 
     private void notifyCacheEntryRead(K key, V value) {
         CacheEntryEvent event = createCacheEntryEvent(key, value);
-        for (CacheEntryListener cacheEntryListener : cacheEntryListeners) {
+        for (CacheEntryListener cacheEntryListener : DataHolder.getInstance().getCacheEntryListeners()) {
             if (cacheEntryListener instanceof CacheEntryReadListener) {
                 if (log.isDebugEnabled()) {
                     log.debug("Notification event trigger for cache entry read : " + cacheEntryListener.getClass());
@@ -474,7 +478,7 @@ public class CacheImpl<K, V> implements Cache<K, V> {
 
     private void notifyCacheEntryRemoved(K key, V value) {
         CacheEntryEvent event = createCacheEntryEvent(key, value);
-        for (CacheEntryListener cacheEntryListener : cacheEntryListeners) {
+        for (CacheEntryListener cacheEntryListener : DataHolder.getInstance().getCacheEntryListeners()) {
             if (cacheEntryListener instanceof CacheEntryRemovedListener) {
                 if (cacheEntryListener instanceof CacheInvalidationRequestSender) {
                     //this is handled separately in the #remove method
@@ -557,8 +561,13 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         boolean removed = removeLocal(key);
         if (cacheName.startsWith(CachingConstants.LOCAL_CACHE_PREFIX) && forceLocalCache) {
             CacheEntryEvent cacheEntryEvent = createCacheEntryEvent((K) key, null);
-            CacheEntryInfo cacheInfo = Util.createCacheInfo(cacheEntryEvent);
-            DataHolder.getInstance().getConfiguredCacheInvalidationSender().send(cacheInfo);
+            for (CacheEntryListener cacheEntryListener : DataHolder.getInstance().getCacheEntryListeners()) {
+                if (cacheEntryListener instanceof CacheEntryRemovedListener) {
+                    if (cacheEntryListener instanceof CacheInvalidationRequestSender) {
+                        ((CacheEntryRemovedListener) cacheEntryListener).entryRemoved(cacheEntryEvent);
+                    }
+                }
+            }
         }
 
         return removed;
