@@ -73,6 +73,14 @@ public class PasswordHashProcessor {
 
         this.hashConfigProperties = hashConfigProperties;
 
+        // Read before the algorithms are resolved, because the legacy algorithm only applies while
+        // this is on. Absent means the property was never configured, which carries the declared
+        // default of false: a store that configures nothing keeps writing the bare payload it wrote
+        // before this format existed. Boolean.parseBoolean reads a null and an explicit "false"
+        // alike, so the two need no separate handling.
+        this.selfDescribingHashEnabled =
+                Boolean.parseBoolean(hashConfigProperties.get(ENABLE_SELF_DESCRIBING_PASSWORD_HASH));
+
         String digestFunction = hashConfigProperties.get(PASSWORD_HASH_DIGEST_FUNCTION);
         String legacyDigestFunction = resolveLegacyDigestFunction(digestFunction);
 
@@ -83,13 +91,6 @@ public class PasswordHashProcessor {
         this.legacyHashProvider = StringUtils.equals(digestFunction, legacyDigestFunction)
                 ? this.hashProvider
                 : initializeHashProvider(legacyDigestFunction, false);
-
-        // Absent means the property was never configured, which carries the declared default of
-        // false: a store that configures nothing keeps writing the bare payload it wrote before this
-        // format existed. Boolean.parseBoolean reads a null and an explicit "false" alike, so the
-        // two need no separate handling.
-        this.selfDescribingHashEnabled =
-                Boolean.parseBoolean(hashConfigProperties.get(ENABLE_SELF_DESCRIBING_PASSWORD_HASH));
     }
 
     /**
@@ -102,6 +103,14 @@ public class PasswordHashProcessor {
      */
     private String resolveLegacyDigestFunction(String digestFunction) {
 
+        // A declared legacy algorithm only names something while the self-describing format is on,
+        // because only then does a stored value without an identifier mean one written before the
+        // change. With the format off nothing records an identifier, so every stored value is the
+        // configured algorithm's own output and honouring a different legacy algorithm would leave
+        // the store unable to verify what it had just written.
+        if (!selfDescribingHashEnabled) {
+            return digestFunction;
+        }
         String legacyDigestFunction = hashConfigProperties.get(LEGACY_PASSWORD_HASH_DIGEST_FUNCTION);
         return StringUtils.isNotBlank(legacyDigestFunction) ? legacyDigestFunction : digestFunction;
     }

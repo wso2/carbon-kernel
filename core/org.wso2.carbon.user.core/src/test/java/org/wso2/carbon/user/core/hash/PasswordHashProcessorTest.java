@@ -367,8 +367,13 @@ public class PasswordHashProcessorTest {
     }
 
     /**
-     * Builds a processor without opting into the self-describing format, which is how a store that
-     * has not been reconfigured arrives.
+     * Builds a processor with a declared legacy algorithm that is genuinely different from the
+     * configured one, which is what a store looks like while its algorithm is being changed.
+     * <p>
+     * The rounds are raised above the provider's default of one on purpose: at one round the fake
+     * provider digests exactly as the legacy SHA-256 path does, so the two would agree by accident
+     * and a value verified against the wrong algorithm would still pass.
+     * </p>
      *
      * @param selfDescribing The value to configure, or null to leave the property unset.
      */
@@ -377,10 +382,24 @@ public class PasswordHashProcessorTest {
         Map<String, String> config = new HashMap<>();
         config.put(PASSWORD_HASH_DIGEST_FUNCTION, PLUGGABLE_ALGORITHM);
         config.put(LEGACY_PASSWORD_HASH_DIGEST_FUNCTION, LEGACY_ALGORITHM);
+        config.put(PASSWORD_HASH_ALGORITHM_PROPERTIES, "{\"rounds\":\"2\"}");
         if (selfDescribing != null) {
             config.put(ENABLE_SELF_DESCRIBING_PASSWORD_HASH, selfDescribing);
         }
         return new PasswordHashProcessor(config);
+    }
+
+    @Test
+    public void testTheFakeProviderDiffersFromTheLegacyAlgorithm() throws Exception {
+
+        // Guards the tests below: at the provider's default of one round its output is byte for byte
+        // the legacy SHA-256 digest, which would let a value verified against the wrong algorithm
+        // pass. The raised rounds are what makes the two distinguishable.
+        String pluggable = processorWithFormat("false").hashPassword(PASSWORD, SALT);
+
+        Assert.assertNotEquals(pluggable, legacyStoredHash(),
+                "The configured and legacy algorithms must produce different values for these tests "
+                        + "to be able to tell them apart.");
     }
 
     @Test
