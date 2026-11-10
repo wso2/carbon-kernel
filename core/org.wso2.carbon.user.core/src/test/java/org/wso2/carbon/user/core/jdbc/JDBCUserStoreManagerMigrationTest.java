@@ -52,6 +52,7 @@ import java.util.Set;
 
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PASSWORD_HASH_DIGEST_FUNCTION;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.LEGACY_PASSWORD_HASH_DIGEST_FUNCTION;
+import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.ENABLE_SELF_DESCRIBING_PASSWORD_HASH;
 
 /**
  * Tests {@link JDBCUserStoreManager#migratePasswordHash(String, Object, String, String)} against a
@@ -131,10 +132,22 @@ public class JDBCUserStoreManagerMigrationTest {
                                                   String upgradeEnabled, boolean caseInsensitiveUserName)
             throws Exception {
 
+        return userStoreManager(digestFunction, legacyDigestFunction, upgradeEnabled,
+                caseInsensitiveUserName, "true");
+    }
+
+    private JDBCUserStoreManager userStoreManager(String digestFunction, String legacyDigestFunction,
+                                                  String upgradeEnabled, boolean caseInsensitiveUserName,
+                                                  String selfDescribingEnabled)
+            throws Exception {
+
         Map<String, String> properties = new HashMap<>();
         properties.put(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, String.valueOf(caseInsensitiveUserName));
         properties.put(PASSWORD_HASH_DIGEST_FUNCTION, digestFunction);
         properties.put(LEGACY_PASSWORD_HASH_DIGEST_FUNCTION, legacyDigestFunction);
+        // The rewrite only has somewhere to go once the self-describing format is on, so these
+        // tests opt into it. That the rewrite stops when it is off is covered separately, below.
+        properties.put(ENABLE_SELF_DESCRIBING_PASSWORD_HASH, selfDescribingEnabled);
         properties.put(JDBCRealmConstants.UPDATE_USER_PASSWORD_HASH,
                 JDBCRealmConstants.UPDATE_USER_PASSWORD_HASH_SQL);
         properties.put(JDBCCaseInsensitiveConstants.UPDATE_USER_PASSWORD_HASH_CASE_INSENSITIVE,
@@ -285,6 +298,22 @@ public class JDBCUserStoreManagerMigrationTest {
 
         Assert.assertEquals(storedPassword(), storedHash,
                 "No rewrite may happen while the upgrade is switched off.");
+    }
+
+    @Test
+    public void testRewriteStopsWhenTheSelfDescribingFormatIsOff() throws Exception {
+
+        // The upgrade property is left at its default of true, so only the format being off can
+        // stop the rewrite. With it off the configured algorithm produces no identifier, which the
+        // rewrite detects and abandons rather than writing a value it cannot route later.
+        String storedHash = insertUser(legacyHash());
+        JDBCUserStoreManager userStoreManager =
+                userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, null, false, "false");
+
+        userStoreManager.migratePasswordHash(USER_NAME, PASSWORD, storedHash, SALT);
+
+        Assert.assertEquals(storedPassword(), storedHash,
+                "No rewrite may happen while the self-describing format is switched off.");
     }
 
     @Test

@@ -42,6 +42,7 @@ import java.util.Set;
 
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PASSWORD_HASH_DIGEST_FUNCTION;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.LEGACY_PASSWORD_HASH_DIGEST_FUNCTION;
+import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.ENABLE_SELF_DESCRIBING_PASSWORD_HASH;
 
 /**
  * Tests that {@link JDBCUserStoreManager#validatePassword(Object, String, String)} delegates every
@@ -95,6 +96,8 @@ public class JDBCUserStoreManagerValidatePasswordTest {
 
         Map<String, String> config = new HashMap<>();
         config.put(PASSWORD_HASH_DIGEST_FUNCTION, digestFunction);
+        // The self-describing format is what these tests are about, so they opt into it.
+        config.put(ENABLE_SELF_DESCRIBING_PASSWORD_HASH, "true");
         if (legacyDigestFunction != null) {
             config.put(LEGACY_PASSWORD_HASH_DIGEST_FUNCTION, legacyDigestFunction);
         }

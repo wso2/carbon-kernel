@@ -45,6 +45,7 @@ import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PASSWORD_H
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PASSWORD_HASH_DIGEST_FUNCTION;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PASSWORD_HASH_METHOD_PLAIN_TEXT;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.LEGACY_PASSWORD_HASH_DIGEST_FUNCTION;
+import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.ENABLE_SELF_DESCRIBING_PASSWORD_HASH;
 
 /**
  * Class responsible for hashing passwords based on the configured algorithm.
@@ -59,6 +60,7 @@ public class PasswordHashProcessor {
     private final HashProvider hashProvider;
     private final HashProvider legacyHashProvider;
     private final Map<String, String> hashConfigProperties;
+    private final boolean selfDescribingHashEnabled;
 
     /**
      * Constructs a PasswordHashProcessor instance using the provided hashing configuration properties.
@@ -81,6 +83,13 @@ public class PasswordHashProcessor {
         this.legacyHashProvider = StringUtils.equals(digestFunction, legacyDigestFunction)
                 ? this.hashProvider
                 : initializeHashProvider(legacyDigestFunction, false);
+
+        // Absent means the property was never configured, which carries the declared default of
+        // false: a store that configures nothing keeps writing the bare payload it wrote before this
+        // format existed. Boolean.parseBoolean reads a null and an explicit "false" alike, so the
+        // two need no separate handling.
+        this.selfDescribingHashEnabled =
+                Boolean.parseBoolean(hashConfigProperties.get(ENABLE_SELF_DESCRIBING_PASSWORD_HASH));
     }
 
     /**
@@ -201,13 +210,15 @@ public class PasswordHashProcessor {
      * Performs password hashing using a pluggable {@link HashProvider} implementation.
      *
      * <p>
-     * The provider payload is prefixed with the provider's algorithm identifier, so the stored value
-     * describes which provider has to verify it.
+     * When the self-describing format is enabled, the payload is stored together with the
+     * provider's algorithm identifier and the parameters that produced it, so the stored value
+     * names what has to verify it. When it is disabled, the bare payload is returned, which is
+     * what the store wrote before this format existed.
      * </p>
      *
      * @param credentialObj Secret-wrapped password object.
      * @param saltValue     Optional salt value to apply.
-     * @return The hashed password in {@code {algorithm}<payload>} format.
+     * @return The self-describing value, or the bare payload when the format is disabled.
      * @throws PasswordHashingServerException If the hashing process fails at runtime.
      */
     private String hashWithProvider(Secret credentialObj, String saltValue)
@@ -215,11 +226,15 @@ public class PasswordHashProcessor {
 
         try {
             byte[] hashByteArray = hashProvider.calculateHash(credentialObj.getChars(), saltValue);
+            String payload = Base64.encode(hashByteArray);
+            if (!selfDescribingHashEnabled) {
+                return payload;
+            }
             // The parameters are read from the provider rather than from configuration, so that a
             // credential records what actually produced it. A store that configures nothing still
             // gets the provider's own defaults recorded, which keeps the credential verifiable if
             // a later release changes them.
-            return SelfDescribingHashParser.format(hashProvider.getAlgorithm(), Base64.encode(hashByteArray),
+            return SelfDescribingHashParser.format(hashProvider.getAlgorithm(), payload,
                     hashProvider.getParameters());
         } catch (HashProviderException e) {
             throw new PasswordHashingServerException("Error occurred while preparing password.", e);

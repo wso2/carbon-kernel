@@ -41,6 +41,7 @@ import java.util.Set;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PASSWORD_HASH_ALGORITHM_PROPERTIES;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PASSWORD_HASH_DIGEST_FUNCTION;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.LEGACY_PASSWORD_HASH_DIGEST_FUNCTION;
+import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.ENABLE_SELF_DESCRIBING_PASSWORD_HASH;
 
 /**
  * Tests how {@link PasswordHashProcessor} routes verification between legacy hashes, which carry no
@@ -97,6 +98,9 @@ public class PasswordHashProcessorTest {
 
         Map<String, String> config = new HashMap<>();
         config.put(PASSWORD_HASH_DIGEST_FUNCTION, digestFunction);
+        // These tests exercise the self-describing format, which a store has to opt into. The
+        // default-off behaviour is covered separately, below.
+        config.put(ENABLE_SELF_DESCRIBING_PASSWORD_HASH, "true");
         if (legacyDigestFunction != null) {
             config.put(LEGACY_PASSWORD_HASH_DIGEST_FUNCTION, legacyDigestFunction);
         }
@@ -360,6 +364,66 @@ public class PasswordHashProcessorTest {
 
         Assert.assertTrue(processor.validatePassword(PASSWORD, nativeHash, SALT),
                 "A stored hash must be routed to the provider its identifier names, whatever is configured.");
+    }
+
+    /**
+     * Builds a processor without opting into the self-describing format, which is how a store that
+     * has not been reconfigured arrives.
+     *
+     * @param selfDescribing The value to configure, or null to leave the property unset.
+     */
+    private PasswordHashProcessor processorWithFormat(String selfDescribing) throws PasswordHashingException {
+
+        Map<String, String> config = new HashMap<>();
+        config.put(PASSWORD_HASH_DIGEST_FUNCTION, PLUGGABLE_ALGORITHM);
+        config.put(LEGACY_PASSWORD_HASH_DIGEST_FUNCTION, LEGACY_ALGORITHM);
+        if (selfDescribing != null) {
+            config.put(ENABLE_SELF_DESCRIBING_PASSWORD_HASH, selfDescribing);
+        }
+        return new PasswordHashProcessor(config);
+    }
+
+    @Test
+    public void testFormatIsOffWhenTheStoreConfiguresNothing() throws Exception {
+
+        // An existing store carries no such property, and must keep writing what it wrote before.
+        String storedHash = processorWithFormat(null).hashPassword(PASSWORD, SALT);
+
+        Assert.assertFalse(storedHash.startsWith("{"),
+                "A store that has not opted in must keep writing the bare payload.");
+    }
+
+    @Test
+    public void testFormatIsOffWhenExplicitlyDisabled() throws Exception {
+
+        String storedHash = processorWithFormat("false").hashPassword(PASSWORD, SALT);
+
+        Assert.assertFalse(storedHash.startsWith("{"),
+                "Turning the property off must produce the bare payload.");
+    }
+
+    @Test
+    public void testCredentialWrittenWithTheFormatOffStillVerifies() throws Exception {
+
+        PasswordHashProcessor processor = processorWithFormat("false");
+        String storedHash = processor.hashPassword(PASSWORD, SALT);
+
+        Assert.assertTrue(processor.validatePassword(PASSWORD, storedHash, SALT),
+                "A credential written with the format off must verify through the legacy path.");
+        Assert.assertFalse(processor.validatePassword(WRONG_PASSWORD, storedHash, SALT),
+                "A wrong password must still be rejected with the format off.");
+    }
+
+    @Test
+    public void testSelfDescribingCredentialSurvivesTheFormatBeingTurnedOff() throws Exception {
+
+        // A store enables the format, writes credentials, then turns it off again. Verification is
+        // deliberately not gated on the property, so those credentials must not become unusable.
+        String storedHash = processorWithFormat("true").hashPassword(PASSWORD, SALT);
+        Assert.assertTrue(storedHash.startsWith("{"), "Guard: the value under test must be self-describing.");
+
+        Assert.assertTrue(processorWithFormat("false").validatePassword(PASSWORD, storedHash, SALT),
+                "A self-describing credential must stay verifiable after the format is turned off.");
     }
 
     /**
