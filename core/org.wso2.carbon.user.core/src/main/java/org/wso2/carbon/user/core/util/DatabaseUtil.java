@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
@@ -60,6 +61,7 @@ public class DatabaseUtil {
     private static final long DEFAULT_VALIDATION_INTERVAL = 30000;
     private static final String SQL_STATEMENT_PARAMETER_PLACEHOLDER = "?";
     private static final String SQL_STATEMENT_PARAMETER_SEPARATOR = ",";
+    private static final int MAX_IN_CLAUSE_PARAMETER_COUNT = 1000;
     private static final String DISABLED = "Disabled";
     public static final String JDBC_INTERCEPTOR_SEPARATOR = ";";
     private static final String DEFAULT_CORRELATION_LOG_INTERCEPTOR = "org.wso2.carbon.ndatasource.rdbms"
@@ -1302,5 +1304,25 @@ public class DatabaseUtil {
         }
 
         return dynamicString.toString();
+    }
+
+    /**
+     * Splits the given values into batches suitable for use in SQL IN clauses.
+     * Each batch contains at most MAX_IN_CLAUSE_PARAMETER_COUNT distinct values to accommodate database-specific
+     * parameter limits.
+     * Duplicate values are removed, keeping the first occurrence of each value in its original order.
+     *
+     * @param values Values to be bound to the IN clause.
+     * @return List of batches containing distinct values.
+     */
+    public static List<List<String>> getBatchesForInClause(List<String> values) {
+
+        List<String> distinctValues = new ArrayList<>(new LinkedHashSet<>(values));
+        List<List<String>> batches = new ArrayList<>();
+        for (int start = 0; start < distinctValues.size(); start += MAX_IN_CLAUSE_PARAMETER_COUNT) {
+            int end = Math.min(start + MAX_IN_CLAUSE_PARAMETER_COUNT, distinctValues.size());
+            batches.add(new ArrayList<>(distinctValues.subList(start, end)));
+        }
+        return batches;
     }
 }

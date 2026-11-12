@@ -3699,6 +3699,17 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     protected Map<String, Map<String, String>> getUsersPropertyValues(List<String> users, String[] propertyNames,
                                                                       String profileName) throws UserStoreException {
 
+        Map<String, Map<String, String>> usersPropertyValuesMap = new HashMap<>();
+        for (List<String> usersBatch : DatabaseUtil.getBatchesForInClause(users)) {
+            usersPropertyValuesMap.putAll(getUsersPropertyValuesForBatch(usersBatch, propertyNames, profileName));
+        }
+        return usersPropertyValuesMap;
+    }
+
+    private Map<String, Map<String, String>> getUsersPropertyValuesForBatch(List<String> users, String[] propertyNames,
+                                                                            String profileName)
+            throws UserStoreException {
+
         Connection dbConnection = null;
         String sqlStmt;
         PreparedStatement prepStmt = null;
@@ -3768,6 +3779,16 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         if (log.isDebugEnabled()) {
             log.debug("Getting roles of users: " + userNames);
         }
+
+        Map<String, List<String>> rolesListOfUsersMap = new HashMap<>();
+        for (List<String> userNamesBatch : DatabaseUtil.getBatchesForInClause(userNames)) {
+            rolesListOfUsersMap.putAll(doGetExternalRoleListOfUsersForBatch(userNamesBatch));
+        }
+        return rolesListOfUsersMap;
+    }
+
+    private Map<String, List<String>> doGetExternalRoleListOfUsersForBatch(List<String> userNames)
+            throws UserStoreException {
 
         String sqlStmt;
         Map<String, List<String>> rolesListOfUsersMap = new HashMap<>();
