@@ -2860,6 +2860,17 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
     protected Map<String, Map<String, String>> getUsersPropertyValuesWithID(List<String> users, String[] propertyNames,
             String profileName) throws UserStoreException {
 
+        Map<String, Map<String, String>> usersPropertyValuesMap = new HashMap<>();
+        for (List<String> usersBatch : DatabaseUtil.getBatchesForInClause(users)) {
+            usersPropertyValuesMap.putAll(getUsersPropertyValuesForBatchWithID(usersBatch, propertyNames,
+                    profileName));
+        }
+        return usersPropertyValuesMap;
+    }
+
+    private Map<String, Map<String, String>> getUsersPropertyValuesForBatchWithID(List<String> users,
+            String[] propertyNames, String profileName) throws UserStoreException {
+
         Connection dbConnection = null;
         String sqlStmt;
         PreparedStatement prepStmt = null;
@@ -2948,6 +2959,16 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         if (log.isDebugEnabled()) {
             log.debug("Getting roles of users: " + userIDs);
         }
+
+        Map<String, List<String>> rolesListOfUsersMap = new HashMap<>();
+        for (List<String> userIDsBatch : DatabaseUtil.getBatchesForInClause(userIDs)) {
+            rolesListOfUsersMap.putAll(doGetExternalRoleListOfUsersForBatchWithID(userIDsBatch));
+        }
+        return rolesListOfUsersMap;
+    }
+
+    private Map<String, List<String>> doGetExternalRoleListOfUsersForBatchWithID(List<String> userIDs)
+            throws UserStoreException {
 
         String sqlStmt;
         Map<String, List<String>> rolesListOfUsersMap = new HashMap<>();

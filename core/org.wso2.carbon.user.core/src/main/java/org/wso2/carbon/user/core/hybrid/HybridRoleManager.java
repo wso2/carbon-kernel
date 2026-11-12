@@ -802,6 +802,16 @@ public class HybridRoleManager {
             userNames.set(userNames.indexOf(username), sanitizedUsername);
         });
         Map<String, List<String>> hybridRoleListOfUsers = new HashMap<>();
+        for (List<String> userNamesBatch : DatabaseUtil.getBatchesForInClause(userNames)) {
+            hybridRoleListOfUsers.putAll(getHybridRoleListOfUsersForBatch(userNamesBatch, domainName));
+        }
+        return hybridRoleListOfUsers;
+    }
+
+    private Map<String, List<String>> getHybridRoleListOfUsersForBatch(List<String> userNames, String domainName)
+            throws UserStoreException {
+
+        Map<String, List<String>> hybridRoleListOfUsers = new HashMap<>();
         String sqlStmt = realmConfig.getRealmProperty(isRoleV2Using() ? HybridJDBCConstants.GET_ROLE_V2_LIST_OF_USERS :
                 HybridJDBCConstants.GET_ROLE_LIST_OF_USERS);
         String dynamicString;
