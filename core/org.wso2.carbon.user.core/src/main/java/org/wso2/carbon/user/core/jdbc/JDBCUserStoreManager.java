@@ -134,6 +134,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     protected int maximumUserNameListLength = -1;
     protected int queryTimeout = -1;
     private PasswordHashProcessor passwordHashProcessor;
+    private volatile String databaseType;
 
     private static final String H2 = "h2";
     private static final String DB2 = "db2";
@@ -3700,7 +3701,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                                                                       String profileName) throws UserStoreException {
 
         Map<String, Map<String, String>> usersPropertyValuesMap = new HashMap<>();
-        for (List<String> usersBatch : DatabaseUtil.getBatchesForInClause(users)) {
+        for (List<String> usersBatch : DatabaseUtil.getBatchesForInClause(users, getDatabaseType())) {
             usersPropertyValuesMap.putAll(getUsersPropertyValuesForBatch(usersBatch, propertyNames, profileName));
         }
         return usersPropertyValuesMap;
@@ -3781,7 +3782,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         }
 
         Map<String, List<String>> rolesListOfUsersMap = new HashMap<>();
-        for (List<String> userNamesBatch : DatabaseUtil.getBatchesForInClause(userNames)) {
+        for (List<String> userNamesBatch : DatabaseUtil.getBatchesForInClause(userNames, getDatabaseType())) {
             rolesListOfUsersMap.putAll(doGetExternalRoleListOfUsersForBatch(userNamesBatch));
         }
         return rolesListOfUsersMap;
@@ -5344,6 +5345,28 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     public boolean isUniqueUserIdEnabled() {
 
         return false;
+    }
+
+    /**
+     * Get the database type of the user store. It is retrieved once and reused, as it does not change.
+     *
+     * @return Database type, as returned by {@link DatabaseCreator#getDatabaseType(Connection)}, or null if it
+     * cannot be retrieved.
+     */
+    String getDatabaseType() {
+
+        if (databaseType == null) {
+            Connection dbConnection = null;
+            try {
+                dbConnection = getDBConnection();
+                databaseType = DatabaseCreator.getDatabaseType(dbConnection);
+            } catch (Exception e) {
+                log.warn("Error occurred while getting the database type.", e);
+            } finally {
+                DatabaseUtil.closeAllConnections(dbConnection);
+            }
+        }
+        return databaseType;
     }
 
     /**

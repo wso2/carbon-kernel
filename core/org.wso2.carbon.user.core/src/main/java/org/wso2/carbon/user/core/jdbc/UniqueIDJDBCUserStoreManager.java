@@ -2861,7 +2861,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             String profileName) throws UserStoreException {
 
         Map<String, Map<String, String>> usersPropertyValuesMap = new HashMap<>();
-        for (List<String> usersBatch : DatabaseUtil.getBatchesForInClause(users)) {
+        for (List<String> usersBatch : DatabaseUtil.getBatchesForInClause(users, getDatabaseType())) {
             usersPropertyValuesMap.putAll(getUsersPropertyValuesForBatchWithID(usersBatch, propertyNames,
                     profileName));
         }
@@ -2961,7 +2961,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         }
 
         Map<String, List<String>> rolesListOfUsersMap = new HashMap<>();
-        for (List<String> userIDsBatch : DatabaseUtil.getBatchesForInClause(userIDs)) {
+        for (List<String> userIDsBatch : DatabaseUtil.getBatchesForInClause(userIDs, getDatabaseType())) {
             rolesListOfUsersMap.putAll(doGetExternalRoleListOfUsersForBatchWithID(userIDsBatch));
         }
         return rolesListOfUsersMap;

@@ -39,6 +39,7 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -86,6 +87,7 @@ public class JDBCUserStoreTestUtil {
      */
     public static void tearDownCarbonContext() {
 
+        InClauseLimitedDriver.setReportAsOracle(false);
         DatabaseUtil.closeDatabasePoolConnection();
         clearUserIdResolverCache();
         setCarbonHome(previousCarbonHome);
@@ -166,12 +168,26 @@ public class JDBCUserStoreTestUtil {
     }
 
     /**
-     * H2 driver that rejects an IN clause with more than 1000 values, as Oracle does.
+     * H2 driver that rejects an IN clause with more than 1000 values, as Oracle does. It can also report the
+     * database as Oracle, so that the user store applies the Oracle IN clause limit.
      */
     public static class InClauseLimitedDriver extends org.h2.Driver {
 
         private static final int MAX_IN_CLAUSE_PARAMETER_COUNT = 1000;
+        private static final String ORACLE_PRODUCT_NAME = "Oracle";
         private static final Pattern IN_CLAUSE_PATTERN = Pattern.compile("\\bIN\\s*\\(", Pattern.CASE_INSENSITIVE);
+        private static volatile boolean reportAsOracle;
+
+        /**
+         * Set whether the database is reported as Oracle. Enable it only after the test data is added, as the user
+         * store uses Oracle specific queries to add data to an Oracle database.
+         *
+         * @param reportAsOracle Whether to report the database as Oracle.
+         */
+        public static void setReportAsOracle(boolean reportAsOracle) {
+
+            InClauseLimitedDriver.reportAsOracle = reportAsOracle;
+        }
 
         @Override
         public Connection connect(String url, Properties info) throws SQLException {
@@ -185,8 +201,26 @@ public class JDBCUserStoreTestUtil {
                         if ("prepareStatement".equals(method.getName())) {
                             validateInClauseParameterCount((String) args[0]);
                         }
+                        if ("getMetaData".equals(method.getName()) && reportAsOracle) {
+                            return toOracleMetaData(connection.getMetaData());
+                        }
                         try {
                             return method.invoke(connection, args);
+                        } catch (InvocationTargetException e) {
+                            throw e.getCause();
+                        }
+                    });
+        }
+
+        private static DatabaseMetaData toOracleMetaData(DatabaseMetaData metaData) {
+
+            return (DatabaseMetaData) Proxy.newProxyInstance(DatabaseMetaData.class.getClassLoader(),
+                    new Class[]{DatabaseMetaData.class}, (proxy, method, args) -> {
+                        if ("getDatabaseProductName".equals(method.getName())) {
+                            return ORACLE_PRODUCT_NAME;
+                        }
+                        try {
+                            return method.invoke(metaData, args);
                         } catch (InvocationTargetException e) {
                             throw e.getCause();
                         }

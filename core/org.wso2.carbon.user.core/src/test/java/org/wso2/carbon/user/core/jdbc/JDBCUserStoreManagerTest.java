@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.user.core.ClaimTestUtil;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
+import org.wso2.carbon.user.core.jdbc.JDBCUserStoreTestUtil.InClauseLimitedDriver;
 import org.wso2.carbon.user.core.model.UserClaimSearchEntry;
 
 import java.util.ArrayList;
@@ -60,6 +61,7 @@ public class JDBCUserStoreManagerTest {
 
     /**
      * Create the user store and the test users. Every user gets the group, and every second user the internal role.
+     * The database is then reported as Oracle, so that the user store applies the Oracle IN clause limit.
      *
      * @throws Exception If the database cannot be created.
      */
@@ -79,6 +81,7 @@ public class JDBCUserStoreManagerTest {
             givenNamesOfUserNames.put(USER_NAME_PREFIX + i, GIVEN_NAME_PREFIX + i);
             rolesOfUserNames.put(USER_NAME_PREFIX + i, (String[]) ArrayUtils.add(roles, everyOneRoleName));
         }
+        InClauseLimitedDriver.setReportAsOracle(true);
     }
 
     /**

@@ -72,6 +72,7 @@ public class HybridRoleManager {
     protected UserRolesCache userRolesCache = null;
     int tenantId;
     private DataSource dataSource;
+    private volatile String databaseType;
     private RealmConfiguration realmConfig;
     private String isCascadeDeleteEnabled;
     private boolean userRolesCacheEnabled = true;
@@ -802,7 +803,7 @@ public class HybridRoleManager {
             userNames.set(userNames.indexOf(username), sanitizedUsername);
         });
         Map<String, List<String>> hybridRoleListOfUsers = new HashMap<>();
-        for (List<String> userNamesBatch : DatabaseUtil.getBatchesForInClause(userNames)) {
+        for (List<String> userNamesBatch : DatabaseUtil.getBatchesForInClause(userNames, getDatabaseType())) {
             hybridRoleListOfUsers.putAll(getHybridRoleListOfUsersForBatch(userNamesBatch, domainName));
         }
         return hybridRoleListOfUsers;
@@ -1316,6 +1317,29 @@ public class HybridRoleManager {
      */
     protected String getMyDomainName() {
         return UserCoreUtil.getDomainName(realmConfig);
+    }
+
+    /**
+     * Get the type of the database that holds the hybrid roles. It is retrieved once and reused, as it does not
+     * change.
+     *
+     * @return Database type, as returned by {@link DatabaseCreator#getDatabaseType(Connection)}, or null if it
+     * cannot be retrieved.
+     */
+    private String getDatabaseType() {
+
+        if (databaseType == null) {
+            Connection dbConnection = null;
+            try {
+                dbConnection = DatabaseUtil.getDBConnection(dataSource);
+                databaseType = DatabaseCreator.getDatabaseType(dbConnection);
+            } catch (Exception e) {
+                log.warn("Error occurred while getting the database type.", e);
+            } finally {
+                DatabaseUtil.closeAllConnections(dbConnection);
+            }
+        }
+        return databaseType;
     }
 
     private boolean isCaseSensitiveUsername() throws UserStoreException{
