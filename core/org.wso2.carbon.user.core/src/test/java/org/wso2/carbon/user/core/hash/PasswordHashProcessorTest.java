@@ -41,6 +41,7 @@ import java.util.Set;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PASSWORD_HASH_ALGORITHM_PROPERTIES;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PASSWORD_HASH_DIGEST_FUNCTION;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.LEGACY_PASSWORD_HASH_DIGEST_FUNCTION;
+import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.LEGACY_PASSWORD_HASH_ALGORITHM_PROPERTIES;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.ENABLE_SELF_DESCRIBING_PASSWORD_HASH;
 
 /**
@@ -443,6 +444,107 @@ public class PasswordHashProcessorTest {
 
         Assert.assertTrue(processorWithFormat("false").validatePassword(PASSWORD, storedHash, SALT),
                 "A self-describing credential must stay verifiable after the format is turned off.");
+    }
+
+    /**
+     * A bare payload written by the pluggable provider before the format existed, at the given rounds.
+     */
+    private String legacyPluggableHash(String rounds) throws PasswordHashingException {
+
+        Map<String, String> config = new HashMap<>();
+        config.put(PASSWORD_HASH_DIGEST_FUNCTION, PLUGGABLE_ALGORITHM);
+        config.put(PASSWORD_HASH_ALGORITHM_PROPERTIES, "{\"rounds\":\"" + rounds + "\"}");
+        String storedHash = new PasswordHashProcessor(config).hashPassword(PASSWORD, SALT);
+
+        Assert.assertFalse(storedHash.startsWith("{"), "Guard: the value under test must be a bare payload.");
+        return storedHash;
+    }
+
+    private PasswordHashProcessor processorWithLegacyParameters(String digestFunction, String algorithmProperties,
+                                                                String legacyAlgorithmProperties,
+                                                                String selfDescribing)
+            throws PasswordHashingException {
+
+        Map<String, String> config = new HashMap<>();
+        config.put(PASSWORD_HASH_DIGEST_FUNCTION, digestFunction);
+        config.put(LEGACY_PASSWORD_HASH_DIGEST_FUNCTION, PLUGGABLE_ALGORITHM);
+        config.put(ENABLE_SELF_DESCRIBING_PASSWORD_HASH, selfDescribing);
+        if (algorithmProperties != null) {
+            config.put(PASSWORD_HASH_ALGORITHM_PROPERTIES, algorithmProperties);
+        }
+        if (legacyAlgorithmProperties != null) {
+            config.put(LEGACY_PASSWORD_HASH_ALGORITHM_PROPERTIES, legacyAlgorithmProperties);
+        }
+        return new PasswordHashProcessor(config);
+    }
+
+    @Test
+    public void testLegacyHashVerifiesWithDeclaredParametersAfterTheParametersChange() throws Exception {
+
+        String storedHash = legacyPluggableHash("3");
+        PasswordHashProcessor processor = processorWithLegacyParameters(PLUGGABLE_ALGORITHM,
+                "{\"rounds\":\"5\"}", "{\"rounds\":\"3\"}", "true");
+
+        Assert.assertTrue(processor.validatePassword(PASSWORD, storedHash, SALT),
+                "A legacy value must verify against the declared legacy parameters, not the new ones.");
+        Assert.assertFalse(processor.validatePassword(WRONG_PASSWORD, storedHash, SALT));
+    }
+
+    @Test
+    public void testLegacyHashFailsWithoutDeclaredParametersAfterTheParametersChange() throws Exception {
+
+        // The gap the legacy parameters close: the new parameters are used for the old value.
+        String storedHash = legacyPluggableHash("3");
+        PasswordHashProcessor processor = processorWithLegacyParameters(PLUGGABLE_ALGORITHM,
+                "{\"rounds\":\"5\"}", null, "true");
+
+        Assert.assertFalse(processor.validatePassword(PASSWORD, storedHash, SALT));
+    }
+
+    @Test
+    public void testLegacyHashVerifiesWithDeclaredParametersAfterTheAlgorithmChanges() throws Exception {
+
+        String storedHash = legacyPluggableHash("3");
+        PasswordHashProcessor processor = processorWithLegacyParameters(NATIVE_ALGORITHM,
+                null, "{\"rounds\":\"3\"}", "true");
+
+        Assert.assertTrue(processor.validatePassword(PASSWORD, storedHash, SALT),
+                "A legacy value must verify against the declared legacy parameters after an algorithm change.");
+        Assert.assertFalse(processor.validatePassword(WRONG_PASSWORD, storedHash, SALT));
+    }
+
+    @Test
+    public void testLegacyHashFailsWithoutDeclaredParametersAfterTheAlgorithmChanges() throws Exception {
+
+        // The gap the legacy parameters close: the legacy provider falls back to its defaults.
+        String storedHash = legacyPluggableHash("3");
+        PasswordHashProcessor processor = processorWithLegacyParameters(NATIVE_ALGORITHM, null, null, "true");
+
+        Assert.assertFalse(processor.validatePassword(PASSWORD, storedHash, SALT));
+    }
+
+    @Test
+    public void testEmptyLegacyParametersKeepTheConfiguredProvider() throws Exception {
+
+        // The console default of {} declares nothing, so the configured parameters still apply.
+        String storedHash = legacyPluggableHash("3");
+        PasswordHashProcessor processor = processorWithLegacyParameters(PLUGGABLE_ALGORITHM,
+                "{\"rounds\":\"3\"}", "{}", "true");
+
+        Assert.assertTrue(processor.validatePassword(PASSWORD, storedHash, SALT),
+                "An empty legacy parameter set must behave as if the property were not set.");
+    }
+
+    @Test
+    public void testLegacyParametersAreIgnoredWhileTheFormatIsOff() throws Exception {
+
+        // With the format off every stored value is the configured provider's own output.
+        PasswordHashProcessor processor = processorWithLegacyParameters(PLUGGABLE_ALGORITHM,
+                "{\"rounds\":\"3\"}", "{\"rounds\":\"7\"}", "false");
+        String storedHash = processor.hashPassword(PASSWORD, SALT);
+
+        Assert.assertTrue(processor.validatePassword(PASSWORD, storedHash, SALT),
+                "A store with the format off must verify what it has just written.");
     }
 
     /**

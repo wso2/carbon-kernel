@@ -559,6 +559,7 @@ public final class JDBCRealmConstants {
     public static final String DIGEST_FUNCTION = "PasswordDigest";
     public static final String HASHING_ALGORITHM_PROPERTIES = "Hash.Algorithm.Properties";
     public static final String LEGACY_DIGEST_FUNCTION = "LegacyPasswordDigest";
+    public static final String LEGACY_HASHING_ALGORITHM_PROPERTIES = "LegacyHashAlgorithmProperties";
     public static final String ENABLE_PASSWORD_HASH_UPGRADE = "EnablePasswordHashUpgrade";
     public static final String ENABLE_SELF_DESCRIBING_PASSWORD_HASH = "EnableSelfDescribingPasswordHash";
     public static final String STORE_SALTED_PASSWORDS = "StoreSaltedPassword";

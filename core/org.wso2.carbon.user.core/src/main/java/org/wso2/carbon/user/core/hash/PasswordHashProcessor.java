@@ -45,6 +45,7 @@ import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PASSWORD_H
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PASSWORD_HASH_DIGEST_FUNCTION;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PASSWORD_HASH_METHOD_PLAIN_TEXT;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.LEGACY_PASSWORD_HASH_DIGEST_FUNCTION;
+import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.LEGACY_PASSWORD_HASH_ALGORITHM_PROPERTIES;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.ENABLE_SELF_DESCRIBING_PASSWORD_HASH;
 
 /**
@@ -84,13 +85,34 @@ public class PasswordHashProcessor {
         String digestFunction = hashConfigProperties.get(PASSWORD_HASH_DIGEST_FUNCTION);
         String legacyDigestFunction = resolveLegacyDigestFunction(digestFunction);
 
-        this.hashProvider = initializeHashProvider(digestFunction, true);
+        this.hashProvider = initializeHashProvider(digestFunction, PASSWORD_HASH_ALGORITHM_PROPERTIES);
+        this.legacyHashProvider = initializeLegacyHashProvider(digestFunction, legacyDigestFunction);
+    }
+
+    /**
+     * Builds the {@link HashProvider} that verifies stored hashes carrying no algorithm identifier.
+     * Such a value records no parameters, so they are taken from the declared legacy parameters.
+     *
+     * @param digestFunction       The currently configured digest function.
+     * @param legacyDigestFunction The digest function resolved for legacy hashes.
+     * @return The legacy HashProvider, or null if no factory is registered for the legacy algorithm.
+     * @throws PasswordHashingException If the provider cannot be initialized.
+     */
+    private HashProvider initializeLegacyHashProvider(String digestFunction, String legacyDigestFunction)
+            throws PasswordHashingException {
+
+        // Checked by what it parses to rather than its text, because the console default of {}
+        // declares nothing. Ignored while the format is off, like the legacy algorithm.
+        if (selfDescribingHashEnabled
+                && !getHashProviderInitConfigs(LEGACY_PASSWORD_HASH_ALGORITHM_PROPERTIES).isEmpty()) {
+            return initializeHashProvider(legacyDigestFunction, LEGACY_PASSWORD_HASH_ALGORITHM_PROPERTIES);
+        }
         // When the legacy algorithm is the configured one, the configured provider already carries the
         // right parameters. Otherwise the configured parameters belong to a different algorithm, so the
         // legacy provider is created with its own defaults.
-        this.legacyHashProvider = StringUtils.equals(digestFunction, legacyDigestFunction)
+        return StringUtils.equals(digestFunction, legacyDigestFunction)
                 ? this.hashProvider
-                : initializeHashProvider(legacyDigestFunction, false);
+                : initializeHashProvider(legacyDigestFunction, null);
     }
 
     /**
@@ -460,13 +482,12 @@ public class PasswordHashProcessor {
      * provider is used.
      * </p>
      *
-     * @param digestFunction            The digest function to build a provider for.
-     * @param applyConfiguredParameters Whether the algorithm parameters configured for this user store
-     *                                  apply to this digest function.
+     * @param digestFunction     The digest function to build a provider for.
+     * @param parametersProperty The user store property holding its parameters, or null for defaults.
      * @return The HashProvider, or null if no factory is registered for the digest function.
      * @throws PasswordHashingException If the provider cannot be initialized.
      */
-    private HashProvider initializeHashProvider(String digestFunction, boolean applyConfiguredParameters)
+    private HashProvider initializeHashProvider(String digestFunction, String parametersProperty)
             throws PasswordHashingException {
 
         HashProviderFactory hashProviderFactory = getHashProviderFactory(digestFunction);
@@ -475,10 +496,10 @@ public class PasswordHashProcessor {
             return null;
         }
 
-        if (applyConfiguredParameters) {
+        if (parametersProperty != null) {
             Set<String> metaProperties = hashProviderFactory.getHashProviderConfigProperties();
             if (!metaProperties.isEmpty()) {
-                Map<String, Object> hashProviderPropertiesMap = getHashProviderInitConfigs(hashConfigProperties);
+                Map<String, Object> hashProviderPropertiesMap = getHashProviderInitConfigs(parametersProperty);
 
                 if (!hashProviderPropertiesMap.isEmpty()) {
                     try {
@@ -496,15 +517,15 @@ public class PasswordHashProcessor {
     }
 
     /**
-     * Extracts the algorithm-specific configuration properties from the provided configuration map.
+     * Extracts the algorithm-specific configuration properties held by the given user store property.
      * These are required by some {@link HashProvider} implementations such as PBKDF2.
      *
-     * @param hashConfigProperties The full hashing config map.
+     * @param parametersProperty The user store property to read the parameters from.
      * @return A simplified map containing only the algorithm-specific initialization parameters.
      */
-    private Map<String, Object> getHashProviderInitConfigs(Map<String, String> hashConfigProperties) {
+    private Map<String, Object> getHashProviderInitConfigs(String parametersProperty) {
 
-        String hashingAlgorithmProperties = hashConfigProperties.get(PASSWORD_HASH_ALGORITHM_PROPERTIES);
+        String hashingAlgorithmProperties = hashConfigProperties.get(parametersProperty);
         Map<String, Object> hashProviderInitConfigsMap = new HashMap<>();
         if (StringUtils.isNotBlank(hashingAlgorithmProperties)) {
             Gson gson = new Gson();
