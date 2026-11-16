@@ -134,7 +134,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     protected int maximumUserNameListLength = -1;
     protected int queryTimeout = -1;
     private PasswordHashProcessor passwordHashProcessor;
-    private volatile String databaseType;
 
     private static final String H2 = "h2";
     private static final String DB2 = "db2";
@@ -157,7 +156,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             Arrays.asList(MYSQL, MARIADB, POSTGRESQL, H2, ORACLE, MSSQL, DB2).stream().collect(Collectors.toSet()));
     private volatile Boolean roleListingCustomised;
     private volatile boolean paginationDeclineLogged;
-    private volatile String paginatedDatabaseType;
+    private volatile String databaseType;
 
     private static final int MAX_ITEM_LIMIT_UNLIMITED = -1;
     public static final String PRIMARY_USER_STORE_DOMAIN = "PRIMARY";
@@ -802,14 +801,14 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         // The offset is a one based start index, as in the paginated user listing.
         long skip = offset <= 0 ? 0 : offset - 1L;
         List<String> roles = new LinkedList<>();
-        String type = paginatedDatabaseType;
+        String type = databaseType;
         if (type != null) {
             validatePaginatedRoleSQL(type);
         }
         try (Connection dbConnection = getDBConnection()) {
             if (type == null) {
                 type = DatabaseCreator.getDatabaseType(dbConnection);
-                paginatedDatabaseType = type;
+                databaseType = type;
                 validatePaginatedRoleSQL(type);
             }
             // The default statement takes a row count and a row offset.
@@ -852,14 +851,14 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     @Override
     public long doCountRoleNames(String filter) throws UserStoreException {
 
-        String type = paginatedDatabaseType;
+        String type = databaseType;
         if (type != null) {
             validatePaginatedRoleSQL(type);
         }
         try (Connection dbConnection = getDBConnection()) {
             if (type == null) {
                 type = DatabaseCreator.getDatabaseType(dbConnection);
-                paginatedDatabaseType = type;
+                databaseType = type;
                 validatePaginatedRoleSQL(type);
             }
             String sqlStmt = getPaginatedRoleCountSQL(type);
@@ -5348,12 +5347,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Get the database type of the user store. It is retrieved once and reused, as it does not change.
+     * Get the database type of the user store.
      *
      * @return Database type, as returned by {@link DatabaseCreator#getDatabaseType(Connection)}, or null if it
      * cannot be retrieved.
      */
-    String getDatabaseType() {
+    protected String getDatabaseType() {
 
         if (databaseType == null) {
             Connection dbConnection = null;

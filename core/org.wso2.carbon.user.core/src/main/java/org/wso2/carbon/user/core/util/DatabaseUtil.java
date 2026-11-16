@@ -1309,12 +1309,13 @@ public class DatabaseUtil {
 
     /**
      * Splits the given values into batches for the SQL IN clause of the given database type.
-     * Oracle and MSSQL limit the number of parameters of a query, so for them the distinct values are split into
-     * batches within that limit, keeping the first occurrence of each value in its original order. For the other
-     * database types, or if the type is null, the values are returned unchanged as a single batch.
+     * Oracle limits the number of values in an IN list and MSSQL the number of parameters in a query, so for them
+     * the distinct values are split into batches within that limit, keeping the first occurrence of each value in
+     * its original order. For the other database types, or if the type is null, the values are returned unchanged
+     * as a single batch.
      *
      * @param values       Values to be bound to the IN clause.
-     * @param databaseType Database type, such as oracle or mssql.
+     * @param databaseType Database type, such as oracle or mssql, or null if it is not known.
      * @return List of batches of the values.
      */
     public static List<List<String>> getBatchesForInClause(List<String> values, String databaseType) {

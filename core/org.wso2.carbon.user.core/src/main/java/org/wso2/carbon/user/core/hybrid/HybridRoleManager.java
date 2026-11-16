@@ -72,7 +72,7 @@ public class HybridRoleManager {
     protected UserRolesCache userRolesCache = null;
     int tenantId;
     private DataSource dataSource;
-    private volatile String databaseType;
+    private String databaseType;
     private RealmConfiguration realmConfig;
     private String isCascadeDeleteEnabled;
     private boolean userRolesCacheEnabled = true;
@@ -1320,8 +1320,7 @@ public class HybridRoleManager {
     }
 
     /**
-     * Get the type of the database that holds the hybrid roles. It is retrieved once and reused, as it does not
-     * change.
+     * Get the type of the database that holds the hybrid roles.
      *
      * @return Database type, as returned by {@link DatabaseCreator#getDatabaseType(Connection)}, or null if it
      * cannot be retrieved.
