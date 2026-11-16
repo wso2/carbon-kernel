@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
@@ -60,6 +61,8 @@ public class DatabaseUtil {
     private static final long DEFAULT_VALIDATION_INTERVAL = 30000;
     private static final String SQL_STATEMENT_PARAMETER_PLACEHOLDER = "?";
     private static final String SQL_STATEMENT_PARAMETER_SEPARATOR = ",";
+    private static final int ORACLE_IN_CLAUSE_BATCH_SIZE = 1000;
+    private static final int MSSQL_IN_CLAUSE_BATCH_SIZE = 2000;
     private static final String DISABLED = "Disabled";
     public static final String JDBC_INTERCEPTOR_SEPARATOR = ";";
     private static final String DEFAULT_CORRELATION_LOG_INTERCEPTOR = "org.wso2.carbon.ndatasource.rdbms"
@@ -1302,5 +1305,40 @@ public class DatabaseUtil {
         }
 
         return dynamicString.toString();
+    }
+
+    /**
+     * Splits the given values into batches for the SQL IN clause of the given database type.
+     * Oracle limits the number of values in an IN list and MSSQL the number of parameters in a query, so for them
+     * the distinct values are split into batches within that limit, keeping the first occurrence of each value in
+     * its original order. For the other database types, or if the type is null, the values are returned unchanged
+     * as a single batch.
+     *
+     * @param values       Values to be bound to the IN clause.
+     * @param databaseType Database type, such as oracle or mssql, or null if it is not known.
+     * @return List of batches of the values.
+     */
+    public static List<List<String>> getBatchesForInClause(List<String> values, String databaseType) {
+
+        int batchSize;
+        if (UserCoreConstants.ORACLE_TYPE.equalsIgnoreCase(databaseType)) {
+            batchSize = ORACLE_IN_CLAUSE_BATCH_SIZE;
+        } else if (UserCoreConstants.MSSQL_TYPE.equalsIgnoreCase(databaseType)) {
+            batchSize = MSSQL_IN_CLAUSE_BATCH_SIZE;
+        } else {
+            return Collections.singletonList(values);
+        }
+
+        List<String> distinctValues = new ArrayList<>(new LinkedHashSet<>(values));
+        List<List<String>> batches = new ArrayList<>();
+        for (int start = 0; start < distinctValues.size(); start += batchSize) {
+            int end = Math.min(start + batchSize, distinctValues.size());
+            batches.add(new ArrayList<>(distinctValues.subList(start, end)));
+        }
+        if (log.isDebugEnabled() && batches.size() > 1) {
+            log.debug("Split " + distinctValues.size() + " IN clause values into " + batches.size()
+                    + " batches for " + databaseType + ".");
+        }
+        return batches;
     }
 }
