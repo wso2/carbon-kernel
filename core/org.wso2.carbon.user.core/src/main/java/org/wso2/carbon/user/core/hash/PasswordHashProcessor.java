@@ -21,7 +21,6 @@ package org.wso2.carbon.user.core.hash;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.apache.axiom.om.util.Base64;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.user.core.exceptions.HashProviderException;
 import org.wso2.carbon.user.core.exceptions.PasswordHashingClientException;
@@ -31,12 +30,8 @@ import org.wso2.carbon.user.core.internal.UserStoreMgtDataHolder;
 import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -170,13 +165,6 @@ public class PasswordHashProcessor {
     /**
      * Performs password hashing using the configured {@link MessageDigest} algorithm.
      *
-     * <p>
-     * The salt is appended to a copy of the credential, so a caller that supplies its own
-     * {@link Secret} gets it back unchanged. {@link Secret#getSecret(Object)} returns a Secret by
-     * reference rather than copying it, and the same credential may be used again after
-     * verification, for instance by the next user store in a chain.
-     * </p>
-     *
      * @param credentialObj  Secret-wrapped password object.
      * @param saltValue      Optional salt value to append.
      * @param digestFunction The digest algorithm to use (e.g., SHA-256, SHA-512).
@@ -186,55 +174,26 @@ public class PasswordHashProcessor {
     private String hashWithMessageDigest(Secret credentialObj, String saltValue, String digestFunction)
             throws PasswordHashingClientException {
 
-        if (digestFunction.equals(PASSWORD_HASH_METHOD_PLAIN_TEXT)) {
-            return new String(credentialObj.getChars());
-        }
-
-        char[] saltedCredential = appendSalt(credentialObj.getChars(), saltValue);
-        byte[] saltedBytes = null;
         try {
-            saltedBytes = toUtf8Bytes(saltedCredential);
-            MessageDigest messageDigest = MessageDigest.getInstance(digestFunction);
-            return Base64.encode(messageDigest.digest(saltedBytes));
+            if (digestFunction.equals(PASSWORD_HASH_METHOD_PLAIN_TEXT)) {
+                return new String(credentialObj.getChars());
+            } else {
+                // Salted on a copy, because the caller's credential is used again for the hash upgrade.
+                Secret saltedCredential = getSecret(credentialObj.getChars());
+                try {
+                    if (saltValue != null) {
+                        saltedCredential.addChars(saltValue.toCharArray());
+                    }
+                    MessageDigest messageDigest = MessageDigest.getInstance(digestFunction);
+                    byte[] byteValue = messageDigest.digest(saltedCredential.getBytes());
+                    return Base64.encode(byteValue);
+                } finally {
+                    saltedCredential.clear();
+                }
+            }
         } catch (NoSuchAlgorithmException e) {
             throw new PasswordHashingClientException("Error occurred while preparing password.", e);
-        } finally {
-            Arrays.fill(saltedCredential, ' ');
-            if (saltedBytes != null) {
-                Arrays.fill(saltedBytes, (byte) 0);
-            }
         }
-    }
-
-    /**
-     * Returns a new character array holding the credential followed by the salt. The result is
-     * always a copy, so it can be cleared without touching the credential it was built from.
-     *
-     * @param credential The credential characters.
-     * @param saltValue  Optional salt value to append.
-     * @return A copy of the credential with the salt appended.
-     */
-    private char[] appendSalt(char[] credential, String saltValue) {
-
-        if (saltValue == null) {
-            return Arrays.copyOf(credential, credential.length);
-        }
-        return ArrayUtils.addAll(credential, saltValue.toCharArray());
-    }
-
-    /**
-     * Encodes characters as UTF-8 the same way {@link Secret#getBytes()} does, so stored hashes stay
-     * byte-identical, and without materialising an immutable String that could not be cleared.
-     *
-     * @param chars The characters to encode.
-     * @return The UTF-8 encoded bytes.
-     */
-    private byte[] toUtf8Bytes(char[] chars) {
-
-        ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(CharBuffer.wrap(chars));
-        byte[] bytes = Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit());
-        Arrays.fill(byteBuffer.array(), (byte) 0);
-        return bytes;
     }
 
     /**
