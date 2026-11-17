@@ -97,6 +97,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
 
+import static org.wso2.carbon.utils.CarbonUtils.isEnableV2AuditLogs;
 import static org.wso2.carbon.user.core.constants.UserCoreDBConstants.CASE_INSENSITIVE_SQL_STATEMENT_PARAMETER_PLACEHOLDER;
 import static org.wso2.carbon.user.core.constants.UserCoreDBConstants.GET_DISTINCT_USER_NAMES_FROM_USER_ATTRIBUTE_SQL;
 import static org.wso2.carbon.user.core.constants.UserCoreDBConstants.SQL_STATEMENT_PARAMETER_PLACEHOLDER;
@@ -119,6 +120,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
     // private boolean useOnlyInternalRoles;
     private static Log log = LogFactory.getLog(JDBCUserStoreManager.class);
+    private static Log audit = CarbonConstants.AUDIT_LOG;
 
     private static final String QUERY_FILTER_STRING_ANY = "*";
     private static final String SQL_FILTER_STRING_ANY = "%";
@@ -3440,10 +3442,26 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             if (sqlStmt == null) {
                 return;
             }
-            updateStringValuesToDatabase(dbConnection, sqlStmt, upgradedPassword, userName, tenantId,
-                    storedPassword);
-            // The authentication connection does not auto-commit, and the helper commits only its own.
+            // Run here rather than through the update helper, because the audit log needs the row count:
+            // no row changes when the password was changed after it was verified.
+            int updatedRows;
+            try (PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
+                prepStmt.setString(1, upgradedPassword);
+                prepStmt.setString(2, userName);
+                prepStmt.setInt(3, tenantId);
+                prepStmt.setString(4, storedPassword);
+                updatedRows = prepStmt.executeUpdate();
+            }
+            // The authentication connection does not auto-commit.
             dbConnection.commit();
+            if (updatedRows > 0 && !isEnableV2AuditLogs()) {
+                String fromAlgorithm = storedResult.isLegacy()
+                        ? passwordHashProcessor.getLegacyDigestFunction() : storedResult.getAlgorithm();
+                audit.info(String.format(CarbonConstants.AUDIT_MESSAGE, userName, "Migrate Password Hash",
+                        userName, "FromAlgorithm : " + fromAlgorithm + ", ToAlgorithm : "
+                                + realmConfig.getUserStoreProperty(JDBCRealmConstants.DIGEST_FUNCTION),
+                        "Success"));
+            }
         } catch (UserStoreException | SQLException e) {
             DatabaseUtil.rollBack(dbConnection);
             log.error("Could not upgrade the stored password hash of user: " + userName, e);

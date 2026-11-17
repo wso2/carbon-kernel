@@ -19,7 +19,10 @@
 package org.wso2.carbon.user.core.jdbc;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 import org.h2.jdbcx.JdbcDataSource;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -354,6 +357,53 @@ public class JDBCUserStoreManagerMigrationTest {
 
         Assert.assertEquals(storedPassword(), SelfDescribingHashParser.format(PLUGGABLE_ALGORITHM, "written-by-a-concurrent-password-change"),
                 "A credential changed after verification must not be overwritten by the rewrite.");
+    }
+
+    /**
+     * Runs the migration with the audit log replaced by a mock, and returns the mock to verify against.
+     */
+    private Log migrateWithAuditLog(JDBCUserStoreManager userStoreManager, String storedHash) throws Exception {
+
+        Field auditField = JDBCUserStoreManager.class.getDeclaredField("audit");
+        auditField.setAccessible(true);
+        Object originalAudit = auditField.get(null);
+        Log audit = Mockito.mock(Log.class);
+        auditField.set(null, audit);
+        try {
+            migrate(userStoreManager, USER_NAME, PASSWORD, storedHash, SALT);
+        } finally {
+            auditField.set(null, originalAudit);
+        }
+        return audit;
+    }
+
+    @Test
+    public void testRewriteIsAudited() throws Exception {
+
+        String storedHash = insertUser(legacyHash());
+        JDBCUserStoreManager userStoreManager =
+                userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, "true");
+
+        Log audit = migrateWithAuditLog(userStoreManager, storedHash);
+
+        ArgumentCaptor<Object> message = ArgumentCaptor.forClass(Object.class);
+        Mockito.verify(audit).info(message.capture());
+        Assert.assertEquals(message.getValue(), "Initiator : " + USER_NAME + " | Action : Migrate Password Hash"
+                + " | Target : " + USER_NAME + " | Data : { FromAlgorithm : " + LEGACY_ALGORITHM
+                + ", ToAlgorithm : " + PLUGGABLE_ALGORITHM + " } | Result : Success ");
+    }
+
+    @Test
+    public void testRewriteThatChangesNoRowIsNotAudited() throws Exception {
+
+        // The password was changed after it was verified, so the rewrite matches no row.
+        insertUser(SelfDescribingHashParser.format(PLUGGABLE_ALGORITHM, "written-by-a-concurrent-password-change"));
+        JDBCUserStoreManager userStoreManager =
+                userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, "true");
+
+        Log audit = migrateWithAuditLog(userStoreManager, legacyHash());
+
+        Mockito.verifyNoInteractions(audit);
     }
 
     @Test

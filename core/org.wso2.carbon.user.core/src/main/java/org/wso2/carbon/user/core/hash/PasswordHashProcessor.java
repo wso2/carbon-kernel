@@ -133,6 +133,16 @@ public class PasswordHashProcessor {
     }
 
     /**
+     * Returns the hashing algorithm used to verify stored hashes that carry no algorithm identifier.
+     *
+     * @return The digest function to use for legacy hashes.
+     */
+    public String getLegacyDigestFunction() {
+
+        return resolveLegacyDigestFunction(hashConfigProperties.get(PASSWORD_HASH_DIGEST_FUNCTION));
+    }
+
+    /**
      * Hashes the given password using the configured hashing algorithm and optional salt.
      * <p>
      * If a pluggable {@link HashProvider} is configured, it will be used. Otherwise,
