@@ -846,6 +846,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
             rs = prepStmt.executeQuery();
 
+            // Migrated after the results are read, because a commit can close them on some databases.
+            String verifiedUserName = null;
+            String verifiedPassword = null;
+            String verifiedSaltValue = null;
             int resultsCount = 0;
             while (rs.next()) {
                 // Handle multiple matching users.
@@ -881,7 +885,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 } else {
                     if (validatePassword(credential, storedPassword, saltValue)) {
                         isAuthed = true;
-                        migratePasswordHash(userName, credential, storedPassword, saltValue);
+                        verifiedUserName = userName;
+                        verifiedPassword = storedPassword;
+                        verifiedSaltValue = saltValue;
                         user = new User(userID, userName, userName, null, null, null, null);
                         try {
                             user.setTenantDomain(getTenantDomain(tenantId));
@@ -894,6 +900,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                         authenticationResult.setAuthenticatedUser(user);
                     }
                 }
+            }
+            if (isAuthed) {
+                migratePasswordHash(dbConnection, verifiedUserName, credential, verifiedPassword,
+                        verifiedSaltValue);
             }
         } catch (SQLException e) {
             String msg = "Error occurred while retrieving user authentication info for user : ";
@@ -993,6 +1003,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
             rs = prepStmt.executeQuery();
 
+            // Migrated after the results are read, because a commit can close them on some databases.
+            String verifiedUserName = null;
+            String verifiedPassword = null;
+            String verifiedSaltValue = null;
             int count = 0;
             while (rs.next()) {
                 // Handle multiple matching users.
@@ -1029,7 +1043,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 } else {
                     if (validatePassword(credential, storedPassword, saltValue)) {
                         isAuthed = true;
-                        migratePasswordHash(userName, credential, storedPassword, saltValue);
+                        verifiedUserName = userName;
+                        verifiedPassword = storedPassword;
+                        verifiedSaltValue = saltValue;
                         user = getUser(userID, userName);
                         user.setPreferredUsername(preferredUserNameProperty);
                         authenticationResult = new AuthenticationResult(
@@ -1037,6 +1053,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                         authenticationResult.setAuthenticatedUser(user);
                     }
                 }
+            }
+            if (isAuthed) {
+                migratePasswordHash(dbConnection, verifiedUserName, credential, verifiedPassword,
+                        verifiedSaltValue);
             }
         } catch (SQLException e) {
             String msg =
@@ -1094,6 +1114,10 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
 
             rs = prepStmt.executeQuery();
+            // Migrated after the results are read, because a commit can close them on some databases.
+            String verifiedUserName = null;
+            String verifiedPassword = null;
+            String verifiedSaltValue = null;
             while (rs.next()) {
                 String userName = rs.getString(2);
                 String storedPassword = rs.getString(3);
@@ -1116,13 +1140,19 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 } else {
                     if (validatePassword(credential, storedPassword, saltValue)) {
                         isAuthed = true;
-                        migratePasswordHash(userName, credential, storedPassword, saltValue);
+                        verifiedUserName = userName;
+                        verifiedPassword = storedPassword;
+                        verifiedSaltValue = saltValue;
                         user = getUser(userID, userName);
                         authenticationResult = new AuthenticationResult(
                                 AuthenticationResult.AuthenticationStatus.SUCCESS);
                         authenticationResult.setAuthenticatedUser(user);
                     }
                 }
+            }
+            if (isAuthed) {
+                migratePasswordHash(dbConnection, verifiedUserName, credential, verifiedPassword,
+                        verifiedSaltValue);
             }
         } catch (SQLException e) {
             String msg = "Error occurred while retrieving user authentication info for userID : " + userID;
@@ -1199,6 +1229,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
 
             rs = prepStmt.executeQuery();
+            // Migrated after the results are read, because a commit can close them on some databases.
+            String verifiedPassword = null;
+            String verifiedSaltValue = null;
             while (rs.next()) {
                 String userID = rs.getString(1);
                 String storedPassword = rs.getString(3);
@@ -1221,13 +1254,17 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 } else {
                     if (validatePassword(credential, storedPassword, saltValue)) {
                         isAuthed = true;
-                        migratePasswordHash(userName, credential, storedPassword, saltValue);
+                        verifiedPassword = storedPassword;
+                        verifiedSaltValue = saltValue;
                         user = getUser(userID, userName);
                         authenticationResult = new AuthenticationResult(
                                 AuthenticationResult.AuthenticationStatus.SUCCESS);
                         authenticationResult.setAuthenticatedUser(user);
                     }
                 }
+            }
+            if (isAuthed) {
+                migratePasswordHash(dbConnection, userName, credential, verifiedPassword, verifiedSaltValue);
             }
         } catch (SQLException e) {
             String msg = "Error occurred while retrieving user authentication info for userName : " + userName;

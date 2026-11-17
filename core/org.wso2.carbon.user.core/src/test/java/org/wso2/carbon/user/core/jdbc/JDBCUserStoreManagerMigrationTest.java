@@ -55,7 +55,7 @@ import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.LEGACY_PAS
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.ENABLE_SELF_DESCRIBING_PASSWORD_HASH;
 
 /**
- * Tests {@link JDBCUserStoreManager#migratePasswordHash(String, Object, String, String)} against a
+ * Tests {@link JDBCUserStoreManager#migratePasswordHash(Connection, String, Object, String, String)} against a
  * real table, covering the integrity rules the rewrite has to honour: only a stored value without an
  * algorithm identifier is rewritten, the rewrite is skipped when the stored value changed after it was
  * verified, and the password lifecycle columns are left untouched.
@@ -217,6 +217,19 @@ public class JDBCUserStoreManagerMigrationTest {
         return readColumn("UM_USER_PASSWORD", String.class);
     }
 
+    /**
+     * Migrates through a connection that does not auto-commit, as the authentication flow does. The
+     * result is read back through another connection, so a missing commit fails the test.
+     */
+    private void migrate(JDBCUserStoreManager userStoreManager, String userName, Object credential,
+                         String storedHash, String saltValue) throws Exception {
+
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+            userStoreManager.migratePasswordHash(connection, userName, credential, storedHash, saltValue);
+        }
+    }
+
     private <T> T readColumn(String column, Class<T> type) throws Exception {
 
         try (Connection connection = dataSource.getConnection();
@@ -237,7 +250,7 @@ public class JDBCUserStoreManagerMigrationTest {
         JDBCUserStoreManager userStoreManager =
                 userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, "true");
 
-        userStoreManager.migratePasswordHash(USER_NAME, PASSWORD, storedHash, SALT);
+        migrate(userStoreManager, USER_NAME, PASSWORD, storedHash, SALT);
 
         Assert.assertTrue(storedPassword().startsWith("{\"algorithm\":\"" + PLUGGABLE_ALGORITHM + "\""),
                 "A verified legacy hash must be rewritten with the configured algorithm's identifier.");
@@ -250,7 +263,7 @@ public class JDBCUserStoreManagerMigrationTest {
         JDBCUserStoreManager userStoreManager =
                 userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, "true");
 
-        userStoreManager.migratePasswordHash(USER_NAME, PASSWORD, storedHash, SALT);
+        migrate(userStoreManager, USER_NAME, PASSWORD, storedHash, SALT);
 
         Assert.assertTrue(userStoreManager.validatePassword(PASSWORD, storedPassword(), SALT),
                 "The user must still authenticate with the same password after the rewrite.");
@@ -264,7 +277,7 @@ public class JDBCUserStoreManagerMigrationTest {
         JDBCUserStoreManager userStoreManager =
                 userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, "true");
 
-        userStoreManager.migratePasswordHash(USER_NAME, PASSWORD, storedHash, SALT);
+        migrate(userStoreManager, USER_NAME, PASSWORD, storedHash, SALT);
 
         Assert.assertEquals(storedPassword(), storedHash,
                 "A value already produced by the configured algorithm must not be rewritten.");
@@ -279,7 +292,7 @@ public class JDBCUserStoreManagerMigrationTest {
         JDBCUserStoreManager userStoreManager =
                 userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, "true");
 
-        userStoreManager.migratePasswordHash(USER_NAME, PASSWORD, storedHash, SALT);
+        migrate(userStoreManager, USER_NAME, PASSWORD, storedHash, SALT);
 
         Assert.assertNotEquals(storedPassword(), storedHash,
                 "A value naming a superseded algorithm must be rewritten.");
@@ -294,7 +307,7 @@ public class JDBCUserStoreManagerMigrationTest {
         JDBCUserStoreManager userStoreManager =
                 userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, "false");
 
-        userStoreManager.migratePasswordHash(USER_NAME, PASSWORD, storedHash, SALT);
+        migrate(userStoreManager, USER_NAME, PASSWORD, storedHash, SALT);
 
         Assert.assertEquals(storedPassword(), storedHash,
                 "No rewrite may happen while the upgrade is switched off.");
@@ -310,7 +323,7 @@ public class JDBCUserStoreManagerMigrationTest {
         JDBCUserStoreManager userStoreManager =
                 userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, null, false, "false");
 
-        userStoreManager.migratePasswordHash(USER_NAME, PASSWORD, storedHash, SALT);
+        migrate(userStoreManager, USER_NAME, PASSWORD, storedHash, SALT);
 
         Assert.assertEquals(storedPassword(), storedHash,
                 "No rewrite may happen while the self-describing format is switched off.");
@@ -323,7 +336,7 @@ public class JDBCUserStoreManagerMigrationTest {
         String storedHash = insertUser(legacyHash());
         JDBCUserStoreManager userStoreManager = userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, null);
 
-        userStoreManager.migratePasswordHash(USER_NAME, PASSWORD, storedHash, SALT);
+        migrate(userStoreManager, USER_NAME, PASSWORD, storedHash, SALT);
 
         Assert.assertTrue(storedPassword().startsWith("{\"algorithm\":\"" + PLUGGABLE_ALGORITHM + "\""),
                 "An unset upgrade property must behave as the declared default of true.");
@@ -337,7 +350,7 @@ public class JDBCUserStoreManagerMigrationTest {
         JDBCUserStoreManager userStoreManager =
                 userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, "true");
 
-        userStoreManager.migratePasswordHash(USER_NAME, PASSWORD, legacyHash(), SALT);
+        migrate(userStoreManager, USER_NAME, PASSWORD, legacyHash(), SALT);
 
         Assert.assertEquals(storedPassword(), SelfDescribingHashParser.format(PLUGGABLE_ALGORITHM, "written-by-a-concurrent-password-change"),
                 "A credential changed after verification must not be overwritten by the rewrite.");
@@ -351,7 +364,7 @@ public class JDBCUserStoreManagerMigrationTest {
         JDBCUserStoreManager userStoreManager =
                 userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, "true");
 
-        userStoreManager.migratePasswordHash(USER_NAME, PASSWORD, storedHash, SALT);
+        migrate(userStoreManager, USER_NAME, PASSWORD, storedHash, SALT);
 
         Assert.assertNotEquals(storedPassword(), storedHash, "The hash should have been rewritten.");
         Assert.assertEquals(readColumn("UM_CHANGED_TIME", Timestamp.class), CHANGED_TIME,
@@ -371,7 +384,7 @@ public class JDBCUserStoreManagerMigrationTest {
         JDBCUserStoreManager userStoreManager =
                 userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, "true", true);
 
-        userStoreManager.migratePasswordHash("legacyuser", PASSWORD, storedHash, SALT);
+        migrate(userStoreManager, "legacyuser", PASSWORD, storedHash, SALT);
 
         Assert.assertTrue(onlyStoredPassword().startsWith("{\"algorithm\":\"" + PLUGGABLE_ALGORITHM + "\""),
                 "A user store with case insensitive user names must still have its hash rewritten.");
@@ -386,7 +399,7 @@ public class JDBCUserStoreManagerMigrationTest {
         JDBCUserStoreManager userStoreManager =
                 userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, "true", false);
 
-        userStoreManager.migratePasswordHash("legacyuser", PASSWORD, storedHash, SALT);
+        migrate(userStoreManager, "legacyuser", PASSWORD, storedHash, SALT);
 
         Assert.assertEquals(onlyStoredPassword(), storedHash,
                 "A case sensitive user store must not rewrite a row whose user name differs in case.");

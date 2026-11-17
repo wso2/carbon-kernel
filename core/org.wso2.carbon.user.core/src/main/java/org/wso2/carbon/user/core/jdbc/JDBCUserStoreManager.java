@@ -1850,6 +1850,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
             rs = prepStmt.executeQuery();
 
+            // Migrated after the results are read, because a commit can close them on some databases.
+            String verifiedPassword = null;
+            String verifiedSaltValue = null;
             if (rs.next() == true) {
                 String storedPassword = rs.getString(3);
                 String saltValue = null;
@@ -1870,9 +1873,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 } else {
                     if (this.validatePassword(credential, storedPassword, saltValue)) {
                         isAuthed = true;
-                        migratePasswordHash(userName, credential, storedPassword, saltValue);
+                        verifiedPassword = storedPassword;
+                        verifiedSaltValue = saltValue;
                     }
                 }
+            }
+            if (isAuthed) {
+                migratePasswordHash(dbConnection, userName, credential, verifiedPassword, verifiedSaltValue);
             }
         } catch (SQLException e) {
             String msg = "Error occurred while retrieving user authentication info for user : " + userName;
@@ -3394,13 +3401,14 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      * failed rewrite must not turn that into a failed sign-in.
      * </p>
      *
+     * @param dbConnection   The connection the credential was read with, which this commits.
      * @param userName       The user whose stored hash is rewritten.
      * @param credential     The credential that was just verified.
      * @param storedPassword The stored hash that was verified.
      * @param saltValue      The salt stored with it, reused so that only one column changes.
      */
-    protected void migratePasswordHash(String userName, Object credential, String storedPassword,
-                                       String saltValue) {
+    protected void migratePasswordHash(Connection dbConnection, String userName, Object credential,
+                                       String storedPassword, String saltValue) {
 
         // Absent means the property was never configured, which carries the declared default of true.
         String upgradeEnabled = realmConfig.getUserStoreProperty(JDBCRealmConstants.ENABLE_PASSWORD_HASH_UPGRADE);
@@ -3432,8 +3440,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             if (sqlStmt == null) {
                 return;
             }
-            updateStringValuesToDatabase(null, sqlStmt, upgradedPassword, userName, tenantId, storedPassword);
-        } catch (UserStoreException e) {
+            updateStringValuesToDatabase(dbConnection, sqlStmt, upgradedPassword, userName, tenantId,
+                    storedPassword);
+            // The authentication connection does not auto-commit, and the helper commits only its own.
+            dbConnection.commit();
+        } catch (UserStoreException | SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             log.error("Could not upgrade the stored password hash of user: " + userName, e);
         }
     }
