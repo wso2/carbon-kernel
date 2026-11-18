@@ -33,6 +33,7 @@ public class SqlBuilder {
     private static final String CLOSE_PARENTHESES = ")";
 
     private List<String> wheres = new ArrayList<>();
+    private List<String> orWheres = new ArrayList<>();
     private StringBuilder sql;
     private StringBuilder tail;
     private int count = 1;
@@ -59,6 +60,28 @@ public class SqlBuilder {
             }
             sql.append(s);
         }
+        appendOrGroup(sql);
+    }
+
+    /**
+     * Append the pending OR group, if any, as a single parenthesized clause. The members of the group are combined
+     * with OR, and the group itself is combined with the AND-ed where clauses using AND.
+     *
+     * @param sql SQL string being built.
+     */
+    private void appendOrGroup(StringBuilder sql) {
+
+        if (orWheres.isEmpty()) {
+            return;
+        }
+        if (addedWhereStatement) {
+            sql.append(" AND ");
+        } else {
+            sql.append(" WHERE ");
+            this.addedWhereStatement = true;
+        }
+        sql.append(START_PARENTHESES).append(String.join(" OR ", orWheres)).append(CLOSE_PARENTHESES);
+        orWheres = new ArrayList<>();
     }
 
     public String getQuery() {
@@ -111,6 +134,59 @@ public class SqlBuilder {
         timestampParameters.put(count, value);
         count++;
         return this;
+    }
+
+    /**
+     * Add a predicate to the pending OR group. Predicates added through this method are combined with each other
+     * using OR, and the resulting group is combined with the where clauses added through {@code where(..)} using AND.
+     * <p>
+     * A single predicate may carry more than one placeholder, so its parameters are passed as an ordered list and are
+     * registered in that order. When the predicate references the user attribute value column, the last string
+     * parameter is taken as the attribute value; callers must therefore build such predicates with the attribute value
+     * as the final placeholder.
+     *
+     * @param expr   Predicate with a placeholder for each of the given values.
+     * @param values Parameters of the predicate, in the order the placeholders appear.
+     * @return This builder.
+     */
+    public SqlBuilder orWhere(String expr, List<Object> values) {
+
+        orWheres.add(expr);
+        if (values == null) {
+            return this;
+        }
+        int attributeValueIndex = expr.contains(UserCoreConstants.UM_ATTRIBUTE_COLUMN)
+                ? lastStringParameterIndex(values) : -1;
+        for (int i = 0; i < values.size(); i++) {
+            Object value = values.get(i);
+            if (value instanceof String) {
+                if (i == attributeValueIndex) {
+                    attrValueIndexes.add(count);
+                }
+                stringParameters.put(count, (String) value);
+            } else if (value instanceof Integer) {
+                integerParameters.put(count, (Integer) value);
+            } else if (value instanceof Long) {
+                longParameters.put(count, (Long) value);
+            } else if (value instanceof Timestamp) {
+                timestampParameters.put(count, (Timestamp) value);
+            } else {
+                throw new IllegalArgumentException("Unsupported parameter type in the OR predicate: "
+                        + (value == null ? "null" : value.getClass().getName()));
+            }
+            count++;
+        }
+        return this;
+    }
+
+    private int lastStringParameterIndex(List<Object> values) {
+
+        for (int i = values.size() - 1; i >= 0; i--) {
+            if (values.get(i) instanceof String) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public List<Integer> getAttributeValueIndexes() {
