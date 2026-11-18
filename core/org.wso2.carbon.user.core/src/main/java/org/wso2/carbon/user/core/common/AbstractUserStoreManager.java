@@ -6664,18 +6664,23 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     public abstract boolean doCheckIsUserInRole(String userName, String roleName) throws UserStoreException;
 
     /**
+     * Check whether the user with the given user ID is in the given role. User store managers that can check role
+     * membership by user ID directly should override this. By default, the user name is resolved from the user ID and
+     * {@link #doCheckIsUserInRole(String, String)} is used, so that user store managers which only implement the
+     * user name based check, such as custom user store managers, keep working for ID based callers.
+     *
      * @param userID   user ID.
-     * @param roleName role name.
-     * @return true if user uis in the given role.
+     * @param roleName role name without the user store domain.
+     * @return true if user is in the given role.
      * @throws UserStoreException An unexpected exception has occurred.
      */
     public boolean doCheckIsUserInRoleWithID(String userID, String roleName) throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("doCheckIsUserInRoleWithID operation is not implemented in: " + this.getClass());
+        String userName = doGetUserNameFromUserID(userID);
+        if (StringUtils.isEmpty(userName)) {
+            return false;
         }
-        throw new NotImplementedException(
-                "doCheckIsUserInRoleWithID operation is not implemented in: " + this.getClass());
+        return doCheckIsUserInRole(userName, roleName);
     }
 
     /**
