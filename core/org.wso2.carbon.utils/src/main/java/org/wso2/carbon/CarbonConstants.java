@@ -524,4 +524,18 @@ public final class CarbonConstants {
     public static final String DEFAULT_AND_LOCALHOST = "DefaultAndLocalhost";
     public static final String ALLOW_ALL = "AllowAll";
     public static final String HOST_NAME_VERIFIER = "httpclient.hostnameVerifier";
+
+    // Constants related to Zip Bomb Protection
+    public static final long DEFAULT_MAX_UNCOMPRESSED_SIZE = 100L * 1024L * 1024L; // 100 MB total
+    public static final int DEFAULT_MAX_ENTRIES = 10000;
+    public static final long DEFAULT_MAX_ENTRY_SIZE = 100L * 1024L * 1024L; // 100 MB per entry
+    public static final int DEFAULT_MAX_COMPRESSION_RATIO = 100;
+    public static final int DEFAULT_MAX_DEPTH = 10;
+
+    // carbon.xml elements that override the zip bomb protection defaults above.
+    public static final String ZIP_BOMB_MAX_UNCOMPRESSED_SIZE_IN_MB = "ZipBombProtection.MaxUncompressedSizeInMB";
+    public static final String ZIP_BOMB_MAX_ENTRY_SIZE_IN_MB = "ZipBombProtection.MaxEntrySizeInMB";
+    public static final String ZIP_BOMB_MAX_ENTRIES = "ZipBombProtection.MaxEntries";
+    public static final String ZIP_BOMB_MAX_COMPRESSION_RATIO = "ZipBombProtection.MaxCompressionRatio";
+    public static final String ZIP_BOMB_MAX_DEPTH = "ZipBombProtection.MaxDepth";
 }
