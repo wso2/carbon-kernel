@@ -382,6 +382,12 @@ public class Repository {
 
         URL url;
         try {
+            // scheme allowlist - block file:, jar:file:, data:, ftp:, gopher:, jrt:, etc.
+            // (the old startsWith("file:") blocklist was bypassed by jar:file: -> arbitrary file read).
+            String urlProtocol = (url.getProtocol() == null) ? "" : url.getProtocol().toLowerCase();
+            if (!"https".equals(urlProtocol) && !"http".equals(urlProtocol)) {
+                throw new RegistryException("The source URL scheme is not allowed: " + urlProtocol);
+            }
             if (sourceURL == null ||  sourceURL.toLowerCase().startsWith("file:")) {
                 String msg = "The source URL must not be file in the server's local file system";
                 throw new RegistryException(msg);
