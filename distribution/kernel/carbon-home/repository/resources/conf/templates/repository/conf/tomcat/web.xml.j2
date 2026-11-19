@@ -116,6 +116,35 @@
     </filter-mapping>
     {% endfor %}
 
+    {% for filter in servlet_access_control_filter %}
+    <filter>
+        <filter-name>{{filter.filter_name}}</filter-name>
+        <filter-class>org.apache.catalina.filters.RemoteAddrFilter</filter-class>
+        {% if filter.allow_ip_regex is defined %}
+        <init-param>
+            <param-name>allow</param-name>
+            <param-value>{{filter.allow_ip_regex}}</param-value>
+        </init-param>
+        {% endif %}
+        {% if filter.deny_ip_regex is defined %}
+        <init-param>
+            <param-name>deny</param-name>
+            <param-value>{{filter.deny_ip_regex}}</param-value>
+        </init-param>
+        {% endif %}
+        {% if filter.deny_status is defined %}
+        <init-param>
+            <param-name>denyStatus</param-name>
+            <param-value>{{filter.deny_status}}</param-value>
+        </init-param>
+        {% endif %}
+    </filter>
+    <filter-mapping>
+        <filter-name>{{filter.filter_name}}</filter-name>
+        <url-pattern>{{filter.url_pattern}}</url-pattern>
+    </filter-mapping>
+    {% endfor %}
+
     <servlet>
         <servlet-name>default</servlet-name>
         <servlet-class>org.apache.catalina.servlets.DefaultServlet</servlet-class>
