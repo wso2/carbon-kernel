@@ -1,0 +1,177 @@
+name: Code Coverage Generator
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Daily 22:00 UTC (3.30 AM SL time).
+    - cron: '00 22 * * *'
+
+jobs:
+  build-source:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Adopt JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: "adopt"
+
+      - name: Build with Maven
+        run: |
+          mvn clean install -U -B -Dmaven.test.skip=true
+
+      - name: Cache source code
+        uses: actions/cache@v4
+        with:
+          path: .
+          key: ${{ runner.os }}-source-${{ github.sha }}
+
+  oidc-conformance-report:
+    needs: build-source
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Restore source code
+        uses: actions/cache@v4
+        with:
+          path: .
+          key: ${{ runner.os }}-source-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-source-
+
+      - name: Get the latest Jacoco report URL
+        id: get-artifact-url-oidc
+        run: |
+          GITHUB_API_URL="https://api.github.com"
+          OWNER="wso2"
+          REPO="product-is"
+          WORKFLOW_ID="oidc-conformance-test.yml"
+          GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
+
+          # Get the latest successful workflow run
+          WORKFLOW_RUNS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" "$GITHUB_API_URL/repos/$OWNER/$REPO/actions/workflows/$WORKFLOW_ID/runs?status=success&per_page=1")
+          RUN_ID=$(echo $WORKFLOW_RUNS | jq -r '.workflow_runs[0].id')
+
+          if [ "$RUN_ID" == "null" ]; then
+            echo "No successful workflow runs found"
+            exit 1
+          fi
+
+          # Get the artifacts for the workflow run
+          ARTIFACTS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" "$GITHUB_API_URL/repos/$OWNER/$REPO/actions/runs/$RUN_ID/artifacts")
+          ARTIFACT_URL=$(echo $ARTIFACTS | jq -r '.artifacts[] | select(.name == "jacoco-xml") | .archive_download_url')
+
+          if [ "$ARTIFACT_URL" == "null" ]; then
+            echo "Artifact not found"
+            exit 1
+          fi
+
+          echo "::set-output name=artifact-url::$ARTIFACT_URL"
+
+      - name: Download latest Jacoco report
+        run: |
+          curl -L -o artifact-oidc.zip \
+          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          ${{ steps.get-artifact-url-oidc.outputs.artifact-url }}
+
+      - name: Unzip Jacoco report
+        run: |
+          unzip artifact-oidc.zip -d ./artifacts-oidc
+
+      - name: Upload coverage reports to Codecov for OIDC
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./artifacts-oidc/jacoco.xml
+          flags: conformance-oidc
+          disable_search: true
+
+  fapi-conformance-report:
+    needs: build-source
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Restore source code
+        uses: actions/cache@v4
+        with:
+          path: .
+          key: ${{ runner.os }}-source-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-source-
+
+      - name: Get the latest Jacoco report URL
+        id: get-artifact-url-fapi
+        run: |
+          GITHUB_API_URL="https://api.github.com"
+          OWNER="wso2"
+          REPO="product-is"
+          WORKFLOW_ID="fapi-oidc-conformance-test.yml"
+          GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
+
+          # Get the latest successful workflow run
+          WORKFLOW_RUNS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" "$GITHUB_API_URL/repos/$OWNER/$REPO/actions/workflows/$WORKFLOW_ID/runs?status=success&per_page=1")
+          RUN_ID=$(echo $WORKFLOW_RUNS | jq -r '.workflow_runs[0].id')
+
+          if [ "$RUN_ID" == "null" ]; then
+            echo "No successful workflow runs found"
+            exit 1
+          fi
+
+          # Get the artifacts for the workflow run
+          ARTIFACTS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" "$GITHUB_API_URL/repos/$OWNER/$REPO/actions/runs/$RUN_ID/artifacts")
+          ARTIFACT_URL=$(echo $ARTIFACTS | jq -r '.artifacts[] | select(.name == "jacoco-xml") | .archive_download_url')
+
+          if [ "$ARTIFACT_URL" == "null" ]; then
+            echo "Artifact not found"
+            exit 1
+          fi
+
+          echo "::set-output name=artifact-url::$ARTIFACT_URL"
+
+      - name: Download the latest Jacoco report
+        run: |
+          curl -L -o artifact-fapi.zip \
+          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          ${{ steps.get-artifact-url-fapi.outputs.artifact-url }}
+
+      - name: Unzip Jacoco report
+        run: |
+          unzip artifact-fapi.zip -d ./artifacts-fapi
+
+      - name: Upload coverage reports to Codecov for FAPI
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./artifacts-fapi/jacoco.xml
+          flags: conformance-fapi
+          disable_search: true
+
+  integration-test-report:
+    needs: build-source
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Restore source code
+        uses: actions/cache@v4
+        with:
+          path: .
+          key: ${{ runner.os }}-source-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-source-
+
+      - name: Download integration Jacoco XML report
+        run: |
+          mkdir artifacts-integration
+          curl -L -o ./artifacts-integration/jacoco.xml https://wso2.org/jenkins/job/products/job/product-is/lastSuccessfulBuild/artifact/modules/integration/tests-integration/tests-backend/target/jacoco/coverage/jacoco.xml
+
+      - name: Upload coverage reports to Codecov for integration tests
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./artifacts-integration/jacoco.xml
+          flags: integration
+          disable_search: true
