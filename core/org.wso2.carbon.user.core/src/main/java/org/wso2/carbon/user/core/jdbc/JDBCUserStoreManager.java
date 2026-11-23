@@ -3364,10 +3364,15 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      * Validates a given password against a stored hashed password using a salt.
      * <p>
      * A stored hash selects the algorithm that verifies it, so it cannot be verified by recomputing
-     * the configured hash and comparing strings. Verification is therefore always delegated to the
+     * the configured hash and comparing strings. Verification is therefore delegated to the
      * {@link PasswordHashProcessor}, which routes a stored hash to the provider its algorithm
      * identifier names, and verifies a stored hash without an identifier with the configured legacy
      * algorithm.
+     * </p>
+     * <p>
+     * While the self-describing format is off, a stored hash without an identifier is still verified
+     * by recomputing it with {@link #preparePassword(Object, String)}, as before this format existed,
+     * so that a subclass overriding that method keeps verifying the credentials it wrote.
      * </p>
      *
      * @param password The original password value, which can be a String or a character array.
@@ -3381,6 +3386,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         if (passwordHashProcessor == null) {
             throw new UserStoreException("PasswordHashProcessor is not initialized.");
+        }
+
+        // A value already in the self-describing format names its own algorithm, so it goes to the
+        // processor even while the format is off, which keeps it verifiable after the format is turned off.
+        if (!passwordHashProcessor.isSelfDescribingHashEnabled() && !passwordHashProcessor.hasCustomValidator()
+                && SelfDescribingHashParser.parse(storedPassword).isLegacy()) {
+            return storedPassword.equals(preparePassword(password, saltValue));
         }
 
         try {

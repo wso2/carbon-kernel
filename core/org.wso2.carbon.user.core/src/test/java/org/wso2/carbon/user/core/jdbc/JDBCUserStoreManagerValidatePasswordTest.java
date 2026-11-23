@@ -172,6 +172,46 @@ public class JDBCUserStoreManagerValidatePasswordTest {
         Assert.assertFalse(userStoreManager.validatePassword(PASSWORD, null, SALT));
     }
 
+    @Test
+    public void testOverriddenPreparePasswordIsHonouredWhileFormatIsOff() throws Exception {
+
+        // A subclass that hashes its own way wrote its stored values through preparePassword, so with
+        // the format off they must still be verified by recomputing them through that override.
+        JDBCUserStoreManager userStoreManager = new JDBCUserStoreManager() {
+            @Override
+            protected String preparePassword(Object password, String saltValue) {
+
+                return "custom:" + password + ":" + saltValue;
+            }
+        };
+        Map<String, String> config = config(LEGACY_ALGORITHM, null);
+        config.remove(ENABLE_SELF_DESCRIBING_PASSWORD_HASH);
+        Field processorField = JDBCUserStoreManager.class.getDeclaredField("passwordHashProcessor");
+        processorField.setAccessible(true);
+        processorField.set(userStoreManager, new PasswordHashProcessor(config));
+
+        String storedHash = "custom:" + PASSWORD + ":" + SALT;
+        Assert.assertTrue(userStoreManager.validatePassword(PASSWORD, storedHash, SALT));
+        Assert.assertFalse(userStoreManager.validatePassword(WRONG_PASSWORD, storedHash, SALT));
+    }
+
+    @Test
+    public void testSelfDescribingHashIsVerifiedAfterFormatIsTurnedOff() throws Exception {
+
+        String storedHash = new PasswordHashProcessor(config(PLUGGABLE_ALGORITHM, null))
+                .hashPassword(PASSWORD, SALT);
+        Map<String, String> config = config(PLUGGABLE_ALGORITHM, null);
+        config.put(ENABLE_SELF_DESCRIBING_PASSWORD_HASH, "false");
+        JDBCUserStoreManager userStoreManager = new JDBCUserStoreManager();
+        Field processorField = JDBCUserStoreManager.class.getDeclaredField("passwordHashProcessor");
+        processorField.setAccessible(true);
+        processorField.set(userStoreManager, new PasswordHashProcessor(config));
+
+        Assert.assertTrue(userStoreManager.validatePassword(PASSWORD, storedHash, SALT),
+                "A value stored in the self-describing format must stay verifiable once the format is off.");
+        Assert.assertFalse(userStoreManager.validatePassword(WRONG_PASSWORD, storedHash, SALT));
+    }
+
     @Test(expectedExceptions = UserStoreException.class)
     public void testUninitializedProcessorIsReported() throws Exception {
 

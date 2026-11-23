@@ -143,6 +143,16 @@ public class PasswordHashProcessor {
     }
 
     /**
+     * Indicates whether new credentials are stored in the self-describing format.
+     *
+     * @return True if the self-describing format is enabled.
+     */
+    public boolean isSelfDescribingHashEnabled() {
+
+        return selfDescribingHashEnabled;
+    }
+
+    /**
      * Hashes the given password using the configured hashing algorithm and optional salt.
      * <p>
      * If a pluggable {@link HashProvider} is configured, it will be used. Otherwise,
