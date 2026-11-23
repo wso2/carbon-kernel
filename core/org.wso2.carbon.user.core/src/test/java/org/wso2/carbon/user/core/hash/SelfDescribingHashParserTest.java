@@ -60,6 +60,32 @@ public class SelfDescribingHashParserTest extends BaseTestCase {
     }
 
     @Test
+    public void testParseBase64LegacyHash() {
+
+        // A real legacy value: base64 with slashes and padding, which is not JSON.
+        String storedHash = "d8/vswX7Q/vN9YMHtSCI1bnKDgik333qVmQQm6XdcOk=";
+        SelfDescribingHashParser.ParseResult result = SelfDescribingHashParser.parse(storedHash);
+
+        assertTrue(result.isValid());
+        assertTrue(result.isLegacy());
+        assertEquals(storedHash, result.getPayload());
+    }
+
+    @Test
+    public void testParseValuesThatAreJsonButNotObjects() {
+
+        // Gson parses leniently, so these parse as JSON primitives or arrays. Only a JSON object is
+        // the self-describing format, so each of them is still a legacy value.
+        for (String storedHash : new String[]{"12345", "true", "null", "\"quoted\"", "[1,2]", "plainpassword"}) {
+            SelfDescribingHashParser.ParseResult result = SelfDescribingHashParser.parse(storedHash);
+
+            assertTrue(storedHash, result.isValid());
+            assertTrue(storedHash, result.isLegacy());
+            assertEquals(storedHash, storedHash, result.getPayload());
+        }
+    }
+
+    @Test
     public void testParseNullHash() {
 
         SelfDescribingHashParser.ParseResult result = SelfDescribingHashParser.parse(null);

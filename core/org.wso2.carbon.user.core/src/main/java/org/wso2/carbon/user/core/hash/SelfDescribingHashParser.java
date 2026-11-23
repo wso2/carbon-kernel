@@ -104,10 +104,11 @@ public final class SelfDescribingHashParser {
     /**
      * Parses a stored password hash.
      * <p>
-     * A value that does not open as a JSON object was written before this format was introduced
-     * and is reported as legacy. One that opens as an object but does not carry both members is
-     * reported as malformed, so that a damaged record fails verification rather than being
-     * mistaken for a credential in the older form.
+     * The value is first parsed as JSON. A JSON object is read as a self-describing value, and one
+     * that does not carry both members is reported as malformed. A value that is not a JSON object
+     * was written before this format was introduced and is reported as legacy, unless it opens an
+     * object without being a valid one: such a value is a damaged record, so it is reported as
+     * malformed and fails verification rather than being mistaken for a credential in the older form.
      * </p>
      *
      * @param storedHash The stored password hash.
@@ -119,21 +120,15 @@ public final class SelfDescribingHashParser {
             return ParseResult.malformed();
         }
 
-        // A legacy value is base64 and can never open a JSON object, so this check keeps the
-        // common path off the JSON parser entirely.
-        if (storedHash.isEmpty() || storedHash.charAt(0) != OBJECT_START) {
-            return ParseResult.legacy(storedHash);
-        }
-
-        JsonObject storedValue;
-        try {
-            JsonElement parsed = JsonParser.parseString(storedHash);
-            if (!parsed.isJsonObject()) {
+        JsonObject storedValue = parseJsonObject(storedHash);
+        if (storedValue == null) {
+            // Gson parses leniently, so a bare value such as 12345 parses as a primitive rather than
+            // failing. Only a JSON object is the self-describing format; anything else is legacy,
+            // except a value that opens an object, which is a damaged self-describing record.
+            if (!storedHash.isEmpty() && storedHash.charAt(0) == OBJECT_START) {
                 return ParseResult.malformed();
             }
-            storedValue = parsed.getAsJsonObject();
-        } catch (RuntimeException e) {
-            return ParseResult.malformed();
+            return ParseResult.legacy(storedHash);
         }
 
         String algorithm = readMember(storedValue, ALGORITHM);
@@ -143,6 +138,22 @@ public final class SelfDescribingHashParser {
         }
 
         return ParseResult.prefixed(algorithm, payload, readProperties(storedValue));
+    }
+
+    /**
+     * Parses a stored value as a JSON object.
+     *
+     * @param storedHash The stored password hash.
+     * @return The JSON object, or null when the value is not a valid JSON object.
+     */
+    private static JsonObject parseJsonObject(String storedHash) {
+
+        try {
+            JsonElement parsed = JsonParser.parseString(storedHash);
+            return parsed.isJsonObject() ? parsed.getAsJsonObject() : null;
+        } catch (RuntimeException e) {
+            return null;
+        }
     }
 
     /**
