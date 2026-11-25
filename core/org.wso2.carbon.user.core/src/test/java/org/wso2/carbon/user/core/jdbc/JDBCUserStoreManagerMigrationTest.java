@@ -76,7 +76,8 @@ public class JDBCUserStoreManagerMigrationTest {
 
     private static final Timestamp CHANGED_TIME = Timestamp.valueOf("2020-01-02 03:04:05");
 
-    private final TestHashProviderFactory factory = new TestHashProviderFactory();
+    private final TestHashProviderFactory factory = new TestHashProviderFactory(PLUGGABLE_ALGORITHM);
+    private final TestHashProviderFactory supersededFactory = new TestHashProviderFactory(SUPERSEDED_ALGORITHM);
     private JdbcDataSource dataSource;
 
     @BeforeClass
@@ -87,6 +88,7 @@ public class JDBCUserStoreManagerMigrationTest {
                     new File("../../distribution/kernel/carbon-home").getAbsolutePath());
         }
         UserStoreMgtDataHolder.getInstance().setHashProviderFactory(factory);
+        UserStoreMgtDataHolder.getInstance().setHashProviderFactory(supersededFactory);
 
         dataSource = new JdbcDataSource();
         dataSource.setURL("jdbc:h2:mem:migrationtest;DB_CLOSE_DELAY=-1");
@@ -110,6 +112,7 @@ public class JDBCUserStoreManagerMigrationTest {
     public void tearDownClass() {
 
         UserStoreMgtDataHolder.getInstance().unbindHashProviderFactory(factory);
+        UserStoreMgtDataHolder.getInstance().unbindHashProviderFactory(supersededFactory);
     }
 
     @BeforeMethod
@@ -291,7 +294,7 @@ public class JDBCUserStoreManagerMigrationTest {
 
         // Rule 5: a self-describing value naming an algorithm other than the configured one is
         // rewritten, so a user store converges on the configured algorithm as its users sign in.
-        String storedHash = insertUser(SelfDescribingHashParser.format(SUPERSEDED_ALGORITHM, "produced-by-the-old-algorithm"));
+        String storedHash = insertUser(supersededHash());
         JDBCUserStoreManager userStoreManager =
                 userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, "true");
 
@@ -301,6 +304,40 @@ public class JDBCUserStoreManagerMigrationTest {
                 "A value naming a superseded algorithm must be rewritten.");
         Assert.assertTrue(storedPassword().startsWith("{\"algorithm\":\"" + PLUGGABLE_ALGORITHM + "\""),
                 "The rewrite must carry the identifier of the configured algorithm.");
+        Assert.assertTrue(userStoreManager.validatePassword(PASSWORD, storedPassword(), SALT),
+                "The user must still authenticate with the same password after the rewrite.");
+    }
+
+    @Test
+    public void testCredentialThatDoesNotMatchTheStoredHashIsNotWritten() throws Exception {
+
+        // validatePassword can be overridden to accept a credential other than the stored one, such as
+        // a master password. Such a credential must never replace the user's stored hash.
+        String storedHash = insertUser(legacyHash());
+        JDBCUserStoreManager userStoreManager =
+                userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, "true");
+
+        migrate(userStoreManager, USER_NAME, "MasterPassword123!", storedHash, SALT);
+
+        Assert.assertEquals(storedPassword(), storedHash,
+                "A credential that does not match the stored hash must not be written as the user's password.");
+        Assert.assertTrue(userStoreManager.validatePassword(PASSWORD, storedPassword(), SALT),
+                "The user's own password must keep working.");
+    }
+
+    /**
+     * A credential stored in the self-describing format by an algorithm other than the configured one.
+     */
+    private String supersededHash() throws Exception {
+
+        Map<String, String> supersededConfig = new HashMap<>();
+        supersededConfig.put(PASSWORD_HASH_DIGEST_FUNCTION, SUPERSEDED_ALGORITHM);
+        supersededConfig.put(ENABLE_SELF_DESCRIBING_PASSWORD_HASH, "true");
+        String storedHash = new PasswordHashProcessor(supersededConfig).hashPassword(PASSWORD, SALT);
+
+        Assert.assertTrue(storedHash.startsWith("{\"algorithm\":\"" + SUPERSEDED_ALGORITHM + "\""),
+                "The superseded algorithm must write its own identifier.");
+        return storedHash;
     }
 
     @Test
@@ -320,8 +357,8 @@ public class JDBCUserStoreManagerMigrationTest {
     public void testRewriteStopsWhenTheSelfDescribingFormatIsOff() throws Exception {
 
         // The upgrade property is left at its default of true, so only the format being off can
-        // stop the rewrite. With it off the configured algorithm produces no identifier, which the
-        // rewrite detects and abandons rather than writing a value it cannot route later.
+        // stop the rewrite. With it off the configured algorithm produces no identifier, so there is
+        // nothing to rewrite to.
         String storedHash = insertUser(legacyHash());
         JDBCUserStoreManager userStoreManager =
                 userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, null, false, "false");
@@ -330,6 +367,21 @@ public class JDBCUserStoreManagerMigrationTest {
 
         Assert.assertEquals(storedPassword(), storedHash,
                 "No rewrite may happen while the self-describing format is switched off.");
+    }
+
+    @Test
+    public void testCredentialIsNotHashedAgainWhenTheSelfDescribingFormatIsOff() throws Exception {
+
+        // With the format off the rewrite can never happen, so the credential must not be hashed a
+        // second time on every sign-in just to find that out.
+        String storedHash = insertUser(legacyHash());
+        JDBCUserStoreManager userStoreManager = Mockito.spy(
+                userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, null, false, "false"));
+
+        migrate(userStoreManager, USER_NAME, PASSWORD, storedHash, SALT);
+
+        Mockito.verify(userStoreManager, Mockito.never()).preparePassword(Mockito.any(), Mockito.any());
+        Assert.assertEquals(storedPassword(), storedHash);
     }
 
     @Test
@@ -470,9 +522,17 @@ public class JDBCUserStoreManagerMigrationTest {
     }
 
     /**
-     * A deterministic HashProvider, matching how PBKDF2 behaves.
+     * A deterministic HashProvider, matching how PBKDF2 behaves. The algorithm name is mixed into the
+     * hash, so each registered algorithm produces a different payload for the same password.
      */
     private static class TestHashProvider implements HashProvider {
+
+        private final String algorithm;
+
+        TestHashProvider(String algorithm) {
+
+            this.algorithm = algorithm;
+        }
 
         @Override
         public void init() {
@@ -488,8 +548,8 @@ public class JDBCUserStoreManagerMigrationTest {
         public byte[] calculateHash(char[] plainText, String salt) throws HashProviderException {
 
             try {
-                return MessageDigest.getInstance("SHA-256").digest(
-                        (new String(plainText) + (salt == null ? "" : salt)).getBytes(StandardCharsets.UTF_8));
+                return MessageDigest.getInstance("SHA-256").digest((algorithm + new String(plainText)
+                        + (salt == null ? "" : salt)).getBytes(StandardCharsets.UTF_8));
             } catch (NoSuchAlgorithmException e) {
                 throw new HashProviderException("Could not calculate the test hash.", e);
             }
@@ -504,22 +564,29 @@ public class JDBCUserStoreManagerMigrationTest {
         @Override
         public String getAlgorithm() {
 
-            return PLUGGABLE_ALGORITHM;
+            return algorithm;
         }
     }
 
     private static class TestHashProviderFactory implements HashProviderFactory {
 
+        private final String algorithm;
+
+        TestHashProviderFactory(String algorithm) {
+
+            this.algorithm = algorithm;
+        }
+
         @Override
         public HashProvider getHashProvider() {
 
-            return new TestHashProvider();
+            return new TestHashProvider(algorithm);
         }
 
         @Override
         public HashProvider getHashProvider(Map<String, Object> initProperties) {
 
-            return new TestHashProvider();
+            return new TestHashProvider(algorithm);
         }
 
         @Override
@@ -531,7 +598,7 @@ public class JDBCUserStoreManagerMigrationTest {
         @Override
         public String getAlgorithm() {
 
-            return PLUGGABLE_ALGORITHM;
+            return algorithm;
         }
     }
 }

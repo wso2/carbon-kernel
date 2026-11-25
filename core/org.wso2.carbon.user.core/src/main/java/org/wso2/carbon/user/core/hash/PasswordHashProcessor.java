@@ -431,6 +431,10 @@ public class PasswordHashProcessor {
                                          String saltValue) throws PasswordHashingServerException {
 
         try {
+            if (!provider.supportsValidateHash()) {
+                return MessageDigest.isEqual(Base64.decode(storedHash),
+                        provider.calculateHash(credentialObj.getChars(), saltValue));
+            }
             return provider.validateHash(credentialObj.getChars(), Base64.decode(storedHash), saltValue);
         } catch (HashProviderException e) {
             throw new PasswordHashingServerException("Error occurred while validating password with HashProvider.", e);

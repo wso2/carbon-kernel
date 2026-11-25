@@ -196,6 +196,29 @@ public class JDBCUserStoreManagerValidatePasswordTest {
     }
 
     @Test
+    public void testOverriddenPreparePasswordWithBracePrefixIsHonouredWhileFormatIsOff() throws Exception {
+
+        // An LDAP-style {SSHA} value opens with a brace without being JSON. With the format off it was
+        // written by the override, so it must still be compared through it rather than rejected.
+        JDBCUserStoreManager userStoreManager = new JDBCUserStoreManager() {
+            @Override
+            protected String preparePassword(Object password, String saltValue) {
+
+                return "{SSHA}" + password + ":" + saltValue;
+            }
+        };
+        Map<String, String> config = config(LEGACY_ALGORITHM, null);
+        config.remove(ENABLE_SELF_DESCRIBING_PASSWORD_HASH);
+        Field processorField = JDBCUserStoreManager.class.getDeclaredField("passwordHashProcessor");
+        processorField.setAccessible(true);
+        processorField.set(userStoreManager, new PasswordHashProcessor(config));
+
+        String storedHash = "{SSHA}" + PASSWORD + ":" + SALT;
+        Assert.assertTrue(userStoreManager.validatePassword(PASSWORD, storedHash, SALT));
+        Assert.assertFalse(userStoreManager.validatePassword(WRONG_PASSWORD, storedHash, SALT));
+    }
+
+    @Test
     public void testSelfDescribingHashIsVerifiedAfterFormatIsTurnedOff() throws Exception {
 
         String storedHash = new PasswordHashProcessor(config(PLUGGABLE_ALGORITHM, null))

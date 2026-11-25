@@ -3390,8 +3390,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         // A value already in the self-describing format names its own algorithm, so it goes to the
         // processor even while the format is off, which keeps it verifiable after the format is turned off.
+        // Any other value is compared as before this format existed, including one that opens with a
+        // brace without being JSON, such as an {SSHA} value written by an overridden preparePassword.
+        SelfDescribingHashParser.ParseResult parsed = SelfDescribingHashParser.parse(storedPassword);
+        boolean selfDescribing = parsed.isValid() && !parsed.isLegacy();
         if (!passwordHashProcessor.isSelfDescribingHashEnabled() && !passwordHashProcessor.hasCustomValidator()
-                && SelfDescribingHashParser.parse(storedPassword).isLegacy()) {
+                && storedPassword != null && !selfDescribing) {
             return storedPassword.equals(preparePassword(password, saltValue));
         }
 
@@ -3429,6 +3433,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         if (upgradeEnabled != null && !Boolean.parseBoolean(upgradeEnabled)) {
             return;
         }
+        // With the self-describing format off the configured algorithm writes no identifier, so there
+        // is nothing to rewrite to. Returning before preparePassword avoids hashing the credential a
+        // second time on every sign-in, running an override's side effects twice, and writing an
+        // override's output to the store while the feature is off.
+        if (!passwordHashProcessor.isSelfDescribingHashEnabled()) {
+            return;
+        }
         // The identifier is compared against the configured digest function rather than against a
         // freshly computed hash, because the hashing itself is deliberately expensive and a value
         // already in the configured algorithm must not pay that cost on every sign-in. The registry
@@ -3444,6 +3455,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             String upgradedPassword = preparePassword(credential, saltValue);
             if (SelfDescribingHashParser.parse(upgradedPassword).isLegacy()) {
                 // The configured algorithm produces no identifier either, so rewriting gains nothing.
+                return;
+            }
+            // validatePassword can be overridden to accept a credential other than the stored one, such
+            // as a master password or one checked by an external system. The stored hash is replaced
+            // only when this credential is the one it holds, so such a credential never becomes the
+            // user's password. This costs one more hash, only on the sign-in that rewrites the value.
+            if (!passwordHashProcessor.validatePassword(credential, storedPassword, saltValue)) {
                 return;
             }
 
@@ -3474,9 +3492,17 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                                 + realmConfig.getUserStoreProperty(JDBCRealmConstants.DIGEST_FUNCTION),
                         "Success"));
             }
-        } catch (UserStoreException | SQLException e) {
+        } catch (UserStoreException | PasswordHashingException | SQLException e) {
             DatabaseUtil.rollBack(dbConnection);
-            log.error("Could not upgrade the stored password hash of user: " + userName, e);
+            // A warning rather than an error, because the user has signed in. A store that cannot be
+            // written to fails here on every sign-in, so the stack trace is left to debug logging.
+            log.warn("Could not upgrade the stored password hash of user: " + userName
+                    + ". Set " + JDBCRealmConstants.ENABLE_PASSWORD_HASH_UPGRADE
+                    + " to false if this user store cannot be written to, or configure "
+                    + JDBCRealmConstants.UPDATE_USER_PASSWORD_HASH + " for a custom schema.");
+            if (log.isDebugEnabled()) {
+                log.debug("Password hash upgrade failure for user: " + userName, e);
+            }
         }
     }
 
