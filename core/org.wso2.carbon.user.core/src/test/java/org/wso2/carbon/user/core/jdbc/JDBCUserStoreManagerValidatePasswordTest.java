@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.user.core.jdbc;
 
+import org.apache.axiom.om.util.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -125,6 +126,10 @@ public class JDBCUserStoreManagerValidatePasswordTest {
                 "This test only covers the path taken when the provider has no native validation.");
 
         String storedHash = legacyStoredHash();
+        // If the provider hashed like the legacy algorithm, this test would pass even when the
+        // legacy setting is ignored and the configured provider verifies the value instead.
+        Assert.assertNotEquals(Base64.encode(new TestHashProvider().calculateHash(PASSWORD.toCharArray(), SALT)),
+                storedHash, "The test provider must hash differently from the legacy algorithm.");
         JDBCUserStoreManager userStoreManager = managerFor(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM);
 
         Assert.assertTrue(userStoreManager.validatePassword(PASSWORD, storedHash, SALT),
@@ -259,9 +264,12 @@ public class JDBCUserStoreManagerValidatePasswordTest {
         @Override
         public byte[] calculateHash(char[] plainText, String salt) throws HashProviderException {
 
+            // Hashed twice, so that it differs from the single-round SHA-256 legacy algorithm.
             try {
-                return MessageDigest.getInstance("SHA-256").digest(
+                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                byte[] once = digest.digest(
                         (new String(plainText) + (salt == null ? "" : salt)).getBytes(StandardCharsets.UTF_8));
+                return digest.digest(once);
             } catch (NoSuchAlgorithmException e) {
                 throw new HashProviderException("Could not calculate the test hash.", e);
             }

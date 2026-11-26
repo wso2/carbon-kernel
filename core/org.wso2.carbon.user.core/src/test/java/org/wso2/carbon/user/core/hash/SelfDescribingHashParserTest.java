@@ -74,8 +74,8 @@ public class SelfDescribingHashParserTest extends BaseTestCase {
     @Test
     public void testParseValuesThatAreJsonButNotObjects() {
 
-        // Gson parses leniently, so these parse as JSON primitives or arrays. Only a JSON object is
-        // the self-describing format, so each of them is still a legacy value.
+        // Some of these parse as JSON primitives or arrays. Only a JSON object is the
+        // self-describing format, so each of them is still a legacy value.
         for (String storedHash : new String[]{"12345", "true", "null", "\"quoted\"", "[1,2]", "plainpassword"}) {
             SelfDescribingHashParser.ParseResult result = SelfDescribingHashParser.parse(storedHash);
 
@@ -111,6 +111,27 @@ public class SelfDescribingHashParserTest extends BaseTestCase {
 
         SelfDescribingHashParser.ParseResult result =
                 SelfDescribingHashParser.parse("{\"algorithm\":\"PBKDF2\",\"hash\":");
+
+        assertFalse(result.isValid());
+        assertFalse(result.isLegacy());
+    }
+
+    @Test
+    public void testParseObjectWithUnquotedMemberNames() {
+
+        // Not valid JSON, so it is a damaged record rather than a value to hand to a provider.
+        SelfDescribingHashParser.ParseResult result =
+                SelfDescribingHashParser.parse("{algorithm:PBKDF2,hash:encoded-payload}");
+
+        assertFalse(result.isValid());
+        assertFalse(result.isLegacy());
+    }
+
+    @Test
+    public void testParseObjectWithTrailingContent() {
+
+        SelfDescribingHashParser.ParseResult result =
+                SelfDescribingHashParser.parse("{\"algorithm\":\"PBKDF2\",\"hash\":\"encoded-payload\"} extra");
 
         assertFalse(result.isValid());
         assertFalse(result.isLegacy());

@@ -181,7 +181,8 @@ public class PasswordHashProcessorTest {
         String payload = legacyStoredHash();
         PasswordHashProcessor processor = processor(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, null);
 
-        Assert.assertFalse(processor.validatePassword(PASSWORD, "{NOSUCHALG}" + payload, SALT),
+        Assert.assertFalse(processor.validatePassword(PASSWORD,
+                        SelfDescribingHashParser.format("NOSUCHALG", payload), SALT),
                 "An unregistered algorithm identifier must fail verification.");
     }
 
@@ -308,6 +309,18 @@ public class PasswordHashProcessorTest {
         Assert.assertTrue(processor.validatePassword(PASSWORD, storedHash, SALT),
                 "A self-describing value must still reach its provider in a plaintext legacy store.");
         Assert.assertFalse(processor.validatePassword(WRONG_PASSWORD, storedHash, SALT));
+    }
+
+    @Test
+    public void testSelfDescribingHashIsNotAcceptedAsItsOwnPassword() throws Exception {
+
+        // Anyone who can read the stored value must not be able to sign in by submitting it, even
+        // though legacy values in the same store are compared literally.
+        PasswordHashProcessor processor = processor(PLUGGABLE_ALGORITHM, PLAIN_TEXT_ALGORITHM, null);
+        String storedHash = processor.hashPassword(PASSWORD, SALT);
+
+        Assert.assertFalse(processor.validatePassword(storedHash, storedHash, SALT),
+                "A self-describing value must be verified by its provider, not compared literally.");
     }
 
     @Test

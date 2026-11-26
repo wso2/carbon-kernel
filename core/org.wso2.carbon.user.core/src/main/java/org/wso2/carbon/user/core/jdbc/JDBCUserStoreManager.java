@@ -3453,8 +3453,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         try {
             String upgradedPassword = preparePassword(credential, saltValue);
-            if (SelfDescribingHashParser.parse(upgradedPassword).isLegacy()) {
+            SelfDescribingHashParser.ParseResult upgradedResult = SelfDescribingHashParser.parse(upgradedPassword);
+            if (!upgradedResult.isValid() || upgradedResult.isLegacy()) {
                 // The configured algorithm produces no identifier either, so rewriting gains nothing.
+                // A damaged value, such as one from an overridden preparePassword, would lock the
+                // user out, so it is never written.
                 return;
             }
             // validatePassword can be overridden to accept a credential other than the stored one, such

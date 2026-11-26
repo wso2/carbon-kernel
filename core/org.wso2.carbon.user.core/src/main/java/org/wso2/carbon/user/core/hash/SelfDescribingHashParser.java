@@ -22,9 +22,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import org.apache.commons.lang.StringUtils;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -122,9 +125,9 @@ public final class SelfDescribingHashParser {
 
         JsonObject storedValue = parseJsonObject(storedHash);
         if (storedValue == null) {
-            // Gson parses leniently, so a bare value such as 12345 parses as a primitive rather than
-            // failing. Only a JSON object is the self-describing format; anything else is legacy,
-            // except a value that opens an object, which is a damaged self-describing record.
+            // A bare value such as 12345 may parse as a JSON primitive. Only a JSON object is the
+            // self-describing format; anything else is legacy, except a value that opens an object,
+            // which is a damaged self-describing record.
             if (!storedHash.isEmpty() && storedHash.charAt(0) == OBJECT_START) {
                 return ParseResult.malformed();
             }
@@ -148,10 +151,16 @@ public final class SelfDescribingHashParser {
      */
     private static JsonObject parseJsonObject(String storedHash) {
 
-        try {
-            JsonElement parsed = JsonParser.parseString(storedHash);
+        // Parsed strictly, because JsonParser is lenient and would accept an object with unquoted
+        // member names, passing a value that is not valid JSON on to a provider.
+        try (JsonReader reader = new JsonReader(new StringReader(storedHash))) {
+            reader.setLenient(false);
+            JsonElement parsed = GSON.getAdapter(JsonElement.class).read(reader);
+            if (reader.peek() != JsonToken.END_DOCUMENT) {
+                return null;
+            }
             return parsed.isJsonObject() ? parsed.getAsJsonObject() : null;
-        } catch (RuntimeException e) {
+        } catch (IOException | RuntimeException e) {
             return null;
         }
     }

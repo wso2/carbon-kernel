@@ -380,8 +380,24 @@ public class JDBCUserStoreManagerMigrationTest {
 
         migrate(userStoreManager, USER_NAME, PASSWORD, storedHash, SALT);
 
-        Mockito.verify(userStoreManager, Mockito.never()).preparePassword(Mockito.any(), Mockito.any());
+        Mockito.verify(userStoreManager, Mockito.never()).preparePassword((Object) Mockito.any(), Mockito.any());
         Assert.assertEquals(storedPassword(), storedHash);
+    }
+
+    @Test
+    public void testDamagedReplacementHashIsNotWritten() throws Exception {
+
+        // An overridden preparePassword can return a value that opens an object without being one.
+        // Writing it would lock the user out, so the stored hash must be kept.
+        String storedHash = insertUser(legacyHash());
+        JDBCUserStoreManager userStoreManager = Mockito.spy(
+                userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, "true"));
+        Mockito.doReturn("{SSHA}payload").when(userStoreManager).preparePassword((Object) Mockito.any(), Mockito.any());
+
+        migrate(userStoreManager, USER_NAME, PASSWORD, storedHash, SALT);
+
+        Assert.assertEquals(storedPassword(), storedHash,
+                "A damaged replacement hash must never be written.");
     }
 
     @Test

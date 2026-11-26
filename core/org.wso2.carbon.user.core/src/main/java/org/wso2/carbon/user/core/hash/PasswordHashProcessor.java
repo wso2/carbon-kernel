@@ -293,7 +293,10 @@ public class PasswordHashProcessor {
             // happens to look like a stored value is still only a password and is compared
             // literally. This is checked before the value is judged well formed, because a password
             // such as {hello opens an object without being one and would otherwise be rejected.
-            if (isPlainTextConfigured() && hashedPassword != null
+            // A self-describing value is a hash, so it is left to its provider; otherwise anyone
+            // who reads the stored value could submit it as the password.
+            boolean selfDescribing = parseResult.isValid() && !parseResult.isLegacy();
+            if (isPlainTextConfigured() && hashedPassword != null && !selfDescribing
                     && hashedPassword.equals(new String(credentialObj.getChars()))) {
                 return true;
             }
