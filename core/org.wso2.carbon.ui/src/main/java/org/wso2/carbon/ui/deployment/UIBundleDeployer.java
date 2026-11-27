@@ -266,10 +266,17 @@ public class UIBundleDeployer implements SynchronousBundleListener {
             FileUploadExecutorManager executorManager =
                     (FileUploadExecutorManager) fileUploadExecManagerTracker.getService();
             if (executorManager == null) {
-                log.error("FileUploadExecutorManager service is not available");
+                if (log.isDebugEnabled()) {
+                    log.debug("FileUploadExecutorManager service is not available. " +
+                            "Skipping file upload executor registration for component: " + component.getName());
+                }
+                log.warn("FileUploadExecutorManager service is unavailable. File upload executors will not be registered for component: " + component.getName());
                 return;
             }
-            FileUploadExecutorConfig[] executorConfigs = component.getFileUploadExecutorConfigs();
+            if (log.isDebugEnabled()) {
+                log.debug("Processing file upload executor definitions for component: " + component.getName() + 
+                         " with " + executorConfigs.length + " configurations");
+            }
             for (FileUploadExecutorConfig executorConfig : executorConfigs) {
                 String[] mappingActions = executorConfig.getMappingActionList();
                 for (String mappingAction : mappingActions) {
