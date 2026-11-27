@@ -240,6 +240,10 @@
         <Enabled>false</Enabled>
     </GhostDeployment>
 
+    {% if user_store_mgt.persistence_type is defined %}
+    <SecondaryUserStorePersistenceType>{{user_store_mgt.persistence_type}}</SecondaryUserStorePersistenceType>
+    {% endif %}
+
 
     <!--
         Eager loading or lazy loading is a design pattern commonly used in computer programming which
