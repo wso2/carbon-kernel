@@ -47,6 +47,7 @@ import org.wso2.carbon.user.core.exceptions.HashProviderException;
 import org.wso2.carbon.user.core.exceptions.PasswordHashingException;
 import org.wso2.carbon.user.core.hash.HashProviderFactory;
 import org.wso2.carbon.user.core.hash.PasswordHashProcessor;
+import org.wso2.carbon.user.core.hash.SelfDescribingHashParser;
 import org.wso2.carbon.user.core.hybrid.HybridJDBCConstants;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDataHolder;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
@@ -96,6 +97,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
 
+import static org.wso2.carbon.utils.CarbonUtils.isEnableV2AuditLogs;
 import static org.wso2.carbon.user.core.constants.UserCoreDBConstants.CASE_INSENSITIVE_SQL_STATEMENT_PARAMETER_PLACEHOLDER;
 import static org.wso2.carbon.user.core.constants.UserCoreDBConstants.GET_DISTINCT_USER_NAMES_FROM_USER_ATTRIBUTE_SQL;
 import static org.wso2.carbon.user.core.constants.UserCoreDBConstants.SQL_STATEMENT_PARAMETER_PLACEHOLDER;
@@ -118,6 +120,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
     // private boolean useOnlyInternalRoles;
     private static Log log = LogFactory.getLog(JDBCUserStoreManager.class);
+    private static Log audit = CarbonConstants.AUDIT_LOG;
 
     private static final String QUERY_FILTER_STRING_ANY = "*";
     private static final String SQL_FILTER_STRING_ANY = "%";
@@ -1849,6 +1852,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
             rs = prepStmt.executeQuery();
 
+            // Migrated after the results are read, because a commit can close them on some databases.
+            String verifiedPassword = null;
+            String verifiedSaltValue = null;
             if (rs.next() == true) {
                 String storedPassword = rs.getString(3);
                 String saltValue = null;
@@ -1869,8 +1875,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 } else {
                     if (this.validatePassword(credential, storedPassword, saltValue)) {
                         isAuthed = true;
+                        verifiedPassword = storedPassword;
+                        verifiedSaltValue = saltValue;
                     }
                 }
+            }
+            if (isAuthed) {
+                migratePasswordHash(dbConnection, userName, credential, verifiedPassword, verifiedSaltValue);
             }
         } catch (SQLException e) {
             String msg = "Error occurred while retrieving user authentication info for user : " + userName;
@@ -3351,6 +3362,18 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
     /**
      * Validates a given password against a stored hashed password using a salt.
+     * <p>
+     * A stored hash selects the algorithm that verifies it, so it cannot be verified by recomputing
+     * the configured hash and comparing strings. Verification is therefore delegated to the
+     * {@link PasswordHashProcessor}, which routes a stored hash to the provider its algorithm
+     * identifier names, and verifies a stored hash without an identifier with the configured legacy
+     * algorithm.
+     * </p>
+     * <p>
+     * While the self-describing format is off, a stored hash without an identifier is still verified
+     * by recomputing it with {@link #preparePassword(Object, String)}, as before this format existed,
+     * so that a subclass overriding that method keeps verifying the credentials it wrote.
+     * </p>
      *
      * @param password The original password value, which can be a String or a character array.
      * @param storedPassword The stored password hash as a String.
@@ -3365,14 +3388,108 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             throw new UserStoreException("PasswordHashProcessor is not initialized.");
         }
 
-        if (!passwordHashProcessor.hasCustomValidator()) {
-            return storedPassword != null && storedPassword.equals(preparePassword(password, saltValue));
+        // While the format is off, a non-JSON value is compared as before; a JSON value always goes to
+        // the processor, so it stays verifiable after the format is turned off.
+        SelfDescribingHashParser.ParseResult parsed = SelfDescribingHashParser.parse(storedPassword);
+        boolean selfDescribing = parsed.isValid() && !parsed.isLegacy();
+        if (!passwordHashProcessor.isSelfDescribingHashEnabled() && !passwordHashProcessor.hasCustomValidator()
+                && storedPassword != null && !selfDescribing) {
+            return storedPassword.equals(preparePassword(password, saltValue));
         }
 
+        boolean valid;
         try {
-            return passwordHashProcessor.validatePassword(password, storedPassword, saltValue);
+            valid = passwordHashProcessor.validatePassword(password, storedPassword, saltValue);
         } catch (PasswordHashingException e) {
             throw new UserStoreException(e);
+        }
+        // A subclass's own scheme (e.g. {SSHA}) can't be verified by the processor; with the format on, the
+        // default preparePassword writes JSON, which never equals a non-JSON value.
+        if (!valid && passwordHashProcessor.isSelfDescribingHashEnabled()
+                && storedPassword != null && !selfDescribing) {
+            return storedPassword.equals(preparePassword(password, saltValue));
+        }
+        return valid;
+    }
+
+    /**
+     * Rewrites a verified stored hash into the configured algorithm. Call this only after the credential
+     * has been verified; a failure is logged and never fails the sign-in.
+     *
+     * @param dbConnection   The connection the credential was read with, which this commits.
+     * @param userName       The user whose stored hash is rewritten.
+     * @param credential     The credential that was just verified.
+     * @param storedPassword The stored hash that was verified.
+     * @param saltValue      The salt stored with it, reused so that only one column changes.
+     */
+    protected void migratePasswordHash(Connection dbConnection, String userName, Object credential,
+                                       String storedPassword, String saltValue) {
+
+        try {
+            // Migrate only when the store is writable and both the upgrade and the self-describing format
+            // are enabled.
+            if (isReadOnly() || !passwordHashProcessor.isPasswordHashUpgradeEnabled()
+                    || !passwordHashProcessor.isSelfDescribingHashEnabled()) {
+                return;
+            }
+            // Skip a hash already in the configured algorithm and parameters, without an expensive rehash.
+            SelfDescribingHashParser.ParseResult storedResult = SelfDescribingHashParser.parse(storedPassword);
+            if (!storedResult.isLegacy() && StringUtils.equals(storedResult.getAlgorithm(),
+                    realmConfig.getUserStoreProperty(JDBCRealmConstants.DIGEST_FUNCTION))
+                    && storedResult.getProperties().equals(passwordHashProcessor.getHashParameters())) {
+                return;
+            }
+
+            String upgradedPassword = preparePassword(credential, saltValue);
+            SelfDescribingHashParser.ParseResult upgradedResult = SelfDescribingHashParser.parse(upgradedPassword);
+            if (!upgradedResult.isValid() || upgradedResult.isLegacy()) {
+                // Write only a valid self-describing hash; a plain or damaged value gains nothing or
+                // would lock the user out.
+                return;
+            }
+            // Re-verify, so a credential accepted by an overridden validatePassword (e.g. a master
+            // password) never replaces the user's own.
+            if (!passwordHashProcessor.validatePassword(credential, storedPassword, saltValue)) {
+                return;
+            }
+
+            String sqlStmt = isCaseSensitiveUsername()
+                    ? realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_USER_PASSWORD_HASH)
+                    : realmConfig.getUserStoreProperty(
+                            JDBCCaseInsensitiveConstants.UPDATE_USER_PASSWORD_HASH_CASE_INSENSITIVE);
+            if (sqlStmt == null) {
+                return;
+            }
+            // Run directly, because the audit log needs the row count (0 if the password changed meanwhile).
+            int updatedRows;
+            try (PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
+                prepStmt.setString(1, upgradedPassword);
+                prepStmt.setString(2, userName);
+                prepStmt.setInt(3, tenantId);
+                prepStmt.setString(4, storedPassword);
+                updatedRows = prepStmt.executeUpdate();
+            }
+            // The authentication connection does not auto-commit.
+            dbConnection.commit();
+            if (updatedRows > 0 && !isEnableV2AuditLogs()) {
+                String fromAlgorithm = storedResult.isLegacy()
+                        ? passwordHashProcessor.getLegacyDigestFunction() : storedResult.getAlgorithm();
+                audit.info(String.format(CarbonConstants.AUDIT_MESSAGE, userName, "Migrate Password Hash",
+                        userName, "FromAlgorithm : " + fromAlgorithm + ", ToAlgorithm : "
+                                + realmConfig.getUserStoreProperty(JDBCRealmConstants.DIGEST_FUNCTION),
+                        "Success"));
+            }
+        } catch (UserStoreException | PasswordHashingException | SQLException | RuntimeException e) {
+            DatabaseUtil.rollBack(dbConnection);
+            // A warning, since the user has signed in; the stack trace is debug-only to avoid flooding
+            // the log on every sign-in.
+            log.warn("Could not upgrade the stored password hash of user: " + userName
+                    + ". Set " + JDBCRealmConstants.ENABLE_PASSWORD_HASH_UPGRADE
+                    + " to false if this user store cannot be written to, or configure "
+                    + JDBCRealmConstants.UPDATE_USER_PASSWORD_HASH + " for a custom schema.");
+            if (log.isDebugEnabled()) {
+                log.debug("Password hash upgrade failure for user: " + userName, e);
+            }
         }
     }
 

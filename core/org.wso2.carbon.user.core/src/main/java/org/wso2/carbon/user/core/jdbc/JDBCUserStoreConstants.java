@@ -130,6 +130,32 @@ public class JDBCUserStoreConstants {
                 "UserStore Hashing Configurations", "{}",
                 "Configurations for UserStore Hashing in JSON format",
                 new Property[]{USER.getProperty(), STRING.getProperty(), FALSE.getProperty()});
+        setAdvancedProperty(JDBCRealmConstants.LEGACY_DIGEST_FUNCTION,
+                "Legacy Password Hashing Algorithm", "",
+                "The hashing algorithm used to verify stored password hashes that carry no algorithm "
+                        + "identifier. Set this to the algorithm currently in use before changing the "
+                        + "Password Hashing Algorithm. Falls back to the Password Hashing Algorithm "
+                        + "when left blank.",
+                new Property[] { USER.getProperty(), STRING.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCRealmConstants.LEGACY_HASHING_ALGORITHM_PROPERTIES,
+                "Legacy UserStore Hashing Configurations", "{}",
+                "The parameters, in JSON format, used to verify stored password hashes that carry no "
+                        + "algorithm identifier. Set this to the UserStore Hashing Configurations currently "
+                        + "in use before changing them.",
+                new Property[] { USER.getProperty(), STRING.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCRealmConstants.ENABLE_SELF_DESCRIBING_PASSWORD_HASH,
+                "Enable Self-Describing Password Hash", "false",
+                "Store a new password hash together with the algorithm and the parameters that produced "
+                        + "it, which allows the Password Hashing Algorithm to be changed later without "
+                        + "resetting passwords. Values already stored in this format stay verifiable "
+                        + "when this is turned off.",
+                new Property[] { USER.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCRealmConstants.ENABLE_PASSWORD_HASH_UPGRADE,
+                "Enable Password Hash Upgrade", "false",
+                "Rewrite a successfully verified password hash that was not produced by the configured "
+                        + "Password Hashing Algorithm, so that it moves to that algorithm. Takes effect "
+                        + "only while Enable Self-Describing Password Hash is turned on.",
+                new Property[] { USER.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",",
                 MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION,
                 new Property[] { USER.getProperty(), STRING.getProperty(), FALSE.getProperty() });
@@ -667,6 +693,13 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(JDBCCaseInsensitiveConstants.UPDATE_USER_PASSWORD_CASE_INSENSITIVE,
                 "Update User Password SQL With Case Insensitive Username",
                 JDBCCaseInsensitiveConstants.UPDATE_USER_PASSWORD_SQL_CASE_INSENSITIVE, "",
+                new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCRealmConstants.UPDATE_USER_PASSWORD_HASH, "Update User Password Hash SQL",
+                JDBCRealmConstants.UPDATE_USER_PASSWORD_HASH_SQL, "",
+                new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
+        setAdvancedProperty(JDBCCaseInsensitiveConstants.UPDATE_USER_PASSWORD_HASH_CASE_INSENSITIVE,
+                "Update User Password Hash SQL With Case Insensitive Username",
+                JDBCCaseInsensitiveConstants.UPDATE_USER_PASSWORD_HASH_SQL_CASE_INSENSITIVE, "",
                 new Property[] { USER.getProperty(), SQL.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCRealmConstants.UPDATE_ROLE_NAME, "Update Group Name SQL",
                 JDBCRealmConstants.UPDATE_ROLE_NAME_SQL, "",

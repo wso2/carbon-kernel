@@ -234,6 +234,10 @@ public class UserCoreConstants {
         public static final String PASSWORD_HASH_METHOD_PLAIN_TEXT = "PLAIN_TEXT";
         public static final String PASSWORD_HASH_DIGEST_FUNCTION = "PasswordDigest";
         public static final String PASSWORD_HASH_ALGORITHM_PROPERTIES = "Hash.Algorithm.Properties";
+        public static final String LEGACY_PASSWORD_HASH_DIGEST_FUNCTION = "LegacyPasswordDigest";
+        public static final String LEGACY_PASSWORD_HASH_ALGORITHM_PROPERTIES = "LegacyHashAlgorithmProperties";
+        public static final String ENABLE_PASSWORD_HASH_UPGRADE = "EnablePasswordHashUpgrade";
+        public static final String ENABLE_SELF_DESCRIBING_PASSWORD_HASH = "EnableSelfDescribingPasswordHash";
 
         public static final String PROPERTY_DOMAIN_NAME = "DomainName";
 

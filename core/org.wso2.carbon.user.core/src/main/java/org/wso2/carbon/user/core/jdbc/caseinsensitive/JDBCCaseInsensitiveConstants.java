@@ -81,6 +81,8 @@ public class JDBCCaseInsensitiveConstants {
     public static final String ON_DELETE_USER_REMOVE_ATTRIBUTE_CASE_INSENSITIVE =
             "OnDeleteUserRemoveUserAttributeSQLCaseInsensitive";
     public static final String UPDATE_USER_PASSWORD_CASE_INSENSITIVE = "UpdateUserPasswordSQLCaseInsensitive";
+    public static final String UPDATE_USER_PASSWORD_HASH_CASE_INSENSITIVE =
+            "UpdateUserPasswordHashSQLCaseInsensitive";
     public static final String ADD_USER_PROPERTY_SQL_CASE_INSENSITIVE = "INSERT INTO UM_USER_ATTRIBUTE " +
             "(UM_USER_ID, UM_ATTR_NAME, UM_ATTR_VALUE, UM_PROFILE_ID, UM_TENANT_ID) VALUES " +
             "((SELECT UM_ID FROM UM_USER WHERE LOWER(UM_USER_NAME)=LOWER(?) AND UM_TENANT_ID=?), ?, ?, ?, ?)";
@@ -232,6 +234,12 @@ public class JDBCCaseInsensitiveConstants {
     public static final String UPDATE_USER_PASSWORD_SQL_CASE_INSENSITIVE = "UPDATE UM_USER SET UM_USER_PASSWORD= ?, " +
             "UM_SALT_VALUE=?, UM_REQUIRE_CHANGE=?, UM_CHANGED_TIME=? WHERE LOWER(UM_USER_NAME)= LOWER(?) AND " +
             "UM_TENANT_ID=?";
+    /*
+     * Rewrites only the stored hash, leaving the salt and the password lifecycle columns alone, and
+     * applies only while the stored value is still the one that was verified.
+     */
+    public static final String UPDATE_USER_PASSWORD_HASH_SQL_CASE_INSENSITIVE = "UPDATE UM_USER SET " +
+            "UM_USER_PASSWORD=? WHERE LOWER(UM_USER_NAME)=LOWER(?) AND UM_TENANT_ID=? AND UM_USER_PASSWORD=?";
     public static final String UPDATE_USER_PROPERTY_SQL_CASE_INSENSITIVE = "UPDATE UM_USER_ATTRIBUTE SET " +
             "UM_ATTR_VALUE=? WHERE UM_USER_ID=(SELECT UM_ID FROM UM_USER WHERE LOWER(UM_USER_NAME)=LOWER(?) AND " +
             "UM_TENANT_ID=?) AND UM_ATTR_NAME=? AND UM_PROFILE_ID=? AND UM_TENANT_ID=?";
