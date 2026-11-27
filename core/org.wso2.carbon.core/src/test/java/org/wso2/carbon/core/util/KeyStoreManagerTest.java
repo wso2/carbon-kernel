@@ -42,6 +42,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.util.Collections;
 
 import static org.junit.Assert.assertSame;
 import static org.mockito.ArgumentMatchers.any;
@@ -50,6 +51,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.expectThrows;
 
@@ -209,6 +212,10 @@ public class KeyStoreManagerTest {
         try (java.io.InputStream in = new java.io.FileInputStream(createPath("pkcs11-token-test.p12").toFile())) {
             tokenContents = InMemoryTokenProvider.loadPKCS12(in, tokenPassword);
         }
+        // The token holds the server key pair and, as when [keystore.tenant] uses the same token, a tenant key pair.
+        String tenantLabel = "wso2-tenant-6f1d2c8e-4b7a-4e19-9c3d-2a5b8e0f7c41";
+        tokenContents.setKeyEntry("wso2carbon", tokenContents.getKey(tenantLabel, tokenPassword), tokenPassword,
+                tokenContents.getCertificateChain(tenantLabel));
         InMemoryTokenProvider provider = new InMemoryTokenProvider(providerName, tokenContents, tokenPassword,
                 "1234".toCharArray());
         java.security.Security.addProvider(provider);
@@ -220,12 +227,15 @@ public class KeyStoreManagerTest {
             KeyStore keyStore = this.keyStoreManager.loadKeyStoreFromFileSystem("/no/such/file.p11", "1234",
                     "PKCS11", providerName);
             assertSame(keyStore.getProvider(), provider);
-            assertTrue(keyStore.isKeyEntry("wso2-tenant-6f1d2c8e-4b7a-4e19-9c3d-2a5b8e0f7c41"));
+            assertTrue(keyStore.isKeyEntry("wso2carbon"));
+            // Tenant key pairs on the token are not part of the server key store.
+            assertFalse(keyStore.isKeyEntry(tenantLabel));
+            assertEquals(Collections.list(keyStore.aliases()), Collections.singletonList("wso2carbon"));
 
             // Like SunPKCS11, the PIN is not checked again once the token is logged in.
             assertTrue(provider.isLoggedIn());
             assertTrue(this.keyStoreManager.loadKeyStoreFromFileSystem("/no/such/file.p11", "0000", "PKCS11",
-                    providerName).isKeyEntry("wso2-tenant-6f1d2c8e-4b7a-4e19-9c3d-2a5b8e0f7c41"));
+                    providerName).isKeyEntry("wso2carbon"));
         } finally {
             java.security.Security.removeProvider(providerName);
         }

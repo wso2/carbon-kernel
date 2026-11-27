@@ -38,6 +38,7 @@ import java.util.Collections;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
@@ -45,7 +46,8 @@ import static org.testng.Assert.expectThrows;
 
 /**
  * Tests for {@link TenantPKCS11KeyStore}: the descriptor, the binding of the descriptor to the tenant, the read-only
- * single-entry view over a shared token and deleting a tenant's token entry.
+ * single-entry view over a shared token, deleting a tenant's token entry, and the server key store view that hides
+ * the tenant entries of a token.
  */
 public class TenantPKCS11KeyStoreTest {
 
@@ -58,6 +60,7 @@ public class TenantPKCS11KeyStoreTest {
     private static final String TENANT_A_LABEL = "wso2-tenant-" + TENANT_A_ID;
     private static final String TENANT_B_LABEL = "wso2-tenant-" + TENANT_B_ID;
     private static final String TENANT_A_DOMAIN = "a.com";
+    private static final String SERVER_ALIAS = "wso2carbon";
 
     private InMemoryTokenProvider provider;
 
@@ -299,6 +302,106 @@ public class TenantPKCS11KeyStoreTest {
         // The other tenant's entry stays.
         assertTrue(containsTokenAlias(TENANT_A_LABEL));
         assertFalse(TenantPKCS11KeyStore.deleteEntry(PROVIDER_NAME, PIN, descriptor, TENANT_B_ID));
+    }
+
+    @Test
+    public void testServerViewHidesTenantEntries() throws Exception {
+
+        // The primary key store is on the token that also holds the tenant key pairs ([keystore.tenant]).
+        addServerEntry();
+        KeyStore view = loadServerView();
+
+        assertSame(view.getProvider(), provider);
+        assertEquals(view.getType(), "PKCS11");
+        assertEquals(Collections.list(view.aliases()), Collections.singletonList(SERVER_ALIAS));
+        assertEquals(view.size(), 1);
+        assertTrue(view.containsAlias(SERVER_ALIAS));
+        assertTrue(view.isKeyEntry(SERVER_ALIAS));
+        assertNotNull(view.getKey(SERVER_ALIAS, null));
+        assertNotNull(view.getCertificate(SERVER_ALIAS));
+        assertTrue(view.entryInstanceOf(SERVER_ALIAS, KeyStore.PrivateKeyEntry.class));
+        for (String label : new String[]{TENANT_A_LABEL, TENANT_B_LABEL}) {
+            assertFalse(view.containsAlias(label));
+            assertFalse(view.isKeyEntry(label));
+            assertFalse(view.isCertificateEntry(label));
+            assertNull(view.getKey(label, null));
+            assertNull(view.getCertificate(label));
+            assertNull(view.getCertificateChain(label));
+            assertNull(view.getCreationDate(label));
+            assertNull(view.getEntry(label, null));
+            assertFalse(view.entryInstanceOf(label, KeyStore.PrivateKeyEntry.class));
+        }
+        // The server entry uses tenant B's certificate in this test. The view names only the server alias for it.
+        KeyStore token = provider.getToken();
+        assertEquals(view.getCertificateAlias(token.getCertificate(TENANT_B_LABEL)), SERVER_ALIAS);
+        assertNull(view.getCertificateAlias(token.getCertificate(TENANT_A_LABEL)));
+    }
+
+    @Test
+    public void testServerViewHidesTenantEntryWithSharedLabel() throws Exception {
+
+        // SunPKCS11 lists an entry whose certificate label is not unique as <label>/<issuer>/<serial number>.
+        String sharedLabelAlias = TENANT_A_LABEL + "/cn=a.com/01";
+        KeyStore token = provider.getToken();
+        token.setKeyEntry(sharedLabelAlias, token.getKey(TENANT_A_LABEL, TOKEN_PASSWORD), TOKEN_PASSWORD,
+                token.getCertificateChain(TENANT_A_LABEL));
+        KeyStore view = loadServerView();
+
+        assertEquals(view.size(), 0);
+        assertFalse(view.aliases().hasMoreElements());
+        assertFalse(view.isKeyEntry(sharedLabelAlias));
+        assertNull(view.getKey(sharedLabelAlias, null));
+    }
+
+    @Test
+    public void testServerViewRefusesChangesToTenantEntries() throws Exception {
+
+        KeyStore view = loadServerView();
+        KeyStore token = provider.getToken();
+        Key key = token.getKey(TENANT_B_LABEL, TOKEN_PASSWORD);
+        Certificate[] chain = token.getCertificateChain(TENANT_B_LABEL);
+
+        expectThrows(KeyStoreException.class, () -> view.deleteEntry(TENANT_A_LABEL));
+        expectThrows(KeyStoreException.class, () -> view.setKeyEntry(TENANT_A_LABEL, key, null, chain));
+        expectThrows(KeyStoreException.class, () -> view.setCertificateEntry(TENANT_A_LABEL, chain[0]));
+        expectThrows(KeyStoreException.class, () -> view.setEntry(TENANT_A_LABEL,
+                new KeyStore.TrustedCertificateEntry(chain[0]), null));
+        assertTrue(token.isKeyEntry(TENANT_A_LABEL));
+        assertEquals(token.getCertificate(TENANT_A_LABEL), loadTenantAView().getCertificate(TENANT_A_DOMAIN));
+
+        // Server entries are written to the token as before.
+        view.setKeyEntry(SERVER_ALIAS, key, null, chain);
+        assertTrue(view.isKeyEntry(SERVER_ALIAS));
+        assertTrue(containsTokenAlias(SERVER_ALIAS));
+        view.deleteEntry(SERVER_ALIAS);
+        assertFalse(containsTokenAlias(SERVER_ALIAS));
+    }
+
+    @Test
+    public void testServerViewLoadReloadsTheToken() throws Exception {
+
+        KeyStore view = loadServerView();
+        assertEquals(view.size(), 0);
+        // Added through another key store instance, after the view was created.
+        addServerEntry();
+        assertEquals(view.size(), 0);
+
+        view.load(null, PIN);
+        assertEquals(Collections.list(view.aliases()), Collections.singletonList(SERVER_ALIAS));
+    }
+
+    private void addServerEntry() throws Exception {
+
+        KeyStore token = provider.getToken();
+        token.setKeyEntry(SERVER_ALIAS, token.getKey(TENANT_B_LABEL, TOKEN_PASSWORD), TOKEN_PASSWORD,
+                token.getCertificateChain(TENANT_B_LABEL));
+    }
+
+    private KeyStore loadServerView() throws Exception {
+
+        KeyStore token = KeyStore.getInstance("PKCS11", provider);
+        token.load(null, PIN);
+        return TenantPKCS11KeyStore.excludeTenantEntries(token);
     }
 
     private boolean containsTokenAlias(String alias) {

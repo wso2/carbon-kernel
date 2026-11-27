@@ -1139,7 +1139,9 @@ public class KeyStoreManager {
     /**
      * Load a server key store (primary or custom). A PKCS11 key store is held in a token: it is loaded
      * through the given provider with {@code load(null, password)} and no file is read, so no placeholder file is
-     * needed. Other key stores are loaded from the file as before.
+     * needed. The token can also hold tenant key pairs, so the server gets a view of it without them (see
+     * {@link TenantPKCS11KeyStore#excludeTenantEntries(KeyStore)}). Other key stores are loaded from the file as
+     * before.
      *
      * @param type     Key store type.
      * @param provider Name of a registered JCA provider, or null for the default provider selection. For PKCS11, the
@@ -1157,7 +1159,7 @@ public class KeyStoreManager {
         KeyStore store = KeystoreUtils.getKeystoreInstance(type, provider);
         if (KeystoreUtils.isPKCS11StoreType(type)) {
             store.load(null, password);
-            return store;
+            return TenantPKCS11KeyStore.excludeTenantEntries(store);
         }
         try (FileInputStream in = new FileInputStream(file)) {
             store.load(in, password);
