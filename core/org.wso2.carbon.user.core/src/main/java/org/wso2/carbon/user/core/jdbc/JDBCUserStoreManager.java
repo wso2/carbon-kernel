@@ -3388,10 +3388,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             throw new UserStoreException("PasswordHashProcessor is not initialized.");
         }
 
-        // A value already in the self-describing format names its own algorithm, so it goes to the
-        // processor even while the format is off, which keeps it verifiable after the format is turned off.
-        // Any other value is compared as before this format existed, including one that opens with a
-        // brace without being JSON, such as an {SSHA} value written by an overridden preparePassword.
+        // While the format is off, a non-JSON value is compared as before; a JSON value always goes to
+        // the processor, so it stays verifiable after the format is turned off.
         SelfDescribingHashParser.ParseResult parsed = SelfDescribingHashParser.parse(storedPassword);
         boolean selfDescribing = parsed.isValid() && !parsed.isLegacy();
         if (!passwordHashProcessor.isSelfDescribingHashEnabled() && !passwordHashProcessor.hasCustomValidator()
@@ -3399,25 +3397,24 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             return storedPassword.equals(preparePassword(password, saltValue));
         }
 
+        boolean valid;
         try {
-            return passwordHashProcessor.validatePassword(password, storedPassword, saltValue);
+            valid = passwordHashProcessor.validatePassword(password, storedPassword, saltValue);
         } catch (PasswordHashingException e) {
             throw new UserStoreException(e);
         }
+        // A subclass's own scheme (e.g. {SSHA}) can't be verified by the processor; with the format on, the
+        // default preparePassword writes JSON, which never equals a non-JSON value.
+        if (!valid && passwordHashProcessor.isSelfDescribingHashEnabled()
+                && storedPassword != null && !selfDescribing) {
+            return storedPassword.equals(preparePassword(password, saltValue));
+        }
+        return valid;
     }
 
     /**
-     * Rewrites a stored hash that was not produced by the configured algorithm, so that a credential
-     * verified against a superseded algorithm moves to the configured one. Call this only after the
-     * credential has been verified.
-     * <p>
-     * This covers a value carrying no identifier as well as one naming an algorithm other than the
-     * configured one; a value the configured algorithm already produced is left alone. The rewrite
-     * applies only while the stored value is still the one that was verified, so a password changed
-     * in the meantime is never overwritten. The salt and the password lifecycle columns are left
-     * alone. A failure is logged and otherwise ignored: the user has already authenticated, and a
-     * failed rewrite must not turn that into a failed sign-in.
-     * </p>
+     * Rewrites a verified stored hash into the configured algorithm. Call this only after the credential
+     * has been verified; a failure is logged and never fails the sign-in.
      *
      * @param dbConnection   The connection the credential was read with, which this commits.
      * @param userName       The user whose stored hash is rewritten.
@@ -3428,42 +3425,30 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     protected void migratePasswordHash(Connection dbConnection, String userName, Object credential,
                                        String storedPassword, String saltValue) {
 
-        // Absent means the property was never configured, which carries the declared default of true.
-        String upgradeEnabled = realmConfig.getUserStoreProperty(JDBCRealmConstants.ENABLE_PASSWORD_HASH_UPGRADE);
-        if (upgradeEnabled != null && !Boolean.parseBoolean(upgradeEnabled)) {
-            return;
-        }
-        // With the self-describing format off the configured algorithm writes no identifier, so there
-        // is nothing to rewrite to. Returning before preparePassword avoids hashing the credential a
-        // second time on every sign-in, running an override's side effects twice, and writing an
-        // override's output to the store while the feature is off.
-        if (!passwordHashProcessor.isSelfDescribingHashEnabled()) {
-            return;
-        }
-        // The identifier is compared against the configured digest function rather than against a
-        // freshly computed hash, because the hashing itself is deliberately expensive and a value
-        // already in the configured algorithm must not pay that cost on every sign-in. The registry
-        // keys providers by the identifier they report, so a configured digest function that
-        // resolves to a provider carries exactly the identifier that provider writes.
-        SelfDescribingHashParser.ParseResult storedResult = SelfDescribingHashParser.parse(storedPassword);
-        if (!storedResult.isLegacy() && StringUtils.equals(storedResult.getAlgorithm(),
-                realmConfig.getUserStoreProperty(JDBCRealmConstants.DIGEST_FUNCTION))) {
-            return;
-        }
-
         try {
+            // Migrate only when the store is writable and both the upgrade and the self-describing format
+            // are enabled.
+            if (isReadOnly() || !passwordHashProcessor.isPasswordHashUpgradeEnabled()
+                    || !passwordHashProcessor.isSelfDescribingHashEnabled()) {
+                return;
+            }
+            // Skip a hash already in the configured algorithm and parameters, without an expensive rehash.
+            SelfDescribingHashParser.ParseResult storedResult = SelfDescribingHashParser.parse(storedPassword);
+            if (!storedResult.isLegacy() && StringUtils.equals(storedResult.getAlgorithm(),
+                    realmConfig.getUserStoreProperty(JDBCRealmConstants.DIGEST_FUNCTION))
+                    && storedResult.getProperties().equals(passwordHashProcessor.getHashParameters())) {
+                return;
+            }
+
             String upgradedPassword = preparePassword(credential, saltValue);
             SelfDescribingHashParser.ParseResult upgradedResult = SelfDescribingHashParser.parse(upgradedPassword);
             if (!upgradedResult.isValid() || upgradedResult.isLegacy()) {
-                // The configured algorithm produces no identifier either, so rewriting gains nothing.
-                // A damaged value, such as one from an overridden preparePassword, would lock the
-                // user out, so it is never written.
+                // Write only a valid self-describing hash; a plain or damaged value gains nothing or
+                // would lock the user out.
                 return;
             }
-            // validatePassword can be overridden to accept a credential other than the stored one, such
-            // as a master password or one checked by an external system. The stored hash is replaced
-            // only when this credential is the one it holds, so such a credential never becomes the
-            // user's password. This costs one more hash, only on the sign-in that rewrites the value.
+            // Re-verify, so a credential accepted by an overridden validatePassword (e.g. a master
+            // password) never replaces the user's own.
             if (!passwordHashProcessor.validatePassword(credential, storedPassword, saltValue)) {
                 return;
             }
@@ -3475,8 +3460,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             if (sqlStmt == null) {
                 return;
             }
-            // Run here rather than through the update helper, because the audit log needs the row count:
-            // no row changes when the password was changed after it was verified.
+            // Run directly, because the audit log needs the row count (0 if the password changed meanwhile).
             int updatedRows;
             try (PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt)) {
                 prepStmt.setString(1, upgradedPassword);
@@ -3495,10 +3479,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                                 + realmConfig.getUserStoreProperty(JDBCRealmConstants.DIGEST_FUNCTION),
                         "Success"));
             }
-        } catch (UserStoreException | PasswordHashingException | SQLException e) {
+        } catch (UserStoreException | PasswordHashingException | SQLException | RuntimeException e) {
             DatabaseUtil.rollBack(dbConnection);
-            // A warning rather than an error, because the user has signed in. A store that cannot be
-            // written to fails here on every sign-in, so the stack trace is left to debug logging.
+            // A warning, since the user has signed in; the stack trace is debug-only to avoid flooding
+            // the log on every sign-in.
             log.warn("Could not upgrade the stored password hash of user: " + userName
                     + ". Set " + JDBCRealmConstants.ENABLE_PASSWORD_HASH_UPGRADE
                     + " to false if this user store cannot be written to, or configure "

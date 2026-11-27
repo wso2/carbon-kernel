@@ -151,7 +151,7 @@ public class JDBCUserStoreConstants {
                         + "when this is turned off.",
                 new Property[] { USER.getProperty(), BOOLEAN.getProperty(), FALSE.getProperty() });
         setAdvancedProperty(JDBCRealmConstants.ENABLE_PASSWORD_HASH_UPGRADE,
-                "Enable Password Hash Upgrade", "true",
+                "Enable Password Hash Upgrade", "false",
                 "Rewrite a successfully verified password hash that was not produced by the configured "
                         + "Password Hashing Algorithm, so that it moves to that algorithm. Takes effect "
                         + "only while Enable Self-Describing Password Hash is turned on.",

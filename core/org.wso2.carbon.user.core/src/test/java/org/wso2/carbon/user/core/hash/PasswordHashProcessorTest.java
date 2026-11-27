@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2026, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2026, WSO2 LLC. (https://www.wso2.com).
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
- *
  * You may obtain a copy of the License at
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -109,6 +109,40 @@ public class PasswordHashProcessorTest {
             config.put(PASSWORD_HASH_ALGORITHM_PROPERTIES, algorithmProperties);
         }
         return new PasswordHashProcessor(config);
+    }
+
+    @Test
+    public void testMessageDigestHashIsSelfDescribingAndVerifies() throws Exception {
+
+        // A MessageDigest algorithm must name itself too, or it would be verified with the legacy one.
+        PasswordHashProcessor processor = processor("SHA-512", LEGACY_ALGORITHM, null);
+        String storedHash = processor.hashPassword(PASSWORD, SALT);
+
+        Assert.assertTrue(storedHash.startsWith("{\"algorithm\":\"SHA-512\""));
+        Assert.assertTrue(processor.validatePassword(PASSWORD, storedHash, SALT));
+        Assert.assertFalse(processor.validatePassword(WRONG_PASSWORD, storedHash, SALT));
+        Assert.assertTrue(processor.validatePassword(PASSWORD, legacyStoredHash(), SALT),
+                "Legacy SHA-256 hashes must still verify after moving to SHA-512.");
+    }
+
+    @Test
+    public void testMessageDigestHashIsPlainWhileFormatIsOff() throws Exception {
+
+        Map<String, String> config = new HashMap<>();
+        config.put(PASSWORD_HASH_DIGEST_FUNCTION, "SHA-512");
+        String storedHash = new PasswordHashProcessor(config).hashPassword(PASSWORD, SALT);
+
+        Assert.assertFalse(storedHash.startsWith("{"));
+    }
+
+    @Test
+    public void testSelfDescribingPlainTextValueIsRejected() throws Exception {
+
+        // PLAIN_TEXT is not a hash, so a stored value naming it must never verify.
+        PasswordHashProcessor processor = processor(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, null);
+
+        Assert.assertFalse(processor.validatePassword(PASSWORD,
+                SelfDescribingHashParser.format(PLAIN_TEXT_ALGORITHM, PASSWORD), SALT));
     }
 
     @Test

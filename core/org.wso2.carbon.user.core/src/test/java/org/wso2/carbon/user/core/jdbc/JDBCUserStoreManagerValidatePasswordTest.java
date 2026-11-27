@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2026, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2026, WSO2 LLC. (https://www.wso2.com).
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
- *
  * You may obtain a copy of the License at
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -110,8 +110,9 @@ public class JDBCUserStoreManagerValidatePasswordTest {
      */
     private String legacyStoredHash() throws Exception {
 
-        String storedHash = new PasswordHashProcessor(config(LEGACY_ALGORITHM, null))
-                .hashPassword(PASSWORD, SALT);
+        Map<String, String> config = config(LEGACY_ALGORITHM, null);
+        config.remove(ENABLE_SELF_DESCRIBING_PASSWORD_HASH);
+        String storedHash = new PasswordHashProcessor(config).hashPassword(PASSWORD, SALT);
         Assert.assertFalse(storedHash.startsWith("{"),
                 "A hash produced by the MessageDigest path must carry no algorithm identifier.");
         return storedHash;
@@ -217,6 +218,27 @@ public class JDBCUserStoreManagerValidatePasswordTest {
         Field processorField = JDBCUserStoreManager.class.getDeclaredField("passwordHashProcessor");
         processorField.setAccessible(true);
         processorField.set(userStoreManager, new PasswordHashProcessor(config));
+
+        String storedHash = "{SSHA}" + PASSWORD + ":" + SALT;
+        Assert.assertTrue(userStoreManager.validatePassword(PASSWORD, storedHash, SALT));
+        Assert.assertFalse(userStoreManager.validatePassword(WRONG_PASSWORD, storedHash, SALT));
+    }
+
+    @Test
+    public void testOverriddenPreparePasswordIsHonouredWhileFormatIsOn() throws Exception {
+
+        // The processor can't verify a subclass's own scheme, so it falls back to the override.
+        JDBCUserStoreManager userStoreManager = new JDBCUserStoreManager() {
+            @Override
+            protected String preparePassword(Object password, String saltValue) {
+
+                return "{SSHA}" + password + ":" + saltValue;
+            }
+        };
+        Field processorField = JDBCUserStoreManager.class.getDeclaredField("passwordHashProcessor");
+        processorField.setAccessible(true);
+        processorField.set(userStoreManager,
+                new PasswordHashProcessor(config(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM)));
 
         String storedHash = "{SSHA}" + PASSWORD + ":" + SALT;
         Assert.assertTrue(userStoreManager.validatePassword(PASSWORD, storedHash, SALT));

@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2026, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2026, WSO2 LLC. (https://www.wso2.com).
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
- *
  * You may obtain a copy of the License at
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -56,6 +56,8 @@ import java.util.Set;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PASSWORD_HASH_DIGEST_FUNCTION;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.LEGACY_PASSWORD_HASH_DIGEST_FUNCTION;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.ENABLE_SELF_DESCRIBING_PASSWORD_HASH;
+import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PROPERTY_READ_ONLY;
+import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PASSWORD_HASH_ALGORITHM_PROPERTIES;
 
 /**
  * Tests {@link JDBCUserStoreManager#migratePasswordHash(Connection, String, Object, String, String)} against a
@@ -73,6 +75,7 @@ public class JDBCUserStoreManagerMigrationTest {
     private static final String LEGACY_ALGORITHM = "SHA-256";
     private static final String PLUGGABLE_ALGORITHM = "MIGRATIONTESTALG";
     private static final String SUPERSEDED_ALGORITHM = "MIGRATIONTESTOLDALG";
+    private static final String ROUNDS = "rounds";
 
     private static final Timestamp CHANGED_TIME = Timestamp.valueOf("2020-01-02 03:04:05");
 
@@ -263,6 +266,19 @@ public class JDBCUserStoreManagerMigrationTest {
     }
 
     @Test
+    public void testLegacyHashIsRewrittenToAMessageDigestAlgorithm() throws Exception {
+
+        String storedHash = insertUser(legacyHash());
+        JDBCUserStoreManager userStoreManager = userStoreManager("SHA-512", LEGACY_ALGORITHM, "true");
+
+        migrate(userStoreManager, USER_NAME, PASSWORD, storedHash, SALT);
+
+        Assert.assertTrue(storedPassword().startsWith("{\"algorithm\":\"SHA-512\""),
+                "A legacy hash must be rewritten to a MessageDigest algorithm as well.");
+        Assert.assertTrue(userStoreManager.validatePassword(PASSWORD, storedPassword(), SALT));
+    }
+
+    @Test
     public void testRewrittenHashStillVerifies() throws Exception {
 
         String storedHash = insertUser(legacyHash());
@@ -273,6 +289,50 @@ public class JDBCUserStoreManagerMigrationTest {
 
         Assert.assertTrue(userStoreManager.validatePassword(PASSWORD, storedPassword(), SALT),
                 "The user must still authenticate with the same password after the rewrite.");
+    }
+
+    @Test
+    public void testHashWithChangedParametersIsRewritten() throws Exception {
+
+        String storedHash = insertUser(hashWithRounds("1"));
+        JDBCUserStoreManager userStoreManager = userStoreManagerWithRounds("2");
+
+        migrate(userStoreManager, USER_NAME, PASSWORD, storedHash, SALT);
+
+        Assert.assertEquals(storedPassword(), hashWithRounds("2"),
+                "A hash with changed parameters must be rewritten with the configured ones.");
+        Assert.assertTrue(userStoreManager.validatePassword(PASSWORD, storedPassword(), SALT));
+    }
+
+    @Test
+    public void testHashWithTheConfiguredParametersIsLeftAlone() throws Exception {
+
+        String storedHash = insertUser(hashWithRounds("2"));
+        JDBCUserStoreManager userStoreManager = userStoreManagerWithRounds("2");
+
+        migrate(userStoreManager, USER_NAME, PASSWORD, storedHash, SALT);
+
+        Assert.assertEquals(storedPassword(), storedHash,
+                "A hash with the configured algorithm and parameters must not be rewritten.");
+    }
+
+    private String hashWithRounds(String rounds) throws Exception {
+
+        Map<String, String> config = new HashMap<>();
+        config.put(PASSWORD_HASH_DIGEST_FUNCTION, PLUGGABLE_ALGORITHM);
+        config.put(PASSWORD_HASH_ALGORITHM_PROPERTIES, "{\"" + ROUNDS + "\":\"" + rounds + "\"}");
+        config.put(ENABLE_SELF_DESCRIBING_PASSWORD_HASH, "true");
+        return new PasswordHashProcessor(config).hashPassword(PASSWORD, SALT);
+    }
+
+    private JDBCUserStoreManager userStoreManagerWithRounds(String rounds) throws Exception {
+
+        JDBCUserStoreManager userStoreManager = userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, "true");
+        Map<String, String> properties = userStoreManager.getRealmConfiguration().getUserStoreProperties();
+        properties.put(PASSWORD_HASH_ALGORITHM_PROPERTIES, "{\"" + ROUNDS + "\":\"" + rounds + "\"}");
+        setField(userStoreManager, JDBCUserStoreManager.class, "passwordHashProcessor",
+                new PasswordHashProcessor(properties));
+        return userStoreManager;
     }
 
     @Test
@@ -356,12 +416,11 @@ public class JDBCUserStoreManagerMigrationTest {
     @Test
     public void testRewriteStopsWhenTheSelfDescribingFormatIsOff() throws Exception {
 
-        // The upgrade property is left at its default of true, so only the format being off can
-        // stop the rewrite. With it off the configured algorithm produces no identifier, so there is
-        // nothing to rewrite to.
+        // The upgrade is turned on, so only the format being off can stop the rewrite. With it off the
+        // configured algorithm produces no identifier, so there is nothing to rewrite to.
         String storedHash = insertUser(legacyHash());
         JDBCUserStoreManager userStoreManager =
-                userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, null, false, "false");
+                userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, "true", false, "false");
 
         migrate(userStoreManager, USER_NAME, PASSWORD, storedHash, SALT);
 
@@ -376,7 +435,7 @@ public class JDBCUserStoreManagerMigrationTest {
         // second time on every sign-in just to find that out.
         String storedHash = insertUser(legacyHash());
         JDBCUserStoreManager userStoreManager = Mockito.spy(
-                userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, null, false, "false"));
+                userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, "true", false, "false"));
 
         migrate(userStoreManager, USER_NAME, PASSWORD, storedHash, SALT);
 
@@ -401,16 +460,43 @@ public class JDBCUserStoreManagerMigrationTest {
     }
 
     @Test
-    public void testUpgradeAppliesWhenThePropertyIsNotConfigured() throws Exception {
+    public void testUncheckedExceptionDoesNotFailTheSignIn() throws Exception {
 
-        // The property declares a default of true, so a user store that never set it still upgrades.
+        String storedHash = insertUser(legacyHash());
+        JDBCUserStoreManager userStoreManager = Mockito.spy(
+                userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, "true"));
+        Mockito.doThrow(new IllegalStateException("broken override")).when(userStoreManager)
+                .preparePassword((Object) Mockito.any(), Mockito.any());
+
+        migrate(userStoreManager, USER_NAME, PASSWORD, storedHash, SALT);
+
+        Assert.assertEquals(storedPassword(), storedHash, "A failed rewrite must leave the stored hash unchanged.");
+    }
+
+    @Test
+    public void testReadOnlyUserStoreIsNotRewritten() throws Exception {
+
+        String storedHash = insertUser(legacyHash());
+        JDBCUserStoreManager userStoreManager =
+                userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, "true");
+        userStoreManager.getRealmConfiguration().getUserStoreProperties().put(PROPERTY_READ_ONLY, "true");
+
+        migrate(userStoreManager, USER_NAME, PASSWORD, storedHash, SALT);
+
+        Assert.assertEquals(storedPassword(), storedHash, "A read-only user store must not be rewritten.");
+    }
+
+    @Test
+    public void testUpgradeIsSkippedWhenThePropertyIsNotConfigured() throws Exception {
+
+        // The property defaults to false, so a user store that never set it is not rewritten.
         String storedHash = insertUser(legacyHash());
         JDBCUserStoreManager userStoreManager = userStoreManager(PLUGGABLE_ALGORITHM, LEGACY_ALGORITHM, null);
 
         migrate(userStoreManager, USER_NAME, PASSWORD, storedHash, SALT);
 
-        Assert.assertTrue(storedPassword().startsWith("{\"algorithm\":\"" + PLUGGABLE_ALGORITHM + "\""),
-                "An unset upgrade property must behave as the declared default of true.");
+        Assert.assertEquals(storedPassword(), storedHash,
+                "An unset upgrade property must behave as the declared default of false.");
     }
 
     @Test
@@ -544,10 +630,12 @@ public class JDBCUserStoreManagerMigrationTest {
     private static class TestHashProvider implements HashProvider {
 
         private final String algorithm;
+        private final Object rounds;
 
-        TestHashProvider(String algorithm) {
+        TestHashProvider(String algorithm, Object rounds) {
 
             this.algorithm = algorithm;
+            this.rounds = rounds;
         }
 
         @Override
@@ -564,8 +652,8 @@ public class JDBCUserStoreManagerMigrationTest {
         public byte[] calculateHash(char[] plainText, String salt) throws HashProviderException {
 
             try {
-                return MessageDigest.getInstance("SHA-256").digest((algorithm + new String(plainText)
-                        + (salt == null ? "" : salt)).getBytes(StandardCharsets.UTF_8));
+                return MessageDigest.getInstance("SHA-256").digest((algorithm + (rounds == null ? "" : rounds)
+                        + new String(plainText) + (salt == null ? "" : salt)).getBytes(StandardCharsets.UTF_8));
             } catch (NoSuchAlgorithmException e) {
                 throw new HashProviderException("Could not calculate the test hash.", e);
             }
@@ -574,7 +662,7 @@ public class JDBCUserStoreManagerMigrationTest {
         @Override
         public Map<String, Object> getParameters() {
 
-            return Collections.emptyMap();
+            return rounds == null ? Collections.emptyMap() : Collections.singletonMap(ROUNDS, rounds);
         }
 
         @Override
@@ -596,19 +684,19 @@ public class JDBCUserStoreManagerMigrationTest {
         @Override
         public HashProvider getHashProvider() {
 
-            return new TestHashProvider(algorithm);
+            return new TestHashProvider(algorithm, null);
         }
 
         @Override
         public HashProvider getHashProvider(Map<String, Object> initProperties) {
 
-            return new TestHashProvider(algorithm);
+            return new TestHashProvider(algorithm, initProperties.get(ROUNDS));
         }
 
         @Override
         public Set<String> getHashProviderConfigProperties() {
 
-            return Collections.emptySet();
+            return Collections.singleton(ROUNDS);
         }
 
         @Override

@@ -22,6 +22,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.apache.axiom.om.util.Base64;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.user.core.exceptions.HashProviderException;
 import org.wso2.carbon.user.core.exceptions.PasswordHashingClientException;
 import org.wso2.carbon.user.core.exceptions.PasswordHashingException;
@@ -30,6 +32,7 @@ import org.wso2.carbon.user.core.internal.UserStoreMgtDataHolder;
 import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -42,6 +45,7 @@ import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.PASSWORD_H
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.LEGACY_PASSWORD_HASH_DIGEST_FUNCTION;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.LEGACY_PASSWORD_HASH_ALGORITHM_PROPERTIES;
 import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.ENABLE_SELF_DESCRIBING_PASSWORD_HASH;
+import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.ENABLE_PASSWORD_HASH_UPGRADE;
 
 /**
  * Class responsible for hashing passwords based on the configured algorithm.
@@ -53,10 +57,13 @@ import static org.wso2.carbon.user.core.UserCoreConstants.RealmConfig.ENABLE_SEL
  */
 public class PasswordHashProcessor {
 
+    private static final Log log = LogFactory.getLog(PasswordHashProcessor.class);
+
     private final HashProvider hashProvider;
     private final HashProvider legacyHashProvider;
     private final Map<String, String> hashConfigProperties;
     private final boolean selfDescribingHashEnabled;
+    private final boolean passwordHashUpgradeEnabled;
 
     /**
      * Constructs a PasswordHashProcessor instance using the provided hashing configuration properties.
@@ -76,6 +83,9 @@ public class PasswordHashProcessor {
         // alike, so the two need no separate handling.
         this.selfDescribingHashEnabled =
                 Boolean.parseBoolean(hashConfigProperties.get(ENABLE_SELF_DESCRIBING_PASSWORD_HASH));
+        // Off unless configured, so hashes are only rewritten while an admin has turned the migration on.
+        this.passwordHashUpgradeEnabled =
+                Boolean.parseBoolean(hashConfigProperties.get(ENABLE_PASSWORD_HASH_UPGRADE));
 
         String digestFunction = hashConfigProperties.get(PASSWORD_HASH_DIGEST_FUNCTION);
         String legacyDigestFunction = resolveLegacyDigestFunction(digestFunction);
@@ -153,6 +163,34 @@ public class PasswordHashProcessor {
     }
 
     /**
+     * Indicates whether verified hashes are rewritten into the configured algorithm on sign-in.
+     *
+     * @return True if the password hash upgrade is enabled.
+     */
+    public boolean isPasswordHashUpgradeEnabled() {
+
+        return passwordHashUpgradeEnabled;
+    }
+
+    /**
+     * Returns the parameters of the configured hash provider as strings, the form in which they are stored.
+     *
+     * @return The configured parameters, empty when there is no provider.
+     */
+    public Map<String, Object> getHashParameters() {
+
+        Map<String, Object> parameters = new HashMap<>();
+        if (hashProvider != null && hashProvider.getParameters() != null) {
+            for (Map.Entry<String, Object> parameter : hashProvider.getParameters().entrySet()) {
+                if (parameter.getValue() != null) {
+                    parameters.put(parameter.getKey(), String.valueOf(parameter.getValue()));
+                }
+            }
+        }
+        return parameters;
+    }
+
+    /**
      * Hashes the given password using the configured hashing algorithm and optional salt.
      * <p>
      * If a pluggable {@link HashProvider} is configured, it will be used. Otherwise,
@@ -173,7 +211,12 @@ public class PasswordHashProcessor {
                 return new String(credentialObj.getChars());
             }
             if (hashProvider == null) {
-                return hashWithMessageDigest(credentialObj, saltValue, digestFunction);
+                String hash = hashWithMessageDigest(credentialObj, saltValue, digestFunction);
+                // A MessageDigest hash names its algorithm too, so it isn't mistaken for a legacy one.
+                if (selfDescribingHashEnabled && !PASSWORD_HASH_METHOD_PLAIN_TEXT.equals(digestFunction)) {
+                    return SelfDescribingHashParser.format(digestFunction, hash);
+                }
+                return hash;
             } else {
                 return hashWithProvider(credentialObj, saltValue);
             }
@@ -373,9 +416,39 @@ public class PasswordHashProcessor {
 
         HashProvider provider = resolveProviderForAlgorithm(parseResult.getAlgorithm(), parseResult.getProperties());
         if (provider == null) {
-            return false;
+            // No provider by this name, so it may be a MessageDigest algorithm such as SHA-512.
+            return validateWithMessageDigest(credentialObj, parseResult, saltValue);
         }
         return validateWithProvider(provider, credentialObj, parseResult.getPayload(), saltValue);
+    }
+
+    /**
+     * Validates a password against a self-describing hash produced by a {@link MessageDigest} algorithm.
+     *
+     * @param credentialObj Secret-wrapped password object.
+     * @param parseResult   The parsed stored hash.
+     * @param saltValue     Optional salt value used during hashing.
+     * @return True if the password is valid, false otherwise or if the algorithm is unknown.
+     */
+    private boolean validateWithMessageDigest(Secret credentialObj, SelfDescribingHashParser.ParseResult parseResult,
+                                              String saltValue) {
+
+        String algorithm = parseResult.getAlgorithm();
+        // PLAIN_TEXT is not a hash, so a stored value naming it must never verify.
+        if (PASSWORD_HASH_METHOD_PLAIN_TEXT.equals(algorithm)) {
+            return false;
+        }
+        try {
+            String hash = hashWithMessageDigest(credentialObj, saltValue, algorithm);
+            return MessageDigest.isEqual(hash.getBytes(StandardCharsets.UTF_8),
+                    parseResult.getPayload().getBytes(StandardCharsets.UTF_8));
+        } catch (PasswordHashingClientException e) {
+            // An unknown algorithm fails rather than falling back to the legacy one.
+            if (log.isDebugEnabled()) {
+                log.debug("Unknown hashing algorithm in the stored password hash: " + algorithm, e);
+            }
+            return false;
+        }
     }
 
     /**
